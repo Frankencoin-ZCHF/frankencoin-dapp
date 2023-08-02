@@ -30,8 +30,8 @@ export const formatDecimals = (value: string) => {
   return string;
 };
 
-export const formatCommify = (amount: string) => {
-  const formatted = formatDecimals(amount);
+export const formatCommify = (amount: string | bigint) => {
+  const formatted = formatDecimals(amount.toString());
 
   return commify(formatted)
 };
