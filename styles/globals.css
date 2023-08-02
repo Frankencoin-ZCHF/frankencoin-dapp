@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .btn {
+    @apply inline-flex whitespace-nowrap justify-center items-center gap-3 cursor-pointer rounded-lg select-none ease-in duration-200 border border-transparent
+  }
+
+  .btn-nav {
+    @apply bg-gray-200 hover:bg-neutral-200 px-5 py-5 md:px-3 md:py-3
+  }
+
+  .btn-secondary {
+    @apply text-black border-black hover:bg-neutral-200
+  }
+}
+
+body {
+  @apply bg-gray-100 antialiased overflow-y-scroll;
+}
+
+.text-link,
+p > a {
+  text-decoration: underline;
+
+  @apply transition-opacity duration-200 ease-out;
+  @apply hover:opacity-70;
+}
+
+* {
+  @apply outline-neutral-200;
+}
+
+p + * {
+  @apply mt-4;
+}
+
+::selection {
+  @apply bg-neutral-200;
+}
+
+svg#preloader {
+  width: 240px;
+  height: 120px;
+}
+
+svg #plug,
+svg #socket {
+  fill: #4f46e5;
+}
+
+svg #loop-normal {
+  fill: none;
+  stroke: #4f46e5;
+  stroke-width: 12;
+}
+
+svg #loop-offset {
+  display: none;
+}

@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { ReactNode } from "react";
-// import Navbar from "./Navbar";
+import Navbar from "./Navbar";
 // import Footer from "./Footer";
 
 type LayoutProps = {
@@ -14,7 +14,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <title>FrankenCoin - Home</title>
       </Head>
       <main className="block">
-        {/* <Navbar /> */}
+        <Navbar />
         {children}
         {/* <Footer /> */}
       </main>

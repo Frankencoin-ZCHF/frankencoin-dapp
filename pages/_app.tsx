@@ -1,38 +1,30 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import {
-  DAppProvider,
-  Config,
-  MetamaskConnector,
-  CoinbaseWalletConnector,
-  Chain,
-  Mainnet,
-  Hardhat,
-} from "@usedapp/core";
 import { NextSeo } from "next-seo";
-import { WalletConnectConnector } from "@usedapp/wallet-connect-connector";
 import Layout from "../components/Layout";
+import { createPublicClient, http } from 'viem'
+import {
+  EthereumClient,
+  w3mConnectors,
+  w3mProvider,
+} from "@web3modal/ethereum";
+import { mainnet, hardhat } from 'wagmi/chains'
+import { configureChains, createConfig, WagmiConfig } from "wagmi";
+import { Web3Modal } from "@web3modal/react";
 
-const config: Config = {
-  readOnlyChainId: Mainnet.chainId,
-  readOnlyUrls: {
-    [Hardhat.chainId]: Hardhat.rpcUrl!,
-    [Mainnet.chainId]: "https://zksync2-testnet.zksync.dev",
-  },
-  networks: [Hardhat, Mainnet],
-  connectors: {
-    metamask: new MetamaskConnector(),
-    coinbase: new CoinbaseWalletConnector(),
-    walletConnect: new WalletConnectConnector({
-      infuraId: "2920e698d02f40ca8724daa8a19a91e7",
-    }),
-  },
-  multicallAddresses: "0x3b545BF3A4f9C3e3dAc4B9DD05b6702e2CfF79e7",
-};
+const chains = [hardhat, mainnet]
+const projectId = '75da506ed9c39c840e6c5a5180014870'
+const { publicClient } = configureChains(chains, [w3mProvider({ projectId })]);
+const wagmiConfig = createConfig({
+  autoConnect: true,
+  connectors: w3mConnectors({ chains, projectId }),
+  publicClient,
+});
+const ethereumClient = new EthereumClient(wagmiConfig, chains);
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <DAppProvider config={config}>
+    <WagmiConfig config={wagmiConfig} >
       <NextSeo
         title="FrankenCoin"
         description="The Frankencoin is a collateralized, oracle-free stablecoin that tracks the value of the Swiss franc."
@@ -58,7 +50,7 @@ export default function App({ Component, pageProps }: AppProps) {
         additionalLinkTags={[
           {
             rel: "icon",
-            href: "/logo.svg",
+            href: "/favicon.ico",
             type: "image/png",
           },
         ]}
@@ -67,6 +59,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <Layout>
         <Component {...pageProps} />
       </Layout>
-    </DAppProvider>
+      <Web3Modal projectId={projectId} ethereumClient={ethereumClient} />
+    </WagmiConfig>
   );
 }

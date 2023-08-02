@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
-import Logo from "../components/Logo";
+// import Logo from "../components/Logo";
 import { SOCIAL } from "../utils";
 
 export default function Custom404() {
@@ -14,7 +14,7 @@ export default function Custom404() {
         className="flex flex-col items-center justify-center w-full"
         style={{ height: "60vh" }}
       >
-        <Logo />
+        {/* <Logo /> */}
         <h1 className="text-4xl font-bold mt-10">
           You seem to be in the wrong place
         </h1>
