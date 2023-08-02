@@ -9,6 +9,7 @@ import { useContractUrl } from "../hooks/useContractUrl";
 import { Address } from "../contracts/address";
 import { useChainId } from "wagmi";
 import { shortenAddress } from "../utils";
+import AppPageHeader from "../components/AppPageHeader";
 // import { prettifiedBigNumber, roundedNumber } from "../data/utils";
 // import Loading from "../components/Loading";
 
@@ -27,7 +28,9 @@ export default function Home() {
         <section className="mt-16 grid items-center gap-20 align-middle lg:grid-cols-5">
           <div className="lg:col-span-3">
             <h1 className="mb-12 text-right text-4xl font-bold">
-              <img src="/assets/logo.svg" />
+              <picture>
+                <img src="/assets/logo.svg" alt="logo" />
+              </picture>
             </h1>
 
             <p className="text-lg font-bold">
@@ -55,7 +58,9 @@ export default function Home() {
           </div>
 
           <div className="lg:col-span-2">
-            <img className="m-auto max-w-lg" src="/assets/logoSquare.svg" />
+            <picture>
+              <img className="m-auto max-w-lg" src="/assets/logoSquare.svg" alt="logo" />
+            </picture>
           </div>
         </section>
         <section className="m-auto flex flex-col gap-2">
@@ -218,6 +223,81 @@ export default function Home() {
                 </Link>
               </div>
             </div>
+          </div>
+
+          <hr className="my-12" />
+          <h2 className="text-2xl font-bold">Stablecoin Conversion</h2>
+          <p>
+            Bridge contracts allow to convert other Swiss Franc stablecoins 1:1 into
+            Frankencoins and also back again as long as there are some left. The
+            deposited stablecoins are kept in the bridge until another user wants to
+            convert ZCHF back into the resprective stablecoin. For now, the only
+            bridge is the one to the&nbsp;
+            <a href="https://www.bitcoinsuisse.com/cryptofranc" target="_blank" rel="noreferrer">
+              Crypto Franc (XCHF)
+            </a>.
+          </p>
+
+          <Link href="/swap">
+            <h3 className="text-xl font-bold">CryptoFranc (XCHF)</h3>
+          </Link>
+
+          <div className="grid gap-1 lg:grid-cols-3">
+            <div className="grid gap-1 sm:grid-cols-2 lg:col-span-2">
+              <AppBox>
+                <DisplayLabel label="Bridge Balance">
+                  <DisplayAmount
+                    amount={homestats.xchfBridgeBal}
+                    currency={homestats.xchfSymbol}
+                    big
+                  />
+                </DisplayLabel>
+              </AppBox>
+
+              <AppBox>
+                <DisplayLabel label="Your Balance">
+                  <DisplayAmount
+                    amount={homestats.xchfUserBal}
+                    currency={homestats.xchfSymbol}
+                    big
+                  />
+                </DisplayLabel>
+              </AppBox>
+            </div>
+            <div className="flex flex-col items-center justify-center py-8">
+              <div className="flex flex-col gap-2">
+                <h3 className="font-bold">Inspect contract</h3>
+                <Link className="btn btn-secondary px-3 py-2" href={frankenLink} target="_blank">
+                  {shortenAddress(Address[chainId].bridge)}
+                </Link>
+              </div>
+            </div>
+          </div>
+
+
+          <hr className="my-12" />
+
+          <h2 className="text-2xl font-bold">Collateralized Positions</h2>
+          <p>
+            Collateralized minting positions allow their owner to mint ZCHF against a
+            collateral. Anyone can open new collateral positions and start minting
+            ZCHF once the initialization period has passed. Positions that are not
+            sufficiently collateralized can be challenged by anyone through an auction
+            mechanism. When challenging a position, the challenger must provide some
+            of the collateral to be auctioned off. If the highest bid in the
+            subsequent auction is high enough to show that the position is
+            sufficiently collateralized, the challenge is averted and the bidder gets
+            the challengers collateral in exchange for the highest bid. If the highest
+            bid is lower, the challenge is considered successful, the bidder gets the
+            collateral from the position and the position is closed, distributing
+            excess proceeds to the reserve and paying a reward to the challenger.
+          </p>
+
+          <div className="mx-auto my-8 flex w-auto flex-col items-center justify-center">
+            <AppPageHeader title="Minting Hub" />
+            <Link className="btn btn-secondary px-3 py-2" href={frankenLink} target="_blank">
+              {shortenAddress(Address[chainId].mintingHub)}
+            </Link>
           </div>
         </section >
       </main >

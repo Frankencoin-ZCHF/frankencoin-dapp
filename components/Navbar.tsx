@@ -9,7 +9,7 @@ export default function Navbar() {
       <header className="flex items-center py-2 sm:gap-x-4 md:py-4">
         <AppButton className="-mr-3 md:-mr-4 md:hidden" icon="/icons/menu.svg" />
 
-        <Link className="xl:-ml-12" href="/">
+        <Link className="" href="/">
           <picture>
             <img className="h-9 transition" src="/assets/logoSquare.svg" alt="Logo" />
           </picture>
