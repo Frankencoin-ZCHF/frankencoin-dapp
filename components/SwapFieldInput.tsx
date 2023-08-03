@@ -49,7 +49,7 @@ export default function SwapFieldInput({
         {isConnected && symbol &&
           <div
             className={`flex gap-2 items-center cursor-pointer underline ${hideMaxLabel && 'hidden'}`}
-            onClick={() => onChange!((max / BigInt(1e18)).toString())}
+            onClick={() => onChange && onChange((max / BigInt(1e18)).toString())}
           >
             <AppIcon src="/assets/wallet.svg" size="small" />
             {commify(formatUnits(max, 18))} {symbol}
@@ -64,11 +64,11 @@ export default function SwapFieldInput({
               className="px-3 py-2 font-bold transition-opacity"
             >{output}</div>
             :
-            <div className="flex gap-1 rounded-lg bg-neutral-100 p-1">
+            <div className={`flex gap-1 rounded-lg bg-neutral-100 p-1 ${error && 'bg-red-300'}`}>
               <input
                 type="number"
                 inputMode="decimal"
-                className={`w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg ${error && 'text-pink-500'} text-pink-500`}
+                className={`w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg`}
                 placeholder={placeholder}
                 value={value}
                 onChange={(e) => onChange!(e.target.value)}

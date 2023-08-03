@@ -6,7 +6,7 @@ import DisplayAmount from "../components/DisplayAmount";
 import { useHomeStats } from "../hooks";
 import Link from "next/link";
 import { useContractUrl } from "../hooks/useContractUrl";
-import { Address } from "../contracts/address";
+import { ADDRESS } from "../contracts/address";
 import { useChainId } from "wagmi";
 import { shortenAddress } from "../utils";
 import AppPageHeader from "../components/AppPageHeader";
@@ -16,7 +16,7 @@ import AppPageHeader from "../components/AppPageHeader";
 export default function Home() {
   const chainId = useChainId();
   const homestats = useHomeStats();
-  const frankenLink = useContractUrl(Address[chainId].frankenCoin);
+  const frankenLink = useContractUrl(ADDRESS[chainId].frankenCoin);
 
   return (
     <>
@@ -131,7 +131,7 @@ export default function Home() {
               <div className="flex flex-col gap-2">
                 <h3 className="font-bold">Inspect contract</h3>
                 <Link className="btn btn-secondary px-3 py-2" href={frankenLink} target="_blank">
-                  {shortenAddress(Address[chainId].frankenCoin)}
+                  {shortenAddress(ADDRESS[chainId].frankenCoin)}
                 </Link>
               </div>
             </div>
@@ -219,7 +219,7 @@ export default function Home() {
               <div className="flex flex-col gap-2">
                 <h3 className="font-bold">Inspect contract</h3>
                 <Link className="btn btn-secondary px-3 py-2" href={frankenLink} target="_blank">
-                  {shortenAddress(Address[chainId].equity)}
+                  {shortenAddress(ADDRESS[chainId].equity)}
                 </Link>
               </div>
             </div>
@@ -268,7 +268,7 @@ export default function Home() {
               <div className="flex flex-col gap-2">
                 <h3 className="font-bold">Inspect contract</h3>
                 <Link className="btn btn-secondary px-3 py-2" href={frankenLink} target="_blank">
-                  {shortenAddress(Address[chainId].bridge)}
+                  {shortenAddress(ADDRESS[chainId].bridge)}
                 </Link>
               </div>
             </div>
@@ -296,7 +296,7 @@ export default function Home() {
           <div className="mx-auto my-8 flex w-auto flex-col items-center justify-center">
             <AppPageHeader title="Minting Hub" />
             <Link className="btn btn-secondary px-3 py-2" href={frankenLink} target="_blank">
-              {shortenAddress(Address[chainId].mintingHub)}
+              {shortenAddress(ADDRESS[chainId].mintingHub)}
             </Link>
           </div>
         </section >

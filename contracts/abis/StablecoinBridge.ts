@@ -1,4 +1,4 @@
-[
+export const StablecoinBridgeABI = [
     {
         "inputs": [
             {
@@ -163,4 +163,4 @@
         "stateMutability": "view",
         "type": "function"
     }
-]
+] as const;

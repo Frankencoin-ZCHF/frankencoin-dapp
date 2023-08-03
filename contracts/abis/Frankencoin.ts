@@ -1,4 +1,4 @@
-[
+export const FrankenCoinABI = [
     {
         "inputs": [
             {
@@ -910,4 +910,4 @@
         "stateMutability": "nonpayable",
         "type": "function"
     }
-]
+] as const;

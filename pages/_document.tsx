@@ -6,7 +6,7 @@ export default function Document() {
       <Head>
       </Head>
 
-      <body className="font-sans px-8 max-w-screen-2xl container-xl mx-auto bg-zinc-900">
+      <body className="font-sans px-8 max-w-screen-2xl container-xl mx-auto">
         <Main />
         <NextScript />
       </body>

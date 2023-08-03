@@ -1,4 +1,4 @@
-[
+export const EquityABI = [
     {
         "inputs": [
             {
@@ -769,4 +769,4 @@
         "stateMutability": "view",
         "type": "function"
     }
-]
+] as const;

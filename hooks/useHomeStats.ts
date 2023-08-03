@@ -1,97 +1,101 @@
-import { erc20ABI, useAccount, useChainId, useContractRead, useContractReads, useToken } from "wagmi";
-import { Address } from "../contracts/address";
+import { erc20ABI, useAccount, useChainId, useContractRead, useContractReads } from "wagmi";
+import { ADDRESS } from "../contracts/address";
 import { ABIS } from "../contracts/abis";
-import { ethers } from "ethers";
+import { decodeBigIntCall } from "../utils";
 
 export const useHomeStats = () => {
   const chainId = useChainId();
   const { address } = useAccount();
+
+  const frankenContract = {
+    address: ADDRESS[chainId].frankenCoin,
+    abi: ABIS.FrankenCoinABI
+  } as const;
+
+  const xchfContract = {
+    address: ADDRESS[chainId].xchf,
+    abi: erc20ABI,
+  }
+
+  const equityContract = {
+    address: ADDRESS[chainId].equity,
+    abi: ABIS.EquityABI,
+  }
+
+  const account = address || '0x0';
 
   // Fetch all blockchain stats in one web3 call using multicall
   const { data, isError, isLoading } = useContractReads({
     contracts: [
       // FrankenCoin Calls
       {
-        address: Address[chainId].frankenCoin,
-        abi: ABIS.FrankenCoinABI,
+        ...frankenContract,
         functionName: 'totalSupply'
       }, {
-        address: Address[chainId].frankenCoin,
-        abi: ABIS.FrankenCoinABI,
+        ...frankenContract,
         functionName: 'symbol'
       }, {
-        address: Address[chainId].frankenCoin,
-        abi: ABIS.FrankenCoinABI,
+        ...frankenContract,
         functionName: 'balanceOf',
-        args: [address || ethers.ZeroAddress]
+        args: [account]
       }, {
-        address: Address[chainId].frankenCoin,
-        abi: ABIS.FrankenCoinABI,
+        ...frankenContract,
         functionName: 'equity',
       }, {
-        address: Address[chainId].frankenCoin,
-        abi: ABIS.FrankenCoinABI,
+        ...frankenContract,
         functionName: 'minterReserve',
       },
       // XCHF Calls
       {
-        address: Address[chainId].xchf,
-        abi: erc20ABI,
+        ...xchfContract,
         functionName: 'balanceOf',
-        args: [address || ethers.ZeroAddress]
+        args: [account]
       }, {
-        address: Address[chainId].xchf,
-        abi: erc20ABI,
+        ...xchfContract,
         functionName: 'balanceOf',
-        args: [Address[chainId].bridge]
+        args: [ADDRESS[chainId].bridge]
       }, {
-        address: Address[chainId].xchf,
-        abi: erc20ABI,
+        ...xchfContract,
         functionName: 'symbol',
       },
       // Equity Calls
       {
-        address: Address[chainId].equity,
-        abi: ABIS.EquityABI,
+        ...equityContract,
         functionName: 'price',
       }, {
-        address: Address[chainId].equity,
-        abi: ABIS.EquityABI,
+        ...equityContract,
         functionName: 'totalSupply',
       }, {
-        address: Address[chainId].equity,
-        abi: ABIS.EquityABI,
+        ...equityContract,
         functionName: 'balanceOf',
-        args: [address || ethers.ZeroAddress]
+        args: [account]
       }, {
-        address: Address[chainId].equity,
-        abi: ABIS.EquityABI,
+        ...equityContract,
         functionName: 'totalVotes',
       }, {
-        address: Address[chainId].equity,
-        abi: ABIS.EquityABI,
+        ...equityContract,
         functionName: 'votes',
-        args: [address || ethers.ZeroAddress]
+        args: [account]
       },
     ]
   })
 
-  const frankenTotalSupply: bigint = data ? BigInt(String(data[0].result)) : BigInt(0);
+  const frankenTotalSupply: bigint = data ? decodeBigIntCall(data[0]) : BigInt(0);
   const frankenSymbol: string = data ? String(data[1].result) : '';
-  const frankenBalance: bigint = data ? BigInt(String(data[2].result)) : BigInt(0);
-  const frankenEquity: bigint = data ? BigInt(String(data[3].result)) : BigInt(0);
-  const frankenMinterReserve: bigint = data ? BigInt(String(data[4].result)) : BigInt(0);
+  const frankenBalance: bigint = data ? decodeBigIntCall(data[2]) : BigInt(0);
+  const frankenEquity: bigint = data ? decodeBigIntCall(data[3]) : BigInt(0);
+  const frankenMinterReserve: bigint = data ? decodeBigIntCall(data[4]) : BigInt(0);
 
-  const xchfUserBal: bigint = data ? BigInt(String(data[5].result)) : BigInt(0);
-  const xchfBridgeBal: bigint = data ? BigInt(String(data[6].result)) : BigInt(0);
+  const xchfUserBal: bigint = data ? decodeBigIntCall(data[5]) : BigInt(0);
+  const xchfBridgeBal: bigint = data ? decodeBigIntCall(data[6]) : BigInt(0);
   const xchfSymbol: string = data ? String(data[7].result) : '';
 
-  const equityPrice: bigint = data ? BigInt(String(data[8].result)) : BigInt(0);
-  const equityTotalSupply: bigint = data ? BigInt(String(data[9].result)) : BigInt(0);
+  const equityPrice: bigint = data ? decodeBigIntCall(data[8]) : BigInt(0);
+  const equityTotalSupply: bigint = data ? decodeBigIntCall(data[9]) : BigInt(0);
   const equityMarketCap: bigint = equityPrice * equityTotalSupply / BigInt(1e18);
-  const equityBalance: bigint = data ? BigInt(String(data[10].result)) : BigInt(0);
-  const equityTotalVotes: bigint = data ? BigInt(String(data[11].result)) : BigInt(0);
-  const equityUserVotes: bigint = data ? BigInt(String(data[12].result)) : BigInt(0);
+  const equityBalance: bigint = data ? decodeBigIntCall(data[10]) : BigInt(0);
+  const equityTotalVotes: bigint = data ? decodeBigIntCall(data[11]) : BigInt(0);
+  const equityUserVotes: bigint = data ? decodeBigIntCall(data[12]) : BigInt(0);
 
   return {
     frankenTotalSupply,

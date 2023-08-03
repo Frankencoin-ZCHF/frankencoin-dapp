@@ -11,6 +11,10 @@
     @apply bg-gray-200 hover:bg-neutral-200 px-5 py-5 md:px-3 md:py-3
   }
 
+  .btn-primary {
+    @apply text-white bg-black hover:opacity-60
+  }
+
   .btn-secondary {
     @apply text-black border-black hover:bg-neutral-200
   }

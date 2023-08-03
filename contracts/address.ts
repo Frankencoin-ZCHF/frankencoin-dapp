@@ -1,6 +1,15 @@
+import { Address } from "viem";
 import { hardhat, mainnet } from "wagmi/chains";
 
-export const Address: Record<number, any> = {
+export interface ProtocolAddress {
+  frankenCoin: Address
+  bridge: Address
+  xchf: Address
+  equity: Address
+  mintingHub: Address
+}
+
+export const ADDRESS: Record<number, ProtocolAddress> = {
   [hardhat.id]: {
     frankenCoin: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
     bridge: '0x0165878A594ca255338adfa4d48449f69242Eb8F',

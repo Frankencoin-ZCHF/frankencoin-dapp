@@ -1,7 +1,9 @@
-import FrankenCoinABI from "./Frankencoin.json";
-import EquityABI from "./Equity.json"
+import { FrankenCoinABI } from "./Frankencoin";
+import { EquityABI } from "./Equity"
+import { StablecoinBridgeABI } from "./StablecoinBridge"
 
 export const ABIS = {
   FrankenCoinABI,
-  EquityABI
+  EquityABI,
+  StablecoinBridgeABI,
 }

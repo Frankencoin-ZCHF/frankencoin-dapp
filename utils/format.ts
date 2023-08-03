@@ -40,11 +40,21 @@ export const shortenString = (str: string) => {
   return str.substring(0, 6) + '...' + str.substring(str.length - 4)
 }
 
-export function shortenAddress(address: string): string {
+export const shortenAddress = (address: string): string => {
   try {
     const formattedAddress = getAddress(address)
     return shortenString(formattedAddress)
   } catch {
     throw new TypeError("Invalid input, address can't be parsed")
   }
+}
+
+export const decodeBigIntCall = (data: any): bigint => {
+  if (data.error) return 0n;
+  else return BigInt(String(data.result));
+}
+
+export const decodeStringCall = (data: any): string => {
+  if (data.error) return '';
+  else return String(data.result);
 }
