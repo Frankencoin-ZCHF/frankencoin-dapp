@@ -1,4 +1,4 @@
-[
+export const PositionABI = [
     {
         "inputs": [
             {
@@ -774,4 +774,4 @@
         "stateMutability": "view",
         "type": "function"
     }
-]
+] as const;

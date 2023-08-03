@@ -21,7 +21,7 @@ export default function Custom404() {
         <p className="text-2xl font-bold mt-4">
           <Link
             href={SOCIAL.Telegram}
-            className="mr-4 hover:underline md:mr-6 text-indigo-400"
+            className="mr-4 hover:underline md:mr-6 text-rose-500"
             target="_blank"
             rel="noopener noreferrer"
           >

@@ -1,6 +1,6 @@
 import { commify } from '@ethersproject/units';
 import { ethers } from 'ethers';
-import { getAddress } from 'viem';
+import { Address, getAddress } from 'viem';
 
 export const formatCurrency = (value: string, digits = 2) => {
   const amount = parseFloat(value);
@@ -40,7 +40,7 @@ export const shortenString = (str: string) => {
   return str.substring(0, 6) + '...' + str.substring(str.length - 4)
 }
 
-export const shortenAddress = (address: string): string => {
+export const shortenAddress = (address: Address): string => {
   try {
     const formattedAddress = getAddress(address)
     return shortenString(formattedAddress)
@@ -50,11 +50,16 @@ export const shortenAddress = (address: string): string => {
 }
 
 export const decodeBigIntCall = (data: any): bigint => {
-  if (data.error) return 0n;
+  if (data.error || !data.result) return 0n;
   else return BigInt(String(data.result));
 }
 
 export const decodeStringCall = (data: any): string => {
   if (data.error) return '';
   else return String(data.result);
+}
+
+export const formatDate = (timestamp: number | bigint): string => {
+  const date = new Date(Number(timestamp) * 1000);
+  return date.toISOString().split('T')[0]
 }

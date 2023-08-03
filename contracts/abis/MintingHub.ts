@@ -1,4 +1,4 @@
-[
+export const MintingHubABI = [
     {
         "inputs": [
             {
@@ -144,6 +144,43 @@
             }
         ],
         "name": "NewBid",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "position",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "zchf",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "collateral",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "price",
+                "type": "uint256"
+            }
+        ],
+        "name": "PositionOpened",
         "type": "event"
     },
     {
@@ -449,6 +486,11 @@
             },
             {
                 "internalType": "uint256",
+                "name": "_initPeriodSeconds",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
                 "name": "_expirationSeconds",
                 "type": "uint256"
             },
@@ -508,11 +550,6 @@
             },
             {
                 "internalType": "uint256",
-                "name": "_initPeriodSeconds",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
                 "name": "_expirationSeconds",
                 "type": "uint256"
             },
@@ -537,7 +574,7 @@
                 "type": "uint32"
             }
         ],
-        "name": "openPosition",
+        "name": "openPositionOneWeek",
         "outputs": [
             {
                 "internalType": "address",
@@ -627,4 +664,4 @@
         "stateMutability": "view",
         "type": "function"
     }
-]
+] as const;
