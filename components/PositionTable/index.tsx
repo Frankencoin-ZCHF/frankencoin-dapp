@@ -26,7 +26,7 @@ export default function PositionTable({
         log.args.owner == address :
         log.args.owner != address
       ).map(log => log.args.position || '0x0'))
-      unwatch?.()
+      // unwatch?.()
     }
   })
 

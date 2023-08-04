@@ -18,6 +18,10 @@
   .btn-secondary {
     @apply text-black border-black hover:bg-neutral-200
   }
+
+  .btn-small {
+    @apply text-sm px-2 py-1 md:px-3 md:py-1
+  }
 }
 
 body {

@@ -47,7 +47,7 @@ export default function PositionRow({
           </div>
         </div>
         <div className="flex-shrink-0 md:w-40">
-          <Link href={`/position/${position}`} className="btn btn-primary px-2 py-1 md:px-3 md:py-1 text-sm w-full">Details</Link>
+          <Link href={`/position/${position}`} className="btn btn-primary btn-small w-full">Details</Link>
         </div>
       </div>
     </div>

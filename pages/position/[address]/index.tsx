@@ -11,6 +11,7 @@ import { useContractUrl } from "../../../hooks/useContractUrl";
 import { usePositionStats } from "../../../hooks";
 import { useAccount, useChainId, useContractRead } from "wagmi";
 import { ABIS, ADDRESS } from "../../../contracts";
+import ChallengeTable from "../../../components/ChallengeTable";
 
 export default function PositionDetail() {
   const router = useRouter();
@@ -30,7 +31,6 @@ export default function PositionDetail() {
     args: [positionStats.minted, Number(positionStats.reserveContribution)],
     enabled: positionStats.isSuccess
   })
-  console.log(positionAssignedReserve, positionStats)
 
   return (
     <>
@@ -113,6 +113,13 @@ export default function PositionDetail() {
               </div>
             </AppBox>
           </div>
+          <AppPageHeader title="Open Challenges" className="mt-8" />
+          <ChallengeTable
+            position={position}
+            positionPrice={positionStats.liqPrice}
+            collateralDecimal={positionStats.collateralDecimal}
+            collateralSymbol={positionStats.collateralSymbol}
+          />
         </section>
       </div>
     </>

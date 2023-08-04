@@ -11,7 +11,7 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
     address: position,
     abi: ABIS.PositionABI,
     functionName: 'collateral',
-    enabled: !collateral
+    enabled: !collateral && position != zeroAddress
   })
 
   if (!collateral && collateralData) {

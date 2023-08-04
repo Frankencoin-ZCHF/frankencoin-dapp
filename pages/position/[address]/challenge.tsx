@@ -39,6 +39,7 @@ export default function PositionChallenge() {
     abi: ABIS.MintingHubABI,
     functionName: 'launchChallenge',
   })
+  // TODO: Check self challenge
 
   return (
     <>
