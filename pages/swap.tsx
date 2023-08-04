@@ -16,7 +16,7 @@ export default function Swap() {
 
   const chainId = useChainId()
   const swapStats = useSwapStats()
-  const { isLoading: approveStablecoinLoading, isIdle: approveIdle, write: approveStableCoin } = useContractWrite({
+  const { isLoading: approveStablecoinLoading, write: approveStableCoin } = useContractWrite({
     address: ADDRESS[chainId].xchf,
     abi: erc20ABI,
     functionName: 'approve',

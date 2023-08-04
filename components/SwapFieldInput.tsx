@@ -71,7 +71,7 @@ export default function SwapFieldInput({
                 className={`w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg`}
                 placeholder={placeholder}
                 value={value}
-                onChange={(e) => onChange!(e.target.value)}
+                onChange={(e) => onChange?.(e.target.value)}
               />
             </div>
           }

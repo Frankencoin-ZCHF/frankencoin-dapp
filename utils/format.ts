@@ -1,6 +1,11 @@
 import { commify } from '@ethersproject/units';
-import { ethers } from 'ethers';
-import { Address, getAddress } from 'viem';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { Address, formatUnits, getAddress } from 'viem';
+
+dayjs.extend(duration)
+dayjs.extend(relativeTime)
 
 export const formatCurrency = (value: string, digits = 2) => {
   const amount = parseFloat(value);
@@ -36,6 +41,10 @@ export const formatCommify = (amount: string | bigint) => {
   return commify(formatted)
 };
 
+export const formatNumber = (amount: bigint, decimals: number = 18) => {
+  return commify(formatUnits(amount, decimals));
+}
+
 export const shortenString = (str: string) => {
   return str.substring(0, 6) + '...' + str.substring(str.length - 4)
 }
@@ -60,6 +69,15 @@ export const decodeStringCall = (data: any): string => {
 }
 
 export const formatDate = (timestamp: number | bigint): string => {
-  const date = new Date(Number(timestamp) * 1000);
-  return date.toISOString().split('T')[0]
+  const date = dayjs(Number(timestamp) * 1000)
+  return date.format('YYYY-MM-DD')
+}
+
+export const formatDuration = (timestamp: number | bigint): string => {
+  console.log(timestamp)
+  const duration = dayjs
+    .duration(Number(timestamp), 'seconds')
+    .humanize(false)
+
+  return timestamp > 0 ? duration : '-';
 }

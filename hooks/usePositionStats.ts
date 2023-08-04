@@ -1,9 +1,11 @@
-import { Address, erc20ABI, useContractRead, useContractReads } from "wagmi"
+import { Address, erc20ABI, useAccount, useChainId, useContractRead, useContractReads } from "wagmi"
 import { decodeBigIntCall } from "../utils"
-import { ABIS } from "../contracts"
+import { ABIS, ADDRESS } from "../contracts"
 import { getAddress, zeroAddress } from "viem"
 
 export const usePositionStats = (position: Address, collateral?: Address) => {
+  const { address } = useAccount()
+  const chainId = useChainId()
 
   const { data: collateralData } = useContractRead({
     address: position,
@@ -32,6 +34,16 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
         address: collateral,
         abi: erc20ABI,
         functionName: 'symbol',
+      }, {
+        address: collateral,
+        abi: erc20ABI,
+        functionName: 'balanceOf',
+        args: [address || zeroAddress]
+      }, {
+        address: collateral,
+        abi: erc20ABI,
+        functionName: 'allowance',
+        args: [address || zeroAddress, ADDRESS[chainId].mintingHub]
       },
       // Position Calls
       {
@@ -62,29 +74,40 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
         address: position,
         abi: ABIS.PositionABI,
         functionName: 'calculateCurrentFee'
+      }, {
+        address: position,
+        abi: ABIS.PositionABI,
+        functionName: 'challengePeriod'
       }
-    ]
+    ],
+    watch: true,
   })
 
   const collateralBal = data ? decodeBigIntCall(data[0]) : BigInt(0);
   const collateralDecimal = data ? Number(data[1].result || 0) : 0;
   const collateralSymbol = data ? String(data[2].result) : '';
+  const collateralUserBal = data ? decodeBigIntCall(data[3]) : BigInt(0);
+  const collateralAllowance = data ? decodeBigIntCall(data[4]) : BigInt(0);
 
-  const liqPrice = data ? decodeBigIntCall(data[3]) : BigInt(0);
-  const expiration = data ? decodeBigIntCall(data[4]) : BigInt(0);
-  const limit = data ? decodeBigIntCall(data[5]) : BigInt(0);
-  const minted = data ? decodeBigIntCall(data[6]) : BigInt(0);
+  const liqPrice = data ? decodeBigIntCall(data[5]) : BigInt(0);
+  const expiration = data ? decodeBigIntCall(data[6]) : BigInt(0);
+  const limit = data ? decodeBigIntCall(data[7]) : BigInt(0);
+  const minted = data ? decodeBigIntCall(data[8]) : BigInt(0);
   const available = limit - minted;
-  const reserveContribution = data ? decodeBigIntCall(data[7]) : BigInt(0);
-  const owner = getAddress(data ? String(data[8].result) : zeroAddress);
-  const mintingFee = data ? decodeBigIntCall(data[9]) : BigInt(0);
+  const reserveContribution = data ? decodeBigIntCall(data[9]) : BigInt(0);
+  const owner = getAddress(data ? String(data[10].result) : zeroAddress);
+  const mintingFee = data ? decodeBigIntCall(data[11]) : BigInt(0);
+  const challengePeriod = data ? decodeBigIntCall(data[12]) : BigInt(0);
 
   return {
     isSuccess,
 
+    collateral,
     collateralBal,
     collateralDecimal,
     collateralSymbol,
+    collateralUserBal,
+    collateralAllowance,
 
     owner,
     liqPrice,
@@ -93,6 +116,7 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
     minted,
     available,
     reserveContribution,
-    mintingFee
+    mintingFee,
+    challengePeriod,
   }
 }

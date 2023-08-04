@@ -1,16 +1,16 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import AppPageHeader from "../../components/AppPageHeader";
-import AppBox from "../../components/AppBox";
-import DisplayLabel from "../../components/DisplayLabel";
-import DisplayAmount from "../../components/DisplayAmount";
-import { formatDate, shortenAddress } from "../../utils";
+import AppPageHeader from "../../../components/AppPageHeader";
+import AppBox from "../../../components/AppBox";
+import DisplayLabel from "../../../components/DisplayLabel";
+import DisplayAmount from "../../../components/DisplayAmount";
+import { formatDate, shortenAddress } from "../../../utils";
 import { getAddress, zeroAddress } from "viem";
-import { useContractUrl } from "../../hooks/useContractUrl";
-import { usePositionStats } from "../../hooks";
+import { useContractUrl } from "../../../hooks/useContractUrl";
+import { usePositionStats } from "../../../hooks";
 import { useAccount, useChainId, useContractRead } from "wagmi";
-import { ABIS, ADDRESS } from "../../contracts";
+import { ABIS, ADDRESS } from "../../../contracts";
 
 export default function PositionDetail() {
   const router = useRouter();
@@ -105,8 +105,8 @@ export default function PositionDetail() {
                     <Link href={''} className="btn btn-primary w-full">Adjust</Link>
                     :
                     <div className="flex flex-col gap-y-4">
-                      <Link href={''} className="btn btn-primary w-full">Borrow</Link>
-                      <Link href={''} className="btn btn-primary w-full">Challenge</Link>
+                      <Link href={`/position/${position}/borrow`} className="btn btn-primary w-full">Borrow</Link>
+                      <Link href={`/position/${position}/challenge`} className="btn btn-primary w-full">Challenge</Link>
                     </div>
                   }
                 </div>
