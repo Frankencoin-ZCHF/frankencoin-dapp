@@ -78,6 +78,18 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
         address: position,
         abi: ABIS.PositionABI,
         functionName: 'challengePeriod'
+      },
+      // FrankenCoin Calls
+      {
+        address: ADDRESS[chainId].frankenCoin,
+        abi: erc20ABI,
+        functionName: 'allowance',
+        args: [address || zeroAddress, ADDRESS[chainId].mintingHub]
+      }, {
+        address: ADDRESS[chainId].frankenCoin,
+        abi: erc20ABI,
+        functionName: 'balanceOf',
+        args: [address || zeroAddress]
       }
     ],
     watch: true,
@@ -99,6 +111,9 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
   const mintingFee = data ? decodeBigIntCall(data[11]) : BigInt(0);
   const challengePeriod = data ? decodeBigIntCall(data[12]) : BigInt(0);
 
+  const frankenAllowance = data ? decodeBigIntCall(data[13]) : BigInt(0);
+  const frankenBalance = data ? decodeBigIntCall(data[14]) : BigInt(0);
+
   return {
     isSuccess,
 
@@ -118,5 +133,8 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
     reserveContribution,
     mintingFee,
     challengePeriod,
+
+    frankenAllowance,
+    frankenBalance,
   }
 }

@@ -74,10 +74,14 @@ export const formatDate = (timestamp: number | bigint): string => {
 }
 
 export const formatDuration = (timestamp: number | bigint): string => {
-  console.log(timestamp)
   const duration = dayjs
     .duration(Number(timestamp), 'seconds')
     .humanize(false)
 
   return timestamp > 0 ? duration : '-';
+}
+
+export const isDateExpired = (timestamp: number | bigint): boolean => {
+  const date = dayjs(Number(timestamp) * 1000);
+  return date.isBefore();
 }

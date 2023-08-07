@@ -99,13 +99,13 @@ export default function Swap() {
                   variant="primary"
                   isLoading={mintLoading}
                   onClick={() => mintStableCoin({ args: [amount] })}
-                >Confirm</Button>
+                >Swap</Button>
               :
               <Button
                 variant="primary"
                 isLoading={burnLoading}
                 onClick={() => burnStableCoin({ args: [amount] })}
-              >Confirm</Button>
+              >Swap</Button>
             }
           </div>
         </AppBox>

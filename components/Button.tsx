@@ -17,7 +17,8 @@ export default function Button({
   className,
   onClick,
   isLoading,
-  children
+  children,
+  disabled
 }: Props) {
 
   const variantClass: 'btn-primary' | 'btn-secondary' | 'btn-small' = `btn-${variant}`
@@ -25,8 +26,8 @@ export default function Button({
 
   return (
     <button
-      className={`btn w-full ${className} ${sizeClass} ${variantClass}`}
-      onClick={onClick}
+      className={`btn w-full ${className} ${sizeClass} ${variantClass} ${disabled && 'cursor-not-allowed bg-gray-500'}`}
+      onClick={() => !disabled && onClick?.()}
     >
       {isLoading && <LoadingSpin />}
       {children}

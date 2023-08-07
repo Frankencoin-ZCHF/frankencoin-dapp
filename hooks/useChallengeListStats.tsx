@@ -10,7 +10,17 @@ interface ChallengeEvent {
   index: bigint
 }
 
-export const useChallengeListStats = (position: Address) => {
+export interface Challenge {
+  position: Address
+  challenger: Address
+  size: bigint
+  index: bigint
+  bid: bigint
+  bidder: Address
+  end: bigint
+}
+
+export const useChallengeListStats = (position: Address): Challenge[] => {
   const chainId = useChainId()
   const [logs, setLogs] = useState<ChallengeEvent[]>([])
   const unwatch = useContractEvent({
@@ -42,8 +52,6 @@ export const useChallengeListStats = (position: Address) => {
     enabled: logs.length > 0,
     watch: true
   })
-
-  console.log(logs, data)
 
   const challengsData: any[] = [];
   if (data) {

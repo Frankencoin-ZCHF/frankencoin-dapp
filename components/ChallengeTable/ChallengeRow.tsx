@@ -1,7 +1,7 @@
 import { Address } from "viem";
 import DisplayAmount from "../DisplayAmount";
 import Link from "next/link";
-import { shortenAddress } from "../../utils";
+import { formatDate, isDateExpired, shortenAddress } from "../../utils";
 import { useContractUrl } from "../../hooks/useContractUrl";
 import dayjs from "dayjs";
 import Button from "../Button";
@@ -34,8 +34,8 @@ export default function ChallengeRow({
   const ratio = bid / challengeSize;
   const buyNowPrice = positionPrice * challengeSize
   const ownerUrl = useContractUrl(challenger)
-  const endDate = dayjs(Number(end) * 1000)
-  const isExpired = endDate.isBefore()
+  const endDate = formatDate(end)
+  const isExpired = isDateExpired(end)
 
   const chainId = useChainId()
   const { isLoading: endLoading, write: endChallenge } = useContractWrite({
@@ -96,7 +96,7 @@ export default function ChallengeRow({
                 <span className="font-bold">{isExpired ? 'Expired' : 'Active'}</span>
                 <span className="text-sm">
                   {!isExpired && 'Expires '}
-                  {endDate.format('YYYY-MM-DD')}
+                  {endDate}
                 </span>
               </div>
             </div>
@@ -112,7 +112,7 @@ export default function ChallengeRow({
             :
             <Link
               className="btn btn-primary btn-small w-full"
-              href={`/position/${position}/bid`}
+              href={`/position/${position}/bid/${index}`}
             >Bid</Link>
           }
         </div>
