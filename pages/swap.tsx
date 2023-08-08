@@ -4,34 +4,50 @@ import AppBox from "../components/AppBox";
 import SwapFieldInput from "../components/SwapFieldInput";
 import { useState } from "react";
 import { useSwapStats } from "../hooks";
-import { formatEther, formatUnits, parseEther, parseUnits } from "viem";
+import { Hash, formatUnits, parseUnits, zeroAddress } from "viem";
 import Button from "../components/Button";
-import { erc20ABI, useChainId, useContractWrite } from "wagmi";
+import { erc20ABI, useChainId, useContractWrite, useWaitForTransaction } from "wagmi";
 import { ABIS, ADDRESS } from "../contracts";
 
 export default function Swap() {
   const [amount, setAmount] = useState(0n)
   const [error, setError] = useState(false);
   const [direction, setDirection] = useState(true)
+  const [pendingTx, setPendingTx] = useState<Hash>(zeroAddress);
 
   const chainId = useChainId()
   const swapStats = useSwapStats()
-  const { isLoading: approveStablecoinLoading, write: approveStableCoin } = useContractWrite({
+  const { isLoading: approveStablecoinLoading, writeAsync: approveStableCoin } = useContractWrite({
     address: ADDRESS[chainId].xchf,
     abi: erc20ABI,
     functionName: 'approve',
+    onSuccess(data) {
+      setPendingTx(data.hash)
+    }
   })
   const { isLoading: mintLoading, write: mintStableCoin } = useContractWrite({
     address: ADDRESS[chainId].bridge,
     abi: ABIS.StablecoinBridgeABI,
     functionName: 'mint',
+    onSuccess(data) {
+      setPendingTx(data.hash)
+    }
   })
   const { isLoading: burnLoading, write: burnStableCoin } = useContractWrite({
     address: ADDRESS[chainId].bridge,
     abi: ABIS.StablecoinBridgeABI,
     functionName: 'burn',
+    onSuccess(data) {
+      setPendingTx(data.hash)
+    }
   })
-
+  const { isLoading: isConfirming } = useWaitForTransaction({
+    hash: pendingTx,
+    enabled: pendingTx != zeroAddress,
+    onSuccess(data) {
+      setPendingTx(zeroAddress);
+    }
+  })
 
   const fromBalance = direction ? swapStats.xchfUserBal : swapStats.frankenUserBal;
   const toBalance = !direction ? swapStats.xchfUserBal : swapStats.frankenUserBal;
@@ -91,19 +107,21 @@ export default function Swap() {
               amount > swapStats.xchfUserAllowance ?
                 <Button
                   variant="secondary"
-                  isLoading={approveStablecoinLoading}
+                  isLoading={approveStablecoinLoading || isConfirming}
                   onClick={() => approveStableCoin({ args: [ADDRESS[chainId].bridge, amount] })}
                 >Approve</Button>
                 :
                 <Button
                   variant="primary"
-                  isLoading={mintLoading}
+                  disabled={amount == 0n}
+                  isLoading={mintLoading || isConfirming}
                   onClick={() => mintStableCoin({ args: [amount] })}
                 >Swap</Button>
               :
               <Button
                 variant="primary"
-                isLoading={burnLoading}
+                isLoading={burnLoading || isConfirming}
+                disabled={amount == 0n}
                 onClick={() => burnStableCoin({ args: [amount] })}
               >Swap</Button>
             }

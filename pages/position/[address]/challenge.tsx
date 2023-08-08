@@ -21,7 +21,6 @@ export default function PositionChallenge() {
   const chainId = useChainId()
   const position = getAddress(String(address || zeroAddress))
   const positionStats = usePositionStats(position)
-  console.log(positionStats.collateralAllowance)
 
   const onChangeAmount = (value: string) => {
     const valueBigInt = parseUnits(value, positionStats.collateralDecimal);

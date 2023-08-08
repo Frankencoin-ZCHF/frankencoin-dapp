@@ -2,17 +2,16 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { NextSeo } from "next-seo";
 import Layout from "../components/Layout";
-import { createPublicClient, http } from 'viem'
 import {
   EthereumClient,
   w3mConnectors,
   w3mProvider,
 } from "@web3modal/ethereum";
-import { mainnet, hardhat } from 'wagmi/chains'
+import { mainnet, hardhat, sepolia } from 'wagmi/chains'
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { Web3Modal } from "@web3modal/react";
 
-const chains = [hardhat, mainnet]
+const chains = [mainnet, sepolia, hardhat]
 const projectId = '75da506ed9c39c840e6c5a5180014870'
 const { publicClient } = configureChains(chains, [w3mProvider({ projectId })]);
 const wagmiConfig = createConfig({
