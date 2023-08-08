@@ -102,7 +102,7 @@ export default function PositionDetail() {
                 </div>
                 <div className="mx-auto w-72 max-w-full flex-col">
                   {positionStats.owner == account ?
-                    <Link href={''} className="btn btn-primary w-full">Adjust</Link>
+                    <Link href={`/position/${position}/adjust`} className="btn btn-primary w-full">Adjust</Link>
                     :
                     <div className="flex flex-col gap-y-4">
                       <Link href={`/position/${position}/borrow`} className="btn btn-primary w-full">Borrow</Link>

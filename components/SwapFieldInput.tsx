@@ -3,7 +3,6 @@ import AppIcon from "./AppIcon";
 import { commify } from "@ethersproject/units";
 import { formatUnits } from "viem";
 import DisplayAmount from "./DisplayAmount";
-import { useState } from "react";
 
 interface Props {
   label?: string
@@ -11,6 +10,7 @@ interface Props {
   placeholder?: string
   fromWallet?: boolean
   max?: bigint
+  digit?: bigint | number
   hideMaxLabel?: boolean
   limit?: bigint
   limitLabel?: string,
@@ -27,6 +27,7 @@ export default function SwapFieldInput({
   placeholder = 'Input Amount',
   symbol,
   max = 0n,
+  digit = 18n,
   fromWallet = true,
   hideMaxLabel,
   limit = 0n,
@@ -49,7 +50,7 @@ export default function SwapFieldInput({
         {isConnected && symbol &&
           <div
             className={`flex gap-2 items-center cursor-pointer underline ${hideMaxLabel && 'hidden'}`}
-            onClick={() => onChange && onChange((max / BigInt(1e18)).toString())}
+            onClick={() => onChange && onChange(formatUnits(max, Number(digit)))}
           >
             <AppIcon src="/assets/wallet.svg" size="small" />
             {commify(formatUnits(max, 18))} {symbol}

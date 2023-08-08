@@ -10,6 +10,7 @@ export interface Challenge {
   bid: bigint
   bidder: Address
   end: bigint
+  status: string
 }
 
 export const useChallengeListStats = (challenges: ChallengeQuery[]): Challenge[] => {
@@ -42,6 +43,7 @@ export const useChallengeListStats = (challenges: ChallengeQuery[]): Challenge[]
         bid,
         bidder,
         end,
+        status: challenges[i].status
       })
     })
   }

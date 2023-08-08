@@ -25,7 +25,10 @@ export const useChallengeLists = (position: Address) => {
         bid
         status
       }
-    }`
+    }`,
+    {
+      fetchPolicy: 'no-cache'
+    }
   )
 
   const challenges: ChallengeQuery[] = [];

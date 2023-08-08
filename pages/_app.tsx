@@ -5,9 +5,8 @@ import Layout from "../components/Layout";
 import {
   EthereumClient,
   w3mConnectors,
-  w3mProvider,
 } from "@web3modal/ethereum";
-import { mainnet, hardhat, sepolia } from 'wagmi/chains'
+import { mainnet, sepolia } from 'wagmi/chains'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { Web3Modal } from "@web3modal/react";
