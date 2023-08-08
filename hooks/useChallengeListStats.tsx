@@ -1,17 +1,9 @@
-import { Address, zeroAddress } from "viem";
-import { useChainId, useContractEvent, useContractReads } from "wagmi";
-import { useState } from "react";
+import { Address } from "viem";
+import { useChainId, useContractReads } from "wagmi";
 import { ABIS, ADDRESS } from "../contracts";
-import { decodeBigIntCall } from "../utils";
-
-interface ChallengeEvent {
-  challenger: Address
-  size: bigint
-  index: bigint
-}
+import { ChallengeQuery } from "./useChallengeList";
 
 export interface Challenge {
-  position: Address
   challenger: Address
   size: bigint
   index: bigint
@@ -20,36 +12,19 @@ export interface Challenge {
   end: bigint
 }
 
-export const useChallengeListStats = (position: Address): Challenge[] => {
+export const useChallengeListStats = (challenges: ChallengeQuery[]): Challenge[] => {
   const chainId = useChainId()
-  const [logs, setLogs] = useState<ChallengeEvent[]>([])
-  const unwatch = useContractEvent({
-    address: ADDRESS[chainId].mintingHub,
-    abi: ABIS.MintingHubABI,
-    eventName: 'ChallengeStarted',
-    listener(logs) {
-      setLogs(logs.filter(log => log.args.position === position)
-        .map(log => {
-          return {
-            challenger: log.args.challenger || zeroAddress,
-            size: log.args.size || 0n,
-            index: log.args.number || 0n
-          }
-        }))
-      // unwatch?.()
-    }
-  })
 
   const { data } = useContractReads({
-    contracts: logs.map(log => {
+    contracts: challenges.map(challenge => {
       return {
         address: ADDRESS[chainId].mintingHub,
         abi: ABIS.MintingHubABI,
         functionName: 'challenges',
-        args: [log.index]
+        args: [challenge.number]
       }
     }),
-    enabled: logs.length > 0,
+    enabled: challenges.length > 0,
     watch: true
   })
 
@@ -61,18 +36,15 @@ export const useChallengeListStats = (position: Address): Challenge[] => {
       const bidder = result[4]
       const bid = BigInt(result[5])
       challengsData.push({
-        position,
-        challenger: logs[i].challenger,
-        size: logs[i].size,
-        index: logs[i].index,
+        challenger: challenges[i].challenger,
+        size: challenges[i].size,
+        index: challenges[i].number,
         bid,
         bidder,
         end,
       })
     })
   }
-
-  console.log(challengsData)
 
   return challengsData;
 }

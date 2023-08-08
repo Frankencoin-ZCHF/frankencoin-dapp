@@ -2,6 +2,8 @@ export * from './useContracts';
 export * from './useChainId';
 export * from './useHomeStats';
 export * from './useSwapStats';
+export * from './usePositionLists';
 export * from './usePositionListStats';
 export * from './usePositionStats';
+export * from './useChallengeList';
 export * from './useChallengeListStats';

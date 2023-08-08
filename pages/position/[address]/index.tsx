@@ -87,15 +87,15 @@ export default function PositionDetail() {
                   </DisplayLabel>
                   <DisplayLabel label="Reserve Requirement">
                     <DisplayAmount
-                      amount={positionStats.reserveContribution / 10_000n}
-                      digits={0}
+                      amount={positionStats.reserveContribution / 100n}
+                      digits={2}
                       currency={"%"}
                     />
                   </DisplayLabel>
                   <DisplayLabel label="Minting Fee">
                     <DisplayAmount
-                      amount={positionStats.mintingFee / 10_000n}
-                      digits={0}
+                      amount={positionStats.mintingFee / 100n}
+                      digits={2}
                       currency={"%"}
                     />
                   </DisplayLabel>

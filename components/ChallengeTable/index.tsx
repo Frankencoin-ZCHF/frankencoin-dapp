@@ -1,6 +1,6 @@
 import { Address, zeroAddress } from "viem";
 import ChallengeRow from "./ChallengeRow";
-import { useChallengeListStats } from "../../hooks";
+import { useChallengeListStats, useChallengeLists } from "../../hooks";
 
 interface Props {
   position: Address
@@ -15,7 +15,8 @@ export default function ChallengeTable({
   collateralDecimal,
   collateralSymbol,
 }: Props) {
-  const challengeStats = useChallengeListStats(position)
+  const challenges = useChallengeLists(position)
+  const challengeStats = useChallengeListStats(challenges)
 
   return (
     <section>

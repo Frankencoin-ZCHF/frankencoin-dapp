@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import AppBox from "../../../../components/AppBox";
 import SwapFieldInput from "../../../../components/SwapFieldInput";
 import { useState } from "react";
-import { useChallengeListStats, usePositionStats } from "../../../../hooks";
+import { useChallengeListStats, useChallengeLists, usePositionStats } from "../../../../hooks";
 import { formatUnits, getAddress, parseUnits, zeroAddress } from "viem";
 import DisplayAmount from "../../../../components/DisplayAmount";
 import { formatDate, formatDuration, isDateExpired, shortenAddress } from "../../../../utils";
@@ -23,7 +23,9 @@ export default function ChallengePlaceBid({ }) {
   const challengeIndex = parseInt(String(index) || '0');
 
   const chainId = useChainId()
-  const challengeStats = useChallengeListStats(position)
+
+  const challenges = useChallengeLists(position)
+  const challengeStats = useChallengeListStats(challenges)
   const positionStats = usePositionStats(position);
   const matchingChallenges = challengeStats.filter(challenge => Number(challenge.index) == challengeIndex);
   const challenge = matchingChallenges.length > 0 ? matchingChallenges[0] : undefined;
@@ -31,7 +33,7 @@ export default function ChallengePlaceBid({ }) {
   const bidderUrl = useContractUrl(challenge?.bidder || zeroAddress)
 
   const isExpired = isDateExpired(challenge?.end || 0n)
-  const bidRatio = challenge ? amount / challenge.size : 0n;
+  const bidRatio = challenge ? (amount * BigInt(1e18)) / challenge.size : 0n;
   const buyNowPrice = positionStats.liqPrice * (challenge?.size || 0n);
 
   const onChangeAmount = (value: string) => {
@@ -51,8 +53,6 @@ export default function ChallengePlaceBid({ }) {
     abi: ABIS.MintingHubABI,
     functionName: 'bid',
   })
-
-  console.log(challengeStats, positionStats)
 
   return (
     <>
@@ -76,7 +76,7 @@ export default function ChallengePlaceBid({ }) {
                 />
                 <div className="flex flex-col gap-1">
                   <span>
-                    1 {positionStats.collateralSymbol} = {bidRatio.toString()} ZCHF
+                    1 {positionStats.collateralSymbol} = {formatUnits(bidRatio, 18)} ZCHF
                   </span>
                   <span className="text-sm">
                     If there is a higher bid your ZCHF go back to your wallet.
@@ -144,7 +144,7 @@ export default function ChallengePlaceBid({ }) {
                 :
                 <Button
                   variant="primary"
-                  disabled={isExpired}
+                  disabled={isExpired || amount == 0n}
                   isLoading={bidLoading}
                   onClick={() => placeBid({
                     args: [

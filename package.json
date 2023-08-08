@@ -15,6 +15,7 @@
     "typechain:generate": "yarn typechain --target=ethers-v5 ./contracts/abis/**/*.json --out-dir=./contracts/gen/types"
   },
   "dependencies": {
+    "@apollo/client": "^3.8.0",
     "@ethersproject/units": "^5.7.0",
     "@typechain/ethers-v5": "^10.1.1",
     "@types/node": "18.11.11",

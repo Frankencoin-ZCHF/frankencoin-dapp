@@ -31,7 +31,7 @@ export default function ChallengeRow({
   end,
   index,
 }: Props) {
-  const ratio = bid / challengeSize;
+  const ratio = bid * BigInt(1e18) / challengeSize;
   const buyNowPrice = positionPrice * challengeSize
   const ownerUrl = useContractUrl(challenger)
   const endDate = formatDate(end)
@@ -59,12 +59,12 @@ export default function ChallengeRow({
           <div>
             <div className="text-gray-400 md:hidden">Highest Bid</div>
             <DisplayAmount
-              amount={challengeSize}
+              amount={bid}
               currency={"ZCHF"}
             />
             {ratio > 0n &&
               <div className="text-sm">
-                1 ZCHF =
+                1 {collateralSymbol} = &nbsp;
                 <DisplayAmount
                   amount={ratio}
                   currency={"ZCHF"}

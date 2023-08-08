@@ -1,8 +1,7 @@
-import { Address, useAccount, useChainId, useContractEvent } from "wagmi"
-import { ABIS, ADDRESS } from "../../contracts"
-import { useState } from "react";
-import { usePositionListStats } from "../../hooks";
+import { useAccount } from "wagmi"
+import { usePositionLists } from "../../hooks";
 import PositionRow from "./PositionRow";
+import { zeroAddress } from "viem";
 
 interface Props {
   showMyPos?: boolean
@@ -12,23 +11,8 @@ export default function PositionTable({
   showMyPos
 }: Props) {
   const { address } = useAccount()
-  const chainId = useChainId();
-  const [positions, setPositions] = useState<Address[]>([]);
-  const positionStats = usePositionListStats(positions)
-
-  const unwatch = useContractEvent({
-    address: ADDRESS[chainId].mintingHub,
-    abi: ABIS.MintingHubABI,
-    eventName: 'PositionOpened',
-    listener(logs) {
-      console.log(logs)
-      setPositions(logs.filter(log => showMyPos ?
-        log.args.owner == address :
-        log.args.owner != address
-      ).map(log => log.args.position || '0x0'))
-      // unwatch?.()
-    }
-  })
+  const positions = usePositionLists()
+  const account = address || zeroAddress
 
   return (
     <section>
@@ -45,7 +29,9 @@ export default function PositionTable({
           <div className="w-40 flex-shrink-0"></div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-1 lg:gap-2">
-          {positionStats.map(pos => (
+          {positions.filter(
+            position => showMyPos ? position.owner == account : position.owner != account
+          ).map(pos => (
             <PositionRow
               position={pos.position}
               collateral={pos.collateral}
