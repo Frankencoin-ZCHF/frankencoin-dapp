@@ -46,7 +46,7 @@ export const StablecoinBridgeABI = [
                 "type": "uint256"
             }
         ],
-        "name": "burn",
+        "name": "burnFrom",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -93,11 +93,6 @@ export const StablecoinBridgeABI = [
     {
         "inputs": [
             {
-                "internalType": "address",
-                "name": "target",
-                "type": "address"
-            },
-            {
                 "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256"
@@ -111,12 +106,17 @@ export const StablecoinBridgeABI = [
     {
         "inputs": [
             {
+                "internalType": "address",
+                "name": "target",
+                "type": "address"
+            },
+            {
                 "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256"
             }
         ],
-        "name": "mint",
+        "name": "mintTo",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"

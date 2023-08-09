@@ -8,7 +8,7 @@ export const MintingHubABI = [
             },
             {
                 "internalType": "address",
-                "name": "factory",
+                "name": "_factory",
                 "type": "address"
             }
         ],
@@ -361,19 +361,6 @@ export const MintingHubABI = [
                 "type": "address"
             }
         ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "_challengeNumber",
-                "type": "uint256"
-            }
-        ],
-        "name": "end",
-        "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
     },

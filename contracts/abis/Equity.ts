@@ -321,19 +321,6 @@ export const EquityABI = [
         "type": "function"
     },
     {
-        "inputs": [],
-        "name": "canRedeem",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
         "inputs": [
             {
                 "internalType": "address",
@@ -597,7 +584,7 @@ export const EquityABI = [
                 "type": "uint256"
             }
         ],
-        "name": "redeem",
+        "name": "redeemExpected",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -770,13 +757,8 @@ export const EquityABI = [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "sender",
+                "name": "holder",
                 "type": "address"
-            },
-            {
-                "internalType": "address[]",
-                "name": "helpers",
-                "type": "address[]"
             }
         ],
         "name": "votes",
@@ -794,11 +776,16 @@ export const EquityABI = [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "holder",
+                "name": "sender",
                 "type": "address"
+            },
+            {
+                "internalType": "address[]",
+                "name": "helpers",
+                "type": "address[]"
             }
         ],
-        "name": "votes",
+        "name": "votesDelegated",
         "outputs": [
             {
                 "internalType": "uint256",

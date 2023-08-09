@@ -324,24 +324,6 @@ export const FrankenCoinABI = [
     {
         "inputs": [
             {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint32",
-                "name": "reservePPM",
-                "type": "uint32"
-            }
-        ],
-        "name": "burn",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
                 "internalType": "address",
                 "name": "_owner",
                 "type": "address"
@@ -352,7 +334,7 @@ export const FrankenCoinABI = [
                 "type": "uint256"
             }
         ],
-        "name": "burn",
+        "name": "burnFrom",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -371,11 +353,11 @@ export const FrankenCoinABI = [
             },
             {
                 "internalType": "uint32",
-                "name": "_reservePPM",
+                "name": "reservePPM",
                 "type": "uint32"
             }
         ],
-        "name": "burnFrom",
+        "name": "burnFromWithReserve",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -407,6 +389,24 @@ export const FrankenCoinABI = [
                 "type": "uint256"
             }
         ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint32",
+                "name": "reservePPM",
+                "type": "uint32"
+            }
+        ],
+        "name": "burnWithourReserve",
+        "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
     },

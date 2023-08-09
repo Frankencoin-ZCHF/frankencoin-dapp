@@ -33,7 +33,7 @@ export const PositionABI = [
             },
             {
                 "internalType": "uint256",
-                "name": "initPeriod",
+                "name": "_initPeriod",
                 "type": "uint256"
             },
             {
@@ -432,19 +432,6 @@ export const PositionABI = [
     {
         "inputs": [],
         "name": "isClosed",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "isDenied",
         "outputs": [
             {
                 "internalType": "bool",
