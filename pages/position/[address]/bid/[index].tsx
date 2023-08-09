@@ -24,7 +24,7 @@ export default function ChallengePlaceBid({ }) {
 
   const chainId = useChainId()
 
-  const challenges = useChallengeLists(position)
+  const challenges = useChallengeLists({ position })
   const challengeStats = useChallengeListStats(challenges)
   const positionStats = usePositionStats(position);
   const matchingChallenges = challengeStats.filter(challenge => Number(challenge.index) == challengeIndex);

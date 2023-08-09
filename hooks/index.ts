@@ -6,4 +6,5 @@ export * from './usePositionListStats';
 export * from './usePositionStats';
 export * from './useChallengeList';
 export * from './useChallengeListStats';
+export * from './useChallengeStats';
 export * from './usePoolStats';

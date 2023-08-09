@@ -16,12 +16,10 @@ export default function PositionBorrow({ }) {
   const position = getAddress(String(address || zeroAddress))
   const positionStats = usePositionStats(position)
 
-  const requiredColl = BigInt(1e18) * amount / positionStats.liqPrice
+  const requiredColl = positionStats.liqPrice == 0n ? 0n : BigInt(1e18) * amount / positionStats.liqPrice
   const borrowersReserveContribution = positionStats.reserveContribution * amount / 1_000_000n;
   const fees = positionStats.mintingFee * amount / 1_000_000n;
   const paidOutToWallet = amount - (positionStats.reserveContribution + positionStats.mintingFee) * amount / 1_000_000n;
-
-  console.log(positionStats)
 
   const onChangeAmount = (value: string) => {
     const valueBigInt = parseUnits(value, 18);
