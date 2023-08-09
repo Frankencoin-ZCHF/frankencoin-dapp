@@ -69,65 +69,67 @@ export default function Swap() {
       <Head>
         FrankenCoin - Swap
       </Head>
-      <AppPageHeader title="Swap XCHF and ZCHF" />
-      <section className="mx-auto flex max-w-2xl flex-col gap-y-4 px-4 sm:px-8">
-        <AppBox>
-          <SwapFieldInput
-            max={fromBalance}
-            symbol={fromSymbol}
-            // limit="swapLimit"
-            limitLabel="Swap limit"
-            onChange={onChangeAmount}
-            value={formatUnits(amount, 18)}
-            error={error}
-          />
+      <div>
+        <AppPageHeader title="Swap XCHF and ZCHF" />
+        <section className="mx-auto flex max-w-2xl flex-col gap-y-4 px-4 sm:px-8">
+          <AppBox>
+            <SwapFieldInput
+              max={fromBalance}
+              symbol={fromSymbol}
+              // limit="swapLimit"
+              limitLabel="Swap limit"
+              onChange={onChangeAmount}
+              value={formatUnits(amount, 18)}
+              error={error}
+            />
 
-          <div className="py-4 text-center">
-            <button
-              className={`btn btn-secondary w-14 h-14 rounded-full transition ${direction && 'rotate-180'}`}
-              onClick={onChangeDirection}
-            >
-              <picture>
-                <img src="/assets/swap.svg" alt="Swap" />
-              </picture>
-            </button>
-          </div>
+            <div className="py-4 text-center">
+              <button
+                className={`btn btn-secondary w-14 h-14 rounded-full transition ${direction && 'rotate-180'}`}
+                onClick={onChangeDirection}
+              >
+                <picture>
+                  <img src="/assets/swap.svg" alt="Swap" />
+                </picture>
+              </button>
+            </div>
 
-          <SwapFieldInput
-            symbol={toSymbol}
-            showOutput
-            max={toBalance}
-            output={formatUnits(amount, 18)}
-            note={`1 ${fromSymbol} = 1 ${toSymbol}`}
-            label="Receive"
-          />
+            <SwapFieldInput
+              symbol={toSymbol}
+              showOutput
+              max={toBalance}
+              output={formatUnits(amount, 18)}
+              note={`1 ${fromSymbol} = 1 ${toSymbol}`}
+              label="Receive"
+            />
 
-          <div className="mx-auto mt-8 w-72 max-w-full flex-col">
-            {direction ?
-              amount > swapStats.xchfUserAllowance ?
-                <Button
-                  variant="secondary"
-                  isLoading={approveStablecoinLoading || isConfirming}
-                  onClick={() => approveStableCoin({ args: [ADDRESS[chainId].bridge, amount] })}
-                >Approve</Button>
+            <div className="mx-auto mt-8 w-72 max-w-full flex-col">
+              {direction ?
+                amount > swapStats.xchfUserAllowance ?
+                  <Button
+                    variant="secondary"
+                    isLoading={approveStablecoinLoading || isConfirming}
+                    onClick={() => approveStableCoin({ args: [ADDRESS[chainId].bridge, amount] })}
+                  >Approve</Button>
+                  :
+                  <Button
+                    variant="primary"
+                    disabled={amount == 0n}
+                    isLoading={mintLoading || isConfirming}
+                    onClick={() => mintStableCoin({ args: [amount] })}
+                  >Swap</Button>
                 :
                 <Button
                   variant="primary"
+                  isLoading={burnLoading || isConfirming}
                   disabled={amount == 0n}
-                  isLoading={mintLoading || isConfirming}
-                  onClick={() => mintStableCoin({ args: [amount] })}
+                  onClick={() => burnStableCoin({ args: [amount] })}
                 >Swap</Button>
-              :
-              <Button
-                variant="primary"
-                isLoading={burnLoading || isConfirming}
-                disabled={amount == 0n}
-                onClick={() => burnStableCoin({ args: [amount] })}
-              >Swap</Button>
-            }
-          </div>
-        </AppBox>
-      </section>
+              }
+            </div>
+          </AppBox>
+        </section>
+      </div>
     </>
   )
 }

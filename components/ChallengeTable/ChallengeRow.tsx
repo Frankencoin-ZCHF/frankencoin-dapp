@@ -3,7 +3,6 @@ import DisplayAmount from "../DisplayAmount";
 import Link from "next/link";
 import { formatDate, isDateExpired, shortenAddress } from "../../utils";
 import { useContractUrl } from "../../hooks/useContractUrl";
-import dayjs from "dayjs";
 import Button from "../Button";
 import { useChainId, useContractWrite } from "wagmi";
 import { ABIS, ADDRESS } from "../../contracts";
