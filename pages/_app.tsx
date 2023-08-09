@@ -24,7 +24,7 @@ const wagmiConfig = createConfig({
 const ethereumClient = new EthereumClient(wagmiConfig, chains);
 
 const apolloClient = new ApolloClient({
-  uri: 'https://api.studio.thegraph.com/query/50872/frankencoin-subgraph/version/latest',
+  uri: 'https://api.studio.thegraph.com/query/50872/frankencoin-sepolia/version/latest',
   cache: new InMemoryCache(),
 });
 

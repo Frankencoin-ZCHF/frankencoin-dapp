@@ -12,7 +12,7 @@ interface Props {
 
 export default function DisplayAmount({
   amount,
-  bold,
+  bold = false,
   big,
   noRounding,
   digits = 18,
@@ -20,7 +20,7 @@ export default function DisplayAmount({
 }: Props) {
   return (
     <>
-      <span className={`font-bold ${big && 'text-3xl'}`}>
+      <span className={`${bold && 'font-bold'} ${big && 'text-3xl'}`}>
         {commify(formatUnits(amount, Number(digits)))}
       </span>
       <span>
