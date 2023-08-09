@@ -10,11 +10,20 @@ export interface ChallengeQuery {
   status: string
 }
 
-export const useChallengeLists = (position: Address) => {
+interface Props {
+  position?: Address,
+  challenger?: Address,
+}
+
+export const useChallengeLists = ({
+  position,
+  challenger,
+}: Props) => {
   const { data } = useQuery(
     gql`query {
       challenges(where: {
-        position: "${position}",
+        ${position ? `position: "${position}",` : ''}
+        ${challenger ? `challenger: "${challenger}",` : ''}
         status: "Active"
       }) {
         id

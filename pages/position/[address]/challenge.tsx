@@ -4,22 +4,25 @@ import { useRouter } from "next/router";
 import AppBox from "../../../components/AppBox";
 import SwapFieldInput from "../../../components/SwapFieldInput";
 import { usePositionStats } from "../../../hooks";
-import { formatUnits, getAddress, parseUnits, zeroAddress } from "viem";
+import { Hash, formatUnits, getAddress, parseUnits, zeroAddress } from "viem";
 import { useState } from "react";
 import DisplayAmount from "../../../components/DisplayAmount";
 import { formatDuration, formatNumber } from "../../../utils";
 import Button from "../../../components/Button";
-import { erc20ABI, useChainId, useContractWrite } from "wagmi";
+import { erc20ABI, useAccount, useChainId, useContractWrite, useWaitForTransaction } from "wagmi";
 import { ABIS, ADDRESS } from "../../../contracts";
 
 export default function PositionChallenge() {
   const router = useRouter()
   const [amount, setAmount] = useState(0n)
   const [error, setError] = useState(false);
-  const { address } = router.query;
+  const [pendingTx, setPendingTx] = useState<Hash>(zeroAddress);
+  const { address: positionAddr } = router.query;
 
   const chainId = useChainId()
-  const position = getAddress(String(address || zeroAddress))
+  const { address } = useAccount()
+  const account = address || zeroAddress;
+  const position = getAddress(String(positionAddr || zeroAddress))
   const positionStats = usePositionStats(position)
 
   const onChangeAmount = (value: string) => {
@@ -32,13 +35,25 @@ export default function PositionChallenge() {
     address: positionStats.collateral,
     abi: erc20ABI,
     functionName: 'approve',
+    onSuccess(data) {
+      setPendingTx(data.hash)
+    }
   })
   const { isLoading: challengeLoading, write: launchChallenge } = useContractWrite({
     address: ADDRESS[chainId].mintingHub,
     abi: ABIS.MintingHubABI,
     functionName: 'launchChallenge',
+    onSuccess(data) {
+      setPendingTx(data.hash)
+    }
   })
-  // TODO: Check self challenge
+  const { isLoading: isConfirming } = useWaitForTransaction({
+    hash: pendingTx,
+    enabled: pendingTx != zeroAddress,
+    onSuccess(data) {
+      setPendingTx(zeroAddress);
+    }
+  })
 
   return (
     <>
@@ -115,13 +130,15 @@ export default function PositionChallenge() {
               {amount > positionStats.collateralAllowance ?
                 <Button
                   variant="secondary"
-                  isLoading={approveLoading}
+                  isLoading={approveLoading || isConfirming}
+                  disabled={error || account == positionStats.owner}
                   onClick={() => approveCollateral({ args: [ADDRESS[chainId].mintingHub, amount] })}
                 >Approve</Button>
                 :
                 <Button
                   variant="primary"
-                  isLoading={challengeLoading}
+                  isLoading={challengeLoading || isConfirming}
+                  disabled={error || account == positionStats.owner}
                   onClick={() => launchChallenge({ args: [position, amount, positionStats.liqPrice] })}
                 >Challenge</Button>
               }

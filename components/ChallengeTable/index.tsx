@@ -1,23 +1,15 @@
-import { Address, zeroAddress } from "viem";
 import ChallengeRow from "./ChallengeRow";
-import { useChallengeListStats, useChallengeLists } from "../../hooks";
+import { Challenge } from "../../hooks";
 
 interface Props {
-  position: Address
-  positionPrice: bigint,
-  collateralDecimal: number
-  collateralSymbol: string
+  challenges: Challenge[]
+  noContentText: string
 }
 
 export default function ChallengeTable({
-  position,
-  positionPrice,
-  collateralDecimal,
-  collateralSymbol,
+  challenges,
+  noContentText
 }: Props) {
-  const challenges = useChallengeLists(position)
-  const challengeStats = useChallengeListStats(challenges)
-
   return (
     <section>
       <div className="space-y-3">
@@ -34,20 +26,24 @@ export default function ChallengeTable({
           <div className="w-40 flex-shrink-0"></div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-1 lg:gap-2">
-          {challengeStats.map(challenge => (
+          {challenges.map(challenge => (
             <ChallengeRow
-              position={position}
+              position={challenge.position}
               challenger={challenge.challenger}
               challengeSize={challenge.size}
               bid={challenge.bid}
               end={challenge.end}
-              collateralDecimal={collateralDecimal}
-              collateralSymbol={collateralSymbol}
-              positionPrice={positionPrice}
               index={challenge.index}
               key={Number(challenge.index)}
             />
           ))}
+          {challenges.length == 0 &&
+            <div className="rounded-lg bg-white p-8 xl:px-16">
+              <div className="flex flex-col justify-between gap-y-5 md:flex-row md:space-x-4">
+                {noContentText}
+              </div>
+            </div>
+          }
         </div>
       </div>
     </section>

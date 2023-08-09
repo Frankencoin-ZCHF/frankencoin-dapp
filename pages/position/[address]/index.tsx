@@ -8,7 +8,7 @@ import DisplayAmount from "../../../components/DisplayAmount";
 import { formatDate, shortenAddress } from "../../../utils";
 import { getAddress, zeroAddress } from "viem";
 import { useContractUrl } from "../../../hooks/useContractUrl";
-import { usePositionStats } from "../../../hooks";
+import { useChallengeListStats, useChallengeLists, usePositionStats } from "../../../hooks";
 import { useAccount, useChainId, useContractRead } from "wagmi";
 import { ABIS, ADDRESS } from "../../../contracts";
 import ChallengeTable from "../../../components/ChallengeTable";
@@ -23,6 +23,8 @@ export default function PositionDetail() {
   const { address: account } = useAccount()
   const positionStats = usePositionStats(position)
   const ownerLink = useContractUrl(positionStats.owner)
+  const challenges = useChallengeLists({ position })
+  const challengeStats = useChallengeListStats(challenges)
 
   const { data: positionAssignedReserve } = useContractRead({
     address: ADDRESS[chainId].frankenCoin,
@@ -115,10 +117,8 @@ export default function PositionDetail() {
           </div>
           <AppPageHeader title="Open Challenges" className="mt-8" />
           <ChallengeTable
-            position={position}
-            positionPrice={positionStats.liqPrice}
-            collateralDecimal={positionStats.collateralDecimal}
-            collateralSymbol={positionStats.collateralSymbol}
+            challenges={challengeStats}
+            noContentText="This position is currently not being challenged."
           />
         </section>
       </div>

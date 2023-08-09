@@ -6,14 +6,12 @@ import { useContractUrl } from "../../hooks/useContractUrl";
 import Button from "../Button";
 import { useChainId, useContractWrite } from "wagmi";
 import { ABIS, ADDRESS } from "../../contracts";
+import { usePositionStats } from "../../hooks";
 
 interface Props {
   position: Address
-  positionPrice: bigint
   challenger: Address
   challengeSize: bigint
-  collateralSymbol: string
-  collateralDecimal: number
   bid: bigint
   end: bigint
   index: bigint
@@ -21,27 +19,25 @@ interface Props {
 
 export default function ChallengeRow({
   position,
-  positionPrice,
   challenger,
   challengeSize,
-  collateralSymbol,
-  collateralDecimal,
   bid,
   end,
   index,
 }: Props) {
-  const ratio = bid * BigInt(1e18) / challengeSize;
-  const buyNowPrice = positionPrice * challengeSize
-  const ownerUrl = useContractUrl(challenger)
-  const endDate = formatDate(end)
-  const isExpired = isDateExpired(end)
-
+  const positionStats = usePositionStats(position)
   const chainId = useChainId()
   const { isLoading: endLoading, write: endChallenge } = useContractWrite({
     address: ADDRESS[chainId].mintingHub,
     abi: ABIS.MintingHubABI,
     functionName: 'end'
   })
+
+  const ratio = bid * BigInt(1e18) / challengeSize;
+  const buyNowPrice = positionStats.liqPrice * challengeSize / BigInt(1e18);
+  const ownerUrl = useContractUrl(challenger)
+  const endDate = formatDate(end)
+  const isExpired = isDateExpired(end)
 
   return (
     <div className="rounded-lg bg-white p-8 xl:px-16">
@@ -51,8 +47,8 @@ export default function ChallengeRow({
             <div className="text-gray-400 md:hidden">Auctionated Collateral</div>
             <DisplayAmount
               amount={challengeSize}
-              currency={collateralSymbol}
-              digits={collateralDecimal}
+              currency={positionStats.collateralSymbol}
+              digits={positionStats.collateralDecimal}
             />
           </div>
           <div>
@@ -63,7 +59,7 @@ export default function ChallengeRow({
             />
             {ratio > 0n &&
               <div className="text-sm">
-                1 {collateralSymbol} = &nbsp;
+                1 {positionStats.collateralSymbol} = &nbsp;
                 <DisplayAmount
                   amount={ratio}
                   currency={"ZCHF"}
@@ -75,7 +71,7 @@ export default function ChallengeRow({
             <div className="text-gray-400 md:hidden">Buy now Price</div>
             <DisplayAmount
               amount={buyNowPrice}
-              digits={collateralDecimal + 18}
+              digits={positionStats.collateralDecimal}
               currency={"ZCHF"}
             />
           </div>
