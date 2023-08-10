@@ -38,6 +38,10 @@ export const usePoolStats = () => {
         ...equityContract,
         functionName: 'votes',
         args: [account]
+      }, {
+        ...equityContract,
+        functionName: 'canRedeem',
+        args: [account]
       },
       // Frankencoin Calls
       {
@@ -64,12 +68,13 @@ export const usePoolStats = () => {
   const equityBalance: bigint = data ? decodeBigIntCall(data[2]) : 0n;
   const equityTotalVotes: bigint = data ? decodeBigIntCall(data[3]) : 0n;
   const equityUserVotes: bigint = data ? decodeBigIntCall(data[4]) : 0n;
+  const equityCanRedeem: boolean = data ? Boolean(data[5].result) : false;
 
-  const frankenMinterReserve: bigint = data ? decodeBigIntCall(data[5]) : 0n;
-  const frankenEquity: bigint = data ? decodeBigIntCall(data[6]) : 0n;
+  const frankenMinterReserve: bigint = data ? decodeBigIntCall(data[6]) : 0n;
+  const frankenEquity: bigint = data ? decodeBigIntCall(data[7]) : 0n;
   const frankenTotalReserve = frankenMinterReserve + frankenEquity;
-  const frankenBalance: bigint = data ? decodeBigIntCall(data[7]) : 0n;
-  const frankenAllowance: bigint = data ? decodeBigIntCall(data[8]) : 0n;
+  const frankenBalance: bigint = data ? decodeBigIntCall(data[8]) : 0n;
+  const frankenAllowance: bigint = data ? decodeBigIntCall(data[9]) : 0n;
 
   return {
     equitySupply,
@@ -77,6 +82,7 @@ export const usePoolStats = () => {
     equityBalance,
     equityTotalVotes,
     equityUserVotes,
+    equityCanRedeem,
 
     frankenTotalReserve,
     frankenBalance,

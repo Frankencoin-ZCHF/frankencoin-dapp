@@ -5,7 +5,7 @@ import DisplayLabel from "../components/DisplayLabel";
 import DisplayAmount from "../components/DisplayAmount";
 import { usePoolStats, useContractUrl } from "../hooks";
 import Link from "next/link";
-import { shortenAddress } from "../utils";
+import { formatDuration, shortenAddress } from "../utils";
 import { erc20ABI, useAccount, useChainId, useContractRead, useContractWrite, useWaitForTransaction } from "wagmi";
 import { ABIS, ADDRESS } from "../contracts";
 import SwapFieldInput from "../components/SwapFieldInput";
@@ -78,6 +78,7 @@ export default function Pool({ }) {
   const result = (direction ? fpsResult : frankenResult) || 0n;
   const fromSymbol = direction ? 'ZCHF' : 'FPS';
   const toSymbol = !direction ? 'ZCHF' : 'FPS';
+  const redeemLeft = 86400n * 90n - poolStats.equityUserVotes / poolStats.equityBalance / 2n ** 20n;
 
   const onChangeAmount = (value: string) => {
     const valueBigInt = parseUnits(value, 18);
@@ -188,7 +189,7 @@ export default function Pool({ }) {
                         :
                         <Button
                           variant="primary"
-                          disabled={amount == 0n}
+                          disabled={amount == 0n || error}
                           isLoading={investLoading || isConfirming}
                           onClick={() => invest({ args: [amount, result] })}
                         >Invest</Button>
@@ -196,7 +197,7 @@ export default function Pool({ }) {
                       <Button
                         variant="primary"
                         isLoading={redeemLoading || isConfirming}
-                        disabled={amount == 0n}
+                        disabled={amount == 0n || error || !poolStats.equityCanRedeem}
                         onClick={() => redeem({ args: [account, amount] })}
                       >Redeem</Button>
                     }
@@ -232,6 +233,11 @@ export default function Pool({ }) {
                     A minimum of 3% of the total supply is required to obtain voting
                     power.
                   </p>
+                </AppBox>
+                <AppBox className="flex-1">
+                  <DisplayLabel label="Can redeem after">
+                    {formatDuration(redeemLeft)}
+                  </DisplayLabel>
                 </AppBox>
               </div>
             </div>
