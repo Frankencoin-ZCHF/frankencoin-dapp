@@ -132,7 +132,7 @@ export default function PositionBorrow({ }) {
                   variant="primary"
                   disabled={amount == 0n || error}
                   isLoading={cloneLoading || isConfirming}
-                  onClick={() => clonePosition({ args: [position, requiredColl, amount] })}
+                  onClick={() => clonePosition({ args: [position, requiredColl, amount, positionStats.expiration] })}
                 >Clone Position</Button>
               }
             </div>

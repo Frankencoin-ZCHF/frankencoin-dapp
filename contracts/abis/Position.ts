@@ -415,7 +415,7 @@ export const PositionABI = [
             },
             {
                 "internalType": "uint256",
-                "name": "_mint",
+                "name": "_initialMint",
                 "type": "uint256"
             },
             {

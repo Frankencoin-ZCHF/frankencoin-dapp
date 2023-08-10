@@ -18,13 +18,13 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
     mintingHub: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
   },
   [sepolia.id]: {
-    frankenCoin: '0xB19373305306DeE3156e0916bB1ed07aafcc345c',
+    frankenCoin: '0x304B992EFb5d140393542D072e52279A43a6EA75',
     // Mock VOl Token: '0x37935cedc62b3ec5decc0a9776ee4fee37965ca3',
-    // Position Factory: '0x6C36Ea4bF1F9E9D12631Fa80066bFd62065fE834',
-    bridge: '0xF798C674c636657bede42c7f71F6939e0d25E680',
+    // Position Factory: '0x87a81A66F1716A971e1513bF2fAc7572b06bc8DD',
+    bridge: '0x3f41Bc2895C6Ad65b1855753870F8847947Fa0B1',
     xchf: '0xCf3f8985e8aA051C15ED7baBCeEAc9aaD6711a85',
-    equity: '0x51571e6d031174f6C17232A7061b9025666FC244',
-    mintingHub: '0xE3Ce8d8ed0D513f6732e237E3DfDCa8D29156C46',
+    equity: '0x913de60b32CEE74f15cB0127F8954F7ED79Eb043',
+    mintingHub: '0x4F55268895aa588557Dc3D1421Fc79068dC5537F',
   },
   [mainnet.id]: {
     frankenCoin: '0x7a787023f6E18f979B143C79885323a24709B0d8',

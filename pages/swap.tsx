@@ -53,6 +53,7 @@ export default function Swap() {
   const toBalance = !direction ? swapStats.xchfUserBal : swapStats.frankenUserBal;
   const fromSymbol = direction ? swapStats.xchfSymbol : swapStats.frankenSymbol;
   const toSymbol = !direction ? swapStats.xchfSymbol : swapStats.frankenSymbol;
+  const swapLimit = direction ? (swapStats.bridgeLimit - swapStats.xchfBridgeBal) : swapStats.xchfBridgeBal;
 
   const onChangeDirection = () => {
     setDirection(!direction)
@@ -61,7 +62,7 @@ export default function Swap() {
   const onChangeAmount = (value: string) => {
     const valueBigInt = parseUnits(value, 18);
     setAmount(valueBigInt);
-    setError(valueBigInt > fromBalance)
+    setError(valueBigInt > fromBalance || valueBigInt > swapLimit)
   }
 
   return (
@@ -76,7 +77,7 @@ export default function Swap() {
             <SwapFieldInput
               max={fromBalance}
               symbol={fromSymbol}
-              // limit="swapLimit"
+              limit={swapLimit}
               limitLabel="Swap limit"
               onChange={onChangeAmount}
               value={formatUnits(amount, 18)}
@@ -114,7 +115,7 @@ export default function Swap() {
                   :
                   <Button
                     variant="primary"
-                    disabled={amount == 0n}
+                    disabled={amount == 0n || error}
                     isLoading={mintLoading || isConfirming}
                     onClick={() => mintStableCoin({ args: [amount] })}
                   >Swap</Button>
@@ -122,7 +123,7 @@ export default function Swap() {
                 <Button
                   variant="primary"
                   isLoading={burnLoading || isConfirming}
-                  disabled={amount == 0n}
+                  disabled={amount == 0n || error}
                   onClick={() => burnStableCoin({ args: [amount] })}
                 >Swap</Button>
               }

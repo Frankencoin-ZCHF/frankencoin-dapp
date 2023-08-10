@@ -23,6 +23,7 @@
     "@types/react-dom": "18.0.9",
     "@web3modal/ethereum": "^2.7.1",
     "@web3modal/react": "^2.7.1",
+    "abitype": "^0.9.6",
     "big-number-input": "^1.0.3",
     "chart.js": "^4.2.0",
     "dayjs": "^1.11.9",

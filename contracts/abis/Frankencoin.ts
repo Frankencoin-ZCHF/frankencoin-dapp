@@ -604,7 +604,7 @@ export const FrankenCoinABI = [
                 "type": "uint32"
             }
         ],
-        "name": "mint",
+        "name": "mintWithReserve",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"

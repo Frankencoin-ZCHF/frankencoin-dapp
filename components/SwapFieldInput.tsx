@@ -85,7 +85,7 @@ export default function SwapFieldInput({
       <div className="mt-2 px-1">
         {limit >= 0n && limitLabel &&
           <span>
-            {limitLabel}:
+            {limitLabel} :&nbsp;
             <DisplayAmount amount={limit} currency={symbol} />
           </span>
         }
