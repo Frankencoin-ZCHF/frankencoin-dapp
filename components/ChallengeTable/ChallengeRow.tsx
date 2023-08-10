@@ -102,7 +102,7 @@ export default function ChallengeRow({
             <Button
               size="sm"
               isLoading={endLoading}
-              onClick={() => endChallenge({ args: [index] })}
+              onClick={() => endChallenge({ args: [index, false] })}
             >Close</Button>
             :
             <Link

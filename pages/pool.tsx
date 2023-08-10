@@ -78,7 +78,7 @@ export default function Pool({ }) {
   const result = (direction ? fpsResult : frankenResult) || 0n;
   const fromSymbol = direction ? 'ZCHF' : 'FPS';
   const toSymbol = !direction ? 'ZCHF' : 'FPS';
-  const redeemLeft = 86400n * 90n - poolStats.equityUserVotes / poolStats.equityBalance / 2n ** 20n;
+  const redeemLeft = 86400n * 90n - (poolStats.equityBalance ? poolStats.equityUserVotes / poolStats.equityBalance / 2n ** 20n : 0n);
 
   const onChangeAmount = (value: string) => {
     const valueBigInt = parseUnits(value, 18);
