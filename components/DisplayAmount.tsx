@@ -1,5 +1,6 @@
 import { commify } from "@ethersproject/units";
 import { formatUnits } from "viem";
+import { TOKEN_LOGO } from "../utils";
 
 interface Props {
   amount: bigint
@@ -19,13 +20,20 @@ export default function DisplayAmount({
   currency
 }: Props) {
   return (
-    <>
-      <span className={`${bold && 'font-bold'} ${big && 'text-3xl'}`}>
-        {commify(formatUnits(amount, Number(digits)))}
-      </span>
-      <span>
-        &nbsp;{currency}
-      </span>
-    </>
+    <div className="flex items-center">
+      {currency && TOKEN_LOGO[currency.toLowerCase()] &&
+        <picture className="mr-2">
+          <img src={TOKEN_LOGO[currency.toLowerCase()]} className="w-8" alt="token-logo" />
+        </picture>
+      }
+      <div>
+        <span className={`${bold && 'font-bold'} ${big && 'text-3xl'}`}>
+          {commify(formatUnits(amount, Number(digits)))}
+        </span>
+        <span>
+          &nbsp;{currency}
+        </span>
+      </div>
+    </div>
   )
 }

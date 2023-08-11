@@ -3,6 +3,7 @@ import AppIcon from "./AppIcon";
 import { commify } from "@ethersproject/units";
 import { formatUnits } from "viem";
 import DisplayAmount from "./DisplayAmount";
+import { TOKEN_LOGO } from "../utils";
 
 interface Props {
   label?: string
@@ -43,22 +44,28 @@ export default function SwapFieldInput({
 
   return (
     <div>
-      <div className="mb-1 flex gap-2 px-1 font-bold">
+      <div className="mb-1 flex gap-2 px-1">
         <div className="flex-1">
           {label}
         </div>
         {isConnected && symbol &&
           <div
-            className={`flex gap-2 items-center cursor-pointer underline ${hideMaxLabel && 'hidden'}`}
+            className={`flex gap-2 items-center cursor-pointer ${hideMaxLabel && 'hidden'}`}
             onClick={() => onChange && onChange(formatUnits(max, Number(digit)))}
           >
-            <AppIcon src="/assets/wallet.svg" size="small" />
-            {commify(formatUnits(max, 18))} {symbol}
+            Balance : <span className="font-bold text-link">
+              {commify(formatUnits(max, 18))} {symbol}
+            </span>
           </div>
         }
       </div>
 
       <div className="flex items-center rounded-lg bg-neutral-200 p-2">
+        <div className="hidden w-12 sm:block">
+          <picture>
+            <img src={TOKEN_LOGO[symbol.toLowerCase()]} className="w-10" alt="token-logo" />
+          </picture>
+        </div>
         <div className="flex-1">
           {showOutput ?
             <div

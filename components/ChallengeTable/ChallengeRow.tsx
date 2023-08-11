@@ -42,7 +42,7 @@ export default function ChallengeRow({
   return (
     <div className="rounded-lg bg-white p-8 xl:px-16">
       <div className="flex flex-col justify-between gap-y-5 md:flex-row md:space-x-4">
-        <div className="grid flex-grow grid-cols-2 gap-3 sm:grid-cols-5">
+        <div className="grid flex-grow grid-cols-2 gap-3 sm:grid-cols-5 items-center">
           <div>
             <div className="text-gray-400 md:hidden">Auctionated Collateral</div>
             <DisplayAmount

@@ -62,7 +62,7 @@ export default function PositionChallenge() {
         <AppPageHeader
           title="Launch a challenge"
           backText="Back to position"
-          backTo={`/position/${address}`}
+          backTo={`/position/${position}`}
         />
         <section className="container m-auto max-w-2xl">
           <AppBox>
