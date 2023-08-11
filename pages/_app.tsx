@@ -66,7 +66,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <Layout>
           <Component {...pageProps} />
         </Layout>
-        <Web3Modal projectId={projectId} ethereumClient={ethereumClient} />
+        <Web3Modal projectId={projectId} ethereumClient={ethereumClient} themeMode="dark" />
       </ApolloProvider>
     </WagmiConfig>
   );
