@@ -58,11 +58,12 @@ export default function ChallengeRow({
               currency={"ZCHF"}
             />
             {ratio > 0n &&
-              <div className="text-sm">
+              <div className="text-sm flex">
                 1 {positionStats.collateralSymbol} = &nbsp;
                 <DisplayAmount
                   amount={ratio}
                   currency={"ZCHF"}
+                  hideLogo
                 />
               </div>
             }

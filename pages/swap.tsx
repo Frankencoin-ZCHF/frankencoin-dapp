@@ -60,7 +60,8 @@ export default function Swap() {
   }
 
   const onChangeAmount = (value: string) => {
-    const valueBigInt = parseUnits(value, 18);
+    const valueBigInt = BigInt(value);
+    console.log(value)
     setAmount(valueBigInt);
     setError(valueBigInt > fromBalance || valueBigInt > swapLimit)
   }
@@ -80,7 +81,7 @@ export default function Swap() {
               limit={swapLimit}
               limitLabel="Swap limit"
               onChange={onChangeAmount}
-              value={formatUnits(amount, 18)}
+              value={amount.toString()}
               error={error}
             />
 

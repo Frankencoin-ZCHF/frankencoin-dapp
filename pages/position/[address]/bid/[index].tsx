@@ -5,7 +5,7 @@ import AppBox from "../../../../components/AppBox";
 import SwapFieldInput from "../../../../components/SwapFieldInput";
 import { useState } from "react";
 import { useChallengeListStats, useChallengeLists, usePositionStats } from "../../../../hooks";
-import { formatUnits, getAddress, parseUnits, zeroAddress } from "viem";
+import { formatUnits, getAddress, zeroAddress } from "viem";
 import DisplayAmount from "../../../../components/DisplayAmount";
 import { formatDate, formatDuration, isDateExpired, shortenAddress } from "../../../../utils";
 import Link from "next/link";
@@ -37,7 +37,7 @@ export default function ChallengePlaceBid({ }) {
   const buyNowPrice = positionStats.liqPrice * (challenge?.size || 0n);
 
   const onChangeAmount = (value: string) => {
-    const valueBigInt = parseUnits(value, 18);
+    const valueBigInt = BigInt(value);
     setAmount(valueBigInt);
     setError(valueBigInt > positionStats.frankenBalance)
   }
@@ -70,7 +70,7 @@ export default function ChallengePlaceBid({ }) {
                 <SwapFieldInput
                   label="Your Bid"
                   max={positionStats.frankenBalance}
-                  value={formatUnits(amount, 18)}
+                  value={amount.toString()}
                   onChange={onChangeAmount}
                   symbol={"ZCHF"}
                 />

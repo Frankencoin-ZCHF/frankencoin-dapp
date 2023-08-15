@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import AppBox from "../../../components/AppBox";
 import SwapFieldInput from "../../../components/SwapFieldInput";
 import { usePositionStats } from "../../../hooks";
-import { Hash, formatUnits, getAddress, parseUnits, zeroAddress } from "viem";
+import { Hash, getAddress, zeroAddress } from "viem";
 import { useState } from "react";
 import DisplayAmount from "../../../components/DisplayAmount";
 import { formatDuration, formatNumber } from "../../../utils";
@@ -26,7 +26,7 @@ export default function PositionChallenge() {
   const positionStats = usePositionStats(position)
 
   const onChangeAmount = (value: string) => {
-    const valueBigInt = parseUnits(value, positionStats.collateralDecimal);
+    const valueBigInt = BigInt(value);
     setAmount(valueBigInt);
     setError(valueBigInt > positionStats.collateralUserBal)
   }
@@ -69,7 +69,7 @@ export default function PositionChallenge() {
             <SwapFieldInput
               symbol={positionStats.collateralSymbol}
               max={positionStats.collateralUserBal}
-              value={formatUnits(amount, positionStats.collateralDecimal)}
+              value={amount.toString()}
               onChange={onChangeAmount}
               error={error}
               label="Amount"

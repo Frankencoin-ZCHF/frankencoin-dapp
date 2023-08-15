@@ -81,7 +81,7 @@ export default function Pool({ }) {
   const redeemLeft = 86400n * 90n - (poolStats.equityBalance ? poolStats.equityUserVotes / poolStats.equityBalance / 2n ** 20n : 0n);
 
   const onChangeAmount = (value: string) => {
-    const valueBigInt = parseUnits(value, 18);
+    const valueBigInt = BigInt(value);
     setAmount(valueBigInt);
     setError(valueBigInt > fromBalance)
   }
@@ -152,7 +152,7 @@ export default function Pool({ }) {
                     max={fromBalance}
                     symbol={fromSymbol}
                     onChange={onChangeAmount}
-                    value={formatUnits(amount, 18)}
+                    value={amount.toString()}
                     error={error}
                   />
 

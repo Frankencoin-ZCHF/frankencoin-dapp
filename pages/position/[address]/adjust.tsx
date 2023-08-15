@@ -46,23 +46,22 @@ export default function PositionAdjust({ }) {
       : '';
 
   const onChangeAmount = (value: string) => {
-    const valueBigInt = parseUnits(value, 18);
+    const valueBigInt = BigInt(value);
     setAmount(valueBigInt);
     // setError(valueBigInt > fromBalance)
   }
 
   const onChangeCollAmount = (value: string) => {
-    const valueBigInt = parseUnits(value, positionStats.collateralDecimal);
+    const valueBigInt = BigInt(value);
     setCollateralAmount(valueBigInt);
     // setError(valueBigInt > fromBalance)
   }
 
   const onChangeLiqAmount = (value: string) => {
-    const valueBigInt = parseUnits(value, 18);
+    const valueBigInt = BigInt(value);
     setLiqPrice(valueBigInt);
     // setError(valueBigInt > fromBalance)
   }
-
 
   const { isLoading: approveLoading, write: approveCollateral } = useContractWrite({
     address: positionStats.collateral,
@@ -107,7 +106,7 @@ export default function PositionAdjust({ }) {
                   label="Amount"
                   symbol="ZCHF"
                   // TODO: MAX Amount
-                  value={formatUnits(amount, 18)}
+                  value={amount.toString()}
                   onChange={onChangeAmount}
                 // TODO: Children
                 />
@@ -157,7 +156,7 @@ export default function PositionAdjust({ }) {
                   label="Collateral"
                   symbol={positionStats.collateralSymbol}
                   max={positionStats.collateralUserBal}
-                  value={formatUnits(collateralAmount, positionStats.collateralDecimal)}
+                  value={collateralAmount.toString()}
                   onChange={onChangeCollAmount}
                   digit={positionStats.collateralDecimal}
                   note={collateralNote}
@@ -169,7 +168,7 @@ export default function PositionAdjust({ }) {
                   label="Liquidation Price"
                   symbol={"ZCHF"}
                   max={positionStats.liqPrice}
-                  value={formatUnits(liqPrice, 18)}
+                  value={liqPrice.toString()}
                   onChange={onChangeLiqAmount}
                 // TODO: Children
                 />

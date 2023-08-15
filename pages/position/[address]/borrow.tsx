@@ -31,7 +31,7 @@ export default function PositionBorrow({ }) {
   const userValue = positionStats.collateralBal * positionStats.liqPrice / BigInt(1e18);
 
   const onChangeAmount = (value: string) => {
-    const valueBigInt = parseUnits(value, 18);
+    const valueBigInt = BigInt(value);
     setAmount(valueBigInt);
     setError(valueBigInt > positionStats.frankenAllowance)
   }
@@ -77,7 +77,7 @@ export default function PositionBorrow({ }) {
                 symbol="ZCHF"
                 error={error}
                 max={min(availableAmount, userValue)}
-                value={formatUnits(amount, 18)}
+                value={amount.toString()}
                 onChange={onChangeAmount}
               />
               <SwapFieldInput

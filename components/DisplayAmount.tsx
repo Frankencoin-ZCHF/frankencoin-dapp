@@ -9,6 +9,7 @@ interface Props {
   noRounding?: boolean,
   digits?: number | bigint,
   currency?: string
+  hideLogo?: boolean
 }
 
 export default function DisplayAmount({
@@ -17,11 +18,12 @@ export default function DisplayAmount({
   big,
   noRounding,
   digits = 18,
-  currency
+  currency,
+  hideLogo,
 }: Props) {
   return (
     <div className="flex items-center">
-      {currency && TOKEN_LOGO[currency.toLowerCase()] &&
+      {!hideLogo && currency && TOKEN_LOGO[currency.toLowerCase()] &&
         <picture className="mr-2">
           <img src={TOKEN_LOGO[currency.toLowerCase()]} className="w-8" alt="token-logo" />
         </picture>
