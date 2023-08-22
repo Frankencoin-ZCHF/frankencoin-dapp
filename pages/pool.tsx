@@ -15,7 +15,7 @@ import Button from "../components/Button";
 
 export default function Pool({ }) {
   const [amount, setAmount] = useState(0n)
-  const [error, setError] = useState(false);
+  const [error, setError] = useState('');
   const [direction, setDirection] = useState(true)
   const [pendingTx, setPendingTx] = useState<Hash>(zeroAddress);
 
@@ -83,7 +83,11 @@ export default function Pool({ }) {
   const onChangeAmount = (value: string) => {
     const valueBigInt = BigInt(value);
     setAmount(valueBigInt);
-    setError(valueBigInt > fromBalance)
+    if (valueBigInt > fromBalance) {
+      setError(`Not enough ${fromSymbol} in your wallet.`);
+    } else {
+      setError('');
+    }
   }
 
   const conversionNote = () => {
@@ -184,12 +188,13 @@ export default function Pool({ }) {
                         <Button
                           variant="secondary"
                           isLoading={approveFrankenLoading || isConfirming}
+                          disabled={amount == 0n || !!error}
                           onClick={() => approveFranken({ args: [ADDRESS[chainId].equity, amount] })}
                         >Approve</Button>
                         :
                         <Button
                           variant="primary"
-                          disabled={amount == 0n || error}
+                          disabled={amount == 0n || !!error}
                           isLoading={investLoading || isConfirming}
                           onClick={() => invest({ args: [amount, result] })}
                         >Invest</Button>
@@ -197,7 +202,7 @@ export default function Pool({ }) {
                       <Button
                         variant="primary"
                         isLoading={redeemLoading || isConfirming}
-                        disabled={amount == 0n || error || !poolStats.equityCanRedeem}
+                        disabled={amount == 0n || !!error || !poolStats.equityCanRedeem}
                         onClick={() => redeem({ args: [account, amount] })}
                       >Redeem</Button>
                     }

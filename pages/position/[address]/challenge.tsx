@@ -15,7 +15,7 @@ import { ABIS, ADDRESS } from "../../../contracts";
 export default function PositionChallenge() {
   const router = useRouter()
   const [amount, setAmount] = useState(0n)
-  const [error, setError] = useState(false);
+  const [error, setError] = useState('');
   const [pendingTx, setPendingTx] = useState<Hash>(zeroAddress);
   const { address: positionAddr } = router.query;
 
@@ -28,7 +28,13 @@ export default function PositionChallenge() {
   const onChangeAmount = (value: string) => {
     const valueBigInt = BigInt(value);
     setAmount(valueBigInt);
-    setError(valueBigInt > positionStats.collateralUserBal)
+    if (valueBigInt > positionStats.collateralUserBal) {
+      setError(`Not enough ${positionStats.collateralSymbol} in your wallet.`);
+    } else if (valueBigInt > positionStats.collateralBal) {
+      setError('Challenge collateral should not be larger than position collateral');
+    } else {
+      setError('');
+    }
   }
 
   const { isLoading: approveLoading, write: approveCollateral } = useContractWrite({
@@ -131,14 +137,14 @@ export default function PositionChallenge() {
                 <Button
                   variant="secondary"
                   isLoading={approveLoading || isConfirming}
-                  disabled={error || account == positionStats.owner}
+                  disabled={!!error || account == positionStats.owner}
                   onClick={() => approveCollateral({ args: [ADDRESS[chainId].mintingHub, amount] })}
                 >Approve</Button>
                 :
                 <Button
                   variant="primary"
                   isLoading={challengeLoading || isConfirming}
-                  disabled={error || account == positionStats.owner}
+                  disabled={!!error || account == positionStats.owner}
                   onClick={() => launchChallenge({ args: [position, amount, positionStats.liqPrice] })}
                 >Challenge</Button>
               }

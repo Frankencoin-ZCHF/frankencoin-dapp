@@ -9,21 +9,24 @@ import SwapFieldInput from "../../../components/SwapFieldInput";
 import DisplayAmount from "../../../components/DisplayAmount";
 import { abs } from "../../../utils";
 import Button from "../../../components/Button";
-import { erc20ABI, useChainId, useContractWrite, useWaitForTransaction } from "wagmi";
+import { erc20ABI, useAccount, useContractWrite, useWaitForTransaction } from "wagmi";
 import { ABIS, ADDRESS } from "../../../contracts";
 
 export default function PositionAdjust({ }) {
   const router = useRouter()
+  const [amountError, setAmountError] = useState('')
+  const [collError, setCollError] = useState('')
   const [amount, setAmount] = useState(0n)
   const [collateralAmount, setCollateralAmount] = useState(0n)
   const [liqPrice, setLiqPrice] = useState(0n)
   const [pendingTx, setPendingTx] = useState<Hash>(zeroAddress);
-  const { address } = router.query;
+  const { address: positionAddr } = router.query;
 
-  const chainId = useChainId();
-  const position = getAddress(String(address || zeroAddress))
+  const { address } = useAccount()
+  const position = getAddress(String(positionAddr || zeroAddress))
   const positionStats = usePositionStats(position)
 
+  const repayPosition = positionStats.minted > positionStats.frankenBalance ? positionStats.minted - positionStats.frankenBalance : 0n;
   const additionalAmount = amount - positionStats.minted;
   const isNegativeDiff = additionalAmount < 0;
   const borrowReserveContribution = positionStats.reserveContribution * additionalAmount / 1_000_000n;
@@ -48,13 +51,23 @@ export default function PositionAdjust({ }) {
   const onChangeAmount = (value: string) => {
     const valueBigInt = BigInt(value);
     setAmount(valueBigInt);
-    // setError(valueBigInt > fromBalance)
+    if (valueBigInt > positionStats.limit) {
+      setAmountError(`This position is limited to ${formatUnits(positionStats.limit, 18)} ZCHF`);
+    } else if (isNegativeDiff && paidOutAmount() > positionStats.frankenBalance) {
+      setAmountError('Insufficient ZCHF amount in wallet');
+    } else {
+      setAmountError('')
+    }
   }
 
   const onChangeCollAmount = (value: string) => {
     const valueBigInt = BigInt(value);
     setCollateralAmount(valueBigInt);
-    // setError(valueBigInt > fromBalance)
+    if (valueBigInt > positionStats.collateralBal && (valueBigInt - positionStats.collateralBal) > positionStats.collateralUserBal) {
+      setCollError(`Insufficient ${positionStats.collateralSymbol} in your wallet.`);
+    } else {
+      setCollError('')
+    }
   }
 
   const onChangeLiqAmount = (value: string) => {
@@ -96,7 +109,7 @@ export default function PositionAdjust({ }) {
         <AppPageHeader
           title="Adjust Your Position"
           backText="Back to position"
-          backTo={`/position/${address}`}
+          backTo={`/position/${positionAddr}`}
         />
         <section className="mx-auto flex max-w-2xl flex-col gap-y-4 px-4 sm:px-8">
           <AppBox>
@@ -105,9 +118,10 @@ export default function PositionAdjust({ }) {
                 <SwapFieldInput
                   label="Amount"
                   symbol="ZCHF"
-                  // TODO: MAX Amount
+                  max={repayPosition}
                   value={amount.toString()}
                   onChange={onChangeAmount}
+                  error={amountError}
                 // TODO: Children
                 />
                 <div className="flex flex-col gap-2">
@@ -160,6 +174,7 @@ export default function PositionAdjust({ }) {
                   onChange={onChangeCollAmount}
                   digit={positionStats.collateralDecimal}
                   note={collateralNote}
+                  error={collError}
                 // TODO: Children
                 />
               </div>
@@ -184,7 +199,8 @@ export default function PositionAdjust({ }) {
                 :
                 <Button
                   variant="primary"
-                  disabled={amount == 0n}
+                  disabled={amount == 0n || !!amountError || !!collError}
+                  error={positionStats.owner != address ? 'You can only adjust your own position' : ''}
                   isLoading={adjustLoading}
                   onClick={() => adjustPos({
                     args: [

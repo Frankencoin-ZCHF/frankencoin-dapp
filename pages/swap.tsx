@@ -8,10 +8,11 @@ import { Hash, formatUnits, parseUnits, zeroAddress } from "viem";
 import Button from "../components/Button";
 import { erc20ABI, useChainId, useContractWrite, useWaitForTransaction } from "wagmi";
 import { ABIS, ADDRESS } from "../contracts";
+import { toast } from "react-toastify";
 
 export default function Swap() {
   const [amount, setAmount] = useState(0n)
-  const [error, setError] = useState(false);
+  const [error, setError] = useState('');
   const [direction, setDirection] = useState(true)
   const [pendingTx, setPendingTx] = useState<Hash>(zeroAddress);
 
@@ -22,6 +23,7 @@ export default function Swap() {
     abi: erc20ABI,
     functionName: 'approve',
     onSuccess(data) {
+      toast(`Approving ${fromSymbol}\n${data.hash}`)
       setPendingTx(data.hash)
     }
   })
@@ -30,6 +32,7 @@ export default function Swap() {
     abi: ABIS.StablecoinBridgeABI,
     functionName: 'mint',
     onSuccess(data) {
+      toast(`Swapping ${fromSymbol} to ${toSymbol}\n${data.hash}`)
       setPendingTx(data.hash)
     }
   })
@@ -61,9 +64,15 @@ export default function Swap() {
 
   const onChangeAmount = (value: string) => {
     const valueBigInt = BigInt(value);
-    console.log(value)
     setAmount(valueBigInt);
-    setError(valueBigInt > fromBalance || valueBigInt > swapLimit)
+
+    if (valueBigInt > fromBalance) {
+      setError(`Not enough ${fromSymbol} in your wallet.`);
+    } else if (valueBigInt > swapLimit) {
+      setError(`Not enough ${toSymbol} available to swap.`);
+    } else {
+      setError('');
+    }
   }
 
   return (
@@ -116,7 +125,7 @@ export default function Swap() {
                   :
                   <Button
                     variant="primary"
-                    disabled={amount == 0n || error}
+                    disabled={amount == 0n || !!error}
                     isLoading={mintLoading || isConfirming}
                     onClick={() => mintStableCoin({ args: [amount] })}
                   >Swap</Button>
@@ -124,7 +133,7 @@ export default function Swap() {
                 <Button
                   variant="primary"
                   isLoading={burnLoading || isConfirming}
-                  disabled={amount == 0n || error}
+                  disabled={amount == 0n || !!error}
                   onClick={() => burnStableCoin({ args: [amount] })}
                 >Swap</Button>
               }

@@ -20,7 +20,7 @@ interface Props {
   note?: string
   value?: string
   onChange?: (value: string) => void
-  error?: boolean
+  error?: string
 }
 
 export default function SwapFieldInput({
@@ -92,6 +92,11 @@ export default function SwapFieldInput({
           {symbol}
         </div>
       </div>
+      {
+        error && <div className="mt-2 px-1 text-red-500">
+          {error}
+        </div>
+      }
       <div className="mt-2 px-1 flex items-center">
         {limit >= 0n && limitLabel &&
           <>

@@ -8,19 +8,20 @@ import { usePositionStats } from "../../../hooks";
 import { useState } from "react";
 import DisplayAmount from "../../../components/DisplayAmount";
 import Button from "../../../components/Button";
-import { erc20ABI, useChainId, useContractWrite, useWaitForTransaction } from "wagmi";
+import { erc20ABI, useAccount, useChainId, useContractWrite, useWaitForTransaction } from "wagmi";
 import { ABIS, ADDRESS } from "../../../contracts";
 import { min } from "../../../utils";
 
 export default function PositionBorrow({ }) {
   const router = useRouter()
   const [amount, setAmount] = useState(0n)
-  const [error, setError] = useState(false);
+  const [error, setError] = useState('');
   const [pendingTx, setPendingTx] = useState<Hash>(zeroAddress);
-  const { address } = router.query;
+  const { address: positionAddr } = router.query;
 
   const chainId = useChainId()
-  const position = getAddress(String(address || zeroAddress))
+  const { address } = useAccount()
+  const position = getAddress(String(positionAddr || zeroAddress))
   const positionStats = usePositionStats(position)
 
   const requiredColl = positionStats.liqPrice == 0n ? 0n : BigInt(1e18) * amount / positionStats.liqPrice
@@ -29,11 +30,20 @@ export default function PositionBorrow({ }) {
   const paidOutToWallet = amount - borrowersReserveContribution - fees;
   const availableAmount = positionStats.limit - positionStats.minted;
   const userValue = positionStats.collateralBal * positionStats.liqPrice / BigInt(1e18);
+  const borrowingLimit = min(availableAmount, userValue)
 
   const onChangeAmount = (value: string) => {
     const valueBigInt = BigInt(value);
     setAmount(valueBigInt);
-    setError(valueBigInt > positionStats.frankenAllowance)
+    if (valueBigInt > borrowingLimit) {
+      if (availableAmount > userValue) {
+        setError(`Not enough ${positionStats.collateralSymbol} in your wallet.`)
+      } else {
+        setError('Not enough ZCHF available for this position.')
+      }
+    } else {
+      setError('')
+    }
   }
 
   const { isLoading: approveLoading, writeAsync: approveFranken } = useContractWrite({
@@ -76,7 +86,7 @@ export default function PositionBorrow({ }) {
                 label="Borrow"
                 symbol="ZCHF"
                 error={error}
-                max={min(availableAmount, userValue)}
+                max={borrowingLimit}
                 value={amount.toString()}
                 onChange={onChangeAmount}
               />
@@ -123,15 +133,16 @@ export default function PositionBorrow({ }) {
               {amount > positionStats.frankenAllowance ?
                 <Button
                   variant="secondary"
-                  disabled={amount == 0n || error}
+                  disabled={amount == 0n || !!error}
                   isLoading={approveLoading || isConfirming}
                   onClick={() => approveFranken({ args: [ADDRESS[chainId].mintingHub, amount] })}
                 >Approve</Button>
                 :
                 <Button
                   variant="primary"
-                  disabled={amount == 0n || error}
+                  disabled={amount == 0n || !!error}
                   isLoading={cloneLoading || isConfirming}
+                  error={positionStats.owner == address ? 'You cannot clone your own position' : ''}
                   onClick={() => clonePosition({ args: [position, requiredColl, amount, positionStats.expiration] })}
                 >Clone Position</Button>
               }

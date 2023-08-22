@@ -11,6 +11,8 @@ import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { Web3Modal } from "@web3modal/react";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const chains = [mainnet, sepolia]
 const projectId = '75da506ed9c39c840e6c5a5180014870'
@@ -63,10 +65,23 @@ export default function App({ Component, pageProps }: AppProps) {
           ]}
         />
 
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
         <Layout>
           <Component {...pageProps} />
         </Layout>
         <Web3Modal projectId={projectId} ethereumClient={ethereumClient} themeMode="dark" />
+
       </ApolloProvider>
     </WagmiConfig>
   );
