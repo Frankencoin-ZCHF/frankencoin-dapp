@@ -13,11 +13,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Head>
         <title>FrankenCoin - Home</title>
       </Head>
-      <main className="block mx-auto max-w-6xl space-y-8 px-4 pb-8 md:px-8 2xl:max-w-7xl">
-        <Navbar />
-        {children}
+      <Navbar />
+      <div className="h-main overflow-scroll no-scrollbar">
+        <main className="block mx-auto max-w-6xl space-y-8 px-4 pb-8 md:px-8 2xl:max-w-7xl min-h-content">
+          {children}
+        </main>
         <Footer />
-      </main>
+      </div>
     </>
   );
 };

@@ -24,7 +24,7 @@ const FooterButton = ({
 
 export default function Footer() {
   return (
-    <ul className="mt-12 flex items-center justify-center gap-8">
+    <ul className="mt-12 mb-4 flex items-center justify-center gap-8">
       <li>
         <FooterButton
           link={SOCIAL.Github}

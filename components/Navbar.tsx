@@ -1,8 +1,11 @@
 import AppButton from "./AppButton";
 import Link from "next/link";
 import WalletConnect from "./WalletConnect";
+import { useNetwork } from "wagmi";
 
 export default function Navbar() {
+
+  const network = useNetwork()
 
   return (
     <div className="mx-auto max-w-6xl 2xl:max-w-7xl">
@@ -31,6 +34,12 @@ export default function Navbar() {
           <li>
             <AppButton className="btn btn-nav" to="/auctions">Auctions</AppButton>
           </li>
+
+          {network.chain?.testnet &&
+            <li>
+              <AppButton className="btn btn-nav" to="/faucet">Faucet</AppButton>
+            </li>
+          }
         </ul>
         <div className="flex flex-1 justify-end">
           <WalletConnect />

@@ -14,6 +14,14 @@ module.exports = {
     fontFamily: {
       sans: ["Helvetica", "ui-sans-serif"],
     },
+    extend: {
+      height: {
+        main: "calc(100vh - 82px)",
+      },
+      minHeight: {
+        content: "calc(100vh - 170px)",
+      },
+    },
   },
   plugins: [],
 };
