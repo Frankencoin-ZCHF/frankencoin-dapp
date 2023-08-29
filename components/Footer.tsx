@@ -2,25 +2,26 @@ import Link from "next/link";
 import { SOCIAL } from "../utils";
 
 interface ButtonProps {
-  link: string
-  text: string
-  icon: string
+  link: string;
+  text: string;
+  icon: string;
 }
 
-const FooterButton = ({
-  link,
-  text,
-  icon
-}: ButtonProps) => {
+const FooterButton = ({ link, text, icon }: ButtonProps) => {
   return (
-    <Link href={link} target="_blank" rel="noreferrer" className="flex gap-3 underline hover:opacity-70">
+    <Link
+      href={link}
+      target="_blank"
+      rel="noreferrer"
+      className="flex gap-3 underline hover:opacity-70"
+    >
       <picture>
         <img src={icon} alt={text} className="h-6 w-6" />
       </picture>
       {text}
     </Link>
-  )
-}
+  );
+};
 
 export default function Footer() {
   return (
@@ -33,11 +34,7 @@ export default function Footer() {
         />
       </li>
       <li>
-        <FooterButton
-          link={SOCIAL.Docs}
-          text="Doc"
-          icon="/assets/doc.svg"
-        />
+        <FooterButton link={SOCIAL.Docs} text="Doc" icon="/assets/doc.svg" />
       </li>
       <li>
         <FooterButton
@@ -68,5 +65,5 @@ export default function Footer() {
         />
       </li>
     </ul>
-  )
+  );
 }

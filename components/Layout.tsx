@@ -14,8 +14,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <title>FrankenCoin - Home</title>
       </Head>
       <Navbar />
-      <div className="h-main overflow-scroll no-scrollbar pt-12">
-        <main className="block mx-auto max-w-6xl space-y-8 px-4 pb-8 md:px-8 2xl:max-w-7xl min-h-content">
+      <div className="h-main overflow-scroll no-scrollbar pt-24">
+        <main className="block mx-auto max-w-6xl space-y-8 px-4 md:px-8 2xl:max-w-7xl min-h-content">
           {children}
         </main>
         <Footer />
