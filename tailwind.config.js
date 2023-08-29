@@ -16,7 +16,7 @@ module.exports = {
     },
     extend: {
       height: {
-        main: "calc(100vh - 82px)",
+        main: "calc(100vh)",
       },
       minHeight: {
         content: "calc(100vh - 170px)",
