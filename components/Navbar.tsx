@@ -2,6 +2,8 @@ import AppButton from "./AppButton";
 import Link from "next/link";
 import WalletConnect from "./WalletConnect";
 import { useNetwork } from "wagmi";
+import NavButton from "./NavButton";
+import ThemeButton from "./ThemeButton";
 
 export default function Navbar() {
   const network = useNetwork();
@@ -26,38 +28,29 @@ export default function Navbar() {
 
         <ul className="justify-left hidden flex-1 gap-2 md:flex lg:gap-3 xl:w-1/2">
           <li>
-            <AppButton className="btn btn-nav" to="/swap">
-              Swap
-            </AppButton>
+            <NavButton to="/swap" name="Swap" />
           </li>
 
           <li>
-            <AppButton className="btn btn-nav" to="/positions">
-              Positions
-            </AppButton>
+            <NavButton to="/positions" name="Positions" />
           </li>
 
           <li>
-            <AppButton className="btn btn-nav" to="/pool">
-              Reserve Pool
-            </AppButton>
+            <NavButton to="/pool" name="Reserve Pool" />
           </li>
 
           <li>
-            <AppButton className="btn btn-nav" to="/auctions">
-              Auctions
-            </AppButton>
+            <NavButton to="/auctions" name="Auctions" />
           </li>
 
           {network.chain?.testnet && (
             <li>
-              <AppButton className="btn btn-nav" to="/faucet">
-                Faucet
-              </AppButton>
+              <NavButton to="/faucet" name="Faucet" />
             </li>
           )}
         </ul>
-        <div className="flex flex-1 justify-end">
+        <div className="flex flex-1 justify-end items-center">
+          <ThemeButton />
           <WalletConnect />
         </div>
       </header>

@@ -9,3 +9,5 @@ export * from "./useChallengeListStats";
 export * from "./useChallengeStats";
 export * from "./usePoolStats";
 export * from "./useFaucetStats";
+export * from "./useLocalStorage";
+export * from "./useTheme";

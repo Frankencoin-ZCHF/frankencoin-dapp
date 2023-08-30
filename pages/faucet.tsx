@@ -46,7 +46,7 @@ export function FaucetRow({ symbol, balance, decimal, addr }: RowProps) {
   });
 
   return (
-    <div className="rounded-lg bg-white p-8 xl:px-16">
+    <div className="rounded-lg bg-white dark:bg-slate-800 p-8 xl:px-16">
       <div className="flex flex-col justify-between gap-y-5 md:flex-row md:space-x-4">
         <div className="grid flex-grow grid-cols-2 gap-3 sm:grid-cols-3 items-center">
           <div>
@@ -104,7 +104,7 @@ export default function Faucet() {
         <AppPageHeader title="Faucets" />
         <section>
           <div className="space-y-3">
-            <div className="hidden items-center justify-between rounded-lg bg-white py-5 px-8 md:flex xl:px-16">
+            <div className="hidden items-center justify-between rounded-lg bg-white dark:bg-slate-800 py-5 px-8 md:flex xl:px-16">
               <div className="hidden flex-grow grid-cols-2 items-center text-gray-300 md:grid md:grid-cols-3">
                 <span className="leading-tight">Token</span>
                 <span className="leading-tight">Decimals</span>
