@@ -1,10 +1,22 @@
 import Link from "next/link";
 import { SOCIAL } from "../utils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import {
+  faBook,
+  faBookmark,
+  faComments,
+} from "@fortawesome/free-solid-svg-icons";
+import {
+  faGithub,
+  faTelegram,
+  faXTwitter,
+} from "@fortawesome/free-brands-svg-icons";
 
 interface ButtonProps {
   link: string;
   text: string;
-  icon: string;
+  icon: IconProp;
 }
 
 const FooterButton = ({ link, text, icon }: ButtonProps) => {
@@ -13,11 +25,9 @@ const FooterButton = ({ link, text, icon }: ButtonProps) => {
       href={link}
       target="_blank"
       rel="noreferrer"
-      className="flex gap-3 underline hover:opacity-70"
+      className="flex gap-1 underline hover:opacity-70"
     >
-      <picture>
-        <img src={icon} alt={text} className="h-6 w-6" />
-      </picture>
+      <FontAwesomeIcon icon={icon} className="w-6 h-6" />
       {text}
     </Link>
   );
@@ -27,41 +37,25 @@ export default function Footer() {
   return (
     <ul className="mt-12 mb-4 flex items-center justify-center gap-8">
       <li>
-        <FooterButton
-          link={SOCIAL.Github}
-          text="Github"
-          icon="/assets/github.svg"
-        />
+        <FooterButton link={SOCIAL.Github} text="Github" icon={faGithub} />
       </li>
       <li>
-        <FooterButton link={SOCIAL.Docs} text="Doc" icon="/assets/doc.svg" />
+        <FooterButton link={SOCIAL.Docs} text="Doc" icon={faBook} />
       </li>
       <li>
-        <FooterButton
-          link={SOCIAL.SubStack}
-          text="Blog"
-          icon="/assets/blog.svg"
-        />
+        <FooterButton link={SOCIAL.SubStack} text="Blog" icon={faBookmark} />
       </li>
       <li>
-        <FooterButton
-          link={SOCIAL.Forum}
-          text="Forum"
-          icon="/assets/forum.svg"
-        />
+        <FooterButton link={SOCIAL.Forum} text="Forum" icon={faComments} />
       </li>
       <li>
-        <FooterButton
-          link={SOCIAL.Twitter}
-          text="Twitter"
-          icon="/assets/twitter.svg"
-        />
+        <FooterButton link={SOCIAL.Twitter} text="Twitter" icon={faXTwitter} />
       </li>
       <li>
         <FooterButton
           link={SOCIAL.Telegram}
           text="Telegram"
-          icon="/assets/telegram.svg"
+          icon={faTelegram}
         />
       </li>
     </ul>

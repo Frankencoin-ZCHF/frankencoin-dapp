@@ -6,61 +6,75 @@ import { useState } from "react";
 import { useSwapStats } from "../hooks";
 import { Hash, formatUnits, parseUnits, zeroAddress } from "viem";
 import Button from "../components/Button";
-import { erc20ABI, useChainId, useContractWrite, useWaitForTransaction } from "wagmi";
+import {
+  erc20ABI,
+  useChainId,
+  useContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
 import { ABIS, ADDRESS } from "../contracts";
 import { toast } from "react-toastify";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
 export default function Swap() {
-  const [amount, setAmount] = useState(0n)
-  const [error, setError] = useState('');
-  const [direction, setDirection] = useState(true)
+  const [amount, setAmount] = useState(0n);
+  const [error, setError] = useState("");
+  const [direction, setDirection] = useState(true);
   const [pendingTx, setPendingTx] = useState<Hash>(zeroAddress);
 
-  const chainId = useChainId()
-  const swapStats = useSwapStats()
-  const { isLoading: approveStablecoinLoading, writeAsync: approveStableCoin } = useContractWrite({
-    address: ADDRESS[chainId].xchf,
-    abi: erc20ABI,
-    functionName: 'approve',
-    onSuccess(data) {
-      toast(`Approving ${fromSymbol}\n${data.hash}`)
-      setPendingTx(data.hash)
-    }
-  })
+  const chainId = useChainId();
+  const swapStats = useSwapStats();
+  const { isLoading: approveStablecoinLoading, writeAsync: approveStableCoin } =
+    useContractWrite({
+      address: ADDRESS[chainId].xchf,
+      abi: erc20ABI,
+      functionName: "approve",
+      onSuccess(data) {
+        toast(`Approving ${fromSymbol}\n${data.hash}`);
+        setPendingTx(data.hash);
+      },
+    });
   const { isLoading: mintLoading, write: mintStableCoin } = useContractWrite({
     address: ADDRESS[chainId].bridge,
     abi: ABIS.StablecoinBridgeABI,
-    functionName: 'mint',
+    functionName: "mint",
     onSuccess(data) {
-      toast(`Swapping ${fromSymbol} to ${toSymbol}\n${data.hash}`)
-      setPendingTx(data.hash)
-    }
-  })
+      toast(`Swapping ${fromSymbol} to ${toSymbol}\n${data.hash}`);
+      setPendingTx(data.hash);
+    },
+  });
   const { isLoading: burnLoading, write: burnStableCoin } = useContractWrite({
     address: ADDRESS[chainId].bridge,
     abi: ABIS.StablecoinBridgeABI,
-    functionName: 'burn',
+    functionName: "burn",
     onSuccess(data) {
-      setPendingTx(data.hash)
-    }
-  })
+      setPendingTx(data.hash);
+    },
+  });
   const { isLoading: isConfirming } = useWaitForTransaction({
     hash: pendingTx,
     enabled: pendingTx != zeroAddress,
     onSuccess(data) {
       setPendingTx(zeroAddress);
-    }
-  })
+    },
+  });
 
-  const fromBalance = direction ? swapStats.xchfUserBal : swapStats.frankenUserBal;
-  const toBalance = !direction ? swapStats.xchfUserBal : swapStats.frankenUserBal;
+  const fromBalance = direction
+    ? swapStats.xchfUserBal
+    : swapStats.frankenUserBal;
+  const toBalance = !direction
+    ? swapStats.xchfUserBal
+    : swapStats.frankenUserBal;
   const fromSymbol = direction ? swapStats.xchfSymbol : swapStats.frankenSymbol;
   const toSymbol = !direction ? swapStats.xchfSymbol : swapStats.frankenSymbol;
-  const swapLimit = direction ? (swapStats.bridgeLimit - swapStats.xchfBridgeBal) : swapStats.xchfBridgeBal;
+  const swapLimit = direction
+    ? swapStats.bridgeLimit - swapStats.xchfBridgeBal
+    : swapStats.xchfBridgeBal;
 
   const onChangeDirection = () => {
-    setDirection(!direction)
-  }
+    setDirection(!direction);
+  };
 
   const onChangeAmount = (value: string) => {
     const valueBigInt = BigInt(value);
@@ -71,15 +85,13 @@ export default function Swap() {
     } else if (valueBigInt > swapLimit) {
       setError(`Not enough ${toSymbol} available to swap.`);
     } else {
-      setError('');
+      setError("");
     }
-  }
+  };
 
   return (
     <>
-      <Head>
-        FrankenCoin - Swap
-      </Head>
+      <Head>FrankenCoin - Swap</Head>
       <div>
         <AppPageHeader title="Swap XCHF and ZCHF" />
         <section className="mx-auto flex max-w-2xl flex-col gap-y-4 px-4 sm:px-8">
@@ -96,12 +108,15 @@ export default function Swap() {
 
             <div className="py-4 text-center">
               <button
-                className={`btn btn-secondary w-14 h-14 rounded-full transition ${direction && 'rotate-180'}`}
+                className={`btn btn-secondary text-slate-800 w-14 h-14 rounded-full transition ${
+                  direction && "rotate-180"
+                }`}
                 onClick={onChangeDirection}
               >
-                <picture>
-                  <img src="/assets/swap.svg" alt="Swap" />
-                </picture>
+                <FontAwesomeIcon
+                  icon={faArrowRightArrowLeft}
+                  className="rotate-90 w-6 h-6"
+                />
               </button>
             </div>
 
@@ -115,32 +130,43 @@ export default function Swap() {
             />
 
             <div className="mx-auto mt-8 w-72 max-w-full flex-col">
-              {direction ?
-                amount > swapStats.xchfUserAllowance ?
+              {direction ? (
+                amount > swapStats.xchfUserAllowance ? (
                   <Button
                     variant="secondary"
                     isLoading={approveStablecoinLoading || isConfirming}
-                    onClick={() => approveStableCoin({ args: [ADDRESS[chainId].bridge, amount] })}
-                  >Approve</Button>
-                  :
+                    onClick={() =>
+                      approveStableCoin({
+                        args: [ADDRESS[chainId].bridge, amount],
+                      })
+                    }
+                  >
+                    Approve
+                  </Button>
+                ) : (
                   <Button
                     variant="primary"
                     disabled={amount == 0n || !!error}
                     isLoading={mintLoading || isConfirming}
                     onClick={() => mintStableCoin({ args: [amount] })}
-                  >Swap</Button>
-                :
+                  >
+                    Swap
+                  </Button>
+                )
+              ) : (
                 <Button
                   variant="primary"
                   isLoading={burnLoading || isConfirming}
                   disabled={amount == 0n || !!error}
                   onClick={() => burnStableCoin({ args: [amount] })}
-                >Swap</Button>
-              }
+                >
+                  Swap
+                </Button>
+              )}
             </div>
           </AppBox>
         </section>
       </div>
     </>
-  )
+  );
 }
