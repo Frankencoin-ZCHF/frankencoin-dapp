@@ -16,7 +16,7 @@
   }
 
   .btn-secondary {
-    @apply text-black border-black hover:bg-neutral-200 dark:bg-rose-400 dark:border-0;
+    @apply text-black border-black hover:bg-neutral-200 dark:bg-rose-400 dark:border-0 dark:text-white;
   }
 
   .btn-small {
@@ -90,4 +90,21 @@ input[type="number"] {
 .no-scrollbar {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+}
+
+/* Wallet connect web3modal theme */
+button[data-testid="component-big-button"] {
+  background: transparent;
+}
+
+/* Toast Styles */
+.Toastify__toast {
+  border: 1px rgb(51 65 85) solid;
+  backdrop-filter: blur(10px);
+}
+.Toastify__toast-body {
+  align-items: flex-start;
+}
+.Toastify__toast-body .Toastify__toast-icon {
+  margin-top: 2px;
 }

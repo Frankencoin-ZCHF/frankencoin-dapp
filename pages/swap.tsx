@@ -2,9 +2,9 @@ import Head from "next/head";
 import AppPageHeader from "../components/AppPageHeader";
 import AppBox from "../components/AppBox";
 import SwapFieldInput from "../components/SwapFieldInput";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useSwapStats } from "../hooks";
-import { Hash, formatUnits, parseUnits, zeroAddress } from "viem";
+import { Hash, formatUnits, zeroAddress } from "viem";
 import Button from "../components/Button";
 import {
   erc20ABI,
@@ -13,25 +13,43 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import { ABIS, ADDRESS } from "../contracts";
-import { toast } from "react-toastify";
+import { Id, toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { shortenHash } from "../utils";
+import { TxToast } from "../components/TxToast";
+import { commify } from "@ethersproject/units";
 
 export default function Swap() {
   const [amount, setAmount] = useState(0n);
   const [error, setError] = useState("");
   const [direction, setDirection] = useState(true);
   const [pendingTx, setPendingTx] = useState<Hash>(zeroAddress);
+  const toastId = useRef<Id>(0);
 
   const chainId = useChainId();
   const swapStats = useSwapStats();
-  const { isLoading: approveStablecoinLoading, writeAsync: approveStableCoin } =
+  const { isLoading: approveLoading, writeAsync: approveStableCoin } =
     useContractWrite({
       address: ADDRESS[chainId].xchf,
       abi: erc20ABI,
       functionName: "approve",
       onSuccess(data) {
-        toast(`Approving ${fromSymbol}\n${data.hash}`);
+        toastId.current = toast.loading(
+          <TxToast
+            title="Approving XCHF"
+            rows={[
+              {
+                title: "Amount :",
+                value: commify(formatUnits(amount, 18)) + " XCHF",
+              },
+              {
+                title: "Tx: ",
+                value: shortenHash(data.hash),
+              },
+            ]}
+          />
+        );
         setPendingTx(data.hash);
       },
     });
@@ -56,6 +74,22 @@ export default function Swap() {
     hash: pendingTx,
     enabled: pendingTx != zeroAddress,
     onSuccess(data) {
+      toast.update(toastId.current, {
+        type: "success",
+        render: (
+          <TxToast
+            title="Transaction Confirmed!"
+            rows={[
+              {
+                title: "Tx hash: ",
+                value: shortenHash(pendingTx),
+              },
+            ]}
+          />
+        ),
+        autoClose: 5000,
+        isLoading: false,
+      });
       setPendingTx(zeroAddress);
     },
   });
@@ -134,7 +168,7 @@ export default function Swap() {
                 amount > swapStats.xchfUserAllowance ? (
                   <Button
                     variant="secondary"
-                    isLoading={approveStablecoinLoading || isConfirming}
+                    isLoading={approveLoading || isConfirming}
                     onClick={() =>
                       approveStableCoin({
                         args: [ADDRESS[chainId].bridge, amount],

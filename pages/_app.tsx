@@ -2,21 +2,20 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { NextSeo } from "next-seo";
 import Layout from "../components/Layout";
-import {
-  EthereumClient,
-  w3mConnectors,
-} from "@web3modal/ethereum";
-import { mainnet, sepolia } from 'wagmi/chains'
-import { alchemyProvider } from 'wagmi/providers/alchemy'
+import { EthereumClient, w3mConnectors } from "@web3modal/ethereum";
+import { mainnet, sepolia } from "wagmi/chains";
+import { alchemyProvider } from "wagmi/providers/alchemy";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { Web3Modal } from "@web3modal/react";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
-const chains = [mainnet, sepolia]
-const projectId = '75da506ed9c39c840e6c5a5180014870'
-const { publicClient } = configureChains(chains, [alchemyProvider({ apiKey: 'xkAazrbIALbAxhLrOCDqD9yasyMRFXtg' })]);
+const chains = [mainnet, sepolia];
+const projectId = "75da506ed9c39c840e6c5a5180014870";
+const { publicClient } = configureChains(chains, [
+  alchemyProvider({ apiKey: "xkAazrbIALbAxhLrOCDqD9yasyMRFXtg" }),
+]);
 // const { publicClient } = configureChains(chains, [w3mProvider({ projectId })]);
 const wagmiConfig = createConfig({
   autoConnect: true,
@@ -26,13 +25,13 @@ const wagmiConfig = createConfig({
 const ethereumClient = new EthereumClient(wagmiConfig, chains);
 
 const apolloClient = new ApolloClient({
-  uri: 'https://api.studio.thegraph.com/query/50872/frankencoin-sepolia/version/latest',
+  uri: "https://api.studio.thegraph.com/query/50872/frankencoin-sepolia/version/latest",
   cache: new InMemoryCache(),
 });
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <WagmiConfig config={wagmiConfig} >
+    <WagmiConfig config={wagmiConfig}>
       <ApolloProvider client={apolloClient}>
         <NextSeo
           title="FrankenCoin"
@@ -66,22 +65,19 @@ export default function App({ Component, pageProps }: AppProps) {
         />
 
         <ToastContainer
-          position="top-right"
-          autoClose={5000}
+          position="bottom-right"
           hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
           rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
+          theme="dark"
         />
         <Layout>
           <Component {...pageProps} />
         </Layout>
-        <Web3Modal projectId={projectId} ethereumClient={ethereumClient} themeMode="dark" />
-
+        <Web3Modal
+          projectId={projectId}
+          ethereumClient={ethereumClient}
+          themeMode="dark"
+        />
       </ApolloProvider>
     </WagmiConfig>
   );
