@@ -7,23 +7,29 @@ import { usePositionStats } from "../../../hooks";
 import { Hash, getAddress, zeroAddress } from "viem";
 import { useState } from "react";
 import DisplayAmount from "../../../components/DisplayAmount";
-import { formatDuration, formatNumber } from "../../../utils";
+import { formatBigInt, formatDuration } from "../../../utils";
 import Button from "../../../components/Button";
-import { erc20ABI, useAccount, useChainId, useContractWrite, useWaitForTransaction } from "wagmi";
+import {
+  erc20ABI,
+  useAccount,
+  useChainId,
+  useContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
 import { ABIS, ADDRESS } from "../../../contracts";
 
 export default function PositionChallenge() {
-  const router = useRouter()
-  const [amount, setAmount] = useState(0n)
-  const [error, setError] = useState('');
+  const router = useRouter();
+  const [amount, setAmount] = useState(0n);
+  const [error, setError] = useState("");
   const [pendingTx, setPendingTx] = useState<Hash>(zeroAddress);
   const { address: positionAddr } = router.query;
 
-  const chainId = useChainId()
-  const { address } = useAccount()
+  const chainId = useChainId();
+  const { address } = useAccount();
   const account = address || zeroAddress;
-  const position = getAddress(String(positionAddr || zeroAddress))
-  const positionStats = usePositionStats(position)
+  const position = getAddress(String(positionAddr || zeroAddress));
+  const positionStats = usePositionStats(position);
 
   const onChangeAmount = (value: string) => {
     const valueBigInt = BigInt(value);
@@ -31,35 +37,39 @@ export default function PositionChallenge() {
     if (valueBigInt > positionStats.collateralUserBal) {
       setError(`Not enough ${positionStats.collateralSymbol} in your wallet.`);
     } else if (valueBigInt > positionStats.collateralBal) {
-      setError('Challenge collateral should not be larger than position collateral');
+      setError(
+        "Challenge collateral should not be larger than position collateral"
+      );
     } else {
-      setError('');
+      setError("");
     }
-  }
+  };
 
-  const { isLoading: approveLoading, write: approveCollateral } = useContractWrite({
-    address: positionStats.collateral,
-    abi: erc20ABI,
-    functionName: 'approve',
-    onSuccess(data) {
-      setPendingTx(data.hash)
-    }
-  })
-  const { isLoading: challengeLoading, write: launchChallenge } = useContractWrite({
-    address: ADDRESS[chainId].mintingHub,
-    abi: ABIS.MintingHubABI,
-    functionName: 'launchChallenge',
-    onSuccess(data) {
-      setPendingTx(data.hash)
-    }
-  })
+  const { isLoading: approveLoading, write: approveCollateral } =
+    useContractWrite({
+      address: positionStats.collateral,
+      abi: erc20ABI,
+      functionName: "approve",
+      onSuccess(data) {
+        setPendingTx(data.hash);
+      },
+    });
+  const { isLoading: challengeLoading, write: launchChallenge } =
+    useContractWrite({
+      address: ADDRESS[chainId].mintingHub,
+      abi: ABIS.MintingHubABI,
+      functionName: "launchChallenge",
+      onSuccess(data) {
+        setPendingTx(data.hash);
+      },
+    });
   const { isLoading: isConfirming } = useWaitForTransaction({
     hash: pendingTx,
     enabled: pendingTx != zeroAddress,
     onSuccess(data) {
       setPendingTx(zeroAddress);
-    }
-  })
+    },
+  });
 
   return (
     <>
@@ -111,47 +121,60 @@ export default function PositionChallenge() {
 
               <div className="mt-4 text-sm">
                 <p>
-                  The amount you provide will be publicly auctioned. There are two
-                  possible outcomes:
+                  The amount you provide will be publicly auctioned. There are
+                  two possible outcomes:
                 </p>
                 <ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
                   <li>
-                    Someone bids the &apos;buy now&apos; price before the end of the auction.
-                    In that case, the bidder buys the amount of&nbsp;
-                    {positionStats.collateralSymbol} tokens you provided for&nbsp;
-                    {formatNumber(positionStats.liqPrice)} ZCHF per unit.
+                    Someone bids the &apos;buy now&apos; price before the end of
+                    the auction. In that case, the bidder buys the amount of{" "}
+                    {positionStats.collateralSymbol} tokens you provided for{" "}
+                    {formatBigInt(positionStats.liqPrice)} ZCHF per unit.
                   </li>
                   <li>
-                    The auction ends with the highest bids being below the &apos;buy now&apos;
-                    price. In that case, you get your&nbsp;
-                    {positionStats.collateralSymbol} tokens back and the bidder gets
-                    to buy the same amount of&nbsp;
+                    The auction ends with the highest bids being below the
+                    &apos;buy now&apos; price. In that case, you get your{" "}
+                    {positionStats.collateralSymbol} tokens back and the bidder
+                    gets to buy the same amount of{" "}
                     {positionStats.collateralSymbol} tokens out of the position,
-                    with the proceeds being used for repayment. You get a reward.
+                    with the proceeds being used for repayment. You get a
+                    reward.
                   </li>
                 </ol>
               </div>
             </div>
             <div className="mx-auto mt-8 w-72 max-w-full flex-col">
-              {amount > positionStats.collateralAllowance ?
+              {amount > positionStats.collateralAllowance ? (
                 <Button
                   variant="secondary"
                   isLoading={approveLoading || isConfirming}
                   disabled={!!error || account == positionStats.owner}
-                  onClick={() => approveCollateral({ args: [ADDRESS[chainId].mintingHub, amount] })}
-                >Approve</Button>
-                :
+                  onClick={() =>
+                    approveCollateral({
+                      args: [ADDRESS[chainId].mintingHub, amount],
+                    })
+                  }
+                >
+                  Approve
+                </Button>
+              ) : (
                 <Button
                   variant="primary"
                   isLoading={challengeLoading || isConfirming}
                   disabled={!!error || account == positionStats.owner}
-                  onClick={() => launchChallenge({ args: [position, amount, positionStats.liqPrice] })}
-                >Challenge</Button>
-              }
+                  onClick={() =>
+                    launchChallenge({
+                      args: [position, amount, positionStats.liqPrice],
+                    })
+                  }
+                >
+                  Challenge
+                </Button>
+              )}
             </div>
           </AppBox>
         </section>
       </div>
     </>
-  )
+  );
 }
