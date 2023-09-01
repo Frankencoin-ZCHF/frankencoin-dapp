@@ -5,7 +5,12 @@ import DisplayLabel from "../components/DisplayLabel";
 import DisplayAmount from "../components/DisplayAmount";
 import { usePoolStats, useContractUrl } from "../hooks";
 import Link from "next/link";
-import { formatDuration, shortenAddress } from "../utils";
+import {
+  formatBigInt,
+  formatDuration,
+  shortenAddress,
+  shortenHash,
+} from "../utils";
 import {
   erc20ABI,
   useAccount,
@@ -16,15 +21,18 @@ import {
 } from "wagmi";
 import { ABIS, ADDRESS } from "../contracts";
 import SwapFieldInput from "../components/SwapFieldInput";
-import { useState } from "react";
-import { Hash, formatUnits, parseUnits, zeroAddress } from "viem";
+import { useRef, useState } from "react";
+import { Hash, formatUnits, zeroAddress } from "viem";
 import Button from "../components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { TxToast } from "../components/TxToast";
+import { Id, toast } from "react-toastify";
 
 export default function Pool({}) {
   const [amount, setAmount] = useState(0n);
   const [error, setError] = useState("");
+  const toastId = useRef<Id>(0);
   const [direction, setDirection] = useState(true);
   const [pendingTx, setPendingTx] = useState<Hash>(zeroAddress);
 
@@ -34,12 +42,31 @@ export default function Pool({}) {
   const equityUrl = useContractUrl(ADDRESS[chainId].equity);
   const account = address || zeroAddress;
 
-  const { isLoading: approveFrankenLoading, writeAsync: approveFranken } =
+  const { isLoading: approveLoading, writeAsync: approveFranken } =
     useContractWrite({
       address: ADDRESS[chainId].frankenCoin,
       abi: erc20ABI,
       functionName: "approve",
       onSuccess(data) {
+        toastId.current = toast.loading(
+          <TxToast
+            title={`Approving ZCHF`}
+            rows={[
+              {
+                title: "Amount :",
+                value: formatBigInt(amount) + " ZCHF",
+              },
+              {
+                title: "Spender: ",
+                value: shortenAddress(ADDRESS[chainId].equity),
+              },
+              {
+                title: "Tx: ",
+                value: shortenHash(data.hash),
+              },
+            ]}
+          />
+        );
         setPendingTx(data.hash);
       },
     });
@@ -48,6 +75,25 @@ export default function Pool({}) {
     abi: ABIS.EquityABI,
     functionName: "invest",
     onSuccess(data) {
+      toastId.current = toast.loading(
+        <TxToast
+          title={`Investing ZCHF`}
+          rows={[
+            {
+              title: "Amount :",
+              value: formatBigInt(amount, 18) + " ZCHF",
+            },
+            {
+              title: "Shares: ",
+              value: formatBigInt(result) + " FPS",
+            },
+            {
+              title: "Tx: ",
+              value: shortenHash(data.hash),
+            },
+          ]}
+        />
+      );
       setPendingTx(data.hash);
     },
   });
@@ -56,6 +102,25 @@ export default function Pool({}) {
     abi: ABIS.EquityABI,
     functionName: "redeem",
     onSuccess(data) {
+      toastId.current = toast.loading(
+        <TxToast
+          title={`Redeeming FPS`}
+          rows={[
+            {
+              title: "Amount :",
+              value: formatBigInt(amount) + " FPS",
+            },
+            {
+              title: "Receive: ",
+              value: formatBigInt(result) + " ZCHF",
+            },
+            {
+              title: "Tx: ",
+              value: shortenHash(data.hash),
+            },
+          ]}
+        />
+      );
       setPendingTx(data.hash);
     },
   });
@@ -63,6 +128,22 @@ export default function Pool({}) {
     hash: pendingTx,
     enabled: pendingTx != zeroAddress,
     onSuccess(data) {
+      toast.update(toastId.current, {
+        type: "success",
+        render: (
+          <TxToast
+            title="Transaction Confirmed!"
+            rows={[
+              {
+                title: "Tx hash: ",
+                value: shortenHash(pendingTx),
+              },
+            ]}
+          />
+        ),
+        autoClose: 5000,
+        isLoading: false,
+      });
       setPendingTx(zeroAddress);
     },
   });
@@ -126,7 +207,7 @@ export default function Pool({}) {
       <div>
         <AppPageHeader title="FrankenCoin Pool Shares (FPS)" />
         <section className="container mx-auto">
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
             <div className="grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-4">
               <AppBox>
                 <DisplayLabel label="Supply">
@@ -164,17 +245,6 @@ export default function Pool({}) {
                 </DisplayLabel>
               </AppBox>
             </div>
-            <div className="m-2">
-              Contract&nbsp;
-              <Link
-                href={equityUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="text-link text-red-500"
-              >
-                {shortenAddress(ADDRESS[chainId].equity)}
-              </Link>
-            </div>
             <div className="grid grid-cols-1 gap-1 lg:grid-cols-2">
               <AppBox>
                 <div className="m-auto max-w-lg pb-8">
@@ -204,10 +274,7 @@ export default function Pool({}) {
                     symbol={toSymbol}
                     showOutput
                     hideMaxLabel
-                    output={formatUnits(
-                      (direction ? fpsResult : frankenResult) || 0n,
-                      18
-                    )}
+                    output={formatUnits(result, 18)}
                     label="Receive"
                   />
                   <div
@@ -226,7 +293,7 @@ export default function Pool({}) {
                       amount > poolStats.frankenAllowance ? (
                         <Button
                           variant="secondary"
-                          isLoading={approveFrankenLoading || isConfirming}
+                          isLoading={approveLoading || isConfirming}
                           disabled={amount == 0n || !!error}
                           onClick={() =>
                             approveFranken({
@@ -261,26 +328,40 @@ export default function Pool({}) {
                   </div>
                 </div>
               </AppBox>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 ">
                 <AppBox>
-                  <DisplayLabel label="Your shares">
-                    <DisplayAmount
-                      amount={poolStats.equityBalance}
-                      currency="FPS"
-                    />
+                  <DisplayLabel label="FPS Contract">
+                    <Link
+                      href={equityUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-link text-red-500"
+                    >
+                      {shortenAddress(ADDRESS[chainId].equity)}
+                    </Link>
                   </DisplayLabel>
                 </AppBox>
-                <AppBox>
-                  <DisplayLabel label="Your shares value">
-                    <DisplayAmount
-                      amount={
-                        (poolStats.equityPrice * poolStats.equityBalance) /
-                        BigInt(1e18)
-                      }
-                      currency="ZCHF"
-                    />
-                  </DisplayLabel>
-                </AppBox>
+                <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
+                  <AppBox>
+                    <DisplayLabel label="Your shares">
+                      <DisplayAmount
+                        amount={poolStats.equityBalance}
+                        currency="FPS"
+                      />
+                    </DisplayLabel>
+                  </AppBox>
+                  <AppBox>
+                    <DisplayLabel label="Your shares value">
+                      <DisplayAmount
+                        amount={
+                          (poolStats.equityPrice * poolStats.equityBalance) /
+                          BigInt(1e18)
+                        }
+                        currency="ZCHF"
+                      />
+                    </DisplayLabel>
+                  </AppBox>
+                </div>
                 <AppBox className="flex-1">
                   <DisplayLabel label="Voting Power">
                     <DisplayAmount

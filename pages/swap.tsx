@@ -16,9 +16,8 @@ import { ABIS, ADDRESS } from "../contracts";
 import { Id, toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { shortenHash } from "../utils";
+import { formatBigInt, shortenAddress, shortenHash } from "../utils";
 import { TxToast } from "../components/TxToast";
-import { commify } from "@ethersproject/units";
 
 export default function Swap() {
   const [amount, setAmount] = useState(0n);
@@ -41,7 +40,11 @@ export default function Swap() {
             rows={[
               {
                 title: "Amount :",
-                value: commify(formatUnits(amount, 18)) + " XCHF",
+                value: formatBigInt(amount) + " XCHF",
+              },
+              {
+                title: "Spender: ",
+                value: shortenAddress(ADDRESS[chainId].bridge),
               },
               {
                 title: "Tx: ",
@@ -64,11 +67,11 @@ export default function Swap() {
           rows={[
             {
               title: `${fromSymbol} Amount: `,
-              value: commify(formatUnits(amount, 18)) + " " + fromSymbol,
+              value: formatBigInt(amount) + " " + fromSymbol,
             },
             {
               title: `${toSymbol} Amount: `,
-              value: commify(formatUnits(amount, 18)) + " " + toSymbol,
+              value: formatBigInt(amount) + " " + toSymbol,
             },
             {
               title: "Tx: ",
@@ -91,11 +94,11 @@ export default function Swap() {
           rows={[
             {
               title: `${fromSymbol} Amount: `,
-              value: commify(formatUnits(amount, 18)) + " " + fromSymbol,
+              value: formatBigInt(amount) + " " + fromSymbol,
             },
             {
               title: `${toSymbol} Amount: `,
-              value: commify(formatUnits(amount, 18)) + " " + toSymbol,
+              value: formatBigInt(amount) + " " + toSymbol,
             },
             {
               title: "Tx: ",

@@ -1,15 +1,13 @@
-import { commify } from "@ethersproject/units";
-import { formatUnits } from "viem";
-import { TOKEN_LOGO } from "../utils";
+import { TOKEN_LOGO, formatBigInt } from "../utils";
 
 interface Props {
-  amount: bigint
-  bold?: boolean,
-  big?: boolean,
-  noRounding?: boolean,
-  digits?: number | bigint,
-  currency?: string
-  hideLogo?: boolean
+  amount: bigint;
+  bold?: boolean;
+  big?: boolean;
+  noRounding?: boolean;
+  digits?: number | bigint;
+  currency?: string;
+  hideLogo?: boolean;
 }
 
 export default function DisplayAmount({
@@ -23,19 +21,21 @@ export default function DisplayAmount({
 }: Props) {
   return (
     <div className="flex items-center">
-      {!hideLogo && currency && TOKEN_LOGO[currency.toLowerCase()] &&
+      {!hideLogo && currency && TOKEN_LOGO[currency.toLowerCase()] && (
         <picture className="mr-2">
-          <img src={TOKEN_LOGO[currency.toLowerCase()]} className="w-8" alt="token-logo" />
+          <img
+            src={TOKEN_LOGO[currency.toLowerCase()]}
+            className="w-8"
+            alt="token-logo"
+          />
         </picture>
-      }
+      )}
       <div>
-        <span className={`${bold && 'font-bold'} ${big && 'text-3xl'}`}>
-          {commify(formatUnits(amount, Number(digits)))}
+        <span className={`${bold && "font-bold"} ${big && "text-3xl"}`}>
+          {formatBigInt(amount, Number(digits))}
         </span>
-        <span>
-          &nbsp;{currency}
-        </span>
+        <span>&nbsp;{currency}</span>
       </div>
     </div>
-  )
+  );
 }

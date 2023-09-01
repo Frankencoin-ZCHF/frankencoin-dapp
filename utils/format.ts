@@ -1,4 +1,3 @@
-import { commify } from "@ethersproject/units";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -24,25 +23,39 @@ export const formatCurrency = (value: string, digits = 2) => {
   return formatter.format(amount);
 };
 
-export const formatDecimals = (value: string) => {
-  let string = String(value);
-  const patterns = [".0", "."];
+export function formatNumber(value: string): string {
+  const [floor, decimals] = value.split(".");
+  if (!decimals) {
+    return value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+  }
+  return [floor.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"), decimals].join(".");
+}
 
-  patterns.forEach((pattern) => {
-    string = string.endsWith(pattern) ? string.replace(pattern, "") : string;
-  });
+export const formatBigInt = (
+  value?: bigint,
+  units = 18,
+  displayDec = 3
+): string => {
+  if (!value) {
+    value = 0n;
+  }
+  const valString = formatUnits(value, units);
+  const decimalTrimmed = (() => {
+    if (displayDec === 0) {
+      return valString.split(".")[0];
+    }
+    const reg = new RegExp(`(\\.\\d{` + displayDec + `}).*`);
+    return valString.replace(reg, "$1");
+  })();
 
-  return string;
-};
+  let displayNum = formatNumber(decimalTrimmed);
+  if (parseFloat(decimalTrimmed) === 0 && value > 0) {
+    // if display shows zero for a non-zero amount,
+    // show that the amount is less than display setting ex < 0.001
+    displayNum = `< ${displayNum.replace(/.$/, "1")}`;
+  }
 
-export const formatCommify = (amount: string | bigint) => {
-  const formatted = formatDecimals(amount.toString());
-
-  return commify(formatted);
-};
-
-export const formatNumber = (amount: bigint, decimals: number = 18) => {
-  return commify(formatUnits(amount, decimals));
+  return displayNum;
 };
 
 export const shortenString = (str: string) => {

@@ -1,8 +1,6 @@
 import { useAccount } from "wagmi";
-import { commify } from "@ethersproject/units";
-import { formatUnits } from "viem";
 import DisplayAmount from "./DisplayAmount";
-import { TOKEN_LOGO } from "../utils";
+import { TOKEN_LOGO, formatBigInt } from "../utils";
 import { BigNumberInput } from "./BigNumberInput";
 
 interface Props {
@@ -55,7 +53,7 @@ export default function SwapFieldInput({
           >
             Balance :{" "}
             <span className="font-bold text-link">
-              {commify(formatUnits(max, 18))} {symbol}
+              {formatBigInt(max)} {symbol}
             </span>
           </div>
         )}
