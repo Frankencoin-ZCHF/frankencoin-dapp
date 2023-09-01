@@ -1,5 +1,9 @@
 import ChallengeRow from "./ChallengeRow";
 import { Challenge } from "../../hooks";
+import Table from "../Table";
+import TableHeader from "../Table/TableHead";
+import TableBody from "../Table/TableBody";
+import TableRowEmpty from "../Table/TableRowEmpty";
 
 interface Props {
   challenges: Challenge[];
@@ -8,20 +12,22 @@ interface Props {
 
 export default function ChallengeTable({ challenges, noContentText }: Props) {
   return (
-    <section>
-      <div className="space-y-3">
-        <div className="hidden items-center justify-between rounded-lg bg-white dark:bg-slate-800 py-5 px-8 md:flex xl:px-16">
-          <div className="hidden flex-grow grid-cols-2 items-center text-gray-300 md:grid md:grid-cols-5">
-            <span className="leading-tight">Auctionated Collateral</span>
-            <span className="leading-tight">Highest Bid</span>
-            <span className="leading-tight">Buy now Price</span>
-            <span className="leading-tight">Owner</span>
-            <span className="leading-tight">State</span>
-          </div>
-          <div className="w-40 flex-shrink-0"></div>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-1 lg:gap-2">
-          {challenges.map((challenge) => (
+    <Table>
+      <TableHeader
+        headers={[
+          "Auctionated Collateral",
+          "Highest Bid",
+          "Buy now Price",
+          "Owner",
+          "State",
+        ]}
+        actionCol
+      />
+      <TableBody>
+        {challenges.length == 0 ? (
+          <TableRowEmpty>{noContentText}</TableRowEmpty>
+        ) : (
+          challenges.map((challenge) => (
             <ChallengeRow
               position={challenge.position}
               challenger={challenge.challenger}
@@ -31,16 +37,9 @@ export default function ChallengeTable({ challenges, noContentText }: Props) {
               index={challenge.index}
               key={Number(challenge.index)}
             />
-          ))}
-          {challenges.length == 0 && (
-            <div className="rounded-lg bg-white dark:bg-slate-800 p-8 xl:px-16">
-              <div className="flex flex-col justify-between gap-y-5 md:flex-row md:space-x-4">
-                {noContentText}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
+          ))
+        )}
+      </TableBody>
+    </Table>
   );
 }
