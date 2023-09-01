@@ -4,7 +4,6 @@ import AppBox from "../components/AppBox";
 import DisplayLabel from "../components/DisplayLabel";
 import DisplayAmount from "../components/DisplayAmount";
 import { usePoolStats, useContractUrl } from "../hooks";
-import Link from "next/link";
 import {
   formatBigInt,
   formatDuration,
@@ -205,7 +204,7 @@ export default function Pool({}) {
     <>
       <Head>FrankenCoin - Pool Shares</Head>
       <div>
-        <AppPageHeader title="FrankenCoin Pool Shares (FPS)" />
+        <AppPageHeader title="FrankenCoin Pool Shares (FPS)" link={equityUrl} />
         <section className="container mx-auto">
           <div className="flex flex-col gap-1">
             <div className="grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-4">
@@ -247,8 +246,7 @@ export default function Pool({}) {
             </div>
             <div className="grid grid-cols-1 gap-1 lg:grid-cols-2">
               <AppBox>
-                <div className="m-auto max-w-lg pb-8">
-                  <h6 className="mb-8 text-center">Buy or redeem</h6>
+                <div className="m-auto max-w-lg">
                   <SwapFieldInput
                     max={fromBalance}
                     symbol={fromSymbol}
@@ -330,39 +328,25 @@ export default function Pool({}) {
               </AppBox>
               <div className="flex flex-col gap-1 ">
                 <AppBox>
-                  <DisplayLabel label="FPS Contract">
-                    <Link
-                      href={equityUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-link text-red-500"
-                    >
-                      {shortenAddress(ADDRESS[chainId].equity)}
-                    </Link>
+                  <DisplayLabel label="Your shares">
+                    <DisplayAmount
+                      amount={poolStats.equityBalance}
+                      currency="FPS"
+                    />
                   </DisplayLabel>
                 </AppBox>
-                <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
-                  <AppBox>
-                    <DisplayLabel label="Your shares">
-                      <DisplayAmount
-                        amount={poolStats.equityBalance}
-                        currency="FPS"
-                      />
-                    </DisplayLabel>
-                  </AppBox>
-                  <AppBox>
-                    <DisplayLabel label="Your shares value">
-                      <DisplayAmount
-                        amount={
-                          (poolStats.equityPrice * poolStats.equityBalance) /
-                          BigInt(1e18)
-                        }
-                        currency="ZCHF"
-                      />
-                    </DisplayLabel>
-                  </AppBox>
-                </div>
-                <AppBox className="flex-1">
+                <AppBox>
+                  <DisplayLabel label="Your shares value">
+                    <DisplayAmount
+                      amount={
+                        (poolStats.equityPrice * poolStats.equityBalance) /
+                        BigInt(1e18)
+                      }
+                      currency="ZCHF"
+                    />
+                  </DisplayLabel>
+                </AppBox>
+                <AppBox>
                   <DisplayLabel label="Voting Power">
                     <DisplayAmount
                       amount={votingPower}
