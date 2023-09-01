@@ -80,10 +80,10 @@ export default function SwapFieldInput({
             </div>
           ) : (
             <div
-              className={`flex gap-1 rounded-lg dark:text-white p-1 ${
+              className={`flex gap-1 rounded-lg dark:text-white p-1 bg-neutral-100 dark:bg-slate-500 border-2 ${
                 error
-                  ? "bg-red-300 dark:bg-rose-700"
-                  : "bg-neutral-100 dark:bg-slate-500"
+                  ? "border-red-300"
+                  : "border-neutral-100 dark:border-slate-500"
               }`}
             >
               <BigNumberInput

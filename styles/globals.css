@@ -102,7 +102,7 @@ button[data-testid="component-big-button"] {
   border: 1px rgb(51 65 85) solid;
   backdrop-filter: blur(10px);
 }
-.Toastify__toast-body {
+.Toastify__toast .Toastify__toast-body {
   align-items: flex-start;
 }
 .Toastify__toast-body .Toastify__toast-icon {

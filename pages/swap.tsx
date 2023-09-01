@@ -58,7 +58,25 @@ export default function Swap() {
     abi: ABIS.StablecoinBridgeABI,
     functionName: "mint",
     onSuccess(data) {
-      toast(`Swapping ${fromSymbol} to ${toSymbol}\n${data.hash}`);
+      toastId.current = toast.loading(
+        <TxToast
+          title={`Swapping ${fromSymbol} to ${toSymbol}`}
+          rows={[
+            {
+              title: `${fromSymbol} Amount: `,
+              value: commify(formatUnits(amount, 18)) + " " + fromSymbol,
+            },
+            {
+              title: `${toSymbol} Amount: `,
+              value: commify(formatUnits(amount, 18)) + " " + toSymbol,
+            },
+            {
+              title: "Tx: ",
+              value: shortenHash(data.hash),
+            },
+          ]}
+        />
+      );
       setPendingTx(data.hash);
     },
   });
@@ -67,6 +85,25 @@ export default function Swap() {
     abi: ABIS.StablecoinBridgeABI,
     functionName: "burn",
     onSuccess(data) {
+      toastId.current = toast.loading(
+        <TxToast
+          title={`Swapping ${fromSymbol} to ${toSymbol}`}
+          rows={[
+            {
+              title: `${fromSymbol} Amount: `,
+              value: commify(formatUnits(amount, 18)) + " " + fromSymbol,
+            },
+            {
+              title: `${toSymbol} Amount: `,
+              value: commify(formatUnits(amount, 18)) + " " + toSymbol,
+            },
+            {
+              title: "Tx: ",
+              value: shortenHash(data.hash),
+            },
+          ]}
+        />
+      );
       setPendingTx(data.hash);
     },
   });

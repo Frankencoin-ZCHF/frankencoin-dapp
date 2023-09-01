@@ -16,7 +16,6 @@ const projectId = "75da506ed9c39c840e6c5a5180014870";
 const { publicClient } = configureChains(chains, [
   alchemyProvider({ apiKey: "xkAazrbIALbAxhLrOCDqD9yasyMRFXtg" }),
 ]);
-// const { publicClient } = configureChains(chains, [w3mProvider({ projectId })]);
 const wagmiConfig = createConfig({
   autoConnect: true,
   connectors: w3mConnectors({ chains, projectId }),
