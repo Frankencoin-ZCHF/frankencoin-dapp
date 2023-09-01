@@ -9,11 +9,13 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import { useFaucetStats } from "../hooks";
-import { TOKEN_LOGO } from "../utils";
+import { TOKEN_LOGO, shortenHash } from "../utils";
 import Button from "../components/Button";
 import { ABIS, ADDRESS } from "../contracts";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Address, Hash, parseUnits, zeroAddress } from "viem";
+import { Id, toast } from "react-toastify";
+import { TxToast } from "../components/TxToast";
 
 interface RowProps {
   addr: Address;
@@ -24,6 +26,7 @@ interface RowProps {
 
 export function FaucetRow({ symbol, balance, decimal, addr }: RowProps) {
   const { address } = useAccount();
+  const toastId = useRef<Id>(0);
   const [pendingTx, setPendingTx] = useState<Hash>(zeroAddress);
   const account = address || zeroAddress;
 
@@ -32,7 +35,21 @@ export function FaucetRow({ symbol, balance, decimal, addr }: RowProps) {
     abi: ABIS.MockVolABI,
     functionName: "mint",
     onSuccess(data) {
-      // toast(`Minting ${fromSymbol}\n${data.hash}`);
+      toastId.current = toast.loading(
+        <TxToast
+          title={`Fauceting ${symbol}`}
+          rows={[
+            {
+              title: "Amount :",
+              value: "1000 " + symbol,
+            },
+            {
+              title: "Tx: ",
+              value: shortenHash(data.hash),
+            },
+          ]}
+        />
+      );
       setPendingTx(data.hash);
     },
   });
@@ -41,6 +58,22 @@ export function FaucetRow({ symbol, balance, decimal, addr }: RowProps) {
     hash: pendingTx,
     enabled: pendingTx != zeroAddress,
     onSuccess(data) {
+      toast.update(toastId.current, {
+        type: "success",
+        render: (
+          <TxToast
+            title="Transaction Confirmed!"
+            rows={[
+              {
+                title: "Tx hash: ",
+                value: shortenHash(pendingTx),
+              },
+            ]}
+          />
+        ),
+        autoClose: 5000,
+        isLoading: false,
+      });
       setPendingTx(zeroAddress);
     },
   });
