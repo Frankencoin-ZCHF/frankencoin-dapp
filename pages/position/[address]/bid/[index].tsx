@@ -42,11 +42,13 @@ export default function ChallengePlaceBid({}) {
   const challenge =
     matchingChallenges.length > 0 ? matchingChallenges[0] : undefined;
   const challengerUrl = useContractUrl(challenge?.challenger || zeroAddress);
-  const bidderUrl = useContractUrl(challenge?.bidder || zeroAddress);
 
   const isExpired = isDateExpired(challenge?.end || 0n);
-  const bidRatio = challenge ? (amount * BigInt(1e18)) / challenge.size : 0n;
-  const buyNowPrice = positionStats.liqPrice * (challenge?.size || 0n);
+  const buyNowPrice = (challenge?.price || 0n) * (challenge?.size || 0n);
+  const expectedCol =
+    challenge && challenge?.price > 0n
+      ? (amount * BigInt(1e18)) / challenge.price
+      : 0n;
 
   const onChangeAmount = (value: string) => {
     const valueBigInt = BigInt(value);
@@ -90,11 +92,12 @@ export default function ChallengePlaceBid({}) {
                 />
                 <div className="flex flex-col gap-1">
                   <span>
-                    1 {positionStats.collateralSymbol} ={" "}
-                    {formatUnits(bidRatio, 18)} ZCHF
+                    {formatUnits(amount, 18)} ZCHF ={" "}
+                    {formatUnits(expectedCol, 18)}{" "}
+                    {positionStats.collateralSymbol}
                   </span>
                   <span className="text-sm">
-                    If there is a higher bid your ZCHF go back to your wallet.
+                    Expected collateral amount to win
                   </span>
                 </div>
               </div>
@@ -118,26 +121,6 @@ export default function ChallengePlaceBid({}) {
                     currency={"ZCHF"}
                   />
                 </div>
-                <div className="flex">
-                  <div className="flex-1">Highest bid</div>
-                  <DisplayAmount
-                    amount={challenge?.bid || 0n}
-                    currency={"ZCHF"}
-                  />
-                </div>
-                {challenge && challenge.bid > 0n && (
-                  <div className="flex">
-                    <div className="flex-1">Current Bidder</div>
-                    <Link
-                      className="text-link"
-                      href={bidderUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {shortenAddress(challenge?.bidder || zeroAddress)}
-                    </Link>
-                  </div>
-                )}
                 <div className="flex">
                   <div className="flex-1">Time remaining</div>
                   {isDateExpired(challenge?.end || 0n) ? "Expired" : "Active"} (

@@ -20,13 +20,7 @@ export default function ChallengeTable({
   return (
     <Table>
       <TableHeader
-        headers={[
-          "Auctionated Collateral",
-          "Highest Bid",
-          "Buy now Price",
-          "Owner",
-          "State",
-        ]}
+        headers={["Auctionated Collateral", "Current Price", "Owner", "State"]}
         actionCol
       />
       <TableBody>
@@ -45,8 +39,8 @@ export default function ChallengeTable({
               position={challenge.position}
               challenger={challenge.challenger}
               challengeSize={challenge.size}
-              bid={challenge.bid}
               end={challenge.end}
+              price={challenge.price}
               index={challenge.index}
               key={Number(challenge.index)}
             />

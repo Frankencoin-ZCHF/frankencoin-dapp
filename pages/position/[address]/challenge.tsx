@@ -45,9 +45,7 @@ export default function PositionChallenge() {
     if (valueBigInt > positionStats.collateralUserBal) {
       setError(`Not enough ${positionStats.collateralSymbol} in your wallet.`);
     } else if (valueBigInt > positionStats.collateralBal) {
-      setError(
-        "Challenge collateral should not be larger than position collateral"
-      );
+      setError("Challenge collateral should be lower than position collateral");
     } else {
       setError("");
     }
@@ -158,7 +156,7 @@ export default function PositionChallenge() {
             />
             <div className="my-8 flex flex-col gap-2">
               <div className="flex">
-                <div className="flex-1">Buy now price</div>
+                <div className="flex-1">Starting Price</div>
                 <DisplayAmount
                   amount={positionStats.liqPrice}
                   currency={"ZCHF"}
@@ -179,6 +177,10 @@ export default function PositionChallenge() {
                   currency={positionStats.collateralSymbol}
                   digits={positionStats.collateralDecimal + 18}
                 />
+              </div>
+              <div className="flex">
+                <div className="flex-1">Auction delay</div>
+                <div>{formatDuration(positionStats.challengePeriod)}</div>
               </div>
               <div className="flex">
                 <div className="flex-1">Auction duration</div>

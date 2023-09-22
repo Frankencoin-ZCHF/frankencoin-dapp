@@ -104,3 +104,8 @@ export const isDateExpired = (timestamp: number | bigint): boolean => {
   const date = dayjs(Number(timestamp) * 1000);
   return date.isBefore();
 };
+
+export const isDateUpcoming = (timestamp: number | bigint): boolean => {
+  const date = dayjs(Number(timestamp) * 1000);
+  return date.isAfter();
+};

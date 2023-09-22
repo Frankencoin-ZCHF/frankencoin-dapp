@@ -5,7 +5,10 @@ export interface ChallengeQuery {
   position: Address;
   challenger: Address;
   number: bigint;
+  start: bigint;
+  duration: bigint;
   size: bigint;
+  acquiredCollateral: bigint;
   bid: bigint;
   status: string;
 }
@@ -26,7 +29,10 @@ export const useChallengeLists = ({ position, challenger }: Props) => {
         id
         challenger
         position
+        start
+        duration
         size
+        acquiredCollateral
         number
         bid
         status
@@ -39,14 +45,17 @@ export const useChallengeLists = ({ position, challenger }: Props) => {
 
   const challenges: ChallengeQuery[] = [];
   if (data && data.challenges) {
-    data.challenges.forEach((position: any) => {
+    data.challenges.forEach((challenge: any) => {
       challenges.push({
-        position: getAddress(position.position),
-        challenger: getAddress(position.challenger),
-        number: BigInt(position.number),
-        size: BigInt(position.size),
-        bid: BigInt(position.bid),
-        status: position.status,
+        position: getAddress(challenge.position),
+        challenger: getAddress(challenge.challenger),
+        number: BigInt(challenge.number),
+        size: BigInt(challenge.size),
+        bid: BigInt(challenge.bid),
+        start: BigInt(challenge.start),
+        duration: BigInt(challenge.duration),
+        acquiredCollateral: BigInt(challenge.acquiredCollateral),
+        status: challenge.status,
       });
     });
   }

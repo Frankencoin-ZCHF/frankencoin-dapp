@@ -2,15 +2,17 @@ import { Address } from "viem";
 import { useChainId, useContractReads } from "wagmi";
 import { ABIS, ADDRESS } from "../contracts";
 import { ChallengeQuery } from "./useChallengeList";
+import { decodeBigIntCall } from "../utils";
 
 export interface Challenge {
   challenger: Address;
   position: Address;
   size: bigint;
   index: bigint;
-  bid: bigint;
   bidder: Address;
+  start: bigint;
   end: bigint;
+  price: bigint;
   status: string;
 }
 
@@ -22,35 +24,45 @@ export const useChallengeListStats = (
 } => {
   const chainId = useChainId();
 
+  const contractCalls: any[] = [];
+  challenges.forEach((challenge) => {
+    contractCalls.push({
+      address: ADDRESS[chainId].mintingHub,
+      abi: ABIS.MintingHubABI,
+      functionName: "challenges",
+      args: [challenge.number],
+    });
+    contractCalls.push({
+      address: ADDRESS[chainId].mintingHub,
+      abi: ABIS.MintingHubABI,
+      functionName: "price",
+      args: [challenge.number],
+    });
+  });
   const { data, isLoading } = useContractReads({
-    contracts: challenges.map((challenge) => {
-      return {
-        address: ADDRESS[chainId].mintingHub,
-        abi: ABIS.MintingHubABI,
-        functionName: "challenges",
-        args: [challenge.number],
-      };
-    }),
+    contracts: contractCalls,
     enabled: challenges.length > 0,
     watch: true,
   });
 
   const challengsData: Challenge[] = [];
   if (data) {
-    data.forEach((challenge, i) => {
-      const result: any[] = challenge.result as any[];
-      const end = BigInt(result[3]);
-      const bidder = result[4];
-      const bid = BigInt(result[5]);
+    challenges.forEach((challenge, i) => {
+      const challengeData: any[] = data[i * 2].result as any[];
+      const bidder = challengeData[0];
+
+      const price = decodeBigIntCall(data[i * 2 + 1]);
+
       challengsData.push({
-        challenger: challenges[i].challenger,
-        position: challenges[i].position,
-        size: challenges[i].size,
-        index: challenges[i].number,
-        bid,
+        challenger: challenge.challenger,
+        position: challenge.position,
+        size: challenge.size,
+        index: challenge.number,
         bidder,
-        end,
-        status: challenges[i].status,
+        start: challenge.start,
+        end: challenge.start + challenge.duration + challenge.duration,
+        price,
+        status: challenge.status,
       });
     });
   }
