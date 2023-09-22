@@ -16,7 +16,7 @@ interface Props {
 }
 
 export const useChallengeLists = ({ position, challenger }: Props) => {
-  const { data } = useQuery(
+  const { data, loading } = useQuery(
     gql`query {
       challenges(where: {
         ${position ? `position: "${position}",` : ""}
@@ -51,5 +51,5 @@ export const useChallengeLists = ({ position, challenger }: Props) => {
     });
   }
 
-  return challenges;
+  return { challenges, loading };
 };

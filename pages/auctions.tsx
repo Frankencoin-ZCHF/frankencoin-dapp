@@ -5,10 +5,10 @@ import { useChallengeListStats, useChallengeLists } from "../hooks";
 import { useAccount } from "wagmi";
 import ChallengeTable from "../components/ChallengeTable";
 
-export default function Auction({ }) {
-  const { address } = useAccount()
-  const challenges = useChallengeLists({})
-  const challengeStats = useChallengeListStats(challenges)
+export default function Auction({}) {
+  const { address } = useAccount();
+  const { challenges, loading: queryLoading } = useChallengeLists({});
+  const { challengsData, loading } = useChallengeListStats(challenges);
   const account = address || zeroAddress;
 
   return (
@@ -17,16 +17,22 @@ export default function Auction({ }) {
       <div>
         <AppPageHeader title="My Auctions" />
         <ChallengeTable
-          challenges={challengeStats.filter(challenge => challenge.challenger == account)}
+          challenges={challengsData.filter(
+            (challenge) => challenge.challenger == account
+          )}
           noContentText="You don't have any auction."
+          loading={loading || queryLoading}
         />
 
         <AppPageHeader title="All Auctions" className="mt-8" />
         <ChallengeTable
-          challenges={challengeStats.filter(challenge => challenge.challenger != account)}
+          challenges={challengsData.filter(
+            (challenge) => challenge.challenger != account
+          )}
           noContentText="There are no auctions yet."
+          loading={loading || queryLoading}
         />
       </div>
     </>
-  )
+  );
 }

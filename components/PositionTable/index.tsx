@@ -6,6 +6,7 @@ import TableHeader from "../Table/TableHead";
 import TableBody from "../Table/TableBody";
 import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
+import LoadingSpin from "../LoadingSpin";
 
 interface Props {
   showMyPos?: boolean;
@@ -13,7 +14,7 @@ interface Props {
 
 export default function PositionTable({ showMyPos }: Props) {
   const { address } = useAccount();
-  const positions = usePositionLists();
+  const { positions, loading } = usePositionLists();
   const account = address || zeroAddress;
   const matchingPositions = positions.filter((position) =>
     showMyPos ? position.owner == account : position.owner != account
@@ -31,7 +32,14 @@ export default function PositionTable({ showMyPos }: Props) {
         actionCol
       />
       <TableBody>
-        {matchingPositions.length == 0 ? (
+        {loading ? (
+          <TableRowEmpty>
+            <div className="flex items-center">
+              <LoadingSpin classes="mr-3" />
+              Loading...
+            </div>
+          </TableRowEmpty>
+        ) : matchingPositions.length == 0 ? (
           <TableRowEmpty>
             {showMyPos
               ? "You don't have any positions."

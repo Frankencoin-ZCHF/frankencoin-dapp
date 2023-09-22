@@ -224,12 +224,20 @@ export default function Home() {
               </AppBox>
               <AppBox>
                 <DisplayLabel label="Total Votes">
-                  <DisplayAmount amount={homestats.equityTotalVotes} big />
+                  <DisplayAmount
+                    amount={homestats.equityTotalVotes}
+                    digits={24}
+                    big
+                  />
                 </DisplayLabel>
               </AppBox>
               <AppBox>
                 <DisplayLabel label="Your Votes">
-                  <DisplayAmount amount={homestats.equityUserVotes} big />
+                  <DisplayAmount
+                    amount={homestats.equityUserVotes}
+                    digits={24}
+                    big
+                  />
                 </DisplayLabel>
               </AppBox>
             </div>

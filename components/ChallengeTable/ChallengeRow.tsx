@@ -3,9 +3,6 @@ import DisplayAmount from "../DisplayAmount";
 import Link from "next/link";
 import { formatDate, isDateExpired, shortenAddress } from "../../utils";
 import { useContractUrl } from "../../hooks/useContractUrl";
-import Button from "../Button";
-import { useChainId, useContractWrite } from "wagmi";
-import { ABIS, ADDRESS } from "../../contracts";
 import { usePositionStats } from "../../hooks";
 import TableRow from "../Table/TableRow";
 
@@ -27,13 +24,6 @@ export default function ChallengeRow({
   index,
 }: Props) {
   const positionStats = usePositionStats(position);
-  const chainId = useChainId();
-  const { isLoading: endLoading, write: endChallenge } = useContractWrite({
-    address: ADDRESS[chainId].mintingHub,
-    abi: ABIS.MintingHubABI,
-    functionName: "end",
-  });
-
   const ratio = (bid * BigInt(1e18)) / challengeSize;
   const buyNowPrice = (positionStats.liqPrice * challengeSize) / BigInt(1e18);
   const ownerUrl = useContractUrl(challenger);
@@ -43,22 +33,12 @@ export default function ChallengeRow({
   return (
     <TableRow
       actionCol={
-        isExpired ? (
-          <Button
-            size="sm"
-            isLoading={endLoading}
-            onClick={() => endChallenge({ args: [index, false] })}
-          >
-            Close
-          </Button>
-        ) : (
-          <Link
-            className="btn btn-primary btn-small w-full"
-            href={`/position/${position}/bid/${index}`}
-          >
-            Bid
-          </Link>
-        )
+        <Link
+          className="btn btn-primary btn-small w-full"
+          href={`/position/${position}/bid/${index}`}
+        >
+          Bid
+        </Link>
       }
     >
       <div>

@@ -4,13 +4,19 @@ import Table from "../Table";
 import TableHeader from "../Table/TableHead";
 import TableBody from "../Table/TableBody";
 import TableRowEmpty from "../Table/TableRowEmpty";
+import LoadingSpin from "../LoadingSpin";
 
 interface Props {
   challenges: Challenge[];
   noContentText: string;
+  loading?: boolean;
 }
 
-export default function ChallengeTable({ challenges, noContentText }: Props) {
+export default function ChallengeTable({
+  challenges,
+  noContentText,
+  loading,
+}: Props) {
   return (
     <Table>
       <TableHeader
@@ -24,7 +30,14 @@ export default function ChallengeTable({ challenges, noContentText }: Props) {
         actionCol
       />
       <TableBody>
-        {challenges.length == 0 ? (
+        {loading ? (
+          <TableRowEmpty>
+            <div className="flex items-center">
+              <LoadingSpin classes="mr-3" />
+              Loading...
+            </div>
+          </TableRowEmpty>
+        ) : challenges.length == 0 ? (
           <TableRowEmpty>{noContentText}</TableRowEmpty>
         ) : (
           challenges.map((challenge) => (

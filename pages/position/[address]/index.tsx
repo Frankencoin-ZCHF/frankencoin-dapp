@@ -8,7 +8,11 @@ import DisplayAmount from "../../../components/DisplayAmount";
 import { formatDate, shortenAddress } from "../../../utils";
 import { getAddress, zeroAddress } from "viem";
 import { useContractUrl } from "../../../hooks/useContractUrl";
-import { useChallengeListStats, useChallengeLists, usePositionStats } from "../../../hooks";
+import {
+  useChallengeListStats,
+  useChallengeLists,
+  usePositionStats,
+} from "../../../hooks";
 import { useAccount, useChainId, useContractRead } from "wagmi";
 import { ABIS, ADDRESS } from "../../../contracts";
 import ChallengeTable from "../../../components/ChallengeTable";
@@ -17,22 +21,22 @@ export default function PositionDetail() {
   const router = useRouter();
   const { address } = router.query;
   const explorerUrl = useContractUrl(String(address));
-  const position = getAddress(String(address || zeroAddress))
+  const position = getAddress(String(address || zeroAddress));
 
-  const chainId = useChainId()
-  const { address: account } = useAccount()
-  const positionStats = usePositionStats(position)
-  const ownerLink = useContractUrl(positionStats.owner)
-  const challenges = useChallengeLists({ position })
-  const challengeStats = useChallengeListStats(challenges)
+  const chainId = useChainId();
+  const { address: account } = useAccount();
+  const positionStats = usePositionStats(position);
+  const ownerLink = useContractUrl(positionStats.owner);
+  const { challenges, loading: queryLoading } = useChallengeLists({ position });
+  const { challengsData, loading } = useChallengeListStats(challenges);
 
   const { data: positionAssignedReserve } = useContractRead({
     address: ADDRESS[chainId].frankenCoin,
     abi: ABIS.FrankenCoinABI,
-    functionName: 'calculateAssignedReserve',
+    functionName: "calculateAssignedReserve",
     args: [positionStats.minted, Number(positionStats.reserveContribution)],
-    enabled: positionStats.isSuccess
-  })
+    enabled: positionStats.isSuccess,
+  });
 
   return (
     <>
@@ -80,7 +84,11 @@ export default function PositionDetail() {
                     />
                   </DisplayLabel>
                   <DisplayLabel label="Owner">
-                    <Link href={ownerLink} className="text-link" target="_blank">
+                    <Link
+                      href={ownerLink}
+                      className="text-link"
+                      target="_blank"
+                    >
                       <b>{shortenAddress(positionStats.owner)}</b>
                     </Link>
                   </DisplayLabel>
@@ -103,25 +111,41 @@ export default function PositionDetail() {
                   </DisplayLabel>
                 </div>
                 <div className="mx-auto w-72 max-w-full flex-col">
-                  {positionStats.owner == account ?
-                    <Link href={`/position/${position}/adjust`} className="btn btn-primary w-full">Adjust</Link>
-                    :
+                  {positionStats.owner == account ? (
+                    <Link
+                      href={`/position/${position}/adjust`}
+                      className="btn btn-primary w-full"
+                    >
+                      Adjust
+                    </Link>
+                  ) : (
                     <div className="flex flex-col gap-y-4">
-                      <Link href={`/position/${position}/borrow`} className="btn btn-primary w-full">Borrow</Link>
-                      <Link href={`/position/${position}/challenge`} className="btn btn-primary w-full">Challenge</Link>
+                      <Link
+                        href={`/position/${position}/borrow`}
+                        className="btn btn-primary w-full"
+                      >
+                        Borrow
+                      </Link>
+                      <Link
+                        href={`/position/${position}/challenge`}
+                        className="btn btn-primary w-full"
+                      >
+                        Challenge
+                      </Link>
                     </div>
-                  }
+                  )}
                 </div>
               </div>
             </AppBox>
           </div>
           <AppPageHeader title="Open Challenges" className="mt-8" />
           <ChallengeTable
-            challenges={challengeStats}
+            challenges={challengsData}
             noContentText="This position is currently not being challenged."
+            loading={loading || queryLoading}
           />
         </section>
       </div>
     </>
-  )
+  );
 }
