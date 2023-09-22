@@ -8,6 +8,7 @@ export interface ProtocolAddress {
   equity: Address;
   mintingHub: Address;
   mockVol?: Address;
+  positionFactory?: Address;
 }
 
 export const ADDRESS: Record<number, ProtocolAddress> = {
@@ -17,15 +18,16 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
     xchf: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
     equity: "0xCafac3dD18aC6c6e92c921884f9E4176737C052c",
     mintingHub: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+    mockVol: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
   },
   [sepolia.id]: {
-    frankenCoin: "0x304B992EFb5d140393542D072e52279A43a6EA75",
+    frankenCoin: "0xb8C70553165e197f20a0ceC3dbab439c970f816f",
+    bridge: "0x7DfBc328c817127197F02B0Fe0F2925aDf977d64",
+    xchf: "0xe94c49Dcf0c7D761c173E9C131B132A1Cfb81A80",
+    equity: "0x6bdD098E2316F4c57dd1c9a8CcA22506f8e523D8",
+    mintingHub: "0x41Cd0881BBeD2ef1f6b4f369aAA7C25D34eF0688",
     mockVol: "0x37935cedc62b3ec5decc0a9776ee4fee37965ca3",
-    // Position Factory: '0x87a81A66F1716A971e1513bF2fAc7572b06bc8DD',
-    bridge: "0x3f41Bc2895C6Ad65b1855753870F8847947Fa0B1",
-    xchf: "0xCf3f8985e8aA051C15ED7baBCeEAc9aaD6711a85",
-    equity: "0x913de60b32CEE74f15cB0127F8954F7ED79Eb043",
-    mintingHub: "0x4F55268895aa588557Dc3D1421Fc79068dC5537F",
+    positionFactory: "0x895eaA01CaFe0985B5A90728d0395DA41CDA77Ba",
   },
   [mainnet.id]: {
     frankenCoin: "0x7a787023f6E18f979B143C79885323a24709B0d8",

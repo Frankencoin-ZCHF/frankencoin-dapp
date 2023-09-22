@@ -2,28 +2,25 @@ import { gql, useQuery } from "@apollo/client";
 import { Address, getAddress } from "viem";
 
 export interface ChallengeQuery {
-  position: Address
-  challenger: Address
-  number: bigint
-  size: bigint
-  bid: bigint
-  status: string
+  position: Address;
+  challenger: Address;
+  number: bigint;
+  size: bigint;
+  bid: bigint;
+  status: string;
 }
 
 interface Props {
-  position?: Address,
-  challenger?: Address,
+  position?: Address;
+  challenger?: Address;
 }
 
-export const useChallengeLists = ({
-  position,
-  challenger,
-}: Props) => {
+export const useChallengeLists = ({ position, challenger }: Props) => {
   const { data } = useQuery(
     gql`query {
       challenges(where: {
-        ${position ? `position: "${position}",` : ''}
-        ${challenger ? `challenger: "${challenger}",` : ''}
+        ${position ? `position: "${position}",` : ""}
+        ${challenger ? `challenger: "${challenger}",` : ""}
         status: "Active"
       }) {
         id
@@ -36,9 +33,9 @@ export const useChallengeLists = ({
       }
     }`,
     {
-      fetchPolicy: 'no-cache'
+      fetchPolicy: "no-cache",
     }
-  )
+  );
 
   const challenges: ChallengeQuery[] = [];
   if (data && data.challenges) {
@@ -49,10 +46,10 @@ export const useChallengeLists = ({
         number: BigInt(position.number),
         size: BigInt(position.size),
         bid: BigInt(position.bid),
-        status: position.status
-      })
-    })
+        status: position.status,
+      });
+    });
   }
 
   return challenges;
-}
+};
