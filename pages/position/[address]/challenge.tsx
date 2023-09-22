@@ -5,9 +5,14 @@ import AppBox from "../../../components/AppBox";
 import SwapFieldInput from "../../../components/SwapFieldInput";
 import { usePositionStats } from "../../../hooks";
 import { Hash, getAddress, zeroAddress } from "viem";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import DisplayAmount from "../../../components/DisplayAmount";
-import { formatBigInt, formatDuration } from "../../../utils";
+import {
+  formatBigInt,
+  formatDuration,
+  shortenAddress,
+  shortenHash,
+} from "../../../utils";
 import Button from "../../../components/Button";
 import {
   erc20ABI,
@@ -17,12 +22,15 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import { ABIS, ADDRESS } from "../../../contracts";
+import { Id, toast } from "react-toastify";
+import { TxToast } from "../../../components/TxToast";
 
 export default function PositionChallenge() {
   const router = useRouter();
   const [amount, setAmount] = useState(0n);
   const [error, setError] = useState("");
   const [pendingTx, setPendingTx] = useState<Hash>(zeroAddress);
+  const toastId = useRef<Id>(0);
   const { address: positionAddr } = router.query;
 
   const chainId = useChainId();
@@ -51,6 +59,28 @@ export default function PositionChallenge() {
       abi: erc20ABI,
       functionName: "approve",
       onSuccess(data) {
+        toastId.current = toast.loading(
+          <TxToast
+            title={"Approving " + positionStats.collateralSymbol}
+            rows={[
+              {
+                title: "Amount :",
+                value:
+                  formatBigInt(amount, positionStats.collateralDecimal) +
+                  " " +
+                  positionStats.collateralSymbol,
+              },
+              {
+                title: "Spender: ",
+                value: shortenAddress(ADDRESS[chainId].mintingHub),
+              },
+              {
+                title: "Tx: ",
+                value: shortenHash(data.hash),
+              },
+            ]}
+          />
+        );
         setPendingTx(data.hash);
       },
     });
@@ -60,6 +90,26 @@ export default function PositionChallenge() {
       abi: ABIS.MintingHubABI,
       functionName: "launchChallenge",
       onSuccess(data) {
+        <TxToast
+          title={"Launching a challenge"}
+          rows={[
+            {
+              title: "Size :",
+              value:
+                formatBigInt(amount, positionStats.collateralDecimal) +
+                " " +
+                positionStats.collateralSymbol,
+            },
+            {
+              title: "Price: ",
+              value: formatBigInt(positionStats.liqPrice),
+            },
+            {
+              title: "Tx: ",
+              value: shortenHash(data.hash),
+            },
+          ]}
+        />;
         setPendingTx(data.hash);
       },
     });
@@ -67,6 +117,22 @@ export default function PositionChallenge() {
     hash: pendingTx,
     enabled: pendingTx != zeroAddress,
     onSuccess(data) {
+      toast.update(toastId.current, {
+        type: "success",
+        render: (
+          <TxToast
+            title="Transaction Confirmed!"
+            rows={[
+              {
+                title: "Tx hash: ",
+                value: shortenHash(pendingTx),
+              },
+            ]}
+          />
+        ),
+        autoClose: 5000,
+        isLoading: false,
+      });
       setPendingTx(zeroAddress);
     },
   });
