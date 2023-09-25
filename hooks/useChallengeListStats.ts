@@ -8,10 +8,13 @@ export interface Challenge {
   challenger: Address;
   position: Address;
   size: bigint;
+  filledSize: bigint;
   index: bigint;
   bidder: Address;
   start: bigint;
-  end: bigint;
+  fixedEnd: bigint;
+  auctionEnd: bigint;
+  duration: bigint;
   price: bigint;
   status: string;
 }
@@ -57,10 +60,13 @@ export const useChallengeListStats = (
         challenger: challenge.challenger,
         position: challenge.position,
         size: challenge.size,
+        filledSize: challenge.filledSize,
         index: challenge.number,
         bidder,
         start: challenge.start,
-        end: challenge.start + challenge.duration + challenge.duration,
+        fixedEnd: challenge.start + challenge.duration,
+        auctionEnd: challenge.start + challenge.duration + challenge.duration,
+        duration: challenge.duration,
         price,
         status: challenge.status,
       });

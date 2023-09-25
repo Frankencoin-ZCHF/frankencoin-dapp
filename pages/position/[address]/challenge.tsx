@@ -163,6 +163,14 @@ export default function PositionChallenge() {
                 />
               </div>
               <div className="flex">
+                <div className="flex-1">Maximum Bid</div>
+                <DisplayAmount
+                  amount={positionStats.liqPrice * amount}
+                  currency={"ZCHF"}
+                  digits={positionStats.collateralDecimal + 18}
+                />
+              </div>
+              <div className="flex">
                 <div className="flex-1">Collateral in position</div>
                 <DisplayAmount
                   amount={positionStats.collateralBal}
@@ -171,22 +179,9 @@ export default function PositionChallenge() {
                 />
               </div>
               <div className="flex">
-                <div className="flex-1">Maximum Bid</div>
-                <DisplayAmount
-                  amount={positionStats.liqPrice * amount}
-                  currency={positionStats.collateralSymbol}
-                  digits={positionStats.collateralDecimal + 18}
-                />
+                <div className="flex-1">Auction period</div>
+                <div>{formatDuration(positionStats.challengePeriod * 2n)}</div>
               </div>
-              <div className="flex">
-                <div className="flex-1">Auction delay</div>
-                <div>{formatDuration(positionStats.challengePeriod)}</div>
-              </div>
-              <div className="flex">
-                <div className="flex-1">Auction duration</div>
-                <div>{formatDuration(positionStats.challengePeriod)}</div>
-              </div>
-
               <div className="mt-4 text-sm">
                 <p>
                   The amount you provide will be publicly auctioned. There are

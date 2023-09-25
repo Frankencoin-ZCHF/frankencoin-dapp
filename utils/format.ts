@@ -91,13 +91,18 @@ export const decodeStringCall = (data: any): string => {
 
 export const formatDate = (timestamp: number | bigint): string => {
   const date = dayjs(Number(timestamp) * 1000);
-  return date.format("YYYY-MM-DD");
+  return date.format("YYYY-MM-DD HH:mm");
 };
 
-export const formatDuration = (timestamp: number | bigint): string => {
-  const duration = dayjs.duration(Number(timestamp), "seconds").humanize(false);
+export const formatDateDuration = (timestamp: number | bigint): string => {
+  const date = dayjs(Number(timestamp) * 1000);
+  return dayjs.duration(date.toISOString()).humanize(true);
+};
 
-  return timestamp > 0 ? duration : "-";
+export const formatDuration = (time: number | bigint): string => {
+  const duration = dayjs.duration(Number(time), "seconds").humanize(false);
+
+  return time > 0 ? duration : "-";
 };
 
 export const isDateExpired = (timestamp: number | bigint): boolean => {

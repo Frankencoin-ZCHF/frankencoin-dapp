@@ -3,6 +3,8 @@ import DisplayAmount from "../DisplayAmount";
 import Link from "next/link";
 import {
   formatDate,
+  formatDateDuration,
+  formatDuration,
   isDateExpired,
   isDateUpcoming,
   shortenAddress,
@@ -15,7 +17,10 @@ interface Props {
   position: Address;
   challenger: Address;
   challengeSize: bigint;
-  end: bigint;
+  filledSize: bigint;
+  fixedEnd: bigint;
+  auctionEnd: bigint;
+  duration: bigint;
   price: bigint;
   index: bigint;
 }
@@ -24,29 +29,36 @@ export default function ChallengeRow({
   position,
   challenger,
   challengeSize,
-  end,
+  filledSize,
+  fixedEnd,
+  auctionEnd,
+  duration,
   price,
   index,
 }: Props) {
   const positionStats = usePositionStats(position);
-  const buyNowPrice = (price * challengeSize) / BigInt(1e18);
   const ownerUrl = useContractUrl(challenger);
-  const endDate = formatDate(end);
-  const isExpired = isDateExpired(end);
+  const endDate = formatDate(auctionEnd);
+  const isFixedEnd = isDateExpired(fixedEnd);
+  const isAuctionExpired = isDateExpired(auctionEnd);
+
+  const stateText = !isFixedEnd
+    ? "Fixed Price Phase"
+    : !isAuctionExpired
+    ? "Sliding Price Phase"
+    : "Expired";
+  const priceText = !isFixedEnd
+    ? "Price starts falling in " +
+      formatDuration(fixedEnd - BigInt(Math.floor(Date.now() / 1000)))
+    : !isAuctionExpired
+    ? "Zero is reached in " +
+      formatDuration(auctionEnd - BigInt(Math.floor(Date.now() / 1000)))
+    : "Auction ended at " + formatDate(auctionEnd);
 
   return (
-    <TableRow
-      actionCol={
-        <Link
-          className="btn btn-primary btn-small w-full"
-          href={`/position/${position}/bid/${index}`}
-        >
-          Bid
-        </Link>
-      }
-    >
+    <TableRow link={`/position/${position}/bid/${index}`}>
       <div>
-        <div className="text-gray-400 md:hidden">Auctionated Collateral</div>
+        <div className="text-gray-400 md:hidden">Auction</div>
         <DisplayAmount
           amount={challengeSize}
           currency={positionStats.collateralSymbol}
@@ -54,9 +66,17 @@ export default function ChallengeRow({
         />
       </div>
       <div>
-        <div className="text-gray-400 md:hidden">Current Price</div>
+        <div className="text-gray-400 md:hidden">Remaining</div>
         <DisplayAmount
-          amount={buyNowPrice}
+          amount={challengeSize - filledSize}
+          currency={positionStats.collateralSymbol}
+          digits={positionStats.collateralDecimal}
+        />
+      </div>
+      <div>
+        <div className="text-gray-400 md:hidden">Buy Now Price</div>
+        <DisplayAmount
+          amount={price}
           digits={positionStats.collateralDecimal}
           currency={"ZCHF"}
         />
@@ -77,17 +97,12 @@ export default function ChallengeRow({
         <div className="flex gap-x-2 leading-none">
           <div
             className={`h-4 w-4 flex-shrink-0 rounded-full ${
-              isExpired ? "bg-gray-300" : "bg-green-300"
+              isAuctionExpired ? "bg-gray-300" : "bg-green-300"
             }`}
           ></div>
           <div className="flex flex-col gap-y-1">
-            <span className="font-bold">
-              {isExpired ? "Expired" : "Active"}
-            </span>
-            <span className="text-sm">
-              {!isExpired && "Expires "}
-              {endDate}
-            </span>
+            <span className="font-bold">{stateText}</span>
+            <span className="text-sm">{priceText}</span>
           </div>
         </div>
       </div>

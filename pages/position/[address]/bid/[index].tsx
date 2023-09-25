@@ -3,29 +3,41 @@ import AppPageHeader from "../../../../components/AppPageHeader";
 import { useRouter } from "next/router";
 import AppBox from "../../../../components/AppBox";
 import SwapFieldInput from "../../../../components/SwapFieldInput";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   useChallengeListStats,
   useChallengeLists,
   usePositionStats,
 } from "../../../../hooks";
-import { formatUnits, getAddress, zeroAddress } from "viem";
+import { Hash, formatUnits, getAddress, zeroAddress } from "viem";
 import DisplayAmount from "../../../../components/DisplayAmount";
 import {
+  formatBigInt,
   formatDate,
   formatDuration,
   isDateExpired,
   shortenAddress,
+  shortenHash,
 } from "../../../../utils";
 import Link from "next/link";
 import { useContractUrl } from "../../../../hooks/useContractUrl";
 import Button from "../../../../components/Button";
-import { erc20ABI, useChainId, useContractWrite } from "wagmi";
+import {
+  erc20ABI,
+  useChainId,
+  useContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
 import { ABIS, ADDRESS } from "../../../../contracts";
+import { Id, toast } from "react-toastify";
+import { TxToast } from "../../../../components/TxToast";
 
 export default function ChallengePlaceBid({}) {
   const [amount, setAmount] = useState(0n);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
+  const [pendingTx, setPendingTx] = useState<Hash>(zeroAddress);
+  const toastId = useRef<Id>(0);
+
   const router = useRouter();
   const { address, index } = router.query;
   const position = getAddress(String(address || zeroAddress));
@@ -43,17 +55,31 @@ export default function ChallengePlaceBid({}) {
     matchingChallenges.length > 0 ? matchingChallenges[0] : undefined;
   const challengerUrl = useContractUrl(challenge?.challenger || zeroAddress);
 
-  const isExpired = isDateExpired(challenge?.end || 0n);
-  const buyNowPrice = (challenge?.price || 0n) * (challenge?.size || 0n);
-  const expectedCol =
-    challenge && challenge?.price > 0n
-      ? (amount * BigInt(1e18)) / challenge.price
-      : 0n;
+  const isExpired = isDateExpired(challenge?.auctionEnd || 0n);
+
+  const remainingCol = (challenge?.size || 0n) - (challenge?.filledSize || 0n);
+  const buyNowPrice = challenge?.price || 0n;
+  const expectedCol = (bidAmount?: bigint) => {
+    if (!bidAmount) bidAmount = amount;
+    return challenge && challenge?.price > 0n
+      ? (bidAmount * BigInt(1e18)) / challenge.price
+      : (bidAmount * BigInt(10 ** positionStats.collateralDecimal)) /
+          BigInt(1e18);
+  };
 
   const onChangeAmount = (value: string) => {
     const valueBigInt = BigInt(value);
     setAmount(valueBigInt);
-    setError(valueBigInt > positionStats.frankenBalance);
+
+    if (valueBigInt > positionStats.frankenBalance) {
+      setError("Not enough ZCHF balance in your wallet.");
+    } else if (expectedCol(valueBigInt) > remainingCol) {
+      setError(
+        "Expected winning collateral should be lower than remaining collateral."
+      );
+    } else {
+      setError("");
+    }
   };
 
   const { isLoading: approveLoading, write: approveFranken } = useContractWrite(
@@ -61,6 +87,28 @@ export default function ChallengePlaceBid({}) {
       address: ADDRESS[chainId].xchf,
       abi: erc20ABI,
       functionName: "approve",
+      onSuccess(data) {
+        toastId.current = toast.loading(
+          <TxToast
+            title="Approving ZCHF"
+            rows={[
+              {
+                title: "Amount :",
+                value: formatBigInt(amount) + " ZCHF",
+              },
+              {
+                title: "Spender: ",
+                value: shortenAddress(ADDRESS[chainId].mintingHub),
+              },
+              {
+                title: "Tx: ",
+                value: shortenHash(data.hash),
+              },
+            ]}
+          />
+        );
+        setPendingTx(data.hash);
+      },
     }
   );
 
@@ -68,6 +116,54 @@ export default function ChallengePlaceBid({}) {
     address: ADDRESS[chainId].mintingHub,
     abi: ABIS.MintingHubABI,
     functionName: "bid",
+    onSuccess(data) {
+      toastId.current = toast.loading(
+        <TxToast
+          title={`Placing a bid`}
+          rows={[
+            {
+              title: `Bid Amount: `,
+              value: formatBigInt(amount) + " ZCHF",
+            },
+            {
+              title: `Win Amount: `,
+              value:
+                formatBigInt(expectedCol(), positionStats.collateralDecimal) +
+                " " +
+                positionStats.collateralSymbol,
+            },
+            {
+              title: "Tx: ",
+              value: shortenHash(data.hash),
+            },
+          ]}
+        />
+      );
+      setPendingTx(data.hash);
+    },
+  });
+  const { isLoading: isConfirming } = useWaitForTransaction({
+    hash: pendingTx,
+    enabled: pendingTx != zeroAddress,
+    onSuccess(data) {
+      toast.update(toastId.current, {
+        type: "success",
+        render: (
+          <TxToast
+            title="Transaction Confirmed!"
+            rows={[
+              {
+                title: "Tx hash: ",
+                value: shortenHash(pendingTx),
+              },
+            ]}
+          />
+        ),
+        autoClose: 5000,
+        isLoading: false,
+      });
+      setPendingTx(zeroAddress);
+    },
   });
 
   return (
@@ -89,11 +185,12 @@ export default function ChallengePlaceBid({}) {
                   value={amount.toString()}
                   onChange={onChangeAmount}
                   symbol={"ZCHF"}
+                  error={error}
                 />
                 <div className="flex flex-col gap-1">
                   <span>
                     {formatUnits(amount, 18)} ZCHF ={" "}
-                    {formatUnits(expectedCol, 18)}{" "}
+                    {formatUnits(expectedCol(), 18)}{" "}
                     {positionStats.collateralSymbol}
                   </span>
                   <span className="text-sm">
@@ -104,9 +201,18 @@ export default function ChallengePlaceBid({}) {
               <div className="flex flex-col gap-2">
                 <div className="flex">
                   <div className="flex-1">
-                    <span className="font-bold">Auctionned Collateral</span>
+                    <span className="font-bold">Remaining Collateral</span>
                   </div>
                   <div className="font-bold">
+                    <DisplayAmount
+                      amount={remainingCol}
+                      currency={positionStats.collateralSymbol}
+                    />
+                  </div>
+                </div>
+                <div className="flex">
+                  <div className="flex-1">Auctionned Collateral</div>
+                  <div>
                     <DisplayAmount
                       amount={challenge?.size || 0n}
                       currency={positionStats.collateralSymbol}
@@ -117,18 +223,20 @@ export default function ChallengePlaceBid({}) {
                   <div className="flex-1">Buy now price</div>
                   <DisplayAmount
                     amount={buyNowPrice}
-                    digits={positionStats.collateralDecimal + 18}
+                    digits={positionStats.collateralDecimal}
                     currency={"ZCHF"}
                   />
                 </div>
                 <div className="flex">
                   <div className="flex-1">Time remaining</div>
-                  {isDateExpired(challenge?.end || 0n) ? "Expired" : "Active"} (
-                  {formatDate(challenge?.end || 0)})
+                  {isExpired ? "Expired" : "Active"} (
+                  {formatDate(challenge?.auctionEnd || 0)})
                 </div>
                 <div className="flex">
                   <div className="flex-1">Auction duration</div>
-                  <div>{formatDuration(positionStats.challengePeriod)}</div>
+                  <div>
+                    {formatDuration(positionStats.challengePeriod * 2n)}
+                  </div>
                 </div>
                 <div className="flex">
                   <div className="flex-1">Challenger</div>
@@ -147,7 +255,7 @@ export default function ChallengePlaceBid({}) {
               {amount > positionStats.frankenAllowance ? (
                 <Button
                   variant="secondary"
-                  isLoading={approveLoading}
+                  isLoading={approveLoading || isConfirming}
                   onClick={() =>
                     approveFranken({
                       args: [ADDRESS[chainId].mintingHub, amount],
@@ -159,11 +267,15 @@ export default function ChallengePlaceBid({}) {
               ) : (
                 <Button
                   variant="primary"
-                  disabled={isExpired || amount == 0n}
-                  isLoading={bidLoading}
+                  disabled={amount == 0n}
+                  isLoading={bidLoading || isConfirming}
                   onClick={() =>
                     placeBid({
-                      args: [Number(challenge?.index || 0n), amount, false],
+                      args: [
+                        Number(challenge?.index || 0n),
+                        expectedCol(),
+                        false,
+                      ],
                     })
                   }
                 >

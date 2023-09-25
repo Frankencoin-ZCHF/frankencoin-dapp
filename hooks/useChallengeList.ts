@@ -8,6 +8,7 @@ export interface ChallengeQuery {
   start: bigint;
   duration: bigint;
   size: bigint;
+  filledSize: bigint;
   acquiredCollateral: bigint;
   bid: bigint;
   status: string;
@@ -32,6 +33,7 @@ export const useChallengeLists = ({ position, challenger }: Props) => {
         start
         duration
         size
+        filledSize
         acquiredCollateral
         number
         bid
@@ -51,6 +53,7 @@ export const useChallengeLists = ({ position, challenger }: Props) => {
         challenger: getAddress(challenge.challenger),
         number: BigInt(challenge.number),
         size: BigInt(challenge.size),
+        filledSize: BigInt(challenge.filledSize),
         bid: BigInt(challenge.bid),
         start: BigInt(challenge.start),
         duration: BigInt(challenge.duration),
