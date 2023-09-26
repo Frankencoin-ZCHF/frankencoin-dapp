@@ -9,6 +9,11 @@ import { ADDRESS } from "../contracts/address";
 import { useChainId } from "wagmi";
 import { shortenAddress } from "../utils";
 import AppPageHeader from "../components/AppPageHeader";
+import localFont from "@next/font/local";
+
+const pixelFont = localFont({
+  src: "../public/fonts/LcdSolid.ttf",
+});
 
 export default function Home() {
   const chainId = useChainId();
@@ -23,11 +28,17 @@ export default function Home() {
       <main className="block">
         <section className="mt-16 grid items-center gap-20 align-middle lg:grid-cols-5">
           <div className="lg:col-span-3">
-            <h1 className="mb-12 text-right text-4xl font-bold">
-              <picture>
-                <img src="/assets/logo.svg" alt="logo" />
+            <div className="flex items-center mb-12">
+              <picture className="mr-2">
+                <img src="/assets/logoSquare.svg" alt="logo" className="w-20" />
               </picture>
-            </h1>
+              <h1 className="text-7xl font-bold">FRANKEN</h1>
+              <span
+                className={`${pixelFont.className} font-bold text-6xl mt-2`}
+              >
+                COIN
+              </span>
+            </div>
 
             <p className="text-lg font-bold">
               The Frankencoin is a collateralized, oracle-free stablecoin that

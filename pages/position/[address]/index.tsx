@@ -102,7 +102,7 @@ export default function PositionDetail() {
                       currency={"%"}
                     />
                   </DisplayLabel>
-                  <DisplayLabel label="Minting Fee">
+                  <DisplayLabel label="Annual Interest">
                     <DisplayAmount
                       amount={positionStats.mintingFee / 100n}
                       digits={2}

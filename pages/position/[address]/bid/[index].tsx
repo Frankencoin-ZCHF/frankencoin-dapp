@@ -274,7 +274,7 @@ export default function ChallengePlaceBid({}) {
                       args: [
                         Number(challenge?.index || 0n),
                         expectedCol(),
-                        false,
+                        true,
                       ],
                     })
                   }
