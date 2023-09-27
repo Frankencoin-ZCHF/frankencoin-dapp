@@ -40,7 +40,9 @@ export default function PositionDetail() {
 
   return (
     <>
-      <Head>FrankenCoin - Position Overview</Head>
+      <Head>
+        <title>FrankenCoin - Position Overview</title>
+      </Head>
       <div>
         <AppPageHeader
           title={`Overview Position ${address && shortenAddress(position)}`}

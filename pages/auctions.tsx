@@ -13,7 +13,9 @@ export default function Auction({}) {
 
   return (
     <>
-      <Head>FrankenCoin - Auction</Head>
+      <Head>
+        <title>FrankenCoin - Auction</title>
+      </Head>
       <div>
         <AppPageHeader title="My Auctions" />
         <ChallengeTable

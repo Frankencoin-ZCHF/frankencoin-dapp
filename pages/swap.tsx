@@ -165,7 +165,9 @@ export default function Swap() {
 
   return (
     <>
-      <Head>FrankenCoin - Swap</Head>
+      <Head>
+        <title>FrankenCoin - Swap</title>
+      </Head>
       <div>
         <AppPageHeader title="Swap XCHF and ZCHF" />
         <section className="mx-auto flex max-w-2xl flex-col gap-y-4 px-4 sm:px-8">

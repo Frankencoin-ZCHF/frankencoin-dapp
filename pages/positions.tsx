@@ -5,7 +5,9 @@ import PositionTable from "../components/PositionTable";
 export default function Positions() {
   return (
     <>
-      <Head>FrankenCoin - Positions</Head>
+      <Head>
+        <title>FrankenCoin - Positions</title>
+      </Head>
       <div>
         <AppPageHeader title="My positions" />
         <PositionTable showMyPos />
@@ -15,5 +17,5 @@ export default function Positions() {
         <PositionTable />
       </div>
     </>
-  )
+  );
 }

@@ -137,7 +137,9 @@ export default function PositionChallenge() {
 
   return (
     <>
-      <Head>FrankenCoin - Position Challenge</Head>
+      <Head>
+        <title>FrankenCoin - Position Challenge</title>
+      </Head>
       <div>
         <AppPageHeader
           title="Launch a challenge"

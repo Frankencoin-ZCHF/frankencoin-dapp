@@ -168,7 +168,9 @@ export default function ChallengePlaceBid({}) {
 
   return (
     <>
-      <Head>FrankenCoin - Place Bid</Head>
+      <Head>
+        <title>FrankenCoin - Place Bid</title>
+      </Head>
       <div>
         <AppPageHeader
           title="Place your bid"

@@ -202,7 +202,9 @@ export default function Pool({}) {
 
   return (
     <>
-      <Head>FrankenCoin - Pool Shares</Head>
+      <Head>
+        <title>FrankenCoin - Pool Shares</title>
+      </Head>
       <div>
         <AppPageHeader title="FrankenCoin Pool Shares (FPS)" link={equityUrl} />
         <section className="container mx-auto">
