@@ -1,15 +1,15 @@
 import Head from "next/head";
-import AppPageHeader from "../components/AppPageHeader";
-import AppBox from "../components/AppBox";
-import DisplayLabel from "../components/DisplayLabel";
-import DisplayAmount from "../components/DisplayAmount";
-import { usePoolStats, useContractUrl } from "../hooks";
+import AppPageHeader from "@components/AppPageHeader";
+import AppBox from "@components/AppBox";
+import DisplayLabel from "@components/DisplayLabel";
+import DisplayAmount from "@components/DisplayAmount";
+import { usePoolStats, useContractUrl } from "@hooks";
 import {
   formatBigInt,
   formatDuration,
   shortenAddress,
   shortenHash,
-} from "../utils";
+} from "@utils";
 import {
   erc20ABI,
   useAccount,
@@ -18,14 +18,14 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { ABIS, ADDRESS } from "../contracts";
-import SwapFieldInput from "../components/SwapFieldInput";
+import { ABIS, ADDRESS } from "@contracts";
+import SwapFieldInput from "@components/SwapFieldInput";
 import { useRef, useState } from "react";
 import { Hash, formatUnits, zeroAddress } from "viem";
-import Button from "../components/Button";
+import Button from "@components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { TxToast } from "../components/TxToast";
+import { TxToast } from "@components/TxToast";
 import { Id, toast } from "react-toastify";
 
 export default function Pool({}) {

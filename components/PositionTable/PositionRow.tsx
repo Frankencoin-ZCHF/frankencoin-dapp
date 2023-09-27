@@ -1,7 +1,7 @@
 import { Address } from "viem";
 import DisplayAmount from "../DisplayAmount";
-import { usePositionStats } from "../../hooks";
-import { formatDate } from "../../utils";
+import { usePositionStats } from "@hooks";
+import { formatDate } from "@utils";
 import Link from "next/link";
 import TableRow from "../Table/TableRow";
 
@@ -14,16 +14,7 @@ export default function PositionRow({ position, collateral }: Props) {
   const positionStats = usePositionStats(position, collateral);
 
   return (
-    <TableRow
-      actionCol={
-        <Link
-          href={`/position/${position}`}
-          className="btn btn-primary btn-small w-full"
-        >
-          Details
-        </Link>
-      }
-    >
+    <TableRow link={`/position/${position}`}>
       <div>
         <div className="text-gray-400 md:hidden">Collateral</div>
         <DisplayAmount

@@ -1,67 +1,75 @@
-import { useAccount, useChainId, useContractReads } from "wagmi"
-import { ABIS, ADDRESS } from "../contracts"
-import { decodeBigIntCall } from "../utils"
-import { zeroAddress } from "viem"
+import { useAccount, useChainId, useContractReads } from "wagmi";
+import { ABIS, ADDRESS } from "@contracts";
+import { decodeBigIntCall } from "@utils";
+import { zeroAddress } from "viem";
 
 export const usePoolStats = () => {
-  const chainId = useChainId()
-  const { address } = useAccount()
+  const chainId = useChainId();
+  const { address } = useAccount();
   const account = address || zeroAddress;
 
   const equityContract = {
     address: ADDRESS[chainId].equity,
-    abi: ABIS.EquityABI
-  }
+    abi: ABIS.EquityABI,
+  };
 
   const frankenContract = {
     address: ADDRESS[chainId].frankenCoin,
-    abi: ABIS.FrankenCoinABI
-  }
+    abi: ABIS.FrankenCoinABI,
+  };
 
   const { data } = useContractReads({
     contracts: [
       // Equity Calls
       {
         ...equityContract,
-        functionName: 'totalSupply'
-      }, {
+        functionName: "totalSupply",
+      },
+      {
         ...equityContract,
-        functionName: 'price'
-      }, {
+        functionName: "price",
+      },
+      {
         ...equityContract,
-        functionName: 'balanceOf',
-        args: [account]
-      }, {
+        functionName: "balanceOf",
+        args: [account],
+      },
+      {
         ...equityContract,
-        functionName: 'totalVotes'
-      }, {
+        functionName: "totalVotes",
+      },
+      {
         ...equityContract,
-        functionName: 'votes',
-        args: [account]
-      }, {
+        functionName: "votes",
+        args: [account],
+      },
+      {
         ...equityContract,
-        functionName: 'canRedeem',
-        args: [account]
+        functionName: "canRedeem",
+        args: [account],
       },
       // Frankencoin Calls
       {
         ...frankenContract,
-        functionName: 'minterReserve'
-      }, {
+        functionName: "minterReserve",
+      },
+      {
         ...frankenContract,
-        functionName: 'equity'
-      }, {
+        functionName: "equity",
+      },
+      {
         ...frankenContract,
-        functionName: 'balanceOf',
-        args: [account]
-      }, {
+        functionName: "balanceOf",
+        args: [account],
+      },
+      {
         ...frankenContract,
-        functionName: 'allowance',
-        args: [account, ADDRESS[chainId].equity]
-      }
+        functionName: "allowance",
+        args: [account, ADDRESS[chainId].equity],
+      },
     ],
     watch: true,
-  })
+  });
 
   const equitySupply: bigint = data ? decodeBigIntCall(data[0]) : 0n;
   const equityPrice: bigint = data ? decodeBigIntCall(data[1]) : 0n;
@@ -87,5 +95,5 @@ export const usePoolStats = () => {
     frankenTotalReserve,
     frankenBalance,
     frankenAllowance,
-  }
-}
+  };
+};

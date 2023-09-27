@@ -8,9 +8,8 @@ import {
   isDateExpired,
   isDateUpcoming,
   shortenAddress,
-} from "../../utils";
-import { useContractUrl } from "../../hooks/useContractUrl";
-import { usePositionStats } from "../../hooks";
+} from "@utils";
+import { useContractUrl, usePositionStats } from "@hooks";
 import TableRow from "../Table/TableRow";
 
 interface Props {

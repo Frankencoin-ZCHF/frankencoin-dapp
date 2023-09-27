@@ -1,4 +1,4 @@
-import { TOKEN_LOGO, formatBigInt } from "../utils";
+import { TOKEN_LOGO, formatBigInt } from "@utils";
 
 interface Props {
   amount: bigint;

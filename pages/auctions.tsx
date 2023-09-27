@@ -1,9 +1,9 @@
 import Head from "next/head";
-import AppPageHeader from "../components/AppPageHeader";
 import { zeroAddress } from "viem";
-import { useChallengeListStats, useChallengeLists } from "../hooks";
+import { useChallengeListStats, useChallengeLists } from "@hooks";
 import { useAccount } from "wagmi";
-import ChallengeTable from "../components/ChallengeTable";
+import AppPageHeader from "@components/AppPageHeader";
+import ChallengeTable from "@components/ChallengeTable";
 
 export default function Auction({}) {
   const { address } = useAccount();

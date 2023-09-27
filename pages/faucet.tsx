@@ -1,6 +1,6 @@
 import Head from "next/head";
-import AppPageHeader from "../components/AppPageHeader";
-import DisplayAmount from "../components/DisplayAmount";
+import AppPageHeader from "@components/AppPageHeader";
+import DisplayAmount from "@components/DisplayAmount";
 import {
   useAccount,
   useChainId,
@@ -8,18 +8,18 @@ import {
   useNetwork,
   useWaitForTransaction,
 } from "wagmi";
-import { useFaucetStats } from "../hooks";
-import { TOKEN_LOGO, shortenHash } from "../utils";
-import Button from "../components/Button";
-import { ABIS, ADDRESS } from "../contracts";
+import { useFaucetStats } from "@hooks";
+import { TOKEN_LOGO, shortenHash } from "@utils";
+import Button from "@components/Button";
+import { ABIS, ADDRESS } from "@contracts";
 import { useRef, useState } from "react";
 import { Address, Hash, parseUnits, zeroAddress } from "viem";
 import { Id, toast } from "react-toastify";
-import { TxToast } from "../components/TxToast";
-import Table from "../components/Table";
-import TableHeader from "../components/Table/TableHead";
-import TableBody from "../components/Table/TableBody";
-import TableRow from "../components/Table/TableRow";
+import { TxToast } from "@components/TxToast";
+import Table from "@components/Table";
+import TableHeader from "@components/Table/TableHead";
+import TableBody from "@components/Table/TableBody";
+import TableRow from "@components/Table/TableRow";
 
 interface RowProps {
   addr: Address;

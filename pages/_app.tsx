@@ -1,7 +1,7 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { NextSeo } from "next-seo";
-import Layout from "../components/Layout";
+import Layout from "@components/Layout";
 import { EthereumClient, w3mConnectors } from "@web3modal/ethereum";
 import { mainnet, sepolia } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";

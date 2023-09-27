@@ -1,46 +1,48 @@
 import { Address, useContractReads } from "wagmi";
-import { ABIS, ADDRESS } from "../contracts";
+import { ABIS, ADDRESS } from "@contracts";
 
 export const usePositionListStats = (positions: Address[]) => {
   let contractCalls: any[] = [];
-  positions.forEach(position => {
+  positions.forEach((position) => {
     const positionContract = {
       address: position,
       abi: ABIS.PositionABI,
-    }
+    };
     contractCalls = contractCalls.concat([
       {
         ...positionContract,
-        functionName: 'owner'
-      }, {
+        functionName: "owner",
+      },
+      {
         ...positionContract,
-        functionName: 'collateral'
-      }, {
+        functionName: "collateral",
+      },
+      {
         ...positionContract,
-        functionName: 'expiration'
-      }
-    ])
-  })
+        functionName: "expiration",
+      },
+    ]);
+  });
 
   const { data } = useContractReads({
     contracts: contractCalls,
     watch: true,
-  })
+  });
 
   const positionData: any[] = [];
   if (data) {
     positions.forEach((pos, i) => {
       const index = i * 3;
-      const owner = data[index].result
-      const collateral = data[index + 1].result
+      const owner = data[index].result;
+      const collateral = data[index + 1].result;
 
       positionData.push({
         position: pos,
         owner,
         collateral,
-      })
-    })
+      });
+    });
   }
 
   return positionData;
-}
+};

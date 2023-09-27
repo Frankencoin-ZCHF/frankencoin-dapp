@@ -1,6 +1,6 @@
 import { erc20ABI, useAccount, useChainId, useContractReads } from "wagmi";
-import { ADDRESS } from "../contracts/address";
-import { decodeBigIntCall } from "../utils";
+import { ADDRESS } from "@contracts";
+import { decodeBigIntCall } from "@utils";
 
 export const useFaucetStats = () => {
   const chainId = useChainId();

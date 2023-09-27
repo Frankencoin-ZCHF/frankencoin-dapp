@@ -1,18 +1,20 @@
-import * as React from 'react'
-import { formatUnits, parseUnits } from '@ethersproject/units'
-import { BigNumber } from '@ethersproject/bignumber'
+import * as React from "react";
+import { formatUnits, parseUnits } from "@ethersproject/units";
+import { BigNumber } from "@ethersproject/bignumber";
 
 export type BigNumberInputProps = {
-  decimals: number
-  value: string
-  onChange: (value: string) => void
-  renderInput?: (props: React.HTMLProps<HTMLInputElement>) => React.ReactElement
-  autofocus?: boolean
-  placeholder?: string
-  max?: string
-  min?: string
-  className?: string
-}
+  decimals: number;
+  value: string;
+  onChange: (value: string) => void;
+  renderInput?: (
+    props: React.HTMLProps<HTMLInputElement>
+  ) => React.ReactElement;
+  autofocus?: boolean;
+  placeholder?: string;
+  max?: string;
+  min?: string;
+  className?: string;
+};
 
 export function BigNumberInput({
   decimals,
@@ -20,74 +22,78 @@ export function BigNumberInput({
   onChange,
   renderInput,
   autofocus,
-  placeholder = '0.00',
+  placeholder = "0.00",
   max,
   min,
-  className
+  className,
 }: BigNumberInputProps) {
-  const inputRef = React.useRef<any>(null)
+  const inputRef = React.useRef<any>(null);
 
-  const [inputValue, setInputvalue] = React.useState('')
+  const [inputValue, setInputvalue] = React.useState("");
 
   // update current value
   React.useEffect(() => {
     if (!value) {
-      setInputvalue('')
+      setInputvalue("");
     } else {
-      let parseInputValue
+      let parseInputValue;
 
       try {
-        parseInputValue = parseUnits(inputValue || '0', decimals)
+        parseInputValue = parseUnits(inputValue || "0", decimals);
       } catch {
         // do nothing
       }
 
       if (!parseInputValue || !parseInputValue.eq(value)) {
-        setInputvalue(formatUnits(value, decimals))
+        setInputvalue(formatUnits(value, decimals));
       }
     }
-  }, [value, decimals, inputValue])
+  }, [value, decimals, inputValue]);
 
   React.useEffect(() => {
     if (!renderInput && autofocus && inputRef) {
-      const node = inputRef.current as HTMLInputElement
-      node.focus()
+      const node = inputRef.current as HTMLInputElement;
+      node.focus();
     }
-  }, [autofocus, inputRef])
+  }, [autofocus, inputRef]);
 
   const updateValue = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = event.currentTarget
+    const { value } = event.currentTarget;
 
-    if (value === '') {
-      onChange(value)
-      setInputvalue(value)
-      return
+    if (value === "") {
+      onChange(value);
+      setInputvalue(value);
+      return;
     }
 
-    let newValue: BigNumber
+    let newValue: BigNumber;
     try {
-      newValue = parseUnits(value, decimals)
+      newValue = parseUnits(value, decimals);
     } catch (e) {
       // don't update the input on invalid values
-      return
+      return;
     }
 
-    const invalidValue = (min && newValue.lt(min)) || (max && newValue.gt(max))
+    const invalidValue = (min && newValue.lt(min)) || (max && newValue.gt(max));
     if (invalidValue) {
-      return
+      return;
     }
 
-    setInputvalue(value)
-    onChange(newValue.toString())
-  }
+    setInputvalue(value);
+    onChange(newValue.toString());
+  };
 
   const inputProps = {
     placeholder,
     onChange: updateValue,
-    type: 'text',
+    type: "text",
     value: inputValue,
     className: className,
-  }
+  };
 
-  return renderInput ? renderInput({ ...inputProps }) : <input {...inputProps} ref={inputRef} />
+  return renderInput ? (
+    renderInput({ ...inputProps })
+  ) : (
+    <input {...inputProps} ref={inputRef} />
+  );
 }

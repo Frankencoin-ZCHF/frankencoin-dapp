@@ -1,8 +1,8 @@
 import { Address } from "viem";
 import { useChainId, useContractReads } from "wagmi";
-import { ABIS, ADDRESS } from "../contracts";
+import { ABIS, ADDRESS } from "@contracts";
 import { ChallengeQuery } from "./useChallengeList";
-import { decodeBigIntCall } from "../utils";
+import { decodeBigIntCall } from "@utils";
 
 export interface Challenge {
   challenger: Address;

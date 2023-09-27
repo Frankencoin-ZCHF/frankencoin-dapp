@@ -1,6 +1,6 @@
 import { faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useTheme } from "../hooks";
+import { useTheme } from "@hooks";
 import { useEffect } from "react";
 
 export default function ThemeButton() {

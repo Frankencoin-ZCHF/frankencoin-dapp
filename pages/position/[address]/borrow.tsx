@@ -1,13 +1,13 @@
 import Head from "next/head";
-import AppPageHeader from "../../../components/AppPageHeader";
+import AppPageHeader from "@components/AppPageHeader";
 import { useRouter } from "next/router";
 import { formatUnits, getAddress, parseUnits, zeroAddress, Hash } from "viem";
-import AppBox from "../../../components/AppBox";
-import SwapFieldInput from "../../../components/SwapFieldInput";
-import { usePositionStats } from "../../../hooks";
-import { useState } from "react";
-import DisplayAmount from "../../../components/DisplayAmount";
-import Button from "../../../components/Button";
+import AppBox from "@components/AppBox";
+import SwapFieldInput from "@components/SwapFieldInput";
+import { usePositionStats } from "@hooks";
+import { useRef, useState } from "react";
+import DisplayAmount from "@components/DisplayAmount";
+import Button from "@components/Button";
 import {
   erc20ABI,
   useAccount,
@@ -15,14 +15,17 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { ABIS, ADDRESS } from "../../../contracts";
-import { min } from "../../../utils";
+import { ABIS, ADDRESS } from "@contracts";
+import { formatBigInt, min, shortenAddress, shortenHash } from "@utils";
+import { Id, toast } from "react-toastify";
+import { TxToast } from "@components/TxToast";
 
 export default function PositionBorrow({}) {
   const router = useRouter();
   const [amount, setAmount] = useState(0n);
   const [error, setError] = useState("");
   const [pendingTx, setPendingTx] = useState<Hash>(zeroAddress);
+  const toastId = useRef<Id>(0);
   const { address: positionAddr } = router.query;
 
   const chainId = useChainId();
@@ -65,14 +68,90 @@ export default function PositionBorrow({}) {
       abi: erc20ABI,
       functionName: "approve",
       onSuccess(data) {
+        toastId.current = toast.loading(
+          <TxToast
+            title="Approving XCHF"
+            rows={[
+              {
+                title: "Amount :",
+                value: formatBigInt(amount) + " ZCHF",
+              },
+              {
+                title: "Spender: ",
+                value: shortenAddress(ADDRESS[chainId].mintingHub),
+              },
+              {
+                title: "Tx: ",
+                value: shortenHash(data.hash),
+              },
+            ]}
+          />
+        );
         setPendingTx(data.hash);
       },
     });
   const { isLoading: cloneLoading, write: clonePosition } = useContractWrite({
     address: ADDRESS[chainId].mintingHub,
-    abi: ABIS.MintingHubABI,
+    abi: [
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "position",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "_initialCollateral",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "_initialMint",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "expiration",
+            type: "uint256",
+          },
+        ],
+        name: "clonePosition",
+        outputs: [
+          {
+            internalType: "address",
+            name: "",
+            type: "address",
+          },
+        ],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+    ],
     functionName: "clonePosition",
     onSuccess(data) {
+      toastId.current = toast.loading(
+        <TxToast
+          title={`Borrowing ZCHF`}
+          rows={[
+            {
+              title: `Amount: `,
+              value: formatBigInt(amount) + " ZCHF",
+            },
+            {
+              title: `Collateral: `,
+              value:
+                formatBigInt(requiredColl, positionStats.collateralDecimal) +
+                " " +
+                positionStats.collateralSymbol,
+            },
+            {
+              title: "Tx: ",
+              value: shortenHash(data.hash),
+            },
+          ]}
+        />
+      );
       setPendingTx(data.hash);
     },
   });
@@ -80,6 +159,22 @@ export default function PositionBorrow({}) {
     hash: pendingTx,
     enabled: pendingTx != zeroAddress,
     onSuccess(data) {
+      toast.update(toastId.current, {
+        type: "success",
+        render: (
+          <TxToast
+            title="Transaction Confirmed!"
+            rows={[
+              {
+                title: "Tx hash: ",
+                value: shortenHash(pendingTx),
+              },
+            ]}
+          />
+        ),
+        autoClose: 5000,
+        isLoading: false,
+      });
       setPendingTx(zeroAddress);
     },
   });

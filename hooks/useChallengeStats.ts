@@ -1,6 +1,6 @@
 import { useChainId, useContractRead } from "wagmi";
-import { ABIS, ADDRESS } from "../contracts";
-import { decodeBigIntCall } from "../utils";
+import { ABIS, ADDRESS } from "@contracts";
+import { decodeBigIntCall } from "@utils";
 import { getAddress, zeroAddress } from "viem";
 
 export const useChallengeStats = (number: bigint) => {

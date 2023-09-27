@@ -1,6 +1,6 @@
 import { useAccount } from "wagmi";
 import DisplayAmount from "./DisplayAmount";
-import { TOKEN_LOGO, formatBigInt } from "../utils";
+import { TOKEN_LOGO, formatBigInt } from "@utils";
 import { BigNumberInput } from "./BigNumberInput";
 
 interface Props {

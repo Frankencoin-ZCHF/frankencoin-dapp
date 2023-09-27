@@ -1,6 +1,6 @@
 import Head from "next/head";
-import AppPageHeader from "../components/AppPageHeader";
-import PositionTable from "../components/PositionTable";
+import AppPageHeader from "@components/AppPageHeader";
+import PositionTable from "@components/PositionTable";
 
 export default function Positions() {
   return (

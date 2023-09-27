@@ -1,5 +1,5 @@
 import { useAccount } from "wagmi";
-import { usePositionLists } from "../../hooks";
+import { usePositionLists } from "@hooks";
 import PositionRow from "./PositionRow";
 import { zeroAddress } from "viem";
 import TableHeader from "../Table/TableHead";
@@ -29,7 +29,6 @@ export default function PositionTable({ showMyPos }: Props) {
           "Available Amount",
           "Expiration Date",
         ]}
-        actionCol
       />
       <TableBody>
         {loading ? (

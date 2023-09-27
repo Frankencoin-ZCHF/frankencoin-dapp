@@ -1,19 +1,19 @@
 import Head from "next/head";
-import AppPageHeader from "../../../components/AppPageHeader";
+import AppPageHeader from "@components/AppPageHeader";
 import { useRouter } from "next/router";
-import AppBox from "../../../components/AppBox";
-import SwapFieldInput from "../../../components/SwapFieldInput";
-import { usePositionStats } from "../../../hooks";
+import AppBox from "@components/AppBox";
+import SwapFieldInput from "@components/SwapFieldInput";
+import { usePositionStats } from "@hooks";
 import { Hash, getAddress, zeroAddress } from "viem";
 import { useRef, useState } from "react";
-import DisplayAmount from "../../../components/DisplayAmount";
+import DisplayAmount from "@components/DisplayAmount";
 import {
   formatBigInt,
   formatDuration,
   shortenAddress,
   shortenHash,
-} from "../../../utils";
-import Button from "../../../components/Button";
+} from "@utils";
+import Button from "@components/Button";
 import {
   erc20ABI,
   useAccount,
@@ -21,9 +21,9 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { ABIS, ADDRESS } from "../../../contracts";
+import { ABIS, ADDRESS } from "@contracts";
 import { Id, toast } from "react-toastify";
-import { TxToast } from "../../../components/TxToast";
+import { TxToast } from "@components/TxToast";
 
 export default function PositionChallenge() {
   const router = useRouter();

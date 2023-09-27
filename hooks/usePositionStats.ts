@@ -1,23 +1,30 @@
-import { Address, erc20ABI, useAccount, useChainId, useContractRead, useContractReads } from "wagmi"
-import { decodeBigIntCall } from "../utils"
-import { ABIS, ADDRESS } from "../contracts"
-import { getAddress, zeroAddress } from "viem"
+import {
+  Address,
+  erc20ABI,
+  useAccount,
+  useChainId,
+  useContractRead,
+  useContractReads,
+} from "wagmi";
+import { decodeBigIntCall } from "@utils";
+import { ABIS, ADDRESS } from "@contracts";
+import { getAddress, zeroAddress } from "viem";
 
 export const usePositionStats = (position: Address, collateral?: Address) => {
-  const { address } = useAccount()
-  const chainId = useChainId()
+  const { address } = useAccount();
+  const chainId = useChainId();
 
-  const account = address || zeroAddress
+  const account = address || zeroAddress;
 
   const { data: collateralData } = useContractRead({
     address: position,
     abi: ABIS.PositionABI,
-    functionName: 'collateral',
-    enabled: !collateral && position != zeroAddress
-  })
+    functionName: "collateral",
+    enabled: !collateral && position != zeroAddress,
+  });
 
   if (!collateral && collateralData) {
-    collateral = collateralData
+    collateral = collateralData;
   }
 
   const { data, isSuccess } = useContractReads({
@@ -26,85 +33,98 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
       {
         address: collateral,
         abi: erc20ABI,
-        functionName: 'balanceOf',
-        args: [position]
-      }, {
+        functionName: "balanceOf",
+        args: [position],
+      },
+      {
         address: collateral,
         abi: erc20ABI,
-        functionName: 'decimals',
-      }, {
+        functionName: "decimals",
+      },
+      {
         address: collateral,
         abi: erc20ABI,
-        functionName: 'symbol',
-      }, {
+        functionName: "symbol",
+      },
+      {
         address: collateral,
         abi: erc20ABI,
-        functionName: 'balanceOf',
-        args: [account]
-      }, {
+        functionName: "balanceOf",
+        args: [account],
+      },
+      {
         address: collateral,
         abi: erc20ABI,
-        functionName: 'allowance',
-        args: [account, ADDRESS[chainId].mintingHub]
-      }, {
+        functionName: "allowance",
+        args: [account, ADDRESS[chainId].mintingHub],
+      },
+      {
         address: collateral,
         abi: erc20ABI,
-        functionName: 'allowance',
-        args: [account, position]
+        functionName: "allowance",
+        args: [account, position],
       },
       // Position Calls
       {
         address: position,
         abi: ABIS.PositionABI,
-        functionName: 'price'
-      }, {
+        functionName: "price",
+      },
+      {
         address: position,
         abi: ABIS.PositionABI,
-        functionName: 'expiration'
-      }, {
+        functionName: "expiration",
+      },
+      {
         address: position,
         abi: ABIS.PositionABI,
-        functionName: 'limit'
-      }, {
+        functionName: "limit",
+      },
+      {
         address: position,
         abi: ABIS.PositionABI,
-        functionName: 'minted'
-      }, {
+        functionName: "minted",
+      },
+      {
         address: position,
         abi: ABIS.PositionABI,
-        functionName: 'reserveContribution'
-      }, {
+        functionName: "reserveContribution",
+      },
+      {
         address: position,
         abi: ABIS.PositionABI,
-        functionName: 'owner'
-      }, {
+        functionName: "owner",
+      },
+      {
         address: position,
         abi: ABIS.PositionABI,
-        functionName: 'calculateCurrentFee'
-      }, {
+        functionName: "calculateCurrentFee",
+      },
+      {
         address: position,
         abi: ABIS.PositionABI,
-        functionName: 'challengePeriod'
+        functionName: "challengePeriod",
       },
       // FrankenCoin Calls
       {
         address: ADDRESS[chainId].frankenCoin,
         abi: erc20ABI,
-        functionName: 'allowance',
-        args: [account, ADDRESS[chainId].mintingHub]
-      }, {
+        functionName: "allowance",
+        args: [account, ADDRESS[chainId].mintingHub],
+      },
+      {
         address: ADDRESS[chainId].frankenCoin,
         abi: erc20ABI,
-        functionName: 'balanceOf',
-        args: [account]
-      }
+        functionName: "balanceOf",
+        args: [account],
+      },
     ],
     watch: true,
-  })
+  });
 
   const collateralBal = data ? decodeBigIntCall(data[0]) : BigInt(0);
   const collateralDecimal = data ? Number(data[1].result || 0) : 0;
-  const collateralSymbol = data ? String(data[2].result) : '';
+  const collateralSymbol = data ? String(data[2].result) : "";
   const collateralUserBal = data ? decodeBigIntCall(data[3]) : BigInt(0);
   const collateralAllowance = data ? decodeBigIntCall(data[4]) : BigInt(0);
   const collateralPosAllowance = data ? decodeBigIntCall(data[5]) : BigInt(0);
@@ -145,5 +165,5 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
 
     frankenAllowance,
     frankenBalance,
-  }
-}
+  };
+};

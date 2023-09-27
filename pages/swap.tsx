@@ -1,23 +1,23 @@
 import Head from "next/head";
-import AppPageHeader from "../components/AppPageHeader";
-import AppBox from "../components/AppBox";
-import SwapFieldInput from "../components/SwapFieldInput";
+import AppPageHeader from "@components/AppPageHeader";
+import AppBox from "@components/AppBox";
+import SwapFieldInput from "@components/SwapFieldInput";
 import { useRef, useState } from "react";
-import { useSwapStats } from "../hooks";
+import { useSwapStats } from "@hooks";
 import { Hash, formatUnits, zeroAddress } from "viem";
-import Button from "../components/Button";
+import Button from "@components/Button";
 import {
   erc20ABI,
   useChainId,
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { ABIS, ADDRESS } from "../contracts";
+import { ABIS, ADDRESS } from "@contracts";
 import { Id, toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { formatBigInt, shortenAddress, shortenHash } from "../utils";
-import { TxToast } from "../components/TxToast";
+import { formatBigInt, shortenAddress, shortenHash } from "@utils";
+import { TxToast } from "@components/TxToast";
 
 export default function Swap() {
   const [amount, setAmount] = useState(0n);

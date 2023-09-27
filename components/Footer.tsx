@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SOCIAL } from "../utils";
+import { SOCIAL } from "@utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import {

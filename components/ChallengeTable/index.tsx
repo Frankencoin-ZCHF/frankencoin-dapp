@@ -1,5 +1,5 @@
 import ChallengeRow from "./ChallengeRow";
-import { Challenge } from "../../hooks";
+import { Challenge } from "@hooks";
 import Table from "../Table";
 import TableHeader from "../Table/TableHead";
 import TableBody from "../Table/TableBody";

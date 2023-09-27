@@ -1,21 +1,21 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import AppPageHeader from "../../../components/AppPageHeader";
-import AppBox from "../../../components/AppBox";
-import DisplayLabel from "../../../components/DisplayLabel";
-import DisplayAmount from "../../../components/DisplayAmount";
-import { formatDate, shortenAddress } from "../../../utils";
+import AppPageHeader from "@components/AppPageHeader";
+import AppBox from "@components/AppBox";
+import DisplayLabel from "@components/DisplayLabel";
+import DisplayAmount from "@components/DisplayAmount";
+import { formatDate, shortenAddress } from "@utils";
 import { getAddress, zeroAddress } from "viem";
-import { useContractUrl } from "../../../hooks/useContractUrl";
 import {
   useChallengeListStats,
   useChallengeLists,
+  useContractUrl,
   usePositionStats,
-} from "../../../hooks";
+} from "@hooks";
 import { useAccount, useChainId, useContractRead } from "wagmi";
-import { ABIS, ADDRESS } from "../../../contracts";
-import ChallengeTable from "../../../components/ChallengeTable";
+import { ABIS, ADDRESS } from "@contracts";
+import ChallengeTable from "@components/ChallengeTable";
 
 export default function PositionDetail() {
   const router = useRouter();

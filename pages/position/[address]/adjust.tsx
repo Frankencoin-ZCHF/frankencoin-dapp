@@ -1,21 +1,21 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { Hash, formatUnits, getAddress, parseUnits, zeroAddress } from "viem";
-import { usePositionStats } from "../../../hooks";
+import { usePositionStats } from "@hooks";
 import Head from "next/head";
-import AppPageHeader from "../../../components/AppPageHeader";
-import AppBox from "../../../components/AppBox";
-import SwapFieldInput from "../../../components/SwapFieldInput";
-import DisplayAmount from "../../../components/DisplayAmount";
-import { abs } from "../../../utils";
-import Button from "../../../components/Button";
+import AppPageHeader from "@components/AppPageHeader";
+import AppBox from "@components/AppBox";
+import SwapFieldInput from "@components/SwapFieldInput";
+import DisplayAmount from "@components/DisplayAmount";
+import { abs } from "@utils";
+import Button from "@components/Button";
 import {
   erc20ABI,
   useAccount,
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { ABIS, ADDRESS } from "../../../contracts";
+import { ABIS, ADDRESS } from "@contracts";
 
 export default function PositionAdjust({}) {
   const router = useRouter();

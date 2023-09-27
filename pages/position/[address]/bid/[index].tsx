@@ -1,16 +1,17 @@
-import Head from "next/head";
-import AppPageHeader from "../../../../components/AppPageHeader";
-import { useRouter } from "next/router";
-import AppBox from "../../../../components/AppBox";
-import SwapFieldInput from "../../../../components/SwapFieldInput";
 import { useRef, useState } from "react";
+import Head from "next/head";
+import AppPageHeader from "@components/AppPageHeader";
+import { useRouter } from "next/router";
+import AppBox from "@components/AppBox";
+import SwapFieldInput from "@components/SwapFieldInput";
+import DisplayAmount from "@components/DisplayAmount";
 import {
   useChallengeListStats,
   useChallengeLists,
   usePositionStats,
-} from "../../../../hooks";
+  useContractUrl,
+} from "@hooks";
 import { Hash, formatUnits, getAddress, zeroAddress } from "viem";
-import DisplayAmount from "../../../../components/DisplayAmount";
 import {
   formatBigInt,
   formatDate,
@@ -18,19 +19,18 @@ import {
   isDateExpired,
   shortenAddress,
   shortenHash,
-} from "../../../../utils";
+} from "@utils";
 import Link from "next/link";
-import { useContractUrl } from "../../../../hooks/useContractUrl";
-import Button from "../../../../components/Button";
+import Button from "@components/Button";
 import {
   erc20ABI,
   useChainId,
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { ABIS, ADDRESS } from "../../../../contracts";
+import { ABIS, ADDRESS } from "@contracts";
 import { Id, toast } from "react-toastify";
-import { TxToast } from "../../../../components/TxToast";
+import { TxToast } from "@components/TxToast";
 
 export default function ChallengePlaceBid({}) {
   const [amount, setAmount] = useState(0n);

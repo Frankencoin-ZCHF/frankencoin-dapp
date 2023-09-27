@@ -1,14 +1,13 @@
 import Head from "next/head";
-import AppBox from "../components/AppBox";
-import DisplayLabel from "../components/DisplayLabel";
-import DisplayAmount from "../components/DisplayAmount";
-import { useHomeStats } from "../hooks";
+import AppBox from "@components/AppBox";
+import DisplayLabel from "@components/DisplayLabel";
+import DisplayAmount from "@components/DisplayAmount";
+import { useHomeStats, useContractUrl } from "@hooks";
 import Link from "next/link";
-import { useContractUrl } from "../hooks/useContractUrl";
-import { ADDRESS } from "../contracts/address";
+import { ADDRESS } from "@contracts";
 import { useChainId } from "wagmi";
-import { shortenAddress } from "../utils";
-import AppPageHeader from "../components/AppPageHeader";
+import { shortenAddress } from "@utils";
+import AppPageHeader from "@components/AppPageHeader";
 import localFont from "@next/font/local";
 
 const pixelFont = localFont({
