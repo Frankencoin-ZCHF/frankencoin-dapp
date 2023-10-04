@@ -21,13 +21,13 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
     mockVol: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
   },
   [sepolia.id]: {
-    frankenCoin: "0xb8C70553165e197f20a0ceC3dbab439c970f816f",
-    bridge: "0x7DfBc328c817127197F02B0Fe0F2925aDf977d64",
+    frankenCoin: "0x73aDCc946149c273fB6db938C20CA42270c5C623",
+    bridge: "0x56FD5AA538bA14a61D4B9C703C1362627902767E",
     xchf: "0xe94c49Dcf0c7D761c173E9C131B132A1Cfb81A80",
-    equity: "0x6bdD098E2316F4c57dd1c9a8CcA22506f8e523D8",
-    mintingHub: "0x41Cd0881BBeD2ef1f6b4f369aAA7C25D34eF0688",
+    equity: "0x3b17A15B4e1093F75309E5f3829796817350B7AA",
+    mintingHub: "0x12003fD56802dE26cAE698A9d9cb06921c053e83",
     mockVol: "0x37935cedc62b3ec5decc0a9776ee4fee37965ca3",
-    positionFactory: "0x895eaA01CaFe0985B5A90728d0395DA41CDA77Ba",
+    positionFactory: "0xACC9b9640F5568D85E9392ac823491D3E5029430",
   },
   [mainnet.id]: {
     frankenCoin: "0x7a787023f6E18f979B143C79885323a24709B0d8",

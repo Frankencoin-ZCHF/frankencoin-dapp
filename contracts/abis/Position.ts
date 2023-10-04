@@ -253,7 +253,13 @@ export const PositionABI = [
     type: "function",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "challengeStart",
+        type: "uint256",
+      },
+    ],
     name: "challengeData",
     outputs: [
       {

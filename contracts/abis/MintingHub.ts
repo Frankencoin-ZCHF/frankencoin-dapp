@@ -232,6 +232,35 @@ export const MintingHubABI = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "_positionAddr",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_collateralAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "expectedPrice",
+        type: "uint256",
+      },
+    ],
+    name: "challenge",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "",
         type: "uint256",
@@ -286,41 +315,12 @@ export const MintingHubABI = [
         type: "uint256",
       },
     ],
-    name: "clonePosition",
+    name: "clone",
     outputs: [
       {
         internalType: "address",
         name: "",
         type: "address",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_positionAddr",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_collateralAmount",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "expectedPrice",
-        type: "uint256",
-      },
-    ],
-    name: "launchChallenge",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "nonpayable",

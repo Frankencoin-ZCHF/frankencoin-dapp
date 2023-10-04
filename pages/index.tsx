@@ -8,7 +8,7 @@ import { ADDRESS } from "@contracts";
 import { useChainId } from "wagmi";
 import { shortenAddress } from "@utils";
 import AppPageHeader from "@components/AppPageHeader";
-import localFont from "@next/font/local";
+import localFont from "next/font/local";
 
 const pixelFont = localFont({
   src: "../public/fonts/LcdSolid.ttf",

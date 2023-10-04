@@ -105,6 +105,11 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
         abi: ABIS.PositionABI,
         functionName: "challengePeriod",
       },
+      {
+        address: position,
+        abi: ABIS.PositionABI,
+        functionName: "minimumCollateral",
+      },
       // FrankenCoin Calls
       {
         address: ADDRESS[chainId].frankenCoin,
@@ -138,9 +143,10 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
   const owner = getAddress(data ? String(data[11].result) : zeroAddress);
   const mintingFee = data ? decodeBigIntCall(data[12]) : BigInt(0);
   const challengePeriod = data ? decodeBigIntCall(data[13]) : BigInt(0);
+  const minimumCollateral = data ? decodeBigIntCall(data[14]) : BigInt(0);
 
-  const frankenAllowance = data ? decodeBigIntCall(data[14]) : BigInt(0);
-  const frankenBalance = data ? decodeBigIntCall(data[15]) : BigInt(0);
+  const frankenAllowance = data ? decodeBigIntCall(data[15]) : BigInt(0);
+  const frankenBalance = data ? decodeBigIntCall(data[16]) : BigInt(0);
 
   return {
     isSuccess,
@@ -162,6 +168,7 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
     reserveContribution,
     mintingFee,
     challengePeriod,
+    minimumCollateral,
 
     frankenAllowance,
     frankenBalance,

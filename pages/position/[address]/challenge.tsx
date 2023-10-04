@@ -1,19 +1,19 @@
 import Head from "next/head";
-import AppPageHeader from "@components/AppPageHeader";
 import { useRouter } from "next/router";
 import AppBox from "@components/AppBox";
+import AppPageHeader from "@components/AppPageHeader";
+import Button from "@components/Button";
+import DisplayAmount from "@components/DisplayAmount";
 import SwapFieldInput from "@components/SwapFieldInput";
 import { usePositionStats } from "@hooks";
 import { Hash, getAddress, zeroAddress } from "viem";
 import { useRef, useState } from "react";
-import DisplayAmount from "@components/DisplayAmount";
 import {
   formatBigInt,
   formatDuration,
   shortenAddress,
   shortenHash,
 } from "@utils";
-import Button from "@components/Button";
 import {
   erc20ABI,
   useAccount,
@@ -46,71 +46,74 @@ export default function PositionChallenge() {
       setError(`Not enough ${positionStats.collateralSymbol} in your wallet.`);
     } else if (valueBigInt > positionStats.collateralBal) {
       setError("Challenge collateral should be lower than position collateral");
+    } else if (valueBigInt < positionStats.minimumCollateral) {
+      setError(
+        "Challenge collateral should be greater than minimum collateral"
+      );
     } else {
       setError("");
     }
   };
 
-  const { isLoading: approveLoading, write: approveCollateral } =
-    useContractWrite({
-      address: positionStats.collateral,
-      abi: erc20ABI,
-      functionName: "approve",
-      onSuccess(data) {
-        toastId.current = toast.loading(
-          <TxToast
-            title={"Approving " + positionStats.collateralSymbol}
-            rows={[
-              {
-                title: "Amount :",
-                value:
-                  formatBigInt(amount, positionStats.collateralDecimal) +
-                  " " +
-                  positionStats.collateralSymbol,
-              },
-              {
-                title: "Spender: ",
-                value: shortenAddress(ADDRESS[chainId].mintingHub),
-              },
-              {
-                title: "Tx: ",
-                value: shortenHash(data.hash),
-              },
-            ]}
-          />
-        );
-        setPendingTx(data.hash);
-      },
-    });
-  const { isLoading: challengeLoading, write: launchChallenge } =
-    useContractWrite({
-      address: ADDRESS[chainId].mintingHub,
-      abi: ABIS.MintingHubABI,
-      functionName: "launchChallenge",
-      onSuccess(data) {
+  const { isLoading: approveLoading, write: approve } = useContractWrite({
+    address: positionStats.collateral,
+    abi: erc20ABI,
+    functionName: "approve",
+    args: [ADDRESS[chainId].mintingHub, amount],
+    onSuccess(data) {
+      toastId.current = toast.loading(
         <TxToast
-          title={"Launching a challenge"}
+          title={"Approving " + positionStats.collateralSymbol}
           rows={[
             {
-              title: "Size :",
+              title: "Amount :",
               value:
                 formatBigInt(amount, positionStats.collateralDecimal) +
                 " " +
                 positionStats.collateralSymbol,
             },
             {
-              title: "Price: ",
-              value: formatBigInt(positionStats.liqPrice),
+              title: "Spender: ",
+              value: shortenAddress(ADDRESS[chainId].mintingHub),
             },
             {
               title: "Tx: ",
               value: shortenHash(data.hash),
             },
           ]}
-        />;
-        setPendingTx(data.hash);
-      },
-    });
+        />
+      );
+      setPendingTx(data.hash);
+    },
+  });
+  const { isLoading: challengeLoading, write: challenge } = useContractWrite({
+    address: ADDRESS[chainId].mintingHub,
+    abi: ABIS.MintingHubABI,
+    functionName: "challenge",
+    onSuccess(data) {
+      <TxToast
+        title={"Launching a challenge"}
+        rows={[
+          {
+            title: "Size :",
+            value:
+              formatBigInt(amount, positionStats.collateralDecimal) +
+              " " +
+              positionStats.collateralSymbol,
+          },
+          {
+            title: "Price: ",
+            value: formatBigInt(positionStats.liqPrice),
+          },
+          {
+            title: "Tx: ",
+            value: shortenHash(data.hash),
+          },
+        ]}
+      />;
+      setPendingTx(data.hash);
+    },
+  });
   const { isLoading: isConfirming } = useWaitForTransaction({
     hash: pendingTx,
     enabled: pendingTx != zeroAddress,
@@ -181,6 +184,14 @@ export default function PositionChallenge() {
                 />
               </div>
               <div className="flex">
+                <div className="flex-1">Required Minimum Collateral</div>
+                <DisplayAmount
+                  amount={positionStats.minimumCollateral}
+                  currency={positionStats.collateralSymbol}
+                  digits={positionStats.collateralDecimal}
+                />
+              </div>
+              <div className="flex">
                 <div className="flex-1">Auction period</div>
                 <div>{formatDuration(positionStats.challengePeriod * 2n)}</div>
               </div>
@@ -214,11 +225,7 @@ export default function PositionChallenge() {
                   variant="secondary"
                   isLoading={approveLoading || isConfirming}
                   disabled={!!error || account == positionStats.owner}
-                  onClick={() =>
-                    approveCollateral({
-                      args: [ADDRESS[chainId].mintingHub, amount],
-                    })
-                  }
+                  onClick={() => approve()}
                 >
                   Approve
                 </Button>
@@ -228,7 +235,7 @@ export default function PositionChallenge() {
                   isLoading={challengeLoading || isConfirming}
                   disabled={!!error || account == positionStats.owner}
                   onClick={() =>
-                    launchChallenge({
+                    challenge({
                       args: [position, amount, positionStats.liqPrice],
                     })
                   }
