@@ -147,12 +147,15 @@ export default function PositionChallenge() {
       </Head>
       <div>
         <AppPageHeader
-          title="Launch a challenge"
+          title="Launch Challenge"
           backText="Back to position"
           backTo={`/position/${position}`}
         />
-        <section className="container m-auto max-w-2xl">
-          <div className="bg-slate-950 rounded-xl p-4 sm:p-6 md:p-8">
+        <section className="grid grid-cols-2 gap-x-4">
+          <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
+            <div className="text-lg font-bold text-center mt-3">
+              Challenge Details
+            </div>
             <SwapFieldInput
               symbol={positionStats.collateralSymbol}
               max={positionStats.collateralUserBal}
@@ -161,7 +164,7 @@ export default function PositionChallenge() {
               error={error}
               label="Amount"
             />
-            <div className="mt-4 grid grid-cols-6 gap-1 lg:col-span-2">
+            <div className="bg-slate-900 rounded-xl p-2 grid grid-cols-6 gap-1 lg:col-span-2">
               <AppBox className="col-span-6 sm:col-span-3">
                 <DisplayLabel label="Starting Price" />
                 <DisplayAmount
@@ -202,42 +205,7 @@ export default function PositionChallenge() {
                 {formatDuration(positionStats.challengePeriod)}
               </AppBox>
             </div>
-            <AppBox className="mt-1 flex flex-col gap-2">
-              <div
-                className="cursor-pointer text-lg text-center font-bold"
-                onClick={() => setShowTip(!showTip)}
-              >
-                How does it work?
-              </div>
-              <div
-                className={`text-sm overflow-hidden transition-all duration-500 ${
-                  !showTip ? "h-0" : "h-40"
-                }`}
-              >
-                <p>
-                  The amount you provide will be publicly auctioned. There are
-                  two possible outcomes:
-                </p>
-                <ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
-                  <li>
-                    Someone bids the &apos;buy now&apos; price before the end of
-                    the auction. In that case, the bidder buys the amount of{" "}
-                    {positionStats.collateralSymbol} tokens you provided for{" "}
-                    {formatBigInt(positionStats.liqPrice)} ZCHF per unit.
-                  </li>
-                  <li>
-                    The auction ends with the highest bids being below the
-                    &apos;buy now&apos; price. In that case, you get your{" "}
-                    {positionStats.collateralSymbol} tokens back and the bidder
-                    gets to buy the same amount of{" "}
-                    {positionStats.collateralSymbol} tokens out of the position,
-                    with the proceeds being used for repayment. You get a
-                    reward.
-                  </li>
-                </ol>
-              </div>
-            </AppBox>
-            <div className="mx-auto mt-8 w-72 max-w-full flex-col">
+            <div>
               {amount > positionStats.collateralAllowance ? (
                 <Button
                   variant="secondary"
@@ -262,6 +230,33 @@ export default function PositionChallenge() {
                 </Button>
               )}
             </div>
+          </div>
+          <div className="bg-slate-950 rounded-xl p-4 flex flex-col">
+            <div className="text-lg font-bold text-center mt-3">
+              How does it work?
+            </div>
+            <AppBox className="flex-1 mt-4">
+              <p>
+                The amount you provide will be publicly auctioned. There are two
+                possible outcomes:
+              </p>
+              <ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
+                <li>
+                  Someone bids the &apos;buy now&apos; price before the end of
+                  the auction. In that case, the bidder buys the amount of{" "}
+                  {positionStats.collateralSymbol} tokens you provided for{" "}
+                  {formatBigInt(positionStats.liqPrice)} ZCHF per unit.
+                </li>
+                <li>
+                  The auction ends with the highest bids being below the
+                  &apos;buy now&apos; price. In that case, you get your{" "}
+                  {positionStats.collateralSymbol} tokens back and the bidder
+                  gets to buy the same amount of{" "}
+                  {positionStats.collateralSymbol} tokens out of the position,
+                  with the proceeds being used for repayment. You get a reward.
+                </li>
+              </ol>
+            </AppBox>
           </div>
         </section>
       </div>

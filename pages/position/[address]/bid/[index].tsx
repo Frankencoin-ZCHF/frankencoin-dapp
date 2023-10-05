@@ -31,6 +31,7 @@ import {
 import { ABIS, ADDRESS } from "@contracts";
 import { Id, toast } from "react-toastify";
 import { TxToast } from "@components/TxToast";
+import DisplayLabel from "@components/DisplayLabel";
 
 export default function ChallengePlaceBid({}) {
   const [amount, setAmount] = useState(0n);
@@ -177,8 +178,11 @@ export default function ChallengePlaceBid({}) {
           backText="Back to position"
           backTo={`/position/${address}`}
         />
-        <section className="mx-auto flex max-w-2xl flex-col gap-y-4 px-4 sm:px-8">
-          <AppBox>
+        <section className="mx-auto max-w-2xl px-4 sm:px-8">
+          <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
+            <div className="text-lg font-bold text-center mt-3">
+              Bid Details
+            </div>
             <div className="space-y-12">
               <div className="space-y-4">
                 <SwapFieldInput
@@ -200,60 +204,52 @@ export default function ChallengePlaceBid({}) {
                   </span>
                 </div>
               </div>
-              <div className="flex flex-col gap-2">
-                <div className="flex">
-                  <div className="flex-1">
-                    <span className="font-bold">Remaining Collateral</span>
-                  </div>
-                  <div className="font-bold">
-                    <DisplayAmount
-                      amount={remainingCol}
-                      currency={positionStats.collateralSymbol}
-                    />
-                  </div>
-                </div>
-                <div className="flex">
-                  <div className="flex-1">Auctionned Collateral</div>
-                  <div>
-                    <DisplayAmount
-                      amount={challenge?.size || 0n}
-                      currency={positionStats.collateralSymbol}
-                    />
-                  </div>
-                </div>
-                <div className="flex">
-                  <div className="flex-1">Buy now price</div>
-                  <DisplayAmount
-                    amount={buyNowPrice}
-                    digits={positionStats.collateralDecimal}
-                    currency={"ZCHF"}
-                  />
-                </div>
-                <div className="flex">
-                  <div className="flex-1">Time remaining</div>
-                  {isExpired ? "Expired" : "Active"} (
-                  {formatDate(challenge?.auctionEnd || 0)})
-                </div>
-                <div className="flex">
-                  <div className="flex-1">Auction duration</div>
-                  <div>
-                    {formatDuration(positionStats.challengePeriod * 2n)}
-                  </div>
-                </div>
-                <div className="flex">
-                  <div className="flex-1">Challenger</div>
-                  <Link
-                    className="text-link"
-                    href={challengerUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {shortenAddress(challenge?.challenger || zeroAddress)}
-                  </Link>
-                </div>
-              </div>
             </div>
-            <div className="mx-auto mt-8 w-72 max-w-full flex-col">
+            <div className="bg-slate-900 rounded-xl p-2 grid grid-cols-2 gap-1 lg:col-span-2">
+              <AppBox>
+                <DisplayLabel label="Remaining Collateral" />
+                <DisplayAmount
+                  amount={remainingCol}
+                  currency={positionStats.collateralSymbol}
+                />
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Auctionned Collateral" />
+                <DisplayAmount
+                  amount={challenge?.size || 0n}
+                  currency={positionStats.collateralSymbol}
+                />
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Buy now price" />
+                <DisplayAmount
+                  amount={buyNowPrice}
+                  digits={positionStats.collateralDecimal}
+                  currency={"ZCHF"}
+                />
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Time remaining" />
+                {isExpired ? "Expired" : "Active"} (
+                {formatDate(challenge?.auctionEnd || 0)})
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Auction duration" />
+                <div>{formatDuration(positionStats.challengePeriod * 2n)}</div>
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Challenger" />
+                <Link
+                  className="text-link"
+                  href={challengerUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {shortenAddress(challenge?.challenger || zeroAddress)}
+                </Link>
+              </AppBox>
+            </div>
+            <div className="mx-auto mt-4 w-72 max-w-full flex-col">
               {amount > positionStats.frankenAllowance ? (
                 <Button
                   variant="secondary"
@@ -285,7 +281,7 @@ export default function ChallengePlaceBid({}) {
                 </Button>
               )}
             </div>
-          </AppBox>
+          </div>
         </section>
       </div>
     </>

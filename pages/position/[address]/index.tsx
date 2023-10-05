@@ -55,7 +55,7 @@ export default function PositionDetail() {
             <div className="text-lg font-bold text-center">
               Position Details
             </div>
-            <div className="bg-slate-900 rounded-xl p-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="bg-slate-900 rounded-xl p-2 grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3">
               <AppBox>
                 <DisplayLabel label="Borrowed Total" />
                 <DisplayAmount amount={positionStats.minted} currency="ZCHF" />
