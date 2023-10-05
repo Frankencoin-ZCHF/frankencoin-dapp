@@ -171,7 +171,7 @@ export default function Swap() {
       <div>
         <AppPageHeader title="Swap XCHF and ZCHF" />
         <section className="mx-auto flex max-w-2xl flex-col gap-y-4 px-4 sm:px-8">
-          <AppBox>
+          <div className="bg-slate-950 rounded-xl p-8">
             <SwapFieldInput
               max={fromBalance}
               symbol={fromSymbol}
@@ -240,7 +240,7 @@ export default function Swap() {
                 </Button>
               )}
             </div>
-          </AppBox>
+          </div>
         </section>
       </div>
     </>

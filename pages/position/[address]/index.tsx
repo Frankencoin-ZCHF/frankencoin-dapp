@@ -45,107 +45,106 @@ export default function PositionDetail() {
       </Head>
       <div>
         <AppPageHeader
-          title={`Overview Position ${address && shortenAddress(position)}`}
+          title={`Position Overview ${address && shortenAddress(position)}`}
           link={explorerUrl}
           backTo="/positions"
           backText="Back to positions"
         />
-        <section>
-          <div className="mx-auto flex max-w-2xl flex-col gap-y-4 px-4 sm:px-8">
-            <AppBox>
-              <div className="flex flex-col gap-12">
-                <div className="grid grid-cols-1 gap-x-1 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
-                  <DisplayLabel label="Borrowed Total">
-                    <DisplayAmount
-                      amount={positionStats.minted}
-                      currency="ZCHF"
-                    />
-                  </DisplayLabel>
-                  <DisplayLabel label="Collateral">
-                    <DisplayAmount
-                      amount={positionStats.collateralBal}
-                      currency={positionStats.collateralSymbol}
-                    />
-                  </DisplayLabel>
-                  <DisplayLabel label="Liquidation Price">
-                    <DisplayAmount
-                      amount={positionStats.liqPrice}
-                      currency={"ZCHF"}
-                    />
-                  </DisplayLabel>
-                  <DisplayLabel label="Retained Reserve">
-                    <DisplayAmount
-                      amount={positionAssignedReserve || 0n}
-                      currency={"ZCHF"}
-                    />
-                  </DisplayLabel>
-                  <DisplayLabel label="Limit">
-                    <DisplayAmount
-                      amount={positionStats.limit}
-                      currency={"ZCHF"}
-                    />
-                  </DisplayLabel>
-                  <DisplayLabel label="Owner">
-                    <Link
-                      href={ownerLink}
-                      className="text-link"
-                      target="_blank"
-                    >
-                      <b>{shortenAddress(positionStats.owner)}</b>
-                    </Link>
-                  </DisplayLabel>
-                  <DisplayLabel label="Expiration Date">
-                    <b>{formatDate(positionStats.expiration)}</b>
-                  </DisplayLabel>
-                  <DisplayLabel label="Reserve Requirement">
-                    <DisplayAmount
-                      amount={positionStats.reserveContribution / 100n}
-                      digits={2}
-                      currency={"%"}
-                    />
-                  </DisplayLabel>
-                  <DisplayLabel label="Annual Interest">
-                    <DisplayAmount
-                      amount={positionStats.mintingFee / 100n}
-                      digits={2}
-                      currency={"%"}
-                    />
-                  </DisplayLabel>
-                </div>
-                <div className="mx-auto w-72 max-w-full flex-col">
-                  {positionStats.owner == account ? (
-                    <Link
-                      href={`/position/${position}/adjust`}
-                      className="btn btn-primary w-full"
-                    >
-                      Adjust
-                    </Link>
-                  ) : (
-                    <div className="flex flex-col gap-y-4">
-                      <Link
-                        href={`/position/${position}/borrow`}
-                        className="btn btn-primary w-full"
-                      >
-                        Borrow
-                      </Link>
-                      <Link
-                        href={`/position/${position}/challenge`}
-                        className="btn btn-primary w-full"
-                      >
-                        Challenge
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </AppBox>
+        <section className="grid grid-cols-2 gap-x-4">
+          <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
+            <div className="text-lg font-bold text-center">
+              Position Details
+            </div>
+            <div className="bg-slate-900 rounded-xl p-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              <AppBox>
+                <DisplayLabel label="Borrowed Total" />
+                <DisplayAmount amount={positionStats.minted} currency="ZCHF" />
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Collateral" />
+                <DisplayAmount
+                  amount={positionStats.collateralBal}
+                  currency={positionStats.collateralSymbol}
+                />
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Liquidation Price" />
+                <DisplayAmount
+                  amount={positionStats.liqPrice}
+                  currency={"ZCHF"}
+                />
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Retained Reserve" />
+                <DisplayAmount
+                  amount={positionAssignedReserve || 0n}
+                  currency={"ZCHF"}
+                />
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Limit" />
+                <DisplayAmount amount={positionStats.limit} currency={"ZCHF"} />
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Owner" />
+                <Link href={ownerLink} className="text-link" target="_blank">
+                  <b>{shortenAddress(positionStats.owner)}</b>
+                </Link>
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Expiration Date" />
+                <b>{formatDate(positionStats.expiration)}</b>
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Reserve Requirement" />
+                <DisplayAmount
+                  amount={positionStats.reserveContribution / 100n}
+                  digits={2}
+                  currency={"%"}
+                />
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Annual Interest" />
+                <DisplayAmount
+                  amount={positionStats.mintingFee / 100n}
+                  digits={2}
+                  currency={"%"}
+                />
+              </AppBox>
+            </div>
+            <div className="w-full flex">
+              {positionStats.owner == account ? (
+                <Link
+                  href={`/position/${position}/adjust`}
+                  className="btn btn-primary w-full"
+                >
+                  Adjust
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href={`/position/${position}/borrow`}
+                    className="btn btn-primary flex-1"
+                  >
+                    Borrow
+                  </Link>
+                  <Link
+                    href={`/position/${position}/challenge`}
+                    className="btn btn-primary flex-1 ml-4"
+                  >
+                    Challenge
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
-          <AppPageHeader title="Open Challenges" className="mt-8" />
-          <ChallengeTable
-            challenges={challengsData}
-            noContentText="This position is currently not being challenged."
-            loading={loading || queryLoading}
-          />
+          <div>
+            <ChallengeTable
+              challenges={challengsData}
+              noContentText="This position is currently not being challenged."
+              loading={loading || queryLoading}
+            />
+          </div>
         </section>
       </div>
     </>

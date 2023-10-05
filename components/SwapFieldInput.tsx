@@ -59,7 +59,7 @@ export default function SwapFieldInput({
         )}
       </div>
 
-      <div className="flex items-center rounded-lg bg-neutral-200 dark:bg-slate-700 p-2">
+      <div className="flex items-center rounded-lg bg-neutral-200 dark:bg-slate-800 p-2">
         {TOKEN_LOGO[symbol.toLowerCase()] && (
           <div className="hidden w-12 sm:block">
             <picture>
@@ -78,10 +78,10 @@ export default function SwapFieldInput({
             </div>
           ) : (
             <div
-              className={`flex gap-1 rounded-lg dark:text-white p-1 bg-neutral-100 dark:bg-slate-500 border-2 ${
+              className={`flex gap-1 rounded-lg dark:text-white p-1 bg-neutral-100 dark:bg-slate-600 border-2 ${
                 error
                   ? "border-red-300"
-                  : "border-neutral-100 dark:border-slate-500"
+                  : "border-neutral-100 dark:border-slate-600"
               }`}
             >
               <BigNumberInput

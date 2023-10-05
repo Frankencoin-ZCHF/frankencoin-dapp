@@ -50,7 +50,6 @@ export default function Navbar() {
           )}
         </ul>
         <div className="flex flex-1 justify-end items-center">
-          <ThemeButton />
           <WalletConnect />
         </div>
       </header>

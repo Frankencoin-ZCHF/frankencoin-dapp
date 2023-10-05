@@ -24,11 +24,13 @@ import {
 import { ABIS, ADDRESS } from "@contracts";
 import { Id, toast } from "react-toastify";
 import { TxToast } from "@components/TxToast";
+import DisplayLabel from "@components/DisplayLabel";
 
 export default function PositionChallenge() {
   const router = useRouter();
   const [amount, setAmount] = useState(0n);
   const [error, setError] = useState("");
+  const [showTip, setShowTip] = useState(false);
   const [pendingTx, setPendingTx] = useState<Hash>(zeroAddress);
   const toastId = useRef<Id>(0);
   const { address: positionAddr } = router.query;
@@ -150,7 +152,7 @@ export default function PositionChallenge() {
           backTo={`/position/${position}`}
         />
         <section className="container m-auto max-w-2xl">
-          <AppBox>
+          <div className="bg-slate-950 rounded-xl p-4 sm:p-6 md:p-8">
             <SwapFieldInput
               symbol={positionStats.collateralSymbol}
               max={positionStats.collateralUserBal}
@@ -159,43 +161,59 @@ export default function PositionChallenge() {
               error={error}
               label="Amount"
             />
-            <div className="my-8 flex flex-col gap-2">
-              <div className="flex">
-                <div className="flex-1">Starting Price</div>
+            <div className="mt-4 grid grid-cols-6 gap-1 lg:col-span-2">
+              <AppBox className="col-span-6 sm:col-span-3">
+                <DisplayLabel label="Starting Price" />
                 <DisplayAmount
                   amount={positionStats.liqPrice}
                   currency={"ZCHF"}
                 />
-              </div>
-              <div className="flex">
-                <div className="flex-1">Maximum Bid</div>
+              </AppBox>
+              <AppBox className="col-span-6 sm:col-span-3">
+                <DisplayLabel label="Maximum Bid" />
                 <DisplayAmount
                   amount={positionStats.liqPrice * amount}
                   currency={"ZCHF"}
                   digits={positionStats.collateralDecimal + 18}
                 />
-              </div>
-              <div className="flex">
-                <div className="flex-1">Collateral in position</div>
+              </AppBox>
+              <AppBox className="col-span-6 sm:col-span-3">
+                <DisplayLabel label="Collateral in position" />
                 <DisplayAmount
                   amount={positionStats.collateralBal}
                   currency={positionStats.collateralSymbol}
                   digits={positionStats.collateralDecimal}
                 />
-              </div>
-              <div className="flex">
-                <div className="flex-1">Required Minimum Collateral</div>
+              </AppBox>
+              <AppBox className="col-span-6 sm:col-span-3">
+                <DisplayLabel label="Required Minimum Collateral" />
                 <DisplayAmount
                   amount={positionStats.minimumCollateral}
                   currency={positionStats.collateralSymbol}
                   digits={positionStats.collateralDecimal}
                 />
+              </AppBox>
+              <AppBox className="col-span-6 sm:col-span-3">
+                <DisplayLabel label="Fixed Sale period" />
+                {formatDuration(positionStats.challengePeriod)}
+              </AppBox>
+              <AppBox className="col-span-6 sm:col-span-3">
+                <DisplayLabel label="Dutch Auction period" />
+                {formatDuration(positionStats.challengePeriod)}
+              </AppBox>
+            </div>
+            <AppBox className="mt-1 flex flex-col gap-2">
+              <div
+                className="cursor-pointer text-lg text-center font-bold"
+                onClick={() => setShowTip(!showTip)}
+              >
+                How does it work?
               </div>
-              <div className="flex">
-                <div className="flex-1">Auction period</div>
-                <div>{formatDuration(positionStats.challengePeriod * 2n)}</div>
-              </div>
-              <div className="mt-4 text-sm">
+              <div
+                className={`text-sm overflow-hidden transition-all duration-500 ${
+                  !showTip ? "h-0" : "h-40"
+                }`}
+              >
                 <p>
                   The amount you provide will be publicly auctioned. There are
                   two possible outcomes:
@@ -218,7 +236,7 @@ export default function PositionChallenge() {
                   </li>
                 </ol>
               </div>
-            </div>
+            </AppBox>
             <div className="mx-auto mt-8 w-72 max-w-full flex-col">
               {amount > positionStats.collateralAllowance ? (
                 <Button
@@ -244,7 +262,7 @@ export default function PositionChallenge() {
                 </Button>
               )}
             </div>
-          </AppBox>
+          </div>
         </section>
       </div>
     </>

@@ -25,7 +25,7 @@ const FooterButton = ({ link, text, icon }: ButtonProps) => {
       href={link}
       target="_blank"
       rel="noreferrer"
-      className="flex gap-1 underline hover:opacity-70"
+      className="flex gap-1 hover:opacity-70"
     >
       <FontAwesomeIcon icon={icon} className="w-6 h-6" />
       {text}

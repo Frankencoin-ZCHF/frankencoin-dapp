@@ -1,8 +1,5 @@
 import ChallengeRow from "./ChallengeRow";
 import { Challenge } from "@hooks";
-import Table from "../Table";
-import TableHeader from "../Table/TableHead";
-import TableBody from "../Table/TableBody";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import LoadingSpin from "../LoadingSpin";
 
@@ -18,11 +15,9 @@ export default function ChallengeTable({
   loading,
 }: Props) {
   return (
-    <Table>
-      <TableHeader
-        headers={["Auction", "Remaining", "Buy Now Price", "Owner", "State"]}
-      />
-      <TableBody>
+    <div className="bg-slate-950 rounded-xl p-4">
+      <div className="text-lg font-bold text-center mb-4">Open Challenges</div>
+      <div className="bg-slate-900 rounded-xl p-2 flex flex-col gap-2">
         {loading ? (
           <TableRowEmpty>
             <div className="flex items-center">
@@ -48,7 +43,7 @@ export default function ChallengeTable({
             />
           ))
         )}
-      </TableBody>
-    </Table>
+      </div>
+    </div>
   );
 }

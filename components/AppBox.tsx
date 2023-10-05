@@ -17,7 +17,7 @@ export default function AppBox({
     <section
       className={`${className} rounded-xl dark:bg-slate-800 ${
         gray ? "bg-gray-100" : "bg-white"
-      } ${tight ? "p-4" : "p-4 sm:p-6 md:p-8"}`}
+      } ${tight ? "p-4" : "p-4"}`}
     >
       {title && (
         <h2 className="h6 mb-6 text-center font-bold md:mb-8" v-if="title">

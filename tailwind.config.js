@@ -21,6 +21,9 @@ module.exports = {
       minHeight: {
         content: "calc(100vh - 190px)",
       },
+      transitionProperty: {
+        height: "height",
+      },
     },
   },
   darkMode: "class",

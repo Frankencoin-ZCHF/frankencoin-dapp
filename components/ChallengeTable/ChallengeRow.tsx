@@ -2,6 +2,7 @@ import { Address } from "viem";
 import DisplayAmount from "../DisplayAmount";
 import Link from "next/link";
 import {
+  formatBigInt,
   formatDate,
   formatDateDuration,
   formatDuration,
@@ -41,6 +42,8 @@ export default function ChallengeRow({
   const isFixedEnd = isDateExpired(fixedEnd);
   const isAuctionExpired = isDateExpired(auctionEnd);
 
+  const filledRate = challengeSize ? (filledSize * 10000n) / challengeSize : 0n;
+
   const stateText = !isFixedEnd
     ? "Fixed Price Phase"
     : !isAuctionExpired
@@ -55,56 +58,51 @@ export default function ChallengeRow({
     : "Auction ended at " + formatDate(auctionEnd);
 
   return (
-    <TableRow link={`/position/${position}/bid/${index}`}>
-      <div>
-        <div className="text-gray-400 md:hidden">Auction</div>
-        <DisplayAmount
-          amount={challengeSize}
-          currency={positionStats.collateralSymbol}
-          digits={positionStats.collateralDecimal}
-        />
-      </div>
-      <div>
-        <div className="text-gray-400 md:hidden">Remaining</div>
-        <DisplayAmount
-          amount={challengeSize - filledSize}
-          currency={positionStats.collateralSymbol}
-          digits={positionStats.collateralDecimal}
-        />
-      </div>
-      <div>
-        <div className="text-gray-400 md:hidden">Buy Now Price</div>
-        <DisplayAmount
-          amount={price}
-          digits={positionStats.collateralDecimal}
-          currency={"ZCHF"}
-        />
-      </div>
-      <div>
-        <div className="text-gray-400 md:hidden">Owner</div>
-        <Link
-          href={ownerUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="text-link"
-        >
-          {shortenAddress(challenger)}
-        </Link>
-      </div>
-      <div>
-        <div className="text-gray-400 md:hidden">State</div>
-        <div className="flex gap-x-2 leading-none">
+    // <TableRow link={`/position/${position}/bid/${index}`}>
+    <Link
+      className="bg-slate-800 hover:bg-slate-700 cursor-pointer p-5 rounded-xl duration-300"
+      href={`/position/${position}/bid/${index}`}
+    >
+      <div className="grid grid-cols-3">
+        <div>
+          <div className="text-sm">Auction Price</div>
+          <div className="text-white font-bold">{formatBigInt(price)} ZCHF</div>
+        </div>
+        <div className="text-center">
+          <div className="text-sm">Cap</div>
+          <div className="text-white font-bold">
+            {formatBigInt(challengeSize, positionStats.collateralDecimal)}{" "}
+            {positionStats.collateralSymbol}
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-sm">State</div>
           <div
-            className={`h-4 w-4 flex-shrink-0 rounded-full ${
-              isAuctionExpired ? "bg-gray-300" : "bg-green-300"
+            className={`font-bold ${
+              isAuctionExpired ? "text-gray-300" : "text-green-300"
             }`}
-          ></div>
-          <div className="flex flex-col gap-y-1">
-            <span className="font-bold">{stateText}</span>
-            <span className="text-sm">{priceText}</span>
+          >
+            {stateText}
           </div>
         </div>
       </div>
-    </TableRow>
+      <div className="text-sm text-gray text-right">{priceText}</div>
+      <div className="flex">
+        <span>Progress</span>
+      </div>
+      <div className="flex bg-gray-500 h-2 rounded-lg">
+        <div
+          className="bg-rose-400 rounded-lg"
+          style={{ width: Number(filledRate / 100n) }}
+        />
+      </div>
+      <div className="flex">
+        <span>{formatBigInt(filledRate, 2)} %</span>
+        <span className="ml-auto">
+          {formatBigInt(filledSize, positionStats.collateralDecimal)} /{" "}
+          {formatBigInt(challengeSize, positionStats.collateralDecimal)}
+        </span>
+      </div>
+    </Link>
   );
 }
