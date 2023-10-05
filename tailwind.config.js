@@ -19,7 +19,7 @@ module.exports = {
         main: "calc(100vh)",
       },
       minHeight: {
-        content: "calc(100vh - 190px)",
+        content: "calc(100vh - 230px)",
       },
       transitionProperty: {
         height: "height",

@@ -12,11 +12,11 @@
   }
 
   .btn-primary {
-    @apply text-white bg-black hover:opacity-60 dark:bg-rose-400;
+    @apply text-white hover:opacity-60 bg-rose-400;
   }
 
   .btn-secondary {
-    @apply text-black border-black hover:bg-neutral-200 dark:bg-rose-400 dark:border-0 dark:text-white;
+    @apply text-black border-black hover:bg-neutral-200 bg-rose-400 border-0 text-white;
   }
 
   .btn-small {

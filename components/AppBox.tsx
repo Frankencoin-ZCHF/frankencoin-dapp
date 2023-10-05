@@ -15,8 +15,8 @@ export default function AppBox({
 }: Props) {
   return (
     <section
-      className={`${className} rounded-xl dark:bg-slate-800 ${
-        gray ? "bg-gray-100" : "bg-white"
+      className={`${className} rounded-xl ${
+        gray ? "bg-gray-100" : "bg-slate-800"
       } ${tight ? "p-4" : "p-4"}`}
     >
       {title && (

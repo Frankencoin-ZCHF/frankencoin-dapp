@@ -207,167 +207,154 @@ export default function Pool({}) {
       </Head>
       <div>
         <AppPageHeader title="FrankenCoin Pool Shares (FPS)" link={equityUrl} />
-        <section className="container mx-auto">
-          <div className="flex flex-col gap-1">
-            <div className="grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-4">
-              <AppBox>
-                <DisplayLabel label="Supply">
-                  <DisplayAmount
-                    amount={poolStats.equitySupply}
-                    currency="FPS"
-                  />
-                </DisplayLabel>
-              </AppBox>
-              <AppBox>
-                <DisplayLabel label="Price">
-                  <DisplayAmount
-                    amount={poolStats.equityPrice}
-                    currency="ZCHF"
-                  />
-                </DisplayLabel>
-              </AppBox>
-              <AppBox>
-                <DisplayLabel label="Market Cap">
-                  <DisplayAmount
-                    amount={
-                      (poolStats.equitySupply * poolStats.equityPrice) /
-                      BigInt(1e18)
-                    }
-                    currency="ZCHF"
-                  />
-                </DisplayLabel>
-              </AppBox>
-              <AppBox>
-                <DisplayLabel label="Total Reserve">
-                  <DisplayAmount
-                    amount={poolStats.frankenTotalReserve}
-                    currency="ZCHF"
-                  />
-                </DisplayLabel>
-              </AppBox>
+        <section className="grid grid-cols-2 gap-4 container mx-auto">
+          <div className="bg-slate-950 rounded-xl p-4 flex flex-col">
+            <div className="text-lg font-bold text-center">
+              Position Details
             </div>
-            <div className="grid grid-cols-1 gap-1 lg:grid-cols-2">
-              <AppBox>
-                <div className="m-auto max-w-lg">
-                  <SwapFieldInput
-                    max={fromBalance}
-                    symbol={fromSymbol}
-                    onChange={onChangeAmount}
-                    value={amount.toString()}
-                    error={error}
-                  />
+            <div className="p-4 mt-5">
+              <SwapFieldInput
+                max={fromBalance}
+                symbol={fromSymbol}
+                onChange={onChangeAmount}
+                value={amount.toString()}
+                error={error}
+              />
 
-                  <div className="py-4 text-center">
-                    <button
-                      className={`btn btn-secondary text-slate-800 w-14 h-14 rounded-full transition ${
-                        direction && "rotate-180"
-                      }`}
-                      onClick={() => setDirection(!direction)}
-                    >
-                      <FontAwesomeIcon
-                        icon={faArrowRightArrowLeft}
-                        className="rotate-90 w-6 h-6"
-                      />
-                    </button>
-                  </div>
-                  <SwapFieldInput
-                    symbol={toSymbol}
-                    showOutput
-                    hideMaxLabel
-                    output={formatUnits(result, 18)}
-                    label="Receive"
+              <div className="py-4 text-center">
+                <button
+                  className={`btn btn-secondary text-slate-800 w-14 h-14 rounded-full transition ${
+                    direction && "rotate-180"
+                  }`}
+                  onClick={() => setDirection(!direction)}
+                >
+                  <FontAwesomeIcon
+                    icon={faArrowRightArrowLeft}
+                    className="rotate-90 w-6 h-6"
                   />
-                  <div
-                    className={`mt-2 px-1 transition-opacity ${
-                      (shareLoading || proceedLoading) && "opacity-50"
-                    }`}
-                  >
-                    {conversionNote()}
-                    <br />
-                    {!direction &&
-                      "Redemption requires a 90 days holding period."}
-                  </div>
+                </button>
+              </div>
+              <SwapFieldInput
+                symbol={toSymbol}
+                showOutput
+                hideMaxLabel
+                output={formatUnits(result, 18)}
+                label="Receive"
+              />
+              <div
+                className={`mt-2 px-1 transition-opacity ${
+                  (shareLoading || proceedLoading) && "opacity-50"
+                }`}
+              >
+                {conversionNote()}
+                <br />
+                {!direction && "Redemption requires a 90 days holding period."}
+              </div>
 
-                  <div className="mx-auto mt-8 w-72 max-w-full flex-col">
-                    {direction ? (
-                      amount > poolStats.frankenAllowance ? (
-                        <Button
-                          variant="secondary"
-                          isLoading={approveLoading || isConfirming}
-                          disabled={amount == 0n || !!error}
-                          onClick={() =>
-                            approveFranken({
-                              args: [ADDRESS[chainId].equity, amount],
-                            })
-                          }
-                        >
-                          Approve
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="primary"
-                          disabled={amount == 0n || !!error}
-                          isLoading={investLoading || isConfirming}
-                          onClick={() => invest({ args: [amount, result] })}
-                        >
-                          Invest
-                        </Button>
-                      )
-                    ) : (
-                      <Button
-                        variant="primary"
-                        isLoading={redeemLoading || isConfirming}
-                        disabled={
-                          amount == 0n || !!error || !poolStats.equityCanRedeem
-                        }
-                        onClick={() => redeem({ args: [account, amount] })}
-                      >
-                        Redeem
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </AppBox>
-              <div className="flex flex-col gap-1 ">
-                <AppBox>
-                  <DisplayLabel label="Your shares">
-                    <DisplayAmount
-                      amount={poolStats.equityBalance}
-                      currency="FPS"
-                    />
-                  </DisplayLabel>
-                </AppBox>
-                <AppBox>
-                  <DisplayLabel label="Your shares value">
-                    <DisplayAmount
-                      amount={
-                        (poolStats.equityPrice * poolStats.equityBalance) /
-                        BigInt(1e18)
+              <div className="mx-auto mt-8 w-72 max-w-full flex-col">
+                {direction ? (
+                  amount > poolStats.frankenAllowance ? (
+                    <Button
+                      variant="secondary"
+                      isLoading={approveLoading || isConfirming}
+                      disabled={amount == 0n || !!error}
+                      onClick={() =>
+                        approveFranken({
+                          args: [ADDRESS[chainId].equity, amount],
+                        })
                       }
-                      currency="ZCHF"
-                    />
-                  </DisplayLabel>
-                </AppBox>
-                <AppBox>
-                  <DisplayLabel label="Voting Power">
-                    <DisplayAmount
-                      amount={votingPower}
-                      currency="%"
-                      digits={2}
-                    />
-                  </DisplayLabel>
-                  <p>
-                    A minimum of 3% of the total supply is required to obtain
-                    voting power.
-                  </p>
-                </AppBox>
-                <AppBox className="flex-1">
-                  <DisplayLabel label="Can redeem after">
-                    {formatDuration(redeemLeft)}
-                  </DisplayLabel>
-                </AppBox>
+                    >
+                      Approve
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="primary"
+                      disabled={amount == 0n || !!error}
+                      isLoading={investLoading || isConfirming}
+                      onClick={() => invest({ args: [amount, result] })}
+                    >
+                      Invest
+                    </Button>
+                  )
+                ) : (
+                  <Button
+                    variant="primary"
+                    isLoading={redeemLoading || isConfirming}
+                    disabled={
+                      amount == 0n || !!error || !poolStats.equityCanRedeem
+                    }
+                    onClick={() => redeem({ args: [account, amount] })}
+                  >
+                    Redeem
+                  </Button>
+                )}
               </div>
             </div>
+          </div>
+          <div className="bg-slate-950 rounded-xl p-4 grid grid-cols-2 gap-1">
+            <AppBox>
+              <DisplayLabel label="Supply">
+                <DisplayAmount amount={poolStats.equitySupply} currency="FPS" />
+              </DisplayLabel>
+            </AppBox>
+            <AppBox>
+              <DisplayLabel label="Price">
+                <DisplayAmount amount={poolStats.equityPrice} currency="ZCHF" />
+              </DisplayLabel>
+            </AppBox>
+            <AppBox>
+              <DisplayLabel label="Market Cap">
+                <DisplayAmount
+                  amount={
+                    (poolStats.equitySupply * poolStats.equityPrice) /
+                    BigInt(1e18)
+                  }
+                  currency="ZCHF"
+                />
+              </DisplayLabel>
+            </AppBox>
+            <AppBox>
+              <DisplayLabel label="Total Reserve">
+                <DisplayAmount
+                  amount={poolStats.frankenTotalReserve}
+                  currency="ZCHF"
+                />
+              </DisplayLabel>
+            </AppBox>
+
+            <AppBox className="mt-4">
+              <DisplayLabel label="Your shares">
+                <DisplayAmount
+                  amount={poolStats.equityBalance}
+                  currency="FPS"
+                />
+              </DisplayLabel>
+            </AppBox>
+            <AppBox className="mt-4">
+              <DisplayLabel label="Your shares value">
+                <DisplayAmount
+                  amount={
+                    (poolStats.equityPrice * poolStats.equityBalance) /
+                    BigInt(1e18)
+                  }
+                  currency="ZCHF"
+                />
+              </DisplayLabel>
+            </AppBox>
+            <AppBox>
+              <DisplayLabel label="Voting Power">
+                <DisplayAmount amount={votingPower} currency="%" digits={2} />
+              </DisplayLabel>
+              <p className="text-sm">
+                A minimum of 3% of the total supply is required to obtain voting
+                power.
+              </p>
+            </AppBox>
+            <AppBox className="flex-1">
+              <DisplayLabel label="Can redeem after">
+                {formatDuration(redeemLeft)}
+              </DisplayLabel>
+            </AppBox>
           </div>
         </section>
       </div>

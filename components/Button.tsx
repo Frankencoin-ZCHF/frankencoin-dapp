@@ -36,8 +36,7 @@ export default function Button({
       )}
       <button
         className={`btn w-full ${className} ${sizeClass} ${variantClass} ${
-          disabled &&
-          "cursor-not-allowed bg-gray-500 dark:bg-gray-500 text-gray-400"
+          disabled && "cursor-not-allowed bg-gray-500 text-gray-400"
         }`}
         onClick={() => !disabled && onClick?.()}
       >
