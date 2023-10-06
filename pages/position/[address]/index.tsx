@@ -55,47 +55,47 @@ export default function PositionDetail() {
             <div className="text-lg font-bold text-center">
               Position Details
             </div>
-            <div className="bg-slate-900 rounded-xl p-2 grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3">
-              <AppBox>
+            <div className="bg-slate-900 rounded-xl p-4 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-6">
+              <AppBox className="col-span-3">
                 <DisplayLabel label="Borrowed Total" />
                 <DisplayAmount amount={positionStats.minted} currency="ZCHF" />
               </AppBox>
-              <AppBox>
+              <AppBox className="col-span-3">
                 <DisplayLabel label="Collateral" />
                 <DisplayAmount
                   amount={positionStats.collateralBal}
                   currency={positionStats.collateralSymbol}
                 />
               </AppBox>
-              <AppBox>
+              <AppBox className="col-span-3">
                 <DisplayLabel label="Liquidation Price" />
                 <DisplayAmount
                   amount={positionStats.liqPrice}
                   currency={"ZCHF"}
                 />
               </AppBox>
-              <AppBox>
+              <AppBox className="col-span-3">
                 <DisplayLabel label="Retained Reserve" />
                 <DisplayAmount
                   amount={positionAssignedReserve || 0n}
                   currency={"ZCHF"}
                 />
               </AppBox>
-              <AppBox>
+              <AppBox className="col-span-3">
                 <DisplayLabel label="Limit" />
                 <DisplayAmount amount={positionStats.limit} currency={"ZCHF"} />
               </AppBox>
-              <AppBox>
+              <AppBox className="col-span-3">
                 <DisplayLabel label="Owner" />
                 <Link href={ownerLink} className="text-link" target="_blank">
                   <b>{shortenAddress(positionStats.owner)}</b>
                 </Link>
               </AppBox>
-              <AppBox>
+              <AppBox className="col-span-2">
                 <DisplayLabel label="Expiration Date" />
                 <b>{formatDate(positionStats.expiration)}</b>
               </AppBox>
-              <AppBox>
+              <AppBox className="col-span-2">
                 <DisplayLabel label="Reserve Requirement" />
                 <DisplayAmount
                   amount={positionStats.reserveContribution / 100n}
@@ -103,7 +103,7 @@ export default function PositionDetail() {
                   currency={"%"}
                 />
               </AppBox>
-              <AppBox>
+              <AppBox className="col-span-2">
                 <DisplayLabel label="Annual Interest" />
                 <DisplayAmount
                   amount={positionStats.mintingFee / 100n}
@@ -112,11 +112,11 @@ export default function PositionDetail() {
                 />
               </AppBox>
             </div>
-            <div className="w-full flex">
+            <div className="mt-4 w-full flex">
               {positionStats.owner == account ? (
                 <Link
                   href={`/position/${position}/adjust`}
-                  className="btn btn-primary w-full"
+                  className="btn btn-primary w-72 m-auto"
                 >
                   Adjust
                 </Link>

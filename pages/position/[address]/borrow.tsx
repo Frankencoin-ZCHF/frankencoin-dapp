@@ -191,7 +191,10 @@ export default function PositionBorrow({}) {
           backTo={`/position/${position}`}
         />
         <section className="mx-auto flex max-w-2xl flex-col gap-y-4 px-4 sm:px-8">
-          <AppBox>
+          <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
+            <div className="text-lg font-bold text-center mt-3">
+              Borrow Details
+            </div>
             <div className="space-y-8">
               <SwapFieldInput
                 label="Borrow"
@@ -211,7 +214,7 @@ export default function PositionBorrow({}) {
                 symbol={positionStats.collateralSymbol}
                 hideMaxLabel
               />
-              <div className="flex flex-col gap-2">
+              <div className="bg-slate-900 rounded-xl p-4 flex flex-col gap-2">
                 <div className="flex">
                   <div className="flex-1">Paid to your wallet</div>
                   <DisplayAmount amount={paidOutToWallet} currency="ZCHF" />
@@ -273,7 +276,7 @@ export default function PositionBorrow({}) {
                 </Button>
               )}
             </div>
-          </AppBox>
+          </div>
         </section>
       </div>
     </>

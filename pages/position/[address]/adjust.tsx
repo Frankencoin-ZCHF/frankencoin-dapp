@@ -16,6 +16,7 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import { ABIS, ADDRESS } from "@contracts";
+import DisplayLabel from "@components/DisplayLabel";
 
 export default function PositionAdjust({}) {
   const router = useRouter();
@@ -144,83 +145,37 @@ export default function PositionAdjust({}) {
           backText="Back to position"
           backTo={`/position/${positionAddr}`}
         />
-        <section className="mx-auto flex max-w-2xl flex-col gap-y-4 px-4 sm:px-8">
-          <AppBox>
-            <div className="space-y-12">
-              <div className="space-y-4">
-                <SwapFieldInput
-                  label="Amount"
-                  symbol="ZCHF"
-                  max={repayPosition}
-                  value={amount.toString()}
-                  onChange={onChangeAmount}
-                  error={amountError}
-                  // TODO: Children
-                />
-                <div className="flex flex-col gap-2">
-                  <div className="flex">
-                    <div className="flex-1">Current Amount</div>
-                    <DisplayAmount
-                      amount={positionStats.minted}
-                      currency={"ZCHF"}
-                    />
-                  </div>
-                  <div className="flex">
-                    <div className="flex-1">
-                      {isNegativeDiff
-                        ? "Taken in wallet"
-                        : "Received in wallet"}
-                    </div>
-                    <DisplayAmount amount={paidOutAmount()} currency={"ZCHF"} />
-                  </div>
-                  <div className="flex">
-                    <div className="flex-1">
-                      {isNegativeDiff
-                        ? "Taken from reserve"
-                        : "Reserve contribution"}
-                    </div>
-                    <DisplayAmount
-                      amount={borrowReserveContribution}
-                      currency={"ZCHF"}
-                    />
-                  </div>
-                  {!isNegativeDiff && (
-                    <div className="flex font-bold">
-                      <div className="flex-1">Fee</div>
-                      <DisplayAmount amount={fees} currency={"ZCHF"} />
-                    </div>
-                  )}
-                  <hr />
-                  <div className="flex font-bold">
-                    <div className="flex-1">New Amount</div>
-                    <DisplayAmount amount={amount} currency={"ZCHF"} />
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <SwapFieldInput
-                  label="Collateral"
-                  symbol={positionStats.collateralSymbol}
-                  max={positionStats.collateralUserBal}
-                  value={collateralAmount.toString()}
-                  onChange={onChangeCollAmount}
-                  digit={positionStats.collateralDecimal}
-                  note={collateralNote}
-                  error={collError}
-                  // TODO: Children
-                />
-              </div>
-              <div className="space-y-4">
-                <SwapFieldInput
-                  label="Liquidation Price"
-                  symbol={"ZCHF"}
-                  max={positionStats.liqPrice}
-                  value={liqPrice.toString()}
-                  onChange={onChangeLiqAmount}
-                  // TODO: Children
-                />
-              </div>
-            </div>
+        <section className="grid grid-cols-2 gap-x-4">
+          <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
+            <div className="text-lg font-bold text-center">Adjust Details</div>
+            <SwapFieldInput
+              label="Amount"
+              symbol="ZCHF"
+              max={repayPosition}
+              value={amount.toString()}
+              onChange={onChangeAmount}
+              error={amountError}
+              // TODO: Children
+            />
+            <SwapFieldInput
+              label="Collateral"
+              symbol={positionStats.collateralSymbol}
+              max={positionStats.collateralUserBal}
+              value={collateralAmount.toString()}
+              onChange={onChangeCollAmount}
+              digit={positionStats.collateralDecimal}
+              note={collateralNote}
+              error={collError}
+              // TODO: Children
+            />
+            <SwapFieldInput
+              label="Liquidation Price"
+              symbol={"ZCHF"}
+              max={positionStats.liqPrice}
+              value={liqPrice.toString()}
+              onChange={onChangeLiqAmount}
+              // TODO: Children
+            />
             <div className="mx-auto mt-8 w-72 max-w-full flex-col">
               {collateralAmount > positionStats.collateralPosAllowance ? (
                 <Button
@@ -252,7 +207,53 @@ export default function PositionAdjust({}) {
                 </Button>
               )}
             </div>
-          </AppBox>
+          </div>
+          <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
+            <div className="text-lg font-bold text-center">
+              Position Preview
+            </div>
+            <div className="bg-slate-900 rounded-xl p-4">
+              <div className="grid grid-cols-2 gap-2">
+                <AppBox>
+                  <DisplayLabel label="Current Amount" />
+                  <DisplayAmount
+                    amount={positionStats.minted}
+                    currency={"ZCHF"}
+                  />
+                </AppBox>
+                <AppBox>
+                  <DisplayLabel
+                    label={
+                      isNegativeDiff ? "Taken in wallet" : "Received in wallet"
+                    }
+                  />
+                  <DisplayAmount amount={paidOutAmount()} currency={"ZCHF"} />
+                </AppBox>
+                <AppBox>
+                  <DisplayLabel
+                    label={
+                      isNegativeDiff
+                        ? "Taken from reserve"
+                        : "Reserve contribution"
+                    }
+                  />
+                  <DisplayAmount
+                    amount={borrowReserveContribution}
+                    currency={"ZCHF"}
+                  />
+                </AppBox>
+                <AppBox>
+                  <DisplayLabel label="Fee" />
+                  <DisplayAmount amount={fees} currency={"ZCHF"} />
+                </AppBox>
+              </div>
+              <hr className="my-2 border-dashed border-slate-800" />
+              <AppBox>
+                <DisplayLabel label="New Amount" />
+                <DisplayAmount amount={amount} currency={"ZCHF"} />
+              </AppBox>
+            </div>
+          </div>
         </section>
       </div>
     </>

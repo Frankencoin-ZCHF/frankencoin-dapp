@@ -291,70 +291,79 @@ export default function Pool({}) {
               </div>
             </div>
           </div>
-          <div className="bg-slate-950 rounded-xl p-4 grid grid-cols-2 gap-1">
-            <AppBox>
-              <DisplayLabel label="Supply">
-                <DisplayAmount amount={poolStats.equitySupply} currency="FPS" />
-              </DisplayLabel>
-            </AppBox>
-            <AppBox>
-              <DisplayLabel label="Price">
-                <DisplayAmount amount={poolStats.equityPrice} currency="ZCHF" />
-              </DisplayLabel>
-            </AppBox>
-            <AppBox>
-              <DisplayLabel label="Market Cap">
-                <DisplayAmount
-                  amount={
-                    (poolStats.equitySupply * poolStats.equityPrice) /
-                    BigInt(1e18)
-                  }
-                  currency="ZCHF"
-                />
-              </DisplayLabel>
-            </AppBox>
-            <AppBox>
-              <DisplayLabel label="Total Reserve">
-                <DisplayAmount
-                  amount={poolStats.frankenTotalReserve}
-                  currency="ZCHF"
-                />
-              </DisplayLabel>
-            </AppBox>
-
-            <AppBox className="mt-4">
-              <DisplayLabel label="Your shares">
-                <DisplayAmount
-                  amount={poolStats.equityBalance}
-                  currency="FPS"
-                />
-              </DisplayLabel>
-            </AppBox>
-            <AppBox className="mt-4">
-              <DisplayLabel label="Your shares value">
-                <DisplayAmount
-                  amount={
-                    (poolStats.equityPrice * poolStats.equityBalance) /
-                    BigInt(1e18)
-                  }
-                  currency="ZCHF"
-                />
-              </DisplayLabel>
-            </AppBox>
-            <AppBox>
-              <DisplayLabel label="Voting Power">
-                <DisplayAmount amount={votingPower} currency="%" digits={2} />
-              </DisplayLabel>
-              <p className="text-sm">
-                A minimum of 3% of the total supply is required to obtain voting
-                power.
-              </p>
-            </AppBox>
-            <AppBox className="flex-1">
-              <DisplayLabel label="Can redeem after">
-                {formatDuration(redeemLeft)}
-              </DisplayLabel>
-            </AppBox>
+          <div className="bg-slate-950 rounded-xl p-4 grid grid-cols-1 gap-2">
+            <div className="bg-slate-900 rounded-xl p-4 grid grid-cols-2 gap-2">
+              <AppBox>
+                <DisplayLabel label="Supply">
+                  <DisplayAmount
+                    amount={poolStats.equitySupply}
+                    currency="FPS"
+                  />
+                </DisplayLabel>
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Price">
+                  <DisplayAmount
+                    amount={poolStats.equityPrice}
+                    currency="ZCHF"
+                  />
+                </DisplayLabel>
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Market Cap">
+                  <DisplayAmount
+                    amount={
+                      (poolStats.equitySupply * poolStats.equityPrice) /
+                      BigInt(1e18)
+                    }
+                    currency="ZCHF"
+                  />
+                </DisplayLabel>
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Total Reserve">
+                  <DisplayAmount
+                    amount={poolStats.frankenTotalReserve}
+                    currency="ZCHF"
+                  />
+                </DisplayLabel>
+              </AppBox>
+            </div>
+            <div className="bg-slate-900 rounded-xl p-4 grid grid-cols-2 gap-2">
+              <AppBox>
+                <DisplayLabel label="Your shares">
+                  <DisplayAmount
+                    amount={poolStats.equityBalance}
+                    currency="FPS"
+                  />
+                </DisplayLabel>
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Your shares value">
+                  <DisplayAmount
+                    amount={
+                      (poolStats.equityPrice * poolStats.equityBalance) /
+                      BigInt(1e18)
+                    }
+                    currency="ZCHF"
+                  />
+                </DisplayLabel>
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Voting Power">
+                  <DisplayAmount amount={votingPower} currency="%" digits={2} />
+                </DisplayLabel>
+                <p className="text-sm">
+                  A minimum of 3% of the total supply is required to obtain
+                  voting power.
+                </p>
+              </AppBox>
+              <AppBox className="flex-1">
+                <DisplayLabel label="Can redeem after">
+                  {formatDuration(redeemLeft)}
+                </DisplayLabel>
+              </AppBox>
+            </div>
           </div>
         </section>
       </div>
