@@ -173,7 +173,7 @@ export default function PositionChallenge() {
                 />
               </AppBox>
               <AppBox className="col-span-6 sm:col-span-3">
-                <DisplayLabel label="Maximum Bid" />
+                <DisplayLabel label="Maximum Proceeds" />
                 <DisplayAmount
                   amount={positionStats.liqPrice * amount}
                   currency={"ZCHF"}
@@ -181,7 +181,7 @@ export default function PositionChallenge() {
                 />
               </AppBox>
               <AppBox className="col-span-6 sm:col-span-3">
-                <DisplayLabel label="Collateral in position" />
+                <DisplayLabel label="Collateral in Position" />
                 <DisplayAmount
                   amount={positionStats.collateralBal}
                   currency={positionStats.collateralSymbol}
@@ -189,7 +189,7 @@ export default function PositionChallenge() {
                 />
               </AppBox>
               <AppBox className="col-span-6 sm:col-span-3">
-                <DisplayLabel label="Required Minimum Collateral" />
+                <DisplayLabel label="Minimum Amount" />
                 <DisplayAmount
                   amount={positionStats.minimumCollateral}
                   currency={positionStats.collateralSymbol}
@@ -197,11 +197,11 @@ export default function PositionChallenge() {
                 />
               </AppBox>
               <AppBox className="col-span-6 sm:col-span-3">
-                <DisplayLabel label="Fixed Sale period" />
+                <DisplayLabel label="Fixed Price Phase" />
                 {formatDuration(positionStats.challengePeriod)}
               </AppBox>
               <AppBox className="col-span-6 sm:col-span-3">
-                <DisplayLabel label="Dutch Auction period" />
+                <DisplayLabel label="Declining Price Phase" />
                 {formatDuration(positionStats.challengePeriod)}
               </AppBox>
             </div>
@@ -237,23 +237,29 @@ export default function PositionChallenge() {
             </div>
             <AppBox className="flex-1 mt-4">
               <p>
-                The amount you provide will be publicly auctioned. There are two
-                possible outcomes:
+                The amount of the collateral asset you provide will be publicly auctioned
+                in a Dutch auction. The auction has two phases, a fixed price phase
+                and a declining price phase.
               </p>
               <ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
                 <li>
-                  Someone bids the &apos;buy now&apos; price before the end of
-                  the auction. In that case, the bidder buys the amount of{" "}
-                  {positionStats.collateralSymbol} tokens you provided for{" "}
+                  During the fixed price phase, anyone can buy the {" "}
+                  {positionStats.collateralSymbol} you provided at the liquidation price.
+                  If everything gets sold before the phase ends, the challenge is averted
+                  and you have effectively sold the provided {" "}
+                  {positionStats.collateralSymbol} to the bidders for {" "}
                   {formatBigInt(positionStats.liqPrice)} ZCHF per unit.
                 </li>
                 <li>
-                  The auction ends with the highest bids being below the
-                  &apos;buy now&apos; price. In that case, you get your{" "}
-                  {positionStats.collateralSymbol} tokens back and the bidder
-                  gets to buy the same amount of{" "}
-                  {positionStats.collateralSymbol} tokens out of the position,
-                  with the proceeds being used for repayment. You get a reward.
+                  If the challenge is not averted, the fixed price phase is followed
+                  by a declining price phase during which the price at which the
+                  {positionStats.collateralSymbol} tokens can be obtained declines linearly
+                  towards zero. In this case, the challenge is considered successful and
+                  you get the provided {positionStats.collateralSymbol} tokens back. The tokens
+                  sold in this phase do not come from the challenger, but from the position owner.
+                  The total amount of tokens that can be bought from the position is limited by
+                  the amount left in the challenge at the end of the fixed price phase. As 
+                  a reward for starting a successful challenge, you get 2% of the sales proceeds.
                 </li>
               </ol>
             </AppBox>
