@@ -16,7 +16,7 @@ import { ABIS, ADDRESS } from "@contracts";
 import { Id, toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { formatBigInt, shortenAddress, shortenHash } from "@utils";
+import { formatBigInt, shortenAddress, shortenHash, transactionLink } from "@utils";
 import { TxToast } from "@components/TxToast";
 
 export default function Swap() {
@@ -39,7 +39,7 @@ export default function Swap() {
             title="Approving XCHF"
             rows={[
               {
-                title: "Amount :",
+                title: "Amount:",
                 value: formatBigInt(amount) + " XCHF",
               },
               {
@@ -47,8 +47,9 @@ export default function Swap() {
                 value: shortenAddress(ADDRESS[chainId].bridge),
               },
               {
-                title: "Tx: ",
+                title: "Transaction:",
                 value: shortenHash(data.hash),
+                link:  transactionLink(data.hash),
               },
             ]}
           />
@@ -74,8 +75,9 @@ export default function Swap() {
               value: formatBigInt(amount) + " " + toSymbol,
             },
             {
-              title: "Tx: ",
+              title: "Transaction:",
               value: shortenHash(data.hash),
+              link:  transactionLink(data.hash),
             },
           ]}
         />
@@ -101,8 +103,9 @@ export default function Swap() {
               value: formatBigInt(amount) + " " + toSymbol,
             },
             {
-              title: "Tx: ",
+              title: "Transaction:",
               value: shortenHash(data.hash),
+              link:  transactionLink(data.hash),
             },
           ]}
         />
@@ -121,8 +124,9 @@ export default function Swap() {
             title="Transaction Confirmed!"
             rows={[
               {
-                title: "Tx hash: ",
+                title: "Transaction: ",
                 value: shortenHash(pendingTx),
+                link:  transactionLink(pendingTx),
               },
             ]}
           />

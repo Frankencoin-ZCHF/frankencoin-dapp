@@ -16,7 +16,7 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import { ABIS, ADDRESS } from "@contracts";
-import { formatBigInt, min, shortenAddress, shortenHash } from "@utils";
+import { formatBigInt, min, shortenAddress, shortenHash, transactionLink } from "@utils";
 import { Id, toast } from "react-toastify";
 import { TxToast } from "@components/TxToast";
 
@@ -73,7 +73,7 @@ export default function PositionBorrow({}) {
             title="Approving XCHF"
             rows={[
               {
-                title: "Amount :",
+                title: "Amount:",
                 value: formatBigInt(amount) + " ZCHF",
               },
               {
@@ -81,8 +81,9 @@ export default function PositionBorrow({}) {
                 value: shortenAddress(ADDRESS[chainId].mintingHub),
               },
               {
-                title: "Tx: ",
+                title: "Transaction:",
                 value: shortenHash(data.hash),
+                link:  transactionLink(data.hash),
               },
             ]}
           />
@@ -146,8 +147,9 @@ export default function PositionBorrow({}) {
                 positionStats.collateralSymbol,
             },
             {
-              title: "Tx: ",
+              title: "Transaction:",
               value: shortenHash(data.hash),
+              link:  transactionLink(data.hash),
             },
           ]}
         />
@@ -166,8 +168,9 @@ export default function PositionBorrow({}) {
             title="Transaction Confirmed!"
             rows={[
               {
-                title: "Tx hash: ",
+                title: "Transaction: ",
                 value: shortenHash(pendingTx),
+                link:  transactionLink(pendingTx),
               },
             ]}
           />

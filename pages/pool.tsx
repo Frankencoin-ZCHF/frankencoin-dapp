@@ -9,6 +9,7 @@ import {
   formatDuration,
   shortenAddress,
   shortenHash,
+  transactionLink,
 } from "@utils";
 import {
   erc20ABI,
@@ -52,7 +53,7 @@ export default function Pool({}) {
             title={`Approving ZCHF`}
             rows={[
               {
-                title: "Amount :",
+                title: "Amount:",
                 value: formatBigInt(amount) + " ZCHF",
               },
               {
@@ -60,8 +61,9 @@ export default function Pool({}) {
                 value: shortenAddress(ADDRESS[chainId].equity),
               },
               {
-                title: "Tx: ",
+                title: "Transaction:",
                 value: shortenHash(data.hash),
+                link:  transactionLink(data.hash),
               },
             ]}
           />
@@ -79,7 +81,7 @@ export default function Pool({}) {
           title={`Investing ZCHF`}
           rows={[
             {
-              title: "Amount :",
+              title: "Amount:",
               value: formatBigInt(amount, 18) + " ZCHF",
             },
             {
@@ -87,8 +89,9 @@ export default function Pool({}) {
               value: formatBigInt(result) + " FPS",
             },
             {
-              title: "Tx: ",
+              title: "Transaction: ",
               value: shortenHash(data.hash),
+              link:  transactionLink(data.hash),
             },
           ]}
         />
@@ -106,7 +109,7 @@ export default function Pool({}) {
           title={`Redeeming FPS`}
           rows={[
             {
-              title: "Amount :",
+              title: "Amount:",
               value: formatBigInt(amount) + " FPS",
             },
             {
@@ -114,8 +117,9 @@ export default function Pool({}) {
               value: formatBigInt(result) + " ZCHF",
             },
             {
-              title: "Tx: ",
+              title: "Transaction: ",
               value: shortenHash(data.hash),
+              link:  transactionLink(data.hash),
             },
           ]}
         />
@@ -134,8 +138,9 @@ export default function Pool({}) {
             title="Transaction Confirmed!"
             rows={[
               {
-                title: "Tx hash: ",
+                title: "Transaction: ",
                 value: shortenHash(pendingTx),
+                link:  transactionLink(pendingTx),
               },
             ]}
           />

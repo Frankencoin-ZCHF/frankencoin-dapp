@@ -71,6 +71,14 @@ export const shortenAddress = (address: Address): string => {
   }
 };
 
+export const transactionLink = (hash: Hash): string => {
+  try {
+    return 'https://sepolia.etherscan.io/tx/' + hash;
+  } catch {
+    throw new TypeError("Invalid input, Hash can't be parsed");
+  }
+};
+
 export const shortenHash = (hash: Hash): string => {
   try {
     return shortenString(hash);

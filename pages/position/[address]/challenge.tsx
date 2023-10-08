@@ -13,6 +13,7 @@ import {
   formatDuration,
   shortenAddress,
   shortenHash,
+  transactionLink,
 } from "@utils";
 import {
   erc20ABI,
@@ -68,7 +69,7 @@ export default function PositionChallenge() {
           title={"Approving " + positionStats.collateralSymbol}
           rows={[
             {
-              title: "Amount :",
+              title: "Amount:",
               value:
                 formatBigInt(amount, positionStats.collateralDecimal) +
                 " " +
@@ -79,8 +80,9 @@ export default function PositionChallenge() {
               value: shortenAddress(ADDRESS[chainId].mintingHub),
             },
             {
-              title: "Tx: ",
+              title: "Transaction:",
               value: shortenHash(data.hash),
+              link:  transactionLink(data.hash),
             },
           ]}
         />
@@ -108,8 +110,9 @@ export default function PositionChallenge() {
             value: formatBigInt(positionStats.liqPrice),
           },
           {
-            title: "Tx: ",
+            title: "Transaction:",
             value: shortenHash(data.hash),
+            link:  transactionLink(data.hash),
           },
         ]}
       />;
@@ -127,8 +130,9 @@ export default function PositionChallenge() {
             title="Transaction Confirmed!"
             rows={[
               {
-                title: "Tx hash: ",
+                title: "Transaction: ",
                 value: shortenHash(pendingTx),
+                link:  transactionLink(pendingTx),
               },
             ]}
           />
