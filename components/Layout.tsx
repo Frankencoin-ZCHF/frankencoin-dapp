@@ -11,7 +11,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <>
       <Head>
-        <title>FrankenCoin - Home</title>
+        <title>Frankencoin - Home</title>
       </Head>
       <Navbar />
       <div className="h-main overflow-scroll no-scrollbar pt-24">

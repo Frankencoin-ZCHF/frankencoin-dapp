@@ -6,7 +6,7 @@ export default function Positions() {
   return (
     <>
       <Head>
-        <title>FrankenCoin - Positions</title>
+        <title>Frankencoin - Positions</title>
       </Head>
       <div>
         <AppPageHeader title="My positions" />

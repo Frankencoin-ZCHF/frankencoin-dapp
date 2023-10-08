@@ -21,7 +21,7 @@ export const useFaucetStats = () => {
   // Fetch all blockchain stats in one web3 call using multicall
   const { data, isError, isLoading } = useContractReads({
     contracts: [
-      // FrankenCoin Calls
+      // Frankencoin Calls
       {
         ...xchfContract,
         functionName: "symbol",

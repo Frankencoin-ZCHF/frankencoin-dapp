@@ -7,7 +7,7 @@ export default function Custom404() {
   return (
     <main className="container-xl mx-auto">
       <Head>
-        <title>FrankenCoin - 404</title>
+        <title>Frankencoin - 404</title>
       </Head>
 
       <div

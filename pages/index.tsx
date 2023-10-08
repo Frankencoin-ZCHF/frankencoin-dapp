@@ -24,7 +24,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>FrankenCoin - Home</title>
+        <title>Frankencoin - Home</title>
       </Head>
       <main className="block">
         <section className="mt-16 grid items-center gap-20 align-middle lg:grid-cols-5">
@@ -178,7 +178,7 @@ export default function Home() {
           <hr className="my-12 border-dashed border-slate-800" />
 
           <h2 className="text-2xl font-bold text-center">
-            Reserve Pool Shares
+            Frankencoin Pool Shares (FPS)
           </h2>
           <div className="bg-slate-900 rounded-xl grid grid-cols-2 gap-4 p-4">
             <AppBox>
@@ -204,7 +204,7 @@ export default function Home() {
                   Continuous Capital Corporation
                 </a>
                 . Holders of reserve pool shares enjoy veto power for new
-                minting mechanisms as long as they have at least 3% of the
+                minting mechanisms as long as they have at least 2% of the
                 time-weighted outstanding shares.
               </p>
             </AppBox>

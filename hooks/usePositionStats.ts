@@ -110,7 +110,7 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
         abi: ABIS.PositionABI,
         functionName: "minimumCollateral",
       },
-      // FrankenCoin Calls
+      // Frankencoin Calls
       {
         address: ADDRESS[chainId].frankenCoin,
         abi: erc20ABI,

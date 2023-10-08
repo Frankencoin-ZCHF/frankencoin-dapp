@@ -47,15 +47,15 @@ export default function ChallengeRow({
   const stateText = !isFixedEnd
     ? "Fixed Price Phase"
     : !isAuctionExpired
-    ? "Sliding Price Phase"
-    : "Expired";
+    ? "Declining Price Phase"
+    : "Zero Price Phase";
   const priceText = !isFixedEnd
     ? "Price starts falling in " +
       formatDuration(fixedEnd - BigInt(Math.floor(Date.now() / 1000)))
     : !isAuctionExpired
     ? "Zero is reached in " +
       formatDuration(auctionEnd - BigInt(Math.floor(Date.now() / 1000)))
-    : "Auction ended at " + formatDate(auctionEnd);
+    : "Reached zero at " + formatDate(auctionEnd);
 
   return (
     // <TableRow link={`/position/${position}/bid/${index}`}>

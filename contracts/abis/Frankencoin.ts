@@ -1,4 +1,4 @@
-export const FrankenCoinABI = [
+export const FrankencoinABI = [
   {
     inputs: [
       {

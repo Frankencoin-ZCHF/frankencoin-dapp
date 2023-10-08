@@ -137,7 +137,7 @@ export default function PositionAdjust({}) {
   return (
     <>
       <Head>
-        <title>FrankenCoin - Adjust Position</title>
+        <title>Frankencoin - Adjust Position</title>
       </Head>
       <div>
         <AppPageHeader

@@ -14,7 +14,7 @@ export default function Auction({}) {
   return (
     <>
       <Head>
-        <title>FrankenCoin - Auction</title>
+        <title>Frankencoin - Auction</title>
       </Head>
       <div>
         <AppPageHeader title="My Auctions" />

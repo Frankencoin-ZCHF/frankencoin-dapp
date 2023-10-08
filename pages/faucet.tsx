@@ -136,7 +136,7 @@ export default function Faucet() {
   return (
     <>
       <Head>
-        <title>FrankenCoin - Faucet</title>
+        <title>Frankencoin - Faucet</title>
       </Head>
       <div>
         <AppPageHeader title="Faucets" />

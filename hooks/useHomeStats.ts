@@ -15,7 +15,7 @@ export const useHomeStats = () => {
 
   const frankenContract = {
     address: ADDRESS[chainId].frankenCoin,
-    abi: ABIS.FrankenCoinABI,
+    abi: ABIS.FrankencoinABI,
   } as const;
 
   const xchfContract = {
@@ -33,7 +33,7 @@ export const useHomeStats = () => {
   // Fetch all blockchain stats in one web3 call using multicall
   const { data, isError, isLoading } = useContractReads({
     contracts: [
-      // FrankenCoin Calls
+      // Frankencoin Calls
       {
         ...frankenContract,
         functionName: "totalSupply",

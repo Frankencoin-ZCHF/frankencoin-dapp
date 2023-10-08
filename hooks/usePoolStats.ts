@@ -15,7 +15,7 @@ export const usePoolStats = () => {
 
   const frankenContract = {
     address: ADDRESS[chainId].frankenCoin,
-    abi: ABIS.FrankenCoinABI,
+    abi: ABIS.FrankencoinABI,
   };
 
   const { data } = useContractReads({

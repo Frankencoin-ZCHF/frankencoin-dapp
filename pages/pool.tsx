@@ -208,10 +208,10 @@ export default function Pool({}) {
   return (
     <>
       <Head>
-        <title>FrankenCoin - Pool Shares</title>
+        <title>Frankencoin - Pool Shares</title>
       </Head>
       <div>
-        <AppPageHeader title="FrankenCoin Pool Shares (FPS)" link={equityUrl} />
+        <AppPageHeader title="Frankencoin Pool Shares (FPS)" link={equityUrl} />
         <section className="grid grid-cols-2 gap-4 container mx-auto">
           <div className="bg-slate-950 rounded-xl p-4 flex flex-col">
             <div className="text-lg font-bold text-center">
@@ -336,7 +336,7 @@ export default function Pool({}) {
             </div>
             <div className="bg-slate-900 rounded-xl p-4 grid grid-cols-2 gap-2">
               <AppBox>
-                <DisplayLabel label="Your shares">
+                <DisplayLabel label="Your Balance">
                   <DisplayAmount
                     amount={poolStats.equityBalance}
                     currency="FPS"
@@ -344,7 +344,7 @@ export default function Pool({}) {
                 </DisplayLabel>
               </AppBox>
               <AppBox>
-                <DisplayLabel label="Your shares value">
+                <DisplayLabel label="Value at Current Price">
                   <DisplayAmount
                     amount={
                       (poolStats.equityPrice * poolStats.equityBalance) /
@@ -355,12 +355,11 @@ export default function Pool({}) {
                 </DisplayLabel>
               </AppBox>
               <AppBox>
-                <DisplayLabel label="Voting Power">
+                <DisplayLabel label="Your Voting Power">
                   <DisplayAmount amount={votingPower} currency="%" digits={2} />
                 </DisplayLabel>
                 <p className="text-sm">
-                  A minimum of 3% of the total supply is required to obtain
-                  voting power.
+                  With 2%, you can veto proposals.
                 </p>
               </AppBox>
               <AppBox className="flex-1">

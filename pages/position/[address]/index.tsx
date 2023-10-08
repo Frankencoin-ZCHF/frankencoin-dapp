@@ -32,7 +32,7 @@ export default function PositionDetail() {
 
   const { data: positionAssignedReserve } = useContractRead({
     address: ADDRESS[chainId].frankenCoin,
-    abi: ABIS.FrankenCoinABI,
+    abi: ABIS.FrankencoinABI,
     functionName: "calculateAssignedReserve",
     args: [positionStats.minted, Number(positionStats.reserveContribution)],
     enabled: positionStats.isSuccess,
@@ -41,7 +41,7 @@ export default function PositionDetail() {
   return (
     <>
       <Head>
-        <title>FrankenCoin - Position Overview</title>
+        <title>Frankencoin - Position Overview</title>
       </Head>
       <div>
         <AppPageHeader

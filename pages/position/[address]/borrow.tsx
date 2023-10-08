@@ -185,7 +185,7 @@ export default function PositionBorrow({}) {
   return (
     <>
       <Head>
-        <title>FrankenCoin - Borrow</title>
+        <title>Frankencoin - Borrow</title>
       </Head>
       <div>
         <AppPageHeader

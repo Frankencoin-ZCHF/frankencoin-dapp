@@ -33,7 +33,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <WagmiConfig config={wagmiConfig}>
       <ApolloProvider client={apolloClient}>
         <NextSeo
-          title="FrankenCoin"
+          title="Frankencoin"
           description="The Frankencoin is a collateralized, oracle-free stablecoin that tracks the value of the Swiss franc."
           openGraph={{
             type: "website",

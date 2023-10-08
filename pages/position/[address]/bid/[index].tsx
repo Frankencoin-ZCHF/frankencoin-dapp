@@ -174,7 +174,7 @@ export default function ChallengePlaceBid({}) {
   return (
     <>
       <Head>
-        <title>FrankenCoin - Place Bid</title>
+        <title>Frankencoin - Place Bid</title>
       </Head>
       <div>
         <AppPageHeader
@@ -218,28 +218,27 @@ export default function ChallengePlaceBid({}) {
                 />
               </AppBox>
               <AppBox>
-                <DisplayLabel label="Auctionned Collateral" />
+                <DisplayLabel label="Original Size" />
                 <DisplayAmount
                   amount={challenge?.size || 0n}
                   currency={positionStats.collateralSymbol}
                 />
               </AppBox>
               <AppBox>
-                <DisplayLabel label="Buy now price" />
+                <DisplayLabel label="Price per Unit" />
                 <DisplayAmount
                   amount={buyNowPrice}
-                  digits={positionStats.collateralDecimal}
+                  digits={36 - positionStats.collateralDecimal}
                   currency={"ZCHF"}
                 />
               </AppBox>
               <AppBox>
-                <DisplayLabel label="Time remaining" />
-                {isExpired ? "Expired" : "Active"} (
-                {formatDate(challenge?.auctionEnd || 0)})
+                <DisplayLabel label="Reaching Zero at" />
+                {formatDate(challenge?.auctionEnd || 0)}
               </AppBox>
               <AppBox>
-                <DisplayLabel label="Auction duration" />
-                <div>{formatDuration(positionStats.challengePeriod * 2n)}</div>
+                <DisplayLabel label="Phase Duration" />
+                <div>{formatDuration(positionStats.challengePeriod)}</div>
               </AppBox>
               <AppBox>
                 <DisplayLabel label="Challenger" />
