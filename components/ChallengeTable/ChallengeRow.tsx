@@ -93,7 +93,7 @@ export default function ChallengeRow({
       <div className="flex bg-gray-500 h-2 rounded-lg">
         <div
           className="bg-rose-400 rounded-lg"
-          style={{ width: Number(filledRate / 100n) }}
+          style={{ width: `${Number(filledRate / 100n)}%` }}
         />
       </div>
       <div className="flex">

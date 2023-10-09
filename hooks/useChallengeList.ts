@@ -22,11 +22,12 @@ interface Props {
 export const useChallengeLists = ({ position, challenger }: Props) => {
   const { data, loading } = useQuery(
     gql`query {
-      challenges(where: {
-        ${position ? `position: "${position}",` : ""}
-        ${challenger ? `challenger: "${challenger}",` : ""}
-        status: "Active"
-      }) {
+      challenges(
+        orderBy: status,
+        where: {
+          ${position ? `position: "${position}",` : ""}
+        }
+      ) {
         id
         challenger
         position
