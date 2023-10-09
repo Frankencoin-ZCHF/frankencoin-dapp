@@ -64,5 +64,10 @@ export const useChallengeLists = ({ position, challenger }: Props) => {
     });
   }
 
+  challenges.sort((a, b) => {
+    if (a.status === b.status) return a.start > b.start ? 1 : -1;
+    else return a.status > b.status ? 1 : -1;
+  });
+
   return { challenges, loading };
 };
