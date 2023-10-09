@@ -202,7 +202,6 @@ export default function PositionChallenge() {
             <div>
               {amount > positionStats.collateralAllowance ? (
                 <Button
-                  variant="secondary"
                   isLoading={approveLoading || isConfirming}
                   disabled={!!error || account == positionStats.owner}
                   onClick={() => approve()}

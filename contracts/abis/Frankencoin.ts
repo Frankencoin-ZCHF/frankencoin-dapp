@@ -183,7 +183,7 @@ export const FrankencoinABI = [
       {
         indexed: true,
         internalType: "address",
-        name: "minter",
+        name: "reportingMinter",
         type: "address",
       },
       {
@@ -484,6 +484,42 @@ export const FrankencoinABI = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "source",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "collectProfits",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "source",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "coverLoss",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "decimals",
     outputs: [
@@ -696,19 +732,6 @@ export const FrankencoinABI = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-    ],
-    name: "notifyLoss",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {

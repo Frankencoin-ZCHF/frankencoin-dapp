@@ -208,7 +208,6 @@ export default function Swap() {
               {direction ? (
                 amount > swapStats.xchfUserAllowance ? (
                   <Button
-                    variant="secondary"
                     isLoading={approveLoading || isConfirming}
                     onClick={() =>
                       approveStableCoin({
@@ -220,7 +219,6 @@ export default function Swap() {
                   </Button>
                 ) : (
                   <Button
-                    variant="primary"
                     disabled={amount == 0n || !!error}
                     isLoading={mintLoading || isConfirming}
                     onClick={() => mintStableCoin({ args: [amount] })}
@@ -230,7 +228,6 @@ export default function Swap() {
                 )
               ) : (
                 <Button
-                  variant="primary"
                   isLoading={burnLoading || isConfirming}
                   disabled={amount == 0n || !!error}
                   onClick={() => burnStableCoin({ args: [amount] })}

@@ -250,7 +250,6 @@ export default function ChallengePlaceBid({}) {
             <div className="mx-auto mt-4 w-72 max-w-full flex-col">
               {amount > positionStats.frankenAllowance ? (
                 <Button
-                  variant="secondary"
                   isLoading={approveLoading || isConfirming}
                   onClick={() =>
                     approveFranken({

@@ -158,10 +158,6 @@ export default function Pool({}) {
     enabled: !direction,
   });
 
-  const votingPower =
-    poolStats.equityTotalVotes == 0n
-      ? 0n
-      : (poolStats.equityUserVotes * 10_000n) / poolStats.equityTotalVotes;
   const fromBalance = direction
     ? poolStats.frankenBalance
     : poolStats.equityBalance;
@@ -250,7 +246,6 @@ export default function Pool({}) {
                 {direction ? (
                   amount > poolStats.frankenAllowance ? (
                     <Button
-                      variant="secondary"
                       isLoading={approveLoading || isConfirming}
                       disabled={amount == 0n || !!error}
                       onClick={() =>
@@ -289,71 +284,56 @@ export default function Pool({}) {
           <div className="bg-slate-950 rounded-xl p-4 grid grid-cols-1 gap-2">
             <div className="bg-slate-900 rounded-xl p-4 grid grid-cols-2 gap-2">
               <AppBox>
-                <DisplayLabel label="Supply">
-                  <DisplayAmount
-                    amount={poolStats.equitySupply}
-                    currency="FPS"
-                  />
-                </DisplayLabel>
+                <DisplayLabel label="Supply" />
+                <DisplayAmount amount={poolStats.equitySupply} currency="FPS" />
               </AppBox>
               <AppBox>
-                <DisplayLabel label="Price">
-                  <DisplayAmount
-                    amount={poolStats.equityPrice}
-                    currency="ZCHF"
-                  />
-                </DisplayLabel>
+                <DisplayLabel label="Price" />
+                <DisplayAmount amount={poolStats.equityPrice} currency="ZCHF" />
               </AppBox>
               <AppBox>
-                <DisplayLabel label="Market Cap">
-                  <DisplayAmount
-                    amount={
-                      (poolStats.equitySupply * poolStats.equityPrice) /
-                      BigInt(1e18)
-                    }
-                    currency="ZCHF"
-                  />
-                </DisplayLabel>
+                <DisplayLabel label="Market Cap" />
+                <DisplayAmount
+                  amount={
+                    (poolStats.equitySupply * poolStats.equityPrice) /
+                    BigInt(1e18)
+                  }
+                  currency="ZCHF"
+                />
               </AppBox>
               <AppBox>
-                <DisplayLabel label="Total Reserve">
-                  <DisplayAmount
-                    amount={poolStats.frankenTotalReserve}
-                    currency="ZCHF"
-                  />
-                </DisplayLabel>
+                <DisplayLabel label="Total Reserve" />
+                <DisplayAmount
+                  amount={poolStats.frankenTotalReserve}
+                  currency="ZCHF"
+                />
               </AppBox>
             </div>
             <div className="bg-slate-900 rounded-xl p-4 grid grid-cols-2 gap-2">
               <AppBox>
-                <DisplayLabel label="Your Balance">
-                  <DisplayAmount
-                    amount={poolStats.equityBalance}
-                    currency="FPS"
-                  />
-                </DisplayLabel>
+                <DisplayLabel label="Your Balance" />
+                <DisplayAmount
+                  amount={poolStats.equityBalance}
+                  currency="FPS"
+                />
               </AppBox>
               <AppBox>
-                <DisplayLabel label="Value at Current Price">
-                  <DisplayAmount
-                    amount={
-                      (poolStats.equityPrice * poolStats.equityBalance) /
-                      BigInt(1e18)
-                    }
-                    currency="ZCHF"
-                  />
-                </DisplayLabel>
+                <DisplayLabel label="Value at Current Price" />
+                <DisplayAmount
+                  amount={
+                    (poolStats.equityPrice * poolStats.equityBalance) /
+                    BigInt(1e18)
+                  }
+                  currency="ZCHF"
+                />
               </AppBox>
               <AppBox>
-                <DisplayLabel label="Your Voting Power">
-                  <DisplayAmount amount={votingPower} currency="%" digits={2} />
-                </DisplayLabel>
-                <p className="text-sm">With 2%, you can veto proposals.</p>
+                <DisplayLabel label="Holding Duration" />
+                {formatDuration(poolStats.equityHoldingDuration)}
               </AppBox>
               <AppBox className="flex-1">
-                <DisplayLabel label="Can redeem after">
-                  {formatDuration(redeemLeft)}
-                </DisplayLabel>
+                <DisplayLabel label="Can redeem after" />
+                {formatDuration(redeemLeft)}
               </AppBox>
             </div>
           </div>

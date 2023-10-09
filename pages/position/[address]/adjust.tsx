@@ -179,7 +179,6 @@ export default function PositionAdjust({}) {
             <div className="mx-auto mt-8 w-72 max-w-full flex-col">
               {collateralAmount > positionStats.collateralPosAllowance ? (
                 <Button
-                  variant="secondary"
                   isLoading={approveLoading || isConfirming}
                   onClick={() =>
                     approveCollateral({ args: [position, collateralAmount] })

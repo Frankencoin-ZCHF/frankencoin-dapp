@@ -239,7 +239,6 @@ export default function PositionBorrow({}) {
             <div className="mx-auto mt-8 w-72 max-w-full flex-col">
               {amount > positionStats.frankenAllowance ? (
                 <Button
-                  variant="secondary"
                   disabled={amount == 0n || !!error}
                   isLoading={approveLoading || isConfirming}
                   onClick={() =>
