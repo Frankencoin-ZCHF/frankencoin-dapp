@@ -16,7 +16,7 @@ import {
   formatBigInt,
   formatDate,
   formatDuration,
-  isDateExpired,
+  min,
   shortenAddress,
 } from "@utils";
 import Link from "next/link";
@@ -55,25 +55,20 @@ export default function ChallengePlaceBid({}) {
     matchingChallenges.length > 0 ? matchingChallenges[0] : undefined;
   const challengerUrl = useContractUrl(challenge?.challenger || zeroAddress);
 
-  const isExpired = isDateExpired(challenge?.auctionEnd || 0n);
-
   const remainingCol = (challenge?.size || 0n) - (challenge?.filledSize || 0n);
   const buyNowPrice = challenge?.price || 0n;
-  const expectedCol = (bidAmount?: bigint) => {
+  const expectedZCHF = (bidAmount?: bigint) => {
     if (!bidAmount) bidAmount = amount;
-    return challenge && challenge?.price > 0n
-      ? (bidAmount * BigInt(1e18)) / challenge.price
-      : (bidAmount * BigInt(10 ** positionStats.collateralDecimal)) /
-          BigInt(1e18);
+    return challenge ? (bidAmount * challenge.price) / BigInt(1e18) : BigInt(0);
   };
 
   const onChangeAmount = (value: string) => {
     const valueBigInt = BigInt(value);
     setAmount(valueBigInt);
 
-    if (valueBigInt > positionStats.frankenBalance) {
-      setError("Not enough ZCHF balance in your wallet.");
-    } else if (expectedCol(valueBigInt) > remainingCol) {
+    if (valueBigInt > positionStats.collateralUserBal) {
+      setError("Not enough balance in your wallet.");
+    } else if (valueBigInt > remainingCol) {
       setError(
         "Expected winning collateral should be lower than remaining collateral."
       );
@@ -94,7 +89,7 @@ export default function ChallengePlaceBid({}) {
             rows={[
               {
                 title: "Amount:",
-                value: formatBigInt(amount) + " ZCHF",
+                value: formatBigInt(expectedZCHF()) + " ZCHF",
               },
               {
                 title: "Spender: ",
@@ -123,14 +118,14 @@ export default function ChallengePlaceBid({}) {
           rows={[
             {
               title: `Bid Amount: `,
-              value: formatBigInt(amount) + " ZCHF",
-            },
-            {
-              title: `Win Amount: `,
               value:
-                formatBigInt(expectedCol(), positionStats.collateralDecimal) +
+                formatBigInt(amount, positionStats.collateralDecimal) +
                 " " +
                 positionStats.collateralSymbol,
+            },
+            {
+              title: `Expected ZCHF: `,
+              value: formatBigInt(expectedZCHF()) + " ZCHF",
             },
             {
               title: "Transaction:",
@@ -185,21 +180,17 @@ export default function ChallengePlaceBid({}) {
             <div className="space-y-12">
               <div className="space-y-4">
                 <SwapFieldInput
-                  label="Your Bid"
-                  max={positionStats.frankenBalance}
+                  label="You are buying"
+                  max={min(positionStats.collateralUserBal, remainingCol)}
                   value={amount.toString()}
                   onChange={onChangeAmount}
-                  symbol={"ZCHF"}
+                  digit={positionStats.collateralDecimal}
+                  symbol={positionStats.collateralSymbol}
                   error={error}
                 />
                 <div className="flex flex-col gap-1">
                   <span>
-                    {formatUnits(amount, 18)} ZCHF ={" "}
-                    {formatUnits(expectedCol(), 18)}{" "}
-                    {positionStats.collateralSymbol}
-                  </span>
-                  <span className="text-sm">
-                    Expected collateral amount to win
+                    Expected total price: {formatUnits(expectedZCHF(), 18)} ZCHF
                   </span>
                 </div>
               </div>
@@ -248,12 +239,12 @@ export default function ChallengePlaceBid({}) {
               </AppBox>
             </div>
             <div className="mx-auto mt-4 w-72 max-w-full flex-col">
-              {amount > positionStats.frankenAllowance ? (
+              {expectedZCHF() > positionStats.frankenAllowance ? (
                 <Button
                   isLoading={approveLoading || isConfirming}
                   onClick={() =>
                     approveFranken({
-                      args: [ADDRESS[chainId].mintingHub, amount],
+                      args: [ADDRESS[chainId].mintingHub, expectedZCHF()],
                     })
                   }
                 >
@@ -266,11 +257,7 @@ export default function ChallengePlaceBid({}) {
                   isLoading={bidLoading || isConfirming}
                   onClick={() =>
                     placeBid({
-                      args: [
-                        Number(challenge?.index || 0n),
-                        expectedCol(),
-                        true,
-                      ],
+                      args: [Number(challenge?.index || 0n), amount, true],
                     })
                   }
                 >
