@@ -140,7 +140,9 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
   const minted = data ? decodeBigIntCall(data[9]) : BigInt(0);
   const available = limit - minted;
   const reserveContribution = data ? decodeBigIntCall(data[10]) : BigInt(0);
-  const owner = getAddress(data ? String(data[11].result) : zeroAddress);
+  const owner = getAddress(
+    data ? String(data[11].result || zeroAddress) : zeroAddress
+  );
   const mintingFee = data ? decodeBigIntCall(data[12]) : BigInt(0);
   const challengePeriod = data ? decodeBigIntCall(data[13]) : BigInt(0);
   const minimumCollateral = data ? decodeBigIntCall(data[14]) : BigInt(0);

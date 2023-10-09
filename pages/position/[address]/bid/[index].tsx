@@ -71,7 +71,7 @@ export default function ChallengePlaceBid({}) {
 
     if (valueBigInt > positionStats.collateralUserBal) {
       setError("Not enough balance in your wallet.");
-    } else if (amount > remainingCol) {
+    } else if (valueBigInt > remainingCol) {
       setError(
         "Expected winning collateral should be lower than remaining collateral."
       );

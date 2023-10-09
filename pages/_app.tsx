@@ -11,7 +11,7 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const chains = [mainnet, sepolia];
+const chains = [sepolia, mainnet];
 const projectId = "75da506ed9c39c840e6c5a5180014870";
 const { publicClient } = configureChains(chains, [
   alchemyProvider({ apiKey: "xkAazrbIALbAxhLrOCDqD9yasyMRFXtg" }),
