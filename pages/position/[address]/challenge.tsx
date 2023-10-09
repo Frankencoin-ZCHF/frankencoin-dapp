@@ -8,13 +8,7 @@ import SwapFieldInput from "@components/SwapFieldInput";
 import { usePositionStats } from "@hooks";
 import { Hash, getAddress, zeroAddress } from "viem";
 import { useRef, useState } from "react";
-import {
-  formatBigInt,
-  formatDuration,
-  shortenAddress,
-  shortenHash,
-  transactionLink,
-} from "@utils";
+import { formatBigInt, formatDuration, shortenAddress } from "@utils";
 import {
   erc20ABI,
   useAccount,
@@ -31,7 +25,6 @@ export default function PositionChallenge() {
   const router = useRouter();
   const [amount, setAmount] = useState(0n);
   const [error, setError] = useState("");
-  const [showTip, setShowTip] = useState(false);
   const [pendingTx, setPendingTx] = useState<Hash>(zeroAddress);
   const toastId = useRef<Id>(0);
   const { address: positionAddr } = router.query;
@@ -81,8 +74,7 @@ export default function PositionChallenge() {
             },
             {
               title: "Transaction:",
-              value: shortenHash(data.hash),
-              link:  transactionLink(data.hash),
+              hash: data.hash,
             },
           ]}
         />
@@ -111,8 +103,7 @@ export default function PositionChallenge() {
           },
           {
             title: "Transaction:",
-            value: shortenHash(data.hash),
-            link:  transactionLink(data.hash),
+            hash: data.hash,
           },
         ]}
       />;
@@ -131,8 +122,7 @@ export default function PositionChallenge() {
             rows={[
               {
                 title: "Transaction: ",
-                value: shortenHash(pendingTx),
-                link:  transactionLink(pendingTx),
+                hash: data.transactionHash,
               },
             ]}
           />
@@ -241,29 +231,33 @@ export default function PositionChallenge() {
             </div>
             <AppBox className="flex-1 mt-4">
               <p>
-                The amount of the collateral asset you provide will be publicly auctioned
-                in a Dutch auction. The auction has two phases, a fixed price phase
-                and a declining price phase.
+                The amount of the collateral asset you provide will be publicly
+                auctioned in a Dutch auction. The auction has two phases, a
+                fixed price phase and a declining price phase.
               </p>
               <ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
                 <li>
-                  During the fixed price phase, anyone can buy the {" "}
-                  {positionStats.collateralSymbol} you provided at the liquidation price.
-                  If everything gets sold before the phase ends, the challenge is averted
-                  and you have effectively sold the provided {" "}
-                  {positionStats.collateralSymbol} to the bidders for {" "}
-                  {formatBigInt(positionStats.liqPrice)} ZCHF per unit.
+                  During the fixed price phase, anyone can buy the{" "}
+                  {positionStats.collateralSymbol} you provided at the
+                  liquidation price. If everything gets sold before the phase
+                  ends, the challenge is averted and you have effectively sold
+                  the provided {positionStats.collateralSymbol} to the bidders
+                  for {formatBigInt(positionStats.liqPrice)} ZCHF per unit.
                 </li>
                 <li>
-                  If the challenge is not averted, the fixed price phase is followed
-                  by a declining price phase during which the price at which the
-                  {positionStats.collateralSymbol} tokens can be obtained declines linearly
-                  towards zero. In this case, the challenge is considered successful and
-                  you get the provided {positionStats.collateralSymbol} tokens back. The tokens
-                  sold in this phase do not come from the challenger, but from the position owner.
-                  The total amount of tokens that can be bought from the position is limited by
-                  the amount left in the challenge at the end of the fixed price phase. As 
-                  a reward for starting a successful challenge, you get 2% of the sales proceeds.
+                  If the challenge is not averted, the fixed price phase is
+                  followed by a declining price phase during which the price at
+                  which the
+                  {positionStats.collateralSymbol} tokens can be obtained
+                  declines linearly towards zero. In this case, the challenge is
+                  considered successful and you get the provided{" "}
+                  {positionStats.collateralSymbol} tokens back. The tokens sold
+                  in this phase do not come from the challenger, but from the
+                  position owner. The total amount of tokens that can be bought
+                  from the position is limited by the amount left in the
+                  challenge at the end of the fixed price phase. As a reward for
+                  starting a successful challenge, you get 2% of the sales
+                  proceeds.
                 </li>
               </ol>
             </AppBox>

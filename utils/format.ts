@@ -71,9 +71,12 @@ export const shortenAddress = (address: Address): string => {
   }
 };
 
-export const transactionLink = (hash: Hash): string => {
+export const transactionLink = (
+  explorerUrl: string | undefined,
+  hash: Hash
+): string => {
   try {
-    return 'https://sepolia.etherscan.io/tx/' + hash;
+    return explorerUrl + "/tx/" + hash;
   } catch {
     throw new TypeError("Invalid input, Hash can't be parsed");
   }

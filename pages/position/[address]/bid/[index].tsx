@@ -18,8 +18,6 @@ import {
   formatDuration,
   isDateExpired,
   shortenAddress,
-  shortenHash,
-  transactionLink,
 } from "@utils";
 import Link from "next/link";
 import Button from "@components/Button";
@@ -104,8 +102,7 @@ export default function ChallengePlaceBid({}) {
               },
               {
                 title: "Transaction:",
-                value: shortenHash(data.hash),
-                link:  transactionLink(data.hash),
+                hash: data.hash,
               },
             ]}
           />
@@ -137,8 +134,7 @@ export default function ChallengePlaceBid({}) {
             },
             {
               title: "Transaction:",
-              value: shortenHash(data.hash),
-              link:  transactionLink(data.hash),
+              hash: data.hash,
             },
           ]}
         />
@@ -158,8 +154,7 @@ export default function ChallengePlaceBid({}) {
             rows={[
               {
                 title: "Transaction: ",
-                value: shortenHash(pendingTx),
-                link:  transactionLink(pendingTx),
+                hash: data.transactionHash,
               },
             ]}
           />

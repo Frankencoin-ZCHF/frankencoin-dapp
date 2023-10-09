@@ -1,6 +1,5 @@
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
-import AppBox from "@components/AppBox";
 import SwapFieldInput from "@components/SwapFieldInput";
 import { useRef, useState } from "react";
 import { useSwapStats } from "@hooks";
@@ -16,7 +15,7 @@ import { ABIS, ADDRESS } from "@contracts";
 import { Id, toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { formatBigInt, shortenAddress, shortenHash, transactionLink } from "@utils";
+import { formatBigInt, shortenAddress } from "@utils";
 import { TxToast } from "@components/TxToast";
 
 export default function Swap() {
@@ -48,8 +47,7 @@ export default function Swap() {
               },
               {
                 title: "Transaction:",
-                value: shortenHash(data.hash),
-                link:  transactionLink(data.hash),
+                hash: data.hash,
               },
             ]}
           />
@@ -76,8 +74,7 @@ export default function Swap() {
             },
             {
               title: "Transaction:",
-              value: shortenHash(data.hash),
-              link:  transactionLink(data.hash),
+              hash: data.hash,
             },
           ]}
         />
@@ -104,8 +101,7 @@ export default function Swap() {
             },
             {
               title: "Transaction:",
-              value: shortenHash(data.hash),
-              link:  transactionLink(data.hash),
+              hash: data.hash,
             },
           ]}
         />
@@ -125,8 +121,7 @@ export default function Swap() {
             rows={[
               {
                 title: "Transaction: ",
-                value: shortenHash(pendingTx),
-                link:  transactionLink(pendingTx),
+                hash: data.transactionHash,
               },
             ]}
           />

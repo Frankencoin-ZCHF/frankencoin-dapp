@@ -9,7 +9,7 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import { useFaucetStats } from "@hooks";
-import { TOKEN_LOGO, shortenHash, transactionLink } from "@utils";
+import { TOKEN_LOGO } from "@utils";
 import Button from "@components/Button";
 import { ABIS, ADDRESS } from "@contracts";
 import { useRef, useState } from "react";
@@ -49,8 +49,7 @@ export function FaucetRow({ symbol, balance, decimal, addr }: RowProps) {
             },
             {
               title: "Transaction:",
-              value: shortenHash(data.hash),
-              link:  transactionLink(data.hash),
+              hash: data.hash,
             },
           ]}
         />
@@ -71,8 +70,7 @@ export function FaucetRow({ symbol, balance, decimal, addr }: RowProps) {
             rows={[
               {
                 title: "Transaction:",
-                value: shortenHash(pendingTx),
-                link:  transactionLink(pendingTx),
+                hash: data.transactionHash,
               },
             ]}
           />

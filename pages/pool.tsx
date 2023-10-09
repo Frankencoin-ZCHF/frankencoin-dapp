@@ -4,13 +4,7 @@ import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
 import { usePoolStats, useContractUrl } from "@hooks";
-import {
-  formatBigInt,
-  formatDuration,
-  shortenAddress,
-  shortenHash,
-  transactionLink,
-} from "@utils";
+import { formatBigInt, formatDuration, shortenAddress } from "@utils";
 import {
   erc20ABI,
   useAccount,
@@ -62,8 +56,7 @@ export default function Pool({}) {
               },
               {
                 title: "Transaction:",
-                value: shortenHash(data.hash),
-                link:  transactionLink(data.hash),
+                hash: data.hash,
               },
             ]}
           />
@@ -90,8 +83,7 @@ export default function Pool({}) {
             },
             {
               title: "Transaction: ",
-              value: shortenHash(data.hash),
-              link:  transactionLink(data.hash),
+              hash: data.hash,
             },
           ]}
         />
@@ -118,8 +110,7 @@ export default function Pool({}) {
             },
             {
               title: "Transaction: ",
-              value: shortenHash(data.hash),
-              link:  transactionLink(data.hash),
+              hash: data.hash,
             },
           ]}
         />
@@ -139,8 +130,7 @@ export default function Pool({}) {
             rows={[
               {
                 title: "Transaction: ",
-                value: shortenHash(pendingTx),
-                link:  transactionLink(pendingTx),
+                hash: data.transactionHash,
               },
             ]}
           />
@@ -358,9 +348,7 @@ export default function Pool({}) {
                 <DisplayLabel label="Your Voting Power">
                   <DisplayAmount amount={votingPower} currency="%" digits={2} />
                 </DisplayLabel>
-                <p className="text-sm">
-                  With 2%, you can veto proposals.
-                </p>
+                <p className="text-sm">With 2%, you can veto proposals.</p>
               </AppBox>
               <AppBox className="flex-1">
                 <DisplayLabel label="Can redeem after">

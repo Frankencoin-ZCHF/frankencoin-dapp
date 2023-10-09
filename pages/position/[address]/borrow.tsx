@@ -1,8 +1,7 @@
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import { useRouter } from "next/router";
-import { formatUnits, getAddress, parseUnits, zeroAddress, Hash } from "viem";
-import AppBox from "@components/AppBox";
+import { formatUnits, getAddress, zeroAddress, Hash } from "viem";
 import SwapFieldInput from "@components/SwapFieldInput";
 import { usePositionStats } from "@hooks";
 import { useRef, useState } from "react";
@@ -15,8 +14,8 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { ABIS, ADDRESS } from "@contracts";
-import { formatBigInt, min, shortenAddress, shortenHash, transactionLink } from "@utils";
+import { ADDRESS } from "@contracts";
+import { formatBigInt, min, shortenAddress } from "@utils";
 import { Id, toast } from "react-toastify";
 import { TxToast } from "@components/TxToast";
 
@@ -82,8 +81,7 @@ export default function PositionBorrow({}) {
               },
               {
                 title: "Transaction:",
-                value: shortenHash(data.hash),
-                link:  transactionLink(data.hash),
+                hash: data.hash,
               },
             ]}
           />
@@ -148,8 +146,7 @@ export default function PositionBorrow({}) {
             },
             {
               title: "Transaction:",
-              value: shortenHash(data.hash),
-              link:  transactionLink(data.hash),
+              hash: data.hash,
             },
           ]}
         />
@@ -169,8 +166,7 @@ export default function PositionBorrow({}) {
             rows={[
               {
                 title: "Transaction: ",
-                value: shortenHash(pendingTx),
-                link:  transactionLink(pendingTx),
+                hash: data.transactionHash,
               },
             ]}
           />
