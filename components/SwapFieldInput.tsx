@@ -51,7 +51,7 @@ export default function SwapFieldInput({
             }`}
             onClick={() => onChange && onChange(max.toString())}
           >
-            Balance :{" "}
+            Available:{" "}
             <span className="font-bold text-link">
               {formatBigInt(max)} {symbol}
             </span>

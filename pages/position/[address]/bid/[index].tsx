@@ -59,10 +59,7 @@ export default function ChallengePlaceBid({}) {
   const buyNowPrice = challenge?.price || 0n;
   const expectedZCHF = (bidAmount?: bigint) => {
     if (!bidAmount) bidAmount = amount;
-    return challenge && challenge?.price > 0n
-      ? (bidAmount * challenge.price) / BigInt(1e18)
-      : (bidAmount * BigInt(1e18)) /
-          BigInt(10 ** positionStats.collateralDecimal);
+    return challenge ? (bidAmount * challenge.price) / BigInt(1e18) : BigInt(0);
   };
 
   const onChangeAmount = (value: string) => {
@@ -183,7 +180,7 @@ export default function ChallengePlaceBid({}) {
             <div className="space-y-12">
               <div className="space-y-4">
                 <SwapFieldInput
-                  label="Your Bid"
+                  label="You are buying"
                   max={min(positionStats.collateralUserBal, remainingCol)}
                   value={amount.toString()}
                   onChange={onChangeAmount}
@@ -193,12 +190,7 @@ export default function ChallengePlaceBid({}) {
                 />
                 <div className="flex flex-col gap-1">
                   <span>
-                    {formatUnits(amount, positionStats.collateralDecimal)}{" "}
-                    {positionStats.collateralSymbol} ={" "}
-                    {formatUnits(expectedZCHF(), 18)} ZCHF
-                  </span>
-                  <span className="text-sm">
-                    Expected collateral amount to win
+                    Expected total price: {formatUnits(expectedZCHF(), 18)} ZCHF
                   </span>
                 </div>
               </div>
