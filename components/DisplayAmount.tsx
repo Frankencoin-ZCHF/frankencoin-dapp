@@ -8,6 +8,7 @@ interface Props {
   digits?: number | bigint;
   currency?: string;
   hideLogo?: boolean;
+  className?: string;
 }
 
 export default function DisplayAmount({
@@ -18,9 +19,10 @@ export default function DisplayAmount({
   digits = 18,
   currency,
   hideLogo,
+  className,
 }: Props) {
   return (
-    <div className="flex items-center">
+    <div className={`flex items-center ${className}`}>
       {!hideLogo && currency && TOKEN_LOGO[currency.toLowerCase()] && (
         <picture className="mr-2">
           <img
