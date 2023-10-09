@@ -308,7 +308,7 @@ export default function Pool({}) {
                 />
               </AppBox>
               <AppBox>
-                <DisplayLabel label="Profit" />
+                <DisplayLabel label="Total Income" />
                 <DisplayAmount
                   amount={profit}
                   currency="ZCHF"
@@ -316,7 +316,7 @@ export default function Pool({}) {
                 />
               </AppBox>
               <AppBox>
-                <DisplayLabel label="Loss" />
+                <DisplayLabel label="Total Losses" />
                 <DisplayAmount
                   amount={loss}
                   currency="ZCHF"
@@ -344,7 +344,7 @@ export default function Pool({}) {
               </AppBox>
               <AppBox>
                 <DisplayLabel label="Holding Duration" />
-                {formatDuration(poolStats.equityHoldingDuration)}
+                {poolStats.equityBalance > 0 ? formatDuration(poolStats.equityHoldingDuration) : "-"}
               </AppBox>
               <AppBox className="flex-1">
                 <DisplayLabel label="Can redeem after" />
