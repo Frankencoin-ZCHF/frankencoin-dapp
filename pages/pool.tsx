@@ -3,7 +3,7 @@ import AppPageHeader from "@components/AppPageHeader";
 import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
-import { usePoolStats, useContractUrl } from "@hooks";
+import { usePoolStats, useContractUrl, useFPSQuery } from "@hooks";
 import { formatBigInt, formatDuration, shortenAddress } from "@utils";
 import {
   erc20ABI,
@@ -34,6 +34,7 @@ export default function Pool({}) {
   const chainId = useChainId();
   const poolStats = usePoolStats();
   const equityUrl = useContractUrl(ADDRESS[chainId].equity);
+  const { profit, loss } = useFPSQuery(ADDRESS[chainId].frankenCoin);
   const account = address || zeroAddress;
 
   const { isLoading: approveLoading, writeAsync: approveFranken } =
@@ -200,9 +201,7 @@ export default function Pool({}) {
         <AppPageHeader title="Frankencoin Pool Shares (FPS)" link={equityUrl} />
         <section className="grid grid-cols-2 gap-4 container mx-auto">
           <div className="bg-slate-950 rounded-xl p-4 flex flex-col">
-            <div className="text-lg font-bold text-center">
-              Position Details
-            </div>
+            <div className="text-lg font-bold text-center">Pool Details</div>
             <div className="p-4 mt-5">
               <SwapFieldInput
                 max={fromBalance}
@@ -308,6 +307,22 @@ export default function Pool({}) {
                   currency="ZCHF"
                 />
               </AppBox>
+              <AppBox>
+                <DisplayLabel label="Total Income" />
+                <DisplayAmount
+                  amount={profit}
+                  currency="ZCHF"
+                  className="text-green-300"
+                />
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Total Losses" />
+                <DisplayAmount
+                  amount={loss}
+                  currency="ZCHF"
+                  className="text-rose-400"
+                />
+              </AppBox>
             </div>
             <div className="bg-slate-900 rounded-xl p-4 grid grid-cols-2 gap-2">
               <AppBox>
@@ -329,7 +344,7 @@ export default function Pool({}) {
               </AppBox>
               <AppBox>
                 <DisplayLabel label="Holding Duration" />
-                {formatDuration(poolStats.equityHoldingDuration)}
+                {poolStats.equityBalance > 0 ? formatDuration(poolStats.equityHoldingDuration) : "-"}
               </AppBox>
               <AppBox className="flex-1">
                 <DisplayLabel label="Can redeem after" />
