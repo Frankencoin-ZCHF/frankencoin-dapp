@@ -30,17 +30,17 @@ export default function Navbar() {
           <li>
             <NavButton to="/swap" name="Swap" />
           </li>
-
           <li>
             <NavButton to="/positions" name="Positions" />
           </li>
-
           <li>
             <NavButton to="/auctions" name="Auctions" />
           </li>
-
           <li>
             <NavButton to="/pool" name="Equity" />
+          </li>
+          <li>
+            <NavButton to="/governance" name="Governance" />
           </li>
 
           {network.chain?.testnet && (

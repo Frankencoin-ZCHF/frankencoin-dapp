@@ -12,3 +12,5 @@ export * from "./useFaucetStats";
 export * from "./useLocalStorage";
 export * from "./useTheme";
 export * from "./useFPSQuery";
+export * from "./useDelegationQuery";
+export * from "./useGovStats";
