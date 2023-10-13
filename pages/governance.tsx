@@ -1,10 +1,10 @@
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import {
-  usePoolStats,
   useContractUrl,
   useDelegationQuery,
   useGovStats,
+  useMinterQuery,
 } from "@hooks";
 import {
   useAccount,
@@ -15,15 +15,21 @@ import {
 } from "wagmi";
 import { ABIS, ADDRESS } from "@contracts";
 import { useRef, useState } from "react";
-import { Address, Hash, isAddress, zeroAddress } from "viem";
+import { Hash, isAddress, zeroAddress } from "viem";
 import Button from "@components/Button";
 import { TxToast } from "@components/TxToast";
 import { Id, toast } from "react-toastify";
 import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import Link from "next/link";
-import { formatBigInt, shortenAddress } from "@utils";
+import {
+  formatBigInt,
+  formatDate,
+  formatDuration,
+  shortenAddress,
+} from "@utils";
 import DisplayAmount from "@components/DisplayAmount";
+import MinterProposal from "@components/MinterProposal";
 
 export default function Governance() {
   const [inputField, setInputField] = useState("");
@@ -38,6 +44,7 @@ export default function Governance() {
   const equityUrl = useContractUrl(ADDRESS[chainId].equity);
   const account = address || zeroAddress;
 
+  const { minters } = useMinterQuery();
   const delegationData = useDelegationQuery(account);
   const delegationStats = useGovStats(delegationData.pureDelegatedFrom);
 
@@ -222,8 +229,17 @@ export default function Governance() {
               </div>
             </AppBox>
           </div>
-          <div className="bg-slate-950 rounded-xl p-4 grid grid-cols-1 gap-2">
-            <div className="bg-slate-900 rounded-xl p-4 grid grid-cols-2 gap-2"></div>
+          <div className="bg-slate-950 rounded-xl p-4">
+            <div className="mt-4 text-lg font-bold text-center">Proposals</div>
+            <div className="bg-slate-900 rounded-xl p-4 flex flex-col gap-2">
+              {minters.map((minter: any) => (
+                <MinterProposal
+                  key={minter.id}
+                  minter={minter}
+                  helpers={delegationStats.delegatedFrom.map((e) => e.owner)}
+                />
+              ))}
+            </div>
           </div>
         </section>
       </div>
