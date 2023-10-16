@@ -22,11 +22,12 @@ interface Props {
 export const useChallengeLists = ({ position, challenger }: Props) => {
   const { data, loading } = useQuery(
     gql`query {
-      challenges(where: {
-        ${position ? `position: "${position}",` : ""}
-        ${challenger ? `challenger: "${challenger}",` : ""}
-        status: "Active"
-      }) {
+      challenges(
+        orderBy: status,
+        where: {
+          ${position ? `position: "${position}",` : ""}
+        }
+      ) {
         id
         challenger
         position
@@ -62,6 +63,11 @@ export const useChallengeLists = ({ position, challenger }: Props) => {
       });
     });
   }
+
+  challenges.sort((a, b) => {
+    if (a.status === b.status) return a.start > b.start ? 1 : -1;
+    else return a.status > b.status ? 1 : -1;
+  });
 
   return { challenges, loading };
 };

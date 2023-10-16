@@ -1,17 +1,12 @@
 import { Address } from "viem";
-import DisplayAmount from "../DisplayAmount";
 import Link from "next/link";
 import {
   formatBigInt,
   formatDate,
-  formatDateDuration,
   formatDuration,
   isDateExpired,
-  isDateUpcoming,
-  shortenAddress,
 } from "@utils";
-import { useContractUrl, usePositionStats } from "@hooks";
-import TableRow from "../Table/TableRow";
+import { usePositionStats } from "@hooks";
 
 interface Props {
   position: Address;
@@ -37,8 +32,6 @@ export default function ChallengeRow({
   index,
 }: Props) {
   const positionStats = usePositionStats(position);
-  const ownerUrl = useContractUrl(challenger);
-  const endDate = formatDate(auctionEnd);
   const isFixedEnd = isDateExpired(fixedEnd);
   const isAuctionExpired = isDateExpired(auctionEnd);
 
@@ -58,7 +51,6 @@ export default function ChallengeRow({
     : "Reached zero at " + formatDate(auctionEnd);
 
   return (
-    // <TableRow link={`/position/${position}/bid/${index}`}>
     <Link
       className="bg-slate-800 hover:bg-slate-700 cursor-pointer p-5 rounded-xl duration-300"
       href={`/position/${position}/bid/${index}`}
@@ -93,7 +85,7 @@ export default function ChallengeRow({
       <div className="flex bg-gray-500 h-2 rounded-lg">
         <div
           className="bg-rose-400 rounded-lg"
-          style={{ width: Number(filledRate / 100n) }}
+          style={{ width: `${Number(filledRate / 100n)}%` }}
         />
       </div>
       <div className="flex">
