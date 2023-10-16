@@ -23,7 +23,7 @@ import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { TxToast } from "@components/TxToast";
 import { Id, toast } from "react-toastify";
 
-export default function Pool({}) {
+export default function Pool() {
   const [amount, setAmount] = useState(0n);
   const [error, setError] = useState("");
   const toastId = useRef<Id>(0);
@@ -344,7 +344,9 @@ export default function Pool({}) {
               </AppBox>
               <AppBox>
                 <DisplayLabel label="Holding Duration" />
-                {poolStats.equityBalance > 0 ? formatDuration(poolStats.equityHoldingDuration) : "-"}
+                {poolStats.equityBalance > 0
+                  ? formatDuration(poolStats.equityHoldingDuration)
+                  : "-"}
               </AppBox>
               <AppBox className="flex-1">
                 <DisplayLabel label="Can redeem after" />
