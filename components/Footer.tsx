@@ -28,7 +28,7 @@ const FooterButton = ({ link, text, icon }: ButtonProps) => {
       className="flex gap-1 hover:opacity-70"
     >
       <FontAwesomeIcon icon={icon} className="w-6 h-6" />
-      {text}
+      <div className="hidden sm:block">{text}</div>
     </Link>
   );
 };
