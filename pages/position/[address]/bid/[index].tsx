@@ -172,7 +172,7 @@ export default function ChallengePlaceBid({}) {
           backText="Back to position"
           backTo={`/position/${address}`}
         />
-        <section className="mx-auto max-w-2xl px-4 sm:px-8">
+        <section className="mx-auto max-w-2xl sm:px-8">
           <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
             <div className="text-lg font-bold text-center mt-3">
               Bid Details
@@ -195,7 +195,7 @@ export default function ChallengePlaceBid({}) {
                 </div>
               </div>
             </div>
-            <div className="bg-slate-900 rounded-xl p-2 grid grid-cols-2 gap-1 lg:col-span-2">
+            <div className="bg-slate-900 rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-2 lg:col-span-2">
               <AppBox>
                 <DisplayLabel label="Remaining Collateral" />
                 <DisplayAmount

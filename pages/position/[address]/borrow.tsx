@@ -229,7 +229,7 @@ export default function PositionBorrow({}) {
                   <div className="flex-1">Fees</div>
                   <DisplayAmount amount={fees} currency="ZCHF" />
                 </div>
-                <hr />
+                <hr className="border-slate-700 border-dashed" />
                 <div className="flex font-bold">
                   <div className="flex-1">Total</div>
                   <DisplayAmount amount={amount} currency="ZCHF" />

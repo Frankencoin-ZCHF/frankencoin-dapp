@@ -145,7 +145,7 @@ export default function PositionChallenge() {
           backText="Back to position"
           backTo={`/position/${position}`}
         />
-        <section className="grid grid-cols-2 gap-x-4">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
             <div className="text-lg font-bold text-center mt-3">
               Challenge Details
@@ -158,7 +158,7 @@ export default function PositionChallenge() {
               error={error}
               label="Amount"
             />
-            <div className="bg-slate-900 rounded-xl p-2 grid grid-cols-6 gap-1 lg:col-span-2">
+            <div className="bg-slate-900 rounded-xl p-4 grid grid-cols-6 gap-2 lg:col-span-2">
               <AppBox className="col-span-6 sm:col-span-3">
                 <DisplayLabel label="Starting Price" />
                 <DisplayAmount

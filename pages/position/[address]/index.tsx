@@ -50,12 +50,12 @@ export default function PositionDetail() {
           backTo="/positions"
           backText="Back to positions"
         />
-        <section className="grid grid-cols-2 gap-x-4">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
             <div className="text-lg font-bold text-center">
               Position Details
             </div>
-            <div className="bg-slate-900 rounded-xl p-4 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-6">
+            <div className="bg-slate-900 rounded-xl p-4 grid gap-2 grid-cols-2 lg:grid-cols-6">
               <AppBox className="col-span-3">
                 <DisplayLabel label="Borrowed Total" />
                 <DisplayAmount amount={positionStats.minted} currency="ZCHF" />
@@ -85,17 +85,17 @@ export default function PositionDetail() {
                 <DisplayLabel label="Limit" />
                 <DisplayAmount amount={positionStats.limit} currency={"ZCHF"} />
               </AppBox>
-              <AppBox className="col-span-3">
+              <AppBox className="col-span-1 sm:col-span-3">
                 <DisplayLabel label="Owner" />
                 <Link href={ownerLink} className="text-link" target="_blank">
                   <b>{shortenAddress(positionStats.owner)}</b>
                 </Link>
               </AppBox>
-              <AppBox className="col-span-2">
+              <AppBox className="col-span-2 sm:col-span-2">
                 <DisplayLabel label="Expiration Date" />
                 <b>{formatDate(positionStats.expiration)}</b>
               </AppBox>
-              <AppBox className="col-span-2">
+              <AppBox className="col-span-1 sm:col-span-2">
                 <DisplayLabel label="Reserve Requirement" />
                 <DisplayAmount
                   amount={positionStats.reserveContribution / 100n}
@@ -103,7 +103,7 @@ export default function PositionDetail() {
                   currency={"%"}
                 />
               </AppBox>
-              <AppBox className="col-span-2">
+              <AppBox className="col-span-2 sm:col-span-2">
                 <DisplayLabel label="Annual Interest" />
                 <DisplayAmount
                   amount={positionStats.mintingFee / 100n}
