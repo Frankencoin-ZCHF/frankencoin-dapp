@@ -199,7 +199,7 @@ export default function Pool() {
       </Head>
       <div>
         <AppPageHeader title="Frankencoin Pool Shares (FPS)" link={equityUrl} />
-        <section className="grid grid-cols-2 gap-4 container mx-auto">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">
           <div className="bg-slate-950 rounded-xl p-4 flex flex-col">
             <div className="text-lg font-bold text-center">Pool Details</div>
             <div className="p-4 mt-5">
@@ -281,7 +281,7 @@ export default function Pool() {
             </div>
           </div>
           <div className="bg-slate-950 rounded-xl p-4 grid grid-cols-1 gap-2">
-            <div className="bg-slate-900 rounded-xl p-4 grid grid-cols-2 gap-2">
+            <div className="bg-slate-900 rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-2">
               <AppBox>
                 <DisplayLabel label="Supply" />
                 <DisplayAmount amount={poolStats.equitySupply} currency="FPS" />
@@ -324,7 +324,7 @@ export default function Pool() {
                 />
               </AppBox>
             </div>
-            <div className="bg-slate-900 rounded-xl p-4 grid grid-cols-2 gap-2">
+            <div className="bg-slate-900 rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-2">
               <AppBox>
                 <DisplayLabel label="Your Balance" />
                 <DisplayAmount

@@ -10,7 +10,7 @@ interface Props {
 export default function TableRow({ children, actionCol, link }: Props) {
   return (
     <Link
-      className={`bg-slate-800 hover:bg-slate-700 px-8 py-8 xl:px-16 border-t border-slate-700 last:rounded-b-lg duration-300 ${
+      className={`bg-slate-800 hover:bg-slate-700 px-8 py-8 xl:px-16 first:border-t-0 sm:first:border-t border-t border-slate-700 first:rounded-t-lg sm:first:rounded-t-none last:rounded-b-lg duration-300 ${
         link && "cursor-pointer"
       }`}
       href={link || "#"}
