@@ -52,7 +52,7 @@ export default function MinterProposal({ minter, helpers }: Props) {
 
   return (
     <AppBox className="grid grid-cols-6 hover:bg-slate-700 duration-300">
-      <div className="col-span-5 pr-4">
+      <div className="col-span-6 sm:col-span-5 pr-4">
         <div className="flex">
           <div>Date:</div>
           <div className="ml-auto">{formatDate(minter.applyDate)}</div>
@@ -85,7 +85,7 @@ export default function MinterProposal({ minter, helpers }: Props) {
           </div>
         </div>
       </div>
-      <div className="col-span-1 border-l border-dashed pl-4 flex flex-col">
+      <div className="col-span-6 sm:col-span-1 border-t sm:border-l border-dashed pt-4 sm:pl-4 mt-4 sm:mt-0 flex flex-col">
         <div
           className={`rounded-xl text-white text-center ${
             status == "Passed"

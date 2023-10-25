@@ -123,7 +123,7 @@ export default function Governance() {
       </Head>
       <div>
         <AppPageHeader title="Governance" link={equityUrl} />
-        <section className="grid grid-cols-2 gap-4 container mx-auto">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">
           <div className="bg-slate-950 rounded-xl p-4 flex flex-col">
             <div className="text-lg font-bold text-center">Delegation</div>
             <div className="mt-5">
