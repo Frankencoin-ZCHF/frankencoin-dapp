@@ -29,6 +29,7 @@
     "@web3modal/react": "^2.7.1",
     "abitype": "^0.9.6",
     "apexcharts": "^3.44.0",
+    "axios": "^1.6.2",
     "dayjs": "^1.11.9",
     "eslint": "8.29.0",
     "eslint-config-next": "^13.5.3",

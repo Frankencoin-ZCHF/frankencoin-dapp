@@ -2,19 +2,29 @@ import Head from "next/head";
 import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
-import { useHomeStats, useContractUrl } from "@hooks";
+import {
+  useHomeStats,
+  useContractUrl,
+  useTvl,
+  usePositionLists,
+  useChallengeCount,
+} from "@hooks";
 import Link from "next/link";
 import { ADDRESS } from "@contracts";
 import { useChainId } from "wagmi";
-import { shortenAddress } from "../utils";
+import { formatBigInt, shortenAddress } from "../utils";
 import AppPageHeader from "../components/AppPageHeader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { parseUnits } from "viem";
 
 export default function Home() {
   const chainId = useChainId();
   const homestats = useHomeStats();
   const frankenLink = useContractUrl(ADDRESS[chainId].frankenCoin);
+  const tvlData = useTvl<number>();
+  const positionData = usePositionLists();
+  const challengeCount = useChallengeCount();
 
   return (
     <>
@@ -105,6 +115,29 @@ export default function Home() {
             </picture>
           </div>
         </section>
+        <div className="mt-16 bg-slate-950 rounded-xl grid grid-cols-1 sm:grid-cols-6 gap-4 p-4">
+          <AppBox className="col-span-6 sm:col-span-2">
+            <DisplayLabel label="Total Value Locked" />
+            <span className="font-bold text-xl">
+              $
+              {formatBigInt(
+                parseUnits(tvlData.data?.toString() || "0", 18),
+                18,
+                0
+              )}
+            </span>
+          </AppBox>
+          <AppBox className="col-span-6 sm:col-span-2">
+            <DisplayLabel label="Total # of Positions" />
+            <span className="font-bold text-xl">
+              {positionData.positions.length}
+            </span>
+          </AppBox>
+          <AppBox className="col-span-6 sm:col-span-2">
+            <DisplayLabel label="Total # of Challenges" />
+            <span className="font-bold text-xl">{challengeCount}</span>
+          </AppBox>
+        </div>
         {/* <section className="bg-slate-950 rounded-xl mt-12 p-4 m-auto flex flex-col gap-2">
           <h2 className="text-2xl font-bold mt-6 text-center">
             Frankencoin Token
