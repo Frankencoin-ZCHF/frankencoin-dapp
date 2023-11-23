@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 
@@ -18,6 +18,11 @@ export default function TokenLogo({ currency, size = 8 }: Props) {
       setImgExist(false);
     }
   };
+
+  useEffect(() => {
+    setImgExist(true);
+  }, [currency]);
+
   return imgExist ? (
     <picture className="mr-2">
       <img
