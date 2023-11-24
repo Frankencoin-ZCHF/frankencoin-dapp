@@ -8,7 +8,7 @@ import {
   faComments,
 } from "@fortawesome/free-solid-svg-icons";
 import {
-  faGithub,
+  faGitlab,
   faTelegram,
   faXTwitter,
 } from "@fortawesome/free-brands-svg-icons";
@@ -37,7 +37,7 @@ export default function Footer() {
   return (
     <ul className="mt-12 mb-4 flex items-center justify-center gap-8">
       <li>
-        <FooterButton link={SOCIAL.Github} text="Github" icon={faGithub} />
+        <FooterButton link={SOCIAL.GitLab} text="GitLab" icon={faGitlab} />
       </li>
       <li>
         <FooterButton link={SOCIAL.Docs} text="Doc" icon={faBook} />

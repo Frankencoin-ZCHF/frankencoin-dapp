@@ -66,7 +66,7 @@ export default function Home() {
               proposing new types of collateral or vetoing proposals must at
               this point in time be performed manually. The{" "}
               <a
-                href="https://github.com/Frankencoin-ZCHF/frankencoin-dapp"
+                href="https://gitlab.com/frankencoin-zchf/frankencoin-dapp"
                 target="_blank"
               >
                 source code of this website
@@ -74,14 +74,14 @@ export default function Home() {
               is openly available and can be freely copied and modified, just
               like the underlying{" "}
               <a
-                href="https://github.com/Frankencoin-ZCHF/FrankenCoin"
+                href="https://gitlab.com/frankencoin-zchf/frankencoin"
                 target="_blank"
               >
                 smart contracts
               </a>
               . The smart contracts have been audited by&nbsp;
               <a
-                href="https://github.com/Frankencoin-ZCHF/FrankenCoin/blob/main/audits/blockbite-audit.pdf"
+                href="https://gitlab.com/frankencoin-zchf/frankencoin/-/blob/main/audits/blockbite-audit.pdf"
                 target="_blank"
               >
                 Blockbite
