@@ -235,7 +235,6 @@ export default function Pool() {
                 value={amount.toString()}
                 error={error}
               />
-
               <div className="py-4 text-center z-0">
                 <button
                   className={`btn btn-secondary z-0 text-slate-800 w-14 h-14 rounded-full transition ${
@@ -299,6 +298,35 @@ export default function Pool() {
                   </Button>
                 )}
               </div>
+            </div>
+            <div className="mt-5 bg-slate-900 rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+              <AppBox>
+                <DisplayLabel label="Your Balance" />
+                <DisplayAmount
+                  amount={poolStats.equityBalance}
+                  currency="FPS"
+                />
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Value at Current Price" />
+                <DisplayAmount
+                  amount={
+                    (poolStats.equityPrice * poolStats.equityBalance) /
+                    BigInt(1e18)
+                  }
+                  currency="ZCHF"
+                />
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Holding Duration" />
+                {poolStats.equityBalance > 0
+                  ? formatDuration(poolStats.equityHoldingDuration)
+                  : "-"}
+              </AppBox>
+              <AppBox className="flex-1">
+                <DisplayLabel label="Can redeem after" />
+                {formatDuration(redeemLeft)}
+              </AppBox>
             </div>
           </div>
           <div className="bg-slate-950 rounded-xl p-4 grid grid-cols-1 gap-2">
@@ -403,6 +431,20 @@ export default function Pool() {
                 />
               </AppBox>
               <AppBox>
+                <DisplayLabel label="Equity Capital" />
+                <DisplayAmount
+                  amount={poolStats.frankenEquity}
+                  currency="ZCHF"
+                />
+              </AppBox>
+              <AppBox>
+                <DisplayLabel label="Minter Reserve" />
+                <DisplayAmount
+                  amount={poolStats.frankenMinterReserve}
+                  currency="ZCHF"
+                />
+              </AppBox>
+              <AppBox>
                 <DisplayLabel label="Total Income" />
                 <DisplayAmount
                   amount={profit}
@@ -417,35 +459,6 @@ export default function Pool() {
                   currency="ZCHF"
                   className="text-rose-400"
                 />
-              </AppBox>
-            </div>
-            <div className="bg-slate-900 rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-              <AppBox>
-                <DisplayLabel label="Your Balance" />
-                <DisplayAmount
-                  amount={poolStats.equityBalance}
-                  currency="FPS"
-                />
-              </AppBox>
-              <AppBox>
-                <DisplayLabel label="Value at Current Price" />
-                <DisplayAmount
-                  amount={
-                    (poolStats.equityPrice * poolStats.equityBalance) /
-                    BigInt(1e18)
-                  }
-                  currency="ZCHF"
-                />
-              </AppBox>
-              <AppBox>
-                <DisplayLabel label="Holding Duration" />
-                {poolStats.equityBalance > 0
-                  ? formatDuration(poolStats.equityHoldingDuration)
-                  : "-"}
-              </AppBox>
-              <AppBox className="flex-1">
-                <DisplayLabel label="Can redeem after" />
-                {formatDuration(redeemLeft)}
               </AppBox>
             </div>
           </div>

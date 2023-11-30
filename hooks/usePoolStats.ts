@@ -100,6 +100,8 @@ export const usePoolStats = () => {
     equityHoldingDuration,
 
     frankenTotalReserve,
+    frankenMinterReserve,
+    frankenEquity,
     frankenBalance,
     frankenAllowance,
   };
