@@ -169,8 +169,8 @@ export default function Swap() {
 
   const fromBalance = direction ? swapStats.xchfUserBal : swapStats.zchfUserBal;
   const toBalance = !direction ? swapStats.xchfUserBal : swapStats.zchfUserBal;
-  const fromSymbol = direction ? swapStats.xchfSymbol : swapStats.frankenSymbol;
-  const toSymbol = !direction ? swapStats.xchfSymbol : swapStats.frankenSymbol;
+  const fromSymbol = direction ? "xchf" : "zchf";
+  const toSymbol = !direction ? "xchf" : "zchf";
   const swapLimit = direction
     ? swapStats.bridgeLimit - swapStats.xchfBridgeBal
     : swapStats.xchfBridgeBal;
