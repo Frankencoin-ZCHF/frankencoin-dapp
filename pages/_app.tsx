@@ -2,26 +2,15 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { NextSeo } from "next-seo";
 import Layout from "@components/Layout";
-import { EthereumClient, w3mConnectors } from "@web3modal/ethereum";
+import { createWeb3Modal } from "@web3modal/wagmi/react";
 import { mainnet, sepolia } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
-import { Web3Modal } from "@web3modal/react";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-const chains = [mainnet, sepolia];
-const projectId = "75da506ed9c39c840e6c5a5180014870";
-const { publicClient } = configureChains(chains, [
-  alchemyProvider({ apiKey: "xkAazrbIALbAxhLrOCDqD9yasyMRFXtg" }),
-]);
-const wagmiConfig = createConfig({
-  autoConnect: true,
-  connectors: w3mConnectors({ chains, projectId }),
-  publicClient,
-});
-const ethereumClient = new EthereumClient(wagmiConfig, chains);
+import { defaultWagmiConfig } from "@web3modal/wagmi";
+import { Web3Modal } from "@components/Web3Modal";
 
 const apolloClient = new ApolloClient({
   uri: "https://api.thegraph.com/subgraphs/name/frankencoin-zchf/frankencoin-subgraph",
@@ -30,7 +19,7 @@ const apolloClient = new ApolloClient({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <WagmiConfig config={wagmiConfig}>
+    <Web3Modal>
       <ApolloProvider client={apolloClient}>
         <NextSeo
           title="Frankencoin"
@@ -72,12 +61,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <Layout>
           <Component {...pageProps} />
         </Layout>
-        <Web3Modal
-          projectId={projectId}
-          ethereumClient={ethereumClient}
-          themeMode="dark"
-        />
       </ApolloProvider>
-    </WagmiConfig>
+    </Web3Modal>
   );
 }
