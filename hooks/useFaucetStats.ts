@@ -1,73 +1,93 @@
-import { erc20ABI, useAccount, useChainId, useContractReads } from "wagmi";
+import {
+  Address,
+  erc20ABI,
+  useAccount,
+  useChainId,
+  useContractReads,
+} from "wagmi";
 import { ADDRESS } from "@contracts";
 import { decodeBigIntCall } from "@utils";
+import { zeroAddress } from "viem";
 
 export const useFaucetStats = () => {
   const chainId = useChainId();
   const { address } = useAccount();
 
-  const volContract = {
-    address: ADDRESS[chainId].mockVol,
-    abi: erc20ABI,
-  };
-
-  const xchfContract = {
-    address: ADDRESS[chainId].xchf,
-    abi: erc20ABI,
-  };
-
   const account = address || "0x0";
+
+  const calls: any[] = [];
+  const mockTokens = [
+    ADDRESS[chainId].xchf,
+    ADDRESS[chainId].mockVids,
+    ADDRESS[chainId].mockBoss,
+    ADDRESS[chainId].mockRealu,
+    ADDRESS[chainId].mockTbos,
+    ADDRESS[chainId].mockAxelra,
+    ADDRESS[chainId].mockCas,
+    ADDRESS[chainId].mockDaks,
+    ADDRESS[chainId].mockDqts,
+    ADDRESS[chainId].mockAfs,
+    ADDRESS[chainId].mockArts,
+    ADDRESS[chainId].mockVrgns,
+    ADDRESS[chainId].mockEggs,
+  ];
+
+  mockTokens.forEach((token) => {
+    const contract = {
+      address: token,
+      abi: erc20ABI,
+    };
+    calls.push(
+      ...[
+        {
+          ...contract,
+          functionName: "symbol",
+        },
+        {
+          ...contract,
+          functionName: "balanceOf",
+          args: [account],
+        },
+        {
+          ...contract,
+          functionName: "decimals",
+        },
+      ]
+    );
+  });
 
   // Fetch all blockchain stats in one web3 call using multicall
   const { data, isError, isLoading } = useContractReads({
-    contracts: [
-      // Frankencoin Calls
-      {
-        ...xchfContract,
-        functionName: "symbol",
-      },
-      {
-        ...xchfContract,
-        functionName: "balanceOf",
-        args: [account],
-      },
-      {
-        ...xchfContract,
-        functionName: "decimals",
-      },
-      // XCHF Calls
-      {
-        ...volContract,
-        functionName: "symbol",
-      },
-      {
-        ...volContract,
-        functionName: "balanceOf",
-        args: [account],
-      },
-      {
-        ...volContract,
-        functionName: "decimals",
-      },
-    ],
+    contracts: [...calls],
     watch: true,
   });
 
-  const xchfSymbol: string = data ? String(data[0].result) : "";
-  const xchfUserBal: bigint = data ? decodeBigIntCall(data[1]) : BigInt(0);
-  const xchfDecimals: bigint = data ? decodeBigIntCall(data[2]) : BigInt(0);
+  const tokenInfo: Record<
+    string,
+    {
+      address: Address;
+      symbol: string;
+      balance: bigint;
+      decimals: bigint;
+    }
+  > = {};
+  data &&
+    mockTokens.forEach((mockToken, i) => {
+      const symbol: string = data ? String(data[i * 3].result) : "";
+      const balance: bigint = data
+        ? decodeBigIntCall(data[i * 3 + 1])
+        : BigInt(0);
+      const decimals: bigint = data
+        ? decodeBigIntCall(data[i * 3 + 2])
+        : BigInt(0);
 
-  const volSymbol: string = data ? String(data[3].result) : "";
-  const volUserBal: bigint = data ? decodeBigIntCall(data[4]) : BigInt(0);
-  const volDecimals: bigint = data ? decodeBigIntCall(data[5]) : BigInt(0);
+      tokenInfo[symbol] = {
+        address: mockToken || zeroAddress,
+        symbol,
+        balance,
+        decimals,
+      };
+    });
 
-  return {
-    xchfUserBal,
-    xchfDecimals,
-    xchfSymbol,
-
-    volSymbol,
-    volUserBal,
-    volDecimals,
-  };
+  return tokenInfo;
 };

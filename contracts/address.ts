@@ -1,4 +1,4 @@
-import { Address } from "viem";
+import { Address } from "wagmi";
 import { hardhat, mainnet, sepolia } from "wagmi/chains";
 
 export interface ProtocolAddress {
@@ -7,8 +7,20 @@ export interface ProtocolAddress {
   xchf: Address;
   equity: Address;
   mintingHub: Address;
-  mockVol?: Address;
   positionFactory?: Address;
+  mockVol?: Address;
+  mockVids?: Address;
+  mockBoss?: Address;
+  mockRealu?: Address;
+  mockTbos?: Address;
+  mockAxelra?: Address;
+  mockCas?: Address;
+  mockDaks?: Address;
+  mockDqts?: Address;
+  mockAfs?: Address;
+  mockArts?: Address;
+  mockVrgns?: Address;
+  mockEggs?: Address;
 }
 
 export const ADDRESS: Record<number, ProtocolAddress> = {
@@ -26,8 +38,19 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
     xchf: "0xe94c49Dcf0c7D761c173E9C131B132A1Cfb81A80",
     equity: "0x22f3b4CEED90207620C5631b748f65f805bc774f",
     mintingHub: "0x6f43400A93c222666351c05A4e36Ec6A51a5b49B",
-    mockVol: "0x37935cedc62b3ec5decc0a9776ee4fee37965ca3",
     positionFactory: "0x6ad579D11349d70704df66bc78f84Ae5BBce8D4A",
+    mockVids: "0xbe374758Eca03653ACdB43D91461e3c35669acB4",
+    mockBoss: "0x08c03ec7cE1747f01A54f9e79DDdc928b1932f61",
+    mockRealu: "0x0F89a805dFcdE077C400f320a74E61bFC2D2e98E",
+    mockTbos: "0x7F77405c0B288f9B84C8fDbAff42D5b5c917d3D7",
+    mockAxelra: "0x59dAcD3b9f5a4808F5057041f7eDC97a793152f4",
+    mockCas: "0x611F02D44ECBe9F552D4b654D222A9AaEc17Dcb6",
+    mockDaks: "0xd07834f7A348bC78D66994a64ECDD67030b65BA8",
+    mockDqts: "0xD058cBC8d552ED3d66EF7CD602371f348af2E0c7",
+    mockAfs: "0xA2fc0b6893553bfEc4a2bf016593FF62f2d2Be7C",
+    mockArts: "0xD739cf0619196c456Fa7329140700DC1A737ef02",
+    mockVrgns: "0x4572Fdde0e84c5DF4F2C4F2e6a3eA67C816C6A04",
+    mockEggs: "0x61f50615064cCA97fFbA4436449987C20b848275",
   },
   [mainnet.id]: {
     frankenCoin: "0xB58E61C3098d85632Df34EecfB899A1Ed80921cB",

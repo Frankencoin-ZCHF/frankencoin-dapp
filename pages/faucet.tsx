@@ -129,18 +129,15 @@ export default function Faucet() {
             actionCol
           />
           <TableBody>
-            <FaucetRow
-              addr={ADDRESS[chainId].xchf}
-              symbol={faucetStats.xchfSymbol}
-              decimal={faucetStats.xchfDecimals}
-              balance={faucetStats.xchfUserBal}
-            />
-            <FaucetRow
-              addr={ADDRESS[chainId].mockVol || zeroAddress}
-              symbol={faucetStats.volSymbol}
-              decimal={faucetStats.volDecimals}
-              balance={faucetStats.volUserBal}
-            />
+            {Object.keys(faucetStats).map((key) => (
+              <FaucetRow
+                key={key}
+                addr={faucetStats[key].address}
+                symbol={faucetStats[key].symbol}
+                decimal={faucetStats[key].decimals}
+                balance={faucetStats[key].balance}
+              />
+            ))}
           </TableBody>
         </Table>
       </div>
