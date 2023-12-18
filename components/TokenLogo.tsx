@@ -15,6 +15,8 @@ export default function TokenLogo({ currency, size = 8 }: Props) {
     if (src.includes(".svg")) {
       setSrc(src.replace(".svg", ".png"));
     } else if (src.includes(".png")) {
+      setSrc(src.replace(".png", ".jpeg"));
+    } else {
       setImgExist(false);
     }
   };

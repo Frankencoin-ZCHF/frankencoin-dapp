@@ -30,6 +30,15 @@ export const useFaucetStats = () => {
     ADDRESS[chainId].mockArts,
     ADDRESS[chainId].mockVrgns,
     ADDRESS[chainId].mockEggs,
+    ADDRESS[chainId].mockPds,
+    ADDRESS[chainId].mockVegs,
+    ADDRESS[chainId].mockCfes,
+    ADDRESS[chainId].mockGmcs,
+    ADDRESS[chainId].mockBees,
+    ADDRESS[chainId].mockDgcs,
+    ADDRESS[chainId].mockCias,
+    ADDRESS[chainId].mockFnls,
+    ADDRESS[chainId].mockTvpls,
   ];
 
   mockTokens.forEach((token) => {
@@ -39,6 +48,10 @@ export const useFaucetStats = () => {
     };
     calls.push(
       ...[
+        {
+          ...contract,
+          functionName: "name",
+        },
         {
           ...contract,
           functionName: "symbol",
@@ -66,6 +79,7 @@ export const useFaucetStats = () => {
     string,
     {
       address: Address;
+      name: string;
       symbol: string;
       balance: bigint;
       decimals: bigint;
@@ -73,16 +87,18 @@ export const useFaucetStats = () => {
   > = {};
   data &&
     mockTokens.forEach((mockToken, i) => {
-      const symbol: string = data ? String(data[i * 3].result) : "";
+      const name: string = data ? String(data[i * 4].result) : "";
+      const symbol: string = data ? String(data[i * 4 + 1].result) : "";
       const balance: bigint = data
-        ? decodeBigIntCall(data[i * 3 + 1])
+        ? decodeBigIntCall(data[i * 4 + 2])
         : BigInt(0);
       const decimals: bigint = data
-        ? decodeBigIntCall(data[i * 3 + 2])
+        ? decodeBigIntCall(data[i * 4 + 3])
         : BigInt(0);
 
       tokenInfo[symbol] = {
         address: mockToken || zeroAddress,
+        name,
         symbol,
         balance,
         decimals,
