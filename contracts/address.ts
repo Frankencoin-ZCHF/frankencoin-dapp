@@ -40,6 +40,16 @@ export interface ProtocolAddress {
   mockNnmls?: Address;
   mockTsqp?: Address;
   mockXxs?: Address;
+  mockFors?: Address;
+  mockShrs?: Address;
+  mockSuns?: Address;
+  mockHps?: Address;
+  mockRxus?: Address;
+  mockWmkt?: Address;
+  mockFes?: Address;
+  mockDdcs?: Address;
+  mockLines?: Address;
+  mockDkkb?: Address;
 }
 
 export const ADDRESS: Record<number, ProtocolAddress> = {
@@ -89,6 +99,16 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
     mockNnmls: "0x36b18FCA7C19D1A8a523Db31f15c5482E3697537",
     mockTsqp: "0x2C368ec51691a54c964201b0325ff6AC37EF5403",
     mockXxs: "0xe8992E66451A60d0A524226514E7B43A2E920701",
+    mockFors: "0x1878743c481b2e4bfe9A423dc8F983C7ed364bF2",
+    mockShrs: "0xFEb3c07C4Ef56D938A0eae401FA37C0618e91b32",
+    mockSuns: "0xd2B5d3E0fF43b42e2b53C94995a9471d72a83D8d",
+    mockHps: "0x7319A8c28905530DFEF2354b5293Baae209D31d4",
+    mockRxus: "0xCF3249d9FD12D566eB1B59C173A1346DC66712E7",
+    mockWmkt: "0xEF16CD43Bd53E74547743d2b2279B73564fAaa30",
+    mockFes: "0xec4aEea6C825F044CFfB077F9E56a75441c92EC4",
+    mockDdcs: "0x96a7D58eCaE2462eAbB5f1bAE31Eb6BE4beaddf1",
+    mockLines: "0x0d9a2e156E45628C16F8f94e1E488B62F611A94b",
+    mockDkkb: "0xAA115D40D67883a58A1e05d8FB1153473b9b087d",
   },
   [mainnet.id]: {
     frankenCoin: "0xB58E61C3098d85632Df34EecfB899A1Ed80921cB",

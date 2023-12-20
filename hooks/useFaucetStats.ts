@@ -49,6 +49,16 @@ export const useFaucetStats = () => {
     ADDRESS[chainId].mockNnmls,
     ADDRESS[chainId].mockTsqp,
     ADDRESS[chainId].mockXxs,
+    ADDRESS[chainId].mockFors,
+    ADDRESS[chainId].mockShrs,
+    ADDRESS[chainId].mockSuns,
+    ADDRESS[chainId].mockHps,
+    ADDRESS[chainId].mockRxus,
+    ADDRESS[chainId].mockWmkt,
+    ADDRESS[chainId].mockFes,
+    ADDRESS[chainId].mockDdcs,
+    ADDRESS[chainId].mockLines,
+    ADDRESS[chainId].mockDkkb,
   ];
 
   mockTokens.forEach((token) => {
