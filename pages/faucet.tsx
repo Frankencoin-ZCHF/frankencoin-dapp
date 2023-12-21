@@ -18,12 +18,13 @@ import TokenLogo from "@components/TokenLogo";
 
 interface RowProps {
   addr: Address;
+  name: string;
   symbol: string;
   balance: bigint;
   decimal: bigint;
 }
 
-export function FaucetRow({ symbol, balance, decimal, addr }: RowProps) {
+export function FaucetRow({ name, symbol, balance, decimal, addr }: RowProps) {
   const { address } = useAccount();
   const account = address || zeroAddress;
   const [isConfirming, setIsConfirming] = useState(false);
@@ -75,6 +76,7 @@ export function FaucetRow({ symbol, balance, decimal, addr }: RowProps) {
 
   return (
     <TableRow
+      colSpan={6}
       actionCol={
         <Button
           variant="primary"
@@ -85,11 +87,14 @@ export function FaucetRow({ symbol, balance, decimal, addr }: RowProps) {
         </Button>
       }
     >
-      <div>
+      <div className="col-span-3">
         <div className="text-gray-400 md:hidden">Token</div>
         <div className="flex items-center">
           <TokenLogo currency={symbol} size={10} />
-          <span className="ml-2 font-bold">{symbol}</span>
+          <div>
+            <div className="ml-2">{name}</div>
+            <span className="ml-2 font-bold">{symbol}</span>
+          </div>
         </div>
       </div>
       <div>
@@ -125,22 +130,21 @@ export default function Faucet() {
         <AppPageHeader title="Faucets" />
         <Table>
           <TableHeader
-            headers={["Token", "Decimals", "My Balance"]}
+            headers={["Token", "", "", "Decimals", "My Balance"]}
             actionCol
+            colSpan={6}
           />
           <TableBody>
-            <FaucetRow
-              addr={ADDRESS[chainId].xchf}
-              symbol={faucetStats.xchfSymbol}
-              decimal={faucetStats.xchfDecimals}
-              balance={faucetStats.xchfUserBal}
-            />
-            <FaucetRow
-              addr={ADDRESS[chainId].mockVol || zeroAddress}
-              symbol={faucetStats.volSymbol}
-              decimal={faucetStats.volDecimals}
-              balance={faucetStats.volUserBal}
-            />
+            {Object.keys(faucetStats).map((key) => (
+              <FaucetRow
+                key={key}
+                addr={faucetStats[key].address}
+                name={faucetStats[key].name}
+                symbol={faucetStats[key].symbol}
+                decimal={faucetStats[key].decimals}
+                balance={faucetStats[key].balance}
+              />
+            ))}
           </TableBody>
         </Table>
       </div>
