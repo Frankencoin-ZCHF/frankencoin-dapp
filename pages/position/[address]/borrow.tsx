@@ -1,7 +1,7 @@
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import { useRouter } from "next/router";
-import { formatUnits, getAddress, zeroAddress } from "viem";
+import { formatUnits, getAddress, zeroAddress, maxUint256} from "viem";
 import SwapFieldInput from "@components/SwapFieldInput";
 import { usePositionStats } from "@hooks";
 import { useState } from "react";
@@ -78,13 +78,13 @@ export default function PositionBorrow({}) {
 
   const handleApprove = async () => {
     const tx = await approveWrite.writeAsync({
-      args: [ADDRESS[chainId].mintingHub, amount],
+      args: [ADDRESS[chainId].mintingHub, maxUint256],
     });
 
     const toastContent = [
       {
         title: "Amount:",
-        value: formatBigInt(amount) + " ZCHF",
+        value: "infinite " + positionStats.collateralSymbol,
       },
       {
         title: "Spender: ",
@@ -116,7 +116,6 @@ export default function PositionBorrow({}) {
     );
   };
   const handleClone = async () => {
-    console.log("Cloning amount " + amount);
     const tx = await cloneWrite.writeAsync({
       args: [position, requiredColl, amount, positionStats.expiration],
     });
@@ -222,7 +221,7 @@ export default function PositionBorrow({}) {
               </div>
             </div>
             <div className="mx-auto mt-8 w-72 max-w-full flex-col">
-              {amount > positionStats.frankenAllowance ? (
+              {amount > positionStats.collateralAllowance ? (
                 <Button
                   disabled={amount == 0n || !!error}
                   isLoading={approveWrite.isLoading || isConfirming}
