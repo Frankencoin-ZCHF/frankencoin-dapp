@@ -116,6 +116,7 @@ export default function PositionBorrow({}) {
     );
   };
   const handleClone = async () => {
+    console.log("Cloning amount " + amount);
     const tx = await cloneWrite.writeAsync({
       args: [position, requiredColl, amount, positionStats.expiration],
     });
@@ -189,6 +190,7 @@ export default function PositionBorrow({}) {
                 label="Required Collateral"
                 balanceLabel="Your balance:"
                 max={positionStats.collateralUserBal}
+                digit={positionStats.collateralDecimal}
                 onChange={onChangeCollateral}
                 output={formatUnits(
                   requiredColl,

@@ -176,6 +176,7 @@ export default function PositionChallenge() {
             <SwapFieldInput
               symbol={positionStats.collateralSymbol}
               max={positionStats.collateralUserBal}
+              digit={positionStats.collateralDecimal}
               value={amount.toString()}
               onChange={onChangeAmount}
               error={error}
