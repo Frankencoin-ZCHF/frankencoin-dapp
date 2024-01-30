@@ -66,7 +66,7 @@ export default function PositionBorrow({}) {
   };
 
   const approveWrite = useContractWrite({
-    address: ADDRESS[chainId].frankenCoin,
+    address: positionStats.collateral,
     abi: erc20ABI,
     functionName: "approve",
   });
