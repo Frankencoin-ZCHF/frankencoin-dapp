@@ -21,8 +21,6 @@ export default function PositionAdjust() {
   const position = getAddress(String(positionAddr || zeroAddress));
   const positionStats = usePositionStats(position);
 
-  const [amountError, setAmountError] = useState("");
-  const [collError, setCollError] = useState("");
   const [isConfirming, setIsConfirming] = useState(false);
   const [amount, setAmount] = useState(positionStats.minted);
   const [collateralAmount, setCollateralAmount] = useState(positionStats.collateralBal);
@@ -57,42 +55,38 @@ export default function PositionAdjust() {
       : "";
 
   const onChangeAmount = (value: string) => {
-    const valueBigInt = BigInt(value);
-    setAmount(valueBigInt);
-    if (valueBigInt > positionStats.limit) {
-      setAmountError(
-        `This position is limited to ${formatUnits(
-          positionStats.limit,
-          18
-        )} ZCHF`
-      );
-    } else if (-paidOutAmount() > positionStats.frankenBalance) {
-      setAmountError("Insufficient ZCHF in wallet");
-    } else {
-      setAmountError("");
-    }
+    setAmount(BigInt(value));
   };
 
   const onChangeCollAmount = (value: string) => {
-    const valueBigInt = BigInt(value);
-    setCollateralAmount(valueBigInt);
-    if (
-      valueBigInt > positionStats.collateralBal &&
-      valueBigInt - positionStats.collateralBal >
-        positionStats.collateralUserBal
-    ) {
-      setCollError(
-        `Insufficient ${positionStats.collateralSymbol} in your wallet.`
-      );
-    } else {
-      setCollError("");
-    }
+    setCollateralAmount(BigInt(value));
   };
+
+  function getCollateralError(){
+    if (collateralAmount - positionStats.collateralBal > positionStats.collateralUserBal) {
+      return `Insufficient ${positionStats.collateralSymbol} in your wallet.`;
+    } else if (liqPrice * collateralAmount < amount * (10n**18n)){
+      return "Not enough collateral for the given price and borrow amount.";
+    } else {
+      return "";
+    }
+  }
+
+  function getAmountError() {
+    if (amount > positionStats.limit) {
+      return `This position is limited to ${formatUnits(positionStats.limit, 18)} ZCHF`;
+    } else if (-paidOutAmount() > positionStats.frankenBalance) {
+      return "Insufficient ZCHF in wallet";
+    } else if (liqPrice * collateralAmount < amount * (10n**18n)){
+      return "Amount too high for the given price and collateral.";
+    } else {
+      return "";
+    }
+  }
 
   const onChangeLiqAmount = (value: string) => {
     const valueBigInt = BigInt(value);
     setLiqPrice(valueBigInt);
-    // setError(valueBigInt > fromBalance)
   };
 
   const approveWrite = useContractWrite({
@@ -161,7 +155,7 @@ export default function PositionAdjust() {
       },
       {
         title: "Liquidation Price:",
-        value: formatBigInt(liqPrice),
+        value: formatBigInt(liqPrice, 36 - positionStats.collateralDecimal),
       },
       {
         title: "Transaction:",
@@ -213,7 +207,7 @@ export default function PositionAdjust() {
               max={repayPosition}
               value={amount.toString()}
               onChange={onChangeAmount}
-              error={amountError}
+              error={getAmountError()}
               // TODO: Children
             />
             <SwapFieldInput
@@ -227,7 +221,7 @@ export default function PositionAdjust() {
               onChange={onChangeCollAmount}
               digit={positionStats.collateralDecimal}
               note={collateralNote}
-              error={collError}
+              error={getCollateralError()}
               // TODO: Children
             />
             <SwapFieldInput
@@ -252,7 +246,7 @@ export default function PositionAdjust() {
               ) : (
                 <Button
                   variant="primary"
-                  disabled={amount == 0n || !!amountError || !!collError}
+                  disabled={amount == positionStats.minted || !!getAmountError() || !!getCollateralError()}
                   error={
                     positionStats.owner != address
                       ? "You can only adjust your own position"
