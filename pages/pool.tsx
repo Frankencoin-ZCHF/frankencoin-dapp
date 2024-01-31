@@ -367,6 +367,7 @@ export default function Pool() {
                   },
                   stroke: {
                     curve: "straight",
+                    width: 2,
                   },
                   dataLabels: {
                     enabled: false,
