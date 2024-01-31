@@ -25,30 +25,23 @@ export default function PositionAdjust() {
   const [collError, setCollError] = useState("");
   const [isConfirming, setIsConfirming] = useState(false);
   const [amount, setAmount] = useState(positionStats.minted);
-  const [collateralAmount, setCollateralAmount] = useState(
-    positionStats.collateralBal
-  );
+  const [collateralAmount, setCollateralAmount] = useState(positionStats.collateralBal);
   const [liqPrice, setLiqPrice] = useState(positionStats.liqPrice);
 
-  const repayPosition =
-    positionStats.minted > positionStats.frankenBalance
-      ? positionStats.minted - positionStats.frankenBalance
-      : 0n;
-  const additionalAmount = amount - positionStats.minted;
-  const isNegativeDiff = additionalAmount < 0;
-  const borrowReserveContribution =
-    (positionStats.reserveContribution * additionalAmount) / 1_000_000n;
-  const fees = (additionalAmount * positionStats.mintingFee) / 1_000_000n;
+  const maxRepayable = 1_000_000n * positionStats.frankenBalance  / (1_000_000n - positionStats.reserveContribution)
+  const repayPosition = maxRepayable > positionStats.minted ? 0n : positionStats.minted - maxRepayable;
 
   const paidOutAmount = () => {
-    const reserveAndFees = borrowReserveContribution + fees;
-
-    if (isNegativeDiff) {
-      return abs(additionalAmount - fees) - reserveAndFees;
+    if (amount > positionStats.minted){
+      return (amount - positionStats.minted)*(1_000_000n - positionStats.reserveContribution - positionStats.mintingFee) / 1_000_000n;
     } else {
-      return additionalAmount - reserveAndFees;
+      return amount - positionStats.minted - returnFromReserve();
     }
   };
+
+  const returnFromReserve = () => {
+    return (positionStats.reserveContribution * (amount - positionStats.minted)) / 1_000_000n;
+  }
 
   const collateralNote =
     collateralAmount < positionStats.collateralBal
@@ -73,11 +66,8 @@ export default function PositionAdjust() {
           18
         )} ZCHF`
       );
-    } else if (
-      isNegativeDiff &&
-      paidOutAmount() > positionStats.frankenBalance
-    ) {
-      setAmountError("Insufficient ZCHF amount in wallet");
+    } else if (-paidOutAmount() > positionStats.frankenBalance) {
+      setAmountError("Insufficient ZCHF in wallet");
     } else {
       setAmountError("");
     }
@@ -288,24 +278,24 @@ export default function PositionAdjust() {
               </div>
               <div className="flex">
                 <div className="flex-1">
-                  {isNegativeDiff ? "Amount you return" : "Amount you receive"}
+                  {(amount >= positionStats.minted) ? "You receive" : "You return"}
                 </div>
                 <DisplayAmount amount={paidOutAmount()} currency={"ZCHF"} />
               </div>
               <div className="flex">
                 <div className="flex-1">
-                  {isNegativeDiff
-                    ? "Returned from reserve"
-                    : "Added to reserve"}
+                  {(amount >= positionStats.minted)
+                    ? "Added to reserve on your behalf"
+                    : "Returned from reserve"}
                 </div>
                 <DisplayAmount
-                  amount={borrowReserveContribution}
+                  amount={returnFromReserve()}
                   currency={"ZCHF"}
                 />
               </div>
               <div className="flex">
-                <div className="flex-1">Deducted fee / interest</div>
-                <DisplayAmount amount={fees} currency={"ZCHF"} />
+                <div className="flex-1">Minting fee (interest)</div>
+                <DisplayAmount amount={amount > positionStats.minted ? (amount - positionStats.minted) * positionStats.mintingFee / 1_000_000n : 0n} currency={"ZCHF"} />
               </div>
               <hr className="border-slate-700 border-dashed" />
               <div className="flex font-bold">
