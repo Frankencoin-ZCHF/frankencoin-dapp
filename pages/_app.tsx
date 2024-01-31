@@ -2,14 +2,9 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { NextSeo } from "next-seo";
 import Layout from "@components/Layout";
-import { createWeb3Modal } from "@web3modal/wagmi/react";
-import { mainnet, sepolia } from "wagmi/chains";
-import { alchemyProvider } from "wagmi/providers/alchemy";
-import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { defaultWagmiConfig } from "@web3modal/wagmi";
 import { Web3Modal } from "@components/Web3Modal";
 
 const apolloClient = new ApolloClient({

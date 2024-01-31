@@ -22,6 +22,7 @@ export default function TokenLogo({ currency, size = 8 }: Props) {
   };
 
   useEffect(() => {
+    setSrc(`/coin/${currency?.toLowerCase()}.svg`);
     setImgExist(true);
   }, [currency]);
 
