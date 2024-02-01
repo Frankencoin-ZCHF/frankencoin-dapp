@@ -8,9 +8,9 @@ import SwapFieldInput from "@components/SwapFieldInput";
 import DisplayAmount from "@components/DisplayAmount";
 import { abs, formatBigInt, shortenAddress } from "@utils";
 import Button from "@components/Button";
-import { erc20ABI, useAccount, useContractWrite } from "wagmi";
+import { erc20ABI, useAccount, useChainId, useContractWrite } from "wagmi";
 import { waitForTransaction } from "wagmi/actions";
-import { ABIS } from "@contracts";
+import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 
@@ -18,28 +18,45 @@ export default function PositionAdjust() {
   const router = useRouter();
   const { address: positionAddr } = router.query;
   const { address } = useAccount();
+  const chainId = useChainId();
   const position = getAddress(String(positionAddr || zeroAddress));
   const positionStats = usePositionStats(position);
 
   const [isConfirming, setIsConfirming] = useState(false);
   const [amount, setAmount] = useState(positionStats.minted);
-  const [collateralAmount, setCollateralAmount] = useState(positionStats.collateralBal);
+  const [collateralAmount, setCollateralAmount] = useState(
+    positionStats.collateralBal
+  );
   const [liqPrice, setLiqPrice] = useState(positionStats.liqPrice);
 
-  const maxRepayable = 1_000_000n * positionStats.frankenBalance  / (1_000_000n - positionStats.reserveContribution)
-  const repayPosition = maxRepayable > positionStats.minted ? 0n : positionStats.minted - maxRepayable;
+  const maxRepayable =
+    (1_000_000n * positionStats.frankenBalance) /
+    (1_000_000n - positionStats.reserveContribution);
+  const repayPosition =
+    maxRepayable > positionStats.minted
+      ? 0n
+      : positionStats.minted - maxRepayable;
 
   const paidOutAmount = () => {
-    if (amount > positionStats.minted){
-      return (amount - positionStats.minted)*(1_000_000n - positionStats.reserveContribution - positionStats.mintingFee) / 1_000_000n;
+    if (amount > positionStats.minted) {
+      return (
+        ((amount - positionStats.minted) *
+          (1_000_000n -
+            positionStats.reserveContribution -
+            positionStats.mintingFee)) /
+        1_000_000n
+      );
     } else {
       return amount - positionStats.minted - returnFromReserve();
     }
   };
 
   const returnFromReserve = () => {
-    return (positionStats.reserveContribution * (amount - positionStats.minted)) / 1_000_000n;
-  }
+    return (
+      (positionStats.reserveContribution * (amount - positionStats.minted)) /
+      1_000_000n
+    );
+  };
 
   const collateralNote =
     collateralAmount < positionStats.collateralBal
@@ -62,10 +79,13 @@ export default function PositionAdjust() {
     setCollateralAmount(BigInt(value));
   };
 
-  function getCollateralError(){
-    if (collateralAmount - positionStats.collateralBal > positionStats.collateralUserBal) {
+  function getCollateralError() {
+    if (
+      collateralAmount - positionStats.collateralBal >
+      positionStats.collateralUserBal
+    ) {
       return `Insufficient ${positionStats.collateralSymbol} in your wallet.`;
-    } else if (liqPrice * collateralAmount < amount * (10n**18n)){
+    } else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
       return "Not enough collateral for the given price and borrow amount.";
     } else {
       return "";
@@ -74,10 +94,13 @@ export default function PositionAdjust() {
 
   function getAmountError() {
     if (amount > positionStats.limit) {
-      return `This position is limited to ${formatUnits(positionStats.limit, 18)} ZCHF`;
+      return `This position is limited to ${formatUnits(
+        positionStats.limit,
+        18
+      )} ZCHF`;
     } else if (-paidOutAmount() > positionStats.frankenBalance) {
       return "Insufficient ZCHF in wallet";
-    } else if (liqPrice * collateralAmount < amount * (10n**18n)){
+    } else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
       return "Amount too high for the given price and collateral.";
     } else {
       return "";
@@ -246,7 +269,11 @@ export default function PositionAdjust() {
               ) : (
                 <Button
                   variant="primary"
-                  disabled={amount == positionStats.minted || !!getAmountError() || !!getCollateralError()}
+                  disabled={
+                    amount == positionStats.minted ||
+                    !!getAmountError() ||
+                    !!getCollateralError()
+                  }
                   error={
                     positionStats.owner != address
                       ? "You can only adjust your own position"
@@ -268,33 +295,55 @@ export default function PositionAdjust() {
                 <DisplayAmount
                   amount={positionStats.minted}
                   currency={"ZCHF"}
+                  address={ADDRESS[chainId].frankenCoin}
                 />
               </div>
               <div className="flex">
                 <div className="flex-1">
-                  {(amount >= positionStats.minted) ? "You receive" : "You return"}
+                  {amount >= positionStats.minted
+                    ? "You receive"
+                    : "You return"}
                 </div>
-                <DisplayAmount amount={paidOutAmount()} currency={"ZCHF"} />
+                <DisplayAmount
+                  amount={paidOutAmount()}
+                  currency={"ZCHF"}
+                  address={ADDRESS[chainId].frankenCoin}
+                />
               </div>
               <div className="flex">
                 <div className="flex-1">
-                  {(amount >= positionStats.minted)
+                  {amount >= positionStats.minted
                     ? "Added to reserve on your behalf"
                     : "Returned from reserve"}
                 </div>
                 <DisplayAmount
                   amount={returnFromReserve()}
                   currency={"ZCHF"}
+                  address={ADDRESS[chainId].frankenCoin}
                 />
               </div>
               <div className="flex">
                 <div className="flex-1">Minting fee (interest)</div>
-                <DisplayAmount amount={amount > positionStats.minted ? (amount - positionStats.minted) * positionStats.mintingFee / 1_000_000n : 0n} currency={"ZCHF"} />
+                <DisplayAmount
+                  amount={
+                    amount > positionStats.minted
+                      ? ((amount - positionStats.minted) *
+                          positionStats.mintingFee) /
+                        1_000_000n
+                      : 0n
+                  }
+                  currency={"ZCHF"}
+                  address={ADDRESS[chainId].frankenCoin}
+                />
               </div>
               <hr className="border-slate-700 border-dashed" />
               <div className="flex font-bold">
                 <div className="flex-1">Future minted amount</div>
-                <DisplayAmount amount={amount} currency={"ZCHF"} />
+                <DisplayAmount
+                  amount={amount}
+                  currency={"ZCHF"}
+                  address={ADDRESS[chainId].frankenCoin}
+                />
               </div>
             </div>
           </div>

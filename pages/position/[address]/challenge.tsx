@@ -189,6 +189,7 @@ export default function PositionChallenge() {
                   amount={positionStats.liqPrice}
                   currency={"ZCHF"}
                   digits={36 - positionStats.collateralDecimal}
+                  address={ADDRESS[chainId].frankenCoin}
                 />
               </AppBox>
               <AppBox className="col-span-6 sm:col-span-3">
@@ -197,6 +198,7 @@ export default function PositionChallenge() {
                   amount={positionStats.liqPrice * amount}
                   currency={"ZCHF"}
                   digits={36 - positionStats.collateralDecimal + 18}
+                  address={ADDRESS[chainId].frankenCoin}
                 />
               </AppBox>
               <AppBox className="col-span-6 sm:col-span-3">
@@ -205,6 +207,7 @@ export default function PositionChallenge() {
                   amount={positionStats.collateralBal}
                   currency={positionStats.collateralSymbol}
                   digits={positionStats.collateralDecimal}
+                  address={positionStats.collateral}
                 />
               </AppBox>
               <AppBox className="col-span-6 sm:col-span-3">
@@ -213,6 +216,7 @@ export default function PositionChallenge() {
                   amount={positionStats.minimumCollateral}
                   currency={positionStats.collateralSymbol}
                   digits={positionStats.collateralDecimal}
+                  address={positionStats.collateral}
                 />
               </AppBox>
               <AppBox className="col-span-6 sm:col-span-3">

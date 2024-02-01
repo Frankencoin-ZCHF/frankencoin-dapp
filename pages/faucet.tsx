@@ -108,6 +108,7 @@ export function FaucetRow({ name, symbol, balance, decimal, addr }: RowProps) {
           digits={decimal}
           currency={symbol}
           hideLogo
+          address={addr}
         />
       </div>
     </TableRow>

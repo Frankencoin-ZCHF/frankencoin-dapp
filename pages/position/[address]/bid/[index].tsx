@@ -205,6 +205,7 @@ export default function ChallengePlaceBid({}) {
                 <DisplayAmount
                   amount={remainingCol}
                   currency={positionStats.collateralSymbol}
+                  address={positionStats.collateral}
                 />
               </AppBox>
               <AppBox>
@@ -212,6 +213,7 @@ export default function ChallengePlaceBid({}) {
                 <DisplayAmount
                   amount={challenge?.size || 0n}
                   currency={positionStats.collateralSymbol}
+                  address={positionStats.collateral}
                 />
               </AppBox>
               <AppBox>
@@ -219,6 +221,7 @@ export default function ChallengePlaceBid({}) {
                 <DisplayAmount
                   amount={buyNowPrice}
                   digits={36 - positionStats.collateralDecimal}
+                  address={ADDRESS[chainId].frankenCoin}
                   currency={"ZCHF"}
                 />
               </AppBox>

@@ -58,7 +58,11 @@ export default function PositionDetail() {
             <div className="bg-slate-900 rounded-xl p-4 grid gap-2 grid-cols-2 lg:grid-cols-6">
               <AppBox className="col-span-3">
                 <DisplayLabel label="Borrowed Total" />
-                <DisplayAmount amount={positionStats.minted} currency="ZCHF" />
+                <DisplayAmount
+                  amount={positionStats.minted}
+                  currency="ZCHF"
+                  address={ADDRESS[chainId].frankenCoin}
+                />
               </AppBox>
               <AppBox className="col-span-3">
                 <DisplayLabel label="Collateral" />
@@ -66,6 +70,7 @@ export default function PositionDetail() {
                   amount={positionStats.collateralBal}
                   currency={positionStats.collateralSymbol}
                   digits={positionStats.collateralDecimal}
+                  address={positionStats.collateral}
                 />
               </AppBox>
               <AppBox className="col-span-3">
@@ -74,6 +79,7 @@ export default function PositionDetail() {
                   amount={positionStats.liqPrice}
                   currency={"ZCHF"}
                   digits={36 - positionStats.collateralDecimal}
+                  address={ADDRESS[chainId].frankenCoin}
                 />
               </AppBox>
               <AppBox className="col-span-3">
@@ -81,11 +87,16 @@ export default function PositionDetail() {
                 <DisplayAmount
                   amount={positionAssignedReserve || 0n}
                   currency={"ZCHF"}
+                  address={ADDRESS[chainId].frankenCoin}
                 />
               </AppBox>
               <AppBox className="col-span-3">
                 <DisplayLabel label="Limit" />
-                <DisplayAmount amount={positionStats.limit} currency={"ZCHF"} />
+                <DisplayAmount
+                  amount={positionStats.limit}
+                  currency={"ZCHF"}
+                  address={ADDRESS[chainId].frankenCoin}
+                />
               </AppBox>
               <AppBox className="col-span-1 sm:col-span-3">
                 <DisplayLabel label="Owner" />

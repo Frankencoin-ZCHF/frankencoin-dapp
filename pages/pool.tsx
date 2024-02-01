@@ -305,6 +305,7 @@ export default function Pool() {
                 <DisplayAmount
                   amount={poolStats.equityBalance}
                   currency="FPS"
+                  address={ADDRESS[chainId].equity}
                 />
               </AppBox>
               <AppBox>
@@ -315,6 +316,7 @@ export default function Pool() {
                     BigInt(1e18)
                   }
                   currency="ZCHF"
+                  address={ADDRESS[chainId].frankenCoin}
                 />
               </AppBox>
               <AppBox>
@@ -429,6 +431,7 @@ export default function Pool() {
                 <DisplayAmount
                   amount={poolStats.frankenTotalReserve}
                   currency="ZCHF"
+                  address={ADDRESS[chainId].frankenCoin}
                 />
               </AppBox>
               <AppBox>
@@ -436,6 +439,7 @@ export default function Pool() {
                 <DisplayAmount
                   amount={poolStats.frankenEquity}
                   currency="ZCHF"
+                  address={ADDRESS[chainId].frankenCoin}
                 />
               </AppBox>
               <AppBox>
@@ -443,6 +447,7 @@ export default function Pool() {
                 <DisplayAmount
                   amount={poolStats.frankenMinterReserve}
                   currency="ZCHF"
+                  address={ADDRESS[chainId].frankenCoin}
                 />
               </AppBox>
               <AppBox>
@@ -451,6 +456,7 @@ export default function Pool() {
                   amount={profit}
                   currency="ZCHF"
                   className="text-green-300"
+                  address={ADDRESS[chainId].frankenCoin}
                 />
               </AppBox>
               <AppBox>
@@ -459,6 +465,7 @@ export default function Pool() {
                   amount={loss}
                   currency="ZCHF"
                   className="text-rose-400"
+                  address={ADDRESS[chainId].frankenCoin}
                 />
               </AppBox>
             </div>

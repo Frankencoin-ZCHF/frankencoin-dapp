@@ -3,7 +3,8 @@ import DisplayAmount from "../DisplayAmount";
 import { usePositionStats } from "@hooks";
 import { formatDate, formatDateLocale } from "@utils";
 import TableRow from "../Table/TableRow";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
+import { ADDRESS } from "../../contracts/address";
 
 interface Props {
   position: Address;
@@ -12,6 +13,7 @@ interface Props {
 
 export default function PositionRow({ position, collateral }: Props) {
   const { address } = useAccount();
+  const chainId = useChainId();
   const positionStats = usePositionStats(position, collateral);
   const account = address || zeroAddress;
   const isMine = positionStats.owner == account;
@@ -44,6 +46,7 @@ export default function PositionRow({ position, collateral }: Props) {
           amount={positionStats.collateralBal}
           currency={positionStats.collateralSymbol}
           digits={positionStats.collateralDecimal}
+          address={positionStats.collateral}
         />
       </div>
       <div>
@@ -52,6 +55,7 @@ export default function PositionRow({ position, collateral }: Props) {
           amount={positionStats.liqPrice}
           currency={"ZCHF"}
           digits={36 - positionStats.collateralDecimal}
+          address={ADDRESS[chainId].frankenCoin}
         />
       </div>
       <div>
@@ -59,6 +63,7 @@ export default function PositionRow({ position, collateral }: Props) {
         <DisplayAmount
           amount={positionStats.limitForClones}
           currency={"ZCHF"}
+          address={ADDRESS[chainId].frankenCoin}
         />
       </div>
       <div>

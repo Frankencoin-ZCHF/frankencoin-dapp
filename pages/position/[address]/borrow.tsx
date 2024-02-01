@@ -1,7 +1,7 @@
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import { useRouter } from "next/router";
-import { formatUnits, getAddress, zeroAddress, maxUint256} from "viem";
+import { formatUnits, getAddress, zeroAddress, maxUint256 } from "viem";
 import SwapFieldInput from "@components/SwapFieldInput";
 import { usePositionStats } from "@hooks";
 import { useState } from "react";
@@ -200,23 +200,36 @@ export default function PositionBorrow({}) {
               <div className="bg-slate-900 rounded-xl p-4 flex flex-col gap-2">
                 <div className="flex">
                   <div className="flex-1">Paid to your wallet</div>
-                  <DisplayAmount amount={paidOutToWallet} currency="ZCHF" />
+                  <DisplayAmount
+                    amount={paidOutToWallet}
+                    currency="ZCHF"
+                    address={ADDRESS[chainId].frankenCoin}
+                  />
                 </div>
                 <div className="flex">
                   <div className="flex-1">Locked in borrowers reserve</div>
                   <DisplayAmount
                     amount={borrowersReserveContribution}
                     currency="ZCHF"
+                    address={ADDRESS[chainId].frankenCoin}
                   />
                 </div>
                 <div className="flex">
                   <div className="flex-1">Fees</div>
-                  <DisplayAmount amount={fees} currency="ZCHF" />
+                  <DisplayAmount
+                    amount={fees}
+                    currency="ZCHF"
+                    address={ADDRESS[chainId].frankenCoin}
+                  />
                 </div>
                 <hr className="border-slate-700 border-dashed" />
                 <div className="flex font-bold">
                   <div className="flex-1">Total</div>
-                  <DisplayAmount amount={amount} currency="ZCHF" />
+                  <DisplayAmount
+                    amount={amount}
+                    currency="ZCHF"
+                    address={ADDRESS[chainId].frankenCoin}
+                  />
                 </div>
               </div>
             </div>

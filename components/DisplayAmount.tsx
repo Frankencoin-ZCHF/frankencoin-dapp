@@ -1,5 +1,7 @@
 import { formatBigInt } from "@utils";
 import dynamic from "next/dynamic";
+import { useContractUrl } from "../hooks/useContractUrl";
+import { zeroAddress } from "viem";
 const TokenLogo = dynamic(() => import("./TokenLogo"), { ssr: false });
 
 interface Props {
@@ -11,6 +13,7 @@ interface Props {
   currency?: string;
   hideLogo?: boolean;
   className?: string;
+  address?: string;
 }
 
 export default function DisplayAmount({
@@ -22,7 +25,15 @@ export default function DisplayAmount({
   currency,
   hideLogo,
   className,
+  address,
 }: Props) {
+  const url = useContractUrl(address || zeroAddress);
+
+  const openExplorer = (e: any) => {
+    e.preventDefault();
+    window.open(url, "_blank");
+  };
+
   return (
     <div className={`flex items-center ${className}`}>
       {!hideLogo && currency && <TokenLogo currency={currency} />}
@@ -30,7 +41,22 @@ export default function DisplayAmount({
         <span className={`${bold && "font-bold"} ${big && "text-3xl"}`}>
           {formatBigInt(amount, Number(digits))}
         </span>
-        <span>&nbsp;{currency}</span>
+        <span>
+          &nbsp;
+          {address ? (
+            <a
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              className="underline"
+              onClick={openExplorer}
+            >
+              {currency}
+            </a>
+          ) : (
+            currency
+          )}
+        </span>
       </div>
     </div>
   );
