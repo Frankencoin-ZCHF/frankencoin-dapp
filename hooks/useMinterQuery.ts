@@ -4,7 +4,7 @@ export const useMinterQuery = () => {
   const { data, loading } = useQuery(
     gql`
       query {
-        minters(first: 1000) {
+        minters(first: 1000, orderBy: applyDate, orderDirection: desc) {
           id
           minter
           applicationPeriod
