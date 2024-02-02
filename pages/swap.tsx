@@ -11,7 +11,7 @@ import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { formatBigInt, shortenAddress } from "@utils";
+import { SOCIAL, formatBigInt, shortenAddress } from "@utils";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 
 export default function Swap() {
@@ -261,6 +261,24 @@ export default function Swap() {
                   Swap
                 </Button>
               )}
+            </div>
+            <div className="mx-auto mt-8">
+              <a
+                href={SOCIAL.Uniswap}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-center underline"
+              >
+                Also available on
+                <picture>
+                  <img
+                    src="/assets/uniswap.svg"
+                    alt="logo"
+                    className="w-6 mb-2 mx-1"
+                  />
+                </picture>
+                Uniswap.
+              </a>
             </div>
           </div>
         </section>
