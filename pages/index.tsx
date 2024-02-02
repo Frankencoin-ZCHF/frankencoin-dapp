@@ -12,7 +12,7 @@ import {
 import Link from "next/link";
 import { ADDRESS } from "@contracts";
 import { useChainId } from "wagmi";
-import { formatBigInt, shortenAddress } from "../utils";
+import { SOCIAL, formatBigInt, shortenAddress } from "../utils";
 import AppPageHeader from "../components/AppPageHeader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
@@ -117,7 +117,9 @@ export default function Home() {
         </section>
         <div className="mt-16 bg-slate-950 rounded-xl grid grid-cols-1 sm:grid-cols-6 gap-4 p-4">
           <AppBox className="col-span-6 sm:col-span-2">
-            <DisplayLabel label="Total Value Locked" />
+            <a href={SOCIAL.DefiLlama} target="_blank">
+              <DisplayLabel label="Total Value Locked" className="underline" />
+            </a>
             <span className="font-bold text-xl">
               $
               {formatBigInt(
@@ -128,13 +130,17 @@ export default function Home() {
             </span>
           </AppBox>
           <AppBox className="col-span-6 sm:col-span-2">
-            <DisplayLabel label="Total # of Positions" />
+            <Link href={"/positions"}>
+              <DisplayLabel label="Active Positions" className="underline" />
+            </Link>
             <span className="font-bold text-xl">
               {positionData.positions.length}
             </span>
           </AppBox>
           <AppBox className="col-span-6 sm:col-span-2">
-            <DisplayLabel label="Total # of Challenges" />
+            <Link href={"/auctions"}>
+              <DisplayLabel label="Active Challenges" className="underline" />
+            </Link>
             <span className="font-bold text-xl">{challengeCount}</span>
           </AppBox>
         </div>

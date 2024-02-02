@@ -6,6 +6,7 @@ export const SOCIAL = {
   SubStack: "https://frankencoin.substack.com/",
   Forum: "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions",
   Docs: "https://docs.frankencoin.com/",
+  DefiLlama: "https://defillama.com/protocol/frankencoin",
   Uniswap:
     "https://app.uniswap.org/#/swap?outputCurrency=0xB58E61C3098d85632Df34EecfB899A1Ed80921cB",
 };
