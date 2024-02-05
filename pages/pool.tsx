@@ -234,6 +234,7 @@ export default function Pool() {
                 onChange={onChangeAmount}
                 value={amount.toString()}
                 error={error}
+                placeholder={fromSymbol + " Amount"}
               />
               <div className="py-4 text-center z-0">
                 <button

@@ -183,6 +183,7 @@ export default function PositionBorrow({}) {
                 max={availableAmount}
                 value={amount.toString()}
                 onChange={onChangeAmount}
+                placeholder="Borrow Amount"
               />
               <SwapFieldInput
                 showOutput

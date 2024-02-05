@@ -181,6 +181,7 @@ export default function PositionChallenge() {
               onChange={onChangeAmount}
               error={error}
               label="Amount"
+              placeholder="Collateral Amount"
             />
             <div className="bg-slate-900 rounded-xl p-4 grid grid-cols-6 gap-2 lg:col-span-2">
               <AppBox className="col-span-6 sm:col-span-3">

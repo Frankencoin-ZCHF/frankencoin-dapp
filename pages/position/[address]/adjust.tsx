@@ -231,7 +231,7 @@ export default function PositionAdjust() {
               value={amount.toString()}
               onChange={onChangeAmount}
               error={getAmountError()}
-              // TODO: Children
+              placeholder="Loan Amount"
             />
             <SwapFieldInput
               label="Collateral"
@@ -245,7 +245,7 @@ export default function PositionAdjust() {
               digit={positionStats.collateralDecimal}
               note={collateralNote}
               error={getCollateralError()}
-              // TODO: Children
+              placeholder="Collateral Amount"
             />
             <SwapFieldInput
               label="Liquidation Price"
@@ -255,7 +255,7 @@ export default function PositionAdjust() {
               value={liqPrice.toString()}
               digit={36 - positionStats.collateralDecimal}
               onChange={onChangeLiqAmount}
-              // TODO: Children
+              placeholder="Liquidation Price"
             />
             <div className="mx-auto mt-8 w-72 max-w-full flex-col">
               {collateralAmount - positionStats.collateralBal >

@@ -206,6 +206,7 @@ export default function Swap() {
               symbol={fromSymbol}
               limit={swapLimit}
               limitLabel="Swap limit"
+              placeholder={"Swap Amount"}
               onChange={onChangeAmount}
               value={amount.toString()}
               error={error}

@@ -191,6 +191,7 @@ export default function ChallengePlaceBid({}) {
                   digit={positionStats.collateralDecimal}
                   symbol={positionStats.collateralSymbol}
                   error={error}
+                  placeholder="Collateral Amount"
                 />
                 <div className="flex flex-col gap-1">
                   <span>
