@@ -18,7 +18,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendarDays,
-  faClock,
   faHourglassStart,
 } from "@fortawesome/free-solid-svg-icons";
 import AppBox from "@components/AppBox";
@@ -42,7 +41,18 @@ export default function PositionBorrow({}) {
       : (BigInt(1e18) * amount) / positionStats.liqPrice;
   const borrowersReserveContribution =
     (positionStats.reserveContribution * amount) / 1_000_000n;
-  const fees = (positionStats.mintingFee * amount) / 1_000_000n;
+
+  // max(4 weeks, ((chosen expiration) - (current block))) * position.annualInterestPPM() / (365 days) / 1000000
+  const feePercent =
+    (BigInt(
+      Math.max(
+        60 * 60 * 24 * 30,
+        Math.floor((expirationDate.getTime() - Date.now()) / 1000)
+      )
+    ) *
+      positionStats.annualInterestPPM) /
+    BigInt(60 * 60 * 24 * 365);
+  const fees = (feePercent * amount) / 1_000_000n;
   const paidOutToWallet = amount - borrowersReserveContribution - fees;
   const availableAmount = positionStats.available;
   const userValue =
@@ -304,7 +314,9 @@ export default function PositionBorrow({}) {
                   />
                 </div>
                 <div className="flex">
-                  <div className="flex-1">Fees</div>
+                  <div className="flex-1">
+                    Fees ({formatBigInt(feePercent, 4)}%)
+                  </div>
                   <DisplayAmount
                     amount={fees}
                     currency="ZCHF"
