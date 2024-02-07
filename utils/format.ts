@@ -24,17 +24,21 @@ export const formatCurrency = (value: string, digits = 2) => {
 };
 
 export function formatNumber(value: string): string {
-  const [floor, decimals] = value.split(".");
+  let [floor, decimals] = value.split(".");
   if (!decimals) {
-    return value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+    decimals = "00";
   }
+  decimals = (parseFloat(value) - parseFloat(floor))
+    .toFixed(2)
+    .toString()
+    .split(".")[1];
   return [floor.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"), decimals].join(".");
 }
 
 export const formatBigInt = (
   value?: bigint,
   units = 18,
-  displayDec = 3
+  displayDec = 2
 ): string => {
   if (!value) {
     value = 0n;
