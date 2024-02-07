@@ -124,11 +124,19 @@ export default function PositionBorrow({}) {
       waitForTransaction({ hash: tx.hash, confirmations: 1 }),
       {
         pending: {
-          render: <TxToast title={`Approving ZCHF`} rows={toastContent} />,
+          render: (
+            <TxToast
+              title={`Approving ${positionStats.collateralSymbol}`}
+              rows={toastContent}
+            />
+          ),
         },
         success: {
           render: (
-            <TxToast title="Successfully Approved ZCHF" rows={toastContent} />
+            <TxToast
+              title={`Successfully Approved ${positionStats.collateralSymbol}`}
+              rows={toastContent}
+            />
           ),
         },
         error: {
