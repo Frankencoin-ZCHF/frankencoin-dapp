@@ -96,6 +96,22 @@ input:focus-visible {
   scrollbar-width: none; /* Firefox */
 }
 
+div.react-datepicker-wrapper {
+  width: 100%;
+}
+
+/* Date Picker Style */
+div.react-datepicker__input-container input {
+  background: transparent;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  width: 100%;
+}
+
 /* Wallet connect web3modal theme */
 button[data-testid="component-big-button"] {
   background: transparent;

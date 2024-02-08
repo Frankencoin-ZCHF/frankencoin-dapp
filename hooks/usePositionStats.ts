@@ -103,6 +103,11 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
       {
         address: position,
         abi: ABIS.PositionABI,
+        functionName: "annualInterestPPM",
+      },
+      {
+        address: position,
+        abi: ABIS.PositionABI,
         functionName: "challengePeriod",
       },
       {
@@ -149,12 +154,13 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
     data ? String(data[11].result || zeroAddress) : zeroAddress
   );
   const mintingFee = data ? decodeBigIntCall(data[12]) : BigInt(0);
-  const challengePeriod = data ? decodeBigIntCall(data[13]) : BigInt(0);
-  const minimumCollateral = data ? decodeBigIntCall(data[14]) : BigInt(0);
-  const limitForClones = data ? decodeBigIntCall(data[15]) : BigInt(0);
+  const annualInterestPPM = data ? decodeBigIntCall(data[13]) : BigInt(0);
+  const challengePeriod = data ? decodeBigIntCall(data[14]) : BigInt(0);
+  const minimumCollateral = data ? decodeBigIntCall(data[15]) : BigInt(0);
+  const limitForClones = data ? decodeBigIntCall(data[16]) : BigInt(0);
 
-  const frankenAllowance = data ? decodeBigIntCall(data[16]) : BigInt(0);
-  const frankenBalance = data ? decodeBigIntCall(data[17]) : BigInt(0);
+  const frankenAllowance = data ? decodeBigIntCall(data[17]) : BigInt(0);
+  const frankenBalance = data ? decodeBigIntCall(data[18]) : BigInt(0);
 
   return {
     isSuccess,
@@ -175,6 +181,7 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
     available,
     reserveContribution,
     mintingFee,
+    annualInterestPPM,
     challengePeriod,
     minimumCollateral,
     limitForClones,
