@@ -278,7 +278,7 @@ export default function PositionAdjust() {
                 <Button
                   variant="primary"
                   disabled={
-                    amount == positionStats.minted ||
+                    (amount == positionStats.minted && collateralAmount == positionStats.collateralBal && liqPrice == positionStats.liqPrice) ||
                     !!getAmountError() ||
                     !!getCollateralError()
                   }
