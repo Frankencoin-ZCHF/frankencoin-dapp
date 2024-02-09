@@ -1,7 +1,7 @@
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import { useRouter } from "next/router";
-import { useEffect } from 'react';
+import { useEffect } from "react";
 import { formatUnits, getAddress, zeroAddress, maxUint256 } from "viem";
 import SwapFieldInput from "@components/SwapFieldInput";
 import { usePositionStats } from "@hooks";
@@ -11,7 +11,13 @@ import Button from "@components/Button";
 import { erc20ABI, useAccount, useChainId, useContractWrite } from "wagmi";
 import { waitForTransaction } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
-import { formatBigInt, formatDate, min, shortenAddress } from "@utils";
+import {
+  formatBigInt,
+  formatDate,
+  min,
+  shortenAddress,
+  toTimestamp,
+} from "@utils";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import DatePicker from "react-datepicker";
@@ -27,19 +33,20 @@ export default function PositionBorrow({}) {
   const router = useRouter();
   const [amount, setAmount] = useState(0n);
   const [error, setError] = useState("");
+  const [errorDate, setErrorDate] = useState("");
   const [isConfirming, setIsConfirming] = useState(false);
   const { address: positionAddr } = router.query;
-  
+
   const chainId = useChainId();
   const { address } = useAccount();
   const position = getAddress(String(positionAddr || zeroAddress));
   const positionStats = usePositionStats(position);
   const [expirationDate, setExpirationDate] = useState(new Date());
 
-  useEffect(()=>{
+  useEffect(() => {
     // to set initial date during loading
     setExpirationDate(toDate(positionStats.expiration));
-  },[positionStats.expiration])
+  }, [positionStats.expiration]);
 
   const requiredColl =
     positionStats.liqPrice == 0n
@@ -48,7 +55,7 @@ export default function PositionBorrow({}) {
   const borrowersReserveContribution =
     (positionStats.reserveContribution * amount) / 1_000_000n;
 
-  function toDate(blocktime: bigint){
+  function toDate(blocktime: bigint) {
     return new Date(Number(blocktime) * 1000);
   }
 
@@ -93,6 +100,19 @@ export default function PositionBorrow({}) {
       setError("");
     }
     setAmount(valueBigInt);
+  };
+
+  const onChangeExpiration = (value: Date) => {
+    const newTimestamp = toTimestamp(value);
+    const bottomLimit = toTimestamp(new Date());
+    const uppperLimit = positionStats.expiration;
+
+    if (newTimestamp < bottomLimit || newTimestamp > uppperLimit) {
+      setErrorDate("Expiration Date should be between Now and Limit");
+    } else {
+      setErrorDate("");
+    }
+    setExpirationDate(value);
   };
 
   const onMaxExpiration = () => {
@@ -159,7 +179,7 @@ export default function PositionBorrow({}) {
   };
 
   const handleClone = async () => {
-    const expirationTime = Math.floor(expirationDate.getTime() / 1000);
+    const expirationTime = toTimestamp(expirationDate);
     const tx = await cloneWrite.writeAsync({
       args: [position, requiredColl, amount, BigInt(expirationTime)],
     });
@@ -266,21 +286,33 @@ export default function PositionBorrow({}) {
                   />
                   <div className="flex-1">
                     <div
-                      className={`flex gap-1 rounded-lg text-white p-1 bg-slate-600 border-2 border-neutral-100 border-slate-600`}
+                      className={`flex gap-1 rounded-lg text-white p-1 bg-slate-600 border-2 ${
+                        errorDate
+                          ? "border-red-300"
+                          : "border-neutral-100 border-slate-600"
+                      }`}
                     >
                       <DatePicker
+                        id="expiration-datepicker"
                         selected={expirationDate}
-                        onChange={(date: any) => setExpirationDate(date)}
+                        dateFormat={"yyyy-MM-dd"}
+                        onChange={onChangeExpiration}
                       />
                     </div>
                   </div>
-                  <div className="hidden w-20 px-4 text-end font-bold sm:block">
+                  <label
+                    className="hidden w-20 px-4 text-end font-bold sm:block cursor-pointer"
+                    htmlFor="expiration-datepicker"
+                  >
                     <FontAwesomeIcon
                       icon={faCalendarDays}
                       className="w-10 h-8 ml-2"
                     />
-                  </div>
+                  </label>
                 </div>
+                {errorDate && (
+                  <div className="mt-2 px-1 text-red-500">{errorDate}</div>
+                )}
               </div>
             </div>
             <div className="mx-auto mt-8 w-72 max-w-full flex-col">
@@ -295,10 +327,24 @@ export default function PositionBorrow({}) {
               ) : (
                 <Button
                   variant="primary"
-                  disabled={amount == 0n || !!error || requiredColl < positionStats.minimumCollateral}
+                  disabled={
+                    amount == 0n ||
+                    !!error ||
+                    requiredColl < positionStats.minimumCollateral
+                  }
                   isLoading={cloneWrite.isLoading || isConfirming}
                   onClick={() => handleClone()}
-                  error={requiredColl < positionStats.minimumCollateral ? "A position must have at least " + formatBigInt(positionStats.minimumCollateral, Number(positionStats.collateralDecimal))  + " " + positionStats.collateralSymbol : ""}
+                  error={
+                    requiredColl < positionStats.minimumCollateral
+                      ? "A position must have at least " +
+                        formatBigInt(
+                          positionStats.minimumCollateral,
+                          Number(positionStats.collateralDecimal)
+                        ) +
+                        " " +
+                        positionStats.collateralSymbol
+                      : ""
+                  }
                 >
                   Clone Position
                 </Button>

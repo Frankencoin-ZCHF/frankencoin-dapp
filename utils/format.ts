@@ -6,6 +6,10 @@ import { Address, Hash, formatUnits, getAddress } from "viem";
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
+export const toTimestamp = (value: Date) => {
+  return Math.floor(value.getTime() / 1000);
+};
+
 export const formatCurrency = (value: string, digits = 2) => {
   const amount = parseFloat(value);
 
