@@ -1,6 +1,7 @@
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import { useRouter } from "next/router";
+import { useEffect } from 'react';
 import { formatUnits, getAddress, zeroAddress, maxUint256 } from "viem";
 import SwapFieldInput from "@components/SwapFieldInput";
 import { usePositionStats } from "@hooks";
@@ -27,13 +28,18 @@ export default function PositionBorrow({}) {
   const [amount, setAmount] = useState(0n);
   const [error, setError] = useState("");
   const [isConfirming, setIsConfirming] = useState(false);
-  const [expirationDate, setExpirationDate] = useState(new Date());
   const { address: positionAddr } = router.query;
-
+  
   const chainId = useChainId();
   const { address } = useAccount();
   const position = getAddress(String(positionAddr || zeroAddress));
   const positionStats = usePositionStats(position);
+  const [expirationDate, setExpirationDate] = useState(new Date());
+
+  useEffect(()=>{
+    // to set initial date during loading
+    setExpirationDate(toDate(positionStats.expiration));
+  },[positionStats.expiration])
 
   const requiredColl =
     positionStats.liqPrice == 0n
@@ -41,6 +47,10 @@ export default function PositionBorrow({}) {
       : (BigInt(1e18) * amount) / positionStats.liqPrice;
   const borrowersReserveContribution =
     (positionStats.reserveContribution * amount) / 1_000_000n;
+
+  function toDate(blocktime: bigint){
+    return new Date(Number(blocktime) * 1000);
+  }
 
   // max(4 weeks, ((chosen expiration) - (current block))) * position.annualInterestPPM() / (365 days) / 1000000
   const feePercent =
@@ -86,7 +96,7 @@ export default function PositionBorrow({}) {
   };
 
   const onMaxExpiration = () => {
-    setExpirationDate(new Date(Number(positionStats.expiration) * 1000));
+    setExpirationDate(toDate(positionStats.expiration));
   };
 
   const approveWrite = useContractWrite({
@@ -274,7 +284,7 @@ export default function PositionBorrow({}) {
               </div>
             </div>
             <div className="mx-auto mt-8 w-72 max-w-full flex-col">
-              {amount > positionStats.collateralAllowance ? (
+              {requiredColl > positionStats.collateralAllowance ? (
                 <Button
                   disabled={amount == 0n || !!error}
                   isLoading={approveWrite.isLoading || isConfirming}
@@ -285,14 +295,10 @@ export default function PositionBorrow({}) {
               ) : (
                 <Button
                   variant="primary"
-                  disabled={amount == 0n || !!error}
+                  disabled={amount == 0n || !!error || requiredColl < positionStats.minimumCollateral}
                   isLoading={cloneWrite.isLoading || isConfirming}
-                  error={
-                    positionStats.owner == address
-                      ? "You cannot clone your own position"
-                      : ""
-                  }
                   onClick={() => handleClone()}
+                  error={requiredColl < positionStats.minimumCollateral ? "A position must have at least " + formatBigInt(positionStats.minimumCollateral, Number(positionStats.collateralDecimal))  + " " + positionStats.collateralSymbol : ""}
                 >
                   Clone Position
                 </Button>
