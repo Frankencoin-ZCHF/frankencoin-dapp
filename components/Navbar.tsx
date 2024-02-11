@@ -41,9 +41,6 @@ export default function Navbar() {
               <NavButton to="/faucet" name="Faucet" />
             </li>
           )}
-          <li>
-            <NavButton to={SOCIAL.Docs} name="Docs" external />
-          </li>
         </ul>
         <div className="flex flex-1 justify-end items-center">
           <WalletConnect />
@@ -79,9 +76,6 @@ export default function Navbar() {
                     </li>
                     <li>
                       <NavButton to="/governance" name="Governance" />
-                    </li>
-                    <li>
-                      <NavButton to={SOCIAL.Docs} name="Docs" external />
                     </li>
                   </menu>
                 </div>

@@ -9,11 +9,11 @@ export default function Positions() {
         <title>Frankencoin - Positions</title>
       </Head>
       <div>
-        <AppPageHeader title="My positions" />
+        <AppPageHeader title="Your Positions" />
         <PositionTable showMyPos />
       </div>
       <div className="mt-8">
-        <AppPageHeader title="Other positions" />
+        <AppPageHeader title="Other Positions" />
         <PositionTable />
       </div>
     </>

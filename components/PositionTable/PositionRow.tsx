@@ -41,7 +41,6 @@ export default function PositionRow({ position, collateral }: Props) {
   return (
     <TableRow link={`/position/${position}`}>
       <div>
-        <div className="text-gray-400 md:hidden">Collateral</div>
         <DisplayAmount
           amount={positionStats.collateralBal}
           currency={positionStats.collateralSymbol}
@@ -50,24 +49,24 @@ export default function PositionRow({ position, collateral }: Props) {
         />
       </div>
       <div>
-        <div className="text-gray-400 md:hidden">Liquidation Price</div>
         <DisplayAmount
           amount={positionStats.liqPrice}
           currency={"ZCHF"}
+          hideLogo
+          bold={positionStats.cooldown * 1000n > new Date().getTime()}
           digits={36 - positionStats.collateralDecimal}
           address={ADDRESS[chainId].frankenCoin}
         />
       </div>
       <div>
-        <div className="text-gray-400 md:hidden">Available Amount</div>
         <DisplayAmount
           amount={positionStats.limitForClones}
           currency={"ZCHF"}
+          hideLogo
           address={ADDRESS[chainId].frankenCoin}
         />
       </div>
       <div>
-        <div className="text-gray-400 md:hidden">Expiration Date</div>
         <div className="underline" onClick={openCalendar}>
           {formatDate(positionStats.expiration)}
         </div>
