@@ -102,7 +102,7 @@ export function FaucetRow({ name, symbol, balance, decimal, addr }: RowProps) {
         {decimal.toString()}
       </div>
       <div>
-        <div className="text-gray-400 md:hidden">My Balance</div>
+        <div className="text-gray-400 md:hidden">Your Balance</div>
         <DisplayAmount
           amount={balance}
           digits={decimal}
@@ -131,7 +131,7 @@ export default function Faucet() {
         <AppPageHeader title="Faucets" />
         <Table>
           <TableHeader
-            headers={["Token", "", "", "Decimals", "My Balance"]}
+            headers={["Token", "", "", "Decimals", "Your Balance"]}
             actionCol
             colSpan={6}
           />

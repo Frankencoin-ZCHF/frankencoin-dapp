@@ -17,7 +17,7 @@ export default function Auction({}) {
         <title>Frankencoin - Auction</title>
       </Head>
       <div>
-        <AppPageHeader title="My Auctions" />
+        <AppPageHeader title="Your Auctions" />
         <ChallengeTable
           challenges={challengsData.filter(
             (challenge) => challenge.challenger == account
