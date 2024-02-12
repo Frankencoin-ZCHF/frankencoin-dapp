@@ -120,7 +120,7 @@ export default function PositionDetail() {
               <AppBox className="col-span-2 sm:col-span-2">
                 <DisplayLabel label="Annual Interest" />
                 <DisplayAmount
-                  amount={positionStats.mintingFee / 100n}
+                  amount={positionStats.annualInterestPPM / 100n}
                   digits={2}
                   currency={"%"}
                   hideLogo

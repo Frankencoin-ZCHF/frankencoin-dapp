@@ -405,16 +405,15 @@ export default function PositionBorrow({}) {
                 <ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
                   <li>
                     The amount borrowed can be changed later, but never
-                    increased beyond the initial amount provided at this point
-                    in time
+                    increased beyond the initial amount.
                   </li>
                   <li>
                     The initial price must match that of the parent position,
-                    but can be adjusted later in either direction
+                    but can be adjusted later in either direction.
                   </li>
                   <li>
                     The expiration date cannot be changed any more and the fees
-                    are not returned when repaying early
+                    are not returned when repaying early.
                   </li>
                 </ol>
               </AppBox>
