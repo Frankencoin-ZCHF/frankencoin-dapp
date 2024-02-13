@@ -11,13 +11,13 @@ import {
 } from "@hooks";
 import Link from "next/link";
 import { ADDRESS } from "@contracts";
-import { mainnet, useChainId } from "wagmi";
+import { useChainId } from "wagmi";
 import { SOCIAL, formatBigInt, shortenAddress } from "../utils";
 import AppPageHeader from "../components/AppPageHeader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { parseUnits } from "viem";
-import { polygon } from "viem/chains";
+import { polygon, mainnet } from "viem/chains";
 import TokenLogo from "@components/TokenLogo";
 
 export default function Home() {
@@ -217,65 +217,55 @@ export default function Home() {
                   </DisplayLabel>
                 </AppBox>
               </div>
-              <div className="flex flex-col items-center justify-center py-8">
-                <div className="flex flex-col gap-2">
-                  <h3 className="font-bold text-center">Inspect contract</h3>
-                  <div className="flex gap-2">
-                    <div className="flex flex-col gap-2">
+              <div className="flex flex-col items-center justify-center pt-8">
+                <h3 className="font-bold text-center mb-2">Inspect contract</h3>
+                <div className="grid grid-cols-6 gap-1 lg:col-span-2 w-full">
+                  <AppBox className="col-span-6 sm:col-span-3">
+                    <DisplayLabel label="Mainnet" />
+                    <div className="flex items-center py-2">
+                      <TokenLogo currency="ZCHF" chain="mainnet" />
                       <Link
-                        className="btn btn-secondary px-3 py-2"
+                        className="underline"
                         href={frankenLinkEth}
                         target="_blank"
                       >
-                        <TokenLogo currency="ZCHF" chain="mainnet" />
                         ZCHF
-                        <FontAwesomeIcon
-                          icon={faUpRightFromSquare}
-                          className="w-3 h-3"
-                        />
                       </Link>
+                      &nbsp;(
                       <Link
-                        className="btn btn-secondary px-3 py-2"
                         href={
                           "https://app.uniswap.org/swap?inputCurrency=0xdAC17F958D2ee523a2206206994597C13D831ec7&outputCurrency=0xB58E61C3098d85632Df34EecfB899A1Ed80921cB&chain=mainnet"
                         }
-                        target="_blank"
+                        className="underline text-sm text-slate-500"
                       >
-                        Trade on Uniswap (Mainnet)
-                        <FontAwesomeIcon
-                          icon={faUpRightFromSquare}
-                          className="w-3 h-3"
-                        />
+                        Trade On Uniswap
                       </Link>
+                      )
                     </div>
-                    <div className="flex flex-col gap-2">
+                  </AppBox>
+                  <AppBox className="col-span-6 sm:col-span-3">
+                    <DisplayLabel label="Polygon PoS" />
+                    <div className="flex items-center py-2">
+                      <TokenLogo currency="ZCHF" chain="polygon" />
                       <Link
-                        className="btn btn-secondary px-3 py-2"
+                        className="underline"
                         href={frankenLinkPolygon}
                         target="_blank"
                       >
-                        <TokenLogo currency="ZCHF" chain="polygon" />
                         ZCHF
-                        <FontAwesomeIcon
-                          icon={faUpRightFromSquare}
-                          className="w-3 h-3"
-                        />
                       </Link>
+                      &nbsp;(
                       <Link
-                        className="btn btn-secondary px-3 py-2"
                         href={
                           "https://app.uniswap.org/swap?inputCurrency=0xc2132D05D31c914a87C6611C10748AEb04B58e8F&outputCurrency=0x02567e4b14b25549331fCEe2B56c647A8bAB16FD&chain=polygon"
                         }
-                        target="_blank"
+                        className="underline text-sm text-slate-500"
                       >
-                        Trade on Uniswap (Polygon)
-                        <FontAwesomeIcon
-                          icon={faUpRightFromSquare}
-                          className="w-3 h-3"
-                        />
+                        Trade On Uniswap
                       </Link>
+                      )
                     </div>
-                  </div>
+                  </AppBox>
                 </div>
               </div>
             </div>
