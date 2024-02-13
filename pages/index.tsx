@@ -11,17 +11,23 @@ import {
 } from "@hooks";
 import Link from "next/link";
 import { ADDRESS } from "@contracts";
-import { useChainId } from "wagmi";
+import { mainnet, useChainId } from "wagmi";
 import { SOCIAL, formatBigInt, shortenAddress } from "../utils";
 import AppPageHeader from "../components/AppPageHeader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { parseUnits } from "viem";
+import { polygon } from "viem/chains";
+import TokenLogo from "@components/TokenLogo";
 
 export default function Home() {
   const chainId = useChainId();
   const homestats = useHomeStats();
-  const frankenLink = useContractUrl(ADDRESS[chainId].frankenCoin);
+  const frankenLinkEth = useContractUrl(ADDRESS[chainId].frankenCoin);
+  const frankenLinkPolygon = useContractUrl(
+    ADDRESS[polygon.id].frankenCoin,
+    polygon
+  );
   const tvlData = useTvl<number>();
   const positionData = usePositionLists();
   const challengeCount = useChallengeCount();
@@ -144,7 +150,7 @@ export default function Home() {
             <span className="font-bold text-xl">{challengeCount}</span>
           </AppBox>
         </div>
-        {/* <section className="bg-slate-950 rounded-xl mt-12 p-4 m-auto flex flex-col gap-2">
+        <section className="bg-slate-950 rounded-xl mt-12 p-4 m-auto flex flex-col gap-2">
           <h2 className="text-2xl font-bold mt-6 text-center">
             Frankencoin Token
           </h2>
@@ -165,17 +171,17 @@ export default function Home() {
             <div>
               <div className="grid grid-cols-6 gap-1 lg:col-span-2">
                 <AppBox className="col-span-6 sm:col-span-3">
-                  <DisplayLabel label="Supply">
+                  <DisplayLabel label="Total Supply">
                     <DisplayAmount
                       amount={homestats.frankenTotalSupply}
                       currency={homestats.frankenSymbol}
                       digits={18}
-                      big
+                      bold
                     />
                   </DisplayLabel>
                 </AppBox>
                 <AppBox className="col-span-6 sm:col-span-3">
-                  <DisplayLabel label="Your ZCHF">
+                  <DisplayLabel label="Your Balance">
                     <DisplayAmount
                       amount={homestats.frankenBalance}
                       currency={homestats.frankenSymbol}
@@ -214,22 +220,68 @@ export default function Home() {
               <div className="flex flex-col items-center justify-center py-8">
                 <div className="flex flex-col gap-2">
                   <h3 className="font-bold text-center">Inspect contract</h3>
-                  <Link
-                    className="btn btn-secondary px-3 py-2"
-                    href={frankenLink}
-                    target="_blank"
-                  >
-                    {shortenAddress(ADDRESS[chainId].frankenCoin)}
-                    <FontAwesomeIcon
-                      icon={faUpRightFromSquare}
-                      className="w-3 h-3"
-                    />
-                  </Link>
+                  <div className="flex gap-2">
+                    <div className="flex flex-col gap-2">
+                      <Link
+                        className="btn btn-secondary px-3 py-2"
+                        href={frankenLinkEth}
+                        target="_blank"
+                      >
+                        <TokenLogo currency="ZCHF" chain="mainnet" />
+                        ZCHF
+                        <FontAwesomeIcon
+                          icon={faUpRightFromSquare}
+                          className="w-3 h-3"
+                        />
+                      </Link>
+                      <Link
+                        className="btn btn-secondary px-3 py-2"
+                        href={
+                          "https://app.uniswap.org/swap?inputCurrency=0xdAC17F958D2ee523a2206206994597C13D831ec7&outputCurrency=0xB58E61C3098d85632Df34EecfB899A1Ed80921cB&chain=mainnet"
+                        }
+                        target="_blank"
+                      >
+                        Trade on Uniswap (Mainnet)
+                        <FontAwesomeIcon
+                          icon={faUpRightFromSquare}
+                          className="w-3 h-3"
+                        />
+                      </Link>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Link
+                        className="btn btn-secondary px-3 py-2"
+                        href={frankenLinkPolygon}
+                        target="_blank"
+                      >
+                        <TokenLogo currency="ZCHF" chain="polygon" />
+                        ZCHF
+                        <FontAwesomeIcon
+                          icon={faUpRightFromSquare}
+                          className="w-3 h-3"
+                        />
+                      </Link>
+                      <Link
+                        className="btn btn-secondary px-3 py-2"
+                        href={
+                          "https://app.uniswap.org/swap?inputCurrency=0xc2132D05D31c914a87C6611C10748AEb04B58e8F&outputCurrency=0x02567e4b14b25549331fCEe2B56c647A8bAB16FD&chain=polygon"
+                        }
+                        target="_blank"
+                      >
+                        Trade on Uniswap (Polygon)
+                        <FontAwesomeIcon
+                          icon={faUpRightFromSquare}
+                          className="w-3 h-3"
+                        />
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-
+        </section>
+        {/* 
           <hr className="my-12 border-dashed border-slate-800" />
 
           <h2 className="text-2xl font-bold text-center">
