@@ -180,44 +180,48 @@ export default function Home() {
             <DisplayLabel label="Mainnet Deployment" />
             <div className="flex items-center py-2">
               <TokenLogo currency="ZCHF" chain="mainnet" />
-              <Link className="underline" href={frankenLinkEth} target="_blank">
-                Frankencoin Contract
-              </Link>
-              &nbsp;(
-              <Link
-                href={
-                  "https://app.uniswap.org/swap?inputCurrency=0xdAC17F958D2ee523a2206206994597C13D831ec7&outputCurrency=0xB58E61C3098d85632Df34EecfB899A1Ed80921cB&chain=mainnet"
-                }
-                target="_blank"
-                className="underline text-sm text-slate-500"
-              >
-                Uniswap Pool
-              </Link>
-              )
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                <Link
+                  className="underline"
+                  href={frankenLinkEth}
+                  target="_blank"
+                >
+                  Frankencoin Contract
+                </Link>
+                <Link
+                  href={
+                    "https://app.uniswap.org/swap?inputCurrency=0xdAC17F958D2ee523a2206206994597C13D831ec7&outputCurrency=0xB58E61C3098d85632Df34EecfB899A1Ed80921cB&chain=mainnet"
+                  }
+                  target="_blank"
+                  className="underline text-sm text-slate-500"
+                >
+                  (Uniswap Pool)
+                </Link>
+              </div>
             </div>
           </AppBox>
           <AppBox className="col-span-6 sm:col-span-3">
             <DisplayLabel label="Polygon PoS Bridge" />
             <div className="flex items-center py-2">
               <TokenLogo currency="ZCHF" chain="polygon" />
-              <Link
-                className="underline"
-                href={frankenLinkPolygon}
-                target="_blank"
-              >
-                Frankencoin (PoS) Contract
-              </Link>
-              &nbsp;(
-              <Link
-                href={
-                  "https://app.uniswap.org/swap?inputCurrency=0xc2132D05D31c914a87C6611C10748AEb04B58e8F&outputCurrency=0x02567e4b14b25549331fCEe2B56c647A8bAB16FD&chain=polygon"
-                }
-                target="_blank"
-                className="underline text-sm text-slate-500"
-              >
-                Uniswap Pool
-              </Link>
-              )
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                <Link
+                  className="underline"
+                  href={frankenLinkPolygon}
+                  target="_blank"
+                >
+                  Frankencoin (PoS) Contract
+                </Link>
+                <Link
+                  href={
+                    "https://app.uniswap.org/swap?inputCurrency=0xc2132D05D31c914a87C6611C10748AEb04B58e8F&outputCurrency=0x02567e4b14b25549331fCEe2B56c647A8bAB16FD&chain=polygon"
+                  }
+                  target="_blank"
+                  className="underline text-sm text-slate-500"
+                >
+                  (Uniswap Pool)
+                </Link>
+              </div>
             </div>
           </AppBox>
         </div>
