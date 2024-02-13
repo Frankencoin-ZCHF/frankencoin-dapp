@@ -123,25 +123,6 @@ export default function Home() {
         </section>
         <div className="mt-16 bg-slate-950 rounded-xl grid grid-cols-1 sm:grid-cols-6 gap-4 p-4">
           <AppBox className="col-span-6 sm:col-span-2">
-            <DisplayLabel label="Total Supply">
-              <DisplayAmount
-                amount={homestats.frankenTotalSupply}
-                currency={homestats.frankenSymbol}
-                digits={18}
-                bold
-              />
-              </DisplayLabel>
-          </AppBox>
-          <AppBox className="col-span-6 sm:col-span-2">
-                  <DisplayLabel label="Your Balance">
-                    <DisplayAmount
-                      amount={homestats.frankenBalance}
-                      currency={homestats.frankenSymbol}
-                      digits={18}
-                    />
-                  </DisplayLabel>
-                </AppBox>
-          <AppBox className="col-span-6 sm:col-span-2">
             <a href={SOCIAL.DefiLlama} target="_blank">
               <DisplayLabel label="Total Value Locked" className="underline" />
             </a>
@@ -154,16 +135,6 @@ export default function Home() {
               )}
             </span>
           </AppBox>
-          <AppBox className="col-span-6 sm:col-span-2">
-                  <DisplayLabel label="FPS Market Cap">
-                    <DisplayAmount
-                      amount={homestats.equityMarketCap}
-                      currency={homestats.frankenSymbol}
-                      digits={18}
-                    />
-                  </DisplayLabel>
-                </AppBox>
-
           <AppBox className="col-span-6 sm:col-span-2">
             <Link href={"/positions"}>
               <DisplayLabel label="Active Positions" className="underline" />
@@ -178,54 +149,77 @@ export default function Home() {
             </Link>
             <span className="font-bold text-xl">{challengeCount}</span>
           </AppBox>
+          <AppBox className="col-span-6 sm:col-span-2">
+            <DisplayLabel label="Total Supply">
+              <DisplayAmount
+                amount={homestats.frankenTotalSupply}
+                currency={homestats.frankenSymbol}
+                digits={18}
+              />
+            </DisplayLabel>
+          </AppBox>
+          <AppBox className="col-span-6 sm:col-span-2">
+            <DisplayLabel label="FPS Market Cap">
+              <DisplayAmount
+                amount={homestats.equityMarketCap}
+                currency={homestats.frankenSymbol}
+                digits={18}
+              />
+            </DisplayLabel>
+          </AppBox>
+          <AppBox className="col-span-6 sm:col-span-2">
+            <DisplayLabel label="Your Balance">
+              <DisplayAmount
+                amount={homestats.frankenBalance}
+                currency={homestats.frankenSymbol}
+                digits={18}
+              />
+            </DisplayLabel>
+          </AppBox>
           <AppBox className="col-span-6 sm:col-span-3">
-                    <DisplayLabel label="Mainnet Deployment" />
-                    <div className="flex items-center py-2">
-                      <TokenLogo currency="ZCHF" chain="mainnet" />
-                      <Link
-                        className="underline"
-                        href={frankenLinkEth}
-                        target="_blank"
-                      >
-                        Frankencoin Contract
-                      </Link>
-                      &nbsp;(
-                      <Link
-                        href={
-                          "https://app.uniswap.org/swap?inputCurrency=0xdAC17F958D2ee523a2206206994597C13D831ec7&outputCurrency=0xB58E61C3098d85632Df34EecfB899A1Ed80921cB&chain=mainnet"
-                        }
-                        target="_blank"
-                        className="underline text-sm text-slate-500"
-                      >
-                        Uniswap Pool
-                      </Link>
-                      )
-                    </div>
-                  </AppBox>
-                  <AppBox className="col-span-6 sm:col-span-3">
-                    <DisplayLabel label="Polygon PoS Bridge" />
-                    <div className="flex items-center py-2">
-                      <TokenLogo currency="ZCHF" chain="polygon" />
-                      <Link
-                        className="underline"
-                        href={frankenLinkPolygon}
-                        target="_blank"
-                      >
-                        Frankencoin (PoS) Contract
-                      </Link>
-                      &nbsp;(
-                      <Link
-                        href={
-                          "https://app.uniswap.org/swap?inputCurrency=0xc2132D05D31c914a87C6611C10748AEb04B58e8F&outputCurrency=0x02567e4b14b25549331fCEe2B56c647A8bAB16FD&chain=polygon"
-                        }
-                        target="_blank"
-                        className="underline text-sm text-slate-500"
-                      >
-                        Uniswap Pool
-                      </Link>
-                      )
-                    </div>
-                  </AppBox>
+            <DisplayLabel label="Mainnet Deployment" />
+            <div className="flex items-center py-2">
+              <TokenLogo currency="ZCHF" chain="mainnet" />
+              <Link className="underline" href={frankenLinkEth} target="_blank">
+                Frankencoin Contract
+              </Link>
+              &nbsp;(
+              <Link
+                href={
+                  "https://app.uniswap.org/swap?inputCurrency=0xdAC17F958D2ee523a2206206994597C13D831ec7&outputCurrency=0xB58E61C3098d85632Df34EecfB899A1Ed80921cB&chain=mainnet"
+                }
+                target="_blank"
+                className="underline text-sm text-slate-500"
+              >
+                Uniswap Pool
+              </Link>
+              )
+            </div>
+          </AppBox>
+          <AppBox className="col-span-6 sm:col-span-3">
+            <DisplayLabel label="Polygon PoS Bridge" />
+            <div className="flex items-center py-2">
+              <TokenLogo currency="ZCHF" chain="polygon" />
+              <Link
+                className="underline"
+                href={frankenLinkPolygon}
+                target="_blank"
+              >
+                Frankencoin (PoS) Contract
+              </Link>
+              &nbsp;(
+              <Link
+                href={
+                  "https://app.uniswap.org/swap?inputCurrency=0xc2132D05D31c914a87C6611C10748AEb04B58e8F&outputCurrency=0x02567e4b14b25549331fCEe2B56c647A8bAB16FD&chain=polygon"
+                }
+                target="_blank"
+                className="underline text-sm text-slate-500"
+              >
+                Uniswap Pool
+              </Link>
+              )
+            </div>
+          </AppBox>
         </div>
         {/* 
           <hr className="my-12 border-dashed border-slate-800" />
