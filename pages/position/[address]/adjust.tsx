@@ -234,6 +234,7 @@ export default function PositionAdjust() {
             <SwapFieldInput
               label="Amount"
               symbol="ZCHF"
+              output={positionStats.closed ? "0" : ""}
               balanceLabel="Min:"
               max={repayPosition}
               value={amount.toString()}

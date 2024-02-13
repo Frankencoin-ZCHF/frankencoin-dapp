@@ -251,7 +251,6 @@ export default function Pool() {
               </div>
               <SwapFieldInput
                 symbol={toSymbol}
-                showOutput
                 hideMaxLabel
                 output={formatUnits(result, 18)}
                 label="Receive"

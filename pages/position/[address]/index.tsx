@@ -106,7 +106,7 @@ export default function PositionDetail() {
               </AppBox>
               <AppBox className="col-span-2 sm:col-span-2">
                 <DisplayLabel label="Expiration Date" />
-                <b>{formatDate(positionStats.expiration)}</b>
+                <b>{positionStats.closed ? "Closed" : formatDate(positionStats.expiration)}</b>
               </AppBox>
               <AppBox className="col-span-1 sm:col-span-2">
                 <DisplayLabel label="Reserve Requirement" />

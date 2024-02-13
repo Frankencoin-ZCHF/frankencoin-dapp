@@ -38,22 +38,17 @@ export default function PositionBorrow({}) {
   const { address: positionAddr } = router.query;
 
   const chainId = useChainId();
-  const { address } = useAccount();
   const position = getAddress(String(positionAddr || zeroAddress));
   const positionStats = usePositionStats(position);
   const [expirationDate, setExpirationDate] = useState(new Date());
+  const requiredColl = positionStats.liqPrice > 0 && (BigInt(1e18) * amount / positionStats.liqPrice) > positionStats.minimumCollateral ? BigInt(1e18) * amount / positionStats.liqPrice : positionStats.minimumCollateral;
 
   useEffect(() => {
     // to set initial date during loading
     setExpirationDate(toDate(positionStats.expiration));
   }, [positionStats.expiration]);
 
-  const requiredColl =
-    positionStats.liqPrice == 0n
-      ? 0n
-      : (BigInt(1e18) * amount) / positionStats.liqPrice;
-  const borrowersReserveContribution =
-    (positionStats.reserveContribution * amount) / 1_000_000n;
+  const borrowersReserveContribution = (positionStats.reserveContribution * amount) / 1_000_000n;
 
   function toDate(blocktime: bigint) {
     return new Date(Number(blocktime) * 1000);
@@ -250,7 +245,6 @@ export default function PositionBorrow({}) {
                 placeholder="Borrow Amount"
               />
               <SwapFieldInput
-                showOutput
                 label="Required Collateral"
                 balanceLabel="Your balance:"
                 max={positionStats.collateralUserBal}
@@ -264,7 +258,7 @@ export default function PositionBorrow({}) {
                 note={`Valued at ${formatBigInt(
                   positionStats.liqPrice,
                   36 - positionStats.collateralDecimal
-                )} ZCHF per unit`}
+                )} ZCHF, minimum is ` + formatBigInt(positionStats.minimumCollateral, Number(positionStats.collateralDecimal)) + " " + positionStats.collateralSymbol}
               />
               <div>
                 <div className="mb-1 flex gap-2 px-1">
@@ -329,8 +323,7 @@ export default function PositionBorrow({}) {
                   variant="primary"
                   disabled={
                     amount == 0n ||
-                    !!error ||
-                    requiredColl < positionStats.minimumCollateral
+                    !!error
                   }
                   isLoading={cloneWrite.isLoading || isConfirming}
                   onClick={() => handleClone()}
