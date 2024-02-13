@@ -15,7 +15,6 @@ interface Props {
   hideMaxLabel?: boolean;
   limit?: bigint;
   limitLabel?: string;
-  showOutput?: boolean;
   output?: string;
   note?: string;
   value?: string;
@@ -33,7 +32,6 @@ export default function SwapFieldInput({
   hideMaxLabel,
   limit = 0n,
   limitLabel,
-  showOutput = false,
   output,
   note,
   value,
@@ -64,7 +62,7 @@ export default function SwapFieldInput({
       <div className="flex items-center rounded-lg bg-slate-800 p-2">
         <TokenLogo currency={symbol} size={10} />
         <div className="flex-1">
-          {showOutput ? (
+          {output ? (
             <div className="px-3 py-2 font-bold transition-opacity">
               {output}
             </div>

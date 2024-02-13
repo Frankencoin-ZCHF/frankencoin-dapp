@@ -67,9 +67,11 @@ export default function PositionRow({ position, collateral }: Props) {
         />
       </div>
       <div>
+        { positionStats.closed ? "Closed" :
         <div className="underline" onClick={openCalendar}>
           {formatDate(positionStats.expiration)}
         </div>
+        }
       </div>
     </TableRow>
   );

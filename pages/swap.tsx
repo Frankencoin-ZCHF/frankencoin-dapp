@@ -228,7 +228,6 @@ export default function Swap() {
 
             <SwapFieldInput
               symbol={toSymbol}
-              showOutput
               max={toBalance}
               output={formatUnits(amount, 18)}
               note={`1 ${fromSymbol} = 1 ${toSymbol}`}
