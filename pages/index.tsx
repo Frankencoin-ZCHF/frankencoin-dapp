@@ -123,6 +123,25 @@ export default function Home() {
         </section>
         <div className="mt-16 bg-slate-950 rounded-xl grid grid-cols-1 sm:grid-cols-6 gap-4 p-4">
           <AppBox className="col-span-6 sm:col-span-2">
+            <DisplayLabel label="Total Supply">
+              <DisplayAmount
+                amount={homestats.frankenTotalSupply}
+                currency={homestats.frankenSymbol}
+                digits={18}
+                bold
+              />
+              </DisplayLabel>
+          </AppBox>
+          <AppBox className="col-span-6 sm:col-span-2">
+                  <DisplayLabel label="Your Balance">
+                    <DisplayAmount
+                      amount={homestats.frankenBalance}
+                      currency={homestats.frankenSymbol}
+                      digits={18}
+                    />
+                  </DisplayLabel>
+                </AppBox>
+          <AppBox className="col-span-6 sm:col-span-2">
             <a href={SOCIAL.DefiLlama} target="_blank">
               <DisplayLabel label="Total Value Locked" className="underline" />
             </a>
@@ -135,6 +154,16 @@ export default function Home() {
               )}
             </span>
           </AppBox>
+          <AppBox className="col-span-6 sm:col-span-2">
+                  <DisplayLabel label="FPS Market Cap">
+                    <DisplayAmount
+                      amount={homestats.equityMarketCap}
+                      currency={homestats.frankenSymbol}
+                      digits={18}
+                    />
+                  </DisplayLabel>
+                </AppBox>
+
           <AppBox className="col-span-6 sm:col-span-2">
             <Link href={"/positions"}>
               <DisplayLabel label="Active Positions" className="underline" />
@@ -149,79 +178,8 @@ export default function Home() {
             </Link>
             <span className="font-bold text-xl">{challengeCount}</span>
           </AppBox>
-        </div>
-        <section className="bg-slate-950 rounded-xl mt-12 p-4 m-auto flex flex-col gap-2">
-          <h2 className="text-2xl font-bold mt-6 text-center">
-            Frankencoin Token
-          </h2>
-          <div className="bg-slate-900 rounded-xl grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-            <AppBox>
-              <p>
-                Frankencoin is a freely transferrable stablecoin that follows
-                the ERC-20 standard. It can be minted by anyone who provides the
-                necessary collateral. Its peg to the Swiss franc is not
-                technically enforced, but relies on the economics of the system.
-                In essence, the system is most valuable when the Frankencoin
-                tracks the value of the Swiss franc, so those who benefit from
-                the system being valuable have an incentive to make that happen.
-                Those who benefit are the holders of Frankencoin Pool Shares
-                (FPS).
-              </p>
-            </AppBox>
-            <div>
-              <div className="grid grid-cols-6 gap-1 lg:col-span-2">
-                <AppBox className="col-span-6 sm:col-span-3">
-                  <DisplayLabel label="Total Supply">
-                    <DisplayAmount
-                      amount={homestats.frankenTotalSupply}
-                      currency={homestats.frankenSymbol}
-                      digits={18}
-                      bold
-                    />
-                  </DisplayLabel>
-                </AppBox>
-                <AppBox className="col-span-6 sm:col-span-3">
-                  <DisplayLabel label="Your Balance">
-                    <DisplayAmount
-                      amount={homestats.frankenBalance}
-                      currency={homestats.frankenSymbol}
-                      digits={18}
-                    />
-                  </DisplayLabel>
-                </AppBox>
-                <AppBox className="col-span-6 sm:col-span-2">
-                  <DisplayLabel label="Equity">
-                    <DisplayAmount
-                      amount={homestats.frankenEquity}
-                      currency={homestats.frankenSymbol}
-                      digits={18}
-                    />
-                  </DisplayLabel>
-                </AppBox>
-                <AppBox className="col-span-6 sm:col-span-2">
-                  <DisplayLabel label="Swap pool">
-                    <DisplayAmount
-                      amount={homestats.xchfBridgeBal}
-                      currency={homestats.xchfSymbol}
-                      digits={18}
-                    />
-                  </DisplayLabel>
-                </AppBox>
-                <AppBox className="col-span-6 sm:col-span-2">
-                  <DisplayLabel label="Minter Reserve">
-                    <DisplayAmount
-                      amount={homestats.frankenMinterReserve}
-                      currency={homestats.frankenSymbol}
-                      digits={18}
-                    />
-                  </DisplayLabel>
-                </AppBox>
-              </div>
-              <div className="flex flex-col items-center justify-center pt-8">
-                <h3 className="font-bold text-center mb-2">Inspect contract</h3>
-                <div className="grid grid-cols-6 gap-1 lg:col-span-2 w-full">
-                  <AppBox className="col-span-6 sm:col-span-3">
-                    <DisplayLabel label="Mainnet" />
+          <AppBox className="col-span-6 sm:col-span-3">
+                    <DisplayLabel label="Mainnet Deployment" />
                     <div className="flex items-center py-2">
                       <TokenLogo currency="ZCHF" chain="mainnet" />
                       <Link
@@ -229,22 +187,23 @@ export default function Home() {
                         href={frankenLinkEth}
                         target="_blank"
                       >
-                        ZCHF
+                        Frankencoin Contract
                       </Link>
                       &nbsp;(
                       <Link
                         href={
                           "https://app.uniswap.org/swap?inputCurrency=0xdAC17F958D2ee523a2206206994597C13D831ec7&outputCurrency=0xB58E61C3098d85632Df34EecfB899A1Ed80921cB&chain=mainnet"
                         }
+                        target="_blank"
                         className="underline text-sm text-slate-500"
                       >
-                        Trade On Uniswap
+                        Uniswap Pool
                       </Link>
                       )
                     </div>
                   </AppBox>
                   <AppBox className="col-span-6 sm:col-span-3">
-                    <DisplayLabel label="Polygon PoS" />
+                    <DisplayLabel label="Polygon PoS Bridge" />
                     <div className="flex items-center py-2">
                       <TokenLogo currency="ZCHF" chain="polygon" />
                       <Link
@@ -252,25 +211,22 @@ export default function Home() {
                         href={frankenLinkPolygon}
                         target="_blank"
                       >
-                        ZCHF
+                        Frankencoin (PoS) Contract
                       </Link>
                       &nbsp;(
                       <Link
                         href={
                           "https://app.uniswap.org/swap?inputCurrency=0xc2132D05D31c914a87C6611C10748AEb04B58e8F&outputCurrency=0x02567e4b14b25549331fCEe2B56c647A8bAB16FD&chain=polygon"
                         }
+                        target="_blank"
                         className="underline text-sm text-slate-500"
                       >
-                        Trade On Uniswap
+                        Uniswap Pool
                       </Link>
                       )
                     </div>
                   </AppBox>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        </div>
         {/* 
           <hr className="my-12 border-dashed border-slate-800" />
 
