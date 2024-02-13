@@ -1,6 +1,6 @@
 import { Address, zeroAddress } from "viem";
 import DisplayAmount from "../DisplayAmount";
-import { usePositionStats } from "@hooks";
+import { usePositionStats, useTokenPrice } from "@hooks";
 import { formatDate, formatDateLocale } from "@utils";
 import TableRow from "../Table/TableRow";
 import { useAccount, useChainId } from "wagmi";
@@ -15,6 +15,8 @@ export default function PositionRow({ position, collateral }: Props) {
   const { address } = useAccount();
   const chainId = useChainId();
   const positionStats = usePositionStats(position, collateral);
+  const collTokenPrice = useTokenPrice(collateral);
+  const zchfPrice = useTokenPrice(ADDRESS[chainId].frankenCoin);
   const account = address || zeroAddress;
   const isMine = positionStats.owner == account;
   const calendarLink = `https://calendar.google.com/calendar/u/0/r/eventedit?text=${
@@ -46,6 +48,7 @@ export default function PositionRow({ position, collateral }: Props) {
           currency={positionStats.collateralSymbol}
           digits={positionStats.collateralDecimal}
           address={positionStats.collateral}
+          usdPrice={collTokenPrice}
         />
       </div>
       <div>
@@ -56,6 +59,7 @@ export default function PositionRow({ position, collateral }: Props) {
           bold={positionStats.cooldown * 1000n > new Date().getTime()}
           digits={36 - positionStats.collateralDecimal}
           address={ADDRESS[chainId].frankenCoin}
+          usdPrice={zchfPrice}
         />
       </div>
       <div>
@@ -64,6 +68,7 @@ export default function PositionRow({ position, collateral }: Props) {
           currency={"ZCHF"}
           hideLogo
           address={ADDRESS[chainId].frankenCoin}
+          usdPrice={zchfPrice}
         />
       </div>
       <div>

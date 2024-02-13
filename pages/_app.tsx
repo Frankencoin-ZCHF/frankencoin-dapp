@@ -6,6 +6,7 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Web3Modal } from "@components/Web3Modal";
+import { useTokenPrice, useTokenPrices } from "@hooks";
 
 const apolloClient = new ApolloClient({
   uri: "https://api.thegraph.com/subgraphs/name/frankencoin-zchf/frankencoin-subgraph",
@@ -13,6 +14,8 @@ const apolloClient = new ApolloClient({
 });
 
 export default function App({ Component, pageProps }: AppProps) {
+  useTokenPrices();
+  useTokenPrice("0xB58E61C3098d85632Df34EecfB899A1Ed80921cB");
   return (
     <Web3Modal>
       <ApolloProvider client={apolloClient}>
