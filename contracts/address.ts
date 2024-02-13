@@ -1,5 +1,6 @@
+import { zeroAddress } from "viem";
 import { Address } from "wagmi";
-import { hardhat, mainnet, sepolia } from "wagmi/chains";
+import { hardhat, mainnet, polygon, sepolia } from "wagmi/chains";
 
 export interface ProtocolAddress {
   frankenCoin: Address;
@@ -116,5 +117,12 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
     xchf: "0xb4272071ecadd69d933adcd19ca99fe80664fc08",
     equity: "0x1bA26788dfDe592fec8bcB0Eaff472a42BE341B2",
     mintingHub: "0x7546762fdb1a6d9146b33960545C3f6394265219",
+  },
+  [polygon.id]: {
+    frankenCoin: "0x02567e4b14b25549331fCEe2B56c647A8bAB16FD",
+    bridge: zeroAddress,
+    xchf: zeroAddress,
+    equity: zeroAddress,
+    mintingHub: zeroAddress,
   },
 };
