@@ -17,11 +17,17 @@ import AppPageHeader from "../components/AppPageHeader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { parseUnits } from "viem";
+import { polygon, mainnet } from "viem/chains";
+import TokenLogo from "@components/TokenLogo";
 
 export default function Home() {
   const chainId = useChainId();
   const homestats = useHomeStats();
-  const frankenLink = useContractUrl(ADDRESS[chainId].frankenCoin);
+  const frankenLinkEth = useContractUrl(ADDRESS[chainId].frankenCoin);
+  const frankenLinkPolygon = useContractUrl(
+    ADDRESS[polygon.id].frankenCoin,
+    polygon
+  );
   const tvlData = useTvl<number>();
   const positionData = usePositionLists();
   const challengeCount = useChallengeCount();
@@ -118,118 +124,120 @@ export default function Home() {
         <div className="mt-16 bg-slate-950 rounded-xl grid grid-cols-1 sm:grid-cols-6 gap-4 p-4">
           <AppBox className="col-span-6 sm:col-span-2">
             <a href={SOCIAL.DefiLlama} target="_blank">
-              <DisplayLabel label="Total Value Locked" className="underline" />
+              <DisplayLabel
+                label="Total Value Locked"
+                className="underline text-right"
+              />
             </a>
-            <span className="font-bold text-xl">
+            <div className="mt-2 text-right">
               $
               {formatBigInt(
                 parseUnits(tvlData.data?.toString() || "0", 18),
                 18,
                 0
               )}
-            </span>
+            </div>
           </AppBox>
           <AppBox className="col-span-6 sm:col-span-2">
             <Link href={"/positions"}>
-              <DisplayLabel label="Active Positions" className="underline" />
+              <DisplayLabel
+                label="Active Positions"
+                className="underline text-right"
+              />
             </Link>
-            <span className="font-bold text-xl">
+            <div className="mt-2 text-right">
               {positionData.positions.length}
-            </span>
+            </div>
           </AppBox>
           <AppBox className="col-span-6 sm:col-span-2">
             <Link href={"/auctions"}>
-              <DisplayLabel label="Active Challenges" className="underline" />
+              <DisplayLabel
+                label="Active Challenges"
+                className="underline text-right"
+              />
             </Link>
-            <span className="font-bold text-xl">{challengeCount}</span>
+            <div className="mt-2 text-right">{challengeCount}</div>
           </AppBox>
-        </div>
-        {/* <section className="bg-slate-950 rounded-xl mt-12 p-4 m-auto flex flex-col gap-2">
-          <h2 className="text-2xl font-bold mt-6 text-center">
-            Frankencoin Token
-          </h2>
-          <div className="bg-slate-900 rounded-xl grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-            <AppBox>
-              <p>
-                Frankencoin is a freely transferrable stablecoin that follows
-                the ERC-20 standard. It can be minted by anyone who provides the
-                necessary collateral. Its peg to the Swiss franc is not
-                technically enforced, but relies on the economics of the system.
-                In essence, the system is most valuable when the Frankencoin
-                tracks the value of the Swiss franc, so those who benefit from
-                the system being valuable have an incentive to make that happen.
-                Those who benefit are the holders of Frankencoin Pool Shares
-                (FPS).
-              </p>
-            </AppBox>
-            <div>
-              <div className="grid grid-cols-6 gap-1 lg:col-span-2">
-                <AppBox className="col-span-6 sm:col-span-3">
-                  <DisplayLabel label="Supply">
-                    <DisplayAmount
-                      amount={homestats.frankenTotalSupply}
-                      currency={homestats.frankenSymbol}
-                      digits={18}
-                      big
-                    />
-                  </DisplayLabel>
-                </AppBox>
-                <AppBox className="col-span-6 sm:col-span-3">
-                  <DisplayLabel label="Your ZCHF">
-                    <DisplayAmount
-                      amount={homestats.frankenBalance}
-                      currency={homestats.frankenSymbol}
-                      digits={18}
-                    />
-                  </DisplayLabel>
-                </AppBox>
-                <AppBox className="col-span-6 sm:col-span-2">
-                  <DisplayLabel label="Equity">
-                    <DisplayAmount
-                      amount={homestats.frankenEquity}
-                      currency={homestats.frankenSymbol}
-                      digits={18}
-                    />
-                  </DisplayLabel>
-                </AppBox>
-                <AppBox className="col-span-6 sm:col-span-2">
-                  <DisplayLabel label="Swap pool">
-                    <DisplayAmount
-                      amount={homestats.xchfBridgeBal}
-                      currency={homestats.xchfSymbol}
-                      digits={18}
-                    />
-                  </DisplayLabel>
-                </AppBox>
-                <AppBox className="col-span-6 sm:col-span-2">
-                  <DisplayLabel label="Minter Reserve">
-                    <DisplayAmount
-                      amount={homestats.frankenMinterReserve}
-                      currency={homestats.frankenSymbol}
-                      digits={18}
-                    />
-                  </DisplayLabel>
-                </AppBox>
-              </div>
-              <div className="flex flex-col items-center justify-center py-8">
-                <div className="flex flex-col gap-2">
-                  <h3 className="font-bold text-center">Inspect contract</h3>
-                  <Link
-                    className="btn btn-secondary px-3 py-2"
-                    href={frankenLink}
-                    target="_blank"
-                  >
-                    {shortenAddress(ADDRESS[chainId].frankenCoin)}
-                    <FontAwesomeIcon
-                      icon={faUpRightFromSquare}
-                      className="w-3 h-3"
-                    />
-                  </Link>
-                </div>
+          <AppBox className="col-span-6 sm:col-span-2">
+            <DisplayLabel label="Total Supply" className="text-right">
+              <DisplayAmount
+                amount={homestats.frankenTotalSupply}
+                currency={homestats.frankenSymbol}
+                digits={18}
+                className="justify-end"
+              />
+            </DisplayLabel>
+          </AppBox>
+          <AppBox className="col-span-6 sm:col-span-2">
+            <DisplayLabel label="FPS Market Cap" className="text-right">
+              <DisplayAmount
+                amount={homestats.equityMarketCap}
+                currency={homestats.frankenSymbol}
+                digits={18}
+                className="justify-end"
+              />
+            </DisplayLabel>
+          </AppBox>
+          <AppBox className="col-span-6 sm:col-span-2">
+            <DisplayLabel label="Your Balance" className="text-right">
+              <DisplayAmount
+                amount={homestats.frankenBalance}
+                currency={homestats.frankenSymbol}
+                digits={18}
+                className="justify-end"
+              />
+            </DisplayLabel>
+          </AppBox>
+          <AppBox className="col-span-6 sm:col-span-3">
+            <DisplayLabel label="Mainnet Deployment" className="text-right" />
+            <div className="flex items-center py-2 justify-end">
+              <TokenLogo currency="ZCHF" chain="mainnet" />
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                <Link
+                  className="underline"
+                  href={frankenLinkEth}
+                  target="_blank"
+                >
+                  Frankencoin Contract
+                </Link>
+                <Link
+                  href={
+                    "https://app.uniswap.org/swap?inputCurrency=0xdAC17F958D2ee523a2206206994597C13D831ec7&outputCurrency=0xB58E61C3098d85632Df34EecfB899A1Ed80921cB&chain=mainnet"
+                  }
+                  target="_blank"
+                  className="underline text-sm text-slate-500"
+                >
+                  (Uniswap Pool)
+                </Link>
               </div>
             </div>
-          </div>
-
+          </AppBox>
+          <AppBox className="col-span-6 sm:col-span-3">
+            <DisplayLabel label="Polygon PoS Bridge" className="text-right" />
+            <div className="flex items-center py-2 justify-end">
+              <TokenLogo currency="ZCHF" chain="polygon" />
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                <Link
+                  className="underline"
+                  href={frankenLinkPolygon}
+                  target="_blank"
+                >
+                  Frankencoin (PoS) Contract
+                </Link>
+                <Link
+                  href={
+                    "https://app.uniswap.org/swap?inputCurrency=0xc2132D05D31c914a87C6611C10748AEb04B58e8F&outputCurrency=0x02567e4b14b25549331fCEe2B56c647A8bAB16FD&chain=polygon"
+                  }
+                  target="_blank"
+                  className="underline text-sm text-slate-500"
+                >
+                  (Uniswap Pool)
+                </Link>
+              </div>
+            </div>
+          </AppBox>
+        </div>
+        {/* 
           <hr className="my-12 border-dashed border-slate-800" />
 
           <h2 className="text-2xl font-bold text-center">

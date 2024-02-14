@@ -1,10 +1,9 @@
 import { Hash } from "viem";
-import { useNetwork } from "wagmi";
+import { mainnet, useNetwork } from "wagmi";
 
-export const useContractUrl = (address: string) => {
-  const { chain } = useNetwork();
+export const useContractUrl = (address: string, chain: any = mainnet) => {
   const explorerLink =
-    chain?.blockExplorers?.default.url || "https://etherscan.io";
+    chain.blockExplorers.default.url || "https://etherscan.io";
   return explorerLink + "/address/" + address;
 };
 
