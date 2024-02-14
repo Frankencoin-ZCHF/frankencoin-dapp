@@ -64,11 +64,11 @@ export default function DisplayAmount({
         {usdPrice && usdPrice > 0 && (
           <div>
             <span className="text-sm text-slate-500">
-              $
               {formatBigInt(
                 amount * BigInt(usdPrice * 1e18),
                 Number(digits) + 18
-              )}
+              )}{" "}
+              USD
             </span>
           </div>
         )}
