@@ -18,3 +18,5 @@ export * from "./useMinterQuery";
 export * from "./useTradeQuery";
 export * from "./useTvl";
 export * from "./useChallengeCount";
+export * from "./useTokenPrice";
+export * from "./useTokenPrices";
