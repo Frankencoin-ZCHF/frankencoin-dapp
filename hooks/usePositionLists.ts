@@ -14,12 +14,14 @@ export const usePositionLists = () => {
     gql`
       query {
         positions {
-          id
-          position
-          owner
-          zchf
-          collateral
-          price
+          items {
+            id
+            position
+            owner
+            zchf
+            collateral
+            price
+          }
         }
       }
     `,
@@ -30,7 +32,7 @@ export const usePositionLists = () => {
 
   const positions: PositionQuery[] = [];
   if (data && data.positions) {
-    data.positions.forEach((position: any) => {
+    data.positions.items.forEach((position: any) => {
       positions.push({
         position: getAddress(position.position),
         owner: getAddress(position.owner),
