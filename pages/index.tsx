@@ -124,61 +124,73 @@ export default function Home() {
         <div className="mt-16 bg-slate-950 rounded-xl grid grid-cols-1 sm:grid-cols-6 gap-4 p-4">
           <AppBox className="col-span-6 sm:col-span-2">
             <a href={SOCIAL.DefiLlama} target="_blank">
-              <DisplayLabel label="Total Value Locked" className="underline" />
+              <DisplayLabel
+                label="Total Value Locked"
+                className="underline text-right"
+              />
             </a>
-            <span className="font-bold text-xl">
+            <div className="mt-2 text-right">
               $
               {formatBigInt(
                 parseUnits(tvlData.data?.toString() || "0", 18),
                 18,
                 0
               )}
-            </span>
+            </div>
           </AppBox>
           <AppBox className="col-span-6 sm:col-span-2">
             <Link href={"/positions"}>
-              <DisplayLabel label="Active Positions" className="underline" />
+              <DisplayLabel
+                label="Active Positions"
+                className="underline text-right"
+              />
             </Link>
-            <span className="font-bold text-xl">
+            <div className="mt-2 text-right">
               {positionData.positions.length}
-            </span>
+            </div>
           </AppBox>
           <AppBox className="col-span-6 sm:col-span-2">
             <Link href={"/auctions"}>
-              <DisplayLabel label="Active Challenges" className="underline" />
+              <DisplayLabel
+                label="Active Challenges"
+                className="underline text-right"
+              />
             </Link>
-            <span className="font-bold text-xl">{challengeCount}</span>
+            <div className="mt-2 text-right">{challengeCount}</div>
           </AppBox>
           <AppBox className="col-span-6 sm:col-span-2">
-            <DisplayLabel label="Total Supply">
+            <DisplayLabel label="Total Supply" className="text-right">
               <DisplayAmount
                 amount={homestats.frankenTotalSupply}
                 currency={homestats.frankenSymbol}
                 digits={18}
+                className="justify-end"
               />
             </DisplayLabel>
           </AppBox>
           <AppBox className="col-span-6 sm:col-span-2">
-            <DisplayLabel label="FPS Market Cap">
+            <DisplayLabel label="FPS Market Cap" className="text-right">
               <DisplayAmount
                 amount={homestats.equityMarketCap}
                 currency={homestats.frankenSymbol}
                 digits={18}
+                className="justify-end"
               />
             </DisplayLabel>
           </AppBox>
           <AppBox className="col-span-6 sm:col-span-2">
-            <DisplayLabel label="Your Balance">
+            <DisplayLabel label="Your Balance" className="text-right">
               <DisplayAmount
                 amount={homestats.frankenBalance}
                 currency={homestats.frankenSymbol}
                 digits={18}
+                className="justify-end"
               />
             </DisplayLabel>
           </AppBox>
           <AppBox className="col-span-6 sm:col-span-3">
-            <DisplayLabel label="Mainnet Deployment" />
-            <div className="flex items-center py-2">
+            <DisplayLabel label="Mainnet Deployment" className="text-right" />
+            <div className="flex items-center py-2 justify-end">
               <TokenLogo currency="ZCHF" chain="mainnet" />
               <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                 <Link
@@ -201,8 +213,8 @@ export default function Home() {
             </div>
           </AppBox>
           <AppBox className="col-span-6 sm:col-span-3">
-            <DisplayLabel label="Polygon PoS Bridge" />
-            <div className="flex items-center py-2">
+            <DisplayLabel label="Polygon PoS Bridge" className="text-right" />
+            <div className="flex items-center py-2 justify-end">
               <TokenLogo currency="ZCHF" chain="polygon" />
               <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                 <Link
