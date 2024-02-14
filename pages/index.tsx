@@ -127,12 +127,12 @@ export default function Home() {
               <DisplayLabel label="Total Value Locked" className="underline" />
             </a>
             <div className="mt-2 text-right">
-              $
               {formatBigInt(
                 parseUnits(tvlData.data?.toString() || "0", 18),
                 18,
                 0
-              )}
+              )}{" "}
+              USD
             </div>
           </AppBox>
           <AppBox className="col-span-6 sm:col-span-2">
