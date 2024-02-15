@@ -9,7 +9,7 @@ import { Web3Modal } from "@components/Web3Modal";
 import { useTokenPrice, useTokenPrices } from "@hooks";
 
 const apolloClient = new ApolloClient({
-  uri: "https://api.thegraph.com/subgraphs/name/frankencoin-zchf/frankencoin-subgraph",
+  uri: "https://frankencoin-ponder.onrender.com/",
   cache: new InMemoryCache(),
 });
 

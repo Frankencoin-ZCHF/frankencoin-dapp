@@ -4,17 +4,19 @@ export const useMinterQuery = () => {
   const { data, loading } = useQuery(
     gql`
       query {
-        minters(first: 1000, orderBy: applyDate, orderDirection: desc) {
-          id
-          minter
-          applicationPeriod
-          applicationFee
-          applyMessage
-          applyDate
-          suggestor
-          denyMessage
-          denyDate
-          vetor
+        minters(orderBy: "applyDate", orderDirection: "desc") {
+          items {
+            id
+            minter
+            applicationPeriod
+            applicationFee
+            applyMessage
+            applyDate
+            suggestor
+            denyMessage
+            denyDate
+            vetor
+          }
         }
       }
     `
@@ -29,6 +31,6 @@ export const useMinterQuery = () => {
 
   return {
     loading,
-    minters: data.minters,
+    minters: data.minters.items,
   };
 };

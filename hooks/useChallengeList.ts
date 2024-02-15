@@ -22,23 +22,25 @@ interface Props {
 export const useChallengeLists = ({ position, challenger }: Props) => {
   const { data, loading } = useQuery(
     gql`query {
-      challenges(
-        orderBy: status,
+      challenges (
+        orderBy: "status",
         where: {
           ${position ? `position: "${position}",` : ""}
         }
       ) {
-        id
-        challenger
-        position
-        start
-        duration
-        size
-        filledSize
-        acquiredCollateral
-        number
-        bid
-        status
+        items {
+          id
+          challenger
+          position
+          start
+          duration
+          size
+          filledSize
+          acquiredCollateral
+          number
+          bid
+          status
+        }
       }
     }`,
     {
@@ -48,7 +50,7 @@ export const useChallengeLists = ({ position, challenger }: Props) => {
 
   const challenges: ChallengeQuery[] = [];
   if (data && data.challenges) {
-    data.challenges.forEach((challenge: any) => {
+    data.challenges.items.forEach((challenge: any) => {
       challenges.push({
         position: getAddress(challenge.position),
         challenger: getAddress(challenge.challenger),

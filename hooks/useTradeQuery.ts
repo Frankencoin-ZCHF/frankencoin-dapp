@@ -16,13 +16,15 @@ export const useTradeQuery = (): {
   const { data, loading } = useQuery(
     gql`
       query {
-        trades(first: 1000, orderDirection: desc, orderBy: time) {
-          id
-          trader
-          amount
-          shares
-          price
-          time
+        trades(orderDirection: "desc", orderBy: "time", limit: 100) {
+          items {
+            id
+            trader
+            amount
+            shares
+            price
+            time
+          }
         }
       }
     `
@@ -37,6 +39,6 @@ export const useTradeQuery = (): {
 
   return {
     loading,
-    trades: data.trades,
+    trades: data.trades.items,
   };
 };

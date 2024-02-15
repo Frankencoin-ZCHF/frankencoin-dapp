@@ -2,16 +2,20 @@ import { gql, useQuery } from "@apollo/client";
 
 export const useFPSQuery = (id: string) => {
   const { data, loading } = useQuery(
-    gql`query {
-      fps(id: "${id.toLowerCase()}") {
-        id
-        profits
-        loss
+    gql`
+      query {
+        fPS(id: "${id}") {
+          id
+          profits
+          loss
+          reserve
+        }
       }
-    }`
+    `
   );
+  console.log(data);
 
-  if (!data || !data.fps) {
+  if (!data || !data.fPS) {
     return {
       profit: 0n,
       loss: 0n,
@@ -19,7 +23,7 @@ export const useFPSQuery = (id: string) => {
   }
 
   return {
-    profit: BigInt(data.fps.profits),
-    loss: BigInt(data.fps.loss),
+    profit: BigInt(data.fPS.profits),
+    loss: BigInt(data.fPS.loss),
   };
 };

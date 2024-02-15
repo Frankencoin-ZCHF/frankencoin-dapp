@@ -5,8 +5,10 @@ export const useChallengeCount = () => {
     gql`
       query {
         challenges(orderBy: status) {
-          id
-          challenger
+          items {
+            id
+            challenger
+          }
         }
       }
     `,
@@ -18,7 +20,7 @@ export const useChallengeCount = () => {
   let challengeCount = 0;
 
   if (data && data.challenges) {
-    challengeCount = data.challenges.length;
+    challengeCount = data.challenges.items.length;
   }
 
   return challengeCount;
