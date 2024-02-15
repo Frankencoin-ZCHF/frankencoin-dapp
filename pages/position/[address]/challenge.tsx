@@ -5,7 +5,7 @@ import AppPageHeader from "@components/AppPageHeader";
 import Button from "@components/Button";
 import DisplayAmount from "@components/DisplayAmount";
 import SwapFieldInput from "@components/SwapFieldInput";
-import { usePositionStats } from "@hooks";
+import { usePositionStats, useTokenPrice } from "@hooks";
 import { getAddress, zeroAddress } from "viem";
 import { useState } from "react";
 import { formatBigInt, formatDuration, shortenAddress } from "@utils";
@@ -28,6 +28,8 @@ export default function PositionChallenge() {
   const account = address || zeroAddress;
   const position = getAddress(String(positionAddr || zeroAddress));
   const positionStats = usePositionStats(position);
+  const collateralPrice = useTokenPrice(positionStats.collateral);
+  const zchfPrice = useTokenPrice(ADDRESS[chainId].frankenCoin);
 
   const onChangeAmount = (value: string) => {
     const valueBigInt = BigInt(value);
@@ -191,6 +193,7 @@ export default function PositionChallenge() {
                   currency={"ZCHF"}
                   digits={36 - positionStats.collateralDecimal}
                   address={ADDRESS[chainId].frankenCoin}
+                  usdPrice={zchfPrice}
                 />
               </AppBox>
               <AppBox className="col-span-6 sm:col-span-3">
@@ -200,6 +203,7 @@ export default function PositionChallenge() {
                   currency={"ZCHF"}
                   digits={36 - positionStats.collateralDecimal + 18}
                   address={ADDRESS[chainId].frankenCoin}
+                  usdPrice={zchfPrice}
                 />
               </AppBox>
               <AppBox className="col-span-6 sm:col-span-3">
@@ -209,6 +213,7 @@ export default function PositionChallenge() {
                   currency={positionStats.collateralSymbol}
                   digits={positionStats.collateralDecimal}
                   address={positionStats.collateral}
+                  usdPrice={collateralPrice}
                 />
               </AppBox>
               <AppBox className="col-span-6 sm:col-span-3">
@@ -218,6 +223,7 @@ export default function PositionChallenge() {
                   currency={positionStats.collateralSymbol}
                   digits={positionStats.collateralDecimal}
                   address={positionStats.collateral}
+                  usdPrice={collateralPrice}
                 />
               </AppBox>
               <AppBox className="col-span-6 sm:col-span-3">

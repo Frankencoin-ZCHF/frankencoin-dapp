@@ -12,6 +12,7 @@ import {
   useChallengeLists,
   useContractUrl,
   usePositionStats,
+  useTokenPrice,
 } from "@hooks";
 import { useAccount, useChainId, useContractRead } from "wagmi";
 import { ABIS, ADDRESS } from "@contracts";
@@ -29,6 +30,8 @@ export default function PositionDetail() {
   const ownerLink = useContractUrl(positionStats.owner);
   const { challenges, loading: queryLoading } = useChallengeLists({ position });
   const { challengsData, loading } = useChallengeListStats(challenges);
+  const collateralPrice = useTokenPrice(positionStats.collateral);
+  const zchfPrice = useTokenPrice(ADDRESS[chainId].frankenCoin);
 
   const { data: positionAssignedReserve } = useContractRead({
     address: ADDRESS[chainId].frankenCoin,
@@ -62,6 +65,7 @@ export default function PositionDetail() {
                   amount={positionStats.minted}
                   currency="ZCHF"
                   address={ADDRESS[chainId].frankenCoin}
+                  usdPrice={zchfPrice}
                 />
               </AppBox>
               <AppBox className="col-span-3">
@@ -71,6 +75,7 @@ export default function PositionDetail() {
                   currency={positionStats.collateralSymbol}
                   digits={positionStats.collateralDecimal}
                   address={positionStats.collateral}
+                  usdPrice={collateralPrice}
                 />
               </AppBox>
               <AppBox className="col-span-3">
@@ -80,6 +85,7 @@ export default function PositionDetail() {
                   currency={"ZCHF"}
                   digits={36 - positionStats.collateralDecimal}
                   address={ADDRESS[chainId].frankenCoin}
+                  usdPrice={zchfPrice}
                 />
               </AppBox>
               <AppBox className="col-span-3">
@@ -88,6 +94,7 @@ export default function PositionDetail() {
                   amount={positionAssignedReserve || 0n}
                   currency={"ZCHF"}
                   address={ADDRESS[chainId].frankenCoin}
+                  usdPrice={zchfPrice}
                 />
               </AppBox>
               <AppBox className="col-span-3">
@@ -96,6 +103,7 @@ export default function PositionDetail() {
                   amount={positionStats.limit}
                   currency={"ZCHF"}
                   address={ADDRESS[chainId].frankenCoin}
+                  usdPrice={zchfPrice}
                 />
               </AppBox>
               <AppBox className="col-span-1 sm:col-span-3">
@@ -106,7 +114,11 @@ export default function PositionDetail() {
               </AppBox>
               <AppBox className="col-span-2 sm:col-span-2">
                 <DisplayLabel label="Expiration Date" />
-                <b>{positionStats.closed ? "Closed" : formatDate(positionStats.expiration)}</b>
+                <b>
+                  {positionStats.closed
+                    ? "Closed"
+                    : formatDate(positionStats.expiration)}
+                </b>
               </AppBox>
               <AppBox className="col-span-1 sm:col-span-2">
                 <DisplayLabel label="Reserve Requirement" />

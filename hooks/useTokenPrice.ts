@@ -3,8 +3,10 @@ import { useLocalStorage } from "./useLocalStorage";
 import axios from "axios";
 import { ADDRESS } from "../contracts/address";
 import { mainnet } from "wagmi";
+import { zeroAddress } from "viem";
 
-export const useTokenPrice = (address: string) => {
+export const useTokenPrice = (address: string | undefined) => {
+  if (!address) address = zeroAddress;
   let addressToFetch = address.toLowerCase();
   if (address == ADDRESS[mainnet.id].frankenCoin) {
     addressToFetch = "0xb4272071ecadd69d933adcd19ca99fe80664fc08";
@@ -12,6 +14,7 @@ export const useTokenPrice = (address: string) => {
   const [price, setPrice] = useLocalStorage(addressToFetch.toLowerCase());
 
   useEffect(() => {
+    if (address == zeroAddress) return;
     if (price && Date.now() - (price as any).timestamp < 60 * 60 * 1000) return;
     const fetchPrice = async () => {
       try {
