@@ -1,21 +1,24 @@
 import { Address, zeroAddress } from "viem";
 import DisplayAmount from "../DisplayAmount";
-import { usePositionStats, useTokenPrice } from "@hooks";
+import { PositionQuery, usePositionStats, useTokenPrice } from "@hooks";
 import { formatDate, formatDateLocale } from "@utils";
 import TableRow from "../Table/TableRow";
 import { useAccount, useChainId } from "wagmi";
 import { ADDRESS } from "../../contracts/address";
+import ProgressBar from "@components/ProgressBar";
 
 interface Props {
-  position: Address;
-  collateral: Address;
+  position: PositionQuery;
 }
 
-export default function PositionRow({ position, collateral }: Props) {
+export default function PositionRow({ position }: Props) {
   const { address } = useAccount();
   const chainId = useChainId();
-  const positionStats = usePositionStats(position, collateral);
-  const collTokenPrice = useTokenPrice(collateral);
+  const positionStats = usePositionStats(
+    position.position,
+    position.collateral
+  );
+  const collTokenPrice = useTokenPrice(position.collateral);
   const zchfPrice = useTokenPrice(ADDRESS[chainId].frankenCoin);
   const account = address || zeroAddress;
   const isMine = positionStats.owner == account;
@@ -33,15 +36,12 @@ export default function PositionRow({ position, collateral }: Props) {
           positionStats.expiration - BigInt(60 * 60 * 24 * 3) + 1800n
         )
       : formatDateLocale(positionStats.expiration + 1800n)
-  }&details=For+details,+go+here:%0Ahttps://frankencoin.com/position/${position}`;
-
-  const openCalendar = (e: any) => {
-    e.preventDefault();
-    window.open(calendarLink, "_blank");
-  };
+  }&details=For+details,+go+here:%0Ahttps://frankencoin.com/position/${
+    position.position
+  }`;
 
   return (
-    <TableRow link={`/position/${position}`}>
+    <TableRow link={`/position/${position.position}`}>
       <div>
         <DisplayAmount
           amount={positionStats.collateralBal}
@@ -72,11 +72,19 @@ export default function PositionRow({ position, collateral }: Props) {
         />
       </div>
       <div>
-        { positionStats.closed ? "Closed" :
-        <div className="underline" onClick={openCalendar}>
-          {formatDate(positionStats.expiration)}
-        </div>
-        }
+        {positionStats.closed ? (
+          "Closed"
+        ) : (
+          <ProgressBar
+            label={formatDate(positionStats.expiration)}
+            link={calendarLink}
+            progress={
+              ((Date.now() / 1000 - position.created) /
+                (Number(positionStats.expiration) - position.created)) *
+              100
+            }
+          />
+        )}
       </div>
     </TableRow>
   );

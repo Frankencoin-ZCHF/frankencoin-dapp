@@ -13,7 +13,6 @@ export const useFPSQuery = (id: string) => {
       }
     `
   );
-  console.log(data);
 
   if (!data || !data.fPS) {
     return {

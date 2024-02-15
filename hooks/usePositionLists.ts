@@ -7,6 +7,7 @@ export interface PositionQuery {
   zchf: Address;
   collateral: Address;
   price: bigint;
+  created: number;
 }
 
 export const usePositionLists = () => {
@@ -21,6 +22,7 @@ export const usePositionLists = () => {
             zchf
             collateral
             price
+            created
           }
         }
       }
@@ -39,6 +41,7 @@ export const usePositionLists = () => {
         zchf: getAddress(position.zchf),
         collateral: getAddress(position.collateral),
         price: BigInt(position.price),
+        created: position.created,
       });
     });
   }
