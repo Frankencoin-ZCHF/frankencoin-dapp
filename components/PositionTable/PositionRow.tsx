@@ -39,7 +39,6 @@ export default function PositionRow({ position }: Props) {
   }&details=For+details,+go+here:%0Ahttps://frankencoin.com/position/${
     position.position
   }`;
-  console.log(positionStats.expiration);
 
   return (
     <TableRow link={`/position/${position.position}`}>
