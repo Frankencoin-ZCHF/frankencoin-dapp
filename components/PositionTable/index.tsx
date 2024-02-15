@@ -46,11 +46,7 @@ export default function PositionTable({ showMyPos }: Props) {
           </TableRowEmpty>
         ) : (
           matchingPositions.map((pos) => (
-            <PositionRow
-              position={pos.position}
-              collateral={pos.collateral}
-              key={pos.position}
-            />
+            <PositionRow position={pos} key={pos.position} />
           ))
         )}
       </TableBody>
