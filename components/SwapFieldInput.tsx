@@ -49,7 +49,7 @@ export default function SwapFieldInput({
             className={`flex gap-2 items-center cursor-pointer ${
               hideMaxLabel && "hidden"
             }`}
-            onClick={() => onChange && onChange(max.toString())}
+            onClick={() => onChange?.(max.toString())}
           >
             {balanceLabel}
             <span className="font-bold text-link">

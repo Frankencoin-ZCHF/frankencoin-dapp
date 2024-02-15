@@ -28,6 +28,7 @@ import {
   faHourglassStart,
 } from "@fortawesome/free-solid-svg-icons";
 import AppBox from "@components/AppBox";
+import DateFieldInput from "@components/DateFieldInput";
 
 export default function PositionBorrow({}) {
   const router = useRouter();
@@ -41,14 +42,20 @@ export default function PositionBorrow({}) {
   const position = getAddress(String(positionAddr || zeroAddress));
   const positionStats = usePositionStats(position);
   const [expirationDate, setExpirationDate] = useState(new Date());
-  const requiredColl = positionStats.liqPrice > 0 && (BigInt(1e18) * amount / positionStats.liqPrice) > positionStats.minimumCollateral ? BigInt(1e18) * amount / positionStats.liqPrice : positionStats.minimumCollateral;
+  const requiredColl =
+    positionStats.liqPrice > 0 &&
+    (BigInt(1e18) * amount) / positionStats.liqPrice >
+      positionStats.minimumCollateral
+      ? (BigInt(1e18) * amount) / positionStats.liqPrice
+      : positionStats.minimumCollateral;
 
   useEffect(() => {
     // to set initial date during loading
     setExpirationDate(toDate(positionStats.expiration));
   }, [positionStats.expiration]);
 
-  const borrowersReserveContribution = (positionStats.reserveContribution * amount) / 1_000_000n;
+  const borrowersReserveContribution =
+    (positionStats.reserveContribution * amount) / 1_000_000n;
 
   function toDate(blocktime: bigint) {
     return new Date(Number(blocktime) * 1000);
@@ -97,7 +104,8 @@ export default function PositionBorrow({}) {
     setAmount(valueBigInt);
   };
 
-  const onChangeExpiration = (value: Date) => {
+  const onChangeExpiration = (value: Date | null) => {
+    if (!value) value = new Date();
     const newTimestamp = toTimestamp(value);
     const bottomLimit = toTimestamp(new Date());
     const uppperLimit = positionStats.expiration;
@@ -255,59 +263,26 @@ export default function PositionBorrow({}) {
                   positionStats.collateralDecimal
                 )}
                 symbol={positionStats.collateralSymbol}
-                note={`Valued at ${formatBigInt(
-                  positionStats.liqPrice,
-                  36 - positionStats.collateralDecimal
-                )} ZCHF, minimum is ` + formatBigInt(positionStats.minimumCollateral, Number(positionStats.collateralDecimal)) + " " + positionStats.collateralSymbol}
+                note={
+                  `Valued at ${formatBigInt(
+                    positionStats.liqPrice,
+                    36 - positionStats.collateralDecimal
+                  )} ZCHF, minimum is ` +
+                  formatBigInt(
+                    positionStats.minimumCollateral,
+                    Number(positionStats.collateralDecimal)
+                  ) +
+                  " " +
+                  positionStats.collateralSymbol
+                }
               />
-              <div>
-                <div className="mb-1 flex gap-2 px-1">
-                  <div className="flex-1">Expiration</div>
-                  <div>
-                    Limit:{" "}
-                    <span
-                      className="text-link cursor-pointer"
-                      onClick={onMaxExpiration}
-                    >
-                      {formatDate(positionStats.expiration)}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center rounded-lg bg-slate-800 p-2">
-                  <FontAwesomeIcon
-                    icon={faHourglassStart}
-                    className="w-10 h-8 mr-2"
-                  />
-                  <div className="flex-1">
-                    <div
-                      className={`flex gap-1 rounded-lg text-white p-1 bg-slate-600 border-2 ${
-                        errorDate
-                          ? "border-red-300"
-                          : "border-neutral-100 border-slate-600"
-                      }`}
-                    >
-                      <DatePicker
-                        id="expiration-datepicker"
-                        selected={expirationDate}
-                        dateFormat={"yyyy-MM-dd"}
-                        onChange={onChangeExpiration}
-                      />
-                    </div>
-                  </div>
-                  <label
-                    className="hidden w-20 px-4 text-end font-bold sm:block cursor-pointer"
-                    htmlFor="expiration-datepicker"
-                  >
-                    <FontAwesomeIcon
-                      icon={faCalendarDays}
-                      className="w-10 h-8 ml-2"
-                    />
-                  </label>
-                </div>
-                {errorDate && (
-                  <div className="mt-2 px-1 text-red-500">{errorDate}</div>
-                )}
-              </div>
+              <DateFieldInput
+                label="Expiration"
+                max={positionStats.expiration}
+                value={expirationDate}
+                onChange={onChangeExpiration}
+                error={errorDate}
+              />
             </div>
             <div className="mx-auto mt-8 w-72 max-w-full flex-col">
               {requiredColl > positionStats.collateralAllowance ? (
@@ -321,10 +296,7 @@ export default function PositionBorrow({}) {
               ) : (
                 <Button
                   variant="primary"
-                  disabled={
-                    amount == 0n ||
-                    !!error
-                  }
+                  disabled={amount == 0n || !!error}
                   isLoading={cloneWrite.isLoading || isConfirming}
                   onClick={() => handleClone()}
                   error={

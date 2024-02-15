@@ -17,7 +17,7 @@ import AppPageHeader from "../components/AppPageHeader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { parseUnits } from "viem";
-import { polygon, mainnet } from "viem/chains";
+import { polygon, mainnet, arbitrum } from "viem/chains";
 import TokenLogo from "@components/TokenLogo";
 
 export default function Home() {
@@ -26,6 +26,10 @@ export default function Home() {
   const frankenLinkEth = useContractUrl(ADDRESS[chainId].frankenCoin);
   const frankenLinkPolygon = useContractUrl(
     ADDRESS[polygon.id].frankenCoin,
+    polygon
+  );
+  const frankenLinkArb = useContractUrl(
+    ADDRESS[arbitrum.id].frankenCoin,
     polygon
   );
   const tvlData = useTvl<number>();
@@ -179,11 +183,11 @@ export default function Home() {
               />
             </DisplayLabel>
           </AppBox>
-          <AppBox className="col-span-6 sm:col-span-3">
+          <AppBox className="col-span-6 sm:col-span-2">
             <DisplayLabel label="Mainnet Deployment" />
             <div className="flex items-center py-2 justify-end">
               <TokenLogo currency="ZCHF" chain="mainnet" />
-              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+              <div className="flex flex-col text-right">
                 <Link
                   className="underline"
                   href={frankenLinkEth}
@@ -198,16 +202,16 @@ export default function Home() {
                   target="_blank"
                   className="underline text-sm text-slate-500"
                 >
-                  (Uniswap Pool)
+                  Uniswap Pool
                 </Link>
               </div>
             </div>
           </AppBox>
-          <AppBox className="col-span-6 sm:col-span-3">
+          <AppBox className="col-span-6 sm:col-span-2">
             <DisplayLabel label="Polygon PoS Bridge" />
             <div className="flex items-center py-2 justify-end">
               <TokenLogo currency="ZCHF" chain="polygon" />
-              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+              <div className="flex flex-col text-right">
                 <Link
                   className="underline"
                   href={frankenLinkPolygon}
@@ -222,7 +226,31 @@ export default function Home() {
                   target="_blank"
                   className="underline text-sm text-slate-500"
                 >
-                  (Uniswap Pool)
+                  Uniswap Pool
+                </Link>
+              </div>
+            </div>
+          </AppBox>
+          <AppBox className="col-span-6 sm:col-span-2">
+            <DisplayLabel label="Arbitrum Bridge" />
+            <div className="flex items-center py-2 justify-end">
+              <TokenLogo currency="ZCHF" chain="arbitrum" />
+              <div className="flex flex-col text-right">
+                <Link
+                  className="underline"
+                  href={frankenLinkArb}
+                  target="_blank"
+                >
+                  Frankencoin (Arbitrum) Contract
+                </Link>
+                <Link
+                  href={
+                    "https://app.uniswap.org/swap?inputCurrency=0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9&outputCurrency=0xB33c4255938de7A6ec1200d397B2b2F329397F9B&chain=arbitrum"
+                  }
+                  target="_blank"
+                  className="underline text-sm text-slate-500"
+                >
+                  Uniswap Pool
                 </Link>
               </div>
             </div>
