@@ -56,7 +56,7 @@ export default function PositionRow({ position }: Props) {
           amount={positionStats.liqPrice}
           currency={"ZCHF"}
           hideLogo
-          bold={positionStats.cooldown * 1000n > new Date().getTime()}
+          bold={positionStats.cooldown * 1000n > Date.now()}
           digits={36 - positionStats.collateralDecimal}
           address={ADDRESS[chainId].frankenCoin}
           usdPrice={zchfPrice}
