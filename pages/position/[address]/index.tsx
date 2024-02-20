@@ -44,7 +44,7 @@ export default function PositionDetail() {
   const isSubjectToCooldown = () => {
     const now = BigInt(Math.floor(Date.now() / 1000));
     return (
-      now < positionStats.cooldown && positionStats.cooldown - now < 86400n
+      now < positionStats.cooldown && positionStats.cooldown < 32508005122n
     );
   };
 
@@ -180,12 +180,11 @@ export default function PositionDetail() {
                 <div className="text-lg font-bold text-center">Cooldown</div>
                 <AppBox className="flex-1 mt-4">
                   <p>
-                    This position is subject to a cooldown period that ends on
-                    &nbsp;{formatDate(positionStats.cooldown)} as its owner has
+                    This position is subject to a cooldown period that ends
+                    on {formatDate(positionStats.cooldown)} as its owner has
                     recently increased the applicable liquidation price. The
                     cooldown period gives other users an opportunity to
-                    challenge the position before additional Frankencoins can be
-                    minted.
+                    challenge the position before additional Frankencoins can be minted.
                   </p>
                 </AppBox>
               </div>
