@@ -17,7 +17,7 @@ import AppPageHeader from "../components/AppPageHeader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { parseUnits } from "viem";
-import { polygon, mainnet, arbitrum } from "viem/chains";
+import { polygon, mainnet, arbitrum, optimism } from "viem/chains";
 import TokenLogo from "@components/TokenLogo";
 
 export default function Home() {
@@ -31,6 +31,10 @@ export default function Home() {
   const frankenLinkArb = useContractUrl(
     ADDRESS[arbitrum.id].frankenCoin,
     polygon
+  );
+  const frankenLinkOp = useContractUrl(
+    ADDRESS[optimism.id].frankenCoin,
+    optimism
   );
   const tvlData = useTvl<number>();
   const positionData = usePositionLists();
@@ -125,8 +129,8 @@ export default function Home() {
             </picture>
           </div>
         </section>
-        <div className="mt-16 bg-slate-950 rounded-xl grid grid-cols-1 sm:grid-cols-6 gap-4 p-4">
-          <AppBox className="col-span-6 sm:col-span-2">
+        <div className="mt-16 bg-slate-950 rounded-xl grid grid-cols-1 sm:grid-cols-12 gap-4 p-4">
+          <AppBox className="col-span-6 sm:col-span-4">
             <a href={SOCIAL.DefiLlama} target="_blank">
               <DisplayLabel label="Total Value Locked" className="underline" />
             </a>
@@ -139,7 +143,7 @@ export default function Home() {
               USD
             </div>
           </AppBox>
-          <AppBox className="col-span-6 sm:col-span-2">
+          <AppBox className="col-span-6 sm:col-span-4">
             <Link href={"/positions"}>
               <DisplayLabel label="Active Positions" className="underline" />
             </Link>
@@ -147,13 +151,13 @@ export default function Home() {
               {positionData.positions.length}
             </div>
           </AppBox>
-          <AppBox className="col-span-6 sm:col-span-2">
+          <AppBox className="col-span-6 sm:col-span-4">
             <Link href={"/auctions"}>
               <DisplayLabel label="Active Challenges" className="underline" />
             </Link>
             <div className="mt-2 text-right">{challengeCount}</div>
           </AppBox>
-          <AppBox className="col-span-6 sm:col-span-2">
+          <AppBox className="col-span-6 sm:col-span-4">
             <DisplayLabel label="Total Supply">
               <DisplayAmount
                 amount={homestats.frankenTotalSupply}
@@ -163,7 +167,7 @@ export default function Home() {
               />
             </DisplayLabel>
           </AppBox>
-          <AppBox className="col-span-6 sm:col-span-2">
+          <AppBox className="col-span-6 sm:col-span-4">
             <DisplayLabel label="FPS Market Cap">
               <DisplayAmount
                 amount={homestats.equityMarketCap}
@@ -173,7 +177,7 @@ export default function Home() {
               />
             </DisplayLabel>
           </AppBox>
-          <AppBox className="col-span-6 sm:col-span-2">
+          <AppBox className="col-span-6 sm:col-span-4">
             <DisplayLabel label="Your Balance">
               <DisplayAmount
                 amount={homestats.frankenBalance}
@@ -183,7 +187,7 @@ export default function Home() {
               />
             </DisplayLabel>
           </AppBox>
-          <AppBox className="col-span-6 sm:col-span-2">
+          <AppBox className="col-span-6 sm:col-span-3">
             <DisplayLabel label="Mainnet Deployment" />
             <div className="flex items-center py-2 justify-end">
               <TokenLogo currency="ZCHF" chain="mainnet" />
@@ -207,7 +211,7 @@ export default function Home() {
               </div>
             </div>
           </AppBox>
-          <AppBox className="col-span-6 sm:col-span-2">
+          <AppBox className="col-span-6 sm:col-span-3">
             <DisplayLabel label="Polygon PoS Bridge" />
             <div className="flex items-center py-2 justify-end">
               <TokenLogo currency="ZCHF" chain="polygon" />
@@ -231,7 +235,7 @@ export default function Home() {
               </div>
             </div>
           </AppBox>
-          <AppBox className="col-span-6 sm:col-span-2">
+          <AppBox className="col-span-6 sm:col-span-3">
             <DisplayLabel label="Arbitrum Bridge" />
             <div className="flex items-center py-2 justify-end">
               <TokenLogo currency="ZCHF" chain="arbitrum" />
@@ -241,11 +245,35 @@ export default function Home() {
                   href={frankenLinkArb}
                   target="_blank"
                 >
-                  Frankencoin (Arbitrum) Contract
+                  Frankencoin (Arb) Contract
                 </Link>
                 <Link
                   href={
                     "https://app.uniswap.org/swap?inputCurrency=0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9&outputCurrency=0xB33c4255938de7A6ec1200d397B2b2F329397F9B&chain=arbitrum"
+                  }
+                  target="_blank"
+                  className="underline text-sm text-slate-500"
+                >
+                  Uniswap Pool
+                </Link>
+              </div>
+            </div>
+          </AppBox>
+          <AppBox className="col-span-6 sm:col-span-3">
+            <DisplayLabel label="Optimism Bridge" />
+            <div className="flex items-center py-2 justify-end">
+              <TokenLogo currency="ZCHF" chain="optimism" />
+              <div className="flex flex-col text-right">
+                <Link
+                  className="underline"
+                  href={frankenLinkOp}
+                  target="_blank"
+                >
+                  Frankencoin (Op) Contract
+                </Link>
+                <Link
+                  href={
+                    "https://app.uniswap.org/swap?inputCurrency=0x94b008aA00579c1307B0EF2c499aD98a8ce58e58&outputCurrency=0x05cA43316288B51948b706046cF0bA3c62c8b725&chain=optimism"
                   }
                   target="_blank"
                   className="underline text-sm text-slate-500"

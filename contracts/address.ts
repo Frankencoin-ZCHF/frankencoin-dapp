@@ -1,6 +1,13 @@
 import { zeroAddress } from "viem";
 import { Address } from "wagmi";
-import { arbitrum, hardhat, mainnet, polygon, sepolia } from "wagmi/chains";
+import {
+  arbitrum,
+  hardhat,
+  mainnet,
+  optimism,
+  polygon,
+  sepolia,
+} from "wagmi/chains";
 
 export interface ProtocolAddress {
   frankenCoin: Address;
@@ -127,6 +134,13 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
   },
   [arbitrum.id]: {
     frankenCoin: "0xB33c4255938de7A6ec1200d397B2b2F329397F9B",
+    bridge: zeroAddress,
+    xchf: zeroAddress,
+    equity: zeroAddress,
+    mintingHub: zeroAddress,
+  },
+  [optimism.id]: {
+    frankenCoin: "0x05cA43316288B51948b706046cF0bA3c62c8b725",
     bridge: zeroAddress,
     xchf: zeroAddress,
     equity: zeroAddress,

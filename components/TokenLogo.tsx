@@ -5,7 +5,7 @@ import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 interface Props {
   currency: string;
   size?: number;
-  chain?: "mainnet" | "polygon" | "arbitrum";
+  chain?: "mainnet" | "polygon" | "arbitrum" | "optimism";
 }
 
 export default function TokenLogo({ currency, size = 8, chain }: Props) {
