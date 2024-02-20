@@ -17,8 +17,8 @@ export default function Positions() {
         <AppPageHeader title="Other Positions" />
         <PositionTable />
       </div>
-      <div>
-        <Link href={"positions/create"} className="btn btn-primary">
+      <div className="flex">
+        <Link href={"positions/create"} className="btn btn-primary m-auto">
           Create New Position
         </Link>
       </div>

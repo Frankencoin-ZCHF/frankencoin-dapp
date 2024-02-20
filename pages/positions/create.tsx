@@ -299,7 +299,7 @@ export default function PositionCreate({}) {
                   variant="primary"
                   disabled={amount == 0n || !!error}
                   isLoading={cloneWrite.isLoading || isConfirming}
-                  onClick={() => handleClone()}
+                  onClick={() => {}}
                   error={
                     requiredColl < positionStats.minimumCollateral
                       ? "A position must have at least " +
@@ -319,7 +319,7 @@ export default function PositionCreate({}) {
           </div>
           <div>
             <div className="bg-slate-950 rounded-xl p-4 flex flex-col">
-              <div className="text-lg font-bold text-center mt-3">Notes</div>
+              <div className="text-lg font-bold text-center">Notes</div>
               <AppBox className="flex-1 mt-4">
                 <b>Create New Position</b>
                 <p>
