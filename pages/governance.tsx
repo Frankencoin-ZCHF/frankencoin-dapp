@@ -222,9 +222,9 @@ export default function Governance() {
             </div>
           </div>
         </section>
-        <section className="mt-4">
+        {/* <section className="mt-4">
           <div className="bg-slate-950 rounded-xl p-4">
-            <div className="mt-4 text-lg font-bold text-center">Top Voters</div>
+            <div className="mt-4 text-lg font-bold text-center">Top Holders</div>
             <div className="bg-slate-900 rounded-xl p-4 flex flex-col gap-2">
               {votingPowers.votesData.map((power) => (
                 <FPSHolder
@@ -238,7 +238,7 @@ export default function Governance() {
               ))}
             </div>
           </div>
-        </section>
+        </section> */}
       </div>
     </>
   );
