@@ -17,6 +17,8 @@ import {
 import { useAccount, useChainId, useContractRead } from "wagmi";
 import { ABIS, ADDRESS } from "@contracts";
 import ChallengeTable from "@components/ChallengeTable";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 export default function PositionDetail() {
   const router = useRouter();
@@ -115,8 +117,16 @@ export default function PositionDetail() {
               </AppBox>
               <AppBox className="col-span-1 sm:col-span-3">
                 <DisplayLabel label="Owner" />
-                <Link href={ownerLink} className="text-link" target="_blank">
-                  <b>{shortenAddress(positionStats.owner)}</b>
+                <Link
+                  href={ownerLink}
+                  className="flex items-center"
+                  target="_blank"
+                >
+                  {shortenAddress(positionStats.owner)}
+                  <FontAwesomeIcon
+                    icon={faArrowUpRightFromSquare}
+                    className="w-3 ml-2"
+                  />
                 </Link>
               </AppBox>
               <AppBox className="col-span-2 sm:col-span-2">
@@ -180,11 +190,12 @@ export default function PositionDetail() {
                 <div className="text-lg font-bold text-center">Cooldown</div>
                 <AppBox className="flex-1 mt-4">
                   <p>
-                    This position is subject to a cooldown period that ends
-                    on {formatDate(positionStats.cooldown)} as its owner has
+                    This position is subject to a cooldown period that ends on{" "}
+                    {formatDate(positionStats.cooldown)} as its owner has
                     recently increased the applicable liquidation price. The
                     cooldown period gives other users an opportunity to
-                    challenge the position before additional Frankencoins can be minted.
+                    challenge the position before additional Frankencoins can be
+                    minted.
                   </p>
                 </AppBox>
               </div>
