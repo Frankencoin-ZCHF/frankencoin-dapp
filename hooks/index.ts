@@ -20,3 +20,4 @@ export * from "./useTvl";
 export * from "./useChallengeCount";
 export * from "./useTokenPrice";
 export * from "./useTokenPrices";
+export * from "./useFPSHolders";

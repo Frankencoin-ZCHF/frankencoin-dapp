@@ -3,6 +3,7 @@ import AppPageHeader from "@components/AppPageHeader";
 import {
   useContractUrl,
   useDelegationQuery,
+  useFPSHolders,
   useGovStats,
   useMinterQuery,
 } from "@hooks";
@@ -20,6 +21,8 @@ import Link from "next/link";
 import { shortenAddress } from "@utils";
 import DisplayAmount from "@components/DisplayAmount";
 import MinterProposal from "@components/MinterProposal";
+import FPSHolder from "@components/FPSHolder";
+import { useVotingPowers } from "../hooks/useVotingPowers";
 
 export default function Governance() {
   const [inputField, setInputField] = useState("");
@@ -36,6 +39,8 @@ export default function Governance() {
   const { minters } = useMinterQuery();
   const delegationData = useDelegationQuery(account);
   const delegationStats = useGovStats(delegationData.pureDelegatedFrom);
+  const fpsHolders = useFPSHolders();
+  const votingPowers = useVotingPowers(fpsHolders.holders);
 
   const userRawVotesPercent =
     delegationStats.totalVotes === 0n
@@ -212,6 +217,23 @@ export default function Governance() {
                   key={minter.id}
                   minter={minter}
                   helpers={delegationStats.delegatedFrom.map((e) => e.owner)}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+        <section className="mt-4">
+          <div className="bg-slate-950 rounded-xl p-4">
+            <div className="mt-4 text-lg font-bold text-center">Top Voters</div>
+            <div className="bg-slate-900 rounded-xl p-4 flex flex-col gap-2">
+              {votingPowers.votesData.map((power) => (
+                <FPSHolder
+                  key={power.holder}
+                  id={power.holder}
+                  holder={power.holder}
+                  fps={power.fps}
+                  votingPower={power.votingPower}
+                  totalVotingPower={votingPowers.totalVotes}
                 />
               ))}
             </div>
