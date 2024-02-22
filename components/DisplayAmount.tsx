@@ -51,7 +51,6 @@ export default function DisplayAmount({
                 href={url}
                 target="_blank"
                 rel="noreferrer"
-                className="underline"
                 onClick={openExplorer}
               >
                 {currency}
