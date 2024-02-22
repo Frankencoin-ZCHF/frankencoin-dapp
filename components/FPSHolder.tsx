@@ -8,9 +8,16 @@ interface Props {
   holder: Address;
   fps: bigint;
   votingPower: bigint;
+  totalVotingPower: bigint;
 }
 
-export default function FPSHolder({ id, holder, fps, votingPower }: Props) {
+export default function FPSHolder({
+  id,
+  holder,
+  fps,
+  votingPower,
+  totalVotingPower,
+}: Props) {
   return (
     <AppBox className="hover:bg-slate-700 duration-300 flex grid grid-cols-1 sm:grid-cols-3">
       <div className="col-span-1">
@@ -18,7 +25,7 @@ export default function FPSHolder({ id, holder, fps, votingPower }: Props) {
       </div>
       <div className="col-span-1 sm:text-center">{formatBigInt(fps)} FPS</div>
       <div className="col-span-1 sm:text-right">
-        {formatBigInt(votingPower)} Votes
+        {formatBigInt((votingPower * 10000n) / totalVotingPower, 2)} % Votes
       </div>
     </AppBox>
   );

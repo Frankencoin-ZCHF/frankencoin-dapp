@@ -1,6 +1,7 @@
 import { Address, mainnet, useContractReads } from "wagmi";
 import { ABIS, ADDRESS } from "@contracts";
 import { FPSHolder } from "./useFPSHolders";
+import { decodeBigIntCall } from "../utils/format";
 
 export const useVotingPowers = (holders: FPSHolder[]) => {
   let contractCalls: any[] = [];
@@ -11,6 +12,11 @@ export const useVotingPowers = (holders: FPSHolder[]) => {
       functionName: "votes",
       args: [holder.address],
     });
+  });
+  contractCalls.push({
+    address: ADDRESS[mainnet.id].equity,
+    abi: ABIS.EquityABI,
+    functionName: "totalVotes",
   });
 
   const { data } = useContractReads({
@@ -29,7 +35,9 @@ export const useVotingPowers = (holders: FPSHolder[]) => {
     });
   }
 
+  const totalVotes = data ? decodeBigIntCall(data[holders.length]) : 0n;
+
   votesData.sort((a, b) => (a.votingPower > b.votingPower ? -1 : 1));
 
-  return votesData;
+  return { votesData, totalVotes };
 };

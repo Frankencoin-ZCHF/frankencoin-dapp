@@ -226,13 +226,14 @@ export default function Governance() {
           <div className="bg-slate-950 rounded-xl p-4">
             <div className="mt-4 text-lg font-bold text-center">Top Voters</div>
             <div className="bg-slate-900 rounded-xl p-4 flex flex-col gap-2">
-              {votingPowers.map((power) => (
+              {votingPowers.votesData.map((power) => (
                 <FPSHolder
                   key={power.holder}
                   id={power.holder}
                   holder={power.holder}
                   fps={power.fps}
                   votingPower={power.votingPower}
+                  totalVotingPower={votingPowers.totalVotes}
                 />
               ))}
             </div>
