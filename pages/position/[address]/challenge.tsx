@@ -5,7 +5,7 @@ import AppPageHeader from "@components/AppPageHeader";
 import Button from "@components/Button";
 import DisplayAmount from "@components/DisplayAmount";
 import SwapFieldInput from "@components/SwapFieldInput";
-import { usePositionStats, useTokenPrice } from "@hooks";
+import { usePositionStats, useTokenPrice, useZchfPrice } from "@hooks";
 import { getAddress, zeroAddress } from "viem";
 import { useState } from "react";
 import { formatBigInt, formatDuration, shortenAddress } from "@utils";
@@ -29,7 +29,7 @@ export default function PositionChallenge() {
   const position = getAddress(String(positionAddr || zeroAddress));
   const positionStats = usePositionStats(position);
   const collateralPrice = useTokenPrice(positionStats.collateral);
-  const zchfPrice = useTokenPrice(ADDRESS[chainId].frankenCoin);
+  const zchfPrice = useZchfPrice();
 
   const onChangeAmount = (value: string) => {
     const valueBigInt = BigInt(value);

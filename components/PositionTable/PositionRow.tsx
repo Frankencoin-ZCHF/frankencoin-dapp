@@ -1,6 +1,11 @@
 import { Address, zeroAddress } from "viem";
 import DisplayAmount from "../DisplayAmount";
-import { PositionQuery, usePositionStats, useTokenPrice } from "@hooks";
+import {
+  PositionQuery,
+  usePositionStats,
+  useTokenPrice,
+  useZchfPrice,
+} from "@hooks";
 import { formatDate, formatDateLocale } from "@utils";
 import TableRow from "../Table/TableRow";
 import { useAccount, useChainId } from "wagmi";
@@ -19,7 +24,8 @@ export default function PositionRow({ position }: Props) {
     position.collateral
   );
   const collTokenPrice = useTokenPrice(position.collateral);
-  const zchfPrice = useTokenPrice(ADDRESS[chainId].frankenCoin);
+  const zchfPrice = useZchfPrice();
+
   const account = address || zeroAddress;
   const isMine = positionStats.owner == account;
   const calendarLink = `https://calendar.google.com/calendar/u/0/r/eventedit?text=${

@@ -13,6 +13,7 @@ import {
   useContractUrl,
   usePositionStats,
   useTokenPrice,
+  useZchfPrice,
 } from "@hooks";
 import { useAccount, useChainId, useContractRead } from "wagmi";
 import { ABIS, ADDRESS } from "@contracts";
@@ -33,7 +34,7 @@ export default function PositionDetail() {
   const { challenges, loading: queryLoading } = useChallengeLists({ position });
   const { challengsData, loading } = useChallengeListStats(challenges);
   const collateralPrice = useTokenPrice(positionStats.collateral);
-  const zchfPrice = useTokenPrice(ADDRESS[chainId].frankenCoin);
+  const zchfPrice = useZchfPrice();
 
   const { data: positionAssignedReserve } = useContractRead({
     address: ADDRESS[chainId].frankenCoin,
