@@ -21,3 +21,4 @@ export * from "./useChallengeCount";
 export * from "./useTokenPrice";
 export * from "./useTokenPrices";
 export * from "./useFPSHolders";
+export * from "./useZchfPrice";
