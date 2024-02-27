@@ -284,6 +284,56 @@ export default function Home() {
             </div>
           </AppBox>
         </div>
+        <hr className="my-12 border-dashed border-slate-800" />
+        <h2 className="text-2xl font-bold text-center">
+          Wallets and Exchanges
+        </h2>
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4 p-4">
+          <Link
+            href="https://www.aktionariat.com/all-companies"
+            target="_blank"
+            className="flex items-center"
+          >
+            <picture>
+              <img
+                src="/coin/aktionariat.png"
+                alt="aktionariat logo"
+                className="h-12"
+              />
+            </picture>
+            <picture>
+              <img
+                src="/coin/aktionariat2.svg"
+                className="h-6 ml-2"
+                alt="aktionariat name"
+              />
+            </picture>
+          </Link>
+          <Link
+            href="https://exchange.dfx.swiss/"
+            target="_blank"
+            className="flex items-center justify-center"
+          >
+            <picture>
+              <img src="/coin/dfx.svg" alt="dfx logo" className="h-8" />
+            </picture>
+            <span className="font-bold text-4xl text-white ml-2">Swiss</span>
+          </Link>
+          <Link
+            href="https://app.uniswap.org/swap?inputCurrency=0xdAC17F958D2ee523a2206206994597C13D831ec7&outputCurrency=0xB58E61C3098d85632Df34EecfB899A1Ed80921cB&chain=mainnet"
+            target="_blank"
+            className="flex items-center justify-center"
+          >
+            <picture>
+              <img
+                src="/assets/uniswap.svg"
+                alt="dfx logo"
+                className="h-14 mb-3"
+              />
+            </picture>
+            <span className="font-bold text-4xl text-white ml-2">Uniswap</span>
+          </Link>
+        </div>
         {/* 
           <hr className="my-12 border-dashed border-slate-800" />
 
