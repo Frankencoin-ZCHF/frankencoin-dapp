@@ -339,7 +339,7 @@ export default function Home() {
           </div>
           <div className="flex">
             <Link
-              href="https://gitlab.com/frankencoin-zchf/frankencoin-dapp/-/merge_requests/new"
+              href="https://gitlab.com/frankencoin-zchf/frankencoin-dapp"
               className="text-link text-center w-full"
               target="_blank"
             >
