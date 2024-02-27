@@ -14,7 +14,7 @@ export const usePositionLists = () => {
   const { data, loading } = useQuery(
     gql`
       query {
-        positions {
+        positions(orderBy: "limitForClones", orderDirection: "desc") {
           items {
             id
             position
@@ -23,6 +23,7 @@ export const usePositionLists = () => {
             collateral
             price
             created
+            limitForClones
           }
         }
       }
