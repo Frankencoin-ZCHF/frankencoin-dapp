@@ -35,6 +35,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import AppBox from "@components/AppBox";
 import DateFieldInput from "@components/DateFieldInput";
+import Link from "next/link";
 
 export default function PositionCreate({}) {
   const router = useRouter();
@@ -210,81 +211,112 @@ export default function PositionCreate({}) {
         />
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-            <div className="text-lg font-bold text-center mt-3">
-              New Position Form
-            </div>
             <p>
               Propose a completely new position with a collateral of your
               choice.
             </p>
-            <div className="space-y-8">
-              <div className="mt-5">
-                <div className="px-1 flex-1">Collateral Token</div>
-                <div className="flex gap-2 items-center rounded-lg bg-slate-800 p-2">
-                  <div
-                    className={`flex-1 gap-1 rounded-lg text-white p-1 bg-slate-600 border-2 ${
-                      error
-                        ? "border-red-300"
-                        : "border-neutral-100 border-slate-600"
-                    }`}
-                  >
-                    <input
-                      className="w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg"
-                      placeholder="ERC20 Token Contract Address"
-                      value={collateralAddress}
-                      onChange={onChangeCollateralAddress}
-                    />
-                  </div>
-                </div>
-                <div className="mt-2 px-1 text-red-500">{error}</div>
-              </div>
-              <SwapFieldInput
-                label="Initial Collateral"
-                balanceLabel="Limit:"
-                symbol=""
-                error={error}
-                max={availableAmount}
-                value={amount.toString()}
-                onChange={onChangeAmount}
-                placeholder="Initial Collateral Amount"
-              />
-              <SwapFieldInput
-                label="Minimum Collateral"
-                balanceLabel="Limit:"
-                symbol="ZCHF"
-                error={error}
-                hideMaxLabel
-                value={amount.toString()}
-                onChange={onChangeAmount}
-                placeholder="Minimum Collateral Amount"
-              />
-              <SwapFieldInput
-                label="Liquidation Price"
-                balanceLabel="Limit:"
-                symbol="ZCHF"
-                error={error}
-                hideMaxLabel
-                value={amount.toString()}
-                onChange={onChangeAmount}
-                placeholder="Liquidation Price"
-              />
-              <div className="flex gap-2">
-                <DateFieldInput
-                  label="Expiration"
-                  max={positionStats.expiration}
-                  value={expirationDate}
-                  onChange={onChangeExpiration}
-                  error={errorDate}
-                />
-                <DateFieldInput
-                  label="Challenge"
-                  max={positionStats.expiration}
-                  value={expirationDate}
-                  onChange={onChangeExpiration}
-                  error={errorDate}
-                />
-              </div>
+
+            <div className="text-lg font-bold text-center mt-3">
+              Initialization
             </div>
+            <p>
+              It is recommended to{" "}
+              <Link
+                href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions"
+                target="_blank"
+              >
+                discuss
+              </Link>{" "}
+              new positions before initiating them to increase the probability
+              of passing the decentralized governance process.
+              <ol className="pl-6 list-disc">
+                <li>Non-refundable initialization fee: 1000 ZCHF</li>
+                <li>Initialization Period: 5 days</li>
+              </ol>
+            </p>
+
+            <div className="text-lg font-bold text-center mt-3">Collateral</div>
+            <p>
+              Provide the contract address of the desired collateral. The
+              minimum amount should be at least 5000 ZCHF worth of the
+              collateral at the liquidation price.
+            </p>
+
+            <div className="mt-5">
+              <div className="px-1 flex-1">Collateral Token</div>
+              <div className="flex gap-2 items-center rounded-lg bg-slate-800 p-2">
+                <div
+                  className={`flex-1 gap-1 rounded-lg text-white p-1 bg-slate-600 border-2 ${
+                    error
+                      ? "border-red-300"
+                      : "border-neutral-100 border-slate-600"
+                  }`}
+                >
+                  <input
+                    className="w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg"
+                    placeholder="ERC20 Token Contract Address"
+                    value={collateralAddress}
+                    onChange={onChangeCollateralAddress}
+                  />
+                </div>
+              </div>
+              <div className="mt-2 px-1 text-red-500">{error}</div>
+            </div>
+            <SwapFieldInput
+              label="Minimum Collateral"
+              balanceLabel="Limit:"
+              symbol="ZCHF"
+              error={error}
+              hideMaxLabel
+              value={amount.toString()}
+              onChange={onChangeAmount}
+              placeholder="Minimum Collateral Amount"
+            />
+          </div>
+          <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
+            <div className="text-lg font-bold text-center mt-3">
+              Financial Terms
+            </div>
+            <SwapFieldInput
+              label="Initial Collateral"
+              balanceLabel="Limit:"
+              symbol=""
+              error={error}
+              max={availableAmount}
+              value={amount.toString()}
+              onChange={onChangeAmount}
+              placeholder="Initial Collateral Amount"
+            />
+            <div className="flex gap-2">
+              <DateFieldInput
+                label="Maturity"
+                max={positionStats.expiration}
+                value={expirationDate}
+                onChange={onChangeExpiration}
+                error={errorDate}
+              />
+              <DateFieldInput
+                label="Challenge"
+                max={positionStats.expiration}
+                value={expirationDate}
+                onChange={onChangeExpiration}
+                error={errorDate}
+              />
+            </div>
+
+            <div className="text-lg font-bold text-center mt-3">
+              Liquidation
+            </div>
+            <SwapFieldInput
+              label="Liquidation Price"
+              balanceLabel="Limit:"
+              symbol="ZCHF"
+              error={error}
+              hideMaxLabel
+              value={amount.toString()}
+              onChange={onChangeAmount}
+              placeholder="Liquidation Price"
+            />
             <div className="mx-auto mt-8 w-72 max-w-full flex-col">
               {requiredColl > positionStats.collateralAllowance ? (
                 <Button
@@ -315,45 +347,6 @@ export default function PositionCreate({}) {
                   Create Position
                 </Button>
               )}
-            </div>
-          </div>
-          <div>
-            <div className="bg-slate-950 rounded-xl p-4 flex flex-col">
-              <div className="text-lg font-bold text-center">Notes</div>
-              <AppBox className="flex-1 mt-4">
-                <b>Create New Position</b>
-                <p>
-                  Propose a completely new position with a collateral of your
-                  choice.
-                </p>
-                <br />
-                <b>Initialization</b>
-                <p>
-                  It is recommended to discuss new positions before initiating
-                  them to increase the probability of passing the decentralized
-                  governance process.
-                  <ol className="pl-6 list-disc">
-                    <li>Non-refundable initialization fee: 1000 ZCHF</li>
-                    <li>Initialization Period: 5 days</li>
-                  </ol>
-                </p>
-                <br />
-                <b>Collateral</b>
-                <p>
-                  Provide the contract address of the desired collateral. The
-                  minimum amount should be at least 5000 ZCHF worth of the
-                  collateral at the liquidation price.
-                  <ol className="pl-6 list-disc">
-                    <li>ERC-20 token address required</li>
-                    <li>Minimum Amount: 100</li>
-                    <li>Liquidation Price: 0&gt;</li>
-                  </ol>
-                </p>
-                <p>
-                  In order to create the position, the mintinghub needs an
-                  allowance for the collateral.
-                </p>
-              </AppBox>
             </div>
           </div>
         </section>
