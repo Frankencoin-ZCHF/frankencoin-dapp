@@ -289,7 +289,7 @@ export default function Home() {
           <h2 className="text-2xl font-bold text-center">
             Wallets and Exchanges
           </h2>
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4 p-4">
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 items-center">
             <Link
               href="https://www.aktionariat.com/all-companies"
               target="_blank"
@@ -334,6 +334,22 @@ export default function Home() {
               </picture>
               <span className="font-bold text-4xl text-white ml-2">
                 Uniswap
+              </span>
+            </Link>
+            <Link
+              href="https://ammer.cash/"
+              target="_blank"
+              className="flex items-center justify-center md:col-span-3"
+            >
+              <picture>
+                <img
+                  src="/partner/ammer.svg"
+                  alt="ammer logo"
+                  className="h-14"
+                />
+              </picture>
+              <span className="font-bold text-4xl text-white ml-2">
+                Ammer Cash
               </span>
             </Link>
           </div>
