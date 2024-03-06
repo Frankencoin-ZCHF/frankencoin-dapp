@@ -22,3 +22,4 @@ export * from "./useTokenPrice";
 export * from "./useTokenPrices";
 export * from "./useFPSHolders";
 export * from "./useZchfPrice";
+export * from "./useTokenData";

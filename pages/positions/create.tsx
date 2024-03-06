@@ -10,7 +10,7 @@ import {
   isAddress,
 } from "viem";
 import SwapFieldInput from "@components/SwapFieldInput";
-import { usePositionStats } from "@hooks";
+import { usePositionStats, useTokenData } from "@hooks";
 import { useState } from "react";
 import DisplayAmount from "@components/DisplayAmount";
 import Button from "@components/Button";
@@ -49,6 +49,7 @@ export default function PositionCreate({}) {
   const chainId = useChainId();
   const position = getAddress(String(positionAddr || zeroAddress));
   const positionStats = usePositionStats(position);
+  const collTokenData = useTokenData(collateralAddress);
   const [expirationDate, setExpirationDate] = useState(new Date());
   const requiredColl =
     positionStats.liqPrice > 0 &&
@@ -265,7 +266,7 @@ export default function PositionCreate({}) {
             <SwapFieldInput
               label="Minimum Collateral"
               balanceLabel="Limit:"
-              symbol="ZCHF"
+              symbol={collTokenData.symbol}
               error={error}
               hideMaxLabel
               value={amount.toString()}
