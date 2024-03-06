@@ -44,9 +44,9 @@ export default function PositionBorrow({}) {
   const [expirationDate, setExpirationDate] = useState(new Date());
   const requiredColl =
     positionStats.liqPrice > 0 &&
-    (BigInt(1e18) * amount) / positionStats.liqPrice >
+    (BigInt(1e18) * amount + positionStats.liqPrice - 1n) / positionStats.liqPrice >
       positionStats.minimumCollateral
-      ? (BigInt(1e18) * amount) / positionStats.liqPrice
+      ? (BigInt(1e18) * amount + positionStats.liqPrice - 1n) / positionStats.liqPrice
       : positionStats.minimumCollateral;
 
   useEffect(() => {
