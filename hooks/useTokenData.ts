@@ -33,8 +33,8 @@ export const useTokenData = (addr: string) => {
     ],
   });
 
-  const name = data ? String(data[0].result) : "NaN";
-  const symbol = data ? String(data[1].result) : "NaN";
+  const name = data && !data[0].error ? String(data[0].result) : "NaN";
+  const symbol = data && !data[1].error ? String(data[1].result) : "NaN";
   const decimals = data ? decodeBigIntCall(data[2]) : BigInt(0);
   const balance = data ? decodeBigIntCall(data[3]) : BigInt(0);
 

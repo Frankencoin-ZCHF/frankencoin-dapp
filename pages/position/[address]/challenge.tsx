@@ -4,7 +4,7 @@ import AppBox from "@components/AppBox";
 import AppPageHeader from "@components/AppPageHeader";
 import Button from "@components/Button";
 import DisplayAmount from "@components/DisplayAmount";
-import SwapFieldInput from "@components/SwapFieldInput";
+import TokenInput from "@components/Input/TokenInput";
 import { usePositionStats, useTokenPrice, useZchfPrice } from "@hooks";
 import { getAddress, zeroAddress } from "viem";
 import { useState } from "react";
@@ -175,7 +175,7 @@ export default function PositionChallenge() {
             <div className="text-lg font-bold text-center mt-3">
               Challenge Details
             </div>
-            <SwapFieldInput
+            <TokenInput
               symbol={positionStats.collateralSymbol}
               max={positionStats.collateralUserBal}
               digit={positionStats.collateralDecimal}

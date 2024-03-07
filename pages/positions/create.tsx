@@ -2,17 +2,10 @@ import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import {
-  formatUnits,
-  getAddress,
-  zeroAddress,
-  maxUint256,
-  isAddress,
-} from "viem";
-import SwapFieldInput from "@components/SwapFieldInput";
+import { getAddress, zeroAddress, maxUint256 } from "viem";
+import TokenInput from "@components/Input/TokenInput";
 import { usePositionStats, useTokenData } from "@hooks";
 import { useState } from "react";
-import DisplayAmount from "@components/DisplayAmount";
 import Button from "@components/Button";
 import { erc20ABI, useAccount, useChainId, useContractWrite } from "wagmi";
 import { waitForTransaction } from "wagmi/actions";
@@ -28,20 +21,20 @@ import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCalendarDays,
-  faHourglassStart,
-} from "@fortawesome/free-solid-svg-icons";
 import AppBox from "@components/AppBox";
-import DateFieldInput from "@components/DateFieldInput";
+import DateInput from "@components/Input/DateInput";
 import Link from "next/link";
+import NormalInput from "@components/Input/NormalInput";
+import AddressInput from "@components/Input/AddressInput";
 
 export default function PositionCreate({}) {
   const router = useRouter();
-  const [amount, setAmount] = useState(0n);
+  const [collAmount, setCollAmount] = useState(0n);
+  const [limitAmount, setLimitAmount] = useState(10_000_000n * BigInt(1e18));
   const [collateralAddress, setCollateralAddress] = useState("");
-  const [error, setError] = useState("");
+  const [collAmountError, setCollAmountError] = useState("");
+  const [collTokenAddrError, setCollTokenAddrError] = useState("");
+  const [limitAmountError, setLimitAmountError] = useState("");
   const [errorDate, setErrorDate] = useState("");
   const [isConfirming, setIsConfirming] = useState(false);
   const { address: positionAddr } = router.query;
@@ -53,9 +46,9 @@ export default function PositionCreate({}) {
   const [expirationDate, setExpirationDate] = useState(new Date());
   const requiredColl =
     positionStats.liqPrice > 0 &&
-    (BigInt(1e18) * amount) / positionStats.liqPrice >
+    (BigInt(1e18) * collAmount) / positionStats.liqPrice >
       positionStats.minimumCollateral
-      ? (BigInt(1e18) * amount) / positionStats.liqPrice
+      ? (BigInt(1e18) * collAmount) / positionStats.liqPrice
       : positionStats.minimumCollateral;
 
   useEffect(() => {
@@ -63,8 +56,16 @@ export default function PositionCreate({}) {
     setExpirationDate(toDate(positionStats.expiration));
   }, [positionStats.expiration]);
 
+  useEffect(() => {
+    if (collTokenData.name == "NaN") {
+      setCollTokenAddrError("Please input valid ERC20 token contract");
+    } else {
+      setCollTokenAddrError("");
+    }
+  }, [collTokenData]);
+
   const borrowersReserveContribution =
-    (positionStats.reserveContribution * amount) / 1_000_000n;
+    (positionStats.reserveContribution * collAmount) / 1_000_000n;
 
   function toDate(blocktime: bigint) {
     return new Date(Number(blocktime) * 1000);
@@ -80,46 +81,31 @@ export default function PositionCreate({}) {
     ) *
       positionStats.annualInterestPPM) /
     BigInt(60 * 60 * 24 * 365);
-  const fees = (feePercent * amount) / 1_000_000n;
-  const paidOutToWallet = amount - borrowersReserveContribution - fees;
   const availableAmount = positionStats.available;
-  const userValue =
-    (positionStats.collateralUserBal * positionStats.liqPrice) / BigInt(1e18);
-  const borrowingLimit = min(availableAmount, userValue);
 
-  const onChangeAmount = (value: string) => {
+  const onChangeCollAmount = (value: string) => {
     const valueBigInt = BigInt(value);
-    setAmount(valueBigInt);
-    if (valueBigInt > borrowingLimit) {
-      if (availableAmount > userValue) {
-        setError(
-          `Not enough ${positionStats.collateralSymbol} in your wallet.`
-        );
-      } else {
-        setError("Not enough ZCHF available for this position.");
-      }
+    setCollAmount(valueBigInt);
+    if (valueBigInt > collTokenData.balance) {
+      setCollAmountError(`Not enough ${collTokenData.symbol} in your wallet.`);
     } else {
-      setError("");
+      setCollAmountError("");
     }
   };
 
-  const onChangeCollateralAddress = (e: any) => {
-    setCollateralAddress(e.target.value);
-
-    if (isAddress(e.target.value)) {
-      setError("");
+  const onChangeLimitAmount = (value: string) => {
+    const valueBigInt = BigInt(value);
+    setLimitAmount(valueBigInt);
+    // TODO: Update conditions
+    if (valueBigInt > collTokenData.balance) {
+      setLimitAmountError(`Not enough ${collTokenData.symbol} in your wallet.`);
     } else {
-      setError("Please input address in valid EOA address format.");
+      setLimitAmountError("");
     }
   };
-  const onChangeCollateral = (value: string) => {
-    const valueBigInt = (BigInt(value) * positionStats.liqPrice) / BigInt(1e18);
-    if (valueBigInt > borrowingLimit) {
-      setError("Cannot borrow more than " + borrowingLimit + "." + valueBigInt);
-    } else {
-      setError("");
-    }
-    setAmount(valueBigInt);
+
+  const onChangeCollateralAddress = (addr: string) => {
+    setCollateralAddress(addr);
   };
 
   const onChangeExpiration = (value: Date | null) => {
@@ -243,34 +229,21 @@ export default function PositionCreate({}) {
               collateral at the liquidation price.
             </p>
 
-            <div className="mt-5">
-              <div className="px-1 flex-1">Collateral Token</div>
-              <div className="flex gap-2 items-center rounded-lg bg-slate-800 p-2">
-                <div
-                  className={`flex-1 gap-1 rounded-lg text-white p-1 bg-slate-600 border-2 ${
-                    error
-                      ? "border-red-300"
-                      : "border-neutral-100 border-slate-600"
-                  }`}
-                >
-                  <input
-                    className="w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg"
-                    placeholder="ERC20 Token Contract Address"
-                    value={collateralAddress}
-                    onChange={onChangeCollateralAddress}
-                  />
-                </div>
-              </div>
-              <div className="mt-2 px-1 text-red-500">{error}</div>
-            </div>
-            <SwapFieldInput
+            <AddressInput
+              label="Collateral Token"
+              error={collTokenAddrError}
+              placeholder="ERC20 Token Contract Address"
+              value={collateralAddress}
+              onChange={onChangeCollateralAddress}
+            />
+            <TokenInput
               label="Minimum Collateral"
-              balanceLabel="Limit:"
               symbol={collTokenData.symbol}
-              error={error}
-              hideMaxLabel
-              value={amount.toString()}
-              onChange={onChangeAmount}
+              error={collAmountError}
+              max={collTokenData.balance}
+              value={collAmount.toString()}
+              onChange={onChangeCollAmount}
+              digit={collTokenData.decimals}
               placeholder="Minimum Collateral Amount"
             />
           </div>
@@ -278,50 +251,73 @@ export default function PositionCreate({}) {
             <div className="text-lg font-bold text-center mt-3">
               Financial Terms
             </div>
-            <SwapFieldInput
-              label="Initial Collateral"
-              balanceLabel="Limit:"
-              symbol=""
-              error={error}
-              max={availableAmount}
-              value={amount.toString()}
-              onChange={onChangeAmount}
-              placeholder="Initial Collateral Amount"
+            <TokenInput
+              label="Limit"
+              hideMaxLabel
+              symbol="ZCHF"
+              error={limitAmountError}
+              value={limitAmount.toString()}
+              onChange={onChangeLimitAmount}
+              placeholder="Limit Amount"
             />
-            <div className="flex gap-2">
-              <DateFieldInput
-                label="Maturity"
-                max={positionStats.expiration}
-                value={expirationDate}
-                onChange={onChangeExpiration}
-                error={errorDate}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <NormalInput
+                label="Annual Interest"
+                symbol="%"
+                error={collAmountError}
+                max={availableAmount}
+                value={collAmount.toString()}
+                onChange={onChangeCollAmount}
+                placeholder="Annual Interest Percent"
               />
-              <DateFieldInput
-                label="Challenge"
-                max={positionStats.expiration}
-                value={expirationDate}
-                onChange={onChangeExpiration}
-                error={errorDate}
+              <NormalInput
+                label="Maturity"
+                symbol="months"
+                error={collAmountError}
+                max={availableAmount}
+                value={collAmount.toString()}
+                onChange={onChangeCollAmount}
+                placeholder="Annual Interest Percent"
               />
             </div>
 
             <div className="text-lg font-bold text-center mt-3">
               Liquidation
             </div>
-            <SwapFieldInput
+            <TokenInput
               label="Liquidation Price"
               balanceLabel="Limit:"
               symbol="ZCHF"
-              error={error}
+              error={collAmountError}
               hideMaxLabel
-              value={amount.toString()}
-              onChange={onChangeAmount}
+              value={collAmount.toString()}
+              onChange={onChangeCollAmount}
               placeholder="Liquidation Price"
             />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <NormalInput
+                label="Buffer"
+                symbol="%"
+                error={collAmountError}
+                max={availableAmount}
+                value={collAmount.toString()}
+                onChange={onChangeCollAmount}
+                placeholder="Annual Interest Percent"
+              />
+              <NormalInput
+                label="Auction Duration"
+                symbol="hours"
+                error={collAmountError}
+                max={availableAmount}
+                value={collAmount.toString()}
+                onChange={onChangeCollAmount}
+                placeholder="Annual Interest Percent"
+              />
+            </div>
             <div className="mx-auto mt-8 w-72 max-w-full flex-col">
               {requiredColl > positionStats.collateralAllowance ? (
                 <Button
-                  disabled={amount == 0n || !!error}
+                  disabled={collAmount == 0n || !!collAmountError}
                   isLoading={approveWrite.isLoading || isConfirming}
                   onClick={() => handleApprove()}
                 >
@@ -330,7 +326,7 @@ export default function PositionCreate({}) {
               ) : (
                 <Button
                   variant="primary"
-                  disabled={amount == 0n || !!error}
+                  disabled={collAmount == 0n || !!collAmountError}
                   isLoading={cloneWrite.isLoading || isConfirming}
                   onClick={() => {}}
                   error={

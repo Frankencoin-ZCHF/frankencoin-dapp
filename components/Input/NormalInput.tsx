@@ -1,9 +1,4 @@
-import { useAccount } from "wagmi";
-import DisplayAmount from "./DisplayAmount";
-import { formatBigInt } from "@utils";
 import { BigNumberInput } from "./BigNumberInput";
-import dynamic from "next/dynamic";
-const TokenLogo = dynamic(() => import("./TokenLogo"), { ssr: false });
 
 interface Props {
   label?: string;
@@ -22,45 +17,25 @@ interface Props {
   error?: string;
 }
 
-export default function SwapFieldInput({
+export default function NormalInput({
   label = "Send",
   placeholder = "Input Amount",
   symbol,
   max = 0n,
   digit = 18n,
-  balanceLabel = "Balance: ",
-  hideMaxLabel,
-  limit = 0n,
-  limitLabel,
   output,
   note,
   value,
   onChange,
   error,
 }: Props) {
-  const { isConnected } = useAccount();
-
   return (
     <div>
       <div className="mb-1 flex gap-2 px-1">
         <div className="flex-1">{label}</div>
-        {isConnected && symbol && (
-          <div
-            className={`flex gap-2 items-center cursor-pointer ${
-              hideMaxLabel && "hidden"
-            }`}
-            onClick={() => onChange?.(max.toString())}
-          >
-            {balanceLabel}
-            <span className="font-bold text-link">
-              {formatBigInt(max, Number(digit))} {symbol}
-            </span>
-          </div>
-        )}
       </div>
 
       <div className="flex items-center rounded-lg bg-slate-800 p-2">
-        <TokenLogo currency={symbol} size={10} />
         <div className="flex-1">
           {output ? (
             <div className="px-3 py-2 font-bold transition-opacity">
@@ -84,20 +59,11 @@ export default function SwapFieldInput({
           )}
         </div>
 
-        <div className="hidden w-20 px-4 text-end font-bold sm:block">
+        <div className="hidden w-16 text-center font-bold sm:block">
           {symbol}
         </div>
       </div>
       {error && <div className="mt-2 px-1 text-red-500">{error}</div>}
-      <div className="mt-2 px-1 flex items-center">
-        {limit >= 0n && limitLabel && (
-          <>
-            <span>{limitLabel} :&nbsp;</span>
-            <DisplayAmount amount={limit} currency={symbol} />
-          </>
-        )}
-        {note && <span>{note}</span>}
-      </div>
     </div>
   );
 }

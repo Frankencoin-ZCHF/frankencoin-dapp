@@ -3,7 +3,7 @@ import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import { useRouter } from "next/router";
 import AppBox from "@components/AppBox";
-import SwapFieldInput from "@components/SwapFieldInput";
+import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
 import {
   useChallengeListStats,
@@ -183,7 +183,7 @@ export default function ChallengePlaceBid({}) {
             </div>
             <div className="space-y-12">
               <div className="space-y-4">
-                <SwapFieldInput
+                <TokenInput
                   label="You are buying"
                   max={min(positionStats.collateralUserBal, remainingCol)}
                   value={amount.toString()}

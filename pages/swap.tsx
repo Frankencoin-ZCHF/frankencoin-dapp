@@ -1,6 +1,6 @@
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
-import SwapFieldInput from "@components/SwapFieldInput";
+import TokenInput from "@components/Input/TokenInput";
 import { useState } from "react";
 import { useSwapStats } from "@hooks";
 import { formatUnits, maxUint256 } from "viem";
@@ -201,7 +201,7 @@ export default function Swap() {
         <AppPageHeader title="Swap XCHF and ZCHF" />
         <section className="mx-auto flex max-w-2xl flex-col gap-y-4 px-4 sm:px-8">
           <div className="bg-slate-950 rounded-xl p-8">
-            <SwapFieldInput
+            <TokenInput
               max={fromBalance}
               symbol={fromSymbol}
               limit={swapLimit}
@@ -226,7 +226,7 @@ export default function Swap() {
               </button>
             </div>
 
-            <SwapFieldInput
+            <TokenInput
               symbol={toSymbol}
               max={toBalance}
               output={formatUnits(amount, 18)}

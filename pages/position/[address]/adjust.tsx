@@ -4,7 +4,7 @@ import { formatUnits, getAddress, zeroAddress } from "viem";
 import { usePositionStats } from "@hooks";
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
-import SwapFieldInput from "@components/SwapFieldInput";
+import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
 import { abs, formatBigInt, shortenAddress } from "@utils";
 import Button from "@components/Button";
@@ -231,7 +231,7 @@ export default function PositionAdjust() {
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
             <div className="text-lg font-bold text-center">Variables</div>
-            <SwapFieldInput
+            <TokenInput
               label="Amount"
               symbol="ZCHF"
               output={positionStats.closed ? "0" : ""}
@@ -242,7 +242,7 @@ export default function PositionAdjust() {
               error={getAmountError()}
               placeholder="Loan Amount"
             />
-            <SwapFieldInput
+            <TokenInput
               label="Collateral"
               balanceLabel="Max:"
               symbol={positionStats.collateralSymbol}
@@ -256,7 +256,7 @@ export default function PositionAdjust() {
               error={getCollateralError()}
               placeholder="Collateral Amount"
             />
-            <SwapFieldInput
+            <TokenInput
               label="Liquidation Price"
               balanceLabel="Current Value"
               symbol={"ZCHF"}
@@ -279,7 +279,9 @@ export default function PositionAdjust() {
                 <Button
                   variant="primary"
                   disabled={
-                    (amount == positionStats.minted && collateralAmount == positionStats.collateralBal && liqPrice == positionStats.liqPrice) ||
+                    (amount == positionStats.minted &&
+                      collateralAmount == positionStats.collateralBal &&
+                      liqPrice == positionStats.liqPrice) ||
                     !!getAmountError() ||
                     !!getCollateralError()
                   }

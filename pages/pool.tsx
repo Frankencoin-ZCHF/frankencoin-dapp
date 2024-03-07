@@ -19,7 +19,7 @@ import {
 } from "wagmi";
 import { waitForTransaction } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
-import SwapFieldInput from "@components/SwapFieldInput";
+import TokenInput from "@components/Input/TokenInput";
 import { useState } from "react";
 import { formatUnits, zeroAddress } from "viem";
 import Button from "@components/Button";
@@ -226,7 +226,7 @@ export default function Pool() {
           <div className="bg-slate-950 rounded-xl p-4 flex flex-col">
             <div className="text-lg font-bold text-center">Pool Details</div>
             <div className="p-4 mt-5">
-              <SwapFieldInput
+              <TokenInput
                 max={fromBalance}
                 symbol={fromSymbol}
                 onChange={onChangeAmount}
@@ -247,7 +247,7 @@ export default function Pool() {
                   />
                 </button>
               </div>
-              <SwapFieldInput
+              <TokenInput
                 symbol={toSymbol}
                 hideMaxLabel
                 output={formatUnits(result, 18)}
