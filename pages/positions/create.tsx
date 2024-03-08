@@ -31,30 +31,24 @@ export default function PositionCreate({}) {
   const router = useRouter();
   const [collAmount, setCollAmount] = useState(0n);
   const [limitAmount, setLimitAmount] = useState(10_000_000n * BigInt(1e18));
+  const [liqPrice, setLiqPrice] = useState(0n);
+  const [interest, setInterest] = useState(300n);
+  const [maturity, setMaturity] = useState(12n);
+  const [buffer, setBuffer] = useState(2000n);
+  const [auctionDuration, setAuctionDuration] = useState(24n);
   const [collateralAddress, setCollateralAddress] = useState("");
   const [collAmountError, setCollAmountError] = useState("");
   const [collTokenAddrError, setCollTokenAddrError] = useState("");
   const [limitAmountError, setLimitAmountError] = useState("");
+  const [interestError, setInterestError] = useState("");
+  const [liqPriceError, setLiqPriceError] = useState("");
+  const [bufferError, setBufferError] = useState("");
+  const [auctionError, setAuctionError] = useState("");
   const [errorDate, setErrorDate] = useState("");
   const [isConfirming, setIsConfirming] = useState(false);
-  const { address: positionAddr } = router.query;
 
   const chainId = useChainId();
-  const position = getAddress(String(positionAddr || zeroAddress));
-  const positionStats = usePositionStats(position);
   const collTokenData = useTokenData(collateralAddress);
-  const [expirationDate, setExpirationDate] = useState(new Date());
-  const requiredColl =
-    positionStats.liqPrice > 0 &&
-    (BigInt(1e18) * collAmount) / positionStats.liqPrice >
-      positionStats.minimumCollateral
-      ? (BigInt(1e18) * collAmount) / positionStats.liqPrice
-      : positionStats.minimumCollateral;
-
-  useEffect(() => {
-    // to set initial date during loading
-    setExpirationDate(toDate(positionStats.expiration));
-  }, [positionStats.expiration]);
 
   useEffect(() => {
     if (collTokenData.name == "NaN") {
@@ -64,24 +58,9 @@ export default function PositionCreate({}) {
     }
   }, [collTokenData]);
 
-  const borrowersReserveContribution =
-    (positionStats.reserveContribution * collAmount) / 1_000_000n;
-
   function toDate(blocktime: bigint) {
     return new Date(Number(blocktime) * 1000);
   }
-
-  // max(4 weeks, ((chosen expiration) - (current block))) * position.annualInterestPPM() / (365 days) / 1000000
-  const feePercent =
-    (BigInt(
-      Math.max(
-        60 * 60 * 24 * 30,
-        Math.floor((expirationDate.getTime() - Date.now()) / 1000)
-      )
-    ) *
-      positionStats.annualInterestPPM) /
-    BigInt(60 * 60 * 24 * 365);
-  const availableAmount = positionStats.available;
 
   const onChangeCollAmount = (value: string) => {
     const valueBigInt = BigInt(value);
@@ -108,26 +87,39 @@ export default function PositionCreate({}) {
     setCollateralAddress(addr);
   };
 
-  const onChangeExpiration = (value: Date | null) => {
-    if (!value) value = new Date();
-    const newTimestamp = toTimestamp(value);
-    const bottomLimit = toTimestamp(new Date());
-    const uppperLimit = positionStats.expiration;
+  const onChangeInterest = (value: string) => {
+    const valueBigInt = BigInt(value);
+    setInterest(valueBigInt);
 
-    if (newTimestamp < bottomLimit || newTimestamp > uppperLimit) {
-      setErrorDate("Expiration Date should be between Now and Limit");
+    if (valueBigInt >= 10000n) {
+      setInterestError("Annual Interest Rate is too high");
     } else {
-      setErrorDate("");
+      setInterestError("");
     }
-    setExpirationDate(value);
   };
 
-  const onMaxExpiration = () => {
-    setExpirationDate(toDate(positionStats.expiration));
+  const onChangeMaturity = (value: string) => {
+    const valueBigInt = BigInt(value);
+    setMaturity(valueBigInt);
+  };
+
+  const onChangeLiqPrice = (value: string) => {
+    const valueBigInt = BigInt(value);
+    setLiqPrice(valueBigInt);
+  };
+
+  const onChangeBuffer = (value: string) => {
+    const valueBigInt = BigInt(value);
+    setBuffer(valueBigInt);
+  };
+
+  const onChangeAuction = (value: string) => {
+    const valueBigInt = BigInt(value);
+    setAuctionDuration(valueBigInt);
   };
 
   const approveWrite = useContractWrite({
-    address: positionStats.collateral,
+    address: collTokenData.address,
     abi: erc20ABI,
     functionName: "approve",
   });
@@ -145,7 +137,7 @@ export default function PositionCreate({}) {
     const toastContent = [
       {
         title: "Amount:",
-        value: "infinite " + positionStats.collateralSymbol,
+        value: "infinite " + collTokenData.symbol,
       },
       {
         title: "Spender: ",
@@ -163,7 +155,7 @@ export default function PositionCreate({}) {
         pending: {
           render: (
             <TxToast
-              title={`Approving ${positionStats.collateralSymbol}`}
+              title={`Approving ${collTokenData.symbol}`}
               rows={toastContent}
             />
           ),
@@ -171,7 +163,7 @@ export default function PositionCreate({}) {
         success: {
           render: (
             <TxToast
-              title={`Successfully Approved ${positionStats.collateralSymbol}`}
+              title={`Successfully Approved ${collTokenData.symbol}`}
               rows={toastContent}
             />
           ),
@@ -264,20 +256,21 @@ export default function PositionCreate({}) {
               <NormalInput
                 label="Annual Interest"
                 symbol="%"
-                error={collAmountError}
-                max={availableAmount}
-                value={collAmount.toString()}
-                onChange={onChangeCollAmount}
+                error={interestError}
+                digit={2}
+                hideMaxLabel
+                value={interest.toString()}
+                onChange={onChangeInterest}
                 placeholder="Annual Interest Percent"
               />
               <NormalInput
                 label="Maturity"
                 symbol="months"
-                error={collAmountError}
-                max={availableAmount}
-                value={collAmount.toString()}
-                onChange={onChangeCollAmount}
-                placeholder="Annual Interest Percent"
+                hideMaxLabel
+                digit={0}
+                value={maturity.toString()}
+                onChange={onChangeMaturity}
+                placeholder="Maturity"
               />
             </div>
 
@@ -288,34 +281,36 @@ export default function PositionCreate({}) {
               label="Liquidation Price"
               balanceLabel="Limit:"
               symbol="ZCHF"
-              error={collAmountError}
+              error={liqPriceError}
               hideMaxLabel
-              value={collAmount.toString()}
-              onChange={onChangeCollAmount}
+              value={liqPrice.toString()}
+              onChange={onChangeLiqPrice}
               placeholder="Liquidation Price"
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <NormalInput
                 label="Buffer"
                 symbol="%"
-                error={collAmountError}
-                max={availableAmount}
-                value={collAmount.toString()}
-                onChange={onChangeCollAmount}
-                placeholder="Annual Interest Percent"
+                error={bufferError}
+                digit={2}
+                hideMaxLabel
+                value={buffer.toString()}
+                onChange={onChangeBuffer}
+                placeholder="Buffer Percent"
               />
               <NormalInput
                 label="Auction Duration"
                 symbol="hours"
-                error={collAmountError}
-                max={availableAmount}
-                value={collAmount.toString()}
-                onChange={onChangeCollAmount}
-                placeholder="Annual Interest Percent"
+                error={auctionError}
+                hideMaxLabel
+                digit={0}
+                value={auctionDuration.toString()}
+                onChange={onChangeAuction}
+                placeholder="Auction Duration"
               />
             </div>
             <div className="mx-auto mt-8 w-72 max-w-full flex-col">
-              {requiredColl > positionStats.collateralAllowance ? (
+              {collAmount > collTokenData.balance ? (
                 <Button
                   disabled={collAmount == 0n || !!collAmountError}
                   isLoading={approveWrite.isLoading || isConfirming}
@@ -329,17 +324,6 @@ export default function PositionCreate({}) {
                   disabled={collAmount == 0n || !!collAmountError}
                   isLoading={cloneWrite.isLoading || isConfirming}
                   onClick={() => {}}
-                  error={
-                    requiredColl < positionStats.minimumCollateral
-                      ? "A position must have at least " +
-                        formatBigInt(
-                          positionStats.minimumCollateral,
-                          Number(positionStats.collateralDecimal)
-                        ) +
-                        " " +
-                        positionStats.collateralSymbol
-                      : ""
-                  }
                 >
                   Create Position
                 </Button>
