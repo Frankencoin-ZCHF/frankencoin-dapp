@@ -1,12 +1,15 @@
 import { getAddress, isAddress, zeroAddress } from "viem";
-import { erc20ABI, useAccount, useContractReads } from "wagmi";
+import { erc20ABI, mainnet, useAccount, useContractReads } from "wagmi";
 import { decodeBigIntCall } from "../utils/format";
+import { ADDRESS } from "../contracts/address";
 
 export const useTokenData = (addr: string) => {
   if (!isAddress(addr)) addr = zeroAddress;
   const tokenAddress = getAddress(addr);
   const { address } = useAccount();
 
+  const account = address || zeroAddress;
+  const mintingHub = ADDRESS[mainnet.id].mintingHub;
   const { data } = useContractReads({
     contracts: [
       {
@@ -28,7 +31,13 @@ export const useTokenData = (addr: string) => {
         address: tokenAddress,
         abi: erc20ABI,
         functionName: "balanceOf",
-        args: [address || zeroAddress],
+        args: [account],
+      },
+      {
+        address: tokenAddress,
+        abi: erc20ABI,
+        functionName: "allowance",
+        args: [account, mintingHub],
       },
     ],
   });
@@ -37,6 +46,7 @@ export const useTokenData = (addr: string) => {
   const symbol = data && !data[1].error ? String(data[1].result) : "NaN";
   const decimals = data ? decodeBigIntCall(data[2]) : BigInt(0);
   const balance = data ? decodeBigIntCall(data[3]) : BigInt(0);
+  const allowance = data ? decodeBigIntCall(data[4]) : BigInt(0);
 
   return {
     address: tokenAddress,
@@ -44,5 +54,6 @@ export const useTokenData = (addr: string) => {
     symbol,
     decimals,
     balance,
+    allowance,
   };
 };

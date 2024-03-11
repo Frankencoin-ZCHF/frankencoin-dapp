@@ -30,21 +30,22 @@ import AddressInput from "@components/Input/AddressInput";
 export default function PositionCreate({}) {
   const router = useRouter();
   const [collAmount, setCollAmount] = useState(0n);
+  const [initialCollAmount, setInitialCollAmount] = useState(0n);
   const [limitAmount, setLimitAmount] = useState(10_000_000n * BigInt(1e18));
   const [liqPrice, setLiqPrice] = useState(0n);
-  const [interest, setInterest] = useState(300n);
+  const [interest, setInterest] = useState(30000n);
   const [maturity, setMaturity] = useState(12n);
-  const [buffer, setBuffer] = useState(2000n);
+  const [buffer, setBuffer] = useState(200000n);
   const [auctionDuration, setAuctionDuration] = useState(24n);
   const [collateralAddress, setCollateralAddress] = useState("");
   const [collAmountError, setCollAmountError] = useState("");
+  const [initialCollAmountError, setInitialCollAmountError] = useState("");
   const [collTokenAddrError, setCollTokenAddrError] = useState("");
   const [limitAmountError, setLimitAmountError] = useState("");
   const [interestError, setInterestError] = useState("");
   const [liqPriceError, setLiqPriceError] = useState("");
   const [bufferError, setBufferError] = useState("");
   const [auctionError, setAuctionError] = useState("");
-  const [errorDate, setErrorDate] = useState("");
   const [isConfirming, setIsConfirming] = useState(false);
 
   const chainId = useChainId();
@@ -69,6 +70,18 @@ export default function PositionCreate({}) {
       setCollAmountError(`Not enough ${collTokenData.symbol} in your wallet.`);
     } else {
       setCollAmountError("");
+    }
+  };
+
+  const onChangeInitialCollAmount = (value: string) => {
+    const valueBigInt = BigInt(value);
+    setInitialCollAmount(valueBigInt);
+    if (valueBigInt > collTokenData.balance) {
+      setInitialCollAmountError(
+        `Not enough ${collTokenData.symbol} in your wallet.`
+      );
+    } else {
+      setInitialCollAmountError("");
     }
   };
 
@@ -118,15 +131,28 @@ export default function PositionCreate({}) {
     setAuctionDuration(valueBigInt);
   };
 
+  const hasFormError = () => {
+    return (
+      !!collAmountError ||
+      !!initialCollAmountError ||
+      !!collTokenAddrError ||
+      !!limitAmountError ||
+      !!interestError ||
+      !!liqPriceError ||
+      !!bufferError ||
+      !!auctionError
+    );
+  };
+
   const approveWrite = useContractWrite({
     address: collTokenData.address,
     abi: erc20ABI,
     functionName: "approve",
   });
-  const cloneWrite = useContractWrite({
+  const openWrite = useContractWrite({
     address: ADDRESS[chainId].mintingHub,
     abi: ABIS.MintingHubABI,
-    functionName: "clone",
+    functionName: "openPosition",
   });
 
   const handleApprove = async () => {
@@ -134,6 +160,64 @@ export default function PositionCreate({}) {
       args: [ADDRESS[chainId].mintingHub, maxUint256],
     });
 
+    const toastContent = [
+      {
+        title: "Amount:",
+        value: "infinite " + collTokenData.symbol,
+      },
+      {
+        title: "Spender: ",
+        value: shortenAddress(ADDRESS[chainId].mintingHub),
+      },
+      {
+        title: "Transaction:",
+        hash: tx.hash,
+      },
+    ];
+
+    await toast.promise(
+      waitForTransaction({ hash: tx.hash, confirmations: 1 }),
+      {
+        pending: {
+          render: (
+            <TxToast
+              title={`Approving ${collTokenData.symbol}`}
+              rows={toastContent}
+            />
+          ),
+        },
+        success: {
+          render: (
+            <TxToast
+              title={`Successfully Approved ${collTokenData.symbol}`}
+              rows={toastContent}
+            />
+          ),
+        },
+        error: {
+          render(error: any) {
+            return renderErrorToast(error);
+          },
+        },
+      }
+    );
+  };
+
+  const handleOpenPosition = async () => {
+    const tx = await openWrite.writeAsync({
+      args: [
+        collTokenData.address,
+        collAmount,
+        initialCollAmount,
+        limitAmount,
+        0n, // Init period
+        maturity * 86400n * 30n,
+        auctionDuration * 3600n,
+        Number(interest),
+        liqPrice,
+        Number(buffer),
+      ],
+    });
     const toastContent = [
       {
         title: "Amount:",
@@ -238,6 +322,16 @@ export default function PositionCreate({}) {
               digit={collTokenData.decimals}
               placeholder="Minimum Collateral Amount"
             />
+            <TokenInput
+              label="Initial Collateral"
+              symbol={collTokenData.symbol}
+              error={initialCollAmountError}
+              max={collTokenData.balance}
+              value={initialCollAmount.toString()}
+              onChange={onChangeInitialCollAmount}
+              digit={collTokenData.decimals}
+              placeholder="Initial Collateral Amount"
+            />
           </div>
           <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
             <div className="text-lg font-bold text-center mt-3">
@@ -257,7 +351,7 @@ export default function PositionCreate({}) {
                 label="Annual Interest"
                 symbol="%"
                 error={interestError}
-                digit={2}
+                digit={4}
                 hideMaxLabel
                 value={interest.toString()}
                 onChange={onChangeInterest}
@@ -292,7 +386,7 @@ export default function PositionCreate({}) {
                 label="Buffer"
                 symbol="%"
                 error={bufferError}
-                digit={2}
+                digit={4}
                 hideMaxLabel
                 value={buffer.toString()}
                 onChange={onChangeBuffer}
@@ -310,7 +404,7 @@ export default function PositionCreate({}) {
               />
             </div>
             <div className="mx-auto mt-8 w-72 max-w-full flex-col">
-              {collAmount > collTokenData.balance ? (
+              {collAmount > collTokenData.allowance ? (
                 <Button
                   disabled={collAmount == 0n || !!collAmountError}
                   isLoading={approveWrite.isLoading || isConfirming}
@@ -321,9 +415,9 @@ export default function PositionCreate({}) {
               ) : (
                 <Button
                   variant="primary"
-                  disabled={collAmount == 0n || !!collAmountError}
-                  isLoading={cloneWrite.isLoading || isConfirming}
-                  onClick={() => {}}
+                  disabled={collAmount == 0n || hasFormError()}
+                  isLoading={openWrite.isLoading || isConfirming}
+                  onClick={() => handleOpenPosition()}
                 >
                   Create Position
                 </Button>
