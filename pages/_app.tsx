@@ -9,7 +9,7 @@ import { Web3Modal } from "@components/Web3Modal";
 import { useTokenPrice, useTokenPrices } from "@hooks";
 
 const apolloClient = new ApolloClient({
-  uri: "https://frankencoin-ponder.onrender.com/",
+  uri: "https://ponder.frankencoin.com/",
   cache: new InMemoryCache(),
 });
 
