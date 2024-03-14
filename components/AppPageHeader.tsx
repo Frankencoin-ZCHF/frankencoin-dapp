@@ -1,3 +1,4 @@
+import { Tooltip } from "flowbite-react";
 import Link from "next/link";
 
 interface Props {
@@ -6,6 +7,7 @@ interface Props {
   link?: string;
   backTo?: string;
   backText?: string;
+  tooltip?: string;
 }
 
 export default function AppPageHeader({
@@ -14,6 +16,7 @@ export default function AppPageHeader({
   link,
   backTo,
   backText,
+  tooltip,
 }: Props) {
   return (
     <section
@@ -26,14 +29,16 @@ export default function AppPageHeader({
           </Link>
         )}
       </div>
-      <h1 className="font-xl col-span-6 flex-1 text-center text-xl font-bold">
-        {link ? (
-          <Link href={link} target="_blank" className="text-link">
-            {title}
-          </Link>
-        ) : (
-          title
-        )}
+      <h1 className="font-xl col-span-6 flex-1 text-center mx-auto text-xl font-bold">
+        <Tooltip content={tooltip} arrow style="light">
+          {link ? (
+            <Link href={link} target="_blank" className="text-link">
+              {title}
+            </Link>
+          ) : (
+            title
+          )}
+        </Tooltip>
       </h1>
     </section>
   );

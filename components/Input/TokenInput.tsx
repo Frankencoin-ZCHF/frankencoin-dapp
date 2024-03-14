@@ -19,6 +19,7 @@ interface Props {
   note?: string;
   value?: string;
   onChange?: (value: string) => void;
+  disabled?: boolean;
   error?: string;
 }
 
@@ -35,6 +36,7 @@ export default function TokenInput({
   output,
   note,
   value,
+  disabled,
   onChange,
   error,
 }: Props) {
@@ -79,6 +81,7 @@ export default function TokenInput({
                 value={value || ""}
                 onChange={(e) => onChange?.(e)}
                 className={`w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg`}
+                disabled={disabled}
               />
             </div>
           )}

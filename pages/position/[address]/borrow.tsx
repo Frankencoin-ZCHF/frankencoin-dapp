@@ -8,16 +8,10 @@ import { usePositionStats } from "@hooks";
 import { useState } from "react";
 import DisplayAmount from "@components/DisplayAmount";
 import Button from "@components/Button";
-import { erc20ABI, useAccount, useChainId, useContractWrite } from "wagmi";
+import { erc20ABI, useChainId, useContractWrite } from "wagmi";
 import { waitForTransaction } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
-import {
-  formatBigInt,
-  formatDate,
-  min,
-  shortenAddress,
-  toTimestamp,
-} from "@utils";
+import { formatBigInt, min, shortenAddress, toTimestamp } from "@utils";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import AppBox from "@components/AppBox";

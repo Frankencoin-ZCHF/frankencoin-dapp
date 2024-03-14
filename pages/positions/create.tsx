@@ -1,37 +1,30 @@
+"use client";
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
-import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { getAddress, zeroAddress, maxUint256 } from "viem";
+import { maxUint256 } from "viem";
 import TokenInput from "@components/Input/TokenInput";
-import { usePositionStats, useTokenData } from "@hooks";
+import { useTokenData } from "@hooks";
 import { useState } from "react";
 import Button from "@components/Button";
-import { erc20ABI, useAccount, useChainId, useContractWrite } from "wagmi";
+import { erc20ABI, useChainId, useContractWrite } from "wagmi";
 import { waitForTransaction } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
-import {
-  formatBigInt,
-  formatDate,
-  min,
-  shortenAddress,
-  toTimestamp,
-} from "@utils";
+import { formatBigInt, shortenAddress } from "@utils";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import AppBox from "@components/AppBox";
-import DateInput from "@components/Input/DateInput";
 import Link from "next/link";
 import NormalInput from "@components/Input/NormalInput";
 import AddressInput from "@components/Input/AddressInput";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import { Tooltip } from "flowbite-react";
 
 export default function PositionCreate({}) {
-  const router = useRouter();
   const [collAmount, setCollAmount] = useState(0n);
   const [initialCollAmount, setInitialCollAmount] = useState(0n);
   const [limitAmount, setLimitAmount] = useState(10_000_000n * BigInt(1e18));
+  const [initPeriod, setInitPeriod] = useState(5n);
   const [liqPrice, setLiqPrice] = useState(0n);
   const [interest, setInterest] = useState(30000n);
   const [maturity, setMaturity] = useState(12n);
@@ -43,6 +36,7 @@ export default function PositionCreate({}) {
   const [collTokenAddrError, setCollTokenAddrError] = useState("");
   const [limitAmountError, setLimitAmountError] = useState("");
   const [interestError, setInterestError] = useState("");
+  const [initPeriodError, setInitPeriodError] = useState("");
   const [liqPriceError, setLiqPriceError] = useState("");
   const [bufferError, setBufferError] = useState("");
   const [auctionError, setAuctionError] = useState("");
@@ -58,10 +52,6 @@ export default function PositionCreate({}) {
       setCollTokenAddrError("");
     }
   }, [collTokenData]);
-
-  function toDate(blocktime: bigint) {
-    return new Date(Number(blocktime) * 1000);
-  }
 
   const onChangeCollAmount = (value: string) => {
     const valueBigInt = BigInt(value);
@@ -116,6 +106,17 @@ export default function PositionCreate({}) {
     setMaturity(valueBigInt);
   };
 
+  const onChangeInitPeriod = (value: string) => {
+    const valueBigInt = BigInt(value);
+    setInitPeriod(valueBigInt);
+
+    if (valueBigInt < 3n) {
+      setInitPeriodError("Initialization Period should be at least 3 days.");
+    } else {
+      setInitPeriodError("");
+    }
+  };
+
   const onChangeLiqPrice = (value: string) => {
     const valueBigInt = BigInt(value);
     setLiqPrice(valueBigInt);
@@ -140,7 +141,8 @@ export default function PositionCreate({}) {
       !!interestError ||
       !!liqPriceError ||
       !!bufferError ||
-      !!auctionError
+      !!auctionError ||
+      !!initPeriodError
     );
   };
 
@@ -210,7 +212,7 @@ export default function PositionCreate({}) {
         collAmount,
         initialCollAmount,
         limitAmount,
-        0n, // Init period
+        initPeriod * 86400n,
         maturity * 86400n * 30n,
         auctionDuration * 3600n,
         Number(interest),
@@ -218,10 +220,11 @@ export default function PositionCreate({}) {
         Number(buffer),
       ],
     });
+
     const toastContent = [
       {
-        title: "Amount:",
-        value: "infinite " + collTokenData.symbol,
+        title: "Collateral:",
+        value: formatBigInt(initialCollAmount) + collTokenData.symbol,
       },
       {
         title: "Spender: ",
@@ -238,16 +241,13 @@ export default function PositionCreate({}) {
       {
         pending: {
           render: (
-            <TxToast
-              title={`Approving ${collTokenData.symbol}`}
-              rows={toastContent}
-            />
+            <TxToast title={`Creating a new position`} rows={toastContent} />
           ),
         },
         success: {
           render: (
             <TxToast
-              title={`Successfully Approved ${collTokenData.symbol}`}
+              title={`Successfully created a position`}
               rows={toastContent}
             />
           ),
@@ -271,39 +271,80 @@ export default function PositionCreate({}) {
           title="Create New Position"
           backText="Back to positions"
           backTo={`/positions`}
+          tooltip="Propose a completely new position with a collateral of your choice."
         />
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-            <p>
-              Propose a completely new position with a collateral of your
-              choice.
-            </p>
-
-            <div className="text-lg font-bold text-center mt-3">
+            <div className="text-lg font-bold justify-center mt-3 flex">
               Initialization
-            </div>
-            <p>
-              It is recommended to{" "}
-              <Link
-                href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions"
-                target="_blank"
+              <Tooltip
+                className="w-1/4"
+                trigger="hover"
+                animation="duration-200"
+                style="light"
+                content={
+                  <p>
+                    It is recommended to{" "}
+                    <Link
+                      href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions"
+                      target="_blank"
+                    >
+                      discuss
+                    </Link>{" "}
+                    new positions before initiating them to increase the
+                    probability of passing the decentralized governance process.
+                  </p>
+                }
+                arrow
               >
-                discuss
-              </Link>{" "}
-              new positions before initiating them to increase the probability
-              of passing the decentralized governance process.
-              <ol className="pl-6 list-disc">
-                <li>Non-refundable initialization fee: 1000 ZCHF</li>
-                <li>Initialization Period: 5 days</li>
-              </ol>
-            </p>
+                <FontAwesomeIcon
+                  icon={faInfoCircle}
+                  className="w-4 ml-2 h-full cursor-pointer"
+                  data-tooltip-target="tooltip-default"
+                />
+              </Tooltip>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <TokenInput
+                label="Non-Refundable Initialization Fee"
+                symbol="ZCHF"
+                hideMaxLabel
+                value={BigInt(1000 * 1e18).toString()}
+                onChange={onChangeInitialCollAmount}
+                digit={18}
+                disabled
+              />
+              <NormalInput
+                label="Initialization Period"
+                symbol="days"
+                error={initPeriodError}
+                digit={0}
+                hideMaxLabel
+                value={initPeriod.toString()}
+                onChange={onChangeInitPeriod}
+                placeholder="Initialization Period"
+              />
+            </div>
 
-            <div className="text-lg font-bold text-center mt-3">Collateral</div>
-            <p>
-              Provide the contract address of the desired collateral. The
+            <div className="text-lg font-bold justify-center mt-3 flex">
+              Collateral
+              <Tooltip
+                className="w-1/4"
+                trigger="hover"
+                animation="duration-200"
+                style="light"
+                content="Provide the contract address of the desired collateral. The
               minimum amount should be at least 5000 ZCHF worth of the
-              collateral at the liquidation price.
-            </p>
+              collateral at the liquidation price."
+                arrow
+              >
+                <FontAwesomeIcon
+                  icon={faInfoCircle}
+                  className="w-4 ml-2 h-full cursor-pointer"
+                  data-tooltip-target="tooltip-default"
+                />
+              </Tooltip>
+            </div>
 
             <AddressInput
               label="Collateral Token"

@@ -85,8 +85,17 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-input:focus-visible {
+input {
   outline: none;
+  border: none;
+}
+
+[type="text"]:focus,
+input:focus-visible,
+input:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
 }
 
 /* Hide scroll bars */
