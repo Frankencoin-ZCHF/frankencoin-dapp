@@ -21,7 +21,7 @@ import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { Tooltip } from "flowbite-react";
 
 export default function PositionCreate({}) {
-  const [collAmount, setCollAmount] = useState(0n);
+  const [minCollAmount, setMinCollAmount] = useState(0n);
   const [initialCollAmount, setInitialCollAmount] = useState(0n);
   const [limitAmount, setLimitAmount] = useState(10_000_000n * BigInt(1e18));
   const [initPeriod, setInitPeriod] = useState(5n);
@@ -31,7 +31,7 @@ export default function PositionCreate({}) {
   const [buffer, setBuffer] = useState(200000n);
   const [auctionDuration, setAuctionDuration] = useState(24n);
   const [collateralAddress, setCollateralAddress] = useState("");
-  const [collAmountError, setCollAmountError] = useState("");
+  const [minCollAmountError, setMinCollAmountError] = useState("");
   const [initialCollAmountError, setInitialCollAmountError] = useState("");
   const [collTokenAddrError, setCollTokenAddrError] = useState("");
   const [limitAmountError, setLimitAmountError] = useState("");
@@ -48,18 +48,22 @@ export default function PositionCreate({}) {
   useEffect(() => {
     if (collTokenData.name == "NaN") {
       setCollTokenAddrError("Please input valid ERC20 token contract");
+    } else if (collTokenData.decimals > 24n) {
+      setCollTokenAddrError("Token decimals should be less than 24.");
     } else {
       setCollTokenAddrError("");
     }
   }, [collTokenData]);
 
-  const onChangeCollAmount = (value: string) => {
+  const onChangeMinCollAmount = (value: string) => {
     const valueBigInt = BigInt(value);
-    setCollAmount(valueBigInt);
+    setMinCollAmount(valueBigInt);
     if (valueBigInt > collTokenData.balance) {
-      setCollAmountError(`Not enough ${collTokenData.symbol} in your wallet.`);
+      setMinCollAmountError(
+        `Not enough ${collTokenData.symbol} in your wallet.`
+      );
     } else {
-      setCollAmountError("");
+      setMinCollAmountError("");
     }
   };
 
@@ -70,6 +74,8 @@ export default function PositionCreate({}) {
       setInitialCollAmountError(
         `Not enough ${collTokenData.symbol} in your wallet.`
       );
+    } else if (valueBigInt < minCollAmount) {
+      setInitialCollAmountError("Must start with minimum collateral amount.");
     } else {
       setInitialCollAmountError("");
     }
@@ -78,7 +84,6 @@ export default function PositionCreate({}) {
   const onChangeLimitAmount = (value: string) => {
     const valueBigInt = BigInt(value);
     setLimitAmount(valueBigInt);
-    // TODO: Update conditions
     if (valueBigInt > collTokenData.balance) {
       setLimitAmountError(`Not enough ${collTokenData.symbol} in your wallet.`);
     } else {
@@ -94,8 +99,8 @@ export default function PositionCreate({}) {
     const valueBigInt = BigInt(value);
     setInterest(valueBigInt);
 
-    if (valueBigInt >= 10000n) {
-      setInterestError("Annual Interest Rate is too high");
+    if (valueBigInt > 100_0000n) {
+      setInterestError("Annual Interest Rate should be less than 100%");
     } else {
       setInterestError("");
     }
@@ -120,21 +125,34 @@ export default function PositionCreate({}) {
   const onChangeLiqPrice = (value: string) => {
     const valueBigInt = BigInt(value);
     setLiqPrice(valueBigInt);
+
+    if (valueBigInt * minCollAmount < 5000n * BigInt(1e36)) {
+      setLiqPriceError(
+        "Must start with at least 5000 ZCHF worth of collateral"
+      );
+    } else {
+      setLiqPriceError("");
+    }
   };
 
   const onChangeBuffer = (value: string) => {
     const valueBigInt = BigInt(value);
     setBuffer(valueBigInt);
+    if (valueBigInt > 100_0000n) {
+      setBufferError("Buffer percent should be less than 100%");
+    } else {
+      setBufferError("");
+    }
   };
 
-  const onChangeAuction = (value: string) => {
+  const onChangeAuctionDuration = (value: string) => {
     const valueBigInt = BigInt(value);
     setAuctionDuration(valueBigInt);
   };
 
   const hasFormError = () => {
     return (
-      !!collAmountError ||
+      !!minCollAmountError ||
       !!initialCollAmountError ||
       !!collTokenAddrError ||
       !!limitAmountError ||
@@ -209,7 +227,7 @@ export default function PositionCreate({}) {
     const tx = await openWrite.writeAsync({
       args: [
         collTokenData.address,
-        collAmount,
+        minCollAmount,
         initialCollAmount,
         limitAmount,
         initPeriod * 86400n,
@@ -223,12 +241,16 @@ export default function PositionCreate({}) {
 
     const toastContent = [
       {
-        title: "Collateral:",
+        title: "Collateral",
+        value: shortenAddress(collTokenData.address),
+      },
+      {
+        title: "Collateral Amount:",
         value: formatBigInt(initialCollAmount) + collTokenData.symbol,
       },
       {
-        title: "Spender: ",
-        value: shortenAddress(ADDRESS[chainId].mintingHub),
+        title: "LiqPrice: ",
+        value: formatBigInt(liqPrice),
       },
       {
         title: "Transaction:",
@@ -356,10 +378,10 @@ export default function PositionCreate({}) {
             <TokenInput
               label="Minimum Collateral"
               symbol={collTokenData.symbol}
-              error={collAmountError}
+              error={minCollAmountError}
               max={collTokenData.balance}
-              value={collAmount.toString()}
-              onChange={onChangeCollAmount}
+              value={minCollAmount.toString()}
+              onChange={onChangeMinCollAmount}
               digit={collTokenData.decimals}
               placeholder="Minimum Collateral Amount"
             />
@@ -440,14 +462,14 @@ export default function PositionCreate({}) {
                 hideMaxLabel
                 digit={0}
                 value={auctionDuration.toString()}
-                onChange={onChangeAuction}
+                onChange={onChangeAuctionDuration}
                 placeholder="Auction Duration"
               />
             </div>
             <div className="mx-auto mt-8 w-72 max-w-full flex-col">
-              {collAmount > collTokenData.allowance ? (
+              {minCollAmount > collTokenData.allowance ? (
                 <Button
-                  disabled={collAmount == 0n || !!collAmountError}
+                  disabled={minCollAmount == 0n || !!minCollAmountError}
                   isLoading={approveWrite.isLoading || isConfirming}
                   onClick={() => handleApprove()}
                 >
@@ -456,7 +478,7 @@ export default function PositionCreate({}) {
               ) : (
                 <Button
                   variant="primary"
-                  disabled={collAmount == 0n || hasFormError()}
+                  disabled={minCollAmount == 0n || hasFormError()}
                   isLoading={openWrite.isLoading || isConfirming}
                   onClick={() => handleOpenPosition()}
                 >
