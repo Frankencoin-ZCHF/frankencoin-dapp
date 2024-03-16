@@ -2,7 +2,7 @@
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import { useEffect } from "react";
-import { maxUint256 } from "viem";
+import { isAddress, maxUint256 } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useTokenData } from "@hooks";
 import { useState } from "react";
@@ -23,7 +23,7 @@ import { Tooltip } from "flowbite-react";
 export default function PositionCreate({}) {
   const [minCollAmount, setMinCollAmount] = useState(0n);
   const [initialCollAmount, setInitialCollAmount] = useState(0n);
-  const [limitAmount, setLimitAmount] = useState(10_000_000n * BigInt(1e18));
+  const [limitAmount, setLimitAmount] = useState(1_000_000n * BigInt(1e18));
   const [initPeriod, setInitPeriod] = useState(5n);
   const [liqPrice, setLiqPrice] = useState(0n);
   const [interest, setInterest] = useState(30000n);
@@ -40,31 +40,33 @@ export default function PositionCreate({}) {
   const [liqPriceError, setLiqPriceError] = useState("");
   const [bufferError, setBufferError] = useState("");
   const [auctionError, setAuctionError] = useState("");
-  const [isConfirming, setIsConfirming] = useState(false);
+  const [isConfirming, setIsConfirming] = useState("");
 
   const chainId = useChainId();
   const collTokenData = useTokenData(collateralAddress);
 
   useEffect(() => {
-    if (collTokenData.name == "NaN") {
-      setCollTokenAddrError("Please input valid ERC20 token contract");
-    } else if (collTokenData.decimals > 24n) {
-      setCollTokenAddrError("Token decimals should be less than 24.");
+    if (isAddress(collateralAddress)) {
+      if (collTokenData.name == "NaN") {
+        setCollTokenAddrError("Could not obtain token data");
+      } else if (collTokenData.decimals > 24n) {
+        setCollTokenAddrError("Token decimals should be less than 24.");
+      } else {
+        setCollTokenAddrError("");
+      }
     } else {
+      setLiqPriceError("");
+      setLimitAmountError("");
+      setMinCollAmountError("");
+      setInitialCollAmountError("");
       setCollTokenAddrError("");
     }
-  }, [collTokenData]);
+  }, [collateralAddress, collTokenData]);
 
   const onChangeMinCollAmount = (value: string) => {
     const valueBigInt = BigInt(value);
     setMinCollAmount(valueBigInt);
-    if (valueBigInt > collTokenData.balance) {
-      setMinCollAmountError(
-        `Not enough ${collTokenData.symbol} in your wallet.`
-      );
-    } else {
-      setMinCollAmountError("");
-    }
+    checkCollateralAmount(valueBigInt, liqPrice);
   };
 
   const onChangeInitialCollAmount = (value: string) => {
@@ -75,7 +77,7 @@ export default function PositionCreate({}) {
         `Not enough ${collTokenData.symbol} in your wallet.`
       );
     } else if (valueBigInt < minCollAmount) {
-      setInitialCollAmountError("Must start with minimum collateral amount.");
+      setInitialCollAmountError("Must be at least the minimum amount.");
     } else {
       setInitialCollAmountError("");
     }
@@ -93,6 +95,9 @@ export default function PositionCreate({}) {
 
   const onChangeCollateralAddress = (addr: string) => {
     setCollateralAddress(addr);
+    setMinCollAmount(0n);
+    setInitialCollAmount(0n);
+    setLiqPrice(0n);
   };
 
   const onChangeInterest = (value: string) => {
@@ -114,9 +119,8 @@ export default function PositionCreate({}) {
   const onChangeInitPeriod = (value: string) => {
     const valueBigInt = BigInt(value);
     setInitPeriod(valueBigInt);
-
     if (valueBigInt < 3n) {
-      setInitPeriodError("Initialization Period should be at least 3 days.");
+      setInitPeriodError("Initialization Period must be at least 3 days.");
     } else {
       setInitPeriodError("");
     }
@@ -125,21 +129,34 @@ export default function PositionCreate({}) {
   const onChangeLiqPrice = (value: string) => {
     const valueBigInt = BigInt(value);
     setLiqPrice(valueBigInt);
+    checkCollateralAmount(minCollAmount, valueBigInt);
+  };
 
-    if (valueBigInt * minCollAmount < 5000n * BigInt(1e36)) {
+  function checkCollateralAmount(coll: bigint, price: bigint) {
+    if (coll * price < 5000n * 10n ** 36n) {
       setLiqPriceError(
-        "Must start with at least 5000 ZCHF worth of collateral"
+        "The liquidation value of the collateral must be at least 5000 ZCHF"
       );
+      setMinCollAmountError("The collateral must be worth at least 5000 ZCHF");
     } else {
       setLiqPriceError("");
+      if (coll > collTokenData.balance) {
+        setMinCollAmountError(
+          `Not enough ${collTokenData.symbol} in your wallet.`
+        );
+      } else {
+        setMinCollAmountError("");
+      }
     }
-  };
+  }
 
   const onChangeBuffer = (value: string) => {
     const valueBigInt = BigInt(value);
     setBuffer(valueBigInt);
-    if (valueBigInt > 100_0000n) {
-      setBufferError("Buffer percent should be less than 100%");
+    if (valueBigInt > 1000_000n) {
+      setBufferError("Buffer cannot exceed 100%");
+    } else if (valueBigInt < 100_000) {
+      setBufferError("Buffer must be at least 10%");
     } else {
       setBufferError("");
     }
@@ -176,121 +193,132 @@ export default function PositionCreate({}) {
   });
 
   const handleApprove = async () => {
-    const tx = await approveWrite.writeAsync({
-      args: [ADDRESS[chainId].mintingHub, maxUint256],
-    });
+    try {
+      setIsConfirming("approve");
+      const tx = await approveWrite.writeAsync({
+        args: [ADDRESS[chainId].mintingHub, maxUint256],
+      });
 
-    const toastContent = [
-      {
-        title: "Amount:",
-        value: "infinite " + collTokenData.symbol,
-      },
-      {
-        title: "Spender: ",
-        value: shortenAddress(ADDRESS[chainId].mintingHub),
-      },
-      {
-        title: "Transaction:",
-        hash: tx.hash,
-      },
-    ];
+      const toastContent = [
+        {
+          title: "Amount:",
+          value: "infinite " + collTokenData.symbol,
+        },
+        {
+          title: "Spender: ",
+          value: shortenAddress(ADDRESS[chainId].mintingHub),
+        },
+        {
+          title: "Transaction:",
+          hash: tx.hash,
+        },
+      ];
 
-    await toast.promise(
-      waitForTransaction({ hash: tx.hash, confirmations: 1 }),
-      {
-        pending: {
-          render: (
-            <TxToast
-              title={`Approving ${collTokenData.symbol}`}
-              rows={toastContent}
-            />
-          ),
-        },
-        success: {
-          render: (
-            <TxToast
-              title={`Successfully Approved ${collTokenData.symbol}`}
-              rows={toastContent}
-            />
-          ),
-        },
-        error: {
-          render(error: any) {
-            return renderErrorToast(error);
+      await toast.promise(
+        waitForTransaction({ hash: tx.hash, confirmations: 1 }),
+        {
+          pending: {
+            render: (
+              <TxToast
+                title={`Approving ${collTokenData.symbol}`}
+                rows={toastContent}
+              />
+            ),
           },
-        },
-      }
-    );
+          success: {
+            render: (
+              <TxToast
+                title={`Successfully Approved ${collTokenData.symbol}`}
+                rows={toastContent}
+              />
+            ),
+          },
+          error: {
+            render(error: any) {
+              return renderErrorToast(error);
+            },
+          },
+        }
+      );
+    } finally {
+      setCollateralAddress(collateralAddress); // trigger update, TODO: does not seem to work? was the data cached?
+      setIsConfirming("");
+    }
   };
 
   const handleOpenPosition = async () => {
-    const tx = await openWrite.writeAsync({
-      args: [
-        collTokenData.address,
-        minCollAmount,
-        initialCollAmount,
-        limitAmount,
-        initPeriod * 86400n,
-        maturity * 86400n * 30n,
-        auctionDuration * 3600n,
-        Number(interest),
-        liqPrice,
-        Number(buffer),
-      ],
-    });
+    try {
+      setIsConfirming("open");
+      const tx = await openWrite.writeAsync({
+        args: [
+          collTokenData.address,
+          minCollAmount,
+          initialCollAmount,
+          limitAmount,
+          initPeriod * 86400n,
+          maturity * 86400n * 30n,
+          auctionDuration * 3600n,
+          Number(interest),
+          liqPrice,
+          Number(buffer),
+        ],
+      });
 
-    const toastContent = [
-      {
-        title: "Collateral",
-        value: shortenAddress(collTokenData.address),
-      },
-      {
-        title: "Collateral Amount:",
-        value: formatBigInt(initialCollAmount) + collTokenData.symbol,
-      },
-      {
-        title: "LiqPrice: ",
-        value: formatBigInt(liqPrice),
-      },
-      {
-        title: "Transaction:",
-        hash: tx.hash,
-      },
-    ];
+      const toastContent = [
+        {
+          title: "Collateral",
+          value: shortenAddress(collTokenData.address),
+        },
+        {
+          title: "Collateral Amount:",
+          value: formatBigInt(initialCollAmount) + collTokenData.symbol,
+        },
+        {
+          title: "LiqPrice: ",
+          value: formatBigInt(liqPrice),
+        },
+        {
+          title: "Transaction:",
+          hash: tx.hash,
+        },
+      ];
 
-    await toast.promise(
-      waitForTransaction({ hash: tx.hash, confirmations: 1 }),
-      {
-        pending: {
-          render: (
-            <TxToast title={`Creating a new position`} rows={toastContent} />
-          ),
-        },
-        success: {
-          render: (
-            <TxToast
-              title={`Successfully created a position`}
-              rows={toastContent}
-            />
-          ),
-        },
-        error: {
-          render(error: any) {
-            return renderErrorToast(error);
+      await toast.promise(
+        waitForTransaction({ hash: tx.hash, confirmations: 1 }),
+        {
+          pending: {
+            render: (
+              <TxToast title={`Creating a new position`} rows={toastContent} />
+            ),
           },
-        },
-      }
-    );
+          success: {
+            render: (
+              <TxToast
+                title={`Successfully created a position`}
+                rows={toastContent}
+              />
+            ),
+          },
+          error: {
+            render(error: any) {
+              return renderErrorToast(error);
+            },
+          },
+        }
+      );
+    } finally {
+      setIsConfirming("");
+    }
   };
 
   return (
     <>
       <Head>
-        <title>Frankencoin - Create Position</title>
+        <title>Frankencoin - Propose Position</title>
       </Head>
       <div>
         <AppPageHeader
-          title="Create New Position"
+          title="Propose New Position Type"
           backText="Back to positions"
           backTo={`/positions`}
           tooltip="Propose a completely new position with a collateral of your choice."
@@ -299,36 +327,10 @@ export default function PositionCreate({}) {
           <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
             <div className="text-lg font-bold justify-center mt-3 flex">
               Initialization
-              <Tooltip
-                className="w-1/4"
-                trigger="hover"
-                animation="duration-200"
-                style="light"
-                content={
-                  <p>
-                    It is recommended to{" "}
-                    <Link
-                      href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions"
-                      target="_blank"
-                    >
-                      discuss
-                    </Link>{" "}
-                    new positions before initiating them to increase the
-                    probability of passing the decentralized governance process.
-                  </p>
-                }
-                arrow
-              >
-                <FontAwesomeIcon
-                  icon={faInfoCircle}
-                  className="w-4 ml-2 h-full cursor-pointer"
-                  data-tooltip-target="tooltip-default"
-                />
-              </Tooltip>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <TokenInput
-                label="Non-Refundable Initialization Fee"
+                label="Proposal Fee"
                 symbol="ZCHF"
                 hideMaxLabel
                 value={BigInt(1000 * 1e18).toString()}
@@ -347,39 +349,60 @@ export default function PositionCreate({}) {
                 placeholder="Initialization Period"
               />
             </div>
-
+            <div>
+            It is recommended to{" "}
+            <Link
+              href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions"
+              target="_blank"
+            >
+              {" "}
+              discuss{" "}
+            </Link>{" "}
+            new positions before initiating them to increase the probability of
+            passing the decentralized governance process.
+            </div>
+          </div>
+          <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
             <div className="text-lg font-bold justify-center mt-3 flex">
               Collateral
-              <Tooltip
-                className="w-1/4"
-                trigger="hover"
-                animation="duration-200"
-                style="light"
-                content="Provide the contract address of the desired collateral. The
-              minimum amount should be at least 5000 ZCHF worth of the
-              collateral at the liquidation price."
-                arrow
-              >
-                <FontAwesomeIcon
-                  icon={faInfoCircle}
-                  className="w-4 ml-2 h-full cursor-pointer"
-                  data-tooltip-target="tooltip-default"
-                />
-              </Tooltip>
             </div>
 
             <AddressInput
               label="Collateral Token"
               error={collTokenAddrError}
-              placeholder="ERC20 Token Contract Address"
+              placeholder="Token contract address"
               value={collateralAddress}
               onChange={onChangeCollateralAddress}
             />
+            {collTokenData.symbol != "NaN" &&
+            (collTokenData.allowance == 0n ||
+              collTokenData.allowance < minCollAmount ||
+              collTokenData.allowance < initialCollAmount) ? (
+              <Button
+                isLoading={approveWrite.isLoading || isConfirming == "approve"}
+                disabled={
+                  collTokenData.symbol == "NaN" ||
+                  (collTokenData.allowance > minCollAmount &&
+                    collTokenData.allowance > initialCollAmount)
+                }
+                onClick={() => handleApprove()}
+              >
+                Approve{" "}
+                {collTokenData.symbol == "NaN"
+                  ? ""
+                  : "Handling of " +
+                    collTokenData.symbol +
+                    " " +
+                    collTokenData.allowance}
+              </Button>
+            ) : (
+              ""
+            )}
             <TokenInput
               label="Minimum Collateral"
               symbol={collTokenData.symbol}
               error={minCollAmountError}
-              max={collTokenData.balance}
+              hideMaxLabel
               value={minCollAmount.toString()}
               onChange={onChangeMinCollAmount}
               digit={collTokenData.decimals}
@@ -430,30 +453,37 @@ export default function PositionCreate({}) {
                 placeholder="Maturity"
               />
             </div>
-
+          </div>
+          <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
             <div className="text-lg font-bold text-center mt-3">
               Liquidation
             </div>
             <TokenInput
               label="Liquidation Price"
-              balanceLabel="Limit:"
+              balanceLabel="Pick"
               symbol="ZCHF"
               error={liqPriceError}
-              hideMaxLabel
+              digit={36n - collTokenData.decimals}
+              hideMaxLabel={minCollAmount == 0n}
+              max={
+                minCollAmount == 0n
+                  ? 0n
+                  : (5000n * 10n ** 36n + minCollAmount - 1n) / minCollAmount
+              }
               value={liqPrice.toString()}
               onChange={onChangeLiqPrice}
-              placeholder="Liquidation Price"
+              placeholder="Price"
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <NormalInput
-                label="Buffer"
+                label="Retained Reserve"
                 symbol="%"
                 error={bufferError}
                 digit={4}
                 hideMaxLabel
                 value={buffer.toString()}
                 onChange={onChangeBuffer}
-                placeholder="Buffer Percent"
+                placeholder="Percent"
               />
               <NormalInput
                 label="Auction Duration"
@@ -466,26 +496,21 @@ export default function PositionCreate({}) {
                 placeholder="Auction Duration"
               />
             </div>
-            <div className="mx-auto mt-8 w-72 max-w-full flex-col">
-              {minCollAmount > collTokenData.allowance ? (
-                <Button
-                  disabled={minCollAmount == 0n || !!minCollAmountError}
-                  isLoading={approveWrite.isLoading || isConfirming}
-                  onClick={() => handleApprove()}
-                >
-                  Approve
-                </Button>
-              ) : (
-                <Button
-                  variant="primary"
-                  disabled={minCollAmount == 0n || hasFormError()}
-                  isLoading={openWrite.isLoading || isConfirming}
-                  onClick={() => handleOpenPosition()}
-                >
-                  Create Position
-                </Button>
-              )}
-            </div>
+          </div>
+          <div className="mx-auto mt-8 w-72 max-w-full flex-col">
+            <Button
+              variant="primary"
+              disabled={
+                minCollAmount == 0n ||
+                collTokenData.allowance < initialCollAmount ||
+                initialCollAmount == 0n ||
+                hasFormError()
+              }
+              isLoading={openWrite.isLoading || isConfirming == "open"}
+              onClick={() => handleOpenPosition()}
+            >
+              Propose Position
+            </Button>
           </div>
         </section>
       </div>

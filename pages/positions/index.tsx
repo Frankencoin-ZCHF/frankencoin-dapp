@@ -19,7 +19,7 @@ export default function Positions() {
       </div>
       <div className="flex">
         <Link href={"positions/create"} className="btn btn-primary m-auto">
-          Create New Position
+          Propose New Position Type
         </Link>
       </div>
     </>
