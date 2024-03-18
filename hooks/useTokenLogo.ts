@@ -16,7 +16,7 @@ export const useTokenLogo = (symbol: string) => {
           console.log("Loading logos from CoinMarketCap");
           setIsLoading(true);
           const data = await fetch(
-            `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?symbol=XCHF,LsETH,USDAPa&skip_invalid=true`,
+            `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?symbol=XCHF,LsETH,USDAPa&skip_invalid=true&CMC_PRO_API_KEY=fd577e69-38de-444e-a681-594a286bfc98`,
             {
               mode: "no-cors",
               headers: {
