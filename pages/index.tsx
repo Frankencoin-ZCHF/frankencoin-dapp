@@ -8,6 +8,7 @@ import {
   useTvl,
   usePositionLists,
   useChallengeCount,
+  useTokenLogo,
 } from "@hooks";
 import Link from "next/link";
 import { ADDRESS } from "@contracts";
@@ -21,6 +22,9 @@ import { polygon, mainnet, arbitrum, optimism } from "viem/chains";
 import TokenLogo from "@components/TokenLogo";
 
 export default function Home() {
+  const test = useTokenLogo("LSETH");
+  console.log(test);
+
   const chainId = useChainId();
   const homestats = useHomeStats();
   const frankenLinkEth = useContractUrl(ADDRESS[chainId].frankenCoin);
