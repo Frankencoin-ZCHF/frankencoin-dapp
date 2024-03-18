@@ -350,16 +350,16 @@ export default function PositionCreate({}) {
               />
             </div>
             <div>
-            It is recommended to{" "}
-            <Link
-              href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions"
-              target="_blank"
-            >
-              {" "}
-              discuss{" "}
-            </Link>{" "}
-            new positions before initiating them to increase the probability of
-            passing the decentralized governance process.
+              It is recommended to{" "}
+              <Link
+                href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions"
+                target="_blank"
+              >
+                {" "}
+                discuss{" "}
+              </Link>{" "}
+              new positions before initiating them to increase the probability
+              of passing the decentralized governance process.
             </div>
           </div>
           <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
@@ -497,22 +497,22 @@ export default function PositionCreate({}) {
               />
             </div>
           </div>
-          <div className="mx-auto mt-8 w-72 max-w-full flex-col">
-            <Button
-              variant="primary"
-              disabled={
-                minCollAmount == 0n ||
-                collTokenData.allowance < initialCollAmount ||
-                initialCollAmount == 0n ||
-                hasFormError()
-              }
-              isLoading={openWrite.isLoading || isConfirming == "open"}
-              onClick={() => handleOpenPosition()}
-            >
-              Propose Position
-            </Button>
-          </div>
         </section>
+        <div className="mx-auto mt-8 w-72 max-w-full flex-col">
+          <Button
+            variant="primary"
+            disabled={
+              minCollAmount == 0n ||
+              collTokenData.allowance < initialCollAmount ||
+              initialCollAmount == 0n ||
+              hasFormError()
+            }
+            isLoading={openWrite.isLoading || isConfirming == "open"}
+            onClick={() => handleOpenPosition()}
+          >
+            Propose Position
+          </Button>
+        </div>
       </div>
     </>
   );
