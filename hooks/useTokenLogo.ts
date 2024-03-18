@@ -16,10 +16,11 @@ export const useTokenLogo = (symbol: string) => {
           console.log("Loading logos from CoinMarketCap");
           setIsLoading(true);
           const data = await axios.get(
-            `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?symbol${symbol}?skip_invalid=true`,
+            `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?symbol=${symbol}?skip_invalid=true`,
             {
               headers: {
                 "X-CMC_PRO_API_KEY": process.env.CMC_API_KEY,
+                "Access-Control-Allow-Origin": "http://frankencoin.com",
               },
             }
           );
