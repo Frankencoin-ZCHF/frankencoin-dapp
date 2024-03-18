@@ -22,7 +22,7 @@ import { polygon, mainnet, arbitrum, optimism } from "viem/chains";
 import TokenLogo from "@components/TokenLogo";
 
 export default function Home() {
-  const test = useTokenLogo("LSETH");
+  const test = useTokenLogo("LsETH");
   console.log(test);
 
   const chainId = useChainId();
