@@ -66,6 +66,9 @@ export default function PositionCreate({}) {
   const onChangeMinCollAmount = (value: string) => {
     const valueBigInt = BigInt(value);
     setMinCollAmount(valueBigInt);
+    if (valueBigInt > initialCollAmount){
+      setInitialCollAmount(valueBigInt);
+    }
     checkCollateralAmount(valueBigInt, liqPrice);
   };
 
@@ -86,11 +89,6 @@ export default function PositionCreate({}) {
   const onChangeLimitAmount = (value: string) => {
     const valueBigInt = BigInt(value);
     setLimitAmount(valueBigInt);
-    if (valueBigInt > collTokenData.balance) {
-      setLimitAmountError(`Not enough ${collTokenData.symbol} in your wallet.`);
-    } else {
-      setLimitAmountError("");
-    }
   };
 
   const onChangeCollateralAddress = (addr: string) => {
@@ -140,13 +138,7 @@ export default function PositionCreate({}) {
       setMinCollAmountError("The collateral must be worth at least 5000 ZCHF");
     } else {
       setLiqPriceError("");
-      if (coll > collTokenData.balance) {
-        setMinCollAmountError(
-          `Not enough ${collTokenData.symbol} in your wallet.`
-        );
-      } else {
-        setMinCollAmountError("");
-      }
+      setMinCollAmountError("");
     }
   }
 
@@ -424,7 +416,7 @@ export default function PositionCreate({}) {
               Financial Terms
             </div>
             <TokenInput
-              label="Limit"
+              label="Minting Limit"
               hideMaxLabel
               symbol="ZCHF"
               error={limitAmountError}
