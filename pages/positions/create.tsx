@@ -68,6 +68,7 @@ export default function PositionCreate({}) {
     setMinCollAmount(valueBigInt);
     if (valueBigInt > initialCollAmount){
       setInitialCollAmount(valueBigInt);
+      onChangeInitialCollAmount(valueBigInt.toString());
     }
     checkCollateralAmount(valueBigInt, liqPrice);
   };
@@ -75,12 +76,12 @@ export default function PositionCreate({}) {
   const onChangeInitialCollAmount = (value: string) => {
     const valueBigInt = BigInt(value);
     setInitialCollAmount(valueBigInt);
-    if (valueBigInt > collTokenData.balance) {
+    if (valueBigInt < minCollAmount) {
+      setInitialCollAmountError("Must be at least the minimum amount.");
+    } else if (valueBigInt > collTokenData.balance) {
       setInitialCollAmountError(
         `Not enough ${collTokenData.symbol} in your wallet.`
       );
-    } else if (valueBigInt < minCollAmount) {
-      setInitialCollAmountError("Must be at least the minimum amount.");
     } else {
       setInitialCollAmountError("");
     }
@@ -233,7 +234,6 @@ export default function PositionCreate({}) {
         }
       );
     } finally {
-      setCollateralAddress(collateralAddress); // trigger update, TODO: does not seem to work? was the data cached?
       setIsConfirming("");
     }
   };
@@ -383,9 +383,7 @@ export default function PositionCreate({}) {
                 {collTokenData.symbol == "NaN"
                   ? ""
                   : "Handling of " +
-                    collTokenData.symbol +
-                    " " +
-                    collTokenData.allowance}
+                    collTokenData.symbol}
               </Button>
             ) : (
               ""
