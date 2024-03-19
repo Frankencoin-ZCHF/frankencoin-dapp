@@ -20,13 +20,6 @@ import {
 } from "@utils";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCalendarDays,
-  faHourglassStart,
-} from "@fortawesome/free-solid-svg-icons";
 import AppBox from "@components/AppBox";
 import DateFieldInput from "@components/DateFieldInput";
 
@@ -44,9 +37,11 @@ export default function PositionBorrow({}) {
   const [expirationDate, setExpirationDate] = useState(new Date());
   const requiredColl =
     positionStats.liqPrice > 0 &&
-    (BigInt(1e18) * amount + positionStats.liqPrice - 1n) / positionStats.liqPrice >
+    (BigInt(1e18) * amount + positionStats.liqPrice - 1n) /
+      positionStats.liqPrice >
       positionStats.minimumCollateral
-      ? (BigInt(1e18) * amount + positionStats.liqPrice - 1n) / positionStats.liqPrice
+      ? (BigInt(1e18) * amount + positionStats.liqPrice - 1n) /
+        positionStats.liqPrice
       : positionStats.minimumCollateral;
 
   useEffect(() => {

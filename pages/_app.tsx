@@ -1,4 +1,5 @@
 import "../styles/globals.css";
+import "../styles/datepicker.css";
 import type { AppProps } from "next/app";
 import { NextSeo } from "next-seo";
 import Layout from "@components/Layout";
