@@ -18,7 +18,7 @@ export default function TableHeader({ headers, actionCol, colSpan }: Props) {
           </span>
         ))}
       </div>
-      {actionCol && <div className="w-40 flex-shrink-0"></div>}
+      {actionCol && <div className="w-40 flex-shrink-0">Action</div>}
     </div>
   );
 }

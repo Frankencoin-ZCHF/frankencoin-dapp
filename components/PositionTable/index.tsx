@@ -23,12 +23,8 @@ export default function PositionTable({ showMyPos }: Props) {
   return (
     <Table>
       <TableHeader
-        headers={[
-          "Collateral",
-          "Liquidation Price",
-          "Available Amount",
-          "Expiration Date",
-        ]}
+        headers={["Collateral", "Liquidation Price", "Available Amount"]}
+        actionCol
       />
       <TableBody>
         {loading ? (
