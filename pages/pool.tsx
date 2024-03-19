@@ -208,10 +208,8 @@ export default function Pool() {
 
   const conversionNote = () => {
     if (amount != 0n && result != 0n) {
-      const ratio = direction
-        ? (amount * BigInt(1e18)) / result
-        : (result * BigInt(1e18)) / amount;
-      return `1 ${toSymbol} = ${formatUnits(ratio, 18)} ${fromSymbol}`;
+      const ratio = (result * BigInt(1e18)) / amount;
+      return `1 ${fromSymbol} = ${formatUnits(ratio, 18)} ${toSymbol}`;
     } else {
       return `${toSymbol} price is calculated dynamically.\n`;
     }
