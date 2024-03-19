@@ -1,9 +1,9 @@
 import { useAccount } from "wagmi";
-import DisplayAmount from "./DisplayAmount";
+import DisplayAmount from "../DisplayAmount";
 import { formatBigInt } from "@utils";
 import { BigNumberInput } from "./BigNumberInput";
 import dynamic from "next/dynamic";
-const TokenLogo = dynamic(() => import("./TokenLogo"), { ssr: false });
+const TokenLogo = dynamic(() => import("../TokenLogo"), { ssr: false });
 
 interface Props {
   label?: string;
@@ -19,10 +19,11 @@ interface Props {
   note?: string;
   value?: string;
   onChange?: (value: string) => void;
+  disabled?: boolean;
   error?: string;
 }
 
-export default function SwapFieldInput({
+export default function TokenInput({
   label = "Send",
   placeholder = "Input Amount",
   symbol,
@@ -35,6 +36,7 @@ export default function SwapFieldInput({
   output,
   note,
   value,
+  disabled,
   onChange,
   error,
 }: Props) {
@@ -79,6 +81,7 @@ export default function SwapFieldInput({
                 value={value || ""}
                 onChange={(e) => onChange?.(e)}
                 className={`w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg`}
+                disabled={disabled}
               />
             </div>
           )}

@@ -3,25 +3,19 @@ import AppPageHeader from "@components/AppPageHeader";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { formatUnits, getAddress, zeroAddress, maxUint256 } from "viem";
-import SwapFieldInput from "@components/SwapFieldInput";
+import TokenInput from "@components/Input/TokenInput";
 import { usePositionStats } from "@hooks";
 import { useState } from "react";
 import DisplayAmount from "@components/DisplayAmount";
 import Button from "@components/Button";
-import { erc20ABI, useAccount, useChainId, useContractWrite } from "wagmi";
+import { erc20ABI, useChainId, useContractWrite } from "wagmi";
 import { waitForTransaction } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
-import {
-  formatBigInt,
-  formatDate,
-  min,
-  shortenAddress,
-  toTimestamp,
-} from "@utils";
+import { formatBigInt, min, shortenAddress, toTimestamp } from "@utils";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import AppBox from "@components/AppBox";
-import DateFieldInput from "@components/DateFieldInput";
+import DateInput from "@components/Input/DateInput";
 
 export default function PositionBorrow({}) {
   const router = useRouter();
@@ -237,7 +231,7 @@ export default function PositionBorrow({}) {
               Minting Amount and Collateral
             </div>
             <div className="space-y-8">
-              <SwapFieldInput
+              <TokenInput
                 label="Amount"
                 balanceLabel="Limit:"
                 symbol="ZCHF"
@@ -247,7 +241,7 @@ export default function PositionBorrow({}) {
                 onChange={onChangeAmount}
                 placeholder="Total Amount to be Minted"
               />
-              <SwapFieldInput
+              <TokenInput
                 label="Required Collateral"
                 balanceLabel="Your balance:"
                 max={positionStats.collateralUserBal}
@@ -271,7 +265,7 @@ export default function PositionBorrow({}) {
                   positionStats.collateralSymbol
                 }
               />
-              <DateFieldInput
+              <DateInput
                 label="Expiration"
                 max={positionStats.expiration}
                 value={expirationDate}

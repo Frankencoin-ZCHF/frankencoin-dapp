@@ -14,6 +14,7 @@ export type BigNumberInputProps = {
   max?: string;
   min?: string;
   className?: string;
+  disabled?: boolean;
 };
 
 export function BigNumberInput({
@@ -26,6 +27,7 @@ export function BigNumberInput({
   max,
   min,
   className,
+  disabled,
 }: BigNumberInputProps) {
   const inputRef = React.useRef<any>(null);
 
@@ -88,12 +90,12 @@ export function BigNumberInput({
     onChange: updateValue,
     type: "text",
     value: inputValue,
-    className: className,
+    className: `${className} ${disabled ? "text-slate-400" : ""}`,
   };
 
   return renderInput ? (
     renderInput({ ...inputProps })
   ) : (
-    <input {...inputProps} ref={inputRef} />
+    <input {...inputProps} ref={inputRef} disabled={disabled} />
   );
 }

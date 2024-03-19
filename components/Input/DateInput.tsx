@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { formatDate } from "../utils/format";
+import { formatDate } from "../../utils/format";
 import {
   faCalendarDays,
   faHourglassStart,
@@ -15,7 +15,7 @@ interface Props {
   onChange?: (date: Date | null) => void;
 }
 
-export default function DateFieldInput({
+export default function DateInput({
   label,
   max,
   value,
