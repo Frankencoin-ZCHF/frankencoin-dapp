@@ -10,7 +10,7 @@ import { formatDate, formatDateLocale } from "@utils";
 import TableRow from "../Table/TableRow";
 import { useAccount, useChainId } from "wagmi";
 import { ADDRESS } from "../../contracts/address";
-import ProgressBar from "@components/ProgressBar";
+import Link from "next/link";
 
 interface Props {
   position: PositionQuery;
@@ -28,26 +28,30 @@ export default function PositionRow({ position }: Props) {
 
   const account = address || zeroAddress;
   const isMine = positionStats.owner == account;
-  const calendarLink = `https://calendar.google.com/calendar/u/0/r/eventedit?text=${
-    isMine
-      ? "Repay+Expiring+Frankencoin+Position!"
-      : "Frankencoin+Position+Expiration!"
-  }&dates=${
-    isMine
-      ? formatDateLocale(positionStats.expiration - BigInt(60 * 60 * 24 * 3))
-      : formatDateLocale(positionStats.expiration)
-  }/${
-    isMine
-      ? formatDateLocale(
-          positionStats.expiration - BigInt(60 * 60 * 24 * 3) + 1800n
-        )
-      : formatDateLocale(positionStats.expiration + 1800n)
-  }&details=For+details,+go+here:%0Ahttps://frankencoin.com/position/${
-    position.position
-  }`;
 
   return (
-    <TableRow link={`/position/${position.position}`}>
+    <TableRow
+      link={`/position/${position.position}`}
+      actionCol={
+        isMine ? (
+          <Link
+            href={`/position/${position.position}/adjust`}
+            className="btn btn-primary flex-1"
+          >
+            Adjust
+          </Link>
+        ) : positionStats.limitForClones > 0n ? (
+          <Link
+            href={`/position/${position.position}/borrow`}
+            className="btn btn-primary flex-1"
+          >
+            Borrow
+          </Link>
+        ) : (
+          <></>
+        )
+      }
+    >
       <div>
         <DisplayAmount
           amount={positionStats.collateralBal}
@@ -76,21 +80,6 @@ export default function PositionRow({ position }: Props) {
           address={ADDRESS[chainId].frankenCoin}
           usdPrice={zchfPrice}
         />
-      </div>
-      <div>
-        {positionStats.closed ? (
-          "Closed"
-        ) : (
-          <ProgressBar
-            label={formatDate(positionStats.expiration)}
-            link={calendarLink}
-            progress={
-              ((Date.now() / 1000 - position.created) /
-                (Number(positionStats.expiration) - position.created)) *
-              100
-            }
-          />
-        )}
       </div>
     </TableRow>
   );
