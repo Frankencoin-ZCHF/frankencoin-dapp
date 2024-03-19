@@ -359,6 +359,9 @@ export default function Pool() {
                   chart: {
                     type: "area",
                     height: 300,
+                    dropShadow: {
+                      enabled: false,
+                    },
                     toolbar: {
                       show: false,
                     },
@@ -368,16 +371,12 @@ export default function Pool() {
                     background: "transparent",
                   },
                   stroke: {
-                    curve: "straight",
-                    width: 2,
+                    width: 3,
                   },
                   dataLabels: {
                     enabled: false,
                   },
                   grid: {
-                    borderColor: "#39394a9c",
-                  },
-                  yaxis: {
                     show: false,
                   },
                   xaxis: {
@@ -385,15 +384,23 @@ export default function Pool() {
                     labels: {
                       show: false,
                     },
+                    axisBorder: {
+                      show: false,
+                    },
                     axisTicks: {
                       show: false,
                     },
+                  },
+                  yaxis: {
+                    show: false,
                   },
                   fill: {
                     type: "gradient",
                     gradient: {
                       shadeIntensity: 0,
                       opacityTo: 0,
+                      shade: "#1C64F2",
+                      gradientToColors: ["#1C64F2"],
                     },
                   },
                   tooltip: {
@@ -408,7 +415,9 @@ export default function Pool() {
                     data: trades.map((trade, i) => {
                       return [
                         parseFloat(trade.time) * 1000,
-                        parseFloat(formatBigInt(BigInt(trade.price), 18, 3)),
+                        parseFloat(
+                          formatBigInt(BigInt(trade.lastPrice), 18, 3)
+                        ),
                       ];
                     }),
                   },

@@ -1,28 +1,22 @@
 import { gql, useQuery } from "@apollo/client";
 
-interface Trade {
+interface TradeChart {
   id: string;
-  trader: string;
-  amount: string;
-  shares: string;
-  price: string;
+  lastPrice: string;
   time: string;
 }
 
 export const useTradeQuery = (): {
   loading: boolean;
-  trades: Trade[];
+  trades: TradeChart[];
 } => {
   const { data, loading } = useQuery(
     gql`
       query {
-        trades(orderDirection: "desc", orderBy: "time", limit: 100) {
+        tradeCharts(orderDirection: "desc", orderBy: "time", limit: 100) {
           items {
             id
-            trader
-            amount
-            shares
-            price
+            lastPrice
             time
           }
         }
@@ -30,7 +24,7 @@ export const useTradeQuery = (): {
     `
   );
 
-  if (!data || !data.trades) {
+  if (!data || !data.tradeCharts) {
     return {
       loading,
       trades: [],
@@ -39,6 +33,6 @@ export const useTradeQuery = (): {
 
   return {
     loading,
-    trades: data.trades.items,
+    trades: data.tradeCharts.items,
   };
 };
