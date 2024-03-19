@@ -39,7 +39,7 @@ export default function PositionRow({ position }: Props) {
           >
             Adjust
           </Link>
-        ) : positionStats.limitForClones > 0n ? (
+        ) : positionStats.limitForClones > 0n && !positionStats.closed ? (
           <Link
             href={`/position/${position.position}/borrow`}
             className="btn btn-primary w-full"
