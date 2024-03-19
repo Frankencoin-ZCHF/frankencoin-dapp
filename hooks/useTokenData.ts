@@ -40,6 +40,7 @@ export const useTokenData = (addr: string) => {
         args: [account, mintingHub],
       },
     ],
+    watch: true,
   });
 
   const name = data && !data[0].error ? String(data[0].result) : "NaN";
