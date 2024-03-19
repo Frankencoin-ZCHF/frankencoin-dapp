@@ -57,7 +57,7 @@ export default function PositionDetail() {
             </div>
             <div className="bg-slate-900 rounded-xl p-4 grid gap-2 grid-cols-2 lg:grid-cols-6">
               <AppBox className="col-span-3">
-                <DisplayLabel label="Borrowed Total" />
+                <DisplayLabel label="Minted Total" />
                 <DisplayAmount
                   amount={positionStats.minted}
                   currency="ZCHF"
@@ -141,7 +141,7 @@ export default function PositionDetail() {
                     href={`/position/${position}/borrow`}
                     className="btn btn-primary flex-1"
                   >
-                    Borrow
+                    Clone & Mint
                   </Link>
                   <Link
                     href={`/position/${position}/challenge`}

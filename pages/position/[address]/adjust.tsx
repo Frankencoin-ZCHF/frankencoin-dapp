@@ -86,7 +86,7 @@ export default function PositionAdjust() {
     ) {
       return `Insufficient ${positionStats.collateralSymbol} in your wallet.`;
     } else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
-      return "Not enough collateral for the given price and borrow amount.";
+      return "Not enough collateral for the given price and mint amount.";
     } else {
       return "";
     }

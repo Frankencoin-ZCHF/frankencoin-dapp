@@ -92,7 +92,7 @@ export default function PositionBorrow({}) {
   const onChangeCollateral = (value: string) => {
     const valueBigInt = (BigInt(value) * positionStats.liqPrice) / BigInt(1e18);
     if (valueBigInt > borrowingLimit) {
-      setError("Cannot borrow more than " + borrowingLimit + "." + valueBigInt);
+      setError("Cannot mint more than " + borrowingLimit + "." + valueBigInt);
     } else {
       setError("");
     }
@@ -204,11 +204,11 @@ export default function PositionBorrow({}) {
       waitForTransaction({ hash: tx.hash, confirmations: 1 }),
       {
         pending: {
-          render: <TxToast title={`Borrowing ZCHF`} rows={toastContent} />,
+          render: <TxToast title={`Minting ZCHF`} rows={toastContent} />,
         },
         success: {
           render: (
-            <TxToast title="Successfully Borrowed ZCHF" rows={toastContent} />
+            <TxToast title="Successfully Minted ZCHF" rows={toastContent} />
           ),
         },
         error: {
@@ -223,18 +223,18 @@ export default function PositionBorrow({}) {
   return (
     <>
       <Head>
-        <title>Frankencoin - Borrow</title>
+        <title>Frankencoin - Mint</title>
       </Head>
       <div>
         <AppPageHeader
-          title="Borrow"
+          title="Mint Frankencoins for Yourself"
           backText="Back to position"
           backTo={`/position/${position}`}
         />
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
             <div className="text-lg font-bold text-center mt-3">
-              Borrow by Cloning an Existing Position
+              Minting Amount and Collateral
             </div>
             <div className="space-y-8">
               <SwapFieldInput
@@ -245,7 +245,7 @@ export default function PositionBorrow({}) {
                 max={availableAmount}
                 value={amount.toString()}
                 onChange={onChangeAmount}
-                placeholder="Borrow Amount"
+                placeholder="Total Amount to be Minted"
               />
               <SwapFieldInput
                 label="Required Collateral"
@@ -316,7 +316,7 @@ export default function PositionBorrow({}) {
               <div className="text-lg font-bold text-center mt-3">Outcome</div>
               <div className="bg-slate-900 rounded-xl p-4 flex flex-col gap-2">
                 <div className="flex">
-                  <div className="flex-1">Paid to your wallet</div>
+                  <div className="flex-1">Sent to your wallet</div>
                   <DisplayAmount
                     amount={paidOutToWallet}
                     currency="ZCHF"
@@ -359,21 +359,22 @@ export default function PositionBorrow({}) {
             <div className="bg-slate-950 rounded-xl p-4 flex flex-col mt-4">
               <div className="text-lg font-bold text-center mt-3">Notes</div>
               <AppBox className="flex-1 mt-4">
-                <p>
-                  Note that in the current version, the following limits apply:
-                </p>
                 <ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
                   <li>
-                    The amount borrowed can be changed later, but never
+                    The amount borrowed can be changed later, but not
                     increased beyond the initial amount.
                   </li>
                   <li>
-                    The initial price must match that of the parent position,
-                    but can be adjusted later in either direction.
+                    The liquidation price is inherited from the parent position,
+                    but can be adjusted later. For example,
+                    the liquidation price could be doubled and then half
+                    of the collateral taken out if the new liquidation price
+                    is not challenged.
                   </li>
                   <li>
-                    The expiration date cannot be changed any more and the fees
-                    are not returned when repaying early.
+                    It is possible to repay partially or to repay early in order to 
+                    get the collateral back, but the fee is 
+                    paid upfront and never returned.
                   </li>
                 </ol>
               </AppBox>

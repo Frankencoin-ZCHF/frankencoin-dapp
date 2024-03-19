@@ -44,7 +44,7 @@ export default function PositionRow({ position }: Props) {
             href={`/position/${position.position}/borrow`}
             className="btn btn-primary w-full"
           >
-            Borrow
+            Clone & Mint
           </Link>
         ) : (
           <></>
