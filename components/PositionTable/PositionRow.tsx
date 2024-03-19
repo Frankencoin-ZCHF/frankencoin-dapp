@@ -1,4 +1,4 @@
-import { Address, zeroAddress } from "viem";
+import { zeroAddress } from "viem";
 import DisplayAmount from "../DisplayAmount";
 import {
   PositionQuery,
@@ -6,7 +6,6 @@ import {
   useTokenPrice,
   useZchfPrice,
 } from "@hooks";
-import { formatDate, formatDateLocale } from "@utils";
 import TableRow from "../Table/TableRow";
 import { useAccount, useChainId } from "wagmi";
 import { ADDRESS } from "../../contracts/address";
