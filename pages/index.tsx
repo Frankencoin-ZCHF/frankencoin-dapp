@@ -79,39 +79,24 @@ export default function Home() {
               functions of the Frankencoin system. Advanced functions, such as
               proposing new types of collateral or vetoing proposals must at
               this point in time be performed manually. The{" "}
-              <a
-                href="https://gitlab.com/frankencoin-zchf/frankencoin-dapp"
-                target="_blank"
-              >
+              <a href={SOCIAL.Github_dapp} target="_blank">
                 source code of this website
               </a>{" "}
               is openly available and can be freely copied and modified, just
               like the underlying{" "}
-              <a
-                href="https://gitlab.com/frankencoin-zchf/frankencoin"
-                target="_blank"
-              >
+              <a href={SOCIAL.Github_contract} target="_blank">
                 smart contracts
               </a>
               . The smart contracts have been audited by&nbsp;
-              <a
-                href="https://gitlab.com/frankencoin-zchf/frankencoin/-/blob/main/audits/blockbite-audit.pdf"
-                target="_blank"
-              >
+              <a href={SOCIAL.Audit_Blockbite} target="_blank">
                 Blockbite
               </a>
               ,&nbsp;
-              <a
-                href="https://code4rena.com/reports/2023-04-frankencoin"
-                target="_blank"
-              >
+              <a href={SOCIAL.Audit_Code4rena} target="_blank">
                 Code4rena
               </a>
               , and&nbsp;
-              <a
-                href="https://chainsecurity.com/security-audit/frankencoin-smart-contracts/"
-                target="_blank"
-              >
+              <a href={SOCIAL.Audit_Chainsecurity} target="_blank">
                 ChainSecurity
               </a>
               . Its economic properties have been analyzed as part of a{" "}
@@ -355,7 +340,7 @@ export default function Home() {
           </div>
           <div className="flex">
             <Link
-              href="https://gitlab.com/frankencoin-zchf/frankencoin-dapp"
+              href={SOCIAL.Github_dapp}
               className="text-link text-center w-full"
               target="_blank"
             >
