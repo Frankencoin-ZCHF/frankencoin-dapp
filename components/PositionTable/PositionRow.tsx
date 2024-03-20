@@ -10,6 +10,7 @@ import TableRow from "../Table/TableRow";
 import { useAccount, useChainId } from "wagmi";
 import { ADDRESS } from "../../contracts/address";
 import Link from "next/link";
+import { Badge } from "flowbite-react";
 
 interface Props {
   position: PositionQuery;
@@ -73,14 +74,18 @@ export default function PositionRow({ position }: Props) {
           usdPrice={zchfPrice}
         />
       </div>
-      <div>
-        <DisplayAmount
-          amount={positionStats.limitForClones}
-          currency={"ZCHF"}
-          hideLogo
-          address={ADDRESS[chainId].frankenCoin}
-          usdPrice={zchfPrice}
-        />
+      <div className="flex items-center">
+        {positionStats.denied ? (
+          <Badge color="dark">Denied</Badge>
+        ) : (
+          <DisplayAmount
+            amount={positionStats.limitForClones}
+            currency={"ZCHF"}
+            hideLogo
+            address={ADDRESS[chainId].frankenCoin}
+            usdPrice={zchfPrice}
+          />
+        )}
       </div>
     </TableRow>
   );

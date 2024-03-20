@@ -8,7 +8,7 @@ import {
 } from "wagmi";
 import { decodeBigIntCall } from "@utils";
 import { ABIS, ADDRESS } from "@contracts";
-import { getAddress, zeroAddress } from "viem";
+import { getAddress, maxUint256, zeroAddress } from "viem";
 
 export const usePositionStats = (position: Address, collateral?: Address) => {
   const { address } = useAccount();
@@ -168,6 +168,7 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
   const frankenAllowance = data ? decodeBigIntCall(data[18]) : BigInt(0);
   const frankenBalance = data ? decodeBigIntCall(data[19]) : BigInt(0);
   const closed = collateralBal == BigInt(0);
+  const denied = cooldown == maxUint256;
 
   return {
     isSuccess,
@@ -196,6 +197,8 @@ export const usePositionStats = (position: Address, collateral?: Address) => {
 
     frankenAllowance,
     frankenBalance,
-    closed
+
+    closed,
+    denied,
   };
 };
