@@ -39,6 +39,8 @@ export default function PositionRow({ position }: Props) {
           >
             Adjust
           </Link>
+        ) : positionStats.cooldown * 1000n > Date.now() ? (
+          <></>
         ) : positionStats.limitForClones > 0n && !positionStats.closed ? (
           <Link
             href={`/position/${position.position}/borrow`}
