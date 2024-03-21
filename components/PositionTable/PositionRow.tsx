@@ -75,8 +75,10 @@ export default function PositionRow({ position }: Props) {
         />
       </div>
       <div className="flex items-center">
-        {positionStats.denied ? (
+        {position.denied ? (
           <Badge color="dark">Denied</Badge>
+        ) : positionStats.collateralBal == 0n ? (
+          <Badge color="dark">Closed</Badge>
         ) : (
           <DisplayAmount
             amount={positionStats.limitForClones}

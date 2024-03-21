@@ -8,6 +8,8 @@ export interface PositionQuery {
   collateral: Address;
   price: bigint;
   created: number;
+  denied: boolean;
+  closed: boolean;
 }
 
 export const usePositionLists = () => {
@@ -24,6 +26,8 @@ export const usePositionLists = () => {
             price
             created
             limitForClones
+            denied
+            closed
           }
         }
       }
@@ -43,6 +47,8 @@ export const usePositionLists = () => {
         collateral: getAddress(position.collateral),
         price: BigInt(position.price),
         created: position.created,
+        denied: position.denied,
+        closed: position.closed,
       });
     });
   }

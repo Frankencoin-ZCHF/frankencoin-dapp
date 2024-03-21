@@ -17,7 +17,9 @@ export default function PositionTable({ showMyPos }: Props) {
   const { positions, loading } = usePositionLists();
   const account = address || zeroAddress;
   const matchingPositions = positions.filter((position) =>
-    showMyPos ? position.owner == account : position.owner != account
+    showMyPos
+      ? position.owner == account
+      : position.owner != account && !position.denied && !position.closed
   );
 
   return (

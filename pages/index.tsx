@@ -133,7 +133,11 @@ export default function Home() {
               <DisplayLabel label="Active Positions" className="underline" />
             </Link>
             <div className="mt-2 text-right">
-              {positionData.positions.length}
+              {
+                positionData.positions.filter(
+                  (position) => !position.denied && !position.closed
+                ).length
+              }
             </div>
           </AppBox>
           <AppBox className="col-span-6 sm:col-span-4">
