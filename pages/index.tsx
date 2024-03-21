@@ -278,11 +278,11 @@ export default function Home() {
           <h2 className="text-2xl font-bold text-center">
             Wallets and Exchanges
           </h2>
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 items-center">
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-6 gap-4 p-4 items-center">
             <Link
               href="https://www.aktionariat.com/all-companies"
               target="_blank"
-              className="flex items-center justify-center"
+              className="flex items-center justify-center sm:col-span-2"
             >
               <picture>
                 <img
@@ -302,7 +302,7 @@ export default function Home() {
             <Link
               href="https://exchange.dfx.swiss/"
               target="_blank"
-              className="flex items-center justify-center"
+              className="flex items-center justify-center sm:col-span-2"
             >
               <picture>
                 <img src="/coin/dfx.svg" alt="dfx logo" className="h-8" />
@@ -312,7 +312,7 @@ export default function Home() {
             <Link
               href="https://app.uniswap.org/swap?inputCurrency=0xdAC17F958D2ee523a2206206994597C13D831ec7&outputCurrency=0xB58E61C3098d85632Df34EecfB899A1Ed80921cB&chain=mainnet"
               target="_blank"
-              className="flex items-center justify-center"
+              className="flex items-center justify-center sm:col-span-2"
             >
               <picture>
                 <img
@@ -328,7 +328,7 @@ export default function Home() {
             <Link
               href="https://ammer.cash/"
               target="_blank"
-              className="flex items-center justify-center md:col-span-3"
+              className="flex items-center justify-center sm:col-span-2 sm:col-start-2"
             >
               <picture>
                 <img
@@ -339,6 +339,18 @@ export default function Home() {
               </picture>
               <span className="font-bold text-4xl text-white ml-2">
                 Ammer Cash
+              </span>
+            </Link>
+            <Link
+              href="https://zippy.swiss/"
+              target="_blank"
+              className="flex items-center justify-center sm:col-span-2"
+            >
+              <span
+                className="font-bold text-4xl text-white"
+                style={{ color: "#ffd631" }}
+              >
+                Zippy Wallet
               </span>
             </Link>
           </div>
