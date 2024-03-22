@@ -346,12 +346,13 @@ export default function Home() {
               target="_blank"
               className="flex items-center justify-center sm:col-span-2"
             >
-              <span
-                className="font-bold text-4xl text-white"
-                style={{ color: "#ffd631" }}
-              >
-                Zippy Wallet
-              </span>
+              <picture>
+                <img
+                  src="/partner/zippy.svg"
+                  alt="zippy logo"
+                  className="h-14"
+                />
+              </picture>
             </Link>
           </div>
           <div className="flex">
