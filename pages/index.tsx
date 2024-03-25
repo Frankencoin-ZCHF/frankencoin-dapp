@@ -128,7 +128,7 @@ export default function Home() {
           </div>
         </section>
         <div className="mt-16 bg-slate-950 rounded-xl grid grid-cols-1 sm:grid-cols-12 gap-4 p-4">
-          <AppBox className="col-span-6 sm:col-span-3">
+          <AppBox className="col-span-6 sm:col-span-4">
             <a href={SOCIAL.DefiLlama} target="_blank">
               <DisplayLabel label="Total Value Locked" className="underline" />
             </a>
@@ -141,7 +141,7 @@ export default function Home() {
               USD
             </div>
           </AppBox>
-          <AppBox className="col-span-6 sm:col-span-3">
+          <AppBox className="col-span-6 sm:col-span-4">
             <Link href={"/positions"}>
               <DisplayLabel label="Active Positions" className="underline" />
             </Link>
@@ -153,17 +153,11 @@ export default function Home() {
               }
             </div>
           </AppBox>
-          <AppBox className="col-span-6 sm:col-span-3">
+          <AppBox className="col-span-6 sm:col-span-4">
             <Link href={"/auctions"}>
               <DisplayLabel label="Active Challenges" className="underline" />
             </Link>
             <div className="mt-2 text-right">{challengeCount}</div>
-          </AppBox>
-          <AppBox className="col-span-6 sm:col-span-3">
-            <DisplayLabel label="Active Users" />
-            <div className="mt-2 text-right">
-              {activeUsers.activeUsers.length}
-            </div>
           </AppBox>
           <AppBox className="col-span-6 sm:col-span-4">
             <DisplayLabel label="Total Supply">
@@ -198,7 +192,6 @@ export default function Home() {
               />
             </DisplayLabel>
           </AppBox>
-          <hr className="border-dashed border-slate-800 sm:col-span-12" />
           <AppBox className="col-span-6 sm:col-span-3">
             <DisplayLabel label="Mainnet Deployment" />
             <div className="flex items-center py-2 justify-end">
@@ -287,8 +280,7 @@ export default function Home() {
               </div>
             </div>
           </AppBox>
-          <hr className="border-dashed border-slate-800 sm:col-span-12" />
-          <AppBox className="col-span-6 sm:col-span-6">
+          {/* <AppBox className="col-span-6 sm:col-span-6">
             <DisplayLabel label="Mainnet Deployment" />
             <div className="flex items-center py-2 justify-end">
               <TokenLogo currency="FPS" chain="mainnet" />
@@ -323,7 +315,7 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-          </AppBox>
+          </AppBox> */}
         </div>
         <hr className="my-12 border-dashed border-slate-800" />
         <section>
