@@ -8,6 +8,8 @@ import {
   useTvl,
   usePositionLists,
   useChallengeCount,
+  useActiveUsersQuery,
+  useZchfPrice,
 } from "@hooks";
 import Link from "next/link";
 import { ADDRESS } from "@contracts";
@@ -38,10 +40,12 @@ export default function Home() {
   );
   const fpsLinkEth = useContractUrl(ADDRESS[mainnet.id].wFPS);
   const fpsLinkPolygon = useContractUrl(ADDRESS[polygon.id].wFPS, polygon);
+  const frankenPrice = useZchfPrice();
 
   const tvlData = useTvl<number>();
   const positionData = usePositionLists();
   const challengeCount = useChallengeCount();
+  const activeUsers = useActiveUsersQuery();
 
   return (
     <>
@@ -118,7 +122,7 @@ export default function Home() {
           </div>
         </section>
         <div className="mt-16 bg-slate-950 rounded-xl grid grid-cols-1 sm:grid-cols-12 gap-4 p-4">
-          <AppBox className="col-span-6 sm:col-span-4">
+          <AppBox className="col-span-6 sm:col-span-3">
             <a href={SOCIAL.DefiLlama} target="_blank">
               <DisplayLabel label="Total Value Locked" className="underline" />
             </a>
@@ -131,7 +135,7 @@ export default function Home() {
               USD
             </div>
           </AppBox>
-          <AppBox className="col-span-6 sm:col-span-4">
+          <AppBox className="col-span-6 sm:col-span-3">
             <Link href={"/positions"}>
               <DisplayLabel label="Active Positions" className="underline" />
             </Link>
@@ -143,11 +147,17 @@ export default function Home() {
               }
             </div>
           </AppBox>
-          <AppBox className="col-span-6 sm:col-span-4">
+          <AppBox className="col-span-6 sm:col-span-3">
             <Link href={"/auctions"}>
               <DisplayLabel label="Active Challenges" className="underline" />
             </Link>
             <div className="mt-2 text-right">{challengeCount}</div>
+          </AppBox>
+          <AppBox className="col-span-6 sm:col-span-3">
+            <DisplayLabel label="Active Users" />
+            <div className="mt-2 text-right">
+              {activeUsers.activeUsers.length}
+            </div>
           </AppBox>
           <AppBox className="col-span-6 sm:col-span-4">
             <DisplayLabel label="Total Supply">
@@ -155,7 +165,8 @@ export default function Home() {
                 amount={homestats.frankenTotalSupply}
                 currency={homestats.frankenSymbol}
                 digits={18}
-                className="justify-end"
+                className="justify-end text-right"
+                usdPrice={frankenPrice}
               />
             </DisplayLabel>
           </AppBox>
@@ -165,7 +176,8 @@ export default function Home() {
                 amount={homestats.equityMarketCap}
                 currency={homestats.frankenSymbol}
                 digits={18}
-                className="justify-end"
+                className="justify-end text-right"
+                usdPrice={frankenPrice}
               />
             </DisplayLabel>
           </AppBox>
@@ -175,7 +187,8 @@ export default function Home() {
                 amount={homestats.frankenBalance}
                 currency={homestats.frankenSymbol}
                 digits={18}
-                className="justify-end"
+                className="justify-end text-right"
+                usdPrice={frankenPrice}
               />
             </DisplayLabel>
           </AppBox>
