@@ -20,7 +20,7 @@ export default function Navbar() {
           </picture>
         </Link>
 
-{/*         <ul className="justify-left hidden flex-1 gap-2 md:flex lg:gap-3 xl:w-1/2">
+         <ul className="justify-left hidden flex-1 gap-2 md:flex lg:gap-3 xl:w-1/2">
           <li>
             <NavButton to="/swap" name="Swap" />
           </li>
@@ -83,7 +83,6 @@ export default function Navbar() {
             </label>
           </div>
         </aside>
-         */ }
       </header>
     </div>
   );

@@ -60,13 +60,6 @@ export default function Home() {
                 <img src="/assets/logo.svg" alt="logo" />
               </picture>
             </h1>
-
-            <p className="text-lg font-bold">
-              We have detected a frontend manipulation and have deactivated all functionality
-              until we have fully investigated this hacking attempt. Join the Telegram Group
-              for updates.
-            </p>
-
             <p className="text-lg font-bold">
               Frankencoin is a collateralized, oracle-free stablecoin that
               tracks the value of the Swiss franc. Its strengths are its
