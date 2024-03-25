@@ -36,6 +36,9 @@ export default function Home() {
     ADDRESS[optimism.id].frankenCoin,
     optimism
   );
+  const fpsLinkEth = useContractUrl(ADDRESS[mainnet.id].wFPS);
+  const fpsLinkPolygon = useContractUrl(ADDRESS[polygon.id].wFPS, polygon);
+
   const tvlData = useTvl<number>();
   const positionData = usePositionLists();
   const challengeCount = useChallengeCount();
@@ -176,6 +179,7 @@ export default function Home() {
               />
             </DisplayLabel>
           </AppBox>
+          <hr className="border-dashed border-slate-800 sm:col-span-12" />
           <AppBox className="col-span-6 sm:col-span-3">
             <DisplayLabel label="Mainnet Deployment" />
             <div className="flex items-center py-2 justify-end">
@@ -189,9 +193,7 @@ export default function Home() {
                   Frankencoin Contract
                 </Link>
                 <Link
-                  href={
-                    "https://app.uniswap.org/swap?inputCurrency=0xdAC17F958D2ee523a2206206994597C13D831ec7&outputCurrency=0xB58E61C3098d85632Df34EecfB899A1Ed80921cB&chain=mainnet"
-                  }
+                  href={SOCIAL.Uniswap_Mainnet}
                   target="_blank"
                   className="underline text-sm text-slate-500"
                 >
@@ -213,9 +215,7 @@ export default function Home() {
                   Frankencoin (PoS) Contract
                 </Link>
                 <Link
-                  href={
-                    "https://app.uniswap.org/swap?inputCurrency=0xc2132D05D31c914a87C6611C10748AEb04B58e8F&outputCurrency=0x02567e4b14b25549331fCEe2B56c647A8bAB16FD&chain=polygon"
-                  }
+                  href={SOCIAL.Uniswap_Polygon}
                   target="_blank"
                   className="underline text-sm text-slate-500"
                 >
@@ -237,9 +237,7 @@ export default function Home() {
                   Frankencoin (Arb) Contract
                 </Link>
                 <Link
-                  href={
-                    "https://app.uniswap.org/swap?inputCurrency=0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9&outputCurrency=0xB33c4255938de7A6ec1200d397B2b2F329397F9B&chain=arbitrum"
-                  }
+                  href={SOCIAL.Uniswap_Arbitrum}
                   target="_blank"
                   className="underline text-sm text-slate-500"
                 >
@@ -261,9 +259,44 @@ export default function Home() {
                   Frankencoin (Op) Contract
                 </Link>
                 <Link
-                  href={
-                    "https://app.uniswap.org/swap?inputCurrency=0x94b008aA00579c1307B0EF2c499aD98a8ce58e58&outputCurrency=0x05cA43316288B51948b706046cF0bA3c62c8b725&chain=optimism"
-                  }
+                  href={SOCIAL.Uniswap_Optimism}
+                  target="_blank"
+                  className="underline text-sm text-slate-500"
+                >
+                  Uniswap Pool
+                </Link>
+              </div>
+            </div>
+          </AppBox>
+          <hr className="border-dashed border-slate-800 sm:col-span-12" />
+          <AppBox className="col-span-6 sm:col-span-6">
+            <DisplayLabel label="Mainnet Deployment" />
+            <div className="flex items-center py-2 justify-end">
+              <TokenLogo currency="FPS" chain="mainnet" />
+              <div className="flex flex-col text-right">
+                <Link className="underline" href={fpsLinkEth} target="_blank">
+                  Wrapped FPS Contract
+                </Link>
+                <Link href={""} className="underline text-sm text-slate-500">
+                  Coming Soon
+                </Link>
+              </div>
+            </div>
+          </AppBox>
+          <AppBox className="col-span-6 sm:col-span-6">
+            <DisplayLabel label="Polygon PoS Bridge" />
+            <div className="flex items-center py-2 justify-end">
+              <TokenLogo currency="FPS" chain="polygon" />
+              <div className="flex flex-col text-right">
+                <Link
+                  className="underline"
+                  href={fpsLinkPolygon}
+                  target="_blank"
+                >
+                  Wrapped FPS (Pos) Contract
+                </Link>
+                <Link
+                  href={SOCIAL.Uniswap_WFPS_Polygon}
                   target="_blank"
                   className="underline text-sm text-slate-500"
                 >
@@ -280,7 +313,7 @@ export default function Home() {
           </h2>
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-6 gap-4 p-4 items-center">
             <Link
-              href="https://www.aktionariat.com/all-companies"
+              href={SOCIAL.Partner_Arktionariat}
               target="_blank"
               className="flex items-center justify-center sm:col-span-2"
             >
@@ -300,7 +333,7 @@ export default function Home() {
               </picture>
             </Link>
             <Link
-              href="https://exchange.dfx.swiss/"
+              href={SOCIAL.Partner_DfxSwiss}
               target="_blank"
               className="flex items-center justify-center sm:col-span-2"
             >
@@ -310,7 +343,7 @@ export default function Home() {
               <span className="font-bold text-4xl text-white ml-2">Swiss</span>
             </Link>
             <Link
-              href="https://app.uniswap.org/swap?inputCurrency=0xdAC17F958D2ee523a2206206994597C13D831ec7&outputCurrency=0xB58E61C3098d85632Df34EecfB899A1Ed80921cB&chain=mainnet"
+              href={SOCIAL.Uniswap_Mainnet}
               target="_blank"
               className="flex items-center justify-center sm:col-span-2"
             >
@@ -326,7 +359,7 @@ export default function Home() {
               </span>
             </Link>
             <Link
-              href="https://ammer.cash/"
+              href={SOCIAL.Partner_Ammer}
               target="_blank"
               className="flex items-center justify-center sm:col-span-2 sm:col-start-2"
             >
@@ -342,7 +375,7 @@ export default function Home() {
               </span>
             </Link>
             <Link
-              href="https://zippy.swiss/"
+              href={SOCIAL.Partner_Zipper}
               target="_blank"
               className="flex items-center justify-center sm:col-span-2"
             >

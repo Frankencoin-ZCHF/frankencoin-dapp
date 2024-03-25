@@ -264,7 +264,7 @@ export default function Swap() {
             </div>
             <div className="mx-auto mt-8">
               <a
-                href={SOCIAL.Uniswap}
+                href={SOCIAL.Uniswap_Mainnet}
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center justify-center underline"

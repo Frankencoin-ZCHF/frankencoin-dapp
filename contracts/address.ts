@@ -15,6 +15,7 @@ export interface ProtocolAddress {
   xchf: Address;
   equity: Address;
   mintingHub: Address;
+  wFPS: Address;
   positionFactory?: Address;
   mockVol?: Address;
   mockVids?: Address;
@@ -68,6 +69,7 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
     equity: "0xCafac3dD18aC6c6e92c921884f9E4176737C052c",
     mintingHub: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
     mockVol: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    wFPS: zeroAddress,
   },
   [sepolia.id]: {
     frankenCoin: "0x28c4efd564103730160ad1E6A241b30808445363",
@@ -76,6 +78,7 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
     equity: "0x22f3b4CEED90207620C5631b748f65f805bc774f",
     mintingHub: "0x6f43400A93c222666351c05A4e36Ec6A51a5b49B",
     positionFactory: "0x6ad579D11349d70704df66bc78f84Ae5BBce8D4A",
+    wFPS: zeroAddress,
     mockVids: "0xbe374758Eca03653ACdB43D91461e3c35669acB4",
     mockBoss: "0x08c03ec7cE1747f01A54f9e79DDdc928b1932f61",
     mockRealu: "0x0F89a805dFcdE077C400f320a74E61bFC2D2e98E",
@@ -124,6 +127,7 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
     xchf: "0xb4272071ecadd69d933adcd19ca99fe80664fc08",
     equity: "0x1bA26788dfDe592fec8bcB0Eaff472a42BE341B2",
     mintingHub: "0x7546762fdb1a6d9146b33960545C3f6394265219",
+    wFPS: "0x5052D3Cc819f53116641e89b96Ff4cD1EE80B182",
   },
   [polygon.id]: {
     frankenCoin: "0x02567e4b14b25549331fCEe2B56c647A8bAB16FD",
@@ -131,6 +135,7 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
     xchf: zeroAddress,
     equity: zeroAddress,
     mintingHub: zeroAddress,
+    wFPS: "0x54Cc50D5CC4914F0c5DA8b0581938dC590d29b3D",
   },
   [arbitrum.id]: {
     frankenCoin: "0xB33c4255938de7A6ec1200d397B2b2F329397F9B",
@@ -138,6 +143,7 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
     xchf: zeroAddress,
     equity: zeroAddress,
     mintingHub: zeroAddress,
+    wFPS: zeroAddress,
   },
   [optimism.id]: {
     frankenCoin: "0x05cA43316288B51948b706046cF0bA3c62c8b725",
@@ -145,6 +151,7 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
     xchf: zeroAddress,
     equity: zeroAddress,
     mintingHub: zeroAddress,
+    wFPS: zeroAddress,
   },
 };
 
