@@ -17,7 +17,7 @@ export const useFPSHolders = (): {
         votingPowers(
           orderBy: "votingPower"
           orderDirection: "desc"
-          limit: 10
+          limit: 25
         ) {
           items {
             id
