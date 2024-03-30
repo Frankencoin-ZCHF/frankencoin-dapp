@@ -45,7 +45,7 @@ export default function Swap() {
     const toastContent = [
       {
         title: "Amount:",
-        value: "Max Amount",
+        value: "infinite",
       },
       {
         title: "Spender: ",

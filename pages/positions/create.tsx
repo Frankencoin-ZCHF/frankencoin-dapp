@@ -4,7 +4,7 @@ import AppPageHeader from "@components/AppPageHeader";
 import { useEffect } from "react";
 import { isAddress, maxUint256 } from "viem";
 import TokenInput from "@components/Input/TokenInput";
-import { useTokenData } from "@hooks";
+import { useTokenData, useUserBalance } from "@hooks";
 import { useState } from "react";
 import Button from "@components/Button";
 import { erc20ABI, useChainId, useContractWrite } from "wagmi";
@@ -36,7 +36,7 @@ export default function PositionCreate({}) {
   const [collTokenAddrError, setCollTokenAddrError] = useState("");
   const [limitAmountError, setLimitAmountError] = useState("");
   const [interestError, setInterestError] = useState("");
-  const [initPeriodError, setInitPeriodError] = useState("");
+  const [initError, setInitError] = useState("");
   const [liqPriceError, setLiqPriceError] = useState("");
   const [bufferError, setBufferError] = useState("");
   const [auctionError, setAuctionError] = useState("");
@@ -44,6 +44,7 @@ export default function PositionCreate({}) {
 
   const chainId = useChainId();
   const collTokenData = useTokenData(collateralAddress);
+  const userBalance = useUserBalance();
 
   useEffect(() => {
     if (isAddress(collateralAddress)) {
@@ -119,9 +120,9 @@ export default function PositionCreate({}) {
     const valueBigInt = BigInt(value);
     setInitPeriod(valueBigInt);
     if (valueBigInt < 3n) {
-      setInitPeriodError("Initialization Period must be at least 3 days.");
+      setInitError("Initialization Period must be at least 3 days.");
     } else {
-      setInitPeriodError("");
+      setInitError("");
     }
   };
 
@@ -170,7 +171,7 @@ export default function PositionCreate({}) {
       !!liqPriceError ||
       !!bufferError ||
       !!auctionError ||
-      !!initPeriodError
+      !!initError
     );
   };
 
@@ -328,12 +329,13 @@ export default function PositionCreate({}) {
                 value={BigInt(1000 * 1e18).toString()}
                 onChange={onChangeInitialCollAmount}
                 digit={18}
+                error={userBalance.frankenBalance < BigInt(1000 * 1e18) ? "Not enough ZCHF" : ""}
                 disabled
               />
               <NormalInput
                 label="Initialization Period"
                 symbol="days"
-                error={initPeriodError}
+                error={initError}
                 digit={0}
                 hideMaxLabel
                 value={initPeriod.toString()}

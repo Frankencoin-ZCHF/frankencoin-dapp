@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { formatUnits, getAddress, zeroAddress } from "viem";
+import { formatUnits, maxUint256, getAddress, zeroAddress } from "viem";
 import { usePositionStats } from "@hooks";
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
@@ -120,13 +120,13 @@ export default function PositionAdjust() {
 
   const handleApprove = async () => {
     const tx = await approveWrite.writeAsync({
-      args: [position, collateralAmount - positionStats.collateralBal],
+      args: [position, maxUint256],
     });
 
     const toastContent = [
       {
         title: "Amount:",
-        value: formatBigInt(collateralAmount, positionStats.collateralDecimal),
+        value: "infinite " + positionStats.collateralSymbol,
       },
       {
         title: "Spender: ",
