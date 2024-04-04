@@ -32,7 +32,7 @@ export default function Home() {
   );
   const frankenLinkArb = useContractUrl(
     ADDRESS[arbitrum.id].frankenCoin,
-    polygon
+    arbitrum
   );
   const frankenLinkOp = useContractUrl(
     ADDRESS[optimism.id].frankenCoin,
