@@ -25,3 +25,4 @@ export * from "./useZchfPrice";
 export * from "./useTokenData";
 export * from "./useUserBalance";
 export * from "./useActiveUsersQuery";
+export * from "./useIsWrongNetwork";
