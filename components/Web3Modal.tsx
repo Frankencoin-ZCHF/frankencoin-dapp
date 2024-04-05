@@ -3,13 +3,13 @@
 import { createWeb3Modal, defaultWagmiConfig } from "@web3modal/wagmi/react";
 
 import { WagmiConfig } from "wagmi";
-import { mainnet, sepolia } from "viem/chains";
+import { mainnet } from "viem/chains";
 import React from "react";
 
 // 1. Get projectId at https://cloud.walletconnect.com
 const projectId = "75da506ed9c39c840e6c5a5180014870";
 
-const chains = [mainnet, sepolia];
+const chains = [mainnet];
 
 // 2. Create wagmiConfig
 const metadata = {
