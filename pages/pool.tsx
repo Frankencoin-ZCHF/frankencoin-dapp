@@ -410,12 +410,10 @@ export default function Pool() {
                 series={[
                   {
                     name: "FPS Price",
-                    data: trades.map((trade, i) => {
+                    data: trades.map((trade) => {
                       return [
                         parseFloat(trade.time) * 1000,
-                        parseFloat(
-                          formatBigInt(BigInt(trade.lastPrice), 18, 3)
-                        ),
+                        Math.round(Number(trade.lastPrice) / 10**16)/100
                       ];
                     }),
                   },
