@@ -99,11 +99,11 @@ export default function PositionAdjust() {
  */
   function getAmountError() {
     if (amount > positionStats.limit) {
-      return "This position is limited to {formatUnits(positionStats.limit, 18)} ZCHF";
+      return `This position is limited to ${formatUnits(positionStats.limit, 18)} ZCHF`;
     } else if (-paidOutAmount() > positionStats.frankenBalance) {
       return "Insufficient ZCHF in wallet";
     } else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
-      return "Amount too high for the given price and collateral.";
+      return `Can mint at most ${formatUnits(collateralAmount * liqPrice / 10n**36n, 0)} ZCHF given price and collateral.`;
     } else if (positionStats.liqPrice * collateralAmount < amount * 10n ** 18n){
       return "Amount can only be increased after new price has gone through cooldown.";
     } else {
@@ -190,7 +190,7 @@ export default function PositionAdjust() {
       },
       {
         title: "Liquidation Price:",
-        value: formatBigInt(liqPrice),
+        value: formatBigInt(liqPrice, 36 - positionStats.collateralDecimal),
       },
       {
         title: "Transaction:",
