@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { formatUnits, maxUint256, getAddress, zeroAddress } from "viem";
 import { usePositionStats } from "@hooks";
+import Link from "next/link";
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import TokenInput from "@components/Input/TokenInput";
@@ -87,21 +88,22 @@ export default function PositionAdjust() {
       return `Insufficient ${positionStats.collateralSymbol} in your wallet.`;
     } else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
       return "Not enough collateral for the given price and mint amount.";
-    } else {
-      return "";
     }
   }
 
   function getAmountError() {
     if (amount > positionStats.limit) {
-      return `This position is limited to ${formatUnits(
-        positionStats.limit,
-        18
-      )} ZCHF`;
+      return (
+        <div
+            className={`flex gap-2 items-center cursor-pointer`}
+            onClick={() => setAmount(positionStats.limit)}
+          >This position is limited to {formatUnits(positionStats.limit, 18)} ZCHF </div>)
     } else if (-paidOutAmount() > positionStats.frankenBalance) {
       return "Insufficient ZCHF in wallet";
     } else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
       return "Amount too high for the given price and collateral.";
+    } else if (positionStats.liqPrice * collateralAmount < amount * 10n ** 18n){
+      return "Amount can only be increased after new price has gone through cooldown.";
     } else {
       return "";
     }

@@ -8,16 +8,12 @@ import {
   useTvl,
   usePositionLists,
   useChallengeCount,
-  useActiveUsersQuery,
   useZchfPrice,
 } from "@hooks";
 import Link from "next/link";
 import { ADDRESS } from "@contracts";
 import { useChainId } from "wagmi";
-import { SOCIAL, formatBigInt, shortenAddress } from "../utils";
-import AppPageHeader from "../components/AppPageHeader";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { SOCIAL, formatBigInt } from "../utils";
 import { parseUnits } from "viem";
 import { polygon, mainnet, arbitrum, optimism } from "viem/chains";
 import TokenLogo from "@components/TokenLogo";
@@ -38,19 +34,16 @@ export default function Home() {
     ADDRESS[optimism.id].frankenCoin,
     optimism
   );
-  const fpsLinkEth = useContractUrl(ADDRESS[mainnet.id].wFPS);
-  const fpsLinkPolygon = useContractUrl(ADDRESS[polygon.id].wFPS, polygon);
   const frankenPrice = useZchfPrice();
 
   const tvlData = useTvl<number>();
   const positionData = usePositionLists();
   const challengeCount = useChallengeCount();
-  const activeUsers = useActiveUsersQuery();
 
   return (
     <>
       <Head>
-        <title>Frankencoin - App</title>
+        <title>Frankencoin</title>
       </Head>
       <main className="block">
         <section className="mt-16 grid items-center gap-20 align-middle lg:grid-cols-5">

@@ -218,7 +218,7 @@ export default function Pool() {
   return (
     <>
       <Head>
-        <title>Frankencoin - Pool Shares</title>
+        <title>Frankencoin - Equity</title>
       </Head>
       <div>
         <AppPageHeader title="Frankencoin Pool Shares (FPS)" link={equityUrl} />
