@@ -91,13 +91,15 @@ export default function PositionAdjust() {
     }
   }
 
-  function getAmountError() {
-    if (amount > positionStats.limit) {
-      return (
-        <div
+
+  /* <div
             className={`flex gap-2 items-center cursor-pointer`}
             onClick={() => setAmount(positionStats.limit)}
           >This position is limited to {formatUnits(positionStats.limit, 18)} ZCHF </div>)
+ */
+  function getAmountError() {
+    if (amount > positionStats.limit) {
+      return "This position is limited to {formatUnits(positionStats.limit, 18)} ZCHF";
     } else if (-paidOutAmount() > positionStats.frankenBalance) {
       return "Insufficient ZCHF in wallet";
     } else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
