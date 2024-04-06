@@ -20,7 +20,7 @@ const metadata = {
 };
 
 // https://docs.walletconnect.com/web3modal/nextjs/wagmi/about/implementation#wagmi-config
-const wagmiConfig = defaultWagmiConfig({ chains, ssr: true, projectId, metadata });
+const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata });
 
 // 3. Create modal
 createWeb3Modal({ wagmiConfig, projectId, chains });
