@@ -146,7 +146,7 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
     wFPS: zeroAddress,
   },
   [optimism.id]: {
-    frankenCoin: "0x05cA43316288B51948b706046cF0bA3c62c8b725",
+    frankenCoin: "0x4F8a84C442F9675610c680990EdDb2CCDDB8aB6f",
     bridge: zeroAddress,
     xchf: zeroAddress,
     equity: zeroAddress,
