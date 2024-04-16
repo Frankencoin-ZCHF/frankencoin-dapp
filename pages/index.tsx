@@ -195,7 +195,7 @@ export default function Home() {
                   target="_blank"
                   className="underline text-sm text-slate-500"
                 >
-                  Uniswap Pool
+                  Trade
                 </Link>
               </div>
             </div>
@@ -217,7 +217,7 @@ export default function Home() {
                   target="_blank"
                   className="underline text-sm text-slate-500"
                 >
-                  Uniswap Pool
+                  Trade
                 </Link>
               </div>
             </div>
@@ -239,7 +239,7 @@ export default function Home() {
                   target="_blank"
                   className="underline text-sm text-slate-500"
                 >
-                  Uniswap Pool
+                  Trade
                 </Link>
               </div>
             </div>
@@ -261,7 +261,7 @@ export default function Home() {
                   target="_blank"
                   className="underline text-sm text-slate-500"
                 >
-                  Uniswap Pool
+                  Trade
                 </Link>
               </div>
             </div>

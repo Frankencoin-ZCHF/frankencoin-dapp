@@ -9,7 +9,7 @@ import {
   useFPSQuery,
   useTradeQuery,
 } from "@hooks";
-import { formatBigInt, formatDuration, shortenAddress } from "@utils";
+import { formatBigInt, formatDuration, shortenAddress, SOCIAL } from "@utils";
 import {
   erc20ABI,
   useAccount,
@@ -27,6 +27,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import { toast } from "react-toastify";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -327,6 +328,17 @@ export default function Pool() {
                 <DisplayLabel label="Can redeem after" />
                 {formatDuration(redeemLeft)}
               </AppBox>
+            </div>
+            <div>
+              Also available as <Link
+                href={"https://etherscan.io/address/0x5052d3cc819f53116641e89b96ff4cd1ee80b182"}
+                target="_blank"
+                className="underline"
+              >WFPS</Link> for <Link
+                href={SOCIAL.Uniswap_WFPS_Polygon}
+                target="_blank"
+                className="underline"
+              >trading on Polygon</Link>
             </div>
           </div>
           <div className="bg-slate-950 rounded-xl p-4 grid grid-cols-1 gap-2">
