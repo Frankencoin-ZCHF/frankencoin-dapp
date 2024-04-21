@@ -27,7 +27,7 @@ export default function App({ Component, pageProps }: AppProps) {
           openGraph={{
             type: "website",
             locale: "en_US",
-            url: "https://frankencoin.com/",
+            url: "https://app.frankencoin.com/",
             // images: [
             //   {
             //     url: "https://frankencoin.com//splash.png",

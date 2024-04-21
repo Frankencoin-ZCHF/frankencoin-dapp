@@ -15,7 +15,7 @@ const chains = [mainnet];
 const metadata = {
   name: "Frankencoin",
   description: "Frankencoin Frontend",
-  url: "https://frankencoin.com",
+  url: "https://app.frankencoin.com",
   icons: ["https://avatars.githubusercontent.com/u/37784886"],
 };
 
