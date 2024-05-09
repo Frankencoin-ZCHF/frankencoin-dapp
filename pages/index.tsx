@@ -98,8 +98,7 @@ export default function Home() {
               <a href={SOCIAL.Audit_Chainsecurity} target="_blank">
                 ChainSecurity
               </a>
-              . Its economic properties have been analyzed as part of a{" "}
-              <a href="thesis-preprint-frankencoin.pdf">pending phd thesis</a>.
+              . Its economic properties have been analyzed as part of a <a href="thesis-frankencoin.pdf">phd thesis</a>.
             </p>
           </div>
 
