@@ -13,10 +13,9 @@ export default function WalletConnect() {
   }, [isEthereumMainnet, open]);
 
   return (
-    // removed: flex-col items-end sm:flex-row sm:
     <div className="flex sm:flex-row items-center gap-4">
       <div className="flex items-center gap-2 font-bold">
-        <w3m-network-button disabled={isEthereumMainnet ? true : undefined} />
+        {isEthereumMainnet ? null : <w3m-network-button />}
         <w3m-button />
       </div>
     </div>
