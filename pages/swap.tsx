@@ -1,7 +1,7 @@
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import TokenInput from "@components/Input/TokenInput";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSwapStats } from "@hooks";
 import { formatUnits, maxUint256 } from "viem";
 import Button from "@components/Button";
@@ -13,22 +13,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { SOCIAL, formatBigInt, shortenAddress } from "@utils";
 import { TxToast, renderErrorToast } from "@components/TxToast";
-import { useIsConnectedToCorrectChain } from "@hooks";
-import { useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/react";
-import { useAccount } from "wagmi";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 
 export default function Swap() {
-	const [requestedChainChange, setRequestedChainChange] = useState(false);
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [direction, setDirection] = useState(true);
 	const [isConfirming, setIsConfirming] = useState(false);
-
-	const { isDisconnected } = useAccount();
-	const isCorrectChain = useIsConnectedToCorrectChain();
-	const Web3Modal = useWeb3Modal();
-	const Web3ModalState = useWeb3ModalState();
 
 	const chainId = useChainId();
 	const swapStats = useSwapStats();
@@ -169,17 +160,6 @@ export default function Swap() {
 		}
 	};
 
-	useEffect(() => {
-		if (requestedChainChange) {
-			if (!isDisconnected && isCorrectChain && Web3ModalState.open) {
-				Web3Modal.close();
-				setRequestedChainChange(false);
-			}
-		}
-	}, [requestedChainChange, isDisconnected, isCorrectChain, Web3Modal, Web3ModalState]);
-
-	useEffect(() => console.log({ isDisconnected, isCorrectChain, chainId }), [isDisconnected, isCorrectChain, chainId]);
-
 	return (
 		<>
 			<Head>
@@ -221,66 +201,32 @@ export default function Swap() {
 
 						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 							<GuardToAllowedChainBtn>
-								<p>Hiiii</p>
+								{direction ? (
+									amount > swapStats.xchfUserAllowance ? (
+										<Button isLoading={approveWrite.isLoading || isConfirming} onClick={() => handleApprove()}>
+											Approve
+										</Button>
+									) : (
+										<Button
+											disabled={amount == 0n || !!error}
+											isLoading={mintWrite.isLoading || isConfirming}
+											onClick={() => handleMint()}
+										>
+											Swap
+										</Button>
+									)
+								) : (
+									<Button
+										isLoading={burnWrite.isLoading || isConfirming}
+										disabled={amount == 0n || !!error}
+										onClick={() => handleBurn()}
+									>
+										Swap
+									</Button>
+								)}
 							</GuardToAllowedChainBtn>
-
-							{/* WALLET VERIFY STEPS */}
-							{/* isDisconnected */}
-							{isDisconnected ? (
-								<Button
-									onClick={() => {
-										Web3Modal.open();
-										setRequestedChainChange(true);
-									}}
-								>
-									Connect Wallet
-								</Button>
-							) : null}
-
-							{/* isCorrectChain */}
-							{!isDisconnected && !isCorrectChain ? (
-								<Button
-									onClick={() => {
-										Web3Modal.open({ view: "Networks" });
-										setRequestedChainChange(true);
-									}}
-								>
-									Change Chain
-								</Button>
-							) : null}
-
-							{/* allowance to low */}
-							{!isDisconnected && isCorrectChain && (amount == BigInt(0) ? false : amount > swapStats.xchfUserAllowance) ? (
-								<Button isLoading={approveWrite.isLoading || isConfirming} onClick={() => handleApprove()}>
-									Approve
-								</Button>
-							) : null}
-
-							{/* is mint */}
-							{!isDisconnected &&
-							isCorrectChain &&
-							(amount == BigInt(0) ? true : swapStats.xchfUserAllowance > amount) &&
-							direction ? (
-								<Button
-									disabled={amount == 0n || !!error}
-									isLoading={mintWrite.isLoading || isConfirming}
-									onClick={() => handleMint()}
-								>
-									Swap
-								</Button>
-							) : null}
-
-							{/* is burn */}
-							{!isDisconnected && isCorrectChain && swapStats.xchfUserAllowance > amount && !direction ? (
-								<Button
-									isLoading={burnWrite.isLoading || isConfirming}
-									disabled={amount == 0n || !!error}
-									onClick={() => handleBurn()}
-								>
-									Swap
-								</Button>
-							) : null}
 						</div>
+
 						<div className="mx-auto mt-8">
 							<a
 								href={SOCIAL.Uniswap_Mainnet}
