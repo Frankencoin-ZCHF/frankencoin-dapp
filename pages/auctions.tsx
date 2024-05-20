@@ -6,35 +6,31 @@ import AppPageHeader from "@components/AppPageHeader";
 import ChallengeTable from "@components/ChallengeTable";
 
 export default function Auction({}) {
-  const { address } = useAccount();
-  const { challenges, loading: queryLoading } = useChallengeLists({});
-  const { challengsData, loading } = useChallengeListStats(challenges);
-  const account = address || zeroAddress;
+	const { address } = useAccount();
+	const { challenges, loading: queryLoading } = useChallengeLists({});
+	const { challengsData, loading } = useChallengeListStats(challenges);
+	const account = address || zeroAddress;
 
-  return (
-    <>
-      <Head>
-        <title>Frankencoin - Auctions</title>
-      </Head>
-      <div>
-        <AppPageHeader title="Your Auctions" />
-        <ChallengeTable
-          challenges={challengsData.filter(
-            (challenge) => challenge.challenger == account
-          )}
-          noContentText="You don't have any auction."
-          loading={loading || queryLoading}
-        />
+	return (
+		<>
+			<Head>
+				<title>Frankencoin - Auctions</title>
+			</Head>
+			<div>
+				<AppPageHeader title="Your Auctions" />
+				<ChallengeTable
+					challenges={challengsData.filter((challenge) => challenge.challenger == account)}
+					noContentText="You don't have any auction."
+					loading={loading || queryLoading}
+				/>
 
-        <AppPageHeader title="All Auctions" className="mt-8" />
-        <ChallengeTable
-          challenges={challengsData.filter(
-            (challenge) => challenge.challenger != account
-          )}
-          noContentText="There are no auctions yet."
-          loading={loading || queryLoading}
-        />
-      </div>
-    </>
-  );
+				<AppPageHeader title="All Auctions" className="mt-8" />
+				<ChallengeTable
+					challenges={challengsData.filter((challenge) => challenge.challenger != account)}
+					noContentText="There are no auctions yet."
+					loading={loading || queryLoading}
+				/>
+			</div>
+		</>
+	);
 }
