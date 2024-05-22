@@ -16,8 +16,8 @@ export const URI_PONDER_DEVELOPER = "https://ponder.frankencoin.domain.com/";
 const COINGECKO_API_KEY = "CG-8et9S7NgcRF3qDs3nghcxPz5"; // demo key
 
 // >>> SELECTED PONDER URI HERE <<<
-export const URI_APP_SELECTED = URI_APP_LOCALHOST;
-export const URI_PONDER_SELECTED = URI_PONDER_LOCALHOST;
+export const URI_APP_SELECTED = URI_APP_MAINDEV;
+export const URI_PONDER_SELECTED = URI_PONDER_MAINDEV;
 
 // PONDER
 export const clientPonder = new ApolloClient({
