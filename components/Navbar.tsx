@@ -58,10 +58,10 @@ export default function Navbar() {
 											<NavButton to="/swap" name="Swap" />
 										</li>
 										<li>
-											<NavButton to="/positions" name="Positions" />
+											<NavButton to="/collateral" name="Collateral" />
 										</li>
 										<li>
-											<NavButton to="/collateral" name="Collateral" />
+											<NavButton to="/positions" name="Positions" />
 										</li>
 										<li>
 											<NavButton to="/auctions" name="Auctions" />

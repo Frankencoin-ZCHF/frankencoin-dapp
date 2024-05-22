@@ -86,12 +86,12 @@ export default function OverviewTVL() {
 					</div>
 
 					<div className="mb-5">
-						The total locked balance of {stat.collateral.name} is{" "}
+						The total locked balance is{" "}
 						<span className="front-bold font-semibold text-gray-300">
 							{stat.balance} {stat.collateral.symbol}
-						</span>
-						. This locked collateral serves as the foundation for minting {stat.mint.name} ({stat.mint.symbol}) tokens. There
-						are{" "}
+						</span>{" "}
+						(= {formatCurrency(stat.valueLocked.toString(), 2)} $). This locked collateral serves as the foundation for minting{" "}
+						{stat.mint.name} ({stat.mint.symbol}) tokens. There are{" "}
 						<span className="front-bold font-semibold text-gray-300">
 							{stat.originals.length} positions opened as initial positions
 						</span>
@@ -113,35 +113,17 @@ export default function OverviewTVL() {
 					</div>
 
 					<div className="mb-5">
-						You can <span className="front-bold font-semibold text-gray-300 underline">mint an existing position</span> with the
-						same collateral, <span className="front-bold font-semibold text-gray-300 underline">create a new position</span>{" "}
-						with the same collateral to request an increase for the total minting limit or just request a new collateral, if you
-						fell like it.
-					</div>
-
-					<div className="mb-5">
-						Frankencoins auction-based liquidation mechanism does not rely on external price sources, making it highly
-						autonomous. For additional assurance, you can compare the collaterals value to external sources like Coingecko. This
-						allows independent verification while benefiting from the systems inherent decentralization.
-					</div>
-
-					<div className="">
-						The current price of {stat.mint.name} ({stat.mint.symbol}) on Coingecko is {stat.mint.price.usd} USD/ZCHF.
-					</div>
-
-					<div className="">
-						The current price of {stat.collateral.name} ({stat.collateral.symbol}) on Coingecko is {stat.collateral.price.usd}{" "}
-						USD/{stat.collateral.symbol}.
-					</div>
-
-					<div className="mb-5">
-						The current price of {stat.collateral.name} ({stat.collateral.symbol}) on Coingecko is {stat.collateralPriceInZCHF}{" "}
-						ZCHF/{stat.collateral.symbol}.
-					</div>
-
-					<div className="mb-5">
-						The highest liquidation price from all positions is {stat.highestZCHFPrice} ZCHF/{stat.collateral.symbol}, which
-						represents the worst collateralisation of {stat.collateralizedPct}% for this collateral.
+						The highest liquidation price from all positions is{" "}
+						<span className="front-bold font-semibold text-gray-300">
+							{formatCurrency(stat.highestZCHFPrice.toString(), 2)} ZCHF/{stat.collateral.symbol}
+						</span>{" "}
+						, which represents the worst{" "}
+						<span className="front-bold font-semibold text-gray-300">collateralisation of {stat.collateralizedPct}%</span> for
+						this collateral. The current price of {stat.collateral.name} ({stat.collateral.symbol}) on Coingecko is{" "}
+						<span className="front-bold font-semibold text-gray-300">
+							{formatCurrency(stat.collateralPriceInZCHF.toString(), 2)} ZCHF/{stat.collateral.symbol}
+						</span>{" "}
+						or {formatCurrency(stat.collateral.price.usd.toString(), 2)} USD/{stat.collateral.symbol}.
 					</div>
 
 					<div
