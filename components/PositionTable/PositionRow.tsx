@@ -38,7 +38,7 @@ export default function PositionRow({ position }: Props) {
 					<Link href={`/position/${position.position}/adjust`} className="btn btn-primary w-full">
 						Adjust
 					</Link>
-				) : BigInt(position.availableForPosition) > 0n && !position.closed ? (
+				) : BigInt(position.availableForClones) > 0n && !position.closed ? (
 					<Link href={`/position/${position.position}/borrow`} className="btn btn-primary w-full">
 						Clone & Mint
 					</Link>
