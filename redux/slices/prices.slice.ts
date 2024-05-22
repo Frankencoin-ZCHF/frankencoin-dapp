@@ -1,5 +1,5 @@
-import { createSlice, Dispatch } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { createSlice, Dispatch } from "@reduxjs/toolkit";
+import axios from "axios";
 import {
 	DispatchBoolean,
 	DispatchPriceQueryObjectArray,
@@ -7,10 +7,10 @@ import {
 	PriceQueryObjectArray,
 	PriceQuery,
 	PricesState,
-} from './prices.types';
-import { RootState } from '../redux.store';
-import { ERC20Info } from './positions.types';
-import { Address } from 'viem';
+} from "./prices.types";
+import { RootState } from "../redux.store";
+import { ERC20Info } from "./positions.types";
+import { Address } from "viem";
 
 // --------------------------------------------------------------------------------
 
@@ -24,7 +24,7 @@ export const initialState: PricesState = {
 // --------------------------------------------------------------------------------
 
 export const slice = createSlice({
-	name: 'prices',
+	name: "prices",
 	initialState,
 	reducers: {
 		// HAS ERROR
@@ -56,7 +56,7 @@ export const fetchPricesList = (state: RootState) => async (dispatch: Dispatch<D
 
 	// ---------------------------------------------------------------
 	// Log, set loading to true
-	console.log('Loading [REDUX]: PricesList');
+	console.log("Loading [REDUX]: PricesList");
 	dispatch(slice.actions.setLoading(true));
 
 	// ---------------------------------------------------------------
@@ -66,8 +66,8 @@ export const fetchPricesList = (state: RootState) => async (dispatch: Dispatch<D
 	const fetchAddresses: Address[] = infos.map((i) => i.address);
 	const fetchSourcesCoingecko = async function (contracts: Address[]) {
 		const url = (addr: Address) =>
-			`https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${addr}&vs_currencies=usd`;
-		return contracts.map(async (c) => await axios.get(url(c)));
+			`https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${addr}&vs_currencies=usd&x_cg_demo_api_key=CG-8et9S7NgcRF3qDs3nghcxPz5`;
+		return contracts.map(async (c) => await fetch(url(c)));
 	};
 
 	// fetch from coingecko
@@ -75,13 +75,15 @@ export const fetchPricesList = (state: RootState) => async (dispatch: Dispatch<D
 	const prices: { [key: Address]: PriceQuery } = {};
 
 	for (let p of data) {
-		if (p.status == 'rejected') continue;
+		if (p.status == "rejected") continue;
 		if (p.value.status != 200) continue;
 
-		const contract: Address = Object.keys(p.value.data).at(0) as Address;
+		const response = await p.value.json();
+
+		const contract: Address = Object.keys(response).at(0) as Address;
 		if (!contract) continue;
 
-		const price: PriceQueryCurrencies = contract ? p.value.data[contract] : null;
+		const price: PriceQueryCurrencies = contract ? response[contract] : null;
 		if (!price) continue;
 
 		const erc = infos.find((i) => i.address.toLowerCase() == contract);

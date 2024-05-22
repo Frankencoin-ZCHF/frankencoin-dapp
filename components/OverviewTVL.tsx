@@ -71,7 +71,7 @@ export default function OverviewTVL() {
 	const { loading, openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 
-	if (openPositionsByCollateral.length == 0 || Object.keys(coingecko).length == 0) return <>Loadinng...</>;
+	if (openPositionsByCollateral.length == 0 || Object.keys(coingecko).length == 0) return <>Loading...</>;
 	const stats = calcOverviewStats(openPositionsByCollateral, coingecko);
 
 	return (
