@@ -1,7 +1,7 @@
-import { createSlice, Dispatch } from '@reduxjs/toolkit';
-import client from '../../utils/apollo-client';
-import { gql } from '@apollo/client';
-import { PricesState } from './template.types';
+import { createSlice, Dispatch } from "@reduxjs/toolkit";
+// import { client } from "../../app.config";
+// import { gql } from "@apollo/client";
+import { PricesState } from "./template.types";
 
 // --------------------------------------------------------------------------------
 
@@ -13,7 +13,7 @@ export const initialState: PricesState = {
 // --------------------------------------------------------------------------------
 
 export const slice = createSlice({
-	name: 'prices',
+	name: "prices",
 	initialState,
 	reducers: {
 		// HAS ERROR
@@ -38,7 +38,7 @@ export const actions = slice.actions;
 export const fetchPricesList = () => async (dispatch: Dispatch<any>) => {
 	// ---------------------------------------------------------------
 	// Log, set loading to true
-	console.log('Loading [REDUX]: PricesList');
+	console.log("Loading [REDUX]: PricesList");
 	dispatch(slice.actions.setLoading(true));
 
 	// ---------------------------------------------------------------
