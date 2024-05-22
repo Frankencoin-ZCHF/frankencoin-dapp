@@ -42,7 +42,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 				? `Danger, blow ${collateralizedPct}% collaterized`
 				: collateralizedPct < 150
 				? `Warning, ${collateralizedPct}% collaterized`
-				: `Accepted, ${collateralizedPct}% collaterized`;
+				: `Safe, ${collateralizedPct}% collaterized`;
 		const worstStatusColors = collateralizedPct < 100 ? "bg-red-500" : collateralizedPct < 150 ? "bg-orange-400" : "bg-green-500";
 
 		stats.push({

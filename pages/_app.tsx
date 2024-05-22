@@ -11,7 +11,7 @@ import { Provider as ReduxProvider } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import { Web3Modal } from "@components/Web3Modal";
 import { store } from "../redux/redux.store";
-import { client } from "../utils/app.config";
+import { client } from "../app.config";
 import { useTokenPrice, useTokenPrices } from "@hooks";
 import BlockUpdater from "@components/BlockUpdater";
 

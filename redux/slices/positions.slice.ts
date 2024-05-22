@@ -1,5 +1,5 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
-import { client } from "../../utils/app.config";
+import { client } from "../../app.config";
 import { gql } from "@apollo/client";
 import { Address, getAddress } from "viem";
 import { uniqueValues } from "@utils";
