@@ -8,8 +8,59 @@ import { uniqueValues } from "../../utils/format-array";
 import { fetchPositions } from "./positions";
 
 let fetchedPositions: PositionQuery[] = [];
-let fetchedAddresses: Address[] = [];
-let fetchedERC20Infos: ERC20Info[] = [];
+let fetchedAddresses: Address[] = [
+	"0xB58E61C3098d85632Df34EecfB899A1Ed80921cB",
+	"0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+	"0x8747a3114Ef7f0eEBd3eB337F745E31dBF81a952",
+	"0x1bA26788dfDe592fec8bcB0Eaff472a42BE341B2",
+	"0x8c1BEd5b9a0928467c9B1341Da1D7BD5e10b6549",
+	"0x553C7f9C780316FC1D34b8e14ac2465Ab22a090B",
+	"0x2E880962A9609aA3eab4DEF919FE9E917E99073B",
+];
+let fetchedERC20Infos: ERC20Info[] = [
+	{
+		address: "0xB58E61C3098d85632Df34EecfB899A1Ed80921cB",
+		name: "Frankencoin",
+		symbol: "ZCHF",
+		decimals: 18,
+	},
+	{
+		address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+		name: "Wrapped BTC",
+		symbol: "WBTC",
+		decimals: 8,
+	},
+	{
+		address: "0x8747a3114Ef7f0eEBd3eB337F745E31dBF81a952",
+		name: "Draggable quitt.shares",
+		symbol: "DQTS",
+		decimals: 0,
+	},
+	{
+		address: "0x1bA26788dfDe592fec8bcB0Eaff472a42BE341B2",
+		name: "Frankencoin Pool Share",
+		symbol: "FPS",
+		decimals: 18,
+	},
+	{
+		address: "0x8c1BEd5b9a0928467c9B1341Da1D7BD5e10b6549",
+		name: "Liquid Staked ETH",
+		symbol: "LsETH",
+		decimals: 18,
+	},
+	{
+		address: "0x553C7f9C780316FC1D34b8e14ac2465Ab22a090B",
+		name: "RealUnit Shares",
+		symbol: "REALU",
+		decimals: 0,
+	},
+	{
+		address: "0x2E880962A9609aA3eab4DEF919FE9E917E99073B",
+		name: "Boss Info AG",
+		symbol: "BOSS",
+		decimals: 0,
+	},
+];
 let fetchedPrices: PriceQueryObjectArray = {
 	"0xb58e61c3098d85632df34eecfb899a1ed80921cb": {
 		address: "0xB58E61C3098d85632Df34EecfB899A1Ed80921cB",
@@ -168,4 +219,4 @@ export async function updateDetails(): Promise<updateDetailsResponse> {
 }
 
 updateDetails();
-setInterval(updateDetails, 1 * 60 * 1000);
+setInterval(updateDetails, 5 * 60 * 1000);

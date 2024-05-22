@@ -1,8 +1,10 @@
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 
 // URIs
-export const URI_APP = "https://frankencoin.com";
-export const URI_APP_DEV = "http://localhost:3000";
+export const URI_APP_LOCALHOST = "http://localhost:3000";
+export const URI_APP_MAINNET = "https://frankencoin.com";
+export const URI_APP_MAINDEV = "https://devapp.frankencoin.com";
+export const URI_APP_DEVELOPER = "http://dapp.frankencoin.domain.com";
 
 export const URI_PONDER_LOCALHOST = "http://localhost:42069";
 export const URI_PONDER_MAINNET = "https://mainnetponder.frankencoin.com/";
@@ -14,7 +16,7 @@ export const URI_PONDER_DEVELOPER = "https://ponder.frankencoin.domain.com/";
 const COINGECKO_API_KEY = "CG-8et9S7NgcRF3qDs3nghcxPz5"; // demo key
 
 // >>> SELECTED PONDER URI HERE <<<
-export const URI_APP_SELECTED = URI_APP_DEV;
+export const URI_APP_SELECTED = URI_APP_LOCALHOST;
 export const URI_PONDER_SELECTED = URI_PONDER_LOCALHOST;
 
 // PONDER
