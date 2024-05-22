@@ -1,5 +1,4 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
-import axios from "axios";
 import {
 	DispatchBoolean,
 	DispatchPriceQueryObjectArray,
@@ -11,6 +10,7 @@ import {
 import { RootState } from "../redux.store";
 import { ERC20Info } from "./positions.types";
 import { Address } from "viem";
+import { URI_APP_SELECTED } from "../../app.config";
 
 // --------------------------------------------------------------------------------
 
@@ -60,44 +60,11 @@ export const fetchPricesList = (state: RootState) => async (dispatch: Dispatch<D
 	dispatch(slice.actions.setLoading(true));
 
 	// ---------------------------------------------------------------
-	// Query raw data from coingecko
-	// TODO: dynamic loading of multiple sources and multile contracts
-	// FIXME: coingecko contract limit: 1 for free plan
-	const fetchAddresses: Address[] = infos.map((i) => i.address);
-	const fetchSourcesCoingecko = async function (contracts: Address[]) {
-		const url = (addr: Address) =>
-			`https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${addr}&vs_currencies=usd&x_cg_demo_api_key=CG-8et9S7NgcRF3qDs3nghcxPz5`;
-		return contracts.map(async (c) => await fetch(url(c)));
-	};
+	// Query from /api/details
+	const response = await fetch(`${URI_APP_SELECTED}/api/prices`);
+	const prices = ((await response.json())?.prices as PriceQueryObjectArray) || [];
 
-	// fetch from coingecko
-	const data = await Promise.allSettled(await fetchSourcesCoingecko(fetchAddresses));
-	const prices: { [key: Address]: PriceQuery } = {};
-
-	for (let p of data) {
-		if (p.status == "rejected") continue;
-		if (p.value.status != 200) continue;
-
-		const response = await p.value.json();
-
-		const contract: Address = Object.keys(response).at(0) as Address;
-		if (!contract) continue;
-
-		const price: PriceQueryCurrencies = contract ? response[contract] : null;
-		if (!price) continue;
-
-		const erc = infos.find((i) => i.address.toLowerCase() == contract);
-		if (!erc) continue;
-
-		const timestamp = Date.now();
-
-		prices[contract] = {
-			...erc,
-			timestamp,
-			price,
-		};
-	}
-
+	if (Object.keys(prices).length == 0) return;
 	dispatch(slice.actions.setList(prices));
 
 	// ---------------------------------------------------------------

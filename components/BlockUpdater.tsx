@@ -1,11 +1,11 @@
-import { Address, useAccount, useBlockNumber } from 'wagmi';
-import { useEffect, useState } from 'react';
+import { Address, useAccount, useBlockNumber } from "wagmi";
+import { useEffect, useState } from "react";
 
-import { store } from '../redux/redux.store';
-import { fetchPositionsList } from '../redux/slices/positions.slice';
-import { fetchPricesList } from '../redux/slices/prices.slice';
-import { fetchAccount } from '../redux/slices/account.slice';
-import { ERC20Info } from '../redux/slices/positions.types';
+import { store } from "../redux/redux.store";
+import { fetchPositionsList } from "../redux/slices/positions.slice";
+import { fetchPricesList } from "../redux/slices/prices.slice";
+import { fetchAccount } from "../redux/slices/account.slice";
+import { ERC20Info } from "../redux/slices/positions.types";
 
 export default function BockUpdater() {
 	const { error, data } = useBlockNumber({ enabled: true, watch: true });
@@ -21,7 +21,7 @@ export default function BockUpdater() {
 	// FIXME: does it solve the init step for loading all data
 	useEffect(() => {
 		console.log(`Policy [BlockUpdater]: ONCE / INIT`);
-		// store.dispatch(fetchPositionsList());
+		store.dispatch(fetchPricesList(store.getState()));
 	}, []);
 
 	// --------------------------------------------------------------------------------
