@@ -61,6 +61,9 @@ export default function Navbar() {
 											<NavButton to="/positions" name="Positions" />
 										</li>
 										<li>
+											<NavButton to="/collateral" name="Collateral" />
+										</li>
+										<li>
 											<NavButton to="/auctions" name="Auctions" />
 										</li>
 										<li>
