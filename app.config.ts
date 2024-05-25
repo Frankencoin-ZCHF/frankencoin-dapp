@@ -10,9 +10,9 @@ export const URI_APP_MAINDEV = "https://devapp.frankencoin.com";
 export const URI_APP_DEVELOPER = "http://dapp.frankencoin.domain.com";
 
 export const URI_PONDER_LOCALHOST = "http://localhost:42069";
-export const URI_PONDER_MAINNET = "https://mainnetponder.frankencoin.com/";
-export const URI_PONDER_MAINDEV = "https://maindevponder.frankencoin.com/";
-export const URI_PONDER_DEVELOPER = "https://ponder.frankencoin.domain.com/";
+export const URI_PONDER_MAINNET = "https://mainnetponder.frankencoin.com";
+export const URI_PONDER_MAINDEV = "https://maindevponder.frankencoin.com";
+export const URI_PONDER_DEVELOPER = "https://ponder.frankencoin.domain.com";
 
 // >>>>>> SELECTED URI HERE <<<<<<
 export const URI_APP_SELECTED = URI_APP_MAINNET;
