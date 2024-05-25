@@ -1,4 +1,7 @@
+"use client";
+
 import { ApolloClient, InMemoryCache } from "@apollo/client";
+import { mainnet } from "wagmi";
 
 // URIs
 export const URI_APP_LOCALHOST = "http://localhost:3000";
@@ -11,21 +14,32 @@ export const URI_PONDER_MAINNET = "https://mainnetponder.frankencoin.com/";
 export const URI_PONDER_MAINDEV = "https://maindevponder.frankencoin.com/";
 export const URI_PONDER_DEVELOPER = "https://ponder.frankencoin.domain.com/";
 
-// API KEYS
-// FIXME: move to env or white list domain in coingecko dashboard
-const COINGECKO_API_KEY = "CG-8et9S7NgcRF3qDs3nghcxPz5"; // demo key
-
 // >>> SELECTED PONDER URI HERE <<<
-export const URI_APP_SELECTED = URI_APP_MAINDEV;
-export const URI_PONDER_SELECTED = URI_PONDER_MAINDEV;
+export const URI_APP_SELECTED = URI_APP_MAINNET;
+export const URI_PONDER_SELECTED = URI_PONDER_MAINNET;
 
-// PONDER
+// API KEYS
+// FIXME: move to env or white list domain
+export const COINGECKO_API_KEY = "CG-8et9S7NgcRF3qDs3nghcxPz5"; // demo key @samclassix
+
+// WAGMI CONFIG
+// FIXME: move to env or white list domain
+export const WAGMI_PROJECT_ID = "26fb3341cffa779adebdb59dc32b24e5";
+export const WAGMI_CHAINS = [mainnet];
+export const WAGMI_METADATA = {
+	name: "Frankencoin",
+	description: "Frankencoin Frontend Application",
+	url: "https://app.frankencoin.com",
+	icons: ["https://avatars.githubusercontent.com/u/37784886"],
+};
+
+// PONDER CLIENT
 export const clientPonder = new ApolloClient({
 	uri: URI_PONDER_SELECTED,
 	cache: new InMemoryCache(),
 });
 
-// COINGECKO
+// COINGECKO CLIENT
 export const clientCoingecko = (query: string) => {
 	const hasParams = query.includes("?");
 	const uri: string = `https://api.coingecko.com${query}`;
