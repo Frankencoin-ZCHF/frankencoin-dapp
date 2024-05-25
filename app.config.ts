@@ -14,9 +14,10 @@ export const URI_PONDER_MAINNET = "https://mainnetponder.frankencoin.com/";
 export const URI_PONDER_MAINDEV = "https://maindevponder.frankencoin.com/";
 export const URI_PONDER_DEVELOPER = "https://ponder.frankencoin.domain.com/";
 
-// >>> SELECTED PONDER URI HERE <<<
+// >>>>>> SELECTED URI HERE <<<<<<
 export const URI_APP_SELECTED = URI_APP_MAINNET;
 export const URI_PONDER_SELECTED = URI_PONDER_MAINNET;
+// >>>>>> SELECTED URI HERE <<<<<<
 
 // API KEYS
 // FIXME: move to env or white list domain
