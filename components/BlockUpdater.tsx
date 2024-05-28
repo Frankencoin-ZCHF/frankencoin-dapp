@@ -10,13 +10,13 @@ import { ERC20Info } from "../redux/slices/positions.types";
 
 let initializing: boolean = false;
 let initStart: number = 0;
+let loading: boolean = false;
 
 export default function BockUpdater({ children }: { children?: React.ReactElement | React.ReactElement[] }) {
 	const { error, data } = useBlockNumber({ enabled: true, watch: true });
 	const { address } = useAccount();
 
 	const [initialized, setInitialized] = useState<boolean>(false);
-	const [loading, setLoading] = useState<boolean>(false);
 	const [latestHeight, setLatestHeight] = useState<number>(0);
 	const [latestMintERC20Infos, setLatestMintERC20Infos] = useState<ERC20Info[]>([]);
 	const [latestCollateralERC20Infos, setLatestCollateralERC20Infos] = useState<ERC20Info[]>([]);
@@ -24,7 +24,7 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 
 	const loadedPositions: boolean = useSelector((state: RootState) => state.positions.loaded);
 	const loadedPrices: boolean = useSelector((state: RootState) => state.prices.loaded);
-	const { mintERC20Infos, collateralERC20Infos, openPositions } = useSelector((state: RootState) => state.positions);
+	const { mintERC20Infos, collateralERC20Infos } = useSelector((state: RootState) => state.positions);
 
 	// --------------------------------------------------------------------------------
 	// Init
@@ -61,7 +61,7 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 
 		// New block? set new state
 		if (fetchedLatestHeight <= latestHeight) return;
-		setLoading(true);
+		loading = true;
 		setLatestHeight(fetchedLatestHeight);
 
 		// Block update policy: EACH BLOCK
@@ -70,18 +70,20 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		if (latestAddress) store.dispatch(fetchAccount(latestAddress));
 
 		// Block update policy: EACH 10 BLOCKS
-		if (fetchedLatestHeight % 10 != 0) return;
-		console.log(`Policy [BlockUpdater]: EACH 10 BLOCKS ${fetchedLatestHeight}`);
-		store.dispatch(fetchPricesList(store.getState()));
+		if (fetchedLatestHeight % 10 === 0) {
+			console.log(`Policy [BlockUpdater]: EACH 10 BLOCKS ${fetchedLatestHeight}`);
+			store.dispatch(fetchPricesList(store.getState()));
+		}
 
 		// Block update policy: EACH 100 BLOCKS
-		if (fetchedLatestHeight % 100 != 0) return;
-		console.log(`Policy [BlockUpdater]: EACH 100 BLOCKS ${fetchedLatestHeight}`);
-		// store.dispatch(fetchPricesList());
+		if (fetchedLatestHeight % 100 === 0) {
+			console.log(`Policy [BlockUpdater]: EACH 100 BLOCKS ${fetchedLatestHeight}`);
+			// store.dispatch(fetchPricesList());
+		}
 
 		// Unlock block updates
-		setLoading(false);
-	}, [loading, initialized, error, data, latestHeight, latestAddress]);
+		loading = false;
+	}, [initialized, error, data, latestHeight, latestAddress]);
 
 	// --------------------------------------------------------------------------------
 	// ERC20 Info changes
