@@ -1,9 +1,9 @@
-import { Address } from 'viem';
+import { Address } from "viem";
 
 // --------------------------------------------------------------------------------
 export type PositionsState = {
 	error: string | null;
-	loading: boolean;
+	loaded: boolean;
 	list: PositionQuery[];
 
 	openPositions: PositionQuery[];

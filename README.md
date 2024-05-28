@@ -3,12 +3,13 @@
 ### Edit app.config
 
 ```
-// API KEYS
-const COINGECKO_API_KEY = "CG-asdfasdf";
+export const URI_APP_MAINNET = "https://frankencoin.com";
+export const URI_PONDER_MAINNET = "https://mainnetponder.frankencoin.com/";
 
-// >>> SELECTED URI HERE <<<
-export const URI_APP_SELECTED = URI_APP;
+// >>>>>> SELECTED URI HERE <<<<<<
+export const URI_APP_SELECTED = URI_APP_MAINNET;
 export const URI_PONDER_SELECTED = URI_PONDER_MAINNET;
+// >>>>>> SELECTED URI HERE <<<<<<
 ```
 
 ### Production

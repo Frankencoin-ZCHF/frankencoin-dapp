@@ -15,8 +15,8 @@ interface Props {
 }
 
 export default function PositionTable({ showMyPos }: Props) {
+	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { address } = useAccount();
-	const { openPositionsByCollateral, loading } = useSelector((state: RootState) => state.positions);
 	const account = address || zeroAddress;
 	const openPositions: PositionQuery[] = [];
 
@@ -32,14 +32,7 @@ export default function PositionTable({ showMyPos }: Props) {
 		<Table>
 			<TableHeader headers={["Collateral", "Liquidation Price", "Available Amount"]} actionCol />
 			<TableBody>
-				{loading ? (
-					<TableRowEmpty>
-						<div className="flex items-center">
-							<LoadingSpin classes="mr-3" />
-							Loading...
-						</div>
-					</TableRowEmpty>
-				) : matchingPositions.length == 0 ? (
+				{matchingPositions.length == 0 ? (
 					<TableRowEmpty>{showMyPos ? "You don't have any positions." : "There are no other positions yet."}</TableRowEmpty>
 				) : (
 					matchingPositions.map((pos) => <PositionRow position={pos} key={pos.position} />)

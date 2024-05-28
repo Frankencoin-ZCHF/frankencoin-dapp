@@ -1,37 +1,67 @@
 import { Address, useAccount, useBlockNumber } from "wagmi";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
-import { store } from "../redux/redux.store";
+import { RootState, store } from "../redux/redux.store";
 import { fetchPositionsList } from "../redux/slices/positions.slice";
 import { fetchPricesList } from "../redux/slices/prices.slice";
 import { fetchAccount } from "../redux/slices/account.slice";
 import { ERC20Info } from "../redux/slices/positions.types";
 
-export default function BockUpdater() {
+let initializing: boolean = false;
+let initStart: number = 0;
+
+export default function BockUpdater({ children }: { children?: React.ReactElement | React.ReactElement[] }) {
 	const { error, data } = useBlockNumber({ enabled: true, watch: true });
 	const { address } = useAccount();
+
+	const [initialized, setInitialized] = useState<boolean>(false);
+	const [loading, setLoading] = useState<boolean>(false);
 	const [latestHeight, setLatestHeight] = useState<number>(0);
 	const [latestMintERC20Infos, setLatestMintERC20Infos] = useState<ERC20Info[]>([]);
 	const [latestCollateralERC20Infos, setLatestCollateralERC20Infos] = useState<ERC20Info[]>([]);
 	const [latestAddress, setLatestAddress] = useState<Address | undefined>(undefined);
-	const { mintERC20Infos, collateralERC20Infos } = store.getState().positions;
+
+	const loadedPositions: boolean = useSelector((state: RootState) => state.positions.loaded);
+	const loadedPrices: boolean = useSelector((state: RootState) => state.prices.loaded);
+	const { mintERC20Infos, collateralERC20Infos, openPositions } = useSelector((state: RootState) => state.positions);
 
 	// --------------------------------------------------------------------------------
 	// Init
-	// FIXME: does it solve the init step for loading all data
 	useEffect(() => {
-		console.log(`Policy [BlockUpdater]: ONCE / INIT`);
+		if (initialized) return;
+		if (initializing) return;
+		initializing = true;
+		initStart = Date.now();
+
+		console.log(`Init [BlockUpdater]: Start loading application data... ${initStart}`);
+		store.dispatch(fetchPositionsList());
 		store.dispatch(fetchPricesList(store.getState()));
-	}, []);
+	}, [initialized]);
+
+	// --------------------------------------------------------------------------------
+	// Init done
+	useEffect(() => {
+		if (initialized) return;
+		if (loadedPositions && loadedPrices) {
+			console.log(`Init [BlockUpdater]: Done. ${Date.now() - initStart} ms`);
+			setInitialized(true);
+		}
+	}, [initialized, loadedPositions, loadedPrices]);
 
 	// --------------------------------------------------------------------------------
 	// Bock update policies
 	useEffect(() => {
+		if (!initialized) return;
+		if (loading) return;
+
+		// verify
 		if (!data || error) return;
 		const fetchedLatestHeight: number = parseInt(data.toString());
 
 		// New block? set new state
 		if (fetchedLatestHeight <= latestHeight) return;
+		setLoading(true);
 		setLatestHeight(fetchedLatestHeight);
 
 		// Block update policy: EACH BLOCK
@@ -48,7 +78,10 @@ export default function BockUpdater() {
 		if (fetchedLatestHeight % 100 != 0) return;
 		console.log(`Policy [BlockUpdater]: EACH 100 BLOCKS ${fetchedLatestHeight}`);
 		// store.dispatch(fetchPricesList());
-	}, [error, data, latestHeight, latestAddress]);
+
+		// Unlock block updates
+		setLoading(false);
+	}, [loading, initialized, error, data, latestHeight, latestAddress]);
 
 	// --------------------------------------------------------------------------------
 	// ERC20 Info changes
@@ -72,5 +105,19 @@ export default function BockUpdater() {
 		store.dispatch(fetchAccount(address));
 	}, [address, latestAddress]);
 
-	return null;
+	// --------------------------------------------------------------------------------
+	// Loading Guard
+	if (initialized) {
+		return <>{children}</>;
+	} else {
+		return (
+			// TODO: remake loading component
+			<div className="flex items-center justify-center gap-4 h-screen">
+				<picture>
+					<img className="h-10" src="/assets/logoSquare.svg" alt="Logo" />
+				</picture>
+				<h1>Frankencoin is loading...</h1>
+			</div>
+		);
+	}
 }

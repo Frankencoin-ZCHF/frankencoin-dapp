@@ -68,10 +68,8 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 }
 
 export default function OverviewTVL() {
-	const { loading, openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
+	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
-
-	if (openPositionsByCollateral.length == 0 || Object.keys(coingecko).length == 0) return <>Loading...</>;
 	const stats = calcOverviewStats(openPositionsByCollateral, coingecko);
 
 	return (
@@ -116,7 +114,7 @@ export default function OverviewTVL() {
 						The highest liquidation price from all positions is{" "}
 						<span className="front-bold font-semibold text-gray-300">
 							{formatCurrency(stat.highestZCHFPrice.toString(), 2)} ZCHF/{stat.collateral.symbol}
-						</span>{" "}
+						</span>
 						, which represents the worst{" "}
 						<span className="front-bold font-semibold text-gray-300">collateralisation of {stat.collateralizedPct}%</span> for
 						this collateral. The current price of {stat.collateral.name} ({stat.collateral.symbol}) on Coingecko is{" "}

@@ -19,13 +19,14 @@ export default function App({ Component, pageProps }: AppProps) {
 		<ReduxProvider store={store}>
 			<Web3Modal>
 				<ApolloProvider client={clientPonder}>
-					<BlockUpdater />
-					<NextSeoProvider />
-					<ToastContainer position="bottom-right" hideProgressBar={false} rtl={false} theme="dark" />
+					<BlockUpdater>
+						<NextSeoProvider />
+						<ToastContainer position="bottom-right" hideProgressBar={false} rtl={false} theme="dark" />
 
-					<Layout>
-						<Component {...pageProps} />
-					</Layout>
+						<Layout>
+							<Component {...pageProps} />
+						</Layout>
+					</BlockUpdater>
 				</ApolloProvider>
 			</Web3Modal>
 		</ReduxProvider>
