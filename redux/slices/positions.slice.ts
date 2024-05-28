@@ -19,7 +19,7 @@ import { fetchPositions } from "../../pages/api/positions";
 
 export const initialState: PositionsState = {
 	error: null,
-	loading: false,
+	loaded: false,
 	list: [],
 
 	openPositions: [],
@@ -45,9 +45,9 @@ export const slice = createSlice({
 			state.error = action.payload;
 		},
 
-		// SET LOADING
-		setLoading: (state, action: { payload: boolean }) => {
-			state.loading = action.payload;
+		// SET LOADED
+		setLoaded: (state, action: { payload: boolean }) => {
+			state.loaded = action.payload;
 		},
 
 		// -------------------------------------
@@ -126,9 +126,7 @@ export const fetchPositionsList =
 		>
 	) => {
 		// ---------------------------------------------------------------
-		// Log, set loading to true
 		console.log("Loading [REDUX]: PositionsList");
-		dispatch(slice.actions.setLoading(true));
 
 		// ---------------------------------------------------------------
 		// Query raw data from Ponder Indexer
@@ -179,6 +177,6 @@ export const fetchPositionsList =
 		dispatch(slice.actions.setMintERC20Infos(mintERC20Infos));
 
 		// ---------------------------------------------------------------
-		// Finalizing, loading set to false
-		dispatch(slice.actions.setLoading(false));
+		// Finalizing, loaded set to true
+		dispatch(slice.actions.setLoaded(true));
 	};

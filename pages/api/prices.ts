@@ -7,6 +7,8 @@ import { ERC20Info, PositionQuery } from "../../redux/slices/positions.types";
 import { uniqueValues } from "../../utils/format-array";
 import { fetchPositions } from "./positions";
 
+// forced init caching of ERC20Infos
+// solves development mode caching issue with coingecko free plan
 let fetchedPositions: PositionQuery[] = [];
 let fetchedAddresses: Address[] = [
 	"0xB58E61C3098d85632Df34EecfB899A1Ed80921cB",
@@ -140,8 +142,6 @@ type updateDetailsResponse = {
 };
 
 export async function updateDetails(): Promise<updateDetailsResponse> {
-	console.log(`Updating [Details] for /api/details`);
-
 	const tmp = await fetchPositions();
 	if (tmp.length == 0)
 		return {

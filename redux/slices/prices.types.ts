@@ -1,10 +1,10 @@
-import { Address } from 'viem';
-import { ERC20Info } from './positions.types';
+import { Address } from "viem";
+import { ERC20Info } from "./positions.types";
 
 // --------------------------------------------------------------------------------
 export type PricesState = {
 	error: string | null;
-	loading: boolean;
+	loaded: boolean;
 
 	coingecko: PriceQueryObjectArray;
 };

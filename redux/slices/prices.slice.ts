@@ -16,7 +16,7 @@ import { URI_APP_SELECTED } from "../../app.config";
 
 export const initialState: PricesState = {
 	error: null,
-	loading: false,
+	loaded: false,
 
 	coingecko: {},
 };
@@ -32,9 +32,9 @@ export const slice = createSlice({
 			state.error = action.payload;
 		},
 
-		// SET LOADING
-		setLoading: (state, action: { payload: boolean }) => {
-			state.loading = action.payload;
+		// SET LOADED
+		setLoaded: (state, action: { payload: boolean }) => {
+			state.loaded = action.payload;
 		},
 
 		// -------------------------------------
@@ -55,9 +55,7 @@ export const fetchPricesList = (state: RootState) => async (dispatch: Dispatch<D
 	if (infos.length == 0) return;
 
 	// ---------------------------------------------------------------
-	// Log, set loading to true
 	console.log("Loading [REDUX]: PricesList");
-	dispatch(slice.actions.setLoading(true));
 
 	// ---------------------------------------------------------------
 	// Query from /api/details
@@ -68,6 +66,6 @@ export const fetchPricesList = (state: RootState) => async (dispatch: Dispatch<D
 	dispatch(slice.actions.setList(prices));
 
 	// ---------------------------------------------------------------
-	// Finalizing, loading set to false
-	dispatch(slice.actions.setLoading(false));
+	// Finalizing, loaded set to ture
+	dispatch(slice.actions.setLoaded(true));
 };
