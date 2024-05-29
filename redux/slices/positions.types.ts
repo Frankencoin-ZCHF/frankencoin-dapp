@@ -36,9 +36,10 @@ export type PositionQuery = {
 	minimumCollateral: string;
 	annualInterestPPM: number;
 	reserveContribution: number;
-	start: string;
-	expiration: string;
-	challengePeriod: string;
+	start: number;
+	cooldown: number;
+	expiration: number;
+	challengePeriod: number;
 
 	zchfName: string;
 	zchfSymbol: string;
