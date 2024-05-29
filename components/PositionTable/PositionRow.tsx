@@ -1,6 +1,5 @@
 import { Address, zeroAddress } from "viem";
 import DisplayAmount from "../DisplayAmount";
-import { usePositionStats, useTokenPrice, useZchfPrice } from "@hooks";
 import TableRow from "../Table/TableRow";
 import { useAccount, useChainId } from "wagmi";
 import { ADDRESS } from "../../contracts/address";
@@ -17,8 +16,6 @@ interface Props {
 export default function PositionRow({ position }: Props) {
 	const { address } = useAccount();
 	const chainId = useChainId();
-	// const positionStats = usePositionStats(position.position, position.collateral);
-	// const positionStats = usePositionStats(position.position, position.collateral);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
 	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
@@ -29,6 +26,10 @@ export default function PositionRow({ position }: Props) {
 
 	const mintedPct = Math.floor((parseInt(position.minted) / parseInt(position.limitForPosition)) * 1000) / 10;
 	const mintedConesPct = Math.floor((1 - parseInt(position.availableForClones) / parseInt(position.limitForClones)) * 1000) / 10;
+	const cooldownWait: number = Math.round((position.cooldown - Date.now()) / 1000 / 60);
+
+	// TODO: For testing purposes only
+	// const cooldownWait: number = Math.round((-10000000 + 40000000 * Math.random()) / 1000 / 60);
 
 	return (
 		<TableRow
@@ -67,6 +68,10 @@ export default function PositionRow({ position }: Props) {
 					usdPrice={zchfPrice}
 				/>
 			</div>
+
+			{/* <Badge className="w-20 text-center flex-col" color={`${cooldownWait > 0 ? "red" : "green"}`}>
+				Mintable {cooldownWait > 0 ? `(${cooldownWait}min)` : ""}
+			</Badge> */}
 
 			<div className="flex items-center">
 				{position.denied ? (

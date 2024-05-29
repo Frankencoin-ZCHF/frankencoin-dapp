@@ -16,7 +16,7 @@ export const URI_PONDER_DEVELOPER = "https://ponder.frankencoin.domain.com";
 
 // >>>>>> SELECTED URI HERE <<<<<<
 export const URI_APP_SELECTED = URI_APP_MAINDEV;
-export const URI_PONDER_SELECTED = URI_PONDER_MAINDEV;
+export const URI_PONDER_SELECTED = URI_PONDER_MAINNET;
 // >>>>>> SELECTED URI HERE <<<<<<
 
 // API KEYS
