@@ -26,7 +26,7 @@ export default function PositionRow({ position }: Props) {
 
 	const mintedPct = Math.floor((parseInt(position.minted) / parseInt(position.limitForPosition)) * 1000) / 10;
 	const mintedConesPct = Math.floor((1 - parseInt(position.availableForClones) / parseInt(position.limitForClones)) * 1000) / 10;
-	const cooldownWait: number = Math.round((position.cooldown - Date.now()) / 1000 / 60);
+	// const cooldownWait: number = Math.round((position.cooldown - Date.now()) / 1000 / 60);
 
 	// TODO: For testing purposes only
 	// const cooldownWait: number = Math.round((-10000000 + 40000000 * Math.random()) / 1000 / 60);
