@@ -136,14 +136,14 @@ export default function PositionCollateral({ children }: { children?: React.Reac
 
 export function PositionCollateralItem({ item }: { item: CollateralItem }): React.ReactElement {
 	return (
-		<div className="inline-block px-3">
-			<div className="w-[30rem] h-[6rem] overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 ease-in-out">
-				<div className="grid grid-cols-5 gap-4">
-					<div className="col-span-1 w-16 h-16 max-h-16 max-w-16 rounded-xl my-auto">
+		<div className="inline-block">
+			<div className="w-[20rem] h-[6rem] overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 ease-in-out">
+				<div className="grid grid-cols-8 gap-4">
+					<div className="col-span-2 w-16 h-16 max-h-16 max-w-16 rounded-xl my-auto">
 						<TokenLogo currency={item.collateral.symbol.toLowerCase()} size={16} />
 					</div>
-					<div className="col-span-2 mt-1">
-						<div className="grid grid-cols-3 gap-1">
+					<div className="col-span-4 mt-2">
+						<div className="grid grid-cols-3">
 							<div className="col-span-2 text-lg font-bold text-text-header">{item.collateral.symbol}</div>
 							<div className="col-span-2 text-md font-bold text-text-subheader">{item.position.totalNum} Positions</div>
 							<div className="col-span-2 text-md font-bold text-text-subheader">
@@ -170,5 +170,5 @@ export function PositionCollateralItem({ item }: { item: CollateralItem }): Reac
 }
 
 export function PositionCollateralItemSeperator(): React.ReactElement {
-	return <div className="bg-card-secondary w-[2px] h-full mx-5"></div>;
+	return <div className="bg-card-secondary w-[2px] h-[90%] mx-5 my-auto"></div>;
 }

@@ -10,8 +10,12 @@ export default function Positions() {
 			<Head>
 				<title>Frankencoin - Positions</title>
 			</Head>
+
 			<div className="mt-8">
 				<PositionCollateral />
+				<AppPageHeader title="My Positions" />
+				<PositionTable showMyPos />
+				<AppPageHeader title="Other Positions" />
 				<PositionTable />
 			</div>
 			<div className="flex">
