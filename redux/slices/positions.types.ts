@@ -37,7 +37,7 @@ export type PositionQuery = {
 	annualInterestPPM: number;
 	reserveContribution: number;
 	start: number;
-	cooldown: number;
+	// cooldown: number;
 	expiration: number;
 	challengePeriod: number;
 

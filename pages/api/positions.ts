@@ -27,7 +27,7 @@ export async function fetchPositions(): Promise<PositionQuery[]> {
 						annualInterestPPM
 						reserveContribution
 						start
-						cooldown
+
 						expiration
 						challengePeriod
 
@@ -76,7 +76,7 @@ export async function fetchPositions(): Promise<PositionQuery[]> {
 				annualInterestPPM: p.annualInterestPPM,
 				reserveContribution: p.reserveContribution,
 				start: p.start,
-				cooldown: p.cooldown,
+				// cooldown: p.cooldown,
 				expiration: p.expiration,
 				challengePeriod: p.challengePeriod,
 
