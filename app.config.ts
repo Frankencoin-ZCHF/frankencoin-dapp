@@ -7,7 +7,7 @@ import { mainnet } from "wagmi";
 export const URI_APP_LOCALHOST = "http://localhost:3000";
 export const URI_APP_MAINNET = "https://frankencoin.com";
 export const URI_APP_MAINDEV = "https://devapp.frankencoin.com";
-export const URI_APP_DEVELOPER = "http://dapp.frankencoin.domain.com";
+export const URI_APP_DEVELOPER = "https://dapp.frankencoin.domain.com";
 
 export const URI_PONDER_LOCALHOST = "http://localhost:42069";
 export const URI_PONDER_MAINNET = "https://mainnetponder.frankencoin.com";
@@ -15,7 +15,7 @@ export const URI_PONDER_MAINDEV = "https://maindevponder.frankencoin.com";
 export const URI_PONDER_DEVELOPER = "https://ponder.frankencoin.domain.com";
 
 // >>>>>> SELECTED URI HERE <<<<<<
-export const URI_APP_SELECTED = URI_APP_MAINDEV;
+export const URI_APP_SELECTED = URI_APP_MAINNET;
 export const URI_PONDER_SELECTED = URI_PONDER_MAINNET;
 // >>>>>> SELECTED URI HERE <<<<<<
 
