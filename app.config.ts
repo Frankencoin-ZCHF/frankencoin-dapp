@@ -15,7 +15,7 @@ export const URI_PONDER_MAINDEV = "https://maindevponder.frankencoin.com";
 export const URI_PONDER_DEVELOPER = "https://ponder.frankencoin.3dotshub.com";
 
 // >>>>>> SELECTED URI HERE <<<<<<
-export const URI_APP_SELECTED = URI_APP_MAINNET;
+export const URI_APP_SELECTED = URI_APP_MAINDEV;
 export const URI_PONDER_SELECTED = URI_PONDER_DEVELOPER;
 // >>>>>> SELECTED URI HERE <<<<<<
 
