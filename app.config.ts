@@ -25,7 +25,7 @@ export const COINGECKO_API_KEY = "CG-8et9S7NgcRF3qDs3nghcxPz5"; // demo key @sam
 
 // WAGMI CONFIG
 // FIXME: move to env or white list domain
-export const WAGMI_PROJECT_ID = "26fb3341cffa779adebdb59dc32b24e5";
+export const WAGMI_PROJECT_ID = "3321ad5a4f22083fe6fe82208a4c9ddc";
 export const WAGMI_CHAINS = [mainnet];
 export const WAGMI_METADATA = {
 	name: "Frankencoin",
