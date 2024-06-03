@@ -10,7 +10,6 @@ import {
 import { RootState } from "../redux.store";
 import { ERC20Info } from "./positions.types";
 import { Address } from "viem";
-import { URI_APP_SELECTED } from "../../app.config";
 
 // --------------------------------------------------------------------------------
 
@@ -59,7 +58,7 @@ export const fetchPricesList = (state: RootState) => async (dispatch: Dispatch<D
 
 	// ---------------------------------------------------------------
 	// Query from /api/details
-	const response = await fetch(`${URI_APP_SELECTED}/api/prices`);
+	const response = await fetch(`/api/prices`);
 	const prices = ((await response.json())?.prices as PriceQueryObjectArray) || [];
 
 	if (Object.keys(prices).length == 0) return;

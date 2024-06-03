@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { PriceQueryObjectArray, PriceQuery, PriceQueryCurrencies } from "../../redux/slices/prices.types";
-import { clientCoingecko, clientPonder } from "../../app.config";
-import { gql } from "@apollo/client";
-import { Address, getAddress } from "viem";
+import { COINGECKO_CLIENT } from "../../app.config";
+import { Address } from "viem";
 import { ERC20Info, PositionQuery } from "../../redux/slices/positions.types";
 import { uniqueValues } from "../../utils/format-array";
 import { fetchPositions } from "./positions";
@@ -178,7 +177,7 @@ export async function updateDetails(): Promise<updateDetailsResponse> {
 
 	const fetchSourcesCoingecko = async function (contracts: Address[]) {
 		const url = (addr: Address) => `/api/v3/simple/token_price/ethereum?contract_addresses=${addr}&vs_currencies=usd`;
-		return contracts.map(async (c) => await clientCoingecko(url(c)));
+		return contracts.map(async (c) => await COINGECKO_CLIENT(url(c)));
 	};
 
 	// fetch from coingecko

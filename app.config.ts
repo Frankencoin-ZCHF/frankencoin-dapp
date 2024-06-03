@@ -7,24 +7,26 @@ import { mainnet, sepolia } from "wagmi/chains";
 import { injected, coinbaseWallet, walletConnect } from "wagmi/connectors";
 
 // URIs
-export const URI_APP_LOCALHOST = "http://localhost:3000";
-export const URI_APP_MAINNET = "https://frankencoin.com";
-export const URI_APP_MAINDEV = "https://devapp.frankencoin.com";
-export const URI_APP_DEVELOPER = "https://dapp.frankencoin.domain.com";
+export const APP_URI_LOCALHOST = "http://localhost:3000";
+export const APP_URI_MAINNET = "https://frankencoin.com";
+export const APP_URI_MAINDEV = "https://devapp.frankencoin.com";
+export const APP_URI_DEVELOPER = "https://dapp.frankencoin.domain.com";
 
-export const URI_PONDER_LOCALHOST = "http://localhost:42069";
-export const URI_PONDER_MAINNET = "https://mainnetponder.frankencoin.com";
-export const URI_PONDER_MAINDEV = "https://maindevponder.frankencoin.com";
-export const URI_PONDER_DEVELOPER = "https://ponder.frankencoin.3dotshub.com";
+export const PONDER_URI_LOCALHOST = "http://localhost:42069";
+export const PONDER_URI_MAINNET = "https://mainnetponder.frankencoin.com";
+export const PONDER_URI_MAINDEV = "https://maindevponder.frankencoin.com";
+export const PONDER_URI_DEVELOPER = "https://ponder.frankencoin.3dotshub.com";
 
 // >>>>>> SELECTED URI HERE <<<<<<
-export const URI_APP_SELECTED = URI_APP_LOCALHOST;
-export const URI_PONDER_SELECTED = URI_PONDER_DEVELOPER;
+export const APP_URI_SELECTED = APP_URI_LOCALHOST;
+export const PONDER_URI_SELECTED = PONDER_URI_DEVELOPER;
 // >>>>>> SELECTED URI HERE <<<<<<
 
-// API KEYS
-// FIXME: move to env or white list domain
-export const COINGECKO_API_KEY = "CG-8et9S7NgcRF3qDs3nghcxPz5"; // demo key @samclassix
+// PONDER CLIENT
+export const PONDER_CLIENT = new ApolloClient({
+	uri: PONDER_URI_SELECTED,
+	cache: new InMemoryCache(),
+});
 
 // WAGMI CONFIG
 // FIXME: move to env or white list domain
@@ -55,14 +57,12 @@ export const WAGMI_CONFIG = createConfig({
 	}),
 });
 
-// PONDER CLIENT
-export const clientPonder = new ApolloClient({
-	uri: URI_PONDER_SELECTED,
-	cache: new InMemoryCache(),
-});
+// COINGECKO API KEY
+// FIXME: move to env or white list domain
+export const COINGECKO_API_KEY = "CG-8et9S7NgcRF3qDs3nghcxPz5"; // demo key @samclassix
 
 // COINGECKO CLIENT
-export const clientCoingecko = (query: string) => {
+export const COINGECKO_CLIENT = (query: string) => {
 	const hasParams = query.includes("?");
 	const uri: string = `https://api.coingecko.com${query}`;
 	return fetch(hasParams ? `${uri}&${COINGECKO_API_KEY}` : `${uri}?${COINGECKO_API_KEY}`);

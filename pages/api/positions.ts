@@ -1,11 +1,11 @@
-import { clientPonder } from "../../app.config";
+import { PONDER_CLIENT } from "../../app.config";
 import { gql } from "@apollo/client";
 import { PositionQuery } from "../../redux/slices/positions.types";
 import { getAddress } from "viem";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export async function fetchPositions(): Promise<PositionQuery[]> {
-	const { data } = await clientPonder.query({
+	const { data } = await PONDER_CLIENT.query({
 		query: gql`
 			query {
 				positions(orderBy: "availableForClones", orderDirection: "desc") {
