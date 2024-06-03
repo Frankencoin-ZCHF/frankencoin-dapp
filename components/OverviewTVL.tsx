@@ -2,9 +2,9 @@ import { useSelector } from "react-redux";
 import { RootState } from "../redux/redux.store";
 import { PositionQuery, PositionsState } from "../redux/slices/positions.types";
 import { PriceQueryObjectArray } from "../redux/slices/prices.types";
-import { Address } from "wagmi";
 import TokenLogo from "./TokenLogo";
 import { formatCurrency } from "../utils/format";
+import { Address } from "viem/accounts";
 
 export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: PriceQueryObjectArray) {
 	const stats = [];

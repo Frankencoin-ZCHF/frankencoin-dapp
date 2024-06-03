@@ -1,12 +1,11 @@
-import { useNetwork } from "wagmi";
+import { useWeb3ModalState } from "@web3modal/wagmi/react";
+import { useAccount, useBlockNumber } from "wagmi";
+import { WAGMI_CHAIN } from "../app.config";
 
-export const useIsConnectedToCorrectChain = () => {
-	const Network = useNetwork();
+export const useIsConnectedToCorrectChain = (): boolean => {
+	const { address, chain, isConnected } = useAccount();
+	const { selectedNetworkId } = useWeb3ModalState();
 
-	const walletChain = Network.chain;
-	const availableChains = Network.chains;
-	const availableChainIds = availableChains.map((c) => c.id);
-	const isCorrectChain = walletChain ? availableChainIds.includes(walletChain?.id) : false;
-
-	return isCorrectChain;
+	if (!isConnected || !chain || !address) return false;
+	return selectedNetworkId ? parseInt(selectedNetworkId) === chain.id : false;
 };

@@ -1,25 +1,29 @@
-import { Address, useAccount, useBlockNumber } from "wagmi";
+import { useAccount, useBlockNumber } from "wagmi";
+import { Address } from "viem";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 import { RootState, store } from "../redux/redux.store";
 import { fetchPositionsList } from "../redux/slices/positions.slice";
 import { fetchPricesList } from "../redux/slices/prices.slice";
-import { fetchAccount } from "../redux/slices/account.slice";
+import { fetchAccount, actions as accountActions } from "../redux/slices/account.slice";
 import { ERC20Info } from "../redux/slices/positions.types";
+import { useIsConnectedToCorrectChain } from "../hooks/useWalletConnectStats";
 
 let initializing: boolean = false;
 let initStart: number = 0;
 let loading: boolean = false;
 
 export default function BockUpdater({ children }: { children?: React.ReactElement | React.ReactElement[] }) {
-	const { error, data } = useBlockNumber({ enabled: true, watch: true });
+	const { error, data } = useBlockNumber({ watch: true });
 	const { address } = useAccount();
+	const isConnectedToCorrectChain = useIsConnectedToCorrectChain();
 
 	const [initialized, setInitialized] = useState<boolean>(false);
 	const [latestHeight, setLatestHeight] = useState<number>(0);
 	const [latestMintERC20Infos, setLatestMintERC20Infos] = useState<ERC20Info[]>([]);
 	const [latestCollateralERC20Infos, setLatestCollateralERC20Infos] = useState<ERC20Info[]>([]);
+	const [latestConnectedToChain, setLatestConnectedToChain] = useState<boolean>(false);
 	const [latestAddress, setLatestAddress] = useState<Address | undefined>(undefined);
 
 	const loadedPositions: boolean = useSelector((state: RootState) => state.positions.loaded);
@@ -98,13 +102,26 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	}, [mintERC20Infos, collateralERC20Infos, latestMintERC20Infos, latestCollateralERC20Infos]);
 
 	// --------------------------------------------------------------------------------
+	// Connected to correct chain changes
+	useEffect(() => {
+		if (isConnectedToCorrectChain !== latestConnectedToChain) {
+			console.log(`Policy [BlockUpdater]: Connected to correct chain changed: ${isConnectedToCorrectChain}`);
+			setLatestConnectedToChain(isConnectedToCorrectChain);
+		}
+	}, [isConnectedToCorrectChain, latestConnectedToChain]);
+
+	// --------------------------------------------------------------------------------
 	// Address / User changes
 	useEffect(() => {
-		if (!address) return;
-		if (!latestAddress) setLatestAddress(address);
-
-		console.log(`Policy [BlockUpdater]: Address changed to: ${address}`);
-		store.dispatch(fetchAccount(address));
+		if (!address && latestAddress) {
+			setLatestAddress(undefined);
+			console.log(`Policy [BlockUpdater]: Address reset`);
+			store.dispatch(accountActions.resetAccountState());
+		} else if (address && !latestAddress) {
+			setLatestAddress(address);
+			console.log(`Policy [BlockUpdater]: Address changed to: ${address}`);
+			store.dispatch(fetchAccount(address));
+		}
 	}, [address, latestAddress]);
 
 	// --------------------------------------------------------------------------------
