@@ -1,6 +1,5 @@
 import { useWeb3ModalState } from "@web3modal/wagmi/react";
-import { useAccount, useBlockNumber } from "wagmi";
-import { WAGMI_CHAIN } from "../app.config";
+import { useAccount } from "wagmi";
 
 export const useIsConnectedToCorrectChain = (): boolean => {
 	const { address, chain, isConnected } = useAccount();
