@@ -16,7 +16,7 @@
 	}
 
 	.btn-secondary {
-		@apply text-black border-black hover:bg-neutral-200 bg-rose-400 border-0 text-white;
+		@apply text-black border-black hover:bg-neutral-200 bg-rose-400 border-0;
 	}
 
 	.btn-small {

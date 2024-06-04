@@ -42,7 +42,7 @@ export default function NormalInput({
 					) : (
 						<div
 							className={`flex gap-1 rounded-lg text-white p-1 bg-slate-600 border-2 ${
-								error ? "border-red-300" : "border-neutral-100 border-slate-600"
+								error ? "border-red-300" : "border-slate-600"
 							}`}
 						>
 							<BigNumberInput

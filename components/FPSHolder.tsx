@@ -13,7 +13,7 @@ interface Props {
 
 export default function FPSHolder({ id, holder, fps, votingPower, totalVotingPower }: Props) {
 	return (
-		<AppBox className="hover:bg-slate-700 duration-300 flex grid grid-cols-1 sm:grid-cols-3">
+		<AppBox className="hover:bg-slate-700 duration-300 grid grid-cols-1 sm:grid-cols-3">
 			<div className="col-span-1">
 				<AddressLabel address={holder} showCopy showLink />
 			</div>
