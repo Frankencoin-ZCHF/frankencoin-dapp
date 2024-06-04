@@ -41,7 +41,7 @@ export const WAGMI_METADATA = {
 export const WAGMI_CONFIG = createConfig({
 	chains: [WAGMI_CHAIN],
 	transports: {
-		[WAGMI_CHAIN.id]: http("https://eth-mainnet.g.alchemy.com/v2/er3rIuivE93qMtH8e5uL6aTAFcsRsWnb"),
+		[WAGMI_CHAIN.id]: http("https://eth-mainnet.g.alchemy.com/v2/DQBbcLnV8lboEfoEpe8Z_io7u5UJfSVd"),
 	},
 	connectors: [
 		walletConnect({ projectId: WAGMI_PROJECT_ID, metadata: WAGMI_METADATA, showQrModal: false }),

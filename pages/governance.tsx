@@ -1,8 +1,8 @@
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import { useContractUrl, useDelegationQuery, useFPSHolders, useGovStats, useMinterQuery } from "@hooks";
-import { useAccount, useChainId, useContractWrite, useNetwork } from "wagmi";
-import { waitForTransaction } from "wagmi/actions";
+import { useAccount, useChainId } from "wagmi";
+import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
 import { useState } from "react";
 import { isAddress, zeroAddress } from "viem";
@@ -18,6 +18,7 @@ import MinterProposal from "@components/MinterProposal";
 import FPSHolder from "@components/FPSHolder";
 import { useVotingPowers } from "../hooks/useVotingPowers";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
+import { WAGMI_CHAIN, WAGMI_CONFIG } from "../app.config";
 
 export default function Governance() {
 	const [inputField, setInputField] = useState("");
@@ -25,7 +26,7 @@ export default function Governance() {
 	const [error, setError] = useState("");
 	const [isConfirming, setIsConfirming] = useState(false);
 
-	const { chain } = useNetwork();
+	const chain = WAGMI_CHAIN;
 	const { address } = useAccount();
 	const chainId = useChainId();
 	const equityUrl = useContractUrl(ADDRESS[chainId].equity);
@@ -52,40 +53,44 @@ export default function Governance() {
 		}
 	};
 
-	const { isLoading, writeAsync: delegate } = useContractWrite({
-		address: ADDRESS[chainId].equity,
-		abi: ABIS.EquityABI,
-		functionName: "delegateVoteTo",
-		args: [delegator],
-	});
-
 	const handleDelegate = async () => {
-		const tx = await delegate();
+		try {
+			setIsConfirming(true);
 
-		const toastContent = [
-			{
-				title: "Delegate To:",
-				value: delegator,
-			},
-			{
-				title: "Transaction:",
-				hash: tx.hash,
-			},
-		];
+			const delegateHash = await writeContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].equity,
+				abi: ABIS.EquityABI,
+				functionName: "delegateVoteTo",
+				args: [delegator],
+			});
 
-		await toast.promise(waitForTransaction({ hash: tx.hash, confirmations: 1 }), {
-			pending: {
-				render: <TxToast title={`Delegating Votes`} rows={toastContent} />,
-			},
-			success: {
-				render: <TxToast title="Successfully Delegated Votes" rows={toastContent} />,
-			},
-			error: {
-				render(error: any) {
-					return renderErrorToast(error);
+			const toastContent = [
+				{
+					title: "Delegate To:",
+					value: delegator,
 				},
-			},
-		});
+				{
+					title: "Transaction:",
+					hash: delegateHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: delegateHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={`Delegating Votes`} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title="Successfully Delegated Votes" rows={toastContent} />,
+				},
+				error: {
+					render(error: any) {
+						return renderErrorToast(error);
+					},
+				},
+			});
+		} finally {
+			setIsConfirming(false);
+		}
 	};
 
 	return (
@@ -116,7 +121,7 @@ export default function Governance() {
 								<div className="mx-auto mt-2 max-w-full flex-col">
 									<GuardToAllowedChainBtn>
 										<Button
-											isLoading={isLoading || isConfirming}
+											isLoading={isConfirming}
 											disabled={delegator == zeroAddress || !!error}
 											onClick={() => handleDelegate()}
 										>

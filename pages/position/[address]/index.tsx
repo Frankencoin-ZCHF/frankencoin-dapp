@@ -8,7 +8,7 @@ import DisplayAmount from "@components/DisplayAmount";
 import { formatDate, shortenAddress } from "@utils";
 import { getAddress, zeroAddress } from "viem";
 import { useChallengeListStats, useChallengeLists, useContractUrl, usePositionStats, useTokenPrice, useZchfPrice } from "@hooks";
-import { useAccount, useChainId, useContractRead } from "wagmi";
+import { useAccount, useChainId, useReadContract } from "wagmi";
 import { ABIS, ADDRESS } from "@contracts";
 import ChallengeTable from "@components/ChallengeTable";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -29,12 +29,11 @@ export default function PositionDetail() {
 	const collateralPrice = useTokenPrice(positionStats.collateral);
 	const zchfPrice = useZchfPrice();
 
-	const { data: positionAssignedReserve } = useContractRead({
+	const { data: positionAssignedReserve } = useReadContract({
 		address: ADDRESS[chainId].frankenCoin,
 		abi: ABIS.FrankencoinABI,
 		functionName: "calculateAssignedReserve",
 		args: [positionStats.minted, Number(positionStats.reserveContribution)],
-		enabled: positionStats.isSuccess,
 	});
 
 	const isSubjectToCooldown = () => {

@@ -10,7 +10,7 @@ export default function Custom404() {
 			</Head>
 
 			{/* To load dynamic classes */}
-			<div className="hidden w-8 h-8 w-10 h-10" />
+			<div className="hidden w-10 h-10" />
 			<div className="flex flex-col items-center justify-center w-full text-center" style={{ height: "60vh" }}>
 				<h1 className="text-right text-4xl font-bold">
 					<picture>

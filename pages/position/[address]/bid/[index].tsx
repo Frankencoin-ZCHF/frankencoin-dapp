@@ -6,22 +6,24 @@ import AppBox from "@components/AppBox";
 import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
 import { useChallengeListStats, useChallengeLists, usePositionStats, useContractUrl } from "@hooks";
-import { formatUnits, getAddress, zeroAddress } from "viem";
+import { erc20Abi, formatUnits, getAddress, zeroAddress } from "viem";
 import { formatBigInt, formatDate, formatDuration, min, shortenAddress } from "@utils";
 import Link from "next/link";
 import Button from "@components/Button";
-import { erc20ABI, useChainId, useContractWrite } from "wagmi";
-import { waitForTransaction } from "wagmi/actions";
+import { WagmiConfig, useChainId } from "wagmi";
+import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import DisplayLabel from "@components/DisplayLabel";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
+import { WAGMI_CONFIG } from "../../../../app.config";
 
 export default function ChallengePlaceBid({}) {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
-	const [isConfirming, setIsConfirming] = useState(false);
+	const [isApproving, setApproving] = useState(false);
+	const [isBidding, setBidding] = useState(false);
 
 	const router = useRouter();
 	const { address, index } = router.query;
@@ -57,84 +59,92 @@ export default function ChallengePlaceBid({}) {
 		}
 	};
 
-	const approveWrite = useContractWrite({
-		address: ADDRESS[chainId].xchf,
-		abi: erc20ABI,
-		functionName: "approve",
-	});
-	const bidWrite = useContractWrite({
-		address: ADDRESS[chainId].mintingHub,
-		abi: ABIS.MintingHubABI,
-		functionName: "bid",
-	});
-
 	const handleApprove = async () => {
-		const tx = await approveWrite.writeAsync({
-			args: [ADDRESS[chainId].mintingHub, expectedZCHF()],
-		});
+		try {
+			setApproving(true);
 
-		const toastContent = [
-			{
-				title: "Amount:",
-				value: formatBigInt(expectedZCHF()) + " ZCHF",
-			},
-			{
-				title: "Spender: ",
-				value: shortenAddress(ADDRESS[chainId].mintingHub),
-			},
-			{
-				title: "Transaction:",
-				hash: tx.hash,
-			},
-		];
+			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].xchf,
+				abi: erc20Abi,
+				functionName: "approve",
+				args: [ADDRESS[chainId].mintingHub, expectedZCHF()],
+			});
 
-		await toast.promise(waitForTransaction({ hash: tx.hash, confirmations: 1 }), {
-			pending: {
-				render: <TxToast title={`Approving ZCHF`} rows={toastContent} />,
-			},
-			success: {
-				render: <TxToast title="Successfully Approved ZCHF" rows={toastContent} />,
-			},
-			error: {
-				render(error: any) {
-					return renderErrorToast(error);
+			const toastContent = [
+				{
+					title: "Amount:",
+					value: formatBigInt(expectedZCHF()) + " ZCHF",
 				},
-			},
-		});
+				{
+					title: "Spender: ",
+					value: shortenAddress(ADDRESS[chainId].mintingHub),
+				},
+				{
+					title: "Transaction:",
+					hash: approveWriteHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={`Approving ZCHF`} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title="Successfully Approved ZCHF" rows={toastContent} />,
+				},
+				error: {
+					render(error: any) {
+						return renderErrorToast(error);
+					},
+				},
+			});
+		} finally {
+			setApproving(false);
+		}
 	};
+
 	const handleBid = async () => {
-		const tx = await bidWrite.writeAsync({
-			args: [Number(challenge?.index || 0n), amount, true],
-		});
+		try {
+			setBidding(true);
 
-		const toastContent = [
-			{
-				title: `Bid Amount: `,
-				value: formatBigInt(amount, positionStats.collateralDecimal) + " " + positionStats.collateralSymbol,
-			},
-			{
-				title: `Expected ZCHF: `,
-				value: formatBigInt(expectedZCHF()) + " ZCHF",
-			},
-			{
-				title: "Transaction:",
-				hash: tx.hash,
-			},
-		];
+			const bidWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].mintingHub,
+				abi: ABIS.MintingHubABI,
+				functionName: "bid",
+				args: [Number(challenge?.index || 0n), amount, true],
+			});
 
-		await toast.promise(waitForTransaction({ hash: tx.hash, confirmations: 1 }), {
-			pending: {
-				render: <TxToast title={`Placing a bid`} rows={toastContent} />,
-			},
-			success: {
-				render: <TxToast title="Successfully Placed Bid" rows={toastContent} />,
-			},
-			error: {
-				render(error: any) {
-					return renderErrorToast(error);
+			const toastContent = [
+				{
+					title: `Bid Amount: `,
+					value: formatBigInt(amount, positionStats.collateralDecimal) + " " + positionStats.collateralSymbol,
 				},
-			},
-		});
+				{
+					title: `Expected ZCHF: `,
+					value: formatBigInt(expectedZCHF()) + " ZCHF",
+				},
+				{
+					title: "Transaction:",
+					hash: bidWriteHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: bidWriteHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={`Placing a bid`} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title="Successfully Placed Bid" rows={toastContent} />,
+				},
+				error: {
+					render(error: any) {
+						return renderErrorToast(error);
+					},
+				},
+			});
+		} finally {
+			setBidding(false);
+		}
 	};
 
 	return (
@@ -208,16 +218,11 @@ export default function ChallengePlaceBid({}) {
 						<div className="mx-auto mt-4 w-72 max-w-full flex-col">
 							<GuardToAllowedChainBtn>
 								{expectedZCHF() > positionStats.frankenAllowance ? (
-									<Button isLoading={approveWrite.isLoading || isConfirming} onClick={() => handleApprove()}>
+									<Button isLoading={isApproving} onClick={() => handleApprove()}>
 										Approve
 									</Button>
 								) : (
-									<Button
-										variant="primary"
-										disabled={amount == 0n}
-										isLoading={bidWrite.isLoading || isConfirming}
-										onClick={() => handleBid()}
-									>
+									<Button variant="primary" disabled={amount == 0n} isLoading={isBidding} onClick={() => handleBid()}>
 										Place Bid
 									</Button>
 								)}

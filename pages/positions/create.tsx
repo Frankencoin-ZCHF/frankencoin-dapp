@@ -7,8 +7,9 @@ import TokenInput from "@components/Input/TokenInput";
 import { useTokenData, useUserBalance } from "@hooks";
 import { useState } from "react";
 import Button from "@components/Button";
-import { erc20ABI, useChainId, useContractWrite } from "wagmi";
-import { waitForTransaction } from "wagmi/actions";
+import { useChainId } from "wagmi";
+import { erc20Abi } from "viem";
+import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
 import { formatBigInt, shortenAddress } from "@utils";
 import { toast } from "react-toastify";
@@ -16,10 +17,8 @@ import { TxToast, renderErrorToast } from "@components/TxToast";
 import Link from "next/link";
 import NormalInput from "@components/Input/NormalInput";
 import AddressInput from "@components/Input/AddressInput";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
-import { Tooltip } from "flowbite-react";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
+import { WAGMI_CONFIG } from "../../app.config";
 
 export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
@@ -172,21 +171,14 @@ export default function PositionCreate({}) {
 		);
 	};
 
-	const approveWrite = useContractWrite({
-		address: collTokenData.address,
-		abi: erc20ABI,
-		functionName: "approve",
-	});
-	const openWrite = useContractWrite({
-		address: ADDRESS[chainId].mintingHub,
-		abi: ABIS.MintingHubABI,
-		functionName: "openPosition",
-	});
-
 	const handleApprove = async () => {
 		try {
 			setIsConfirming("approve");
-			const tx = await approveWrite.writeAsync({
+
+			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: collTokenData.address,
+				abi: erc20Abi,
+				functionName: "approve",
 				args: [ADDRESS[chainId].mintingHub, maxUint256],
 			});
 
@@ -201,11 +193,11 @@ export default function PositionCreate({}) {
 				},
 				{
 					title: "Transaction:",
-					hash: tx.hash,
+					hash: approveWriteHash,
 				},
 			];
 
-			await toast.promise(waitForTransaction({ hash: tx.hash, confirmations: 1 }), {
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
 				pending: {
 					render: <TxToast title={`Approving ${collTokenData.symbol}`} rows={toastContent} />,
 				},
@@ -226,7 +218,10 @@ export default function PositionCreate({}) {
 	const handleOpenPosition = async () => {
 		try {
 			setIsConfirming("open");
-			const tx = await openWrite.writeAsync({
+			const openWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].mintingHub,
+				abi: ABIS.MintingHubABI,
+				functionName: "openPosition",
 				args: [
 					collTokenData.address,
 					minCollAmount,
@@ -256,11 +251,11 @@ export default function PositionCreate({}) {
 				},
 				{
 					title: "Transaction:",
-					hash: tx.hash,
+					hash: openWriteHash,
 				},
 			];
 
-			await toast.promise(waitForTransaction({ hash: tx.hash, confirmations: 1 }), {
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: openWriteHash, confirmations: 1 }), {
 				pending: {
 					render: <TxToast title={`Creating a new position`} rows={toastContent} />,
 				},
@@ -340,7 +335,7 @@ export default function PositionCreate({}) {
 							collTokenData.allowance < minCollAmount ||
 							collTokenData.allowance < initialCollAmount) ? (
 							<Button
-								isLoading={approveWrite.isLoading || isConfirming == "approve"}
+								isLoading={isConfirming == "approve"}
 								disabled={
 									collTokenData.symbol == "NaN" ||
 									(collTokenData.allowance > minCollAmount && collTokenData.allowance > initialCollAmount)
@@ -454,7 +449,7 @@ export default function PositionCreate({}) {
 								initialCollAmount == 0n ||
 								hasFormError()
 							}
-							isLoading={openWrite.isLoading || isConfirming == "open"}
+							isLoading={isConfirming == "open"}
 							onClick={() => handleOpenPosition()}
 						>
 							Propose Position

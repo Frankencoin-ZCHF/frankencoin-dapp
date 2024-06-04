@@ -2,28 +2,31 @@ import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { formatUnits, getAddress, zeroAddress, maxUint256 } from "viem";
+import { formatUnits, getAddress, zeroAddress, maxUint256, erc20Abi } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { usePositionStats } from "@hooks";
 import { useState } from "react";
 import DisplayAmount from "@components/DisplayAmount";
 import Button from "@components/Button";
-import { erc20ABI, useChainId, useContractWrite } from "wagmi";
-import { waitForTransaction } from "wagmi/actions";
+import { useChainId } from "wagmi";
+import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
+import { Address } from "viem";
 import { formatBigInt, min, shortenAddress, toTimestamp } from "@utils";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import AppBox from "@components/AppBox";
 import DateInput from "@components/Input/DateInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
+import { WAGMI_CONFIG } from "../../../app.config";
 
 export default function PositionBorrow({}) {
 	const router = useRouter();
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [errorDate, setErrorDate] = useState("");
-	const [isConfirming, setIsConfirming] = useState(false);
+	const [isApproving, setApproving] = useState(false);
+	const [isCloning, setCloning] = useState(false);
 	const { address: positionAddr } = router.query;
 
 	const chainId = useChainId();
@@ -100,86 +103,93 @@ export default function PositionBorrow({}) {
 		setExpirationDate(toDate(positionStats.expiration));
 	};
 
-	const approveWrite = useContractWrite({
-		address: positionStats.collateral,
-		abi: erc20ABI,
-		functionName: "approve",
-	});
-	const cloneWrite = useContractWrite({
-		address: ADDRESS[chainId].mintingHub,
-		abi: ABIS.MintingHubABI,
-		functionName: "clone",
-	});
-
 	const handleApprove = async () => {
-		const tx = await approveWrite.writeAsync({
-			args: [ADDRESS[chainId].mintingHub, maxUint256],
-		});
+		try {
+			setApproving(true);
 
-		const toastContent = [
-			{
-				title: "Amount:",
-				value: "infinite " + positionStats.collateralSymbol,
-			},
-			{
-				title: "Spender: ",
-				value: shortenAddress(ADDRESS[chainId].mintingHub),
-			},
-			{
-				title: "Transaction:",
-				hash: tx.hash,
-			},
-		];
+			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: positionStats.collateral as Address,
+				abi: erc20Abi,
+				functionName: "approve",
+				args: [ADDRESS[chainId].mintingHub, maxUint256],
+			});
 
-		await toast.promise(waitForTransaction({ hash: tx.hash, confirmations: 1 }), {
-			pending: {
-				render: <TxToast title={`Approving ${positionStats.collateralSymbol}`} rows={toastContent} />,
-			},
-			success: {
-				render: <TxToast title={`Successfully Approved ${positionStats.collateralSymbol}`} rows={toastContent} />,
-			},
-			error: {
-				render(error: any) {
-					return renderErrorToast(error);
+			const toastContent = [
+				{
+					title: "Amount:",
+					value: "infinite " + positionStats.collateralSymbol,
 				},
-			},
-		});
+				{
+					title: "Spender: ",
+					value: shortenAddress(ADDRESS[chainId].mintingHub),
+				},
+				{
+					title: "Transaction:",
+					hash: approveWriteHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={`Approving ${positionStats.collateralSymbol}`} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title={`Successfully Approved ${positionStats.collateralSymbol}`} rows={toastContent} />,
+				},
+				error: {
+					render(error: any) {
+						return renderErrorToast(error);
+					},
+				},
+			});
+		} finally {
+			setApproving(false);
+		}
 	};
 
 	const handleClone = async () => {
-		const expirationTime = toTimestamp(expirationDate);
-		const tx = await cloneWrite.writeAsync({
-			args: [position, requiredColl, amount, BigInt(expirationTime)],
-		});
+		try {
+			setCloning(true);
+			const expirationTime = toTimestamp(expirationDate);
 
-		const toastContent = [
-			{
-				title: `Amount: `,
-				value: formatBigInt(amount) + " ZCHF",
-			},
-			{
-				title: `Collateral: `,
-				value: formatBigInt(requiredColl, positionStats.collateralDecimal) + " " + positionStats.collateralSymbol,
-			},
-			{
-				title: "Transaction:",
-				hash: tx.hash,
-			},
-		];
+			const cloneWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].mintingHub,
+				abi: ABIS.MintingHubABI,
+				functionName: "clone",
+				args: [position, requiredColl, amount, BigInt(expirationTime)],
+			});
 
-		await toast.promise(waitForTransaction({ hash: tx.hash, confirmations: 1 }), {
-			pending: {
-				render: <TxToast title={`Minting ZCHF`} rows={toastContent} />,
-			},
-			success: {
-				render: <TxToast title="Successfully Minted ZCHF" rows={toastContent} />,
-			},
-			error: {
-				render(error: any) {
-					return renderErrorToast(error);
+			const toastContent = [
+				{
+					title: `Amount: `,
+					value: formatBigInt(amount) + " ZCHF",
 				},
-			},
-		});
+				{
+					title: `Collateral: `,
+					value: formatBigInt(requiredColl, positionStats.collateralDecimal) + " " + positionStats.collateralSymbol,
+				},
+				{
+					title: "Transaction:",
+					hash: cloneWriteHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: cloneWriteHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={`Minting ZCHF`} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title="Successfully Minted ZCHF" rows={toastContent} />,
+				},
+				error: {
+					render(error: any) {
+						return renderErrorToast(error);
+					},
+				},
+			});
+		} finally {
+			setCloning(false);
+		}
 	};
 
 	return (
@@ -232,18 +242,14 @@ export default function PositionBorrow({}) {
 						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 							<GuardToAllowedChainBtn>
 								{requiredColl > positionStats.collateralAllowance ? (
-									<Button
-										disabled={amount == 0n || !!error}
-										isLoading={approveWrite.isLoading || isConfirming}
-										onClick={() => handleApprove()}
-									>
+									<Button disabled={amount == 0n || !!error} isLoading={isApproving} onClick={() => handleApprove()}>
 										Approve
 									</Button>
 								) : (
 									<Button
 										variant="primary"
 										disabled={amount == 0n || !!error}
-										isLoading={cloneWrite.isLoading || isConfirming}
+										isLoading={isCloning}
 										onClick={() => handleClone()}
 										error={
 											requiredColl < positionStats.minimumCollateral
