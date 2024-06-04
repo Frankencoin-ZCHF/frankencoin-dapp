@@ -5,7 +5,7 @@ import { mainnet } from "wagmi";
 
 // URIs
 export const URI_APP_LOCALHOST = "http://localhost:3000";
-export const URI_APP_MAINNET = "https://frankencoin.com";
+export const URI_APP_MAINNET = "https://app.frankencoin.com";
 export const URI_APP_MAINDEV = "https://devapp.frankencoin.com";
 export const URI_APP_DEVELOPER = "https://dapp.frankencoin.domain.com";
 
