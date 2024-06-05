@@ -4,6 +4,8 @@ import { PositionQuery } from "../../redux/slices/positions.types";
 import { getAddress } from "viem";
 import { NextApiRequest, NextApiResponse } from "next";
 
+let fetchedPositions: PositionQuery[] = [];
+
 export async function fetchPositions(): Promise<PositionQuery[]> {
 	const { data } = await PONDER_CLIENT.query({
 		query: gql`
@@ -52,7 +54,7 @@ export async function fetchPositions(): Promise<PositionQuery[]> {
 	});
 
 	if (!data || !data.positions) {
-		return [];
+		return fetchedPositions;
 	}
 
 	const list: PositionQuery[] = [];
@@ -98,9 +100,14 @@ export async function fetchPositions(): Promise<PositionQuery[]> {
 		});
 	}
 
+	fetchedPositions = list;
 	return list;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
-	res.status(200).json(await fetchPositions());
+	if (fetchedPositions.length === 0) await fetchPositions();
+	res.status(200).json(fetchedPositions);
 }
+
+fetchPositions();
+setInterval(fetchPositions, 1 * 60 * 1000);
