@@ -19,7 +19,7 @@ export const PONDER_URI_DEVELOPER = "https://ponder.frankencoin.3dotshub.com";
 export const PONDER_URI_DEVELOPER_ETH3 = "https://eth3.ponder.frankencoin.3dotshub.com";
 
 // >>>>>> SELECTED URI HERE <<<<<<
-export const APP_URI_SELECTED = APP_URI_LOCALHOST;
+export const APP_URI_SELECTED = APP_URI_MAINNET;
 export const PONDER_URI_SELECTED = PONDER_URI_DEVELOPER;
 // >>>>>> SELECTED URI HERE <<<<<<
 
@@ -31,7 +31,7 @@ export const PONDER_CLIENT = new ApolloClient({
 
 // WAGMI CONFIG
 // FIXME: move to env or white list domain
-export const WAGMI_PROJECT_ID = "3321ad5a4f22083fe6fe82208a4c9ddc";
+export const WAGMI_PROJECT_ID = "26fb3341cffa779adebdb59dc32b24e5";
 export const WAGMI_CHAIN = mainnet;
 export const WAGMI_METADATA = {
 	name: "Frankencoin",
