@@ -149,6 +149,11 @@ export const fetchPositionsList =
 		dispatch(slice.actions.setOpenPositionsByOriginal(openPositionsByOriginal));
 		dispatch(slice.actions.setOpenPositionsByCollateral(openPositionsByCollateral));
 
+		if (list.length == 0) {
+			dispatch(slice.actions.setLoaded(true));
+			return;
+		}
+
 		// ---------------------------------------------------------------
 		// filter collateral and ERC20 and dispatch
 		// TODO: Change hardcoded ZCHF Info (zchfERC20Info), if adding additional currencies dynamically is needed.

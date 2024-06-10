@@ -9,13 +9,14 @@ import { fetchPricesList } from "../redux/slices/prices.slice";
 import { fetchAccount, actions as accountActions } from "../redux/slices/account.slice";
 import { ERC20Info } from "../redux/slices/positions.types";
 import { useIsConnectedToCorrectChain } from "../hooks/useWalletConnectStats";
+import { WAGMI_CHAIN } from "../app.config";
 
 let initializing: boolean = false;
 let initStart: number = 0;
 let loading: boolean = false;
 
 export default function BockUpdater({ children }: { children?: React.ReactElement | React.ReactElement[] }) {
-	const { error, data } = useBlockNumber({ watch: true });
+	const { error, data } = useBlockNumber({ chainId: WAGMI_CHAIN.id, watch: true });
 	const { address } = useAccount();
 	const isConnectedToCorrectChain = useIsConnectedToCorrectChain();
 

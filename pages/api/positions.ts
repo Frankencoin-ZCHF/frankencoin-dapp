@@ -54,6 +54,7 @@ export async function fetchPositions(): Promise<PositionQuery[]> {
 	});
 
 	if (!data || !data.positions) {
+		console.log("No positions found, returning previous state");
 		return fetchedPositions;
 	}
 
@@ -110,4 +111,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 }
 
 fetchPositions();
-setInterval(fetchPositions, 1 * 60 * 1000);
+setInterval(fetchPositions, 10 * 1000);

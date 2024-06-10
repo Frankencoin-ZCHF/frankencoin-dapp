@@ -1,4 +1,4 @@
-import { zeroAddress } from "viem";
+import { Chain, zeroAddress } from "viem";
 import { Address } from "viem/accounts";
 import { arbitrum, hardhat, mainnet, optimism, polygon, sepolia } from "wagmi/chains";
 
@@ -52,7 +52,21 @@ export interface ProtocolAddress {
 	mockDdcs?: Address;
 	mockLines?: Address;
 	mockDkkb?: Address;
+	mockWbtc?: Address;
+	mockLseth?: Address;
 }
+
+export const ethereum3 = {
+	id: 1337,
+	name: "Ethereum3",
+	nativeCurrency: { name: "Ethereum3", symbol: "ETH3", decimals: 18 },
+	rpcUrls: {
+		default: { http: ["https://ethereum3.3dotshub.com"] },
+	},
+	blockExplorers: {
+		default: { name: "Blockscout", url: "" },
+	},
+} as const satisfies Chain;
 
 export const ADDRESS: Record<number, ProtocolAddress> = {
 	[hardhat.id]: {
@@ -145,6 +159,17 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
 		equity: zeroAddress,
 		mintingHub: zeroAddress,
 		wFPS: zeroAddress,
+	},
+	[ethereum3.id]: {
+		frankenCoin: "0x4800b6c288e4B2BBa7b2314328DB485F5FfB0414",
+		bridge: zeroAddress,
+		xchf: zeroAddress,
+		equity: "0xD47DE3328848cf8fd4079673cA40510536323e59",
+		mintingHub: "0x60614BE7fD2F92bf96caa61d434a4e04Af6228c3",
+		wFPS: zeroAddress,
+		mockWbtc: "0x1b01c6b10ca8AeD4F1e0d39319aa27183BBC1578",
+		mockLseth: "0xd54Fb4EE40ca7F0FeF1cd87AC81dE3F247776209",
+		mockBoss: "0x7f6c45725F521e7B5b0e3357A8Ed4152c0BBd01E",
 	},
 };
 

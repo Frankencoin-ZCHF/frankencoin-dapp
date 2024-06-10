@@ -51,7 +51,11 @@ export const actions = slice.actions;
 export const fetchPricesList = (state: RootState) => async (dispatch: Dispatch<DispatchBoolean | DispatchPriceQueryObjectArray>) => {
 	const { mintERC20Infos, collateralERC20Infos } = state.positions;
 	const infos: ERC20Info[] = mintERC20Infos.concat(...collateralERC20Infos);
-	if (infos.length == 0) return;
+
+	if (infos.length == 0) {
+		dispatch(slice.actions.setLoaded(true));
+		return;
+	}
 
 	// ---------------------------------------------------------------
 	console.log("Loading [REDUX]: PricesList");

@@ -42,8 +42,8 @@ export function PositionCollateralCalculate(listByCollateral: PositionQuery[][],
 	const stats: CollateralItem[] = [];
 	for (let positions of listByCollateral) {
 		const original = positions.at(0) as PositionQuery;
-		const collateral = prices[original!.collateral.toLowerCase() as Address];
-		const mint = prices[original!.zchf.toLowerCase() as Address];
+		const collateral = prices[original!.collateral as Address];
+		const mint = prices[original!.zchf as Address];
 
 		if (!collateral || !mint) continue;
 
@@ -117,6 +117,8 @@ export default function PositionCollateral({ children }: { children?: React.Reac
 	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 	const stats = PositionCollateralCalculate(openPositionsByCollateral, coingecko);
+
+	if (stats.length === 0) return null;
 
 	return (
 		<div className="flex bg-card-header rounded-2xl px-5 py-3 my-10 space-x-8 hide-scroll-bar">

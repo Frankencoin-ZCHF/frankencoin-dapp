@@ -17,8 +17,8 @@ export default function PositionRow({ position }: Props) {
 	const { address } = useAccount();
 	const chainId = useChainId();
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
-	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
-	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
+	const collTokenPrice = prices[position.collateral as Address]?.price?.usd;
+	const zchfPrice = prices[position.zchf as Address]?.price?.usd;
 	if (!collTokenPrice || !zchfPrice) return null;
 
 	const account = address || zeroAddress;
