@@ -128,7 +128,8 @@ export const fetchPositionsList =
 
 		// ---------------------------------------------------------------
 		// Query raw data from Ponder Indexer
-		const list = await fetchPositions();
+		const response = await fetch(`/api/positions`);
+		const list = ((await response.json()) as PositionQuery[]) || [];
 		dispatch(slice.actions.setList(list));
 
 		// ---------------------------------------------------------------
