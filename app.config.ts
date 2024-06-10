@@ -10,7 +10,7 @@ import { ethereum3 } from "./contracts/address";
 export const APP_URI_LOCALHOST = "http://localhost:3000";
 export const APP_URI_MAINNET = "https://app.frankencoin.com";
 export const APP_URI_MAINDEV = "https://devapp.frankencoin.com";
-export const APP_URI_DEVELOPER = "https://dapp.frankencoin.domain.com";
+export const APP_URI_DEVELOPER = "https://app.frankencoin.3dotshub.com";
 
 export const PONDER_URI_LOCALHOST = "http://localhost:42069";
 export const PONDER_URI_MAINNET = "https://mainnetponder.frankencoin.com";
@@ -20,7 +20,7 @@ export const PONDER_URI_DEVELOPER_ETH3 = "https://eth3.ponder.frankencoin.3dotsh
 
 // >>>>>> SELECTED URI HERE <<<<<<
 export const APP_URI_SELECTED = APP_URI_LOCALHOST;
-export const PONDER_URI_SELECTED = PONDER_URI_LOCALHOST;
+export const PONDER_URI_SELECTED = PONDER_URI_DEVELOPER;
 // >>>>>> SELECTED URI HERE <<<<<<
 
 // PONDER CLIENT
@@ -32,7 +32,7 @@ export const PONDER_CLIENT = new ApolloClient({
 // WAGMI CONFIG
 // FIXME: move to env or white list domain
 export const WAGMI_PROJECT_ID = "3321ad5a4f22083fe6fe82208a4c9ddc";
-export const WAGMI_CHAIN = ethereum3;
+export const WAGMI_CHAIN = mainnet;
 export const WAGMI_METADATA = {
 	name: "Frankencoin",
 	description: "Frankencoin Frontend Application",

@@ -9,10 +9,140 @@ import { ADDRESS } from "../../contracts/address";
 
 // forced init caching of ERC20Infos
 // solves development mode caching issue with coingecko free plan
+let fetchedTimestamp: number = Date.now();
 let fetchedPositions: PositionQuery[] = [];
-let fetchedAddresses: Address[] = [];
-let fetchedERC20Infos: ERC20Info[] = [];
-let fetchedPrices: PriceQueryObjectArray = {};
+let fetchedAddresses: Address[] = [
+	"0xB58E61C3098d85632Df34EecfB899A1Ed80921cB",
+	"0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+	"0x8747a3114Ef7f0eEBd3eB337F745E31dBF81a952",
+	"0x1bA26788dfDe592fec8bcB0Eaff472a42BE341B2",
+	"0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+	"0x8c1BEd5b9a0928467c9B1341Da1D7BD5e10b6549",
+	"0x553C7f9C780316FC1D34b8e14ac2465Ab22a090B",
+	"0x2E880962A9609aA3eab4DEF919FE9E917E99073B",
+];
+let fetchedERC20Infos: ERC20Info[] = [
+	{
+		address: "0xB58E61C3098d85632Df34EecfB899A1Ed80921cB",
+		name: "Frankencoin",
+		symbol: "ZCHF",
+		decimals: 18,
+	},
+	{
+		address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+		name: "Wrapped BTC",
+		symbol: "WBTC",
+		decimals: 8,
+	},
+	{
+		address: "0x8747a3114Ef7f0eEBd3eB337F745E31dBF81a952",
+		name: "Draggable quitt.shares",
+		symbol: "DQTS",
+		decimals: 0,
+	},
+	{
+		address: "0x1bA26788dfDe592fec8bcB0Eaff472a42BE341B2",
+		name: "Frankencoin Pool Share",
+		symbol: "FPS",
+		decimals: 18,
+	},
+	{
+		address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+		name: "Uniswap",
+		symbol: "UNI",
+		decimals: 18,
+	},
+	{
+		address: "0x8c1BEd5b9a0928467c9B1341Da1D7BD5e10b6549",
+		name: "Liquid Staked ETH",
+		symbol: "LsETH",
+		decimals: 18,
+	},
+	{
+		address: "0x553C7f9C780316FC1D34b8e14ac2465Ab22a090B",
+		name: "RealUnit Shares",
+		symbol: "REALU",
+		decimals: 0,
+	},
+	{
+		address: "0x2E880962A9609aA3eab4DEF919FE9E917E99073B",
+		name: "Boss Info AG",
+		symbol: "BOSS",
+		decimals: 0,
+	},
+];
+let fetchedPrices: PriceQueryObjectArray = {
+	"0xb58e61c3098d85632df34eecfb899a1ed80921cb": {
+		address: "0xB58E61C3098d85632Df34EecfB899A1Ed80921cB",
+		name: "Frankencoin",
+		symbol: "ZCHF",
+		decimals: 18,
+		timestamp: 1718041817386,
+		price: {
+			usd: 1.11,
+		},
+	},
+	"0x2260fac5e5542a773aa44fbcfedf7c193bc2c599": {
+		address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+		name: "Wrapped BTC",
+		symbol: "WBTC",
+		decimals: 8,
+		timestamp: 1718041817386,
+		price: {
+			usd: 70008,
+		},
+	},
+	"0x8747a3114ef7f0eebd3eb337f745e31dbf81a952": {
+		address: "0x8747a3114Ef7f0eEBd3eB337F745E31dBF81a952",
+		name: "Draggable quitt.shares",
+		symbol: "DQTS",
+		decimals: 0,
+		timestamp: 1718041817386,
+		price: {
+			usd: 8.91,
+		},
+	},
+	"0x1f9840a85d5af5bf1d1762f925bdaddc4201f984": {
+		address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+		name: "Uniswap",
+		symbol: "UNI",
+		decimals: 18,
+		timestamp: 1718041817387,
+		price: {
+			usd: 10.41,
+		},
+	},
+	"0x8c1bed5b9a0928467c9b1341da1d7bd5e10b6549": {
+		address: "0x8c1BEd5b9a0928467c9B1341Da1D7BD5e10b6549",
+		name: "Liquid Staked ETH",
+		symbol: "LsETH",
+		decimals: 18,
+		timestamp: 1718041817387,
+		price: {
+			usd: 3877.34,
+		},
+	},
+	"0x553c7f9c780316fc1d34b8e14ac2465ab22a090b": {
+		address: "0x553C7f9C780316FC1D34b8e14ac2465Ab22a090B",
+		name: "RealUnit Shares",
+		symbol: "REALU",
+		decimals: 0,
+		timestamp: 1718041817387,
+		price: {
+			usd: 1.11,
+		},
+	},
+	"0x2e880962a9609aa3eab4def919fe9e917e99073b": {
+		address: "0x2E880962A9609aA3eab4DEF919FE9E917E99073B",
+		name: "Boss Info AG",
+		symbol: "BOSS",
+		decimals: 0,
+		timestamp: 1718041817387,
+		price: {
+			usd: 11.54,
+		},
+	},
+};
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<updateDetailsResponse>) {
 	if (fetchedPositions.length == 0) await updateDetails();
@@ -20,6 +150,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 		prices: fetchedPrices,
 		addresses: fetchedAddresses,
 		infos: fetchedERC20Infos,
+		timestamp: fetchedTimestamp,
+		timestampString: new Date(fetchedTimestamp).toISOString(),
 	});
 }
 
@@ -27,6 +159,8 @@ type updateDetailsResponse = {
 	prices: PriceQueryObjectArray;
 	addresses: Address[];
 	infos: ERC20Info[];
+	timestamp: number;
+	timestampString: string;
 };
 
 export async function updateDetails(): Promise<updateDetailsResponse> {
@@ -36,6 +170,8 @@ export async function updateDetails(): Promise<updateDetailsResponse> {
 			prices: fetchedPrices,
 			addresses: fetchedAddresses,
 			infos: fetchedERC20Infos,
+			timestamp: fetchedTimestamp,
+			timestampString: new Date(fetchedTimestamp).toISOString(),
 		};
 	fetchedPositions = tmp;
 
@@ -68,7 +204,7 @@ export async function updateDetails(): Promise<updateDetailsResponse> {
 	const prices: { [key: Address]: PriceQuery } = {};
 
 	// if ethereum3 private testnet
-	if (WAGMI_CHAIN.id === 1337) {
+	if ((WAGMI_CHAIN.id as number) === 1337) {
 		for (let erc of fetchedERC20Infos) {
 			let price = { usd: 1 };
 
@@ -84,7 +220,7 @@ export async function updateDetails(): Promise<updateDetailsResponse> {
 
 			const timestamp = Date.now();
 
-			prices[erc.address] = {
+			prices[erc.address.toLowerCase() as Address] = {
 				...erc,
 				timestamp,
 				price,
@@ -116,7 +252,7 @@ export async function updateDetails(): Promise<updateDetailsResponse> {
 
 			const timestamp = Date.now();
 
-			prices[contract] = {
+			prices[contract.toLowerCase() as Address] = {
 				...erc,
 				timestamp,
 				price,
@@ -125,11 +261,14 @@ export async function updateDetails(): Promise<updateDetailsResponse> {
 	}
 
 	fetchedPrices = { ...fetchedPrices, ...prices };
+	fetchedTimestamp = Date.now();
 
 	return {
 		prices: fetchedPrices,
 		addresses: fetchedAddresses,
 		infos: fetchedERC20Infos,
+		timestamp: fetchedTimestamp,
+		timestampString: new Date(fetchedTimestamp).toISOString(),
 	};
 }
 

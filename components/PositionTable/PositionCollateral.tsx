@@ -42,8 +42,8 @@ export function PositionCollateralCalculate(listByCollateral: PositionQuery[][],
 	const stats: CollateralItem[] = [];
 	for (let positions of listByCollateral) {
 		const original = positions.at(0) as PositionQuery;
-		const collateral = prices[original!.collateral as Address];
-		const mint = prices[original!.zchf as Address];
+		const collateral = prices[original!.collateral.toLowerCase() as Address];
+		const mint = prices[original!.zchf.toLowerCase() as Address];
 
 		if (!collateral || !mint) continue;
 
