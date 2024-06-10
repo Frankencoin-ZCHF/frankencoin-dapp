@@ -145,7 +145,7 @@ let fetchedPrices: PriceQueryObjectArray = {
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<updateDetailsResponse>) {
-	if (fetchedPositions.length == 0) await updateDetails();
+	if (Object.keys(fetchedPrices).length === 0) await updateDetails();
 	res.status(200).json({
 		prices: fetchedPrices,
 		addresses: fetchedAddresses,
