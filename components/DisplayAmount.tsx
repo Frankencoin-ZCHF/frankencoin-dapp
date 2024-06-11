@@ -38,7 +38,11 @@ export default function DisplayAmount({
 
 	return (
 		<div className={`flex items-center ${className}`}>
-			{!hideLogo && currency && <TokenLogo currency={currency} />}
+			{!hideLogo && currency && (
+				<div className="mr-4">
+					<TokenLogo currency={currency} />
+				</div>
+			)}
 			<div>
 				<div>
 					<span className={`${bold && "font-bold"} ${big && "text-3xl"}`}>{formatBigInt(amount, Number(digits))}</span>

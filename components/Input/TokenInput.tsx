@@ -60,7 +60,9 @@ export default function TokenInput({
 			</div>
 
 			<div className="flex items-center rounded-lg bg-slate-800 p-2">
-				<TokenLogo currency={symbol} size={10} />
+				<div className="mr-4">
+					<TokenLogo currency={symbol} size={10} />
+				</div>
 				<div className="flex-1">
 					{output ? (
 						<div className="px-3 py-2 font-bold transition-opacity">{output}</div>
