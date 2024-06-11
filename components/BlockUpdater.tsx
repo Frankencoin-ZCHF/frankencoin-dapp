@@ -10,6 +10,7 @@ import { fetchAccount, actions as accountActions } from "../redux/slices/account
 import { ERC20Info } from "../redux/slices/positions.types";
 import { useIsConnectedToCorrectChain } from "../hooks/useWalletConnectStats";
 import { WAGMI_CHAIN } from "../app.config";
+import LoadingScreen from "./LoadingScreen";
 
 let initializing: boolean = false;
 let initStart: number = 0;
@@ -130,14 +131,6 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	if (initialized) {
 		return <>{children}</>;
 	} else {
-		return (
-			// TODO: remake loading component
-			<div className="flex items-center justify-center gap-4 h-screen">
-				<picture>
-					<img className="h-10" src="/assets/logoSquare.svg" alt="Logo" />
-				</picture>
-				<h1>Frankencoin is loading...</h1>
-			</div>
-		);
+		return <LoadingScreen />;
 	}
 }

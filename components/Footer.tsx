@@ -5,6 +5,7 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faBook, faBookmark, faComments, faCodeCommit } from "@fortawesome/free-solid-svg-icons";
 import { faGithub, faTelegram, faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { version } from "../package.json";
+import { SubmitIssue } from "./LoadingScreen";
 
 interface ButtonProps {
 	link: string;
@@ -22,7 +23,6 @@ const FooterButton = ({ link, text, icon }: ButtonProps) => {
 };
 
 export default function Footer() {
-	console.log(process.env);
 	return (
 		<>
 			<ul className="mt-12 mb-4 flex items-center justify-center gap-8">
@@ -42,14 +42,9 @@ export default function Footer() {
 					<FooterButton link={SOCIAL.Telegram} text="Telegram" icon={faTelegram} />
 				</li>
 			</ul>
-			<ul className="mt-12 mb-4 flex items-center justify-center gap-8">
-				<li>
-					<FooterButton link={SOCIAL.Github_dapp} text="Github" icon={faGithub} />
-				</li>
-				<li>
-					<FooterButton link={SOCIAL.Github_dapp} text={version} icon={faCodeCommit} />
-				</li>
-			</ul>
+			<div className="mb-8 mt-8">
+				<SubmitIssue />
+			</div>
 		</>
 	);
 }
