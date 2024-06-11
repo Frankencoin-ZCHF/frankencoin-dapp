@@ -3,7 +3,7 @@ import { PositionQuery } from "../../redux/slices/positions.types";
 import { RootState } from "../../redux/redux.store";
 import TokenLogo from "@components/TokenLogo";
 import { PriceQueryObjectArray } from "../../redux/slices/prices.types";
-import { Address } from "wagmi";
+import { Address } from "viem/accounts";
 import { formatCurrency } from "../../utils/format";
 
 export type CollateralItem = {
@@ -117,6 +117,8 @@ export default function PositionCollateral({ children }: { children?: React.Reac
 	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 	const stats = PositionCollateralCalculate(openPositionsByCollateral, coingecko);
+
+	if (stats.length === 0) return null;
 
 	return (
 		<div className="flex bg-card-header rounded-2xl px-5 py-3 my-10 space-x-8 hide-scroll-bar">

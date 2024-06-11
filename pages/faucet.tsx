@@ -1,11 +1,11 @@
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import DisplayAmount from "@components/DisplayAmount";
-import { useAccount, useChainId, useContractWrite, useNetwork } from "wagmi";
-import { waitForTransaction } from "wagmi/actions";
+import { useAccount } from "wagmi";
+import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { useFaucetStats } from "@hooks";
 import Button from "@components/Button";
-import { ABIS, ADDRESS } from "@contracts";
+import { ABIS } from "@contracts";
 import { useState } from "react";
 import { Address, parseUnits, zeroAddress } from "viem";
 import { toast } from "react-toastify";
@@ -15,6 +15,8 @@ import TableHeader from "@components/Table/TableHead";
 import TableBody from "@components/Table/TableBody";
 import TableRow from "@components/Table/TableRow";
 import TokenLogo from "@components/TokenLogo";
+import { WAGMI_CHAIN, WAGMI_CONFIG } from "../app.config";
+import { sepolia } from "viem/chains";
 
 interface RowProps {
 	addr: Address;
@@ -29,14 +31,11 @@ export function FaucetRow({ name, symbol, balance, decimal, addr }: RowProps) {
 	const account = address || zeroAddress;
 	const [isConfirming, setIsConfirming] = useState(false);
 
-	const mintWrite = useContractWrite({
-		address: addr,
-		abi: ABIS.MockVolABI,
-		functionName: "mint",
-	});
-
 	const handleFaucet = async () => {
-		const tx = await mintWrite.writeAsync({
+		const mintWriteHash = await writeContract(WAGMI_CONFIG, {
+			address: addr,
+			abi: ABIS.MockVolABI,
+			functionName: "mint",
 			args: [account, parseUnits("1000", Number(decimal))],
 		});
 
@@ -47,11 +46,11 @@ export function FaucetRow({ name, symbol, balance, decimal, addr }: RowProps) {
 			},
 			{
 				title: "Transaction:",
-				hash: tx.hash,
+				hash: mintWriteHash,
 			},
 		];
 
-		await toast.promise(waitForTransaction({ hash: tx.hash, confirmations: 1 }), {
+		const mintWriteState = await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: mintWriteHash, confirmations: 1 }), {
 			pending: {
 				render: <TxToast title={`Fauceting ${symbol}`} rows={toastContent} />,
 			},
@@ -70,7 +69,7 @@ export function FaucetRow({ name, symbol, balance, decimal, addr }: RowProps) {
 		<TableRow
 			colSpan={6}
 			actionCol={
-				<Button variant="primary" isLoading={mintWrite.isLoading || isConfirming} onClick={() => handleFaucet()}>
+				<Button variant="primary" isLoading={isConfirming} onClick={() => handleFaucet()}>
 					+1000 {symbol}
 				</Button>
 			}
@@ -98,11 +97,9 @@ export function FaucetRow({ name, symbol, balance, decimal, addr }: RowProps) {
 }
 
 export default function Faucet() {
-	const chains = useNetwork();
-	const chainId = useChainId();
 	const faucetStats = useFaucetStats();
 
-	if (!chains.chain?.testnet) return <></>;
+	if ((WAGMI_CHAIN.id as number) == (sepolia.id as number)) return <></>;
 
 	return (
 		<>

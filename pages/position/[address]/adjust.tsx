@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { formatUnits, maxUint256, getAddress, zeroAddress } from "viem";
+import { formatUnits, maxUint256, getAddress, zeroAddress, erc20Abi, Address } from "viem";
 import { usePositionStats } from "@hooks";
 import Link from "next/link";
 import Head from "next/head";
@@ -9,12 +9,13 @@ import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
 import { abs, formatBigInt, shortenAddress } from "@utils";
 import Button from "@components/Button";
-import { erc20ABI, useAccount, useChainId, useContractWrite } from "wagmi";
-import { waitForTransaction } from "wagmi/actions";
+import { useAccount, useChainId } from "wagmi";
+import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
+import { WAGMI_CONFIG } from "../../../app.config";
 
 export default function PositionAdjust() {
 	const router = useRouter();
@@ -24,7 +25,9 @@ export default function PositionAdjust() {
 	const position = getAddress(String(positionAddr || zeroAddress));
 	const positionStats = usePositionStats(position);
 
-	const [isConfirming, setIsConfirming] = useState(false);
+	const [isApproving, setApproving] = useState(false);
+	const [isAdjusting, setAdjusting] = useState(false);
+
 	const [amount, setAmount] = useState(positionStats.minted);
 	const [collateralAmount, setCollateralAmount] = useState(positionStats.collateralBal);
 	const [liqPrice, setLiqPrice] = useState(positionStats.liqPrice);
@@ -97,88 +100,95 @@ export default function PositionAdjust() {
 		setLiqPrice(valueBigInt);
 	};
 
-	const approveWrite = useContractWrite({
-		address: positionStats.collateral,
-		abi: erc20ABI,
-		functionName: "approve",
-	});
-
 	const handleApprove = async () => {
-		const tx = await approveWrite.writeAsync({
-			args: [position, maxUint256],
-		});
+		try {
+			setApproving(true);
 
-		const toastContent = [
-			{
-				title: "Amount:",
-				value: "infinite " + positionStats.collateralSymbol,
-			},
-			{
-				title: "Spender: ",
-				value: shortenAddress(position),
-			},
-			{
-				title: "Transaction:",
-				hash: tx.hash,
-			},
-		];
+			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: positionStats.collateral as Address,
+				abi: erc20Abi,
+				functionName: "approve",
+				args: [position, maxUint256],
+			});
 
-		await toast.promise(waitForTransaction({ hash: tx.hash, confirmations: 1 }), {
-			pending: {
-				render: <TxToast title={`Approving ${positionStats.collateralSymbol}`} rows={toastContent} />,
-			},
-			success: {
-				render: <TxToast title={`Successfully Approved ${positionStats.collateralSymbol}`} rows={toastContent} />,
-			},
-			error: {
-				render(error: any) {
-					return renderErrorToast(error);
+			const toastContent = [
+				{
+					title: "Amount:",
+					value: "infinite " + positionStats.collateralSymbol,
 				},
-			},
-		});
+				{
+					title: "Spender: ",
+					value: shortenAddress(position),
+				},
+				{
+					title: "Transaction:",
+					hash: approveWriteHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={`Approving ${positionStats.collateralSymbol}`} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title={`Successfully Approved ${positionStats.collateralSymbol}`} rows={toastContent} />,
+				},
+				error: {
+					render(error: any) {
+						return renderErrorToast(error);
+					},
+				},
+			});
+		} finally {
+			setApproving(false);
+		}
 	};
-	const adjustWrite = useContractWrite({
-		address: position,
-		abi: ABIS.PositionABI,
-		functionName: "adjust",
-	});
+
 	const handleAdjust = async () => {
-		const tx = await adjustWrite.writeAsync({
-			args: [amount, collateralAmount, liqPrice],
-		});
+		try {
+			setAdjusting(true);
+			const adjustWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: position,
+				abi: ABIS.PositionABI,
+				functionName: "adjust",
+				args: [amount, collateralAmount, liqPrice],
+			});
 
-		const toastContent = [
-			{
-				title: "Amount:",
-				value: formatBigInt(amount),
-			},
-			{
-				title: "Collateral Amount:",
-				value: formatBigInt(collateralAmount, positionStats.collateralDecimal),
-			},
-			{
-				title: "Liquidation Price:",
-				value: formatBigInt(liqPrice, 36 - positionStats.collateralDecimal),
-			},
-			{
-				title: "Transaction:",
-				hash: tx.hash,
-			},
-		];
-
-		await toast.promise(waitForTransaction({ hash: tx.hash, confirmations: 1 }), {
-			pending: {
-				render: <TxToast title={`Adjusting Position`} rows={toastContent} />,
-			},
-			success: {
-				render: <TxToast title="Successfully Adjusted Position" rows={toastContent} />,
-			},
-			error: {
-				render(error: any) {
-					return renderErrorToast(error);
+			const toastContent = [
+				{
+					title: "Amount:",
+					value: formatBigInt(amount),
 				},
-			},
-		});
+				{
+					title: "Collateral Amount:",
+					value: formatBigInt(collateralAmount, positionStats.collateralDecimal),
+				},
+				{
+					title: "Liquidation Price:",
+					value: formatBigInt(liqPrice, 36 - positionStats.collateralDecimal),
+				},
+				{
+					title: "Transaction:",
+					hash: adjustWriteHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: adjustWriteHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={`Adjusting Position`} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title="Successfully Adjusted Position" rows={toastContent} />,
+				},
+				error: {
+					render(error: any) {
+						return renderErrorToast(error);
+					},
+				},
+			});
+		} finally {
+			setAdjusting(false);
+		}
 	};
 
 	return (
@@ -227,7 +237,7 @@ export default function PositionAdjust() {
 						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 							<GuardToAllowedChainBtn>
 								{collateralAmount - positionStats.collateralBal > positionStats.collateralPosAllowance ? (
-									<Button isLoading={approveWrite.isLoading || isConfirming} onClick={() => handleApprove()}>
+									<Button isLoading={isApproving} onClick={() => handleApprove()}>
 										Approve Collateral
 									</Button>
 								) : (
@@ -241,7 +251,7 @@ export default function PositionAdjust() {
 											!!getCollateralError()
 										}
 										error={positionStats.owner != address ? "You can only adjust your own position" : ""}
-										isLoading={adjustWrite.isLoading}
+										isLoading={isAdjusting}
 										onClick={() => handleAdjust()}
 									>
 										Adjust Position

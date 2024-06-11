@@ -10,7 +10,6 @@ import {
 import { RootState } from "../redux.store";
 import { ERC20Info } from "./positions.types";
 import { Address } from "viem";
-import { URI_APP_SELECTED } from "../../app.config";
 
 // --------------------------------------------------------------------------------
 
@@ -52,14 +51,18 @@ export const actions = slice.actions;
 export const fetchPricesList = (state: RootState) => async (dispatch: Dispatch<DispatchBoolean | DispatchPriceQueryObjectArray>) => {
 	const { mintERC20Infos, collateralERC20Infos } = state.positions;
 	const infos: ERC20Info[] = mintERC20Infos.concat(...collateralERC20Infos);
-	if (infos.length == 0) return;
+
+	if (infos.length == 0) {
+		dispatch(slice.actions.setLoaded(true));
+		return;
+	}
 
 	// ---------------------------------------------------------------
 	console.log("Loading [REDUX]: PricesList");
 
 	// ---------------------------------------------------------------
 	// Query from /api/details
-	const response = await fetch(`${URI_APP_SELECTED}/api/prices`);
+	const response = await fetch(`/api/prices`);
 	const prices = ((await response.json())?.prices as PriceQueryObjectArray) || [];
 
 	if (Object.keys(prices).length == 0) return;

@@ -1,14 +1,24 @@
 "use client";
 
-import React from "react";
-import { createWeb3Modal, defaultWagmiConfig } from "@web3modal/wagmi/react";
-import { WagmiConfig } from "wagmi";
-import { WAGMI_PROJECT_ID as projectId, WAGMI_CHAINS as chains, WAGMI_METADATA as metadata } from "../app.config";
+import React, { ReactNode } from "react";
+import { WAGMI_CONFIG, WAGMI_PROJECT_ID } from "../app.config";
+import { createWeb3Modal } from "@web3modal/wagmi/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { State, WagmiProvider } from "wagmi";
 
-// https://docs.walletconnect.com/web3modal/nextjs/wagmi/about/implementation#wagmi-config
-const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata });
-createWeb3Modal({ wagmiConfig, projectId, chains });
+const queryClient = new QueryClient();
+if (!WAGMI_PROJECT_ID) throw new Error("Project ID is not defined");
 
-export function Web3Modal({ children }: { children: React.ReactElement }) {
-	return <WagmiConfig config={wagmiConfig}>{children}</WagmiConfig>;
+createWeb3Modal({
+	wagmiConfig: WAGMI_CONFIG,
+	projectId: WAGMI_PROJECT_ID,
+	enableAnalytics: true,
+});
+
+export default function Web3ModalProvider({ children, initialState }: { children: ReactNode; initialState?: State }) {
+	return (
+		<WagmiProvider config={WAGMI_CONFIG} initialState={initialState}>
+			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+		</WagmiProvider>
+	);
 }

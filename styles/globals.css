@@ -3,142 +3,142 @@
 @tailwind utilities;
 
 @layer components {
-  .btn {
-    @apply inline-flex whitespace-nowrap justify-center items-center gap-3 cursor-pointer rounded-lg select-none ease-in duration-200 border border-transparent px-3 py-2 md:px-3 md:py-3;
-  }
+	.btn {
+		@apply inline-flex whitespace-nowrap justify-center items-center gap-3 cursor-pointer rounded-lg select-none ease-in duration-200 border border-transparent px-3 py-2 md:px-3 md:py-3;
+	}
 
-  .btn-nav {
-    @apply hover:text-rose-400 px-5 py-5 md:px-3 md:py-3;
-  }
+	.btn-nav {
+		@apply hover:text-rose-400 px-5 py-5 md:px-3 md:py-3;
+	}
 
-  .btn-primary {
-    @apply text-white hover:opacity-60 bg-rose-400;
-  }
+	.btn-primary {
+		@apply text-white hover:opacity-60 bg-rose-400;
+	}
 
-  .btn-secondary {
-    @apply text-black border-black hover:bg-neutral-200 bg-rose-400 border-0 text-white;
-  }
+	.btn-secondary {
+		@apply text-black border-black hover:bg-neutral-200 bg-rose-400 border-0;
+	}
 
-  .btn-small {
-    @apply text-sm px-2 py-1 md:px-3 md:py-1;
-  }
+	.btn-small {
+		@apply text-sm px-2 py-1 md:px-3 md:py-1;
+	}
 
-  .btn-disabled {
-    @apply cursor-not-allowed bg-neutral-700 text-slate-800 pointer-events-none;
-  }
+	.btn-disabled {
+		@apply cursor-not-allowed bg-neutral-700 text-slate-800 pointer-events-none;
+	}
 }
 
 body {
-  @apply antialiased;
+	@apply antialiased;
 }
 
 .text-link,
 p > a {
-  text-decoration: underline;
+	text-decoration: underline;
 
-  @apply transition-opacity duration-200 ease-out;
-  @apply hover:opacity-70;
+	@apply transition-opacity duration-200 ease-out;
+	@apply hover:opacity-70;
 }
 
 * {
-  @apply outline-neutral-200;
+	@apply outline-neutral-200;
 }
 
 p + * {
-  @apply mt-4;
+	@apply mt-4;
 }
 
 ::selection {
-  @apply bg-neutral-200;
+	@apply bg-neutral-200;
 }
 
 svg#preloader {
-  width: 240px;
-  height: 120px;
+	width: 240px;
+	height: 120px;
 }
 
 svg #plug,
 svg #socket {
-  fill: #4f46e5;
+	fill: #4f46e5;
 }
 
 svg #loop-normal {
-  fill: none;
-  stroke: #4f46e5;
-  stroke-width: 12;
+	fill: none;
+	stroke: #4f46e5;
+	stroke-width: 12;
 }
 
 svg #loop-offset {
-  display: none;
+	display: none;
 }
 
 /* Hide arrows of number input */
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+	-webkit-appearance: none;
+	margin: 0;
 }
 
 /* Firefox */
 input[type="number"] {
-  -moz-appearance: textfield;
+	-moz-appearance: textfield;
 }
 
 input {
-  outline: none;
-  border: none;
+	outline: none;
+	border: none;
 }
 
 [type="text"]:focus,
 input:focus-visible,
 input:focus {
-  outline: none;
-  border: none;
-  box-shadow: none;
+	outline: none;
+	border: none;
+	box-shadow: none;
 }
 
 /* Hide scroll bars */
 .no-scrollbar::-webkit-scrollbar {
-  display: none;
+	display: none;
 }
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
 }
 
 div.react-datepicker-wrapper {
-  width: 100%;
+	width: 100%;
 }
 
 /* Date Picker Style */
 div.react-datepicker__input-container input {
-  background: transparent;
-  font-size: 1.125rem;
-  line-height: 1.75rem;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  width: 100%;
+	background: transparent;
+	font-size: 1.125rem;
+	line-height: 1.75rem;
+	padding-top: 0.25rem;
+	padding-bottom: 0.25rem;
+	padding-left: 0.5rem;
+	padding-right: 0.5rem;
+	width: 100%;
 }
 
 /* Wallet connect web3modal theme */
 button[data-testid="component-big-button"] {
-  background: transparent;
+	background: transparent;
 }
 
 /* Toast Styles */
 .Toastify__toast {
-  border: 1px rgb(51 65 85) solid;
-  background-color: transparent !important;
-  backdrop-filter: blur(10px);
+	border: 1px rgb(51 65 85) solid;
+	background-color: transparent !important;
+	backdrop-filter: blur(10px);
 }
 .Toastify__toast .Toastify__toast-body {
-  align-items: flex-start;
+	align-items: flex-start;
 }
 .Toastify__toast-body .Toastify__toast-icon {
-  margin-top: 2px;
+	margin-top: 2px;
 }

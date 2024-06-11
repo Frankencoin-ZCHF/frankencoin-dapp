@@ -1,9 +1,13 @@
 import { Address } from "viem";
 
 // --------------------------------------------------------------------------------
-export type AccountState = {
+export type DashboardState = {
 	error: string | null;
-	loading: boolean;
+	loaded: boolean;
+	tabs: {
+		positionsTab: string;
+		positionTab: string;
+	};
 };
 
 // --------------------------------------------------------------------------------

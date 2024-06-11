@@ -1,11 +1,13 @@
-import { clientPonder } from "../../app.config";
+import { PONDER_CLIENT } from "../../app.config";
 import { gql } from "@apollo/client";
 import { PositionQuery } from "../../redux/slices/positions.types";
 import { getAddress } from "viem";
 import { NextApiRequest, NextApiResponse } from "next";
 
+let fetchedPositions: PositionQuery[] = [];
+
 export async function fetchPositions(): Promise<PositionQuery[]> {
-	const { data } = await clientPonder.query({
+	const { data } = await PONDER_CLIENT.query({
 		query: gql`
 			query {
 				positions(orderBy: "availableForClones", orderDirection: "desc") {
@@ -52,7 +54,8 @@ export async function fetchPositions(): Promise<PositionQuery[]> {
 	});
 
 	if (!data || !data.positions) {
-		return [];
+		console.log("No positions found, returning previous state");
+		return fetchedPositions;
 	}
 
 	const list: PositionQuery[] = [];
@@ -98,9 +101,14 @@ export async function fetchPositions(): Promise<PositionQuery[]> {
 		});
 	}
 
+	fetchedPositions = list;
 	return list;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
-	res.status(200).json(await fetchPositions());
+	if (fetchedPositions.length === 0) await fetchPositions();
+	res.status(200).json(fetchedPositions);
 }
+
+fetchPositions();
+setInterval(fetchPositions, 10 * 1000);

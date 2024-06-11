@@ -1,7 +1,5 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
-import { clientPonder } from "../../app.config";
-import { gql } from "@apollo/client";
-import { Address, getAddress } from "viem";
+import { Address } from "viem";
 import { uniqueValues } from "@utils";
 import {
 	PositionsState,
@@ -130,7 +128,8 @@ export const fetchPositionsList =
 
 		// ---------------------------------------------------------------
 		// Query raw data from Ponder Indexer
-		const list = await fetchPositions();
+		const response = await fetch(`/api/positions`);
+		const list = ((await response.json()) as PositionQuery[]) || [];
 		dispatch(slice.actions.setList(list));
 
 		// ---------------------------------------------------------------
@@ -150,6 +149,11 @@ export const fetchPositionsList =
 		dispatch(slice.actions.setOriginalPositions(originalPositions));
 		dispatch(slice.actions.setOpenPositionsByOriginal(openPositionsByOriginal));
 		dispatch(slice.actions.setOpenPositionsByCollateral(openPositionsByCollateral));
+
+		if (list.length == 0) {
+			dispatch(slice.actions.setLoaded(true));
+			return;
+		}
 
 		// ---------------------------------------------------------------
 		// filter collateral and ERC20 and dispatch

@@ -1,6 +1,6 @@
-import { createSlice, Dispatch } from '@reduxjs/toolkit';
-import { AccountState, DispatchBoolean } from './account.types';
-import { Address } from 'viem';
+import { createSlice, Dispatch } from "@reduxjs/toolkit";
+import { AccountState, DispatchBoolean } from "./account.types";
+import { Address } from "viem";
 
 // --------------------------------------------------------------------------------
 
@@ -12,9 +12,14 @@ export const initialState: AccountState = {
 // --------------------------------------------------------------------------------
 
 export const slice = createSlice({
-	name: 'account',
+	name: "account",
 	initialState,
 	reducers: {
+		// RESET
+		resetAccountState(state) {
+			state = initialState;
+		},
+
 		// HAS ERROR
 		hasError(state, action: { payload: string }) {
 			state.error = action.payload;
@@ -37,7 +42,7 @@ export const actions = slice.actions;
 export const fetchAccount = (address: Address) => async (dispatch: Dispatch<DispatchBoolean>) => {
 	// ---------------------------------------------------------------
 	// Log, set loading to true
-	console.log('Loading [REDUX]: Account');
+	console.log("Loading [REDUX]: Account");
 	dispatch(slice.actions.setLoading(true));
 
 	// ---------------------------------------------------------------

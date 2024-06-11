@@ -1,15 +1,12 @@
-import { Hash } from "viem";
-import { mainnet, useNetwork } from "wagmi";
+import { Chain, Hash } from "viem";
+import { WAGMI_CHAIN } from "../app.config";
 
-export const useContractUrl = (address: string, chain: any = mainnet) => {
-  const explorerLink =
-    chain.blockExplorers.default.url || "https://etherscan.io";
-  return explorerLink + "/address/" + address;
+export const useContractUrl = (address: string, chain: Chain = WAGMI_CHAIN) => {
+	const explorerLink = chain?.blockExplorers?.default.url || "https://etherscan.io";
+	return explorerLink + "/address/" + address;
 };
 
-export const useTxUrl = (hash: Hash) => {
-  const { chain } = useNetwork();
-  const explorerLink =
-    chain?.blockExplorers?.default.url || "https://etherscan.io";
-  return explorerLink + "/tx/" + hash;
+export const useTxUrl = (hash: Hash, chain: Chain = WAGMI_CHAIN) => {
+	const explorerLink = chain?.blockExplorers?.default.url || "https://etherscan.io";
+	return explorerLink + "/tx/" + hash;
 };

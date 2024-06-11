@@ -5,12 +5,12 @@ import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
 import { usePoolStats, useContractUrl, useFPSQuery, useTradeQuery } from "@hooks";
 import { formatBigInt, formatDuration, shortenAddress, SOCIAL } from "@utils";
-import { erc20ABI, useAccount, useChainId, useContractRead, useContractWrite } from "wagmi";
-import { waitForTransaction } from "wagmi/actions";
+import { useAccount, useChainId, useReadContract } from "wagmi";
+import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
 import TokenInput from "@components/Input/TokenInput";
 import { useState } from "react";
-import { formatUnits, zeroAddress } from "viem";
+import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import Button from "@components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
@@ -19,13 +19,16 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
+import { WAGMI_CONFIG } from "../app.config";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function Pool() {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [direction, setDirection] = useState(true);
-	const [isConfirming, setIsConfirming] = useState(false);
+	const [isApproving, setApproving] = useState(false);
+	const [isInversting, setInversting] = useState(false);
+	const [isRedeeming, setRedeeming] = useState(false);
 
 	const { address } = useAccount();
 	const chainId = useChainId();
@@ -35,133 +38,146 @@ export default function Pool() {
 	const { trades } = useTradeQuery();
 	const account = address || zeroAddress;
 
-	const approveWrite = useContractWrite({
-		address: ADDRESS[chainId].frankenCoin,
-		abi: erc20ABI,
-		functionName: "approve",
-		args: [ADDRESS[chainId].equity, amount],
-	});
-	const investWrite = useContractWrite({
-		address: ADDRESS[chainId].equity,
-		abi: ABIS.EquityABI,
-		functionName: "invest",
-	});
-	const redeemWrite = useContractWrite({
-		address: ADDRESS[chainId].equity,
-		abi: ABIS.EquityABI,
-		functionName: "redeem",
-	});
 	const handleApprove = async () => {
-		const tx = await approveWrite.writeAsync();
+		try {
+			setApproving(true);
 
-		const toastContent = [
-			{
-				title: "Amount:",
-				value: formatBigInt(amount) + " ZCHF",
-			},
-			{
-				title: "Spender: ",
-				value: shortenAddress(ADDRESS[chainId].equity),
-			},
-			{
-				title: "Transaction:",
-				hash: tx.hash,
-			},
-		];
+			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].frankenCoin,
+				abi: erc20Abi,
+				functionName: "approve",
+				args: [ADDRESS[chainId].equity, amount],
+			});
 
-		await toast.promise(waitForTransaction({ hash: tx.hash, confirmations: 1 }), {
-			pending: {
-				render: <TxToast title={`Approving ZCHF`} rows={toastContent} />,
-			},
-			success: {
-				render: <TxToast title="Successfully Approved ZCHF" rows={toastContent} />,
-			},
-			error: {
-				render(error: any) {
-					return renderErrorToast(error);
+			const toastContent = [
+				{
+					title: "Amount:",
+					value: formatBigInt(amount) + " ZCHF",
 				},
-			},
-		});
+				{
+					title: "Spender: ",
+					value: shortenAddress(ADDRESS[chainId].equity),
+				},
+				{
+					title: "Transaction:",
+					hash: approveWriteHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={`Approving ZCHF`} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title="Successfully Approved ZCHF" rows={toastContent} />,
+				},
+				error: {
+					render(error: any) {
+						return renderErrorToast(error);
+					},
+				},
+			});
+		} finally {
+			setApproving(false);
+		}
 	};
 	const handleInvest = async () => {
-		const tx = await investWrite.writeAsync({ args: [amount, result] });
+		try {
+			const investWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].equity,
+				abi: ABIS.EquityABI,
+				functionName: "invest",
+				args: [amount, result],
+			});
 
-		const toastContent = [
-			{
-				title: "Amount:",
-				value: formatBigInt(amount, 18) + " ZCHF",
-			},
-			{
-				title: "Shares: ",
-				value: formatBigInt(result) + " FPS",
-			},
-			{
-				title: "Transaction: ",
-				hash: tx.hash,
-			},
-		];
-
-		await toast.promise(waitForTransaction({ hash: tx.hash, confirmations: 1 }), {
-			pending: {
-				render: <TxToast title={`Investing ZCHF`} rows={toastContent} />,
-			},
-			success: {
-				render: <TxToast title="Successfully Invested" rows={toastContent} />,
-			},
-			error: {
-				render(error: any) {
-					return renderErrorToast(error);
+			const toastContent = [
+				{
+					title: "Amount:",
+					value: formatBigInt(amount, 18) + " ZCHF",
 				},
-			},
-		});
+				{
+					title: "Shares: ",
+					value: formatBigInt(result) + " FPS",
+				},
+				{
+					title: "Transaction: ",
+					hash: investWriteHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: investWriteHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={`Investing ZCHF`} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title="Successfully Invested" rows={toastContent} />,
+				},
+				error: {
+					render(error: any) {
+						return renderErrorToast(error);
+					},
+				},
+			});
+		} finally {
+			setInversting(false);
+		}
 	};
 	const handleRedeem = async () => {
-		const tx = await redeemWrite.writeAsync({ args: [account, amount] });
+		try {
+			setRedeeming(true);
 
-		const toastContent = [
-			{
-				title: "Amount:",
-				value: formatBigInt(amount) + " FPS",
-			},
-			{
-				title: "Receive: ",
-				value: formatBigInt(result) + " ZCHF",
-			},
-			{
-				title: "Transaction: ",
-				hash: tx.hash,
-			},
-		];
+			const redeemWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].equity,
+				abi: ABIS.EquityABI,
+				functionName: "redeem",
+				args: [account, amount],
+			});
 
-		await toast.promise(waitForTransaction({ hash: tx.hash, confirmations: 1 }), {
-			pending: {
-				render: <TxToast title={`Redeeming FPS`} rows={toastContent} />,
-			},
-			success: {
-				render: <TxToast title="Successfully Redeemed" rows={toastContent} />,
-			},
-			error: {
-				render(error: any) {
-					return renderErrorToast(error);
+			const toastContent = [
+				{
+					title: "Amount:",
+					value: formatBigInt(amount) + " FPS",
 				},
-			},
-		});
+				{
+					title: "Receive: ",
+					value: formatBigInt(result) + " ZCHF",
+				},
+				{
+					title: "Transaction: ",
+					hash: redeemWriteHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: redeemWriteHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={`Redeeming FPS`} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title="Successfully Redeemed" rows={toastContent} />,
+				},
+				error: {
+					render(error: any) {
+						return renderErrorToast(error);
+					},
+				},
+			});
+		} finally {
+			setRedeeming(false);
+		}
 	};
 
-	const { data: fpsResult, isLoading: shareLoading } = useContractRead({
+	const { data: fpsResult, isLoading: shareLoading } = useReadContract({
 		address: ADDRESS[chainId].equity,
 		abi: ABIS.EquityABI,
 		functionName: "calculateShares",
 		args: [amount],
-		enabled: direction,
 	});
 
-	const { data: frankenResult, isLoading: proceedLoading } = useContractRead({
+	const { data: frankenResult, isLoading: proceedLoading } = useReadContract({
 		address: ADDRESS[chainId].equity,
 		abi: ABIS.EquityABI,
 		functionName: "calculateProceeds",
 		args: [amount],
-		enabled: !direction,
 	});
 
 	const fromBalance = direction ? poolStats.frankenBalance : poolStats.equityBalance;
@@ -230,7 +246,7 @@ export default function Pool() {
 									{direction ? (
 										amount > poolStats.frankenAllowance ? (
 											<Button
-												isLoading={approveWrite.isLoading || isConfirming}
+												isLoading={isApproving}
 												disabled={amount == 0n || !!error}
 												onClick={() => handleApprove()}
 											>
@@ -240,7 +256,7 @@ export default function Pool() {
 											<Button
 												variant="primary"
 												disabled={amount == 0n || !!error}
-												isLoading={investWrite.isLoading || isConfirming}
+												isLoading={isInversting}
 												onClick={() => handleInvest()}
 											>
 												Invest
@@ -249,7 +265,7 @@ export default function Pool() {
 									) : (
 										<Button
 											variant="primary"
-											isLoading={redeemWrite.isLoading || isConfirming}
+											isLoading={isRedeeming}
 											disabled={amount == 0n || !!error || !poolStats.equityCanRedeem}
 											onClick={() => handleRedeem()}
 										>

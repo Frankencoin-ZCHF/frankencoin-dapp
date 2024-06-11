@@ -2,9 +2,9 @@ import { useSelector } from "react-redux";
 import { RootState } from "../redux/redux.store";
 import { PositionQuery, PositionsState } from "../redux/slices/positions.types";
 import { PriceQueryObjectArray } from "../redux/slices/prices.types";
-import { Address } from "wagmi";
 import TokenLogo from "./TokenLogo";
 import { formatCurrency } from "../utils/format";
+import { Address } from "viem/accounts";
 
 export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: PriceQueryObjectArray) {
 	const stats = [];
@@ -39,7 +39,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 		const collateralPriceInZCHF = Math.round((collateral.price.usd / mint.price.usd) * 100) / 100;
 		const worstStatus =
 			collateralizedPct < 100
-				? `Danger, blow ${collateralizedPct}% collaterized`
+				? `Danger, ${collateralizedPct}% collaterized`
 				: collateralizedPct < 150
 				? `Warning, ${collateralizedPct}% collaterized`
 				: `Safe, ${collateralizedPct}% collaterized`;
