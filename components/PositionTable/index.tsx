@@ -24,9 +24,8 @@ export default function PositionTable({ showMyPos }: Props) {
 		openPositions.push(...openPositionsByCollateral[collateral]);
 	}
 
-	const matchingPositions = openPositions.filter((position) =>
-		showMyPos ? position.owner == account : position.owner != account && !position.denied && !position.closed
-	);
+	// FIXME: Might not show own closed positions
+	const matchingPositions = openPositions.filter((position) => (showMyPos ? position.owner == account : position.owner != account));
 
 	return (
 		<Table>

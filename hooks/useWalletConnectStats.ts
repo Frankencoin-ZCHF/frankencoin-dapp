@@ -1,5 +1,5 @@
 import { useWeb3ModalState } from "@web3modal/wagmi/react";
-import { sepolia } from "viem/chains";
+import { mainnet } from "viem/chains";
 import { useAccount } from "wagmi";
 
 export const useIsConnectedToCorrectChain = (): boolean => {
@@ -10,7 +10,7 @@ export const useIsConnectedToCorrectChain = (): boolean => {
 	return selectedNetworkId ? parseInt(selectedNetworkId) === chain.id : false;
 };
 
-export const useIsSepoliaChain = (): boolean => {
+export const useIsMainnet = (): boolean => {
 	const { selectedNetworkId } = useWeb3ModalState();
-	return selectedNetworkId ? parseInt(selectedNetworkId) === (sepolia.id as number) : false;
+	return selectedNetworkId ? parseInt(selectedNetworkId) === (mainnet.id as number) : false;
 };

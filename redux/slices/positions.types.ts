@@ -4,7 +4,9 @@ import { Address } from "viem";
 export type PositionsState = {
 	error: string | null;
 	loaded: boolean;
-	list: PositionQuery[];
+
+	list: PositionsQueryObjectArray;
+	ownersPositions: OwnersPositionsQueryObject;
 
 	openPositions: PositionQuery[];
 	closedPositions: PositionQuery[];
@@ -12,13 +14,23 @@ export type PositionsState = {
 	originalPositions: PositionQuery[];
 	openPositionsByOriginal: PositionQuery[][];
 	openPositionsByCollateral: PositionQuery[][];
-
-	collateralAddresses: Address[];
-	collateralERC20Infos: ERC20Info[];
-	mintERC20Infos: ERC20Info[];
 };
 
 // --------------------------------------------------------------------------------
+export type OwnersPositionsQueryObject = {
+	num: number;
+	owners: Address[];
+	positions: OwnersPositionsObjectArray;
+};
+
+export type OwnersPositionsObjectArray = {
+	[key: Address]: PositionQuery[];
+};
+
+export type PositionsQueryObjectArray = {
+	[key: Address]: PositionQuery;
+};
+
 export type PositionQuery = {
 	position: Address;
 	owner: Address;
@@ -37,7 +49,7 @@ export type PositionQuery = {
 	annualInterestPPM: number;
 	reserveContribution: number;
 	start: number;
-	// cooldown: number;
+	cooldown: number;
 	expiration: number;
 	challengePeriod: number;
 
@@ -57,13 +69,6 @@ export type PositionQuery = {
 	minted: string;
 };
 
-export type ERC20Info = {
-	address: Address;
-	name: string;
-	symbol: string;
-	decimals: number;
-};
-
 // --------------------------------------------------------------------------------
 export type DispatchBoolean = {
 	type: string;
@@ -75,6 +80,16 @@ export type DispatchAddressArray = {
 	payload: Address[];
 };
 
+export type DispatchOwnersPositionsQueryObject = {
+	type: string;
+	payload: OwnersPositionsQueryObject;
+};
+
+export type DispatchPositionsQueryObjectArray = {
+	type: string;
+	payload: PositionsQueryObjectArray;
+};
+
 export type DispatchPositionQueryArray = {
 	type: string;
 	payload: PositionQuery[];
@@ -83,9 +98,4 @@ export type DispatchPositionQueryArray = {
 export type DispatchPositionQueryArray2 = {
 	type: string;
 	payload: PositionQuery[][];
-};
-
-export type DispatchERC20InfoArray = {
-	type: string;
-	payload: ERC20Info[];
 };

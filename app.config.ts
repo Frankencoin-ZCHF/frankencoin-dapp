@@ -4,13 +4,20 @@ import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { cookieStorage, createConfig, createStorage, http } from "@wagmi/core";
 import { injected, coinbaseWallet, walletConnect } from "@wagmi/connectors";
 import { mainnet } from "@wagmi/core/chains";
-import { ethereum3 } from "./contracts/address";
+import { ethereum3 } from "./contracts/chains";
 
 // URIs
+export const APP_URI_LANDINGPAGE = "https://frankencoin.com";
+
 export const APP_URI_LOCALHOST = "http://localhost:3000";
 export const APP_URI_MAINNET = "https://app.frankencoin.com";
 export const APP_URI_MAINDEV = "https://devapp.frankencoin.com";
 export const APP_URI_DEVELOPER = "https://app.frankencoin.3dotshub.com";
+
+export const API_URI_LOCALHOST = "http://localhost:3030";
+export const API_URI_MAINNET = "https://api.frankencoin.com";
+export const API_URI_MAINDEV = "https://devapi.frankencoin.com";
+export const API_URI_DEVELOPER = "https://api.coin.3dotshub.com";
 
 export const PONDER_URI_LOCALHOST = "http://localhost:42069";
 export const PONDER_URI_MAINNET = "https://mainnetponder.frankencoin.com";
@@ -19,7 +26,8 @@ export const PONDER_URI_DEVELOPER = "https://ponder.frankencoin.3dotshub.com";
 export const PONDER_URI_DEVELOPER_ETH3 = "https://eth3.ponder.frankencoin.3dotshub.com";
 
 // >>>>>> SELECTED URI HERE <<<<<<
-export const APP_URI_SELECTED = APP_URI_MAINNET;
+export const APP_URI_SELECTED = APP_URI_LOCALHOST;
+export const API_URI_SELECTED = API_URI_DEVELOPER;
 export const PONDER_URI_SELECTED = PONDER_URI_DEVELOPER;
 // >>>>>> SELECTED URI HERE <<<<<<
 
@@ -36,14 +44,14 @@ export const WAGMI_CHAIN = mainnet;
 export const WAGMI_METADATA = {
 	name: "Frankencoin",
 	description: "Frankencoin Frontend Application",
-	url: APP_URI_MAINNET,
+	url: APP_URI_LANDINGPAGE,
 	icons: ["https://avatars.githubusercontent.com/u/37784886"],
 };
 export const WAGMI_CONFIG = createConfig({
 	chains: [WAGMI_CHAIN],
 	transports: {
 		[mainnet.id]: http("https://eth-mainnet.g.alchemy.com/v2/DQBbcLnV8lboEfoEpe8Z_io7u5UJfSVd"),
-		[ethereum3.id]: http("https://ethereum3.3dotshub.com"),
+		[ethereum3.id]: http(ethereum3.rpcUrls.default.http[0]),
 	},
 	connectors: [
 		walletConnect({ projectId: WAGMI_PROJECT_ID, metadata: WAGMI_METADATA, showQrModal: false }),

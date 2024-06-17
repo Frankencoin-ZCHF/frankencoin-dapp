@@ -2,12 +2,10 @@ import { useAccount, useBlockNumber } from "wagmi";
 import { Address } from "viem";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-
 import { RootState, store } from "../redux/redux.store";
 import { fetchPositionsList } from "../redux/slices/positions.slice";
 import { fetchPricesList } from "../redux/slices/prices.slice";
 import { fetchAccount, actions as accountActions } from "../redux/slices/account.slice";
-import { ERC20Info } from "../redux/slices/positions.types";
 import { useIsConnectedToCorrectChain } from "../hooks/useWalletConnectStats";
 import { WAGMI_CHAIN } from "../app.config";
 import LoadingScreen from "./LoadingScreen";
@@ -23,14 +21,11 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 
 	const [initialized, setInitialized] = useState<boolean>(false);
 	const [latestHeight, setLatestHeight] = useState<number>(0);
-	const [latestMintERC20Infos, setLatestMintERC20Infos] = useState<ERC20Info[]>([]);
-	const [latestCollateralERC20Infos, setLatestCollateralERC20Infos] = useState<ERC20Info[]>([]);
 	const [latestConnectedToChain, setLatestConnectedToChain] = useState<boolean>(false);
 	const [latestAddress, setLatestAddress] = useState<Address | undefined>(undefined);
 
 	const loadedPositions: boolean = useSelector((state: RootState) => state.positions.loaded);
 	const loadedPrices: boolean = useSelector((state: RootState) => state.prices.loaded);
-	const { mintERC20Infos, collateralERC20Infos } = useSelector((state: RootState) => state.positions);
 
 	// --------------------------------------------------------------------------------
 	// Init
@@ -42,11 +37,12 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 
 		console.log(`Init [BlockUpdater]: Start loading application data... ${initStart}`);
 		store.dispatch(fetchPositionsList());
-		store.dispatch(fetchPricesList(store.getState()));
+		store.dispatch(fetchPricesList());
 	}, [initialized]);
 
 	// --------------------------------------------------------------------------------
 	// Init done
+	// FIXME: re-add prices
 	useEffect(() => {
 		if (initialized) return;
 		if (loadedPositions && loadedPrices) {
@@ -78,7 +74,7 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		// Block update policy: EACH 10 BLOCKS
 		if (fetchedLatestHeight % 10 === 0) {
 			console.log(`Policy [BlockUpdater]: EACH 10 BLOCKS ${fetchedLatestHeight}`);
-			store.dispatch(fetchPricesList(store.getState()));
+			store.dispatch(fetchPricesList());
 		}
 
 		// Block update policy: EACH 100 BLOCKS
@@ -90,18 +86,6 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		// Unlock block updates
 		loading = false;
 	}, [initialized, error, data, latestHeight, latestAddress]);
-
-	// --------------------------------------------------------------------------------
-	// ERC20 Info changes
-	useEffect(() => {
-		if (mintERC20Infos.length == 0 || collateralERC20Infos.length == 0) return;
-
-		if (mintERC20Infos.length != latestMintERC20Infos.length) setLatestMintERC20Infos(mintERC20Infos);
-		if (collateralERC20Infos.length != latestCollateralERC20Infos.length) setLatestCollateralERC20Infos(collateralERC20Infos);
-
-		console.log(`Policy [BlockUpdater]: ERC20 Info changed`);
-		store.dispatch(fetchPricesList(store.getState()));
-	}, [mintERC20Infos, collateralERC20Infos, latestMintERC20Infos, latestCollateralERC20Infos]);
 
 	// --------------------------------------------------------------------------------
 	// Connected to correct chain changes
