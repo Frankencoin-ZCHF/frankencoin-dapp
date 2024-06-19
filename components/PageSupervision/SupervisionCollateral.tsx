@@ -113,7 +113,7 @@ export function PositionCollateralCalculate(listByCollateral: PositionQuery[][],
 	return stats;
 }
 
-export default function PositionCollateral({ children }: { children?: React.ReactElement | React.ReactElement[] }) {
+export default function SupervisionCollateral({ children }: { children?: React.ReactElement | React.ReactElement[] }) {
 	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 	const stats = PositionCollateralCalculate(openPositionsByCollateral, coingecko);
@@ -126,7 +126,7 @@ export default function PositionCollateral({ children }: { children?: React.Reac
 				<div className="flex flex-nowrap">
 					{stats.map((c: CollateralItem, i: number) => (
 						<>
-							<PositionCollateralItem item={c} key={c.collateral.address} />
+							<SupervisionCollateralItem item={c} key={c.collateral.address} />
 							{i === stats.length - 1 ? null : <PositionCollateralItemSeperator key={c.collateral.address} />}
 						</>
 					))}
@@ -136,7 +136,7 @@ export default function PositionCollateral({ children }: { children?: React.Reac
 	);
 }
 
-export function PositionCollateralItem({ item }: { item: CollateralItem }): React.ReactElement {
+export function SupervisionCollateralItem({ item }: { item: CollateralItem }): React.ReactElement {
 	return (
 		<div className="inline-block">
 			<div className="w-[20rem] h-[6rem] overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 ease-in-out">

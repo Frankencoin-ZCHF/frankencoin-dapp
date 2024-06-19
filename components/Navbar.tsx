@@ -4,41 +4,55 @@ import NavButton from "./NavButton";
 import { useIsMainnet } from "@hooks";
 import { APP_URI_LANDINGPAGE } from "../app.config";
 
-export default function Navbar() {
+export function NavItems() {
 	const isMainet = useIsMainnet();
+	return (
+		<>
+			<li>
+				<NavButton to="/ecosystem" name="EcoSystem" />
+			</li>
+			<li>
+				<NavButton to="/borrow" name="Borrow" />
+			</li>
+			<li>
+				<NavButton to="/mypositions" name="My Positions" />
+			</li>
+			<li>
+				<NavButton to="/supervision" name="Supervision" />
+			</li>
+			<li>
+				<NavButton to="/auctions" name="Auctions" />
+			</li>
+			<li>
+				<NavButton to="/pool" name="Equity" />
+			</li>
+			<li>
+				<NavButton to="/governance" name="Governance" />
+			</li>
+			<li>
+				<NavButton to="/swap" name="Swap" />
+			</li>
+			{!isMainet && (
+				<li>
+					<NavButton to="/faucet" name="Faucet" />
+				</li>
+			)}
+		</>
+	);
+}
+
+export default function Navbar() {
 	return (
 		<div className="fixed top-0 left-0 right-0 z-10 backdrop-blur border-b border-gray-400">
 			<header className="flex items-center p-2 sm:gap-x-4 md:p-4 relative w-full">
-				<Link className="" href="/">
+				<Link className="" href={APP_URI_LANDINGPAGE}>
 					<picture>
 						<img className="h-9 transition" src="/assets/logoSquare.svg" alt="Logo" />
 					</picture>
 				</Link>
 
 				<ul className="justify-left hidden flex-1 gap-2 md:flex lg:gap-3 xl:w-1/2">
-					<li>
-						<NavButton to="/swap" name="Swap" />
-					</li>
-					<li>
-						<NavButton to="/collateral" name="Collateral" />
-					</li>
-					<li>
-						<NavButton to="/positions" name="Positions" />
-					</li>
-					<li>
-						<NavButton to="/auctions" name="Auctions" />
-					</li>
-					<li>
-						<NavButton to="/pool" name="Equity" />
-					</li>
-					<li>
-						<NavButton to="/governance" name="Governance" />
-					</li>
-					{!isMainet && (
-						<li>
-							<NavButton to="/faucet" name="Faucet" />
-						</li>
-					)}
+					<NavItems />
 				</ul>
 				<div className="flex flex-1 justify-end items-center">
 					<WalletConnect />
@@ -53,29 +67,7 @@ export default function Navbar() {
 							<div className="fixed top-0 right-0 h-screen translate-x-full overflow-y-auto overscroll-y-none transition duration-500 peer-checked:translate-x-0 peer-checked:shadow-heading">
 								<div className="float-right min-h-full w-full bg-slate-800 opacity-90 backdrop-blur px-6 pt-12 shadow-2xl">
 									<menu className="mt-8 mb-8 flex flex-col text-heading">
-										<li>
-											<NavButton to="/swap" name="Swap" />
-										</li>
-										<li>
-											<NavButton to="/collateral" name="Collateral" />
-										</li>
-										<li>
-											<NavButton to="/positions" name="Positions" />
-										</li>
-										<li>
-											<NavButton to="/auctions" name="Auctions" />
-										</li>
-										<li>
-											<NavButton to="/pool" name="Equity" />
-										</li>
-										<li>
-											<NavButton to="/governance" name="Governance" />
-										</li>
-										{!isMainet && (
-											<li>
-												<NavButton to="/faucet" name="Faucet" />
-											</li>
-										)}
+										<NavItems />
 									</menu>
 								</div>
 							</div>
