@@ -26,7 +26,7 @@ export const PONDER_URI_DEVELOPER = "https://ponder.frankencoin.3dotshub.com";
 export const PONDER_URI_DEVELOPER_ETH3 = "https://eth3.ponder.frankencoin.3dotshub.com";
 
 // >>>>>> SELECTED URI HERE <<<<<<
-export const APP_URI_SELECTED = APP_URI_LOCALHOST;
+export const APP_URI_SELECTED = APP_URI_MAINNET;
 export const API_URI_SELECTED = API_URI_DEVELOPER;
 export const PONDER_URI_SELECTED = PONDER_URI_DEVELOPER;
 // >>>>>> SELECTED URI HERE <<<<<<
