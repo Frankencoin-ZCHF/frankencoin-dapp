@@ -17,7 +17,7 @@ export const APP_URI_DEVELOPER = "https://app.frankencoin.3dotshub.com";
 export const API_URI_LOCALHOST = "http://localhost:3030";
 export const API_URI_MAINNET = "https://api.frankencoin.com";
 export const API_URI_MAINDEV = "https://devapi.frankencoin.com";
-export const API_URI_DEVELOPER = "https://api.coin.3dotshub.com";
+export const API_URI_DEVELOPER = "https://api.frankencoin.3dotshub.com";
 
 export const PONDER_URI_LOCALHOST = "http://localhost:42069";
 export const PONDER_URI_MAINNET = "https://mainnetponder.frankencoin.com";
