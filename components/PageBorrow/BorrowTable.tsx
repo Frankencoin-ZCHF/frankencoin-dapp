@@ -19,7 +19,7 @@ export default function BorrowTable() {
 
 	return (
 		<Table>
-			<TableHeader headers={["Collateral", "Effective LTV", "Effective Interest", "Price", "Available", "Maturity"]} />
+			<TableHeader headers={["Collateral", "LTV / Reserve", "Interest", "Price", "Available", "Maturity"]} />
 			<TableBody>
 				{matchingPositions.length == 0 ? (
 					<TableRowEmpty>{"There are no other positions yet."}</TableRowEmpty>

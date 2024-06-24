@@ -149,7 +149,7 @@ export function SupervisionCollateralItem({ item }: { item: CollateralItem }): R
 							<div className="col-span-2 text-lg font-bold text-text-header">{item.collateral.symbol}</div>
 							<div className="col-span-2 text-md font-bold text-text-subheader">{item.position.totalNum} Positions</div>
 							<div className="col-span-2 text-md font-bold text-text-subheader">
-								${formatCurrency(item.collateral.valueUsd.toString(), 2)}
+								${formatCurrency(item.collateral.valueUsd.toString(), 0, 0)}
 							</div>
 						</div>
 					</div>
@@ -157,12 +157,12 @@ export function SupervisionCollateralItem({ item }: { item: CollateralItem }): R
 						<div
 							className={`mb-3 rounded-full text-center max-h-7 max-w-[100] text-gray-900 font-bold ${item.ratios.worstStatusColors}`}
 						>
-							{item.ratios.collateralizedPct}%
+							{formatCurrency(item.ratios.collateralizedPct, 1, 1)}%
 						</div>
 						<div
 							className={`rounded-full text-center max-h-7 max-w-[100] text-gray-900 font-bold ${item.ratios.worstStatusColors}`}
 						>
-							{formatCurrency(item.ratios.highestZCHFPrice.toString(), 2)} {item.mint.symbol}
+							{formatCurrency(item.ratios.highestZCHFPrice.toString(), 0, 0)} {item.mint.symbol}
 						</div>
 					</div>
 				</div>

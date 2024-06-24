@@ -28,17 +28,20 @@ export type CollateralItem = {
 		totalNum: number;
 	};
 	ratios: {
-		highestLTV: number;
-		highestMaturity: number;
+		highestZCHFPrice: number;
+		collateralizedPct: number;
+		availableForClonesPct: number;
+		minted: number;
+		collateralPriceInZCHF: number;
+		worstStatus: string;
 		worstStatusColors: string;
 	};
 };
 
-export function BorrowCollateralCalculate(listByCollateral: PositionQuery[][], prices: PriceQueryObjectArray): CollateralItem[] {
+export function MypositionsCollateralCalculate(listByCollateral: PositionQuery[][], prices: PriceQueryObjectArray): CollateralItem[] {
 	const stats: CollateralItem[] = [];
 	for (let positions of listByCollateral) {
-		const originals: PositionQuery[] = positions.filter((pos) => pos.isOriginal);
-		const original = originals.at(0) as PositionQuery;
+		const original = positions.at(0) as PositionQuery;
 		const collateral = prices[original!.collateral.toLowerCase() as Address];
 		const mint = prices[original!.zchf.toLowerCase() as Address];
 
@@ -58,44 +61,21 @@ export function BorrowCollateralCalculate(listByCollateral: PositionQuery[][], p
 
 		balance = balance / 10 ** collateral.decimals;
 		const valueLockedUsd = Math.round(balance * collateral.price.usd);
+		const highestZCHFPrice =
+			Math.round(Math.max(...positions.map((p) => (parseInt(p.price) * 10000) / 10 ** (36 - p.collateralDecimals)))) / 10000;
 
-		const originalsStats = [];
-		for (let position of originals) {
-			const interest: number = Math.round((position.annualInterestPPM / 10 ** 4) * 100) / 100;
-			const reserve: number = Math.round((position.reserveContribution / 10 ** 4) * 100) / 100;
+		const collateralizedPct = Math.round((collateral.price.usd / (highestZCHFPrice * mint.price.usd)) * 10000) / 100;
+		const availableForClonesPct = Math.round((availableForClones / limitForClones) * 10000) / 100;
 
-			const available: number = Math.round((parseInt(position.availableForClones) / 10 ** position.zchfDecimals) * 100) / 100;
-			const availableK: string = formatCurrency((Math.round(available / 100) / 10).toString(), 2) + "k";
-			const price: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
-			const since: number = Math.round((Date.now() - position.start * 1000) / 1000 / 60 / 60 / 24);
-			const maturity: number = Math.round(((position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24) * 100) / 100;
-
-			// effectiveLTV = liquidation price * (1 - reserve) / market price
-			const effectiveLTV: number = Math.round(((price * (1 - reserve / 100)) / collateral.price.usd) * 10000) / 100;
-			const effectiveInterest: number = Math.round((interest / (1 - reserve / 100)) * 100) / 100;
-
-			originalsStats.push({
-				address: position.collateral,
-				name: collateral.name,
-				symbol: collateral.symbol,
-				decimals: collateral.decimals,
-				price: collateral.price.usd,
-				valueUsd: valueLockedUsd,
-				available: available,
-				availableK: availableK,
-				liquidation: price,
-				since: since,
-				maturity: maturity,
-				interest: interest,
-				reserve: reserve,
-				effectiveLTV: effectiveLTV,
-				effectiveInterest: effectiveInterest,
-			});
-		}
-
-		const highestLTV = Math.max(...originalsStats.map((s) => s.effectiveLTV));
-		const highestMaturity = Math.max(...originalsStats.map((s) => s.maturity));
-		const worstStatusColors = highestMaturity < 60 ? "bg-red-500" : highestMaturity < 30 ? "bg-orange-400" : "bg-green-500";
+		const minted = Math.round(limitForClones - availableForClones);
+		const collateralPriceInZCHF = Math.round((collateral.price.usd / mint.price.usd) * 100) / 100;
+		const worstStatus =
+			collateralizedPct < 100
+				? `Danger, blow ${collateralizedPct}% collaterized`
+				: collateralizedPct < 150
+				? `Warning, ${collateralizedPct}% collaterized`
+				: `Safe, ${collateralizedPct}% collaterized`;
+		const worstStatusColors = collateralizedPct < 100 ? "bg-red-500" : collateralizedPct < 150 ? "bg-orange-400" : "bg-green-500";
 
 		stats.push({
 			collateral: {
@@ -119,8 +99,12 @@ export function BorrowCollateralCalculate(listByCollateral: PositionQuery[][], p
 				cloneNum: positions.filter((pos) => pos.isClone).length,
 			},
 			ratios: {
-				highestLTV,
-				highestMaturity,
+				highestZCHFPrice,
+				collateralizedPct,
+				availableForClonesPct,
+				minted,
+				collateralPriceInZCHF,
+				worstStatus,
 				worstStatusColors,
 			},
 		});
@@ -129,10 +113,10 @@ export function BorrowCollateralCalculate(listByCollateral: PositionQuery[][], p
 	return stats;
 }
 
-export default function BorrowCollateral({ children }: { children?: React.ReactElement | React.ReactElement[] }) {
+export default function MypositionsCollateral({ children }: { children?: React.ReactElement | React.ReactElement[] }) {
 	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
-	const stats = BorrowCollateralCalculate(openPositionsByCollateral, coingecko);
+	const stats = MypositionsCollateralCalculate(openPositionsByCollateral, coingecko);
 
 	if (stats.length === 0) return null;
 
@@ -142,8 +126,8 @@ export default function BorrowCollateral({ children }: { children?: React.ReactE
 				<div className="flex flex-nowrap">
 					{stats.map((c: CollateralItem, i: number) => (
 						<>
-							<BorrowCollateralItem item={c} key={c.collateral.address} />
-							{i === stats.length - 1 ? null : <CollateralItemSeperator key={c.collateral.address} />}
+							<SupervisionCollateralItem item={c} key={c.collateral.address} />
+							{i === stats.length - 1 ? null : <MypositionsCollateralItemSeperator key={c.collateral.address} />}
 						</>
 					))}
 				</div>
@@ -152,7 +136,7 @@ export default function BorrowCollateral({ children }: { children?: React.ReactE
 	);
 }
 
-export function BorrowCollateralItem({ item }: { item: CollateralItem }): React.ReactElement {
+export function SupervisionCollateralItem({ item }: { item: CollateralItem }): React.ReactElement {
 	return (
 		<div className="inline-block">
 			<div className="w-[20rem] h-[6rem] overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 ease-in-out">
@@ -163,20 +147,22 @@ export function BorrowCollateralItem({ item }: { item: CollateralItem }): React.
 					<div className="col-span-4 mt-2">
 						<div className="grid grid-cols-3">
 							<div className="col-span-2 text-lg font-bold text-text-header">{item.collateral.symbol}</div>
-							<div className="col-span-2 text-md font-bold text-text-subheader">{item.position.originalNum} Originals</div>
-							<div className="col-span-2 text-md font-bold text-text-subheader">{item.position.cloneNum} Clones</div>
+							<div className="col-span-2 text-md font-bold text-text-subheader">{item.position.totalNum} Positions</div>
+							<div className="col-span-2 text-md font-bold text-text-subheader">
+								${formatCurrency(item.collateral.valueUsd.toString(), 0, 0)}
+							</div>
 						</div>
 					</div>
 					<div className="col-span-2 -ml-10 my-4">
 						<div
-							className={`mb-3 rounded-full text-center max-h-7 max-w-[100] text-text-header font-bold bg-card-body-secondary`}
+							className={`mb-3 rounded-full text-center max-h-7 max-w-[100] text-gray-900 font-bold ${item.ratios.worstStatusColors}`}
 						>
-							{formatCurrency(item.ratios.highestLTV, 1, 1)}% LTV
+							{formatCurrency(item.ratios.collateralizedPct, 1, 1)}%
 						</div>
 						<div
 							className={`rounded-full text-center max-h-7 max-w-[100] text-gray-900 font-bold ${item.ratios.worstStatusColors}`}
 						>
-							{formatCurrency(item.ratios.highestMaturity, 0, 0)} days
+							{formatCurrency(item.ratios.highestZCHFPrice.toString(), 0, 0)} {item.mint.symbol}
 						</div>
 					</div>
 				</div>
@@ -185,6 +171,6 @@ export function BorrowCollateralItem({ item }: { item: CollateralItem }): React.
 	);
 }
 
-export function CollateralItemSeperator(): React.ReactElement {
+export function MypositionsCollateralItemSeperator(): React.ReactElement {
 	return <div className="bg-card-body-seperator w-[2px] h-[90%] mx-5 my-auto"></div>;
 }

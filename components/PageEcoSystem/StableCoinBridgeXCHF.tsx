@@ -1,25 +1,9 @@
-import Head from "next/head";
-import AppPageHeader from "@components/AppPageHeader";
-import TokenInput from "@components/Input/TokenInput";
-import { useState } from "react";
 import { useSwapStats } from "@hooks";
-import { erc20Abi, formatUnits, maxUint256 } from "viem";
-import Button from "@components/Button";
-import { useChainId } from "wagmi";
-import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ABIS, ADDRESS } from "@contracts";
-import { toast } from "react-toastify";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { SOCIAL, formatBigInt, shortenAddress, formatCurrency } from "@utils";
-import { TxToast, renderErrorToast } from "@components/TxToast";
-import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { WAGMI_CONFIG } from "../../app.config";
+import { SOCIAL, formatCurrency } from "@utils";
 import Link from "next/link";
 import TokenLogo from "@components/TokenLogo";
 
 export default function StableCoinBridgeXCHF() {
-	const chainId = useChainId();
 	const swapStats = useSwapStats();
 
 	const expirationTimestamp = 1729980479000;

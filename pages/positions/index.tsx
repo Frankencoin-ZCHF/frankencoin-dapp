@@ -1,8 +1,7 @@
 import Head from "next/head";
-import AppPageHeader from "@components/AppPageHeader";
-import PositionTable from "@components/PositionTable";
 import Link from "next/link";
-import PositionCollateral from "@components/PositionTable/PositionCollateral";
+import MypositionsCollateral from "@components/PageMypositions/MypositionsCollateral";
+import MypositionsTable from "@components/PageMypositions/MypositionsTable";
 
 export default function Positions() {
 	return (
@@ -12,12 +11,10 @@ export default function Positions() {
 			</Head>
 
 			<div className="mt-8">
-				<PositionCollateral />
-				<AppPageHeader title="My Positions" />
-				<PositionTable showMyPos />
-				<AppPageHeader title="Other Positions" />
-				<PositionTable />
+				<MypositionsCollateral />
+				<MypositionsTable />
 			</div>
+
 			<div className="flex">
 				<Link href={"positions/create"} className="btn btn-primary m-auto">
 					Propose New Position Type

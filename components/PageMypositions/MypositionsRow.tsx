@@ -11,7 +11,7 @@ interface Props {
 	position: PositionQuery;
 }
 
-export default function BorrowRow({ position }: Props) {
+export default function MypositionsRow({ position }: Props) {
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
 	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
@@ -19,20 +19,24 @@ export default function BorrowRow({ position }: Props) {
 
 	const interest: number = Math.round((position.annualInterestPPM / 10 ** 4) * 100) / 100;
 	const reserve: number = Math.round((position.reserveContribution / 10 ** 4) * 100) / 100;
-
 	const available: number = Math.round((parseInt(position.availableForClones) / 10 ** position.zchfDecimals) * 100) / 100;
-	const availableK: string = formatCurrency((Math.round(available / 100) / 10).toString(), 2) + "k";
 	const price: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
 	const since: number = Math.round((Date.now() - position.start * 1000) / 1000 / 60 / 60 / 24);
 	const maturity: number = Math.round((position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24);
 	const maturityStatusColors = maturity < 60 ? "bg-red-500" : maturity < 30 ? "bg-orange-400" : "bg-green-500";
 
-	// effectiveLTC = liquidation price * (1 - reserve) / market price
-	const effectiveLTC: number = Math.round(((price * (1 - reserve / 100)) / collTokenPrice) * 10000) / 100;
-	const effectiveInterest: number = Math.round((interest / (1 - reserve / 100)) * 100) / 100;
+	const balance: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
+	const ballanceZCHF: number = Math.round(((balance * collTokenPrice) / zchfPrice) * 100) / 100;
+	const ballanceUSD: number = Math.round(balance * collTokenPrice * 100) / 100;
+
+	const liquidationZCHF: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
+	const liquidationUSD: number = Math.round(liquidationZCHF * zchfPrice * 100) / 100;
+	const liquidationPct: number = Math.round((ballanceZCHF / (liquidationZCHF * balance)) * 10000) / 100;
+	const liauidationStatusColors = liquidationPct < 100 ? "bg-red-500" : liquidationPct < 150 ? "bg-orange-400" : "bg-green-500";
 
 	return (
-		<TableRow link={`/position/${position.position}/borrow`}>
+		<TableRow link={`/position/${position.position}/adjust`}>
+			{/* Collateral */}
 			<div className="flex flex-col gap-4">
 				<div className="col-span-2 w-16 h-16 max-h-16 max-w-16 rounded-xl my-auto">
 					<TokenLogo currency={position.collateralSymbol.toLowerCase()} size={16} />
@@ -42,26 +46,39 @@ export default function BorrowRow({ position }: Props) {
 				</div>
 			</div>
 
-			<div className="flex flex-col gap-2 text-text-subheader">
-				<div>{formatCurrency(effectiveLTC, 2, 2)}% LTV</div>
-				<div>{formatCurrency(reserve, 2, 2)}% Res.</div>
+			{/* Balance */}
+			<div className="flex flex-col gap-2">
+				<div className="col-span-2 text-lg font-bold text-text-header">
+					{formatCurrency(balance, 2, 2)} {position.collateralSymbol}
+				</div>
+				<div className="col-span-2 text-md text-text-subheader">
+					{formatCurrency(ballanceZCHF, 2, 2)} {position.zchfSymbol}
+				</div>
+				<div className="col-span-2 text-md text-text-subheader">{formatCurrency(ballanceUSD, 2, 2)} USD</div>
 			</div>
 
-			<div className="flex flex-col gap-2 text-text-subheader">
-				<div>{formatCurrency(effectiveInterest, 2, 2)}% Eff.</div>
-				<div>{formatCurrency(interest, 2, 2)}% Ann.</div>
+			{/* Liquidation */}
+			<div className="flex flex-col gap-2">
+				<div className={`rounded-full text-center max-h-14 max-w-[8rem] font-bold text-gray-900 ${liauidationStatusColors}`}>
+					{liquidationPct}%
+				</div>
+				<div className="col-span-2 text-md text-text-subheader">
+					{formatCurrency(liquidationZCHF, 2, 2)} {position.zchfSymbol}
+				</div>
+				<div className="col-span-2 text-md text-text-subheader">{formatCurrency(liquidationUSD, 2, 2)} USD</div>
 			</div>
 
-			<div className="flex flex-col gap-2 text-text-subheader">
-				<div>{formatCurrency(price, 2, 2)} ZCHF</div>
-				<div>{formatCurrency(price * zchfPrice, 2, 2)} USD</div>
+			{/* Challenges */}
+			<div className="flex flex-col gap-2 -ml-2">
+				<div className="flex flex-col gap-2 -ml-2">
+					<div className={`rounded-full text-center max-h-14 max-w-[8rem] font-bold`}>[in dev.]</div>
+					{/* <div className={`rounded-full text-center max-h-14 max-w-[8rem] font-bold text-gray-900 ${maturityStatusColors}`}>-- %</div>
+				<div className="col-span-2 text-md text-text-subheader">-- {position.zchfSymbol}</div>
+				<div className="col-span-2 text-md text-text-subheader">-- USD</div> */}
+				</div>
 			</div>
 
-			<div className="flex flex-col gap-2 text-text-subheader">
-				<div>{formatCurrency(available / 1000, 2, 2)}k ZCHF</div>
-				<div>{formatCurrency((available / 1000) * zchfPrice, 2, 2)}k USD</div>
-			</div>
-
+			{/* Maturity */}
 			<div className="flex flex-col gap-2 -ml-2">
 				<div className={`rounded-full text-center max-h-14 max-w-[10rem] font-bold bg-layout-primary`}>
 					{new Date(position.start * 1000).toDateString()}
