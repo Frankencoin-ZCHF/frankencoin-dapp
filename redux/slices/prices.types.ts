@@ -1,5 +1,11 @@
 import { Address } from "viem";
-import { ERC20Info } from "./positions.types";
+
+export type ERC20Info = {
+	address: Address;
+	name: string;
+	symbol: string;
+	decimals: number;
+};
 
 // --------------------------------------------------------------------------------
 export type PricesState = {
@@ -7,6 +13,8 @@ export type PricesState = {
 	loaded: boolean;
 
 	coingecko: PriceQueryObjectArray;
+	mint: ERC20Info;
+	collateral: { [key: Address]: ERC20Info };
 };
 
 // --------------------------------------------------------------------------------
@@ -35,4 +43,9 @@ export type DispatchBoolean = {
 export type DispatchPriceQueryObjectArray = {
 	type: string;
 	payload: PriceQueryObjectArray;
+};
+
+export type DispatchERC20InfoObjectArray = {
+	type: string;
+	payload: { [key: Address]: ERC20Info };
 };

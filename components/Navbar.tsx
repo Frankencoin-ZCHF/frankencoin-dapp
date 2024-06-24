@@ -1,10 +1,11 @@
 import Link from "next/link";
 import WalletConnect from "./WalletConnect";
 import NavButton from "./NavButton";
-import { useIsSepoliaChain } from "@hooks";
+import { useIsMainnet } from "@hooks";
+import { APP_URI_LANDINGPAGE } from "../app.config";
 
 export default function Navbar() {
-	const isSepoliaChain = useIsSepoliaChain();
+	const isMainet = useIsMainnet();
 	return (
 		<div className="fixed top-0 left-0 right-0 z-10 backdrop-blur border-b border-gray-400">
 			<header className="flex items-center p-2 sm:gap-x-4 md:p-4 relative w-full">
@@ -33,7 +34,7 @@ export default function Navbar() {
 					<li>
 						<NavButton to="/governance" name="Governance" />
 					</li>
-					{isSepoliaChain && (
+					{!isMainet && (
 						<li>
 							<NavButton to="/faucet" name="Faucet" />
 						</li>
@@ -70,7 +71,7 @@ export default function Navbar() {
 										<li>
 											<NavButton to="/governance" name="Governance" />
 										</li>
-										{isSepoliaChain && (
+										{!isMainet && (
 											<li>
 												<NavButton to="/faucet" name="Faucet" />
 											</li>

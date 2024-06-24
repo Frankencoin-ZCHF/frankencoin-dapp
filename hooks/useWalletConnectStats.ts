@@ -1,6 +1,7 @@
 import { useWeb3ModalState } from "@web3modal/wagmi/react";
-import { sepolia } from "viem/chains";
+import { mainnet } from "viem/chains";
 import { useAccount } from "wagmi";
+import { WAGMI_CHAIN } from "../app.config";
 
 export const useIsConnectedToCorrectChain = (): boolean => {
 	const { address, chain, isConnected } = useAccount();
@@ -10,7 +11,6 @@ export const useIsConnectedToCorrectChain = (): boolean => {
 	return selectedNetworkId ? parseInt(selectedNetworkId) === chain.id : false;
 };
 
-export const useIsSepoliaChain = (): boolean => {
-	const { selectedNetworkId } = useWeb3ModalState();
-	return selectedNetworkId ? parseInt(selectedNetworkId) === (sepolia.id as number) : false;
+export const useIsMainnet = (): boolean => {
+	return (WAGMI_CHAIN.id as number) === (mainnet.id as number);
 };
