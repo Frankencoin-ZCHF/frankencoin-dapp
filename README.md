@@ -1,14 +1,35 @@
 ## Getting Started
 
+### Configurations for new collateral token
+
+1. Add token logo in **svg** or **png** format under `public/coin/` folder.
+2. Make sure logo file name should be in lower case and same as real token symbol.
+   e.g `public/coin/xchf.svg`
+
+### Automatic deployment
+
+1. The main branch should deploy to app.frankencoin.com
+2. The dev Branch should deploy to dev.app.frankencoin.com
+
 ### Edit app.config
 
 ```
-export const APP_URI_MAINNET = "https://app.frankencoin.com";
-export const PONDER_URI_MAINNET = "https://mainnet.ponder.frankencoin.com";
+...
+	localhost: {
+		app: "http://localhost:3000",
+		api: "http://localhost:3030",
+		ponder: "http://localhost:42069",
+	},
+	mainnet: {
+		app: "https://app.frankencoin.com",
+		api: "https://api.frankencoin.com",
+		ponder: "https://ponder.frankencoin.com",
+	},
+...
 
 // >>>>>> SELECTED URI HERE <<<<<<
-export const APP_URI_SELECTED = APP_URI_MAINNET;
-export const PONDER_URI_SELECTED = PONDER_URI_MAINNET;
+export const URI_SELECTED = URIS.localhost;     // local development
+export const URI_SELECTED = URIS.mainnet;     // mainnet
 // >>>>>> SELECTED URI HERE <<<<<<
 ```
 
@@ -57,8 +78,9 @@ Drop an address if you need ETH on this network.
 ```
 
 #### Affected file: /contracts/address.ts
-- change custom chain settings
-- update SC addresses
+
+-   change custom chain settings
+-   update SC addresses
 
 ```
 [ethereum3.id]: {
@@ -75,8 +97,9 @@ Drop an address if you need ETH on this network.
 ```
 
 #### Affected file: /pages/api/prices.ts
-- change addresses of ERC20 tokens
-- "hard/softcode" a price (for dev)
+
+-   change addresses of ERC20 tokens
+-   "hard/softcode" a price (for dev)
 
 ```
 // if ethereum3 private testnet
@@ -96,11 +119,12 @@ if ((WAGMI_CHAIN.id as number) === 1337) {
 ```
 
 #### Affected file: /app.config.ts
-- change app uri and ponder uri
-- **ponder needs to runs on the same chain**
-- WAGMI_PROJECT_ID e.g. ethereum3 (custom testnet chain)
-- WAGMI_CHAIN
-- add transport
+
+-   change app uri and ponder uri
+-   **ponder needs to runs on the same chain**
+-   WAGMI_PROJECT_ID e.g. ethereum3 (custom testnet chain)
+-   WAGMI_CHAIN
+-   add transport
 
 ```
 transports: {
@@ -108,16 +132,3 @@ transports: {
    [ethereum3.id]: http("https://ethereum3.3dotshub.com"),
 },
 ```
-
-
-
-## Configurations for new collateral token
-
-1. Add token logo in **svg** or **png** format under `public/coin/` folder.
-2. Make sure logo file name should be in lower case and same as real token symbol.
-   e.g `public/coin/xchf.svg`
-
-## Automatic deployment
-
-1. The main branch should deploy to app.frankencoin.com
-2. The dev Branch should deploy to dev.app.frankencoin.com
