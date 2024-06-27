@@ -4,7 +4,7 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { PositionQuery } from "../../redux/slices/positions.types";
+import { PositionQuery } from "@frankencoin/api";
 import MypositionsRow from "./MypositionsRow";
 import { useAccount } from "wagmi";
 

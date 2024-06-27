@@ -16,6 +16,7 @@ export default function Auction({}) {
 			<Head>
 				<title>Frankencoin - Auctions</title>
 			</Head>
+
 			<div>
 				<AppPageHeader title="Your Auctions" />
 				<ChallengeTable
@@ -26,7 +27,7 @@ export default function Auction({}) {
 
 				<AppPageHeader title="All Auctions" className="mt-8" />
 				<ChallengeTable
-					challenges={challengsData.filter((challenge) => challenge.challenger != account)}
+					challenges={challengsData.filter((challenge) => challenge.challenger !== account)}
 					noContentText="There are no auctions yet."
 					loading={loading || queryLoading}
 				/>

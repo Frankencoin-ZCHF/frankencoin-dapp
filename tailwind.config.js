@@ -54,6 +54,10 @@ module.exports = {
 					hover: "#334155",
 				},
 			},
+			badgePosition: {
+				original: "#facc15",
+				clone: "#38bdf8",
+			},
 		},
 	},
 	darkMode: "class",

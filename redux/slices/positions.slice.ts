@@ -1,18 +1,15 @@
+import { OwnersPositionsQueryObject, PositionQuery, PositionsQueryObject } from "@frankencoin/api";
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
-import { Address } from "viem";
 import { uniqueValues } from "@utils";
+import { API_URI_SELECTED } from "../../app.config";
 import {
 	PositionsState,
-	PositionQuery,
 	DispatchBoolean,
 	DispatchPositionQueryArray,
 	DispatchPositionQueryArray2,
-	PositionsQueryObjectArray,
 	DispatchPositionsQueryObjectArray,
-	OwnersPositionsQueryObject,
 	DispatchOwnersPositionsQueryObject,
 } from "./positions.types";
-import { API_URI_SELECTED } from "../../app.config";
 
 // --------------------------------------------------------------------------------
 
@@ -20,7 +17,7 @@ export const initialState: PositionsState = {
 	error: null,
 	loaded: false,
 
-	list: {},
+	list: { num: 0, positions: {} },
 	ownersPositions: { num: 0, owners: [], positions: {} },
 
 	openPositions: [],
@@ -49,7 +46,7 @@ export const slice = createSlice({
 
 		// -------------------------------------
 		// SET LIST
-		setList: (state, action: { payload: PositionsQueryObjectArray }) => {
+		setList: (state, action: { payload: PositionsQueryObject }) => {
 			state.list = action.payload;
 		},
 
@@ -112,19 +109,24 @@ export const fetchPositionsList =
 		// ---------------------------------------------------------------
 		// Query raw data from backend api
 		const response1 = await fetch(`${API_URI_SELECTED}/positions/list`);
-		const list = (await response1.json()) as PositionsQueryObjectArray;
+		const list = (await response1.json()) as PositionsQueryObject;
 		dispatch(slice.actions.setList(list));
 
 		const response2 = await fetch(`${API_URI_SELECTED}/positions/owners`);
 		const owners = (await response2.json()) as OwnersPositionsQueryObject;
 		dispatch(slice.actions.setOwnersPositions(owners));
 
+		// const response3 = await fetch(`${API_URI_SELECTED}/positions/requests`);
+		// const requests = (await response2.json()) as OwnersPositionsQueryObject;
+		// dispatch(slice.actions.setOwnersPositions(owners));
+
 		// ---------------------------------------------------------------
 		// filter positions and dispatch
-		const listArray = Object.values(list);
+		const listArray = Object.values(list.positions);
 		const openPositions = listArray.filter((position) => !position.denied && !position.closed);
 		const collateralAddresses = openPositions.map((position) => position.collateral).filter(uniqueValues);
 
+		// const requestedPositions = collateralAddresses.map((con) => listArray.filter((position) => position.collateral == con));
 		const closedPositioins = listArray.filter((position) => position.closed);
 		const deniedPositioins = listArray.filter((position) => position.denied);
 		const originalPositions = openPositions.filter((position) => position.isOriginal);

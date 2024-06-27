@@ -42,7 +42,7 @@ export default function Navbar() {
 	return (
 		<div className="fixed top-0 left-0 right-0 z-10 backdrop-blur border-b border-gray-400">
 			<header className="flex items-center p-2 sm:gap-x-4 md:p-4 relative w-full">
-				<Link className="" href="/">
+				<Link className="" href={APP_URI_LANDINGPAGE}>
 					<picture>
 						<img className="h-9 transition" src="/assets/logoSquare.svg" alt="Logo" />
 					</picture>

@@ -1,11 +1,13 @@
 import { Address } from "viem";
 import TableRow from "../Table/TableRow";
-import { Badge } from "flowbite-react";
-import { PositionQuery } from "../../redux/slices/positions.types";
+import { PositionQuery } from "@frankencoin/api";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import TokenLogo from "@components/TokenLogo";
 import { formatCurrency } from "../../utils/format";
+import { BadgeCloneColor, BadgeOriginalColor } from "../../utils/customTheme";
+import { faCreativeCommonsShare, faFirstOrder } from "@fortawesome/free-brands-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface Props {
 	position: PositionQuery;
@@ -32,15 +34,21 @@ export default function MypositionsRow({ position }: Props) {
 	const liquidationZCHF: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
 	const liquidationUSD: number = Math.round(liquidationZCHF * zchfPrice * 100) / 100;
 	const liquidationPct: number = Math.round((ballanceZCHF / (liquidationZCHF * balance)) * 10000) / 100;
-	const liauidationStatusColors = liquidationPct < 100 ? "bg-red-500" : liquidationPct < 150 ? "bg-orange-400" : "bg-green-500";
+	const liauidationStatusColors = liquidationPct < 110 ? "bg-red-500" : liquidationPct < 150 ? "bg-orange-400" : "bg-green-500";
 
 	return (
 		<TableRow link={`/position/${position.position}/adjust`}>
 			{/* Collateral */}
 			<div className="flex flex-col gap-4">
-				<div className="col-span-2 w-16 h-16 max-h-16 max-w-16 rounded-xl my-auto">
+				<div className="relative col-span-2 w-16 h-16 max-h-16 max-w-16 rounded-xl my-auto">
 					<TokenLogo currency={position.collateralSymbol.toLowerCase()} size={16} />
+					<FontAwesomeIcon
+						className="absolute top-12 left-12"
+						color={position.isOriginal ? BadgeOriginalColor : BadgeCloneColor}
+						icon={position.isOriginal ? faFirstOrder : faCreativeCommonsShare}
+					/>
 				</div>
+
 				<div>
 					<div className="text-sm font-bold text-text-subheader w-16 text-center">{position.collateralSymbol}</div>
 				</div>

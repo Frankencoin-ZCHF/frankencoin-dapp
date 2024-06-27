@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Link from "next/link";
 import MypositionsCollateral from "@components/PageMypositions/MypositionsCollateral";
-import MypositionsTable from "@components/PageMypositions/MypositionsTable";
+import SupervisionTable from "@components/PageSupervision/SupervisionTable";
 
 export default function Positions() {
 	return (
@@ -12,7 +12,10 @@ export default function Positions() {
 
 			<div className="mt-8">
 				<MypositionsCollateral />
-				<MypositionsTable />
+			</div>
+
+			<div className="mt-8">
+				<SupervisionTable showMyPos />
 			</div>
 
 			<div className="flex">

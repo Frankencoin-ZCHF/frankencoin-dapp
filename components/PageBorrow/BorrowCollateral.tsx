@@ -1,10 +1,10 @@
 import { useSelector } from "react-redux";
-import { PositionQuery } from "../../redux/slices/positions.types";
 import { RootState } from "../../redux/redux.store";
 import TokenLogo from "@components/TokenLogo";
 import { PriceQueryObjectArray } from "../../redux/slices/prices.types";
 import { Address } from "viem/accounts";
 import { formatCurrency } from "../../utils/format";
+import { PositionQuery } from "@frankencoin/api";
 
 export type CollateralItem = {
 	collateral: {

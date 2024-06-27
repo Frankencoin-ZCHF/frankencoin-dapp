@@ -5,9 +5,9 @@ import { useAccount, useChainId } from "wagmi";
 import { ADDRESS } from "../../contracts/address";
 import Link from "next/link";
 import { Badge } from "flowbite-react";
-import { PositionQuery } from "../../redux/slices/positions.types";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
+import { PositionQuery } from "@frankencoin/api";
 
 interface Props {
 	position: PositionQuery;

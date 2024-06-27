@@ -50,7 +50,7 @@ export default function ChallengePlaceBid({}) {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
 
-		if (valueBigInt > positionStats.collateralUserBal) {
+		if (valueBigInt > positionStats.frankenBalance) {
 			setError("Not enough balance in your wallet.");
 		} else if (valueBigInt > remainingCol) {
 			setError("Expected winning collateral should be lower than remaining collateral.");
@@ -161,7 +161,7 @@ export default function ChallengePlaceBid({}) {
 							<div className="space-y-4">
 								<TokenInput
 									label="You are buying"
-									max={min(positionStats.collateralUserBal, remainingCol)}
+									max={positionStats.frankenBalance}
 									value={amount.toString()}
 									onChange={onChangeAmount}
 									digit={positionStats.collateralDecimal}

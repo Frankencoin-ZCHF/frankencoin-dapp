@@ -1,10 +1,12 @@
 import { useSelector } from "react-redux";
-import { PositionQuery } from "../../redux/slices/positions.types";
+import { PositionQuery } from "@frankencoin/api";
 import { RootState } from "../../redux/redux.store";
 import TokenLogo from "@components/TokenLogo";
 import { PriceQueryObjectArray } from "../../redux/slices/prices.types";
 import { Address } from "viem/accounts";
 import { formatCurrency } from "../../utils/format";
+import { useAccount } from "wagmi";
+import { zeroAddress } from "viem";
 
 export type CollateralItem = {
 	collateral: {
@@ -38,9 +40,16 @@ export type CollateralItem = {
 	};
 };
 
-export function PositionCollateralCalculate(listByCollateral: PositionQuery[][], prices: PriceQueryObjectArray): CollateralItem[] {
+export function SupervisionCollateralCalculate(
+	listByCollateral: PositionQuery[][],
+	owner: Address,
+	prices: PriceQueryObjectArray
+): CollateralItem[] {
 	const stats: CollateralItem[] = [];
 	for (let positions of listByCollateral) {
+		const verifiedPositions = positions.filter((p) => p.owner.toLowerCase() !== owner.toLowerCase());
+		if (verifiedPositions.length === 0) continue;
+
 		const original = positions.at(0) as PositionQuery;
 		const collateral = prices[original!.collateral.toLowerCase() as Address];
 		const mint = prices[original!.zchf.toLowerCase() as Address];
@@ -51,7 +60,7 @@ export function PositionCollateralCalculate(listByCollateral: PositionQuery[][],
 		let limitForClones = 0;
 		let availableForClones = 0;
 
-		for (let pos of positions) {
+		for (let pos of verifiedPositions) {
 			balance += parseInt(pos.collateralBalance);
 			if (pos.isOriginal) {
 				limitForClones += parseInt(pos.limitForClones) / 10 ** pos.zchfDecimals;
@@ -62,7 +71,7 @@ export function PositionCollateralCalculate(listByCollateral: PositionQuery[][],
 		balance = balance / 10 ** collateral.decimals;
 		const valueLockedUsd = Math.round(balance * collateral.price.usd);
 		const highestZCHFPrice =
-			Math.round(Math.max(...positions.map((p) => (parseInt(p.price) * 10000) / 10 ** (36 - p.collateralDecimals)))) / 10000;
+			Math.round(Math.max(...verifiedPositions.map((p) => (parseInt(p.price) * 10000) / 10 ** (36 - p.collateralDecimals)))) / 10000;
 
 		const collateralizedPct = Math.round((collateral.price.usd / (highestZCHFPrice * mint.price.usd)) * 10000) / 100;
 		const availableForClonesPct = Math.round((availableForClones / limitForClones) * 10000) / 100;
@@ -70,12 +79,12 @@ export function PositionCollateralCalculate(listByCollateral: PositionQuery[][],
 		const minted = Math.round(limitForClones - availableForClones);
 		const collateralPriceInZCHF = Math.round((collateral.price.usd / mint.price.usd) * 100) / 100;
 		const worstStatus =
-			collateralizedPct < 100
-				? `Danger, blow ${collateralizedPct}% collaterized`
+			collateralizedPct < 110
+				? `Danger, ${collateralizedPct}% collaterized`
 				: collateralizedPct < 150
 				? `Warning, ${collateralizedPct}% collaterized`
 				: `Safe, ${collateralizedPct}% collaterized`;
-		const worstStatusColors = collateralizedPct < 100 ? "bg-red-500" : collateralizedPct < 150 ? "bg-orange-400" : "bg-green-500";
+		const worstStatusColors = collateralizedPct < 110 ? "bg-red-500" : collateralizedPct < 150 ? "bg-orange-400" : "bg-green-500";
 
 		stats.push({
 			collateral: {
@@ -94,9 +103,9 @@ export function PositionCollateralCalculate(listByCollateral: PositionQuery[][],
 				price: mint.price.usd,
 			},
 			position: {
-				totalNum: positions.length,
-				originalNum: positions.filter((pos) => pos.isOriginal).length,
-				cloneNum: positions.filter((pos) => pos.isClone).length,
+				totalNum: verifiedPositions.length,
+				originalNum: verifiedPositions.filter((pos) => pos.isOriginal).length,
+				cloneNum: verifiedPositions.filter((pos) => pos.isClone).length,
 			},
 			ratios: {
 				highestZCHFPrice,
@@ -116,7 +125,9 @@ export function PositionCollateralCalculate(listByCollateral: PositionQuery[][],
 export default function SupervisionCollateral({ children }: { children?: React.ReactElement | React.ReactElement[] }) {
 	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
-	const stats = PositionCollateralCalculate(openPositionsByCollateral, coingecko);
+	const { address } = useAccount();
+
+	const stats = SupervisionCollateralCalculate(openPositionsByCollateral, address ?? zeroAddress, coingecko);
 
 	if (stats.length === 0) return null;
 

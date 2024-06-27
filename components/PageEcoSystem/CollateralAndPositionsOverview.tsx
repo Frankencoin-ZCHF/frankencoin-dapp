@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { PositionQuery, PositionsState } from "../../redux/slices/positions.types";
+import { PositionQuery } from "@frankencoin/api";
 import { PriceQueryObjectArray } from "../../redux/slices/prices.types";
 import TokenLogo from "../TokenLogo";
 import { formatCurrency } from "../../utils/format";
@@ -38,12 +38,12 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 		const minted = Math.round(limitForClones - availableForClones);
 		const collateralPriceInZCHF = Math.round((collateral.price.usd / mint.price.usd) * 100) / 100;
 		const worstStatus =
-			collateralizedPct < 100
+			collateralizedPct < 110
 				? `Danger, ${collateralizedPct}% collaterized`
 				: collateralizedPct < 150
 				? `Warning, ${collateralizedPct}% collaterized`
 				: `Safe, ${collateralizedPct}% collaterized`;
-		const worstStatusColors = collateralizedPct < 100 ? "bg-red-500" : collateralizedPct < 150 ? "bg-orange-400" : "bg-green-500";
+		const worstStatusColors = collateralizedPct < 110 ? "bg-red-500" : collateralizedPct < 150 ? "bg-orange-400" : "bg-green-500";
 
 		stats.push({
 			original,

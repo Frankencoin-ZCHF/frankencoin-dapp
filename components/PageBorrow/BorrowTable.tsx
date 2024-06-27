@@ -5,7 +5,7 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { PositionQuery } from "../../redux/slices/positions.types";
+import { PositionQuery } from "@frankencoin/api";
 
 export default function BorrowTable() {
 	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
