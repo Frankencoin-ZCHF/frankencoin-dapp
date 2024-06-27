@@ -427,8 +427,10 @@
   dependencies:
     prop-types "^15.8.1"
 
-"@frankencoin/api@file:../api":
-  version "0.0.3"
+"@frankencoin/api@^0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@frankencoin/api/-/api-0.0.4.tgz#38a635d2497eac3132a27e1d34d359e4d586f397"
+  integrity sha512-m6MVtu2r3SNUyxpZ1aPmdMNQ81yOMLj02Q8FrC01sr5BzV9G0Ieubsw8MoX5zpVsasTXY8Q1E4OCkcnomtSqSw==
   dependencies:
     "@apollo/client" "^3.10.5"
     "@nestjs/common" "^10.0.0"
