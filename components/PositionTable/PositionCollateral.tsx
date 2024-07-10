@@ -71,11 +71,11 @@ export function PositionCollateralCalculate(listByCollateral: PositionQuery[][],
 		const collateralPriceInZCHF = Math.round((collateral.price.usd / mint.price.usd) * 100) / 100;
 		const worstStatus =
 			collateralizedPct < 100
-				? `Danger, blow ${collateralizedPct}% collaterized`
-				: collateralizedPct < 150
-				? `Warning, ${collateralizedPct}% collaterized`
-				: `Safe, ${collateralizedPct}% collaterized`;
-		const worstStatusColors = collateralizedPct < 100 ? "bg-red-500" : collateralizedPct < 150 ? "bg-orange-400" : "bg-green-500";
+				? `${collateralizedPct}% collaterized`
+				: collateralizedPct < 120
+				? `${collateralizedPct}% collaterized`
+				: `${collateralizedPct}% collaterized`;
+		const worstStatusColors = collateralizedPct < 100 ? "bg-red-300" : collateralizedPct < 120 ? "bg-blue-300" : "bg-green-300";
 
 		stats.push({
 			collateral: {
