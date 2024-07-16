@@ -1,4 +1,4 @@
-import { OwnersPositionsQueryObject, PositionQuery, PositionsQueryObject, PositionsQueryObjectArray } from "@frankencoin/api";
+import { PositionQuery, ApiPositionsListing, ApiPositionsOwners, ApiPositionsMapping } from "@frankencoin/api";
 import { Address } from "viem";
 
 // --------------------------------------------------------------------------------
@@ -6,8 +6,10 @@ export type PositionsState = {
 	error: string | null;
 	loaded: boolean;
 
-	list: PositionsQueryObject;
-	ownersPositions: OwnersPositionsQueryObject;
+	list: ApiPositionsListing;
+	mapping: ApiPositionsMapping;
+	requests: ApiPositionsMapping;
+	owners: ApiPositionsOwners;
 
 	openPositions: PositionQuery[];
 	closedPositions: PositionQuery[];
@@ -28,14 +30,19 @@ export type DispatchAddressArray = {
 	payload: Address[];
 };
 
-export type DispatchOwnersPositionsQueryObject = {
+export type DispatchApiPositionsOwners = {
 	type: string;
-	payload: OwnersPositionsQueryObject;
+	payload: ApiPositionsOwners;
 };
 
-export type DispatchPositionsQueryObjectArray = {
+export type DispatchApiPositionsListing = {
 	type: string;
-	payload: PositionsQueryObjectArray;
+	payload: ApiPositionsListing;
+};
+
+export type DispatchApiPositionsMapping = {
+	type: string;
+	payload: ApiPositionsMapping;
 };
 
 export type DispatchPositionQueryArray = {

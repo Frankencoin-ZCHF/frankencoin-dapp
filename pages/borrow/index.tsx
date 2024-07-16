@@ -16,7 +16,7 @@ export default function Borrow() {
 				<BorrowTable />
 			</div>
 			<div className="flex">
-				<Link href={"positions/create"} className="btn btn-primary m-auto">
+				<Link href={"mypositions/create"} className="btn btn-primary m-auto">
 					Propose New Position or Collateral
 				</Link>
 			</div>

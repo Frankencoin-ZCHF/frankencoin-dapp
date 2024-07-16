@@ -1,8 +1,7 @@
 import { useSelector } from "react-redux";
-import { PositionQuery } from "@frankencoin/api";
+import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import { RootState } from "../../redux/redux.store";
 import TokenLogo from "@components/TokenLogo";
-import { PriceQueryObjectArray } from "../../redux/slices/prices.types";
 import { Address } from "viem/accounts";
 import { formatCurrency } from "../../utils/format";
 import { useAccount } from "wagmi";
@@ -64,6 +63,8 @@ export function MypositionsCollateralCalculate(list: PositionQuery[][], owner: A
 			}
 		}
 
+		if (!collateral.price.usd || !mint.price.usd) continue;
+
 		balance = balance / 10 ** collateral.decimals;
 		const valueLockedUsd = Math.round(balance * collateral.price.usd);
 		const highestZCHFPrice =
@@ -80,7 +81,7 @@ export function MypositionsCollateralCalculate(list: PositionQuery[][], owner: A
 				: collateralizedPct < 150
 				? `Warning, ${collateralizedPct}% collaterized`
 				: `Safe, ${collateralizedPct}% collaterized`;
-		const worstStatusColors = collateralizedPct < 110 ? "bg-red-500" : collateralizedPct < 150 ? "bg-orange-400" : "bg-green-500";
+		const worstStatusColors = collateralizedPct < 100 ? "bg-red-300" : collateralizedPct < 120 ? "bg-blue-300" : "bg-green-300";
 
 		stats.push({
 			collateral: {

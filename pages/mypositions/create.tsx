@@ -24,12 +24,13 @@ export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
 	const [initialCollAmount, setInitialCollAmount] = useState(0n);
 	const [limitAmount, setLimitAmount] = useState(1_000_000n * BigInt(1e18));
-	const [initPeriod, setInitPeriod] = useState(5n);
+	const [proposalFee, setProposalFee] = useState(1000n);
+	const [initPeriod, setInitPeriod] = useState(1000n);
 	const [liqPrice, setLiqPrice] = useState(0n);
 	const [interest, setInterest] = useState(30000n);
 	const [maturity, setMaturity] = useState(12n);
 	const [buffer, setBuffer] = useState(200000n);
-	const [auctionDuration, setAuctionDuration] = useState(24n);
+	const [auctionDuration, setAuctionDuration] = useState(1000n);
 	const [collateralAddress, setCollateralAddress] = useState("");
 	const [minCollAmountError, setMinCollAmountError] = useState("");
 	const [initialCollAmountError, setInitialCollAmountError] = useState("");
@@ -63,6 +64,11 @@ export default function PositionCreate({}) {
 			setCollTokenAddrError("");
 		}
 	}, [collateralAddress, collTokenData]);
+
+	const onChangeProposalFee = (value: string) => {
+		const valueBigInt = BigInt(value);
+		setProposalFee(valueBigInt);
+	};
 
 	const onChangeMinCollAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
@@ -117,7 +123,7 @@ export default function PositionCreate({}) {
 	const onChangeInitPeriod = (value: string) => {
 		const valueBigInt = BigInt(value);
 		setInitPeriod(valueBigInt);
-		if (valueBigInt < 3n) {
+		if (valueBigInt < 0n) {
 			setInitError("Initialization Period must be at least 3 days.");
 		} else {
 			setInitError("");
@@ -131,7 +137,7 @@ export default function PositionCreate({}) {
 	};
 
 	function checkCollateralAmount(coll: bigint, price: bigint) {
-		if (coll * price < 5000n * 10n ** 36n) {
+		if (coll * price < 10n ** 36n) {
 			setLiqPriceError("The liquidation value of the collateral must be at least 5000 ZCHF");
 			setMinCollAmountError("The collateral must be worth at least 5000 ZCHF");
 		} else {
@@ -227,9 +233,9 @@ export default function PositionCreate({}) {
 					minCollAmount,
 					initialCollAmount,
 					limitAmount,
-					initPeriod * 86400n,
+					initPeriod,
 					maturity * 86400n * 30n,
-					auctionDuration * 3600n,
+					auctionDuration,
 					Number(interest),
 					liqPrice,
 					Number(buffer),
@@ -281,8 +287,9 @@ export default function PositionCreate({}) {
 			<div>
 				<AppPageHeader
 					title="Propose New Position Type"
-					backText="Back to positions"
-					backTo={`/positions`}
+					backText="Back to overview"
+					backTo="/"
+					backwards={true}
 					tooltip="Propose a completely new position with a collateral of your choice."
 				/>
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -293,15 +300,14 @@ export default function PositionCreate({}) {
 								label="Proposal Fee"
 								symbol="ZCHF"
 								hideMaxLabel
-								value={BigInt(1000 * 1e18).toString()}
-								onChange={onChangeInitialCollAmount}
+								value={proposalFee.toString()}
+								onChange={onChangeProposalFee}
 								digit={18}
 								error={userBalance.frankenBalance < BigInt(1000 * 1e18) ? "Not enough ZCHF" : ""}
-								disabled
 							/>
 							<NormalInput
 								label="Initialization Period"
-								symbol="days"
+								symbol="sec"
 								error={initError}
 								digit={0}
 								hideMaxLabel
@@ -428,7 +434,7 @@ export default function PositionCreate({}) {
 							/>
 							<NormalInput
 								label="Auction Duration"
-								symbol="hours"
+								symbol="sec"
 								error={auctionError}
 								hideMaxLabel
 								digit={0}

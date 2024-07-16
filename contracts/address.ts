@@ -156,9 +156,6 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
 		equity: "0x97e3bbF39138B1e7E1d06dd26E7E3b9d558b00b2",
 		mintingHub: "0xA0d6ce30a8a4eab09eD74f434dcA4Ce4169aDd03",
 		wFPS: zeroAddress,
-		// mockWbtc: "0x1b01c6b10ca8AeD4F1e0d39319aa27183BBC1578",
-		// mockLseth: "0xd54Fb4EE40ca7F0FeF1cd87AC81dE3F247776209",
-		// mockBoss: "0x7f6c45725F521e7B5b0e3357A8Ed4152c0BBd01E",
 	},
 };
 

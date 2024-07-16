@@ -1,10 +1,9 @@
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import TokenLogo from "@components/TokenLogo";
-import { PriceQueryObjectArray } from "../../redux/slices/prices.types";
 import { Address } from "viem/accounts";
 import { formatCurrency } from "../../utils/format";
-import { PositionQuery } from "@frankencoin/api";
+import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 
 export type CollateralItem = {
 	collateral: {
@@ -56,6 +55,8 @@ export function BorrowCollateralCalculate(listByCollateral: PositionQuery[][], p
 			}
 		}
 
+		if (!collateral.price.usd || !mint.price.usd) continue;
+
 		balance = balance / 10 ** collateral.decimals;
 		const valueLockedUsd = Math.round(balance * collateral.price.usd);
 
@@ -95,7 +96,7 @@ export function BorrowCollateralCalculate(listByCollateral: PositionQuery[][], p
 
 		const highestLTV = Math.max(...originalsStats.map((s) => s.effectiveLTV));
 		const highestMaturity = Math.max(...originalsStats.map((s) => s.maturity));
-		const worstStatusColors = highestMaturity < 60 ? "bg-red-500" : highestMaturity < 30 ? "bg-orange-400" : "bg-green-500";
+		const worstStatusColors = highestMaturity < 60 ? "bg-red-300" : highestMaturity < 30 ? "bg-blue-300" : "bg-green-300";
 
 		stats.push({
 			collateral: {

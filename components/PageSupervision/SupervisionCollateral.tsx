@@ -1,8 +1,7 @@
 import { useSelector } from "react-redux";
-import { PositionQuery } from "@frankencoin/api";
+import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import { RootState } from "../../redux/redux.store";
 import TokenLogo from "@components/TokenLogo";
-import { PriceQueryObjectArray } from "../../redux/slices/prices.types";
 import { Address } from "viem/accounts";
 import { formatCurrency } from "../../utils/format";
 import { useAccount } from "wagmi";
@@ -68,6 +67,8 @@ export function SupervisionCollateralCalculate(
 			}
 		}
 
+		if (!collateral.price.usd || !mint.price.usd) continue;
+
 		balance = balance / 10 ** collateral.decimals;
 		const valueLockedUsd = Math.round(balance * collateral.price.usd);
 		const highestZCHFPrice =
@@ -79,12 +80,12 @@ export function SupervisionCollateralCalculate(
 		const minted = Math.round(limitForClones - availableForClones);
 		const collateralPriceInZCHF = Math.round((collateral.price.usd / mint.price.usd) * 100) / 100;
 		const worstStatus =
-			collateralizedPct < 110
-				? `Danger, ${collateralizedPct}% collaterized`
-				: collateralizedPct < 150
-				? `Warning, ${collateralizedPct}% collaterized`
-				: `Safe, ${collateralizedPct}% collaterized`;
-		const worstStatusColors = collateralizedPct < 110 ? "bg-red-500" : collateralizedPct < 150 ? "bg-orange-400" : "bg-green-500";
+			collateralizedPct < 100
+				? `${collateralizedPct}% collaterized`
+				: collateralizedPct < 120
+				? `${collateralizedPct}% collaterized`
+				: `${collateralizedPct}% collaterized`;
+		const worstStatusColors = collateralizedPct < 100 ? "bg-red-300" : collateralizedPct < 120 ? "bg-blue-300" : "bg-green-300";
 
 		stats.push({
 			collateral: {

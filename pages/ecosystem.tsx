@@ -11,8 +11,6 @@ export default function Overview() {
 				<title>Frankencoin - EcoSystem</title>
 			</Head>
 
-			<SupervisionCollateral />
-
 			<div className="flex flex-col gap-[4rem] mt-[4rem]">
 				<StableCoinBridgeXCHF />
 				<CollateralAndPositionsOverview />

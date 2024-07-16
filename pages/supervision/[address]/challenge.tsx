@@ -143,7 +143,7 @@ export default function PositionChallenge() {
 				<title>Frankencoin - Position Challenge</title>
 			</Head>
 			<div>
-				<AppPageHeader title="Launch a Challenge" />
+				<AppPageHeader title="Launch a Challenge" backText="Back to overview" backTo="/supervision" />
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold text-center mt-3">Challenge Details</div>
@@ -157,7 +157,7 @@ export default function PositionChallenge() {
 							label="Amount"
 							placeholder="Collateral Amount"
 						/>
-						<div className="bg-slate-900 rounded-xl p-4 grid grid-cols-6 gap-2 lg:col-span-2">
+						<div className="grid grid-cols-6 gap-2 lg:col-span-2">
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Starting Price" />
 								<DisplayAmount

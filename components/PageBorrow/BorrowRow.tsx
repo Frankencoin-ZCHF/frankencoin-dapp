@@ -27,14 +27,20 @@ export default function BorrowRow({ position }: Props) {
 	const price: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
 	const since: number = Math.round((Date.now() - position.start * 1000) / 1000 / 60 / 60 / 24);
 	const maturity: number = Math.round((position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24);
-	const maturityStatusColors = maturity < 60 ? "bg-red-500" : maturity < 30 ? "bg-orange-400" : "bg-green-500";
+	const maturityStatusColors = maturity < 60 ? "bg-red-300" : maturity < 30 ? "bg-blue-300" : "bg-green-300";
+
+	const startStr = new Date(position.start * 1000).toDateString().split(" ");
+	const startString: string = `${startStr[2]} ${startStr[1]} ${startStr[3]} (${since}d)`;
+
+	const expirationStr = new Date(position.expiration * 1000).toDateString().split(" ");
+	const expirationString: string = `${expirationStr[2]} ${expirationStr[1]} ${expirationStr[3]} (${maturity}d)`;
 
 	// effectiveLTC = liquidation price * (1 - reserve) / market price
 	const effectiveLTC: number = Math.round(((price * (1 - reserve / 100)) / collTokenPrice) * 10000) / 100;
 	const effectiveInterest: number = Math.round((interest / (1 - reserve / 100)) * 100) / 100;
 
 	return (
-		<TableRow link={`/position/${position.position}/borrow`}>
+		<TableRow link={`/borrow/position/${position.position}`}>
 			<div className="flex flex-col gap-4">
 				<div className="relative col-span-2 w-16 h-16 max-h-16 max-w-16 rounded-xl my-auto">
 					<TokenLogo currency={position.collateralSymbol.toLowerCase()} size={16} />
@@ -69,16 +75,10 @@ export default function BorrowRow({ position }: Props) {
 				<div>{formatCurrency((available / 1000) * zchfPrice, 2, 2)}k USD</div>
 			</div>
 
-			<div className="flex flex-col gap-2 -ml-2">
-				<div className={`rounded-full text-center max-h-14 max-w-[10rem] font-bold bg-layout-primary`}>
-					{new Date(position.start * 1000).toDateString()}
-				</div>
-				<div className={`rounded-full text-center max-h-14 max-w-[10rem] bg-layout-primary`}>{`(since ${since} days)`}</div>
-				<div className={`rounded-full text-center max-h-14 max-w-[10rem] text-gray-900 font-bold ${maturityStatusColors}`}>
-					<div>{new Date(position.expiration * 1000).toDateString()}</div>
-				</div>
+			<div className="flex flex-col gap-4 -ml-2">
+				<div className={`rounded-full text-center max-h-14 max-w-[10rem] bg-layout-primary`}>{startString}</div>
 				<div className={`rounded-full text-center max-h-14 max-w-[10rem] text-gray-900 ${maturityStatusColors}`}>
-					{maturity > 0 ? `(in ${maturity} days)` : "(matured)"}
+					{maturity > 0 ? expirationString : "Matured"}
 				</div>
 			</div>
 		</TableRow>

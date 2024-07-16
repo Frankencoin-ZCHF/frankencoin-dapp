@@ -1,6 +1,6 @@
 import { Address } from "viem";
 import TableRow from "../Table/TableRow";
-import { PositionQuery } from "@frankencoin/api";
+import { PositionQuery, ChallengesQueryStatus, BidsQueryItem, BidsQueryType, ChallengesQueryItem } from "@frankencoin/api";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import TokenLogo from "@components/TokenLogo";
@@ -16,6 +16,8 @@ interface Props {
 
 export default function SupervisionRow({ position, showMyPos }: Props) {
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const challenges = useSelector((state: RootState) => state.challenges.positions);
+	const bids = useSelector((state: RootState) => state.bids.positions);
 	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
 	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
 	if (!collTokenPrice || !zchfPrice) return null;
@@ -26,7 +28,13 @@ export default function SupervisionRow({ position, showMyPos }: Props) {
 	const price: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
 	const since: number = Math.round((Date.now() - position.start * 1000) / 1000 / 60 / 60 / 24);
 	const maturity: number = Math.round((position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24);
-	const maturityStatusColors = maturity < 60 ? "bg-red-500" : maturity < 30 ? "bg-orange-400" : "bg-green-500";
+	const maturityStatusColors = maturity < 60 ? "bg-red-300" : maturity < 30 ? "bg-blue-300" : "bg-green-300";
+
+	const startStr = new Date(position.start * 1000).toDateString().split(" ");
+	const startString: string = `${startStr[2]} ${startStr[1]} ${startStr[3]} (${since}d)`;
+
+	const expirationStr = new Date(position.expiration * 1000).toDateString().split(" ");
+	const expirationString: string = `${expirationStr[2]} ${expirationStr[1]} ${expirationStr[3]} (${maturity}d)`;
 
 	const balance: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
 	const ballanceZCHF: number = Math.round(((balance * collTokenPrice) / zchfPrice) * 100) / 100;
@@ -35,15 +43,22 @@ export default function SupervisionRow({ position, showMyPos }: Props) {
 	const loanZCHF: number = Math.round((parseInt(position.minted) / 10 ** position.zchfDecimals) * 100) / 100;
 	const loanUSD: number = Math.round(loanZCHF * zchfPrice * 100) / 100;
 	const loanPct: number = Math.round((loanZCHF / ballanceZCHF) * 10000) / 100;
-	const loanStatusColors = loanPct > 90 ? "bg-red-500" : loanPct > 70 ? "bg-orange-400" : "bg-green-500";
+	const loanStatusColors = loanPct > 100 ? "bg-red-300" : loanPct > 10000 / 120 ? "bg-blue-300" : "bg-green-300";
 
 	const liquidationZCHF: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
 	const liquidationUSD: number = Math.round(liquidationZCHF * zchfPrice * 100) / 100;
 	const liquidationPct: number = Math.round((ballanceZCHF / (liquidationZCHF * balance)) * 10000) / 100;
-	const liauidationStatusColors = liquidationPct < 110 ? "bg-red-500" : liquidationPct < 150 ? "bg-orange-400" : "bg-green-500";
+	const liauidationStatusColors = liquidationPct < 100 ? "bg-red-300" : liquidationPct < 120 ? "bg-blue-300" : "bg-green-300";
+
+	const positionChallenges = challenges.map[position.position.toLowerCase() as Address] ?? [];
+	const positionChallengesActive = positionChallenges.filter((ch: ChallengesQueryItem) => ch.status == "Active") ?? [];
+
+	const positionChallengesBids = bids.map[position.position.toLowerCase() as Address] ?? [];
+	const positionBidsAverted = positionChallengesBids.filter((b: BidsQueryItem) => b.bidType == "Averted");
+	const positionBidsSucceeded = positionChallengesBids.filter((b: BidsQueryItem) => b.bidType == "Succeeded");
 
 	return (
-		<TableRow link={`/position/${position.position}/${showMyPos ? "adjust" : "challenge"}`}>
+		<TableRow link={showMyPos ? `/mypositions/${position.position}/adjust` : `/supervision/${position.position}/challenge`}>
 			{/* Collateral */}
 			<div className="flex flex-col gap-4">
 				<div className="relative col-span-2 w-16 h-16 max-h-16 max-w-16 rounded-xl my-auto">
@@ -73,7 +88,7 @@ export default function SupervisionRow({ position, showMyPos }: Props) {
 			{/* Loan Value */}
 			<div className="flex flex-col gap-2">
 				<div className={`rounded-full text-center max-h-14 max-w-[8rem] font-bold text-gray-900 ${loanStatusColors}`}>
-					{loanPct}%
+					{!isNaN(loanPct) ? loanPct : "-.--"}%
 				</div>
 				<div className="col-span-2 text-md text-text-subheader">
 					{formatCurrency(loanZCHF, 2, 2)} {position.zchfSymbol}
@@ -84,7 +99,7 @@ export default function SupervisionRow({ position, showMyPos }: Props) {
 			{/* Liquidation */}
 			<div className="flex flex-col gap-2">
 				<div className={`rounded-full text-center max-h-14 max-w-[8rem] font-bold text-gray-900 ${liauidationStatusColors}`}>
-					{liquidationPct}%
+					{!isNaN(liquidationPct) ? liquidationPct : "-.--"}%
 				</div>
 				<div className="col-span-2 text-md text-text-subheader">
 					{formatCurrency(liquidationZCHF, 2, 2)} {position.zchfSymbol}
@@ -93,24 +108,18 @@ export default function SupervisionRow({ position, showMyPos }: Props) {
 			</div>
 
 			{/* Challenges */}
-			<div className="flex flex-col gap-2 -ml-2">
-				<div className={`rounded-full text-center max-h-14 max-w-[8rem] font-bold`}>[in dev.]</div>
-				{/* <div className={`rounded-full text-center max-h-14 max-w-[8rem] font-bold text-gray-900 ${maturityStatusColors}`}>-- %</div>
-				<div className="col-span-2 text-md text-text-subheader">-- {position.zchfSymbol}</div>
-				<div className="col-span-2 text-md text-text-subheader">-- USD</div> */}
+			<div className="flex flex-col">
+				<div className="col-span-2 text-md text-text-subheader">Active: {positionChallengesActive.length}</div>
+				<div className="col-span-2 text-md text-text-subheader">Total: {positionChallenges.length}</div>
+				<div className="col-span-2 text-md text-text-subheader mt-2">Averted: {positionBidsAverted.length}</div>
+				<div className="col-span-2 text-md text-text-subheader">Succeeded: {positionBidsSucceeded.length}</div>
 			</div>
 
 			{/* Maturity */}
-			<div className="flex flex-col gap-2 -ml-2">
-				<div className={`rounded-full text-center max-h-14 max-w-[10rem] font-bold bg-layout-primary`}>
-					{new Date(position.start * 1000).toDateString()}
-				</div>
-				<div className={`rounded-full text-center max-h-14 max-w-[10rem] bg-layout-primary`}>{`(since ${since} days)`}</div>
-				<div className={`rounded-full text-center max-h-14 max-w-[10rem] text-gray-900 font-bold ${maturityStatusColors}`}>
-					<div>{new Date(position.expiration * 1000).toDateString()}</div>
-				</div>
+			<div className="flex flex-col gap-4 -ml-2">
+				<div className={`rounded-full text-center max-h-14 max-w-[10rem] bg-layout-primary`}>{startString}</div>
 				<div className={`rounded-full text-center max-h-14 max-w-[10rem] text-gray-900 ${maturityStatusColors}`}>
-					{maturity > 0 ? `(in ${maturity} days)` : "(matured)"}
+					{maturity > 0 ? expirationString : "Matured"}
 				</div>
 			</div>
 		</TableRow>

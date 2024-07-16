@@ -2,16 +2,22 @@ import { configureStore } from "@reduxjs/toolkit";
 import { combineReducers } from "redux";
 
 // splices
+import { reducer as accountReducer } from "./slices/account.slice";
+import { reducer as ecosystemReducer } from "./slices/ecosystem.slice";
 import { reducer as positionReducer } from "./slices/positions.slice";
 import { reducer as pricesReducer } from "./slices/prices.slice";
-import { reducer as accountReducer } from "./slices/account.slice";
+import { reducer as challengesReducer } from "./slices/challenges.slice";
+import { reducer as bidsReducer } from "./slices/bids.slice";
 
 // store with combined reducers
 export const store = configureStore({
 	reducer: combineReducers({
+		account: accountReducer,
+		ecosystem: ecosystemReducer,
 		positions: positionReducer,
 		prices: pricesReducer,
-		account: accountReducer,
+		challenges: challengesReducer,
+		bids: bidsReducer,
 	}),
 });
 

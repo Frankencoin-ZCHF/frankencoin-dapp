@@ -17,7 +17,10 @@ import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import DisplayLabel from "@components/DisplayLabel";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { WAGMI_CONFIG } from "../../../../app.config";
+import { WAGMI_CONFIG } from "../../../app.config";
+import { RootState } from "../../../redux/redux.store";
+import { stat } from "fs";
+import { useSelector } from "react-redux";
 
 export default function ChallengePlaceBid({}) {
 	const [amount, setAmount] = useState(0n);
@@ -26,7 +29,10 @@ export default function ChallengePlaceBid({}) {
 	const [isBidding, setBidding] = useState(false);
 
 	const router = useRouter();
-	const { address, index } = router.query;
+	const { index } = router.query;
+	const { list } = useSelector((state: RootState) => state.challenges.list);
+	const ch = list.find((c) => c.number.toString() === index);
+	const address = list.find((c) => c.number.toString() === index)?.position;
 	const position = getAddress(String(address || zeroAddress));
 	const challengeIndex = parseInt(String(index) || "0");
 
@@ -153,7 +159,7 @@ export default function ChallengePlaceBid({}) {
 				<title>Frankencoin - Place Bid</title>
 			</Head>
 			<div>
-				<AppPageHeader title="Place your bid" backText="Back to position" backTo={`/position/${address}`} />
+				<AppPageHeader title="Place your bid" backText="Back to overview" backTo={`/challenges`} />
 				<section className="mx-auto max-w-2xl sm:px-8">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold text-center mt-3">Bid Details</div>
@@ -161,20 +167,21 @@ export default function ChallengePlaceBid({}) {
 							<div className="space-y-4">
 								<TokenInput
 									label="You are buying"
-									max={positionStats.collateralBal}
+									max={BigInt(parseInt(ch!.size.toString()) - parseInt(ch!.filledSize.toString()))}
 									value={amount.toString()}
 									onChange={onChangeAmount}
 									digit={positionStats.collateralDecimal}
 									symbol={positionStats.collateralSymbol}
 									error={error}
 									placeholder="Collateral Amount"
+									balanceLabel="Remaining Auction Size"
 								/>
 								<div className="flex flex-col gap-1">
 									<span>Expected total price: {formatUnits(expectedZCHF(), 18)} ZCHF</span>
 								</div>
 							</div>
 						</div>
-						<div className="bg-slate-900 rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-2 lg:col-span-2">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:col-span-2">
 							<AppBox>
 								<DisplayLabel label="Remaining Collateral" />
 								<DisplayAmount

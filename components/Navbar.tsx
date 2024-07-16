@@ -12,13 +12,13 @@ export function NavItems() {
 				<NavButton to="/borrow" name="Borrow" />
 			</li>
 			<li>
-				<NavButton to="/positions" name="My Positions" />
+				<NavButton to="/mypositions" name="My Positions" />
 			</li>
 			<li>
 				<NavButton to="/supervision" name="Supervision" />
 			</li>
 			<li>
-				<NavButton to="/auctions" name="Auctions" />
+				<NavButton to="/challenges" name="Challenges" />
 			</li>
 			<li>
 				<NavButton to="/pool" name="Equity" />
@@ -29,11 +29,11 @@ export function NavItems() {
 			<li>
 				<NavButton to="/swap" name="Swap" />
 			</li>
-			{!isMainet && (
-				<li>
-					<NavButton to="/faucet" name="Faucet" />
-				</li>
-			)}
+			{/* {!isMainet && (
+					<li>
+						<NavButton to="/faucet" name="Faucet" />
+					</li>
+				)} */}
 		</>
 	);
 }

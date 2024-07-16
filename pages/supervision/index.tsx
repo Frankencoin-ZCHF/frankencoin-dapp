@@ -1,25 +1,23 @@
 import Head from "next/head";
+import AppPageHeader from "@components/AppPageHeader";
 import Link from "next/link";
-import MypositionsCollateral from "@components/PageMypositions/MypositionsCollateral";
+import SupervisionCollateral from "@components/PageSupervision/SupervisionCollateral";
 import SupervisionTable from "@components/PageSupervision/SupervisionTable";
 
 export default function Positions() {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Positions</title>
+				<title>Frankencoin - Supervision</title>
 			</Head>
 
 			<div className="mt-8">
-				<MypositionsCollateral />
-			</div>
-
-			<div className="mt-8">
-				<SupervisionTable showMyPos />
+				<SupervisionCollateral />
+				<SupervisionTable />
 			</div>
 
 			<div className="flex">
-				<Link href={"positions/create"} className="btn btn-primary m-auto">
+				<Link href={"mypositions/create"} className="btn btn-primary m-auto">
 					Propose New Position Type
 				</Link>
 			</div>

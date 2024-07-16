@@ -1,7 +1,6 @@
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { PositionQuery } from "@frankencoin/api";
-import { PriceQueryObjectArray } from "../../redux/slices/prices.types";
+import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import TokenLogo from "../TokenLogo";
 import { formatCurrency } from "../../utils/format";
 import { Address } from "viem/accounts";
@@ -27,6 +26,8 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 			}
 		}
 
+		if (!collateral.price.usd || !mint.price.usd) continue;
+
 		balance = balance / 10 ** collateral.decimals;
 		const valueLocked = Math.round(balance * collateral.price.usd);
 		const highestZCHFPrice =
@@ -38,12 +39,12 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 		const minted = Math.round(limitForClones - availableForClones);
 		const collateralPriceInZCHF = Math.round((collateral.price.usd / mint.price.usd) * 100) / 100;
 		const worstStatus =
-			collateralizedPct < 110
+			collateralizedPct < 100
 				? `Danger, ${collateralizedPct}% collaterized`
-				: collateralizedPct < 150
-				? `Warning, ${collateralizedPct}% collaterized`
-				: `Safe, ${collateralizedPct}% collaterized`;
-		const worstStatusColors = collateralizedPct < 110 ? "bg-red-500" : collateralizedPct < 150 ? "bg-orange-400" : "bg-green-500";
+				: collateralizedPct < 120
+				? `${collateralizedPct}% collaterized`
+				: `${collateralizedPct}% collaterized`;
+		const worstStatusColors = collateralizedPct < 100 ? "bg-red-300" : collateralizedPct < 120 ? "bg-blue-300" : "bg-green-300";
 
 		stats.push({
 			original,
@@ -125,7 +126,7 @@ export default function CollateralAndPositionsOverview() {
 						<span className="front-bold font-semibold text-card-content-highlight">
 							{formatCurrency(stat.collateralPriceInZCHF.toString(), 2)} ZCHF/{stat.collateral.symbol}
 						</span>{" "}
-						or {formatCurrency(stat.collateral.price.usd.toString(), 2)} USD/{stat.collateral.symbol}.
+						or {formatCurrency((stat.collateral.price.usd ?? "0").toString(), 2)} USD/{stat.collateral.symbol}.
 					</div>
 
 					<div
