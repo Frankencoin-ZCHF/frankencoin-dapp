@@ -1,62 +1,128 @@
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { formatUnits, maxUint256, getAddress, zeroAddress, erc20Abi, Address } from "viem";
 import { usePositionStats } from "@hooks";
-import Link from "next/link";
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
-import { abs, formatBigInt, shortenAddress } from "@utils";
+import { abs, formatBigInt, formatCurrency, shortenAddress } from "@utils";
 import Button from "@components/Button";
-import { useAccount, useChainId } from "wagmi";
-import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { useAccount, useBlockNumber, useChainId } from "wagmi";
+import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { WAGMI_CONFIG } from "../../../app.config";
+import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/redux.store";
+import { PositionQuery } from "@frankencoin/api";
 
 export default function PositionAdjust() {
-	const router = useRouter();
-	const { address: positionAddr } = router.query;
-	const { address } = useAccount();
-	const chainId = useChainId();
-	const position = getAddress(String(positionAddr || zeroAddress));
-	const positionStats = usePositionStats(position);
-
+	const [error, setError] = useState("");
+	const [errorDate, setErrorDate] = useState("");
 	const [isApproving, setApproving] = useState(false);
 	const [isAdjusting, setAdjusting] = useState(false);
 
-	const [amount, setAmount] = useState(positionStats.minted);
-	const [collateralAmount, setCollateralAmount] = useState(positionStats.collateralBal);
-	const [liqPrice, setLiqPrice] = useState(positionStats.liqPrice);
+	const [userCollAllowance, setUserCollAllowance] = useState(0n);
+	const [userCollBalance, setUserCollBalance] = useState(0n);
+	const [userFrankBalance, setUserFrankBalance] = useState(0n);
 
-	const maxRepayable = (1_000_000n * positionStats.frankenBalance) / (1_000_000n - positionStats.reserveContribution);
-	const repayPosition = maxRepayable > positionStats.minted ? 0n : positionStats.minted - maxRepayable;
+	const { data } = useBlockNumber({ watch: true });
+	const account = useAccount();
+	const router = useRouter();
 
+	const chainId = useChainId();
+	const addressQuery: Address = router.query.address as Address;
+
+	const positions = useSelector((state: RootState) => state.positions.list.list);
+	const position = positions.find((p) => p.position == addressQuery) as PositionQuery;
+
+	const [amount, setAmount] = useState<bigint>(BigInt(position.minted));
+	const [collateralAmount, setCollateralAmount] = useState<bigint>(BigInt(position.collateralBalance));
+	const [liqPrice, setLiqPrice] = useState<bigint>(BigInt(position?.price ?? 0n));
+
+	// ---------------------------------------------------------------------------
+	useEffect(() => {
+		const acc: Address | undefined = account.address;
+		const fc: Address = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
+		if (acc === undefined) return;
+		if (!position || !position.collateral) return;
+
+		const fetchAsync = async function () {
+			const _balanceFrank = await readContract(WAGMI_CONFIG, {
+				address: ADDRESS[WAGMI_CHAIN.id].frankenCoin,
+				abi: erc20Abi,
+				functionName: "balanceOf",
+				args: [acc],
+			});
+			setUserFrankBalance(_balanceFrank);
+
+			const _balanceColl = await readContract(WAGMI_CONFIG, {
+				address: position.collateral,
+				abi: erc20Abi,
+				functionName: "balanceOf",
+				args: [acc],
+			});
+			setUserCollBalance(_balanceColl);
+
+			const _allowanceColl = await readContract(WAGMI_CONFIG, {
+				address: position.collateral,
+				abi: erc20Abi,
+				functionName: "allowance",
+				args: [acc, position.position],
+			});
+			setUserCollAllowance(_allowanceColl);
+		};
+
+		fetchAsync();
+	}, [data, account.address, position]);
+
+	// ---------------------------------------------------------------------------
+	if (!position) return null;
+
+	const maxRepayable = (1_000_000n * userFrankBalance) / (1_000_000n - BigInt(position.reserveContribution));
+
+	const dec: number = position.collateralDecimals;
+	const maxMintPrice: bigint = dec == 18 ? BigInt(position.price) : BigInt(position.price.slice(0, -(18 - dec)));
+	const maxMintableRaw: bigint = BigInt((maxMintPrice * BigInt(position.collateralBalance)).toString().slice(0, -dec));
+	const maxMintableAdj: number = parseInt(maxMintableRaw.toString()) / 10 ** 18;
+
+	console.log({
+		pr: position.price,
+		maxMintPrice,
+		maxMintableRaw,
+		maxMintableAdj,
+	});
+
+	const repayPosition = maxRepayable > BigInt(position.minted) ? 0n : BigInt(position.minted) - maxRepayable;
+
+	// ---------------------------------------------------------------------------
 	const paidOutAmount = () => {
-		if (amount > positionStats.minted) {
+		if (amount > BigInt(position.minted)) {
 			return (
-				((amount - positionStats.minted) * (1_000_000n - positionStats.reserveContribution - positionStats.mintingFee)) / 1_000_000n
+				((amount - BigInt(position.minted)) *
+					(1_000_000n - BigInt(position.reserveContribution) - BigInt(position.annualInterestPPM))) /
+				1_000_000n
 			);
 		} else {
-			return amount - positionStats.minted - returnFromReserve();
+			return amount - BigInt(position.minted) - returnFromReserve();
 		}
 	};
 
 	const returnFromReserve = () => {
-		return (positionStats.reserveContribution * (amount - positionStats.minted)) / 1_000_000n;
+		return (BigInt(position.reserveContribution) * (amount - BigInt(position.minted))) / 1_000_000n;
 	};
 
 	const collateralNote =
-		collateralAmount < positionStats.collateralBal
-			? `${formatUnits(abs(collateralAmount - positionStats.collateralBal), positionStats.collateralDecimal)} ${
-					positionStats.collateralSymbol
+		collateralAmount < BigInt(position.collateralBalance)
+			? `${formatUnits(abs(collateralAmount - BigInt(position.collateralBalance)), position.collateralDecimals)} ${
+					position.collateralSymbol
 			  } sent back to your wallet`
-			: collateralAmount > positionStats.collateralBal
-			? `${formatUnits(abs(collateralAmount - positionStats.collateralBal), positionStats.collateralDecimal)} ${
-					positionStats.collateralSymbol
+			: collateralAmount > BigInt(position.collateralBalance)
+			? `${formatUnits(abs(collateralAmount - BigInt(position.collateralBalance)), position.collateralDecimals)} ${
+					position.collateralSymbol
 			  } taken from your wallet`
 			: "";
 
@@ -69,26 +135,21 @@ export default function PositionAdjust() {
 	};
 
 	function getCollateralError() {
-		if (collateralAmount - positionStats.collateralBal > positionStats.collateralUserBal) {
-			return `Insufficient ${positionStats.collateralSymbol} in your wallet.`;
+		if (collateralAmount - BigInt(position.collateralBalance) > userCollBalance) {
+			return `Insufficient ${position.collateralSymbol} in your wallet.`;
 		} else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
 			return "Not enough collateral for the given price and mint amount.";
 		}
 	}
 
-	/* <div
-            className={`flex gap-2 items-center cursor-pointer`}
-            onClick={() => setAmount(positionStats.limit)}
-          >This position is limited to {formatUnits(positionStats.limit, 18)} ZCHF </div>)
- */
 	function getAmountError() {
-		if (amount > positionStats.limit) {
-			return `This position is limited to ${formatUnits(positionStats.limit, 18)} ZCHF`;
-		} else if (-paidOutAmount() > positionStats.frankenBalance) {
+		if (amount - BigInt(position.minted) > maxMintableRaw) {
+			return `This position is limited to ${formatCurrency(maxMintableAdj, 2, 2)} ZCHF`;
+		} else if (-paidOutAmount() > userFrankBalance) {
 			return "Insufficient ZCHF in wallet";
 		} else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
 			return `Can mint at most ${formatUnits((collateralAmount * liqPrice) / 10n ** 36n, 0)} ZCHF given price and collateral.`;
-		} else if (positionStats.liqPrice * collateralAmount < amount * 10n ** 18n) {
+		} else if (BigInt(position.price) * collateralAmount < amount * 10n ** 18n) {
 			return "Amount can only be increased after new price has gone through cooldown.";
 		} else {
 			return "";
@@ -105,20 +166,20 @@ export default function PositionAdjust() {
 			setApproving(true);
 
 			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: positionStats.collateral as Address,
+				address: position.collateral as Address,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [position, maxUint256],
+				args: [position.position, maxUint256],
 			});
 
 			const toastContent = [
 				{
 					title: "Amount:",
-					value: "infinite " + positionStats.collateralSymbol,
+					value: "infinite " + position.collateralSymbol,
 				},
 				{
 					title: "Spender: ",
-					value: shortenAddress(position),
+					value: shortenAddress(position.position),
 				},
 				{
 					title: "Transaction:",
@@ -128,10 +189,10 @@ export default function PositionAdjust() {
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Approving ${positionStats.collateralSymbol}`} rows={toastContent} />,
+					render: <TxToast title={`Approving ${position.collateralSymbol}`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`Successfully Approved ${positionStats.collateralSymbol}`} rows={toastContent} />,
+					render: <TxToast title={`Successfully Approved ${position.collateralSymbol}`} rows={toastContent} />,
 				},
 				error: {
 					render(error: any) {
@@ -148,7 +209,7 @@ export default function PositionAdjust() {
 		try {
 			setAdjusting(true);
 			const adjustWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: position,
+				address: position.position,
 				abi: ABIS.PositionABI,
 				functionName: "adjust",
 				args: [amount, collateralAmount, liqPrice],
@@ -161,11 +222,11 @@ export default function PositionAdjust() {
 				},
 				{
 					title: "Collateral Amount:",
-					value: formatBigInt(collateralAmount, positionStats.collateralDecimal),
+					value: formatBigInt(collateralAmount, position.collateralDecimals),
 				},
 				{
 					title: "Liquidation Price:",
-					value: formatBigInt(liqPrice, 36 - positionStats.collateralDecimal),
+					value: formatBigInt(liqPrice, 36 - position.collateralDecimals),
 				},
 				{
 					title: "Transaction:",
@@ -204,9 +265,10 @@ export default function PositionAdjust() {
 						<TokenInput
 							label="Amount"
 							symbol="ZCHF"
-							output={positionStats.closed ? "0" : ""}
-							balanceLabel="Min:"
-							max={repayPosition}
+							output={position.closed ? "0" : ""}
+							balanceLabel="Max:"
+							max={maxMintableRaw}
+							digit={18}
 							value={amount.toString()}
 							onChange={onChangeAmount}
 							error={getAmountError()}
@@ -215,11 +277,11 @@ export default function PositionAdjust() {
 						<TokenInput
 							label="Collateral"
 							balanceLabel="Max:"
-							symbol={positionStats.collateralSymbol}
-							max={positionStats.collateralUserBal + positionStats.collateralBal}
+							symbol={position.collateralSymbol}
+							max={userCollBalance + BigInt(position.collateralBalance)}
 							value={collateralAmount.toString()}
 							onChange={onChangeCollAmount}
-							digit={positionStats.collateralDecimal}
+							digit={position.collateralDecimals}
 							note={collateralNote}
 							error={getCollateralError()}
 							placeholder="Collateral Amount"
@@ -228,15 +290,15 @@ export default function PositionAdjust() {
 							label="Liquidation Price"
 							balanceLabel="Current Value"
 							symbol={"ZCHF"}
-							max={positionStats.liqPrice}
+							max={BigInt(position.price)}
 							value={liqPrice.toString()}
-							digit={36 - positionStats.collateralDecimal}
+							digit={36 - position.collateralDecimals}
 							onChange={onChangeLiqAmount}
 							placeholder="Liquidation Price"
 						/>
 						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 							<GuardToAllowedChainBtn>
-								{collateralAmount - positionStats.collateralBal > positionStats.collateralPosAllowance ? (
+								{collateralAmount - BigInt(position.collateralBalance) > userCollAllowance ? (
 									<Button isLoading={isApproving} onClick={() => handleApprove()}>
 										Approve Collateral
 									</Button>
@@ -244,13 +306,13 @@ export default function PositionAdjust() {
 									<Button
 										variant="primary"
 										disabled={
-											(amount == positionStats.minted &&
-												collateralAmount == positionStats.collateralBal &&
-												liqPrice == positionStats.liqPrice) ||
+											(amount == BigInt(position.minted) &&
+												collateralAmount == BigInt(position.collateralBalance) &&
+												liqPrice == BigInt(position.price)) ||
 											!!getAmountError() ||
 											!!getCollateralError()
 										}
-										error={positionStats.owner != address ? "You can only adjust your own position" : ""}
+										error={position.owner != account.address ? "You can only adjust your own position" : ""}
 										isLoading={isAdjusting}
 										onClick={() => handleAdjust()}
 									>
@@ -265,15 +327,15 @@ export default function PositionAdjust() {
 						<div className="bg-slate-900 rounded-xl p-4 flex flex-col gap-2">
 							<div className="flex">
 								<div className="flex-1">Current minted amount</div>
-								<DisplayAmount amount={positionStats.minted} currency={"ZCHF"} address={ADDRESS[chainId].frankenCoin} />
+								<DisplayAmount amount={BigInt(position.minted)} currency={"ZCHF"} address={ADDRESS[chainId].frankenCoin} />
 							</div>
 							<div className="flex">
-								<div className="flex-1">{amount >= positionStats.minted ? "You receive" : "You return"}</div>
+								<div className="flex-1">{amount >= BigInt(position.minted) ? "You receive" : "You return"}</div>
 								<DisplayAmount amount={paidOutAmount()} currency={"ZCHF"} address={ADDRESS[chainId].frankenCoin} />
 							</div>
 							<div className="flex">
 								<div className="flex-1">
-									{amount >= positionStats.minted ? "Added to reserve on your behalf" : "Returned from reserve"}
+									{amount >= BigInt(position.minted) ? "Added to reserve on your behalf" : "Returned from reserve"}
 								</div>
 								<DisplayAmount amount={returnFromReserve()} currency={"ZCHF"} address={ADDRESS[chainId].frankenCoin} />
 							</div>
@@ -281,8 +343,8 @@ export default function PositionAdjust() {
 								<div className="flex-1">Minting fee (interest)</div>
 								<DisplayAmount
 									amount={
-										amount > positionStats.minted
-											? ((amount - positionStats.minted) * positionStats.mintingFee) / 1_000_000n
+										amount > BigInt(position.minted)
+											? ((amount - BigInt(position.minted)) * BigInt(position.annualInterestPPM)) / 1_000_000n
 											: 0n
 									}
 									currency={"ZCHF"}

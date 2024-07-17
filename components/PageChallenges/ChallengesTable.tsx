@@ -9,9 +9,9 @@ import ChallengesRow from "./ChallengesRow";
 export default function ChallengesTable() {
 	const { list } = useSelector((state: RootState) => state.challenges);
 	const matchingChallenges = list.list.filter((c) => {
-		const DIFFINMS: number = 1000 * 60 * 60 * 24 * 10; // show last 10days
+		const DIFFINMS: number = 1000 * 60 * 60 * 24 * 10; // show e.g. last 10days
 		const matching: boolean = Date.now() - parseInt(c.start.toString()) * 1000 < DIFFINMS;
-		return c.status == "Active";
+		return c.status == "Active" || matching;
 	});
 
 	return (

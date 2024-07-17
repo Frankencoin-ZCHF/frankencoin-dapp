@@ -45,7 +45,10 @@ export default function SupervisionTable({ showMyPos }: Props) {
 
 	return (
 		<Table>
-			<TableHeader headers={["Collateral", "Balance", "Borrowed", "Liq. Price", "Challenges", "Maturity"]} />
+			<TableHeader
+				headers={["Collateral", "Balance", "Borrowed", "Liq. Price", "Created"]}
+				subHeaders={["Symbol", "Market Value", "Available", "Markt Price", "Maturity"]}
+			/>
 			<TableBody>
 				{matchingPositions.length == 0 ? (
 					<TableRowEmpty>{showMyPos ? "You do not have any positions" : "There are no other positions yet."}</TableRowEmpty>

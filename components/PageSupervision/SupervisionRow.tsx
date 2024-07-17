@@ -82,38 +82,44 @@ export default function SupervisionRow({ position, showMyPos }: Props) {
 				<div className="col-span-2 text-md text-text-subheader">
 					{formatCurrency(ballanceZCHF, 2, 2)} {position.zchfSymbol}
 				</div>
-				<div className="col-span-2 text-md text-text-subheader">{formatCurrency(ballanceUSD, 2, 2)} USD</div>
+				{/* <div className="col-span-2 text-md text-text-subheader">{formatCurrency(ballanceUSD, 2, 2)} USD</div> */}
 			</div>
 
 			{/* Loan Value */}
 			<div className="flex flex-col gap-2">
-				<div className={`rounded-full text-center max-h-14 max-w-[8rem] font-bold text-gray-900 ${loanStatusColors}`}>
+				{/* <div className={`rounded-full text-center max-h-14 max-w-[8rem] font-bold text-gray-900 ${loanStatusColors}`}>
 					{!isNaN(loanPct) ? loanPct : "-.--"}%
-				</div>
-				<div className="col-span-2 text-md text-text-subheader">
+				</div> */}
+				<div className="col-span-2 text-md font-bold text-text-header">
 					{formatCurrency(loanZCHF, 2, 2)} {position.zchfSymbol}
 				</div>
-				<div className="col-span-2 text-md text-text-subheader">{formatCurrency(loanUSD, 2, 2)} USD</div>
+				<div className="col-span-2 text-md text-text-subheader">
+					{formatCurrency(balance * liquidationZCHF - loanZCHF, 2, 2)} {position.zchfSymbol}
+				</div>
+				{/* <div className="col-span-2 text-md text-text-subheader">{formatCurrency(loanUSD, 2, 2)} USD</div> */}
 			</div>
 
 			{/* Liquidation */}
 			<div className="flex flex-col gap-2">
-				<div className={`rounded-full text-center max-h-14 max-w-[8rem] font-bold text-gray-900 ${liauidationStatusColors}`}>
+				{/* <div className={`rounded-full text-center max-h-14 max-w-[8rem] font-bold text-gray-900 ${liauidationStatusColors}`}>
 					{!isNaN(liquidationPct) ? liquidationPct : "-.--"}%
-				</div>
-				<div className="col-span-2 text-md text-text-subheader">
+				</div> */}
+				<div className="col-span-2 text-md font-bold text-text-header">
 					{formatCurrency(liquidationZCHF, 2, 2)} {position.zchfSymbol}
 				</div>
-				<div className="col-span-2 text-md text-text-subheader">{formatCurrency(liquidationUSD, 2, 2)} USD</div>
+				<div className="col-span-2 text-md text-text-subheader">
+					{formatCurrency(collTokenPrice / zchfPrice, 2, 2)} {position.zchfSymbol}
+				</div>
+				{/* <div className="col-span-2 text-md text-text-subheader">{formatCurrency(liquidationUSD, 2, 2)} USD</div> */}
 			</div>
 
 			{/* Challenges */}
-			<div className="flex flex-col">
+			{/* <div className="flex flex-col">
 				<div className="col-span-2 text-md text-text-subheader">Active: {positionChallengesActive.length}</div>
-				<div className="col-span-2 text-md text-text-subheader">Total: {positionChallenges.length}</div>
-				<div className="col-span-2 text-md text-text-subheader mt-2">Averted: {positionBidsAverted.length}</div>
-				<div className="col-span-2 text-md text-text-subheader">Succeeded: {positionBidsSucceeded.length}</div>
-			</div>
+				<div className="col-span-2 text-md text-text-subheader">Total: {positionChallenges.length}</div> */}
+			{/* <div className="col-span-2 text-md text-text-subheader mt-2">Averted: {positionBidsAverted.length}</div>
+				<div className="col-span-2 text-md text-text-subheader">Succeeded: {positionBidsSucceeded.length}</div> */}
+			{/* </div> */}
 
 			{/* Maturity */}
 			<div className="flex flex-col gap-4 -ml-2">

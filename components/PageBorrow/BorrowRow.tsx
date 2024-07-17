@@ -56,30 +56,23 @@ export default function BorrowRow({ position }: Props) {
 			</div>
 
 			<div className="flex flex-col gap-2 text-text-subheader">
-				<div>{formatCurrency(effectiveLTC, 2, 2)}% LTV</div>
-				<div>{formatCurrency(reserve, 2, 2)}% Res.</div>
+				<div>{formatCurrency(effectiveLTC, 2, 2)}%</div>
+				<div>{formatCurrency(reserve, 2, 2)}%</div>
 			</div>
 
 			<div className="flex flex-col gap-2 text-text-subheader">
-				<div>{formatCurrency(effectiveInterest, 2, 2)}% Eff.</div>
-				<div>{formatCurrency(interest, 2, 2)}% Ann.</div>
+				<div>{formatCurrency(effectiveInterest, 2, 2)}%</div>
+				<div>{formatCurrency(interest, 2, 2)}%</div>
 			</div>
 
 			<div className="flex flex-col gap-2 text-text-subheader">
 				<div>{formatCurrency(price, 2, 2)} ZCHF</div>
-				<div>{formatCurrency(price * zchfPrice, 2, 2)} USD</div>
+				<div>{formatCurrency(collTokenPrice / zchfPrice, 2, 2)} ZCHF</div>
 			</div>
 
 			<div className="flex flex-col gap-2 text-text-subheader">
 				<div>{formatCurrency(available / 1000, 2, 2)}k ZCHF</div>
-				<div>{formatCurrency((available / 1000) * zchfPrice, 2, 2)}k USD</div>
-			</div>
-
-			<div className="flex flex-col gap-4 -ml-2">
-				<div className={`rounded-full text-center max-h-14 max-w-[10rem] bg-layout-primary`}>{startString}</div>
-				<div className={`rounded-full text-center max-h-14 max-w-[10rem] text-gray-900 ${maturityStatusColors}`}>
-					{maturity > 0 ? expirationString : "Matured"}
-				</div>
+				<div>{expirationString}</div>
 			</div>
 		</TableRow>
 	);

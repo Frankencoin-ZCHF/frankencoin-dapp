@@ -1,4 +1,4 @@
-import { formatBigInt } from "@utils";
+import { formatBigInt, formatCurrency } from "@utils";
 import dynamic from "next/dynamic";
 import { useContractUrl } from "../hooks/useContractUrl";
 import { zeroAddress } from "viem";
@@ -6,6 +6,8 @@ const TokenLogo = dynamic(() => import("./TokenLogo"), { ssr: false });
 
 interface Props {
 	amount: bigint;
+	subAmount?: number;
+	subCurrency?: string;
 	bold?: boolean;
 	big?: boolean;
 	noRounding?: boolean;
@@ -19,9 +21,10 @@ interface Props {
 
 export default function DisplayAmount({
 	amount,
+	subAmount,
+	subCurrency,
 	bold = false,
 	big,
-	noRounding,
 	digits = 18,
 	currency,
 	hideLogo,
@@ -57,11 +60,21 @@ export default function DisplayAmount({
 						)}
 					</span>
 				</div>
-				{usdPrice && usdPrice > 0 && (
+				{!subAmount && usdPrice && usdPrice > 0 && (
 					<div>
 						<span className="text-sm text-slate-500">
 							{formatBigInt(amount * BigInt(usdPrice * 1e18), Number(digits) + 18)} USD
 						</span>
+					</div>
+				)}
+				{!subAmount && subCurrency && (
+					<div>
+						<span className="text-sm text-slate-500">{subCurrency}</span>
+					</div>
+				)}
+				{subAmount && subCurrency && (
+					<div>
+						<span className="text-sm text-slate-500">{formatCurrency(subAmount, 2, 2) + " " + subCurrency}</span>
 					</div>
 				)}
 			</div>

@@ -4,61 +4,103 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { formatUnits, getAddress, zeroAddress, maxUint256, erc20Abi } from "viem";
 import TokenInput from "@components/Input/TokenInput";
-import { usePositionStats } from "@hooks";
 import { useState } from "react";
 import DisplayAmount from "@components/DisplayAmount";
 import Button from "@components/Button";
-import { useChainId } from "wagmi";
-import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { useAccount, useBlockNumber, useChainId } from "wagmi";
+import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
 import { Address } from "viem";
-import { formatBigInt, min, shortenAddress, toTimestamp } from "@utils";
+import { formatBigInt, formatCurrency, min, shortenAddress, toTimestamp } from "@utils";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import AppBox from "@components/AppBox";
 import DateInput from "@components/Input/DateInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { WAGMI_CONFIG } from "../../../../app.config";
+import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../../app.config";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../redux/redux.store";
 
 export default function PositionBorrow({}) {
-	const router = useRouter();
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [errorDate, setErrorDate] = useState("");
 	const [isApproving, setApproving] = useState(false);
 	const [isCloning, setCloning] = useState(false);
-	const { address: positionAddr } = router.query;
+	const [expirationDate, setExpirationDate] = useState(new Date());
+
+	const [userAllowance, setUserAllowance] = useState(0n);
+	const [userBalance, setUserBalance] = useState(0n);
+
+	const { data } = useBlockNumber({ watch: true });
+	const account = useAccount();
+	const router = useRouter();
 
 	const chainId = useChainId();
-	const position = getAddress(String(positionAddr || zeroAddress));
-	const positionStats = usePositionStats(position);
-	const [expirationDate, setExpirationDate] = useState(new Date());
-	const requiredColl =
-		positionStats.liqPrice > 0 &&
-		(BigInt(1e18) * amount + positionStats.liqPrice - 1n) / positionStats.liqPrice > positionStats.minimumCollateral
-			? (BigInt(1e18) * amount + positionStats.liqPrice - 1n) / positionStats.liqPrice
-			: positionStats.minimumCollateral;
+	const addressQuery: Address = router.query.address as Address;
+
+	const positions = useSelector((state: RootState) => state.positions.list.list);
+	const position = positions.find((p) => p.position == addressQuery);
+
+	// ---------------------------------------------------------------------------
+	useEffect(() => {
+		if (!position || position.expiration === 0) return;
+		setExpirationDate(toDate(BigInt(position.expiration)));
+	}, [position]);
 
 	useEffect(() => {
-		// to set initial date during loading
-		setExpirationDate(toDate(positionStats.expiration));
-	}, [positionStats.expiration]);
+		const acc: Address | undefined = account.address;
+		const fc: Address = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
+		if (acc === undefined) return;
+		if (!position || !position.collateral) return;
 
-	const borrowersReserveContribution = (positionStats.reserveContribution * amount) / 1_000_000n;
+		const fetchAsync = async function () {
+			const _balance = await readContract(WAGMI_CONFIG, {
+				address: position.collateral,
+				abi: erc20Abi,
+				functionName: "balanceOf",
+				args: [acc],
+			});
+			setUserBalance(_balance);
 
-	function toDate(blocktime: bigint) {
-		return new Date(Number(blocktime) * 1000);
+			const _allowance = await readContract(WAGMI_CONFIG, {
+				address: position.collateral,
+				abi: erc20Abi,
+				functionName: "allowance",
+				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHub],
+			});
+			setUserAllowance(_allowance);
+		};
+
+		fetchAsync();
+	}, [data, account.address, position]);
+
+	// ---------------------------------------------------------------------------
+	// dont continue if position not loaded correctly
+	if (!position) return null;
+
+	const requiredColl =
+		BigInt(position.price) > 0 &&
+		(BigInt(1e18) * amount + BigInt(position.price) - 1n) / BigInt(position.price) > BigInt(position.minimumCollateral)
+			? (BigInt(1e18) * amount + BigInt(position.price) - 1n) / BigInt(position.price)
+			: BigInt(position.minimumCollateral);
+
+	const borrowersReserveContribution = (BigInt(position.reserveContribution) * amount) / 1_000_000n;
+
+	function toDate(time: bigint | number | string) {
+		const v: bigint = BigInt(time);
+		return new Date(Number(v) * 1000);
 	}
 
 	// max(4 weeks, ((chosen expiration) - (current block))) * position.annualInterestPPM() / (365 days) / 1000000
 	const feePercent =
 		(BigInt(Math.max(60 * 60 * 24 * 30, Math.floor((expirationDate.getTime() - Date.now()) / 1000))) *
-			positionStats.annualInterestPPM) /
+			BigInt(position.annualInterestPPM)) /
 		BigInt(60 * 60 * 24 * 365);
 	const fees = (feePercent * amount) / 1_000_000n;
 	const paidOutToWallet = amount - borrowersReserveContribution - fees;
-	const availableAmount = positionStats.available;
-	const userValue = (positionStats.collateralUserBal * positionStats.liqPrice) / BigInt(1e18);
+	const availableAmount = BigInt(position.availableForClones);
+	const userValue = (userBalance * BigInt(position.price)) / BigInt(1e18);
 	const borrowingLimit = min(availableAmount, userValue);
 
 	const onChangeAmount = (value: string) => {
@@ -66,7 +108,7 @@ export default function PositionBorrow({}) {
 		setAmount(valueBigInt);
 		if (valueBigInt > borrowingLimit) {
 			if (availableAmount > userValue) {
-				setError(`Not enough ${positionStats.collateralSymbol} in your wallet.`);
+				setError(`Not enough ${position.collateralSymbol} in your wallet.`);
 			} else {
 				setError("Not enough ZCHF available for this position.");
 			}
@@ -76,9 +118,9 @@ export default function PositionBorrow({}) {
 	};
 
 	const onChangeCollateral = (value: string) => {
-		const valueBigInt = (BigInt(value) * positionStats.liqPrice) / BigInt(1e18);
+		const valueBigInt = (BigInt(value) * BigInt(position.price)) / BigInt(1e18);
 		if (valueBigInt > borrowingLimit) {
-			setError("Cannot mint more than " + borrowingLimit + "." + valueBigInt);
+			setError("Can not mint more than " + formatCurrency(parseInt(borrowingLimit.toString()) / 1e18, 2, 2) + " ZCHF");
 		} else {
 			setError("");
 		}
@@ -89,7 +131,7 @@ export default function PositionBorrow({}) {
 		if (!value) value = new Date();
 		const newTimestamp = toTimestamp(value);
 		const bottomLimit = toTimestamp(new Date());
-		const uppperLimit = positionStats.expiration;
+		const uppperLimit = position.expiration;
 
 		if (newTimestamp < bottomLimit || newTimestamp > uppperLimit) {
 			setErrorDate("Expiration Date should be between Now and Limit");
@@ -100,7 +142,7 @@ export default function PositionBorrow({}) {
 	};
 
 	const onMaxExpiration = () => {
-		setExpirationDate(toDate(positionStats.expiration));
+		setExpirationDate(toDate(position.expiration));
 	};
 
 	const handleApprove = async () => {
@@ -108,7 +150,7 @@ export default function PositionBorrow({}) {
 			setApproving(true);
 
 			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: positionStats.collateral as Address,
+				address: position.collateral as Address,
 				abi: erc20Abi,
 				functionName: "approve",
 				args: [ADDRESS[chainId].mintingHub, maxUint256],
@@ -117,7 +159,7 @@ export default function PositionBorrow({}) {
 			const toastContent = [
 				{
 					title: "Amount:",
-					value: "infinite " + positionStats.collateralSymbol,
+					value: "infinite " + position.collateralSymbol,
 				},
 				{
 					title: "Spender: ",
@@ -131,10 +173,10 @@ export default function PositionBorrow({}) {
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Approving ${positionStats.collateralSymbol}`} rows={toastContent} />,
+					render: <TxToast title={`Approving ${position.collateralSymbol}`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`Successfully Approved ${positionStats.collateralSymbol}`} rows={toastContent} />,
+					render: <TxToast title={`Successfully Approved ${position.collateralSymbol}`} rows={toastContent} />,
 				},
 				error: {
 					render(error: any) {
@@ -156,7 +198,7 @@ export default function PositionBorrow({}) {
 				address: ADDRESS[chainId].mintingHub,
 				abi: ABIS.MintingHubABI,
 				functionName: "clone",
-				args: [position, requiredColl, amount, BigInt(expirationTime)],
+				args: [position.position, requiredColl, amount, BigInt(expirationTime)],
 			});
 
 			const toastContent = [
@@ -166,7 +208,7 @@ export default function PositionBorrow({}) {
 				},
 				{
 					title: `Collateral: `,
-					value: formatBigInt(requiredColl, positionStats.collateralDecimal) + " " + positionStats.collateralSymbol,
+					value: formatBigInt(requiredColl, position.collateralDecimals) + " " + position.collateralSymbol,
 				},
 				{
 					title: "Transaction:",
@@ -216,24 +258,24 @@ export default function PositionBorrow({}) {
 							<TokenInput
 								label="Required Collateral"
 								balanceLabel="Your balance:"
-								max={positionStats.collateralUserBal}
-								digit={positionStats.collateralDecimal}
+								max={userBalance}
+								digit={position.collateralDecimals}
 								onChange={onChangeCollateral}
-								output={formatUnits(requiredColl, positionStats.collateralDecimal)}
-								symbol={positionStats.collateralSymbol}
+								output={formatUnits(requiredColl, position.collateralDecimals)}
+								symbol={position.collateralSymbol}
 								note={
 									`Valued at ${formatBigInt(
-										positionStats.liqPrice,
-										36 - positionStats.collateralDecimal
+										BigInt(position.price),
+										36 - position.collateralDecimals
 									)} ZCHF, minimum is ` +
-									formatBigInt(positionStats.minimumCollateral, Number(positionStats.collateralDecimal)) +
+									formatBigInt(BigInt(position.minimumCollateral), Number(position.collateralDecimals)) +
 									" " +
-									positionStats.collateralSymbol
+									position.collateralSymbol
 								}
 							/>
 							<DateInput
 								label="Expiration"
-								max={positionStats.expiration}
+								max={position.expiration}
 								value={expirationDate}
 								onChange={onChangeExpiration}
 								error={errorDate}
@@ -241,7 +283,7 @@ export default function PositionBorrow({}) {
 						</div>
 						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 							<GuardToAllowedChainBtn>
-								{requiredColl > positionStats.collateralAllowance ? (
+								{requiredColl > userAllowance ? (
 									<Button disabled={amount == 0n || !!error} isLoading={isApproving} onClick={() => handleApprove()}>
 										Approve
 									</Button>
@@ -252,11 +294,11 @@ export default function PositionBorrow({}) {
 										isLoading={isCloning}
 										onClick={() => handleClone()}
 										error={
-											requiredColl < positionStats.minimumCollateral
+											requiredColl < BigInt(position.minimumCollateral)
 												? "A position must have at least " +
-												  formatBigInt(positionStats.minimumCollateral, Number(positionStats.collateralDecimal)) +
+												  formatBigInt(BigInt(position.minimumCollateral), position.collateralDecimals) +
 												  " " +
-												  positionStats.collateralSymbol
+												  position.collateralSymbol
 												: ""
 										}
 									>

@@ -26,9 +26,11 @@ export function NavItems() {
 			<li>
 				<NavButton to="/governance" name="Governance" />
 			</li>
-			<li>
-				<NavButton to="/swap" name="Swap" />
-			</li>
+			{isMainet && (
+				<li>
+					<NavButton to="/swap" name="Swap" />
+				</li>
+			)}
 			{/* {!isMainet && (
 					<li>
 						<NavButton to="/faucet" name="Faucet" />

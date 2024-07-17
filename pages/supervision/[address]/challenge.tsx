@@ -5,45 +5,90 @@ import AppPageHeader from "@components/AppPageHeader";
 import Button from "@components/Button";
 import DisplayAmount from "@components/DisplayAmount";
 import TokenInput from "@components/Input/TokenInput";
-import { usePositionStats, useTokenPrice, useZchfPrice } from "@hooks";
 import { erc20Abi, getAddress, zeroAddress } from "viem";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { formatBigInt, formatDuration, shortenAddress } from "@utils";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { Address } from "viem";
-import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import DisplayLabel from "@components/DisplayLabel";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { WAGMI_CONFIG } from "../../../app.config";
+import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/redux.store";
 
 export default function PositionChallenge() {
-	const router = useRouter();
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
+	const [errorDate, setErrorDate] = useState("");
 	const [isApproving, setApproving] = useState(false);
 	const [isChallenging, setChallenging] = useState(false);
-	const { address: positionAddr } = router.query;
+	const [expirationDate, setExpirationDate] = useState(new Date());
+
+	const [userAllowance, setUserAllowance] = useState(0n);
+	const [userBalance, setUserBalance] = useState(0n);
+
+	const { data } = useBlockNumber({ watch: true });
+	const account = useAccount();
+	const router = useRouter();
 
 	const chainId = useChainId();
-	const { address } = useAccount();
-	const account = address || zeroAddress;
-	const position = getAddress(String(positionAddr || zeroAddress));
-	const positionStats = usePositionStats(position);
-	const collateralPrice = useTokenPrice(positionStats.collateral);
-	const zchfPrice = useZchfPrice();
+	const addressQuery: Address = router.query.address as Address;
 
+	const positions = useSelector((state: RootState) => state.positions.list.list);
+	const position = positions.find((p) => p.position == addressQuery);
+	const prices = useSelector((state: RootState) => state.prices.coingecko);
+
+	// ---------------------------------------------------------------------------
+	useEffect(() => {
+		const acc: Address | undefined = account.address;
+		const fc: Address = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
+		if (acc === undefined) return;
+		if (!position || !position.collateral) return;
+
+		const fetchAsync = async function () {
+			const _balanceColl = await readContract(WAGMI_CONFIG, {
+				address: position.collateral,
+				abi: erc20Abi,
+				functionName: "balanceOf",
+				args: [acc],
+			});
+			setUserBalance(_balanceColl);
+
+			const _allowanceColl = await readContract(WAGMI_CONFIG, {
+				address: position.collateral,
+				abi: erc20Abi,
+				functionName: "allowance",
+				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHub],
+			});
+			setUserAllowance(_allowanceColl);
+		};
+
+		fetchAsync();
+	}, [data, account.address, position]);
+
+	// ---------------------------------------------------------------------------
+	if (!position) return null;
+
+	const zchfPrice: number = prices[position.zchf.toLowerCase() as Address].price.usd || 1;
+	const collateralPriceUSD: number = prices[position.collateral.toLowerCase() as Address].price.usd || 1;
+	const collateralPriceCHF: number = collateralPriceUSD / zchfPrice;
+
+	// ---------------------------------------------------------------------------
 	const onChangeAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
-		if (valueBigInt > positionStats.collateralUserBal) {
-			setError(`Not enough ${positionStats.collateralSymbol} in your wallet.`);
-		} else if (valueBigInt > positionStats.collateralBal) {
+		if (valueBigInt > userBalance) {
+			setError(`Not enough ${position.collateralSymbol} in your wallet.`);
+		} else if (valueBigInt > BigInt(position.collateralBalance)) {
 			setError("Challenge collateral should be lower than position collateral");
-		} else if (valueBigInt < positionStats.minimumCollateral) {
-			setError("Challenge collateral should be greater than minimum collateral");
+		} else if (valueBigInt < BigInt(position.minimumCollateral)) {
+			if (BigInt(position.collateralBalance) > BigInt(position.minimumCollateral)) {
+				setError("Challenge collateral should be greater than minimum collateral");
+			}
 		} else {
 			setError("");
 		}
@@ -54,7 +99,7 @@ export default function PositionChallenge() {
 			setApproving(true);
 
 			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: positionStats.collateral as Address,
+				address: position.collateral as Address,
 				abi: erc20Abi,
 				functionName: "approve",
 				args: [ADDRESS[chainId].mintingHub, amount],
@@ -63,7 +108,7 @@ export default function PositionChallenge() {
 			const toastContent = [
 				{
 					title: "Amount:",
-					value: formatBigInt(amount, positionStats.collateralDecimal) + " " + positionStats.collateralSymbol,
+					value: formatBigInt(amount, position.collateralDecimals) + " " + position.collateralSymbol,
 				},
 				{
 					title: "Spender: ",
@@ -77,10 +122,10 @@ export default function PositionChallenge() {
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Approving ${positionStats.collateralSymbol}`} rows={toastContent} />,
+					render: <TxToast title={`Approving ${position.collateralSymbol}`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`Successfully Approved ${positionStats.collateralSymbol}`} rows={toastContent} />,
+					render: <TxToast title={`Successfully Approved ${position.collateralSymbol}`} rows={toastContent} />,
 				},
 				error: {
 					render(error: any) {
@@ -101,17 +146,17 @@ export default function PositionChallenge() {
 				address: ADDRESS[chainId].mintingHub,
 				abi: ABIS.MintingHubABI,
 				functionName: "challenge",
-				args: [position, amount, positionStats.liqPrice],
+				args: [position.position, amount, BigInt(position.price)],
 			});
 
 			const toastContent = [
 				{
 					title: "Size:",
-					value: formatBigInt(amount, positionStats.collateralDecimal) + " " + positionStats.collateralSymbol,
+					value: formatBigInt(amount, position.collateralDecimals) + " " + position.collateralSymbol,
 				},
 				{
 					title: "Price: ",
-					value: formatBigInt(positionStats.liqPrice, 36 - positionStats.collateralDecimal),
+					value: formatBigInt(BigInt(position.price), 36 - position.collateralDecimals),
 				},
 				{
 					title: "Transaction:",
@@ -148,9 +193,10 @@ export default function PositionChallenge() {
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold text-center mt-3">Challenge Details</div>
 						<TokenInput
-							symbol={positionStats.collateralSymbol}
-							max={positionStats.collateralUserBal}
-							digit={positionStats.collateralDecimal}
+							symbol={position.collateralSymbol}
+							max={BigInt(position.collateralBalance)}
+							balanceLabel="Collateral in Position"
+							digit={position.collateralDecimals}
 							value={amount.toString()}
 							onChange={onChangeAmount}
 							error={error}
@@ -161,67 +207,75 @@ export default function PositionChallenge() {
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Starting Price" />
 								<DisplayAmount
-									amount={positionStats.liqPrice}
+									amount={BigInt(position.price)}
 									currency={"ZCHF"}
-									digits={36 - positionStats.collateralDecimal}
+									subAmount={collateralPriceCHF}
+									subCurrency={"ZCHF"}
+									digits={36 - position.collateralDecimals}
 									address={ADDRESS[chainId].frankenCoin}
-									usdPrice={zchfPrice}
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Maximum Proceeds" />
 								<DisplayAmount
-									amount={positionStats.liqPrice * amount}
+									amount={BigInt(position.price) * amount}
 									currency={"ZCHF"}
-									digits={36 - positionStats.collateralDecimal + 18}
+									digits={36 - position.collateralDecimals + 18}
 									address={ADDRESS[chainId].frankenCoin}
-									usdPrice={zchfPrice}
+									subAmount={
+										(parseInt(position.price) / collateralPriceCHF / 10 ** (36 - position.collateralDecimals)) * 100 -
+										100
+									}
+									subCurrency={"% (Coingecko)"}
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Collateral in Position" />
 								<DisplayAmount
-									amount={positionStats.collateralBal}
-									currency={positionStats.collateralSymbol}
-									digits={positionStats.collateralDecimal}
-									address={positionStats.collateral}
-									usdPrice={collateralPrice}
+									amount={BigInt(position.collateralBalance)}
+									subAmount={
+										(collateralPriceCHF * parseInt(position.collateralBalance)) / 10 ** position.collateralDecimals
+									}
+									currency={position.collateralSymbol}
+									subCurrency="ZCHF"
+									digits={position.collateralDecimals}
+									address={position.collateral}
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Minimum Amount" />
 								<DisplayAmount
-									amount={positionStats.minimumCollateral}
-									currency={positionStats.collateralSymbol}
-									digits={positionStats.collateralDecimal}
-									address={positionStats.collateral}
-									usdPrice={collateralPrice}
+									amount={BigInt(position.minimumCollateral)}
+									currency={position.collateralSymbol}
+									subAmount={
+										(collateralPriceCHF * parseInt(position.minimumCollateral)) / 10 ** position.collateralDecimals
+									}
+									subCurrency="ZCHF"
+									digits={position.collateralDecimals}
+									address={position.collateral}
+									usdPrice={collateralPriceCHF}
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Fixed Price Phase" />
-								{formatDuration(positionStats.challengePeriod)}
+								{formatDuration(position.challengePeriod)}
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Declining Price Phase" />
-								{formatDuration(positionStats.challengePeriod)}
+								{formatDuration(position.challengePeriod)}
 							</AppBox>
 						</div>
 						<div>
 							<GuardToAllowedChainBtn>
-								{amount > positionStats.collateralAllowance ? (
-									<Button
-										isLoading={isApproving}
-										disabled={!!error || account == positionStats.owner}
-										onClick={() => handleApprove()}
-									>
+								{amount > userAllowance ? (
+									<Button isLoading={isApproving} disabled={!!error} onClick={() => handleApprove()}>
 										Approve
 									</Button>
 								) : (
 									<Button
 										variant="primary"
-										isLoading={isApproving}
-										disabled={!!error || account == positionStats.owner}
+										isLoading={isChallenging}
+										disabled={!!error || amount == 0n}
 										onClick={() => handleChallenge()}
 									>
 										Challenge
@@ -239,20 +293,20 @@ export default function PositionChallenge() {
 							</p>
 							<ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
 								<li>
-									During the fixed price phase, anyone can buy the {positionStats.collateralSymbol} you provided at the
+									During the fixed price phase, anyone can buy the {position.collateralSymbol} you provided at the
 									liquidation price. If everything gets sold before the phase ends, the challenge is averted and you have
-									effectively sold the provided {positionStats.collateralSymbol} to the bidders for{" "}
-									{formatBigInt(positionStats.liqPrice, 36 - positionStats.collateralDecimal)} ZCHF per unit.
+									effectively sold the provided {position.collateralSymbol} to the bidders for{" "}
+									{formatBigInt(BigInt(position.price), 36 - position.collateralDecimals)} ZCHF per unit.
 								</li>
 								<li>
 									If the challenge is not averted, the fixed price phase is followed by a declining price phase during
 									which the price at which the
-									{positionStats.collateralSymbol} tokens can be obtained declines linearly towards zero. In this case,
-									the challenge is considered successful and you get the provided {positionStats.collateralSymbol} tokens
-									back. The tokens sold in this phase do not come from the challenger, but from the position owner. The
-									total amount of tokens that can be bought from the position is limited by the amount left in the
-									challenge at the end of the fixed price phase. As a reward for starting a successful challenge, you get
-									2% of the sales proceeds.
+									{position.collateralSymbol} tokens can be obtained declines linearly towards zero. In this case, the
+									challenge is considered successful and you get the provided {position.collateralSymbol} tokens back. The
+									tokens sold in this phase do not come from the challenger, but from the position owner. The total amount
+									of tokens that can be bought from the position is limited by the amount left in the challenge at the end
+									of the fixed price phase. As a reward for starting a successful challenge, you get 2% of the sales
+									proceeds.
 								</li>
 							</ol>
 						</AppBox>

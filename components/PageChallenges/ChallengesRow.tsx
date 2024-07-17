@@ -71,9 +71,8 @@ export default function ChallengesRow({ challenge }: Props) {
 	const succeededSize: number =
 		bidsSucceeded.reduce<number>((acc, bid) => acc + parseInt(bid.filledSize.toString()), 0) / 10 ** position.collateralDecimals;
 	const succeededAvgPriceZchf: number = bidsSucceeded.reduce<number>((acc, bid) => {
-		const filledSize: number = parseInt(bid.filledSize.toString()) / 10 ** 18;
-		const bidPrice: number = parseInt(bid.price.toString()) / 10 ** 18;
-		console.log("ffilledSize", filledSize, bidPrice);
+		const filledSize: number = parseInt(bid.filledSize.toString()) / 10 ** position.collateralDecimals;
+		const bidPrice: number = parseInt(bid.price.toString()) / 10 ** (36 - position.collateralDecimals);
 		return acc + bidPrice / filledSize;
 	}, 0);
 
@@ -94,7 +93,7 @@ export default function ChallengesRow({ challenge }: Props) {
 				</div>
 			</div>
 
-			{/* challenger */}
+			{/* challenge */}
 			<div className="flex flex-col gap-2">
 				<div className="col-span-2 text-lg font-bold text-text-header">
 					{formatCurrency(challengeSize, 2, 2)} {position.collateralSymbol}
@@ -102,20 +101,20 @@ export default function ChallengesRow({ challenge }: Props) {
 				<div className="col-span-2 text-md text-text-subheader">
 					{formatCurrency(challengeSizeZchf, 2, 2)} {position.zchfSymbol}
 				</div>
-				<div className="col-span-2 text-md text-text-subheader">{formatCurrency(challengeSizeUsd, 2, 2)} USD</div>
+				{/* <div className="col-span-2 text-md text-text-subheader">{formatCurrency(challengeSizeUsd, 2, 2)} USD</div> */}
 			</div>
 
 			{/* remaining */}
 			<div className="flex flex-col gap-2">
 				<div className="col-span-2 text-lg font-bold text-text-header">
-					{formatCurrency(challengeRemainingSize, 2, 2)} {position.collateralSymbol}
+					{challengeRemainingSize > 0 ? formatCurrency(challengeRemainingSize, 2, 2) : "-.--"} {position.collateralSymbol}
 				</div>
 				<div className={`col-span-2 text-md ${challengeAuctionPriceColor}`}>
 					{formatCurrency(challengeRemainingPriceZchf, 2, 2) || "0.00"} {position.zchfSymbol}
 				</div>
-				<div className={`col-span-2 text-md ${challengeAuctionPriceColor}`}>
+				{/* <div className={`col-span-2 text-md ${challengeAuctionPriceColor}`}>
 					{formatCurrency(challengeRemainingPriceUsd, 2, 2) || "0.00"} USD
-				</div>
+				</div> */}
 			</div>
 
 			{/* Averted */}
@@ -126,7 +125,7 @@ export default function ChallengesRow({ challenge }: Props) {
 				<div className={`col-span-2 text-md ${avertedPriceColor}`}>
 					{formatCurrency(avertedAvgPriceZchf, 2, 2)} {position.zchfSymbol}
 				</div>
-				<div className={`col-span-2 text-md ${avertedPriceColor}`}>{formatCurrency(avertedAvgPriceZchf * zchfPrice, 2, 2)} USD</div>
+				{/* <div className={`col-span-2 text-md ${avertedPriceColor}`}>{formatCurrency(avertedAvgPriceZchf * zchfPrice, 2, 2)} USD</div> */}
 			</div>
 
 			{/* Succeeded */}
@@ -137,9 +136,9 @@ export default function ChallengesRow({ challenge }: Props) {
 				<div className={`col-span-2 text-md ${succeededSize ? "text-green-300" : ""}`}>
 					{formatCurrency(succeededAvgPriceZchf, 2, 2) ?? "-.--"} {position.zchfSymbol}
 				</div>
-				<div className={`col-span-2 text-md ${succeededSize ? "text-green-300" : ""}`}>
+				{/* <div className={`col-span-2 text-md ${succeededSize ? "text-green-300" : ""}`}>
 					{formatCurrency(succeededAvgPriceZchf * zchfPrice, 2, 2) ?? "-.--"} USD
-				</div>
+				</div> */}
 			</div>
 
 			{/* Maturity */}

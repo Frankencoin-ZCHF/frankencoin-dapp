@@ -40,13 +40,11 @@ export default function TokenInput({
 	onChange,
 	error,
 }: Props) {
-	const { isConnected } = useAccount();
-
 	return (
 		<div>
 			<div className="mb-1 flex gap-2 px-1">
 				<div className="flex-1">{label}</div>
-				{isConnected && symbol && (
+				{symbol && (
 					<div
 						className={`flex gap-2 items-center cursor-pointer ${hideMaxLabel && "hidden"}`}
 						onClick={() => onChange?.(max.toString())}
