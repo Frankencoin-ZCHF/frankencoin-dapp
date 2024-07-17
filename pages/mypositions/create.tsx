@@ -25,12 +25,12 @@ export default function PositionCreate({}) {
 	const [initialCollAmount, setInitialCollAmount] = useState(0n);
 	const [limitAmount, setLimitAmount] = useState(1_000_000n * BigInt(1e18));
 	const [proposalFee, setProposalFee] = useState(1000n);
-	const [initPeriod, setInitPeriod] = useState(1000n);
+	const [initPeriod, setInitPeriod] = useState(5n);
 	const [liqPrice, setLiqPrice] = useState(0n);
 	const [interest, setInterest] = useState(30000n);
 	const [maturity, setMaturity] = useState(12n);
 	const [buffer, setBuffer] = useState(200000n);
-	const [auctionDuration, setAuctionDuration] = useState(1000n);
+	const [auctionDuration, setAuctionDuration] = useState(48n);
 	const [collateralAddress, setCollateralAddress] = useState("");
 	const [minCollAmountError, setMinCollAmountError] = useState("");
 	const [initialCollAmountError, setInitialCollAmountError] = useState("");
@@ -233,9 +233,9 @@ export default function PositionCreate({}) {
 					minCollAmount,
 					initialCollAmount,
 					limitAmount,
-					initPeriod,
+					initPeriod * BigInt(24 * 60 * 60),
 					maturity * 86400n * 30n,
-					auctionDuration,
+					auctionDuration * BigInt(60 * 60),
 					Number(interest),
 					liqPrice,
 					Number(buffer),
@@ -253,7 +253,7 @@ export default function PositionCreate({}) {
 				},
 				{
 					title: "LiqPrice: ",
-					value: formatBigInt(liqPrice),
+					value: formatBigInt(BigInt(parseInt(liqPrice.toString()) / 10 ** parseInt(collTokenData.decimals.toString()))),
 				},
 				{
 					title: "Transaction:",
@@ -302,12 +302,13 @@ export default function PositionCreate({}) {
 								hideMaxLabel
 								value={proposalFee.toString()}
 								onChange={onChangeProposalFee}
-								digit={18}
+								digit={0}
 								error={userBalance.frankenBalance < BigInt(1000 * 1e18) ? "Not enough ZCHF" : ""}
+								disabled={true}
 							/>
 							<NormalInput
 								label="Initialization Period"
-								symbol="sec"
+								symbol="days"
 								error={initError}
 								digit={0}
 								hideMaxLabel
@@ -434,7 +435,7 @@ export default function PositionCreate({}) {
 							/>
 							<NormalInput
 								label="Auction Duration"
-								symbol="sec"
+								symbol="hours"
 								error={auctionError}
 								hideMaxLabel
 								digit={0}

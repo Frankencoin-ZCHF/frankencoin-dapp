@@ -8,6 +8,7 @@ interface Props {
 	amount: bigint;
 	subAmount?: number;
 	subCurrency?: string;
+	subColor?: string;
 	bold?: boolean;
 	big?: boolean;
 	noRounding?: boolean;
@@ -23,6 +24,7 @@ export default function DisplayAmount({
 	amount,
 	subAmount,
 	subCurrency,
+	subColor,
 	bold = false,
 	big,
 	digits = 18,
@@ -74,7 +76,7 @@ export default function DisplayAmount({
 				)}
 				{subAmount && subCurrency && (
 					<div>
-						<span className="text-sm text-slate-500">{formatCurrency(subAmount, 2, 2) + " " + subCurrency}</span>
+						<span className={`text-sm ${subColor}`}>{formatCurrency(subAmount, 2, 2) + " " + subCurrency}</span>
 					</div>
 				)}
 			</div>

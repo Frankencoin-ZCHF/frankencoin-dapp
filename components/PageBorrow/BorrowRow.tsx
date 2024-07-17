@@ -27,10 +27,19 @@ export default function BorrowRow({ position }: Props) {
 	const price: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
 	const since: number = Math.round((Date.now() - position.start * 1000) / 1000 / 60 / 60 / 24);
 	const maturity: number = Math.round((position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24);
-	const maturityStatusColors = maturity < 60 ? "bg-red-300" : maturity < 30 ? "bg-blue-300" : "bg-green-300";
+	const maturityStatusColors = maturity > 60 ? "text-green-300" : maturity < 30 ? "text-red-500" : "text-red-300";
 
 	const startStr = new Date(position.start * 1000).toDateString().split(" ");
 	const startString: string = `${startStr[2]} ${startStr[1]} ${startStr[3]} (${since}d)`;
+
+	const balance: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
+	const balanceZCHF: number = Math.round(((balance * collTokenPrice) / zchfPrice) * 100) / 100;
+	const ballanceUSD: number = Math.round(balance * collTokenPrice * 100) / 100;
+
+	const liquidationZCHF: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
+	const liquidationUSD: number = Math.round(liquidationZCHF * zchfPrice * 100) / 100;
+	const liquidationPct: number = Math.round((balanceZCHF / (liquidationZCHF * balance)) * 10000) / 100;
+	const liauidationStatusColors = liquidationPct < 100 ? "text-red-500" : liquidationPct < 120 ? "text-red-300" : "text-green-300";
 
 	const expirationStr = new Date(position.expiration * 1000).toDateString().split(" ");
 	const expirationString: string = `${expirationStr[2]} ${expirationStr[1]} ${expirationStr[3]} (${maturity}d)`;
@@ -56,23 +65,25 @@ export default function BorrowRow({ position }: Props) {
 			</div>
 
 			<div className="flex flex-col gap-2 text-text-subheader">
-				<div>{formatCurrency(effectiveLTC, 2, 2)}%</div>
+				<div className="col-span-2 text-md font-bold text-text-header">{formatCurrency(effectiveLTC, 2, 2)}%</div>
 				<div>{formatCurrency(reserve, 2, 2)}%</div>
 			</div>
 
 			<div className="flex flex-col gap-2 text-text-subheader">
-				<div>{formatCurrency(effectiveInterest, 2, 2)}%</div>
+				<div className="col-span-2 text-md font-bold text-text-header">{formatCurrency(effectiveInterest, 2, 2)}%</div>
 				<div>{formatCurrency(interest, 2, 2)}%</div>
 			</div>
 
 			<div className="flex flex-col gap-2 text-text-subheader">
-				<div>{formatCurrency(price, 2, 2)} ZCHF</div>
-				<div>{formatCurrency(collTokenPrice / zchfPrice, 2, 2)} ZCHF</div>
+				<div className="col-span-2 text-md font-bold text-text-header">{formatCurrency(price, 2, 2)} ZCHF</div>
+				<div className={`col-span-2 text-md ${liauidationStatusColors}`}>
+					{formatCurrency(collTokenPrice / zchfPrice, 2, 2)} ZCHF
+				</div>
 			</div>
 
-			<div className="flex flex-col gap-2 text-text-subheader">
-				<div>{formatCurrency(available / 1000, 2, 2)}k ZCHF</div>
-				<div>{expirationString}</div>
+			<div className="flex flex-col gap-2">
+				<div className="col-span-2 text-md font-bold text-text-header">{formatCurrency(available / 1000, 2, 2)}k ZCHF</div>
+				<div className={`${maturityStatusColors}`}>{maturity > 0 ? expirationString : "Matured"}</div>
 			</div>
 		</TableRow>
 	);

@@ -46,7 +46,7 @@ export default function SupervisionTable({ showMyPos }: Props) {
 	return (
 		<Table>
 			<TableHeader
-				headers={["Collateral", "Balance", "Borrowed", "Liq. Price", "Created"]}
+				headers={["Collateral", "Balance", "Borrowed", "Liq. Price", "Available to Mint"]}
 				subHeaders={["Symbol", "Market Value", "Available", "Markt Price", "Maturity"]}
 			/>
 			<TableBody>

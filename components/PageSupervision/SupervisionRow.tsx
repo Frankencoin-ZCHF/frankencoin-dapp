@@ -28,7 +28,7 @@ export default function SupervisionRow({ position, showMyPos }: Props) {
 	const price: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
 	const since: number = Math.round((Date.now() - position.start * 1000) / 1000 / 60 / 60 / 24);
 	const maturity: number = Math.round((position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24);
-	const maturityStatusColors = maturity < 60 ? "bg-red-300" : maturity < 30 ? "bg-blue-300" : "bg-green-300";
+	const maturityStatusColors = maturity > 60 ? "text-green-300" : maturity < 30 ? "text-red-500" : "text-red-300";
 
 	const startStr = new Date(position.start * 1000).toDateString().split(" ");
 	const startString: string = `${startStr[2]} ${startStr[1]} ${startStr[3]} (${since}d)`;
@@ -37,18 +37,18 @@ export default function SupervisionRow({ position, showMyPos }: Props) {
 	const expirationString: string = `${expirationStr[2]} ${expirationStr[1]} ${expirationStr[3]} (${maturity}d)`;
 
 	const balance: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
-	const ballanceZCHF: number = Math.round(((balance * collTokenPrice) / zchfPrice) * 100) / 100;
+	const balanceZCHF: number = Math.round(((balance * collTokenPrice) / zchfPrice) * 100) / 100;
 	const ballanceUSD: number = Math.round(balance * collTokenPrice * 100) / 100;
 
 	const loanZCHF: number = Math.round((parseInt(position.minted) / 10 ** position.zchfDecimals) * 100) / 100;
 	const loanUSD: number = Math.round(loanZCHF * zchfPrice * 100) / 100;
-	const loanPct: number = Math.round((loanZCHF / ballanceZCHF) * 10000) / 100;
+	const loanPct: number = Math.round((loanZCHF / balanceZCHF) * 10000) / 100;
 	const loanStatusColors = loanPct > 100 ? "bg-red-300" : loanPct > 10000 / 120 ? "bg-blue-300" : "bg-green-300";
 
 	const liquidationZCHF: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
 	const liquidationUSD: number = Math.round(liquidationZCHF * zchfPrice * 100) / 100;
-	const liquidationPct: number = Math.round((ballanceZCHF / (liquidationZCHF * balance)) * 10000) / 100;
-	const liauidationStatusColors = liquidationPct < 100 ? "bg-red-300" : liquidationPct < 120 ? "bg-blue-300" : "bg-green-300";
+	const liquidationPct: number = Math.round((balanceZCHF / (liquidationZCHF * balance)) * 10000) / 100;
+	const liauidationStatusColors = liquidationPct < 100 ? "text-red-500" : liquidationPct < 120 ? "text-red-300" : "text-green-300";
 
 	const positionChallenges = challenges.map[position.position.toLowerCase() as Address] ?? [];
 	const positionChallengesActive = positionChallenges.filter((ch: ChallengesQueryItem) => ch.status == "Active") ?? [];
@@ -80,7 +80,7 @@ export default function SupervisionRow({ position, showMyPos }: Props) {
 					{formatCurrency(balance, 2, 2)} {position.collateralSymbol}
 				</div>
 				<div className="col-span-2 text-md text-text-subheader">
-					{formatCurrency(ballanceZCHF, 2, 2)} {position.zchfSymbol}
+					{formatCurrency(balanceZCHF, 2, 2)} {position.zchfSymbol}
 				</div>
 				{/* <div className="col-span-2 text-md text-text-subheader">{formatCurrency(ballanceUSD, 2, 2)} USD</div> */}
 			</div>
@@ -107,7 +107,7 @@ export default function SupervisionRow({ position, showMyPos }: Props) {
 				<div className="col-span-2 text-md font-bold text-text-header">
 					{formatCurrency(liquidationZCHF, 2, 2)} {position.zchfSymbol}
 				</div>
-				<div className="col-span-2 text-md text-text-subheader">
+				<div className={`col-span-2 text-md ${liauidationStatusColors}`}>
 					{formatCurrency(collTokenPrice / zchfPrice, 2, 2)} {position.zchfSymbol}
 				</div>
 				{/* <div className="col-span-2 text-md text-text-subheader">{formatCurrency(liquidationUSD, 2, 2)} USD</div> */}
@@ -122,11 +122,10 @@ export default function SupervisionRow({ position, showMyPos }: Props) {
 			{/* </div> */}
 
 			{/* Maturity */}
-			<div className="flex flex-col gap-4 -ml-2">
-				<div className={`rounded-full text-center max-h-14 max-w-[10rem] bg-layout-primary`}>{startString}</div>
-				<div className={`rounded-full text-center max-h-14 max-w-[10rem] text-gray-900 ${maturityStatusColors}`}>
-					{maturity > 0 ? expirationString : "Matured"}
-				</div>
+			<div className="flex flex-col gap-2">
+				<div className="col-span-2 text-md font-bold text-text-header">{formatCurrency(available / 1000, 2, 2)}k ZCHF</div>
+				{/* <div className={`rounded-full text-center max-h-14 max-w-[10rem] bg-layout-primary`}>{startString}</div> */}
+				<div className={`${maturityStatusColors}`}>{maturity > 0 ? expirationString : "Matured"}</div>
 			</div>
 		</TableRow>
 	);

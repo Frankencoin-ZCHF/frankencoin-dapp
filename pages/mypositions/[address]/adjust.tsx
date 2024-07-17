@@ -82,19 +82,13 @@ export default function PositionAdjust() {
 	// ---------------------------------------------------------------------------
 	if (!position) return null;
 
+	const isCooldown: boolean = position.cooldown * 1000 - Date.now() > 0;
 	const maxRepayable = (1_000_000n * userFrankBalance) / (1_000_000n - BigInt(position.reserveContribution));
 
 	const dec: number = position.collateralDecimals;
 	const maxMintPrice: bigint = dec == 18 ? BigInt(position.price) : BigInt(position.price.slice(0, -(18 - dec)));
 	const maxMintableRaw: bigint = BigInt((maxMintPrice * BigInt(position.collateralBalance)).toString().slice(0, -dec));
-	const maxMintableAdj: number = parseInt(maxMintableRaw.toString()) / 10 ** 18;
-
-	console.log({
-		pr: position.price,
-		maxMintPrice,
-		maxMintableRaw,
-		maxMintableAdj,
-	});
+	const maxMintableAdj: number = parseInt(maxMintableRaw.toString().slice(0, -18));
 
 	const repayPosition = maxRepayable > BigInt(position.minted) ? 0n : BigInt(position.minted) - maxRepayable;
 
@@ -143,7 +137,9 @@ export default function PositionAdjust() {
 	}
 
 	function getAmountError() {
-		if (amount - BigInt(position.minted) > maxMintableRaw) {
+		if (isCooldown) {
+			return `This position is ${position.cooldown > 1e30 ? "closed" : "in cooldown, please wait"}`;
+		} else if (amount - BigInt(position.minted) > maxMintableRaw) {
 			return `This position is limited to ${formatCurrency(maxMintableAdj, 2, 2)} ZCHF`;
 		} else if (-paidOutAmount() > userFrankBalance) {
 			return "Insufficient ZCHF in wallet";
@@ -261,7 +257,7 @@ export default function PositionAdjust() {
 				<AppPageHeader title="Adjust Position" backText="Back to overview" backTo={`/mypositions`} />
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center">Variables</div>
+						<div className="text-lg font-bold text-center">Your position</div>
 						<TokenInput
 							label="Amount"
 							symbol="ZCHF"
@@ -309,6 +305,7 @@ export default function PositionAdjust() {
 											(amount == BigInt(position.minted) &&
 												collateralAmount == BigInt(position.collateralBalance) &&
 												liqPrice == BigInt(position.price)) ||
+											isCooldown ||
 											!!getAmountError() ||
 											!!getCollateralError()
 										}

@@ -302,7 +302,7 @@ export default function PositionBorrow({}) {
 												: ""
 										}
 									>
-										Clone Position
+										Clone and Borrow
 									</Button>
 								)}
 							</GuardToAllowedChainBtn>

@@ -70,11 +70,12 @@ export default function ChallengesRow({ challenge }: Props) {
 	// Succeeded
 	const succeededSize: number =
 		bidsSucceeded.reduce<number>((acc, bid) => acc + parseInt(bid.filledSize.toString()), 0) / 10 ** position.collateralDecimals;
-	const succeededAvgPriceZchf: number = bidsSucceeded.reduce<number>((acc, bid) => {
-		const filledSize: number = parseInt(bid.filledSize.toString()) / 10 ** position.collateralDecimals;
-		const bidPrice: number = parseInt(bid.price.toString()) / 10 ** (36 - position.collateralDecimals);
-		return acc + bidPrice / filledSize;
-	}, 0);
+	const succeededAvgPriceZchf: number =
+		bidsSucceeded.reduce<number>((acc, bid) => {
+			const filledSize: number = parseInt(bid.filledSize.toString()) / 10 ** position.collateralDecimals;
+			const bidPrice: number = parseInt(bid.price.toString()) / 10 ** (36 - position.collateralDecimals);
+			return acc + bidPrice * filledSize;
+		}, 0) / succeededSize;
 
 	return (
 		<TableRow link={`/challenges/${challenge.number}/bid`}>

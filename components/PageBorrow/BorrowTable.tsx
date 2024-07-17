@@ -20,8 +20,8 @@ export default function BorrowTable() {
 	return (
 		<Table>
 			<TableHeader
-				headers={["Collateral", "Loan to Value", "Eff. Interest", "Liq. Price", "Available"]}
-				subHeaders={["Symbol", "Reserve Ratio", "Ann. Interest", "Markt Price", "Maturity"]}
+				headers={["Collateral", "Loan to Value", "Effective Interest", "Liq. Price", "Available to Mint"]}
+				subHeaders={["Symbol", "Retained Reserve", "Annual Interest", "Markt Price", "Max. Maturity"]}
 			/>
 			<TableBody>
 				{matchingPositions.length == 0 ? (

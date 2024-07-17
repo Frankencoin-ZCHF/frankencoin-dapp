@@ -77,6 +77,8 @@ export default function PositionChallenge() {
 	const collateralPriceUSD: number = prices[position.collateral.toLowerCase() as Address].price.usd || 1;
 	const collateralPriceCHF: number = collateralPriceUSD / zchfPrice;
 
+	const maxProceeds = (parseInt(position.price) / collateralPriceCHF / 10 ** (36 - position.collateralDecimals)) * 100 - 100;
+
 	// ---------------------------------------------------------------------------
 	const onChangeAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
@@ -222,11 +224,9 @@ export default function PositionChallenge() {
 									currency={"ZCHF"}
 									digits={36 - position.collateralDecimals + 18}
 									address={ADDRESS[chainId].frankenCoin}
-									subAmount={
-										(parseInt(position.price) / collateralPriceCHF / 10 ** (36 - position.collateralDecimals)) * 100 -
-										100
-									}
+									subAmount={maxProceeds}
 									subCurrency={"% (Coingecko)"}
+									subColor={maxProceeds > 0 ? "text-green-300" : "text-red-500"}
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
