@@ -10,18 +10,18 @@ export const toTimestamp = (value: Date) => {
 	return Math.floor(value.getTime() / 1000);
 };
 
-export const formatCurrency = (value: string, digits = 2) => {
-	const amount = parseFloat(value);
+export const formatCurrency = (value: string | number, minimumFractionDigits = 0, maximumFractionDigits = 2) => {
+	const amount = typeof value === "string" ? parseFloat(value) : value;
 
 	if (amount === null || !!isNaN(amount)) return null;
 
-	if (amount < 0.01 && amount > 0 && digits) {
+	if (amount < 0.01 && amount > 0 && maximumFractionDigits) {
 		return "< 0.01";
 	}
 
 	const formatter = new Intl.NumberFormat("en-US", {
-		maximumFractionDigits: digits ? digits : 18,
-		minimumFractionDigits: 0,
+		maximumFractionDigits,
+		minimumFractionDigits,
 	});
 
 	return formatter.format(amount);
