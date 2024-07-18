@@ -1,10 +1,9 @@
 import { useSelector } from "react-redux";
-import { PositionQuery } from "../../redux/slices/positions.types";
 import { RootState } from "../../redux/redux.store";
 import TokenLogo from "@components/TokenLogo";
-import { PriceQueryObjectArray } from "../../redux/slices/prices.types";
 import { Address } from "viem/accounts";
 import { formatCurrency } from "../../utils/format";
+import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 
 export type CollateralItem = {
 	collateral: {
@@ -58,6 +57,8 @@ export function PositionCollateralCalculate(listByCollateral: PositionQuery[][],
 				availableForClones += parseInt(pos.availableForClones) / 10 ** pos.zchfDecimals;
 			}
 		}
+
+		if (!collateral.price.usd || !mint.price.usd) continue;
 
 		balance = balance / 10 ** collateral.decimals;
 		const valueLockedUsd = Math.round(balance * collateral.price.usd);

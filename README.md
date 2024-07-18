@@ -11,26 +11,34 @@
 1. The main branch should deploy to app.frankencoin.com
 2. The dev Branch should deploy to dev.app.frankencoin.com
 
-### Edit app.config
+### Copy .env.example and adjust your environment
 
 ```
-...
-	localhost: {
-		app: "http://localhost:3000",
-		api: "http://localhost:3030",
-		ponder: "http://localhost:42069",
-	},
-	mainnet: {
-		app: "https://app.frankencoin.com",
-		api: "https://api.frankencoin.com",
-		ponder: "https://ponder.frankencoin.com",
-	},
-...
+NEXT_PUBLIC_LANDINGPAGE_URL=https://frankencoin.com
+NEXT_PUBLIC_APP_URL=https://app.frankencoin.com
+NEXT_PUBLIC_API_URL=https://api.frankencoin.com
+NEXT_PUBLIC_PONDER_URL=https://ponder.frankencoin.com
+NEXT_PUBLIC_CHAIN_NAME=mainnet
+NEXT_PUBLIC_WAGMI_ID=26fb3341cffa779adebdb59dc32b24e5
+NEXT_PUBLIC_RPC_URL=https://eth-mainnet.g.alchemy.com/v2/DQBbcLnV8lboEfoEpe8Z_io7u5UJfSVd
+```
 
-// >>>>>> SELECTED URI HERE <<<<<<
-export const URI_SELECTED = URIS.localhost;     // local development
-export const URI_SELECTED = URIS.mainnet;     // mainnet
-// >>>>>> SELECTED URI HERE <<<<<<
+### Change default environment (app.config.ts)
+
+```
+// Config
+export const CONFIG: ConfigEnv = {
+	landing: process.env.NEXT_PUBLIC_LANDINGPAGE_URL || "https://frankencoin.com",
+	app: process.env.NEXT_PUBLIC_APP_URL || "https://app.frankencoin.com",
+	api: process.env.NEXT_PUBLIC_API_URL || "https://api.frankencoin.com",
+	ponder: process.env.NEXT_PUBLIC_PONDER_URL || "https://ponder.frankencoin.com",
+	chain: process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon" ? polygon : mainnet,
+	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID || "26fb3341cffa779adebdb59dc32b24e5",
+	rpc: process.env.NEXT_PUBLIC_RPC_URL || "https://eth-mainnet.g.alchemy.com/v2/DQBbcLnV8lboEfoEpe8Z_io7u5UJfSVd",
+};
+
+console.log("YOU ARE USING THIS CONFIG PROFILE:");
+console.log(CONFIG);
 ```
 
 ### Production

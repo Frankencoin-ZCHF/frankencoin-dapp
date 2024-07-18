@@ -2,7 +2,6 @@ import Head from "next/head";
 import Link from "next/link";
 import BorrowTable from "@components/PageBorrow/BorrowTable";
 import BorrowCollateral from "@components/PageBorrow/BorrowCollateral";
-import AppPageHeader from "@components/AppPageHeader";
 
 export default function Borrow() {
 	return (
