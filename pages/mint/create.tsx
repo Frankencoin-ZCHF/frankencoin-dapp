@@ -2,14 +2,14 @@
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import { useEffect } from "react";
-import { isAddress, maxUint256 } from "viem";
+import { Address, isAddress, maxUint256 } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useTokenData, useUserBalance } from "@hooks";
 import { useState } from "react";
 import Button from "@components/Button";
-import { useChainId } from "wagmi";
+import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { erc20Abi } from "viem";
-import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
 import { formatBigInt, shortenAddress } from "@utils";
 import { toast } from "react-toastify";
@@ -18,7 +18,7 @@ import Link from "next/link";
 import NormalInput from "@components/Input/NormalInput";
 import AddressInput from "@components/Input/AddressInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { WAGMI_CONFIG } from "../../app.config";
+import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 
 export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
@@ -43,9 +43,33 @@ export default function PositionCreate({}) {
 	const [auctionError, setAuctionError] = useState("");
 	const [isConfirming, setIsConfirming] = useState("");
 
+	const [userAllowance, setUserAllowance] = useState<bigint>(0n);
+	const { data } = useBlockNumber({ watch: true });
+	const account = useAccount();
+
 	const chainId = useChainId();
 	const collTokenData = useTokenData(collateralAddress);
 	const userBalance = useUserBalance();
+	const blocknumber = useBlockNumber();
+
+	useEffect(() => {
+		const acc: Address | undefined = account.address;
+		if (acc === undefined) return;
+		if (isConfirming != "approve") return;
+		if (collateralAddress == "") return;
+
+		const fetchAsync = async function () {
+			const _allowance = await readContract(WAGMI_CONFIG, {
+				address: collateralAddress as Address,
+				abi: erc20Abi,
+				functionName: "allowance",
+				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHub],
+			});
+			setUserAllowance(_allowance);
+		};
+
+		fetchAsync();
+	}, [data, account.address, collateralAddress, isConfirming]);
 
 	useEffect(() => {
 		if (isAddress(collateralAddress)) {
@@ -249,11 +273,11 @@ export default function PositionCreate({}) {
 				},
 				{
 					title: "Collateral Amount:",
-					value: formatBigInt(initialCollAmount) + collTokenData.symbol,
+					value: formatBigInt(initialCollAmount, parseInt(collTokenData.decimals.toString())) + collTokenData.symbol,
 				},
 				{
 					title: "LiqPrice: ",
-					value: formatBigInt(BigInt(parseInt(liqPrice.toString()) / 10 ** parseInt(collTokenData.decimals.toString()))),
+					value: formatBigInt(liqPrice, 36 - parseInt(collTokenData.decimals.toString())),
 				},
 				{
 					title: "Transaction:",
@@ -333,14 +357,11 @@ export default function PositionCreate({}) {
 							onChange={onChangeCollateralAddress}
 						/>
 						{collTokenData.symbol != "NaN" &&
-						(collTokenData.allowance == 0n ||
-							collTokenData.allowance < minCollAmount ||
-							collTokenData.allowance < initialCollAmount) ? (
+						(userAllowance == 0n || userAllowance < minCollAmount || userAllowance < initialCollAmount) ? (
 							<Button
 								isLoading={isConfirming == "approve"}
 								disabled={
-									collTokenData.symbol == "NaN" ||
-									(collTokenData.allowance > minCollAmount && collTokenData.allowance > initialCollAmount)
+									collTokenData.symbol == "NaN" || (userAllowance > minCollAmount && userAllowance > initialCollAmount)
 								}
 								onClick={() => handleApprove()}
 							>
@@ -445,12 +466,7 @@ export default function PositionCreate({}) {
 					<GuardToAllowedChainBtn>
 						<Button
 							variant="primary"
-							disabled={
-								minCollAmount == 0n ||
-								collTokenData.allowance < initialCollAmount ||
-								initialCollAmount == 0n ||
-								hasFormError()
-							}
+							disabled={minCollAmount == 0n || userAllowance < initialCollAmount || initialCollAmount == 0n || hasFormError()}
 							isLoading={isConfirming == "open"}
 							onClick={() => handleOpenPosition()}
 						>
