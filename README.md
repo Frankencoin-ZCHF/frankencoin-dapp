@@ -19,8 +19,8 @@ NEXT_PUBLIC_APP_URL=https://app.frankencoin.com
 NEXT_PUBLIC_API_URL=https://api.frankencoin.com
 NEXT_PUBLIC_PONDER_URL=https://ponder.frankencoin.com
 NEXT_PUBLIC_CHAIN_NAME=mainnet
-NEXT_PUBLIC_WAGMI_ID=26fb3341cffa779adebdb59dc32b24e5
-NEXT_PUBLIC_RPC_URL=https://eth-mainnet.g.alchemy.com/v2/DQBbcLnV8lboEfoEpe8Z_io7u5UJfSVd
+NEXT_PUBLIC_WAGMI_ID=...
+NEXT_PUBLIC_RPC_URL=https://eth-mainnet.g.alchemy.com/v2/...
 ```
 
 ### Change default environment (app.config.ts)
@@ -33,8 +33,11 @@ export const CONFIG: ConfigEnv = {
 	api: process.env.NEXT_PUBLIC_API_URL || "https://api.frankencoin.com",
 	ponder: process.env.NEXT_PUBLIC_PONDER_URL || "https://ponder.frankencoin.com",
 	chain: process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon" ? polygon : mainnet,
-	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID || "26fb3341cffa779adebdb59dc32b24e5",
-	rpc: process.env.NEXT_PUBLIC_RPC_URL || "https://eth-mainnet.g.alchemy.com/v2/DQBbcLnV8lboEfoEpe8Z_io7u5UJfSVd",
+	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID,
+	rpc:
+		process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon"
+			? (process.env.NEXT_PUBLIC_RPC_URL_POLYGON as string)
+			: process.env.NEXT_PUBLIC_RPC_URL_MAINNET,
 };
 
 console.log("YOU ARE USING THIS CONFIG PROFILE:");
@@ -136,7 +139,7 @@ if ((WAGMI_CHAIN.id as number) === 1337) {
 
 ```
 transports: {
-   [mainnet.id]: http("https://eth-mainnet.g.alchemy.com/v2/DQBbcLnV8lboEfoEpe8Z_io7u5UJfSVd"),
+   [mainnet.id]: http("https://eth-mainnet.g.alchemy.com/v2/..."),
    [ethereum3.id]: http("https://ethereum3.3dotshub.com"),
 },
 ```
