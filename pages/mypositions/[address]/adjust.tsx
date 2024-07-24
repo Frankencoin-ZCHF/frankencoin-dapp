@@ -39,7 +39,7 @@ export default function PositionAdjust() {
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const position = positions.find((p) => p.position == addressQuery) as PositionQuery;
 
-	const [amount, setAmount] = useState<bigint>(BigInt(position.minted));
+	const [amount, setAmount] = useState<bigint>(BigInt(position.minted || 0n));
 	const [collateralAmount, setCollateralAmount] = useState<bigint>(BigInt(position.collateralBalance));
 	const [liqPrice, setLiqPrice] = useState<bigint>(BigInt(position?.price ?? 0n));
 
@@ -85,10 +85,10 @@ export default function PositionAdjust() {
 	const isCooldown: boolean = position.cooldown * 1000 - Date.now() > 0;
 	const maxRepayable = (1_000_000n * userFrankBalance) / (1_000_000n - BigInt(position.reserveContribution));
 
-	const dec: number = position.collateralDecimals;
-	const maxMintPrice: bigint = dec == 18 ? BigInt(position.price) : BigInt(position.price.slice(0, -(18 - dec)));
-	const maxMintableRaw: bigint = BigInt((maxMintPrice * BigInt(position.collateralBalance)).toString().slice(0, -dec));
-	const maxMintableAdj: number = parseInt(maxMintableRaw.toString().slice(0, -18));
+	const maxMintableForCollateralAmount: bigint = BigInt(formatUnits(BigInt(position.price) * collateralAmount, 36 - 18));
+	const maxMintableInclClones: bigint = BigInt(position.availableForClones) + BigInt(position.minted);
+	const maxTotalLimit: bigint =
+		maxMintableForCollateralAmount <= maxMintableInclClones ? maxMintableForCollateralAmount : maxMintableInclClones;
 
 	const repayPosition = maxRepayable > BigInt(position.minted) ? 0n : BigInt(position.minted) - maxRepayable;
 
@@ -139,8 +139,8 @@ export default function PositionAdjust() {
 	function getAmountError() {
 		if (isCooldown) {
 			return `This position is ${position.cooldown > 1e30 ? "closed" : "in cooldown, please wait"}`;
-		} else if (amount - BigInt(position.minted) > maxMintableRaw) {
-			return `This position is limited to ${formatCurrency(maxMintableAdj, 2, 2)} ZCHF`;
+		} else if (amount - BigInt(position.minted) > maxTotalLimit) {
+			return `This position is limited to ${formatCurrency(formatUnits(maxTotalLimit, 18), 2, 2)} ZCHF`;
 		} else if (-paidOutAmount() > userFrankBalance) {
 			return "Insufficient ZCHF in wallet";
 		} else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
@@ -262,7 +262,7 @@ export default function PositionAdjust() {
 							symbol="ZCHF"
 							output={position.closed ? "0" : ""}
 							balanceLabel="Max:"
-							max={maxMintableRaw}
+							max={maxTotalLimit}
 							digit={18}
 							value={amount.toString()}
 							onChange={onChangeAmount}

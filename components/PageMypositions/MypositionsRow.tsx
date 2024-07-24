@@ -1,14 +1,9 @@
 import { Address } from "viem";
 import TableRow from "../Table/TableRow";
-import { PositionQuery, ChallengesQueryStatus, BidsQueryItem, BidsQueryType, ChallengesQueryItem } from "@frankencoin/api";
+import { PositionQuery, BidsQueryItem, ChallengesQueryItem } from "@frankencoin/api";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
-import TokenLogo from "@components/TokenLogo";
 import { formatCurrency } from "../../utils/format";
-import { BadgeCloneColor, BadgeOriginalColor } from "../../utils/customTheme";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCertificate } from "@fortawesome/free-solid-svg-icons";
-import DisplayAmount from "@components/DisplayAmount";
 import DisplayCollateralMyPositions from "./DisplayCollateralMyPositions";
 import Link from "next/link";
 
@@ -58,19 +53,6 @@ export default function MypositionsRow({ position }: Props) {
 	const positionChallengesBids = bids.map[position.position.toLowerCase() as Address] ?? [];
 	const positionBidsAverted = positionChallengesBids.filter((b: BidsQueryItem) => b.bidType == "Averted");
 	const positionBidsSucceeded = positionChallengesBids.filter((b: BidsQueryItem) => b.bidType == "Succeeded");
-
-	/*
-	State
-
-	if (closed || denied) => "Closed", no time
-	else if (active challenges) => "Challenged"
-		- phase1
-		- phase2
-	else if (new) => "Requested", countdown until start
-	else if (!closed && cooldown) => "Cooldown", countdown until ready
-	else if (!cooldown && !challenge && expiringSoon) => "Expiring soon", countdown until expiration
-	else => "Open/Ready", no time
-	*/
 
 	const states: string[] = ["Closed", "Challenged", "New Request", "Cooldown", "Expiring Soon", "Open"];
 	let stateIdx: number = states.length;

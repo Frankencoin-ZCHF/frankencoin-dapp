@@ -1,4 +1,3 @@
-import SupervisionRow from "./MypositionsRow";
 import TableHeader from "../Table/TableHead";
 import TableBody from "../Table/TableBody";
 import Table from "../Table";
@@ -8,6 +7,7 @@ import { RootState } from "../../redux/redux.store";
 import { PositionQuery } from "@frankencoin/api";
 import { Address, zeroAddress } from "viem";
 import { useAccount } from "wagmi";
+import MypositionsRow from "./MypositionsRow";
 
 export default function MypositionsTable() {
 	const { list } = useSelector((state: RootState) => state.positions);
@@ -45,7 +45,7 @@ export default function MypositionsTable() {
 				{matchingPositions.length == 0 ? (
 					<TableRowEmpty>{"You do not have any positions"}</TableRowEmpty>
 				) : (
-					matchingPositions.map((pos) => <SupervisionRow position={pos} key={pos.position} />)
+					matchingPositions.map((pos) => <MypositionsRow position={pos} key={pos.position} />)
 				)}
 			</TableBody>
 		</Table>
