@@ -17,17 +17,18 @@ import { TxToast, renderErrorToast } from "@components/TxToast";
 import AppBox from "@components/AppBox";
 import DateInput from "@components/Input/DateInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../../app.config";
+import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../../redux/redux.store";
+import { RootState } from "../../../redux/redux.store";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [errorDate, setErrorDate] = useState("");
+	const [isInit, setInit] = useState<boolean>(false);
 	const [isApproving, setApproving] = useState(false);
 	const [isCloning, setCloning] = useState(false);
-	const [expirationDate, setExpirationDate] = useState(new Date());
+	const [expirationDate, setExpirationDate] = useState<Date>(new Date(0));
 
 	const [userAllowance, setUserAllowance] = useState(0n);
 	const [userBalance, setUserBalance] = useState(0n);
@@ -44,9 +45,17 @@ export default function PositionBorrow({}) {
 
 	// ---------------------------------------------------------------------------
 	useEffect(() => {
-		if (!position || position.expiration === 0) return;
-		setExpirationDate(toDate(BigInt(position.expiration)));
-	}, [position]);
+		if (isInit) return;
+		if (!position || position.expiration == 0) return;
+		setExpirationDate(toDate(position.expiration));
+
+		if (!amount) {
+			const initMintAmount: bigint = BigInt(formatUnits(BigInt(position.price) * BigInt(position.minimumCollateral), 18));
+			setAmount(initMintAmount);
+		}
+
+		setInit(true);
+	}, [position, amount, expirationDate, isInit]);
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
@@ -239,14 +248,14 @@ export default function PositionBorrow({}) {
 			<Head>
 				<title>Frankencoin - Mint</title>
 			</Head>
-			<div>
-				<AppPageHeader title="Mint Frankencoins for Yourself" backText="Back to overview" backTo={`/borrow`} />
+			<div className="mt-8">
+				{/* <AppPageHeader title="Mint Frankencoins for Yourself" backText="Back to Overview" backTo="/mint" /> */}
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold text-center mt-3">Minting Amount and Collateral</div>
 						<div className="space-y-8">
 							<TokenInput
-								label="Amount"
+								label="Mint Amount"
 								balanceLabel="Limit:"
 								symbol="ZCHF"
 								error={error}
@@ -263,15 +272,6 @@ export default function PositionBorrow({}) {
 								onChange={onChangeCollateral}
 								output={formatUnits(requiredColl, position.collateralDecimals)}
 								symbol={position.collateralSymbol}
-								note={
-									`Valued at ${formatBigInt(
-										BigInt(position.price),
-										36 - position.collateralDecimals
-									)} ZCHF, minimum is ` +
-									formatBigInt(BigInt(position.minimumCollateral), Number(position.collateralDecimals)) +
-									" " +
-									position.collateralSymbol
-								}
 							/>
 							<DateInput
 								label="Expiration"

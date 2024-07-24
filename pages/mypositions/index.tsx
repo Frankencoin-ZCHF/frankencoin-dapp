@@ -1,7 +1,6 @@
 import Head from "next/head";
-import Link from "next/link";
 import MypositionsCollateral from "@components/PageMypositions/MypositionsCollateral";
-import SupervisionTable from "@components/PageSupervision/SupervisionTable";
+import MypositionsTable from "@components/PageMypositions/MypositionsTable";
 
 export default function Positions() {
 	return (
@@ -10,18 +9,8 @@ export default function Positions() {
 				<title>Frankencoin - Positions</title>
 			</Head>
 
-			<div className="mt-8">
-				<MypositionsCollateral />
-			</div>
-
-			<div className="mt-8">
-				<SupervisionTable showMyPos />
-			</div>
-
-			<div className="flex">
-				<Link href={"mypositions/create"} className="btn btn-primary m-auto">
-					Propose New Position Type
-				</Link>
+			<div className="md:mt-8">
+				<MypositionsTable />
 			</div>
 		</>
 	);

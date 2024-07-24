@@ -189,11 +189,10 @@ export default function PositionChallenge() {
 			<Head>
 				<title>Frankencoin - Position Challenge</title>
 			</Head>
-			<div>
-				<AppPageHeader title="Launch a Challenge" backText="Back to overview" backTo="/supervision" />
+			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center mt-3">Challenge Details</div>
+						<div className="text-lg font-bold text-center mt-3">Launch a Challenge</div>
 						<TokenInput
 							symbol={position.collateralSymbol}
 							max={BigInt(position.collateralBalance)}
@@ -211,10 +210,12 @@ export default function PositionChallenge() {
 								<DisplayAmount
 									amount={BigInt(position.price)}
 									currency={"ZCHF"}
-									subAmount={collateralPriceCHF}
-									subCurrency={"ZCHF"}
 									digits={36 - position.collateralDecimals}
 									address={ADDRESS[chainId].frankenCoin}
+									subAmount={maxProceeds}
+									subCurrency={"% (Coingecko)"}
+									subColor={maxProceeds > 0 ? "text-green-300" : "text-red-500"}
+									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
@@ -222,24 +223,19 @@ export default function PositionChallenge() {
 								<DisplayAmount
 									amount={BigInt(position.price) * amount}
 									currency={"ZCHF"}
-									digits={36 - position.collateralDecimals + 18}
+									digits={36}
 									address={ADDRESS[chainId].frankenCoin}
-									subAmount={maxProceeds}
-									subCurrency={"% (Coingecko)"}
-									subColor={maxProceeds > 0 ? "text-green-300" : "text-red-500"}
+									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Collateral in Position" />
 								<DisplayAmount
 									amount={BigInt(position.collateralBalance)}
-									subAmount={
-										(collateralPriceCHF * parseInt(position.collateralBalance)) / 10 ** position.collateralDecimals
-									}
 									currency={position.collateralSymbol}
-									subCurrency="ZCHF"
 									digits={position.collateralDecimals}
 									address={position.collateral}
+									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
@@ -247,13 +243,9 @@ export default function PositionChallenge() {
 								<DisplayAmount
 									amount={BigInt(position.minimumCollateral)}
 									currency={position.collateralSymbol}
-									subAmount={
-										(collateralPriceCHF * parseInt(position.minimumCollateral)) / 10 ** position.collateralDecimals
-									}
-									subCurrency="ZCHF"
 									digits={position.collateralDecimals}
 									address={position.collateral}
-									usdPrice={collateralPriceCHF}
+									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">

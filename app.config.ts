@@ -8,6 +8,11 @@ import axios from "axios";
 
 export type ConfigEnv = { landing: string; app: string; api: string; ponder: string; rpc: string; wagmiId: string; chain: Chain };
 
+if (!process.env.NEXT_PUBLIC_WAGMI_ID) throw new Error("Project ID is not defined");
+if (!process.env.NEXT_PUBLIC_RPC_URL_MAINNET) throw new Error("RPC URL for at least mainnet, not available");
+if (process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon" && !process.env.NEXT_PUBLIC_RPC_URL_POLYGON)
+	throw new Error("RPC URL for polygon (testnet), not available");
+
 // Config
 export const CONFIG: ConfigEnv = {
 	landing: process.env.NEXT_PUBLIC_LANDINGPAGE_URL || "https://frankencoin.com",
@@ -15,8 +20,11 @@ export const CONFIG: ConfigEnv = {
 	api: process.env.NEXT_PUBLIC_API_URL || "https://api.frankencoin.com",
 	ponder: process.env.NEXT_PUBLIC_PONDER_URL || "https://ponder.frankencoin.com",
 	chain: process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon" ? polygon : mainnet,
-	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID || "26fb3341cffa779adebdb59dc32b24e5",
-	rpc: process.env.NEXT_PUBLIC_RPC_URL || "https://eth-mainnet.g.alchemy.com/v2/DQBbcLnV8lboEfoEpe8Z_io7u5UJfSVd",
+	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID,
+	rpc:
+		process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon"
+			? (process.env.NEXT_PUBLIC_RPC_URL_POLYGON as string)
+			: process.env.NEXT_PUBLIC_RPC_URL_MAINNET,
 };
 
 console.log("YOU ARE USING THIS CONFIG PROFILE:");

@@ -8,13 +8,15 @@ import { formatCurrency } from "../../utils/format";
 import { BadgeCloneColor, BadgeOriginalColor } from "../../utils/customTheme";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCertificate } from "@fortawesome/free-solid-svg-icons";
+import DisplayAmount from "@components/DisplayAmount";
+import DisplayCollateralMyPositions from "./DisplayCollateralMyPositions";
+import Link from "next/link";
 
 interface Props {
 	position: PositionQuery;
-	showMyPos?: boolean;
 }
 
-export default function SupervisionRow({ position, showMyPos }: Props) {
+export default function MypositionsRow({ position }: Props) {
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const bids = useSelector((state: RootState) => state.bids.positions);
@@ -57,75 +59,82 @@ export default function SupervisionRow({ position, showMyPos }: Props) {
 	const positionBidsAverted = positionChallengesBids.filter((b: BidsQueryItem) => b.bidType == "Averted");
 	const positionBidsSucceeded = positionChallengesBids.filter((b: BidsQueryItem) => b.bidType == "Succeeded");
 
+	/*
+	State
+
+	if (closed || denied) => "Closed", no time
+	else if (active challenges) => "Challenged"
+		- phase1
+		- phase2
+	else if (new) => "Requested", countdown until start
+	else if (!closed && cooldown) => "Cooldown", countdown until ready
+	else if (!cooldown && !challenge && expiringSoon) => "Expiring soon", countdown until expiration
+	else => "Open/Ready", no time
+	*/
+
+	const states: string[] = ["Closed", "Challenged", "New Request", "Cooldown", "Expiring Soon", "Open"];
+	let stateIdx: number = states.length;
+	let stateTimePrint: string = "";
+
+	if (position.closed || position.denied) {
+		stateIdx = 0;
+		stateTimePrint = "";
+	} else if (positionChallengesActive.length > 0) {
+		stateIdx = 1;
+		stateTimePrint = "next challenge exp";
+	} else if (position.start * 1000 > Date.now()) {
+		const diff: number = position.start * 1000 - Date.now();
+		const d: number = Math.floor(diff / 1000 / 60 / 60 / 24);
+		const h: number = Math.floor((diff / 1000 / 60 / 60 / 24 - d) * 24);
+		const m: number = Math.floor(diff / 1000 / 60 - d * 24 * 60 - h * 60);
+		stateIdx = 2;
+		stateTimePrint = `${d}d ${h}h ${m}m`;
+	} else if (position.cooldown * 1000 > Date.now()) {
+		const diff: number = position.cooldown * 1000 - Date.now();
+		const d: number = Math.floor(diff / 1000 / 60 / 60 / 24);
+		const h: number = Math.floor((diff / 1000 / 60 / 60 / 24 - d) * 24);
+		const m: number = Math.floor(diff / 1000 / 60 - d * 24 * 60 - h * 60);
+		stateIdx = 3;
+		stateTimePrint = `${d}d ${h}h ${m}m`;
+	} else if (maturity < 7) {
+		stateIdx = 4;
+		stateTimePrint = `${maturity} days`;
+	} else {
+		stateIdx = 5;
+		stateTimePrint = `${maturity} days`;
+	}
+
 	return (
-		<TableRow link={showMyPos ? `/mypositions/${position.position}/adjust` : `/monitoring/${position.position}/challenge`}>
+		<TableRow
+			actionCol={
+				<Link href={`/mypositions/${position.position}/adjust`} className="btn btn-primary w-full h-10">
+					Adjust
+				</Link>
+			}
+		>
 			{/* Collateral */}
-			<div className="flex flex-col gap-4">
-				<div className="relative col-span-2 w-16 h-16 max-h-16 max-w-16 rounded-xl my-auto">
-					<TokenLogo currency={position.collateralSymbol.toLowerCase()} size={16} />
-					<FontAwesomeIcon
-						className="absolute top-12 left-12"
-						color={position.isOriginal ? BadgeOriginalColor : BadgeCloneColor}
-						icon={faCertificate}
-					/>
-				</div>
-				<div>
-					<div className="text-sm font-bold text-text-subheader w-16 text-center">{position.collateralSymbol}</div>
-				</div>
-			</div>
-
-			{/* Asset Value */}
-			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-lg font-bold text-text-header">
-					{formatCurrency(balance, 2, 2)} {position.collateralSymbol}
-				</div>
-				<div className="col-span-2 text-md text-text-subheader">
-					{formatCurrency(balanceZCHF, 2, 2)} {position.zchfSymbol}
-				</div>
-				{/* <div className="col-span-2 text-md text-text-subheader">{formatCurrency(ballanceUSD, 2, 2)} USD</div> */}
-			</div>
-
-			{/* Loan Value */}
-			<div className="flex flex-col gap-2">
-				{/* <div className={`rounded-full text-center max-h-14 max-w-[8rem] font-bold text-gray-900 ${loanStatusColors}`}>
-					{!isNaN(loanPct) ? loanPct : "-.--"}%
-				</div> */}
-				<div className="col-span-2 text-md font-bold text-text-header">
-					{formatCurrency(loanZCHF, 2, 2)} {position.zchfSymbol}
-				</div>
-				<div className="col-span-2 text-md text-text-subheader">
-					{formatCurrency(balance * liquidationZCHF - loanZCHF, 2, 2)} {position.zchfSymbol}
-				</div>
-				{/* <div className="col-span-2 text-md text-text-subheader">{formatCurrency(loanUSD, 2, 2)} USD</div> */}
+			<div>
+				<DisplayCollateralMyPositions position={position} collateralPrice={collTokenPrice} zchfPrice={zchfPrice} />
 			</div>
 
 			{/* Liquidation */}
-			<div className="flex flex-col gap-2">
-				{/* <div className={`rounded-full text-center max-h-14 max-w-[8rem] font-bold text-gray-900 ${liauidationStatusColors}`}>
-					{!isNaN(liquidationPct) ? liquidationPct : "-.--"}%
-				</div> */}
-				<div className="col-span-2 text-md font-bold text-text-header">
-					{formatCurrency(liquidationZCHF, 2, 2)} {position.zchfSymbol}
-				</div>
-				<div className={`col-span-2 text-md ${liauidationStatusColors}`}>
-					{formatCurrency(collTokenPrice / zchfPrice, 2, 2)} {position.zchfSymbol}
-				</div>
-				{/* <div className="col-span-2 text-md text-text-subheader">{formatCurrency(liquidationUSD, 2, 2)} USD</div> */}
+			<div className="flex flex-col">
+				<span className={liquidationPct < 110 ? `text-md font-bold text-red-700` : "text-md"}>
+					{formatCurrency(liquidationZCHF, 2, 2)} ZCHF
+				</span>
+				<span className="text-sm text-slate-500">{formatCurrency(collTokenPrice / zchfPrice, 2, 2)} ZCHF</span>
 			</div>
 
-			{/* Challenges */}
-			{/* <div className="flex flex-col">
-				<div className="col-span-2 text-md text-text-subheader">Active: {positionChallengesActive.length}</div>
-				<div className="col-span-2 text-md text-text-subheader">Total: {positionChallenges.length}</div> */}
-			{/* <div className="col-span-2 text-md text-text-subheader mt-2">Averted: {positionBidsAverted.length}</div>
-				<div className="col-span-2 text-md text-text-subheader">Succeeded: {positionBidsSucceeded.length}</div> */}
-			{/* </div> */}
+			{/* Loan Value */}
+			<div className="flex flex-col">
+				<span className="text-md">{formatCurrency(loanZCHF, 2, 2)} ZCHF</span>
+				<span className="text-sm text-slate-500">{formatCurrency(balance * liquidationZCHF - loanZCHF, 2, 2)} ZCHF</span>
+			</div>
 
-			{/* Maturity */}
-			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-md font-bold text-text-header">{formatCurrency(available / 1000, 2, 2)}k ZCHF</div>
-				{/* <div className={`rounded-full text-center max-h-14 max-w-[10rem] bg-layout-primary`}>{startString}</div> */}
-				<div className={`${maturityStatusColors}`}>{maturity > 0 ? expirationString : "Matured"}</div>
+			{/* State */}
+			<div className="flex flex-col">
+				<div className={`text-md ${stateIdx == 4 ? "text-red-700 font-bold" : "text-text-header "}`}>{states[stateIdx]}</div>
+				<div className="text-sm text-slate-500">{stateTimePrint}</div>
 			</div>
 		</TableRow>
 	);

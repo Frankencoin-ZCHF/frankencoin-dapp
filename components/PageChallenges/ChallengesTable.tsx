@@ -9,14 +9,18 @@ import ChallengesRow from "./ChallengesRow";
 export default function ChallengesTable() {
 	const { list } = useSelector((state: RootState) => state.challenges);
 	const matchingChallenges = list.list.filter((c) => {
-		const DIFFINMS: number = 1000 * 60 * 60 * 24 * 5; // show e.g. last 10days
+		const DIFFINMS: number = 1000 * 60 * 60 * 24 * 3; // show e.g. last 10days
 		const matching: boolean = Date.now() - parseInt(c.start.toString()) * 1000 < DIFFINMS;
-		return c.status == "Active" || matching;
+		return c.status == "Active";
 	});
 
 	return (
 		<Table>
-			<TableHeader headers={["Collateral", "Challenge", "Active Auction", "Averted (avg.)", "Succeeded (avg.)", "Maturity"]} />
+			<TableHeader
+				headers={["Challenge Size", "Remaining Size", "Averted Size", "Succeeded Size", "State"]}
+				subHeaders={["Market Price", "Active Price", "Avg. Price", "Avg. Price", "Time Left"]}
+				actionCol
+			/>
 			<TableBody>
 				{matchingChallenges.length == 0 ? (
 					<TableRowEmpty>{"There are no challenges yet."}</TableRowEmpty>

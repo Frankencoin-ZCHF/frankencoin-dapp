@@ -9,13 +9,13 @@ export function NavItems() {
 	return (
 		<>
 			<li>
-				<NavButton to="/borrow" name="Borrow" />
+				<NavButton to="/mint" name="Borrow" />
 			</li>
 			<li>
 				<NavButton to="/mypositions" name="My Positions" />
 			</li>
 			<li>
-				<NavButton to="/supervision" name="Supervision" />
+				<NavButton to="/monitoring" name="Monitoring" />
 			</li>
 			<li>
 				<NavButton to="/challenges" name="Challenges" />

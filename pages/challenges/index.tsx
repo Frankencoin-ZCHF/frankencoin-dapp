@@ -8,7 +8,7 @@ export default function ChallengesPage({}) {
 				<title>Frankencoin - Auctions</title>
 			</Head>
 
-			<div className="mt-[5rem]">
+			<div className="md:mt-8">
 				<ChallengesTable />
 			</div>
 		</>

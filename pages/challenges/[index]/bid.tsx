@@ -87,7 +87,7 @@ export default function ChallengePlaceBid() {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
 
-		if (valueBigInt > userBalance) {
+		if (expectedZCHF() > userBalance) {
 			setError("Not enough balance in your wallet.");
 		} else if (valueBigInt > remainingSize) {
 			setError("Expected winning collateral should be lower than remaining collateral.");
@@ -145,14 +145,14 @@ export default function ChallengePlaceBid() {
 			<Head>
 				<title>Frankencoin - Place Bid</title>
 			</Head>
-			<div>
-				<AppPageHeader title="Place your bid" backText="Back to overview" backTo={`/challenges`} />
+			<div className="md:mt-8">
 				<section className="mx-auto max-w-2xl sm:px-8">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center mt-3">Bid Details</div>
+						<div className="text-lg font-bold text-center mt-3">Place your Bid</div>
+
 						<div className="">
 							<TokenInput
-								label="You are buying"
+								label=""
 								max={remainingSize}
 								value={amount.toString()}
 								onChange={onChangeAmount}
@@ -160,29 +160,21 @@ export default function ChallengePlaceBid() {
 								symbol={position.collateralSymbol}
 								error={error}
 								placeholder="Collateral Amount"
-								balanceLabel="Remaining Challenge Size"
+								balanceLabel="Remaining Size"
 							/>
 							<div className="flex flex-col">
-								<span>Account balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} ZCHF</span>
+								<span>Your Account balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} ZCHF</span>
 							</div>
 							<div className="flex flex-col">
-								<span>Expected total price: {formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} ZCHF</span>
+								<span>Expected Costs: {formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} ZCHF</span>
 							</div>
 						</div>
+
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:col-span-2">
 							<AppBox>
 								<DisplayLabel label="Remaining Collateral" />
 								<DisplayAmount
 									amount={remainingSize}
-									currency={position.collateralSymbol}
-									address={position.collateral}
-									digits={position.collateralDecimals}
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Original Size" />
-								<DisplayAmount
-									amount={challenge.size || 0n}
 									currency={position.collateralSymbol}
 									address={position.collateral}
 									digits={position.collateralDecimals}
@@ -195,6 +187,15 @@ export default function ChallengePlaceBid() {
 									digits={36 - position.collateralDecimals}
 									address={ADDRESS[chainId].frankenCoin}
 									currency={"ZCHF"}
+								/>
+							</AppBox>
+							<AppBox>
+								<DisplayLabel label="Original Size" />
+								<DisplayAmount
+									amount={challenge.size || 0n}
+									currency={position.collateralSymbol}
+									address={position.collateral}
+									digits={position.collateralDecimals}
 								/>
 							</AppBox>
 							<AppBox>

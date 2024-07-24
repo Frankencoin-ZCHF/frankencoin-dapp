@@ -15,14 +15,14 @@ export default function BorrowTable() {
 		openPositions.push(...openPositionsByCollateral[collateral]);
 	}
 
-	const matchingPositions: PositionQuery[] = openPositions.filter((position) => parseInt(position.availableForClones) > 0n);
+	const matchingPositions: PositionQuery[] = openPositions.filter(
+		(position) =>
+			parseInt(position.availableForClones) > 0n && position.start * 1000 < Date.now() && !position.closed && !position.denied
+	);
 
 	return (
 		<Table>
-			<TableHeader
-				headers={["Collateral", "Loan to Value", "Effective Interest", "Liq. Price", "Available to Mint"]}
-				subHeaders={["Symbol", "Retained Reserve", "Annual Interest", "Markt Price", "Max. Maturity"]}
-			/>
+			<TableHeader headers={["Collateral", "Loan-to-Value", "Interest", "Available", "Maturity"]} actionCol />
 			<TableBody>
 				{matchingPositions.length == 0 ? (
 					<TableRowEmpty>{"There are no other positions yet."}</TableRowEmpty>

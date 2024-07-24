@@ -8,6 +8,8 @@ import { formatCurrency } from "../../utils/format";
 import { BadgeCloneColor, BadgeOriginalColor } from "../../utils/customTheme";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCertificate } from "@fortawesome/free-solid-svg-icons";
+import Link from "next/link";
+import DisplayCollateralChallenge from "./DisplayCollateralChallenge";
 
 interface Props {
 	challenge: ChallengesQueryItem;
@@ -35,13 +37,33 @@ export default function ChallengesRow({ challenge }: Props) {
 
 	const duration: number = parseInt(challenge.duration.toString()) * 1000;
 	const maturity: number = Math.min(...[position.expiration * 1000, start + 2 * duration]); // timestamp
-	const expiration: number = Math.round(((maturity - Date.now()) / 1000 / 60 / 60) * 10) / 10; // time to expiration
+	const time2exp: number = Math.round(((maturity - Date.now()) / 1000 / 60 / 60) * 10) / 10; // time to expiration
 
-	const startStr = new Date(start).toDateString().split(" ");
-	const startString: string = `${startStr[2]} ${startStr[1]} ${startStr[3]} (${since}h)`;
-	const expirationStr = new Date(maturity).toDateString().split(" ");
-	const expirationString: string = `${expirationStr[2]} ${expirationStr[1]} ${expirationStr[3]} (${expiration}h)`;
-	const maturityStatusColors = expiration < 24 ? "bg-red-300" : expiration < 72 ? "bg-blue-300" : "bg-green-300";
+	const isQuickAuction = start + 2 * duration > maturity;
+	const declineStartTimestamp = isQuickAuction ? start : start + duration;
+
+	const states: string[] = ["Phase 1", "Phase 2"];
+	let stateIdx: number = 0;
+	let stateTimeLeft: string = "";
+
+	if (time2exp < 0) {
+		stateIdx = 1;
+		stateTimeLeft = "Matured";
+	} else if (declineStartTimestamp > Date.now()) {
+		stateIdx = 0;
+		const diff: number = declineStartTimestamp - Date.now();
+		const d: number = Math.floor(diff / 1000 / 60 / 60 / 24);
+		const h: number = Math.floor((diff / 1000 / 60 / 60 / 24 - d) * 24);
+		const m: number = Math.floor(diff / 1000 / 60 - d * 24 * 60 - h * 60);
+		stateTimeLeft = `${d}d ${h}h ${m}m`;
+	} else {
+		stateIdx = 1;
+		const diff: number = maturity - Date.now();
+		const d: number = Math.floor(diff / 1000 / 60 / 60 / 24);
+		const h: number = Math.floor((diff / 1000 / 60 / 60 / 24 - d) * 24);
+		const m: number = Math.floor(diff / 1000 / 60 - d * 24 * 60 - h * 60);
+		stateTimeLeft = `${d}d ${h}h ${m}m`;
+	}
 
 	const bids = bidsChallenges.map[challenge.id] || [];
 	const bidsAverted = bids.filter((b) => b.bidType === "Averted");
@@ -78,76 +100,59 @@ export default function ChallengesRow({ challenge }: Props) {
 		}, 0) / succeededSize;
 
 	return (
-		<TableRow link={`/challenges/${challenge.number}/bid`}>
+		<TableRow
+			actionCol={
+				<Link href={`/challenges/${challenge.number}/bid`} className="btn btn-primary w-full h-10">
+					Make a Bid
+				</Link>
+			}
+		>
 			{/* Collateral */}
-			<div className="flex flex-col gap-4">
-				<div className="relative col-span-2 w-16 h-16 max-h-16 max-w-16 rounded-xl my-auto">
-					<TokenLogo currency={position.collateralSymbol.toLowerCase()} size={16} />
-					<FontAwesomeIcon
-						className="absolute top-12 left-12"
-						color={position.isOriginal ? BadgeOriginalColor : BadgeCloneColor}
-						icon={faCertificate}
-					/>
-				</div>
-				<div>
-					<div className="text-sm font-bold text-text-subheader w-16 text-center">{position.collateralSymbol}</div>
-				</div>
-			</div>
-
-			{/* challenge */}
-			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-lg font-bold text-text-header">
-					{formatCurrency(challengeSize, 2, 2)} {position.collateralSymbol}
-				</div>
-				<div className="col-span-2 text-md text-text-subheader">
-					{formatCurrency(challengeSizeZchf, 2, 2)} {position.zchfSymbol}
-				</div>
-				{/* <div className="col-span-2 text-md text-text-subheader">{formatCurrency(challengeSizeUsd, 2, 2)} USD</div> */}
+			<div>
+				<DisplayCollateralChallenge
+					position={position}
+					challenge={challenge}
+					collateralPrice={collTokenPrice}
+					zchfPrice={zchfPrice}
+					challengeSize={challengeSize}
+					challengeSizeZchf={challengeSizeZchf}
+				/>
 			</div>
 
 			{/* remaining */}
-			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-lg font-bold text-text-header">
+			<div className="flex flex-col">
+				<div className="text-mg font-bold text-text-header">
 					{challengeRemainingSize > 0 ? formatCurrency(challengeRemainingSize, 2, 2) : "-.--"} {position.collateralSymbol}
 				</div>
-				<div className={`col-span-2 text-md ${challengeAuctionPriceColor}`}>
+				<div className={`text-sm ${challengeAuctionPriceColor}`}>
 					{formatCurrency(challengeRemainingPriceZchf, 2, 2) || "0.00"} {position.zchfSymbol}
 				</div>
-				{/* <div className={`col-span-2 text-md ${challengeAuctionPriceColor}`}>
-					{formatCurrency(challengeRemainingPriceUsd, 2, 2) || "0.00"} USD
-				</div> */}
 			</div>
 
 			{/* Averted */}
-			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-lg font-bold text-text-header">
+			<div className="flex flex-col">
+				<div className="text-md text-text-header">
 					{avertedSize ? formatCurrency(avertedSize, 2, 2) : "-.--"} {position.collateralSymbol}
 				</div>
-				<div className={`col-span-2 text-md ${avertedPriceColor}`}>
+				<div className={`text-sm`}>
 					{formatCurrency(avertedAvgPriceZchf, 2, 2)} {position.zchfSymbol}
 				</div>
-				{/* <div className={`col-span-2 text-md ${avertedPriceColor}`}>{formatCurrency(avertedAvgPriceZchf * zchfPrice, 2, 2)} USD</div> */}
 			</div>
 
 			{/* Succeeded */}
-			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-lg font-bold text-text-header">
+			<div className="flex flex-col">
+				<div className="text-md text-text-header">
 					{succeededSize ? formatCurrency(succeededSize, 2, 2) : "-.--"} {position.collateralSymbol}
 				</div>
-				<div className={`col-span-2 text-md ${succeededSize ? "text-green-300" : ""}`}>
+				<div className={`text-sm`}>
 					{formatCurrency(succeededAvgPriceZchf, 2, 2) ?? "-.--"} {position.zchfSymbol}
 				</div>
-				{/* <div className={`col-span-2 text-md ${succeededSize ? "text-green-300" : ""}`}>
-					{formatCurrency(succeededAvgPriceZchf * zchfPrice, 2, 2) ?? "-.--"} USD
-				</div> */}
 			</div>
 
-			{/* Maturity */}
-			<div className="flex flex-col gap-4 -ml-2">
-				<div className={`rounded-full text-center max-h-14 max-w-[10rem] bg-layout-primary`}>{startString}</div>
-				<div className={`rounded-full text-center max-h-14 max-w-[10rem] text-gray-900 ${maturityStatusColors}`}>
-					{expiration > 0 ? expirationString : "Matured"}
-				</div>
+			{/* State */}
+			<div className="flex flex-col">
+				<div className="text-md text-text-header">{states[stateIdx]}</div>
+				<div className={`text-sm`}>{stateTimeLeft}</div>
 			</div>
 		</TableRow>
 	);

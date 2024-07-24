@@ -8,6 +8,9 @@ import { PositionQuery } from "@frankencoin/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { BadgeCloneColor, BadgeOriginalColor } from "../../utils/customTheme";
 import { faCertificate } from "@fortawesome/free-solid-svg-icons";
+import DisplayAmount from "@components/DisplayAmount";
+import DisplayCollateralBorrowTable from "./DisplayCollateralBorrowTable";
+import Link from "next/link";
 
 interface Props {
 	position: PositionQuery;
@@ -42,48 +45,42 @@ export default function BorrowRow({ position }: Props) {
 	const liauidationStatusColors = liquidationPct < 100 ? "text-red-500" : liquidationPct < 120 ? "text-red-300" : "text-green-300";
 
 	const expirationStr = new Date(position.expiration * 1000).toDateString().split(" ");
-	const expirationString: string = `${expirationStr[2]} ${expirationStr[1]} ${expirationStr[3]} (${maturity}d)`;
+	const expirationString: string = `${expirationStr[2]} ${expirationStr[1]} ${expirationStr[3]}`;
 
 	// effectiveLTC = liquidation price * (1 - reserve) / market price
 	const effectiveLTC: number = Math.round(((price * (1 - reserve / 100)) / collTokenPrice) * 10000) / 100;
 	const effectiveInterest: number = Math.round((interest / (1 - reserve / 100)) * 100) / 100;
 
 	return (
-		<TableRow link={`/borrow/position/${position.position}`}>
-			<div className="flex flex-col gap-4">
-				<div className="relative col-span-2 w-16 h-16 max-h-16 max-w-16 rounded-xl my-auto">
-					<TokenLogo currency={position.collateralSymbol.toLowerCase()} size={16} />
-					<FontAwesomeIcon
-						className="absolute top-12 left-12"
-						color={position.isOriginal ? BadgeOriginalColor : BadgeCloneColor}
-						icon={faCertificate}
-					/>
-				</div>
-				<div>
-					<div className="text-sm font-bold text-text-subheader w-16 text-center">{position.collateralSymbol}</div>
-				</div>
+		<TableRow
+			actionCol={
+				<Link href={`/mint/${position.position}`} className="btn btn-primary w-full h-10">
+					Mint
+				</Link>
+			}
+		>
+			<div className="flex flex-col">
+				<DisplayCollateralBorrowTable
+					symbol={position.collateralSymbol}
+					name={position.collateralName}
+					address={position.collateral}
+				/>
 			</div>
 
-			<div className="flex flex-col gap-2 text-text-subheader">
-				<div className="col-span-2 text-md font-bold text-text-header">{formatCurrency(effectiveLTC, 2, 2)}%</div>
-				<div>{formatCurrency(reserve, 2, 2)}%</div>
+			<div className="flex flex-col gap-2 text-text-header">
+				<div className="col-span-2 text-md">{formatCurrency(effectiveLTC, 2, 2)}%</div>
 			</div>
 
-			<div className="flex flex-col gap-2 text-text-subheader">
-				<div className="col-span-2 text-md font-bold text-text-header">{formatCurrency(effectiveInterest, 2, 2)}%</div>
-				<div>{formatCurrency(interest, 2, 2)}%</div>
+			<div className="flex flex-col gap-2 text-text-header">
+				<div className="col-span-2 text-md">{formatCurrency(effectiveInterest, 2, 2)}%</div>
 			</div>
 
-			<div className="flex flex-col gap-2 text-text-subheader">
-				<div className="col-span-2 text-md font-bold text-text-header">{formatCurrency(price, 2, 2)} ZCHF</div>
-				<div className={`col-span-2 text-md ${liauidationStatusColors}`}>
-					{formatCurrency(collTokenPrice / zchfPrice, 2, 2)} ZCHF
-				</div>
+			<div className="flex flex-col gap-2 text-text-header">
+				<div className="col-span-2 text-md">{formatCurrency(available / 1000, 2, 2)}k ZCHF</div>
 			</div>
 
-			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-md font-bold text-text-header">{formatCurrency(available / 1000, 2, 2)}k ZCHF</div>
-				<div className={`${maturityStatusColors}`}>{maturity > 0 ? expirationString : "Matured"}</div>
+			<div className="flex flex-col gap-2 text-text-header">
+				<div className="col-span-2 text-md">{expirationString}</div>
 			</div>
 		</TableRow>
 	);

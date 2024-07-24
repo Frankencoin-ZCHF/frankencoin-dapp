@@ -1,4 +1,4 @@
-import { Address } from "viem";
+import { Address, formatUnits } from "viem";
 import TableRow from "../Table/TableRow";
 import { PositionQuery, ChallengesQueryStatus, BidsQueryItem, BidsQueryType, ChallengesQueryItem } from "@frankencoin/api";
 import { RootState } from "../../redux/redux.store";
@@ -8,13 +8,14 @@ import { formatCurrency } from "../../utils/format";
 import { BadgeCloneColor, BadgeOriginalColor } from "../../utils/customTheme";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCertificate } from "@fortawesome/free-solid-svg-icons";
+import Link from "next/link";
+import DisplayAmount from "@components/DisplayAmount";
 
 interface Props {
 	position: PositionQuery;
-	showMyPos?: boolean;
 }
 
-export default function SupervisionRow({ position, showMyPos }: Props) {
+export default function MonitoringRow({ position }: Props) {
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const bids = useSelector((state: RootState) => state.bids.positions);
@@ -50,82 +51,56 @@ export default function SupervisionRow({ position, showMyPos }: Props) {
 	const liquidationPct: number = Math.round((balanceZCHF / (liquidationZCHF * balance)) * 10000) / 100;
 	const liauidationStatusColors = liquidationPct < 100 ? "text-red-500" : liquidationPct < 120 ? "text-red-300" : "text-green-300";
 
+	const digits: number = position.collateralDecimals;
 	const positionChallenges = challenges.map[position.position.toLowerCase() as Address] ?? [];
 	const positionChallengesActive = positionChallenges.filter((ch: ChallengesQueryItem) => ch.status == "Active") ?? [];
+	const positionChallengesActiveCollateral =
+		positionChallengesActive.reduce<number>((acc, c) => {
+			return acc + parseInt(formatUnits(c.size, digits - 2)) - parseInt(formatUnits(c.filledSize, digits - 2));
+		}, 0) / 100;
+	const collateralBalanceNumber: number = parseInt(formatUnits(BigInt(position.collateralBalance), digits - 2)) / 100;
+	const challengesRatioPct: number = Math.round((positionChallengesActiveCollateral / collateralBalanceNumber) * 100);
 
 	const positionChallengesBids = bids.map[position.position.toLowerCase() as Address] ?? [];
 	const positionBidsAverted = positionChallengesBids.filter((b: BidsQueryItem) => b.bidType == "Averted");
 	const positionBidsSucceeded = positionChallengesBids.filter((b: BidsQueryItem) => b.bidType == "Succeeded");
 
 	return (
-		<TableRow link={showMyPos ? `/mypositions/${position.position}/adjust` : `/monitoring/${position.position}/challenge`}>
+		<TableRow
+			actionCol={
+				<Link href={`/monitoring/${position.position}/challenge`} className="btn btn-primary w-full h-10">
+					Challenge
+				</Link>
+			}
+		>
 			{/* Collateral */}
-			<div className="flex flex-col gap-4">
-				<div className="relative col-span-2 w-16 h-16 max-h-16 max-w-16 rounded-xl my-auto">
-					<TokenLogo currency={position.collateralSymbol.toLowerCase()} size={16} />
-					<FontAwesomeIcon
-						className="absolute top-12 left-12"
-						color={position.isOriginal ? BadgeOriginalColor : BadgeCloneColor}
-						icon={faCertificate}
-					/>
-				</div>
-				<div>
-					<div className="text-sm font-bold text-text-subheader w-16 text-center">{position.collateralSymbol}</div>
-				</div>
+			<div>
+				<DisplayAmount
+					amount={BigInt(position.collateralBalance)}
+					currency={position.collateralSymbol}
+					subColor="text-slate-500"
+					digits={position.collateralDecimals}
+					address={position.collateral}
+				/>
 			</div>
 
-			{/* Asset Value */}
+			{/* Coll. */}
 			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-lg font-bold text-text-header">
-					{formatCurrency(balance, 2, 2)} {position.collateralSymbol}
-				</div>
-				<div className="col-span-2 text-md text-text-subheader">
-					{formatCurrency(balanceZCHF, 2, 2)} {position.zchfSymbol}
-				</div>
-				{/* <div className="col-span-2 text-md text-text-subheader">{formatCurrency(ballanceUSD, 2, 2)} USD</div> */}
-			</div>
-
-			{/* Loan Value */}
-			<div className="flex flex-col gap-2">
-				{/* <div className={`rounded-full text-center max-h-14 max-w-[8rem] font-bold text-gray-900 ${loanStatusColors}`}>
-					{!isNaN(loanPct) ? loanPct : "-.--"}%
-				</div> */}
-				<div className="col-span-2 text-md font-bold text-text-header">
-					{formatCurrency(loanZCHF, 2, 2)} {position.zchfSymbol}
-				</div>
-				<div className="col-span-2 text-md text-text-subheader">
-					{formatCurrency(balance * liquidationZCHF - loanZCHF, 2, 2)} {position.zchfSymbol}
-				</div>
-				{/* <div className="col-span-2 text-md text-text-subheader">{formatCurrency(loanUSD, 2, 2)} USD</div> */}
-			</div>
-
-			{/* Liquidation */}
-			<div className="flex flex-col gap-2">
-				{/* <div className={`rounded-full text-center max-h-14 max-w-[8rem] font-bold text-gray-900 ${liauidationStatusColors}`}>
+				<div className={`col-span-2 text-md ${liquidationPct < 110 ? "text-red-700 font-bold" : "text-text-header"}`}>
 					{!isNaN(liquidationPct) ? liquidationPct : "-.--"}%
-				</div> */}
-				<div className="col-span-2 text-md font-bold text-text-header">
-					{formatCurrency(liquidationZCHF, 2, 2)} {position.zchfSymbol}
 				</div>
-				<div className={`col-span-2 text-md ${liauidationStatusColors}`}>
-					{formatCurrency(collTokenPrice / zchfPrice, 2, 2)} {position.zchfSymbol}
+			</div>
+
+			{/* Expiration */}
+			<div className="flex flex-col gap-2">
+				<div className={`col-span-2 text-md ${maturity < 3 ? "text-red-700 font-bold" : ""}`}>
+					{maturity < 3 ? `${Math.round(maturity * 24)} hours` : `${maturity} days`}
 				</div>
-				{/* <div className="col-span-2 text-md text-text-subheader">{formatCurrency(liquidationUSD, 2, 2)} USD</div> */}
 			</div>
 
 			{/* Challenges */}
-			{/* <div className="flex flex-col">
-				<div className="col-span-2 text-md text-text-subheader">Active: {positionChallengesActive.length}</div>
-				<div className="col-span-2 text-md text-text-subheader">Total: {positionChallenges.length}</div> */}
-			{/* <div className="col-span-2 text-md text-text-subheader mt-2">Averted: {positionBidsAverted.length}</div>
-				<div className="col-span-2 text-md text-text-subheader">Succeeded: {positionBidsSucceeded.length}</div> */}
-			{/* </div> */}
-
-			{/* Maturity */}
 			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-md font-bold text-text-header">{formatCurrency(available / 1000, 2, 2)}k ZCHF</div>
-				{/* <div className={`rounded-full text-center max-h-14 max-w-[10rem] bg-layout-primary`}>{startString}</div> */}
-				<div className={`${maturityStatusColors}`}>{maturity > 0 ? expirationString : "Matured"}</div>
+				<div className={`col-span-2 text-md ${challengesRatioPct > 0 ? "text-red-700 font-bold" : ""}`}>{challengesRatioPct}%</div>
 			</div>
 		</TableRow>
 	);
