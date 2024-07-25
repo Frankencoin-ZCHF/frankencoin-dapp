@@ -22,6 +22,7 @@ import { RootState } from "../../../redux/redux.store";
 import { useSelector } from "react-redux";
 
 export default function ChallengePlaceBid() {
+	const [isInit, setInit] = useState(false);
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [isBidding, setBidding] = useState(false);
@@ -38,6 +39,8 @@ export default function ChallengePlaceBid() {
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const bidsMapping = useSelector((state: RootState) => state.bids.challenges.map);
 	const auctionPriceMapping = useSelector((state: RootState) => state.challenges.challengesPrices.map);
+
+	const challenge = challenges.find((c) => c.number.toString() == index.toString());
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
@@ -57,7 +60,16 @@ export default function ChallengePlaceBid() {
 		fetchAsync();
 	}, [data, account.address]);
 
-	const challenge = challenges.find((c) => c.number.toString() == index.toString());
+	useEffect(() => {
+		if (isInit) return;
+		if (challenge === undefined) return;
+
+		const _amount = BigInt(parseInt(challenge.size.toString()) - parseInt(challenge.filledSize.toString()));
+		setAmount(_amount);
+
+		setInit(true);
+	}, [isInit, challenge]);
+
 	if (!challenge) return null;
 
 	const position = positions.find((p) => p.position == challenge?.position);
@@ -88,7 +100,7 @@ export default function ChallengePlaceBid() {
 		setAmount(valueBigInt);
 
 		if (expectedZCHF() > userBalance) {
-			setError("Not enough balance in your wallet.");
+			setError("Not enough ZCHF in your wallet to cover the expected costs.");
 		} else if (valueBigInt > remainingSize) {
 			setError("Expected winning collateral should be lower than remaining collateral.");
 		} else {
@@ -143,12 +155,17 @@ export default function ChallengePlaceBid() {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Place Bid</title>
+				<title>Frankencoin - Buy Collateral</title>
 			</Head>
+
+			<div>
+				<AppPageHeader title="Buy Collateral" />
+			</div>
+
 			<div className="md:mt-8">
 				<section className="mx-auto max-w-2xl sm:px-8">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center mt-3">Place your Bid</div>
+						<div className="text-lg font-bold text-center mt-3">You are buying {position.collateralSymbol} with ZCHF</div>
 
 						<div className="">
 							<TokenInput
@@ -172,7 +189,7 @@ export default function ChallengePlaceBid() {
 
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:col-span-2">
 							<AppBox>
-								<DisplayLabel label="Remaining Collateral" />
+								<DisplayLabel label="Remaining Size" />
 								<DisplayAmount
 									amount={remainingSize}
 									currency={position.collateralSymbol}
@@ -222,11 +239,11 @@ export default function ChallengePlaceBid() {
 							<GuardToAllowedChainBtn>
 								<Button
 									variant="primary"
-									disabled={amount == 0n || expectedZCHF() > userBalance}
+									disabled={amount == 0n || expectedZCHF() > userBalance || error != ""}
 									isLoading={isBidding}
 									onClick={() => handleBid()}
 								>
-									Place Bid
+									Buy
 								</Button>
 							</GuardToAllowedChainBtn>
 						</div>

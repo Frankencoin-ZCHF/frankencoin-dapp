@@ -5,18 +5,14 @@ import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import TokenLogo from "@components/TokenLogo";
 import { formatCurrency } from "../../utils/format";
-import { BadgeCloneColor, BadgeOriginalColor } from "../../utils/customTheme";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCertificate } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import DisplayCollateralChallenge from "./DisplayCollateralChallenge";
 import { useContractUrl } from "@hooks";
 
 interface Props {
 	challenge: ChallengesQueryItem;
 }
 
-export default function ChallengesRow({ challenge }: Props) {
+export default function MyPositionsChallengesRow({ challenge }: Props) {
 	const positions = useSelector((state: RootState) => state.positions.mapping);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challengesPrices = useSelector((state: RootState) => state.challenges.challengesPrices);
@@ -30,7 +26,7 @@ export default function ChallengesRow({ challenge }: Props) {
 	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
 	if (!collTokenPrice || !zchfPrice) return null;
 
-	const challengePrice: bigint = BigInt(challengesPrices.map[challenge.id as ChallengesId]);
+	const challengePrice: bigint = BigInt(challengesPrices.map[challenge.id as ChallengesId] ?? 0);
 	if (challengePrice == undefined) return null;
 
 	// Maturity
@@ -106,9 +102,11 @@ export default function ChallengesRow({ challenge }: Props) {
 	return (
 		<TableRow
 			actionCol={
-				<Link href={`/challenges/${challenge.number}/bid`} className="btn btn-primary w-full h-10">
-					Buy
-				</Link>
+				<div>
+					{/* <Link href={`/challenges/${challenge.number}/cancel`} className="btn btn-primary w-full h-10">
+					Cancel
+				</Link> */}
+				</div>
 			}
 		>
 			{/* Collateral */}

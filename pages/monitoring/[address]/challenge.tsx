@@ -77,6 +77,9 @@ export default function PositionChallenge() {
 	const collateralPriceUSD: number = prices[position.collateral.toLowerCase() as Address].price.usd || 1;
 	const collateralPriceCHF: number = collateralPriceUSD / zchfPrice;
 
+	const _collBal: bigint = BigInt(position.collateralBalance);
+	const maxChallengeLimit: bigint = _collBal <= userBalance ? _collBal : userBalance;
+
 	const maxProceeds = (parseInt(position.price) / collateralPriceCHF / 10 ** (36 - position.collateralDecimals)) * 100 - 100;
 
 	// ---------------------------------------------------------------------------
@@ -189,14 +192,19 @@ export default function PositionChallenge() {
 			<Head>
 				<title>Frankencoin - Position Challenge</title>
 			</Head>
+
+			<div>
+				<AppPageHeader title="Lunch A Challenge" />
+			</div>
+
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center mt-3">Launch a Challenge</div>
+						<div className="text-lg font-bold text-center mt-3">Launch A Challenge</div>
 						<TokenInput
 							symbol={position.collateralSymbol}
-							max={BigInt(position.collateralBalance)}
-							balanceLabel="Collateral in Position"
+							max={maxChallengeLimit}
+							balanceLabel="Max Size"
 							digit={position.collateralDecimals}
 							value={amount.toString()}
 							onChange={onChangeAmount}

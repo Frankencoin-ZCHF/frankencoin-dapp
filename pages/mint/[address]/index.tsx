@@ -248,8 +248,14 @@ export default function PositionBorrow({}) {
 			<Head>
 				<title>Frankencoin - Mint</title>
 			</Head>
+
+			<div>
+				<AppPageHeader title="Mint Frankencoins For Yourself" />
+			</div>
+
 			<div className="mt-8">
 				{/* <AppPageHeader title="Mint Frankencoins for Yourself" backText="Back to Overview" backTo="/mint" /> */}
+
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold text-center mt-3">Minting Amount and Collateral</div>
@@ -258,7 +264,6 @@ export default function PositionBorrow({}) {
 								label="Mint Amount"
 								balanceLabel="Limit:"
 								symbol="ZCHF"
-								error={error}
 								max={availableAmount}
 								value={amount.toString()}
 								onChange={onChangeAmount}
@@ -273,34 +278,25 @@ export default function PositionBorrow({}) {
 								output={formatUnits(requiredColl, position.collateralDecimals)}
 								symbol={position.collateralSymbol}
 							/>
-							<DateInput
-								label="Expiration"
-								max={position.expiration}
-								value={expirationDate}
-								onChange={onChangeExpiration}
-								error={errorDate}
-							/>
+							<DateInput label="Expiration" max={position.expiration} value={expirationDate} onChange={onChangeExpiration} />
 						</div>
 						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 							<GuardToAllowedChainBtn>
 								{requiredColl > userAllowance ? (
-									<Button disabled={amount == 0n || !!error} isLoading={isApproving} onClick={() => handleApprove()}>
+									<Button
+										disabled={amount == 0n || requiredColl > userBalance || !!error}
+										isLoading={isApproving}
+										onClick={() => handleApprove()}
+									>
 										Approve
 									</Button>
 								) : (
 									<Button
 										variant="primary"
-										disabled={amount == 0n || !!error}
+										disabled={amount == 0n || requiredColl > userBalance || !!error}
 										isLoading={isCloning}
 										onClick={() => handleClone()}
-										error={
-											requiredColl < BigInt(position.minimumCollateral)
-												? "A position must have at least " +
-												  formatBigInt(BigInt(position.minimumCollateral), position.collateralDecimals) +
-												  " " +
-												  position.collateralSymbol
-												: ""
-										}
+										error={errorDate ?? error}
 									>
 										Clone and Borrow
 									</Button>

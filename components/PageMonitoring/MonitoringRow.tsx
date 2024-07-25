@@ -1,15 +1,12 @@
-import { Address, formatUnits } from "viem";
+import { Address, formatUnits, zeroAddress } from "viem";
 import TableRow from "../Table/TableRow";
 import { PositionQuery, ChallengesQueryStatus, BidsQueryItem, BidsQueryType, ChallengesQueryItem } from "@frankencoin/api";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import TokenLogo from "@components/TokenLogo";
 import { formatCurrency } from "../../utils/format";
-import { BadgeCloneColor, BadgeOriginalColor } from "../../utils/customTheme";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCertificate } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import DisplayAmount from "@components/DisplayAmount";
+import { useContractUrl } from "@hooks";
 
 interface Props {
 	position: PositionQuery;
@@ -19,6 +16,7 @@ export default function MonitoringRow({ position }: Props) {
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const bids = useSelector((state: RootState) => state.bids.positions);
+	const url = useContractUrl(position.collateral || zeroAddress);
 	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
 	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
 	if (!collTokenPrice || !zchfPrice) return null;
@@ -65,6 +63,11 @@ export default function MonitoringRow({ position }: Props) {
 	const positionBidsAverted = positionChallengesBids.filter((b: BidsQueryItem) => b.bidType == "Averted");
 	const positionBidsSucceeded = positionChallengesBids.filter((b: BidsQueryItem) => b.bidType == "Succeeded");
 
+	const openExplorer = (e: any) => {
+		e.preventDefault();
+		window.open(url, "_blank");
+	};
+
 	return (
 		<TableRow
 			actionCol={
@@ -74,14 +77,11 @@ export default function MonitoringRow({ position }: Props) {
 			}
 		>
 			{/* Collateral */}
-			<div>
-				<DisplayAmount
-					amount={BigInt(position.collateralBalance)}
-					currency={position.collateralSymbol}
-					subColor="text-slate-500"
-					digits={position.collateralDecimals}
-					address={position.collateral}
-				/>
+			<div className="-ml-4 gap-3 flex items-center">
+				<div onClick={openExplorer}>
+					<TokenLogo currency={position.collateralSymbol} />
+				</div>
+				<div className={`col-span-2 text-md`}>{`${formatCurrency(balance, 2, 2)} ${position.collateralSymbol}`}</div>
 			</div>
 
 			{/* Coll. */}

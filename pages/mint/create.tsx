@@ -40,7 +40,7 @@ export default function PositionCreate({}) {
 	const [initError, setInitError] = useState("");
 	const [liqPriceError, setLiqPriceError] = useState("");
 	const [bufferError, setBufferError] = useState("");
-	const [auctionError, setAuctionError] = useState("");
+	const [durationError, setDurationError] = useState("");
 	const [isConfirming, setIsConfirming] = useState("");
 
 	const [userAllowance, setUserAllowance] = useState<bigint>(0n);
@@ -147,7 +147,7 @@ export default function PositionCreate({}) {
 	const onChangeInitPeriod = (value: string) => {
 		const valueBigInt = BigInt(value);
 		setInitPeriod(valueBigInt);
-		if (valueBigInt < 0n) {
+		if (valueBigInt < 3n) {
 			setInitError("Initialization Period must be at least 3 days.");
 		} else {
 			setInitError("");
@@ -185,6 +185,11 @@ export default function PositionCreate({}) {
 	const onChangeAuctionDuration = (value: string) => {
 		const valueBigInt = BigInt(value);
 		setAuctionDuration(valueBigInt);
+		if (valueBigInt < 1n) {
+			setDurationError("Duration must be at least 1h");
+		} else {
+			setDurationError("");
+		}
 	};
 
 	const hasFormError = () => {
@@ -196,7 +201,7 @@ export default function PositionCreate({}) {
 			!!interestError ||
 			!!liqPriceError ||
 			!!bufferError ||
-			!!auctionError ||
+			!!durationError ||
 			!!initError
 		);
 	};
@@ -308,10 +313,15 @@ export default function PositionCreate({}) {
 			<Head>
 				<title>Frankencoin - Propose Position</title>
 			</Head>
+
+			<div>
+				<AppPageHeader title="Propose a completely new position" />
+			</div>
+
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold justify-center mt-3 flex">Propose a completely new position</div>
+						<div className="text-lg font-bold justify-center mt-3 flex">Proposal Details</div>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							<TokenInput
 								label="Proposal Fee"
@@ -452,7 +462,7 @@ export default function PositionCreate({}) {
 							<NormalInput
 								label="Auction Duration"
 								symbol="hours"
-								error={auctionError}
+								error={durationError}
 								hideMaxLabel
 								digit={0}
 								value={auctionDuration.toString()}

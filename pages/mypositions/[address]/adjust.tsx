@@ -253,10 +253,15 @@ export default function PositionAdjust() {
 			<Head>
 				<title>Frankencoin - Adjust Position</title>
 			</Head>
+
+			<div>
+				<AppPageHeader title="Adjust Your Position" />
+			</div>
+
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center">Adjust Your position</div>
+						<div className="text-lg font-bold text-center">Adjust Your Position</div>
 						<TokenInput
 							label="Amount"
 							symbol="ZCHF"

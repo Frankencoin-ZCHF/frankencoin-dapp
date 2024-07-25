@@ -1,5 +1,6 @@
 import Head from "next/head";
 import MonitoringTable from "@components/PageMonitoring/MonitoringTable";
+import AppPageHeader from "@components/AppPageHeader";
 
 export default function Positions() {
 	return (
@@ -7,6 +8,10 @@ export default function Positions() {
 			<Head>
 				<title>Frankencoin - Monitoring</title>
 			</Head>
+
+			<div>
+				<AppPageHeader title="Monitoring For All Positions" />
+			</div>
 
 			<div className="md:mt-8">
 				<MonitoringTable />
