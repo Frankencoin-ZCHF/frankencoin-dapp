@@ -25,12 +25,12 @@ export default function App({ Component, pageProps }: AppProps) {
 						<NextSeoProvider />
 						<ToastContainer position="bottom-right" hideProgressBar={false} rtl={false} theme="dark" />
 
-						{!isMainnet ? (
-							<div className="bg-red-400 text-gray-900 absolute bottom-2 text-center font-bold inset-x-2 mx-2 px-4 rounded-xl">
-								This is, most likly, a testnet and not the real frankencoin.
-							</div>
-						) : (
+						{isMainnet ? (
 							<></>
+						) : (
+							<div className="bg-red-400 text-gray-900 absolute bottom-2 text-center font-bold inset-x-2 mx-2 px-4 rounded-xl">
+							This is a test deployment and not the real Frankencoin.
+							</div>
 						)}
 
 						<Layout>
