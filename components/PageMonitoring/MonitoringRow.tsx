@@ -93,14 +93,14 @@ export default function MonitoringRow({ position }: Props) {
 
 			{/* Expiration */}
 			<div className="flex flex-col gap-2">
-				<div className={`col-span-2 text-md ${maturity < 3 ? "text-red-700 font-bold" : ""}`}>
+				<div className={`col-span-2 text-md ${maturity < 7 ? "text-red-700 font-bold" : ""}`}>
 					{maturity < 3 ? `${Math.round(maturity * 24)} hours` : `${maturity} days`}
 				</div>
 			</div>
 
 			{/* Challenges */}
 			<div className="flex flex-col gap-2">
-				<div className={`col-span-2 text-md ${challengesRatioPct > 0 ? "text-red-700 font-bold" : ""}`}>{challengesRatioPct}%</div>
+				<div className={`col-span-2 text-md ${challengesRatioPct > 0 ? "text-red-700 font-bold" : ""}`}>-</div>
 			</div>
 		</TableRow>
 	);
