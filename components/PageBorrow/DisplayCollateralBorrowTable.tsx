@@ -22,7 +22,7 @@ export default function DisplayCollateralBorrowTable({ bold = true, symbol, name
 	};
 
 	return (
-		<div className={`flex items-center ${className}`}>
+		<div className={`-ml-4 flex items-center ${className}`}>
 			<Link href={url} onClick={openExplorer}>
 				<div className="mr-4">
 					<TokenLogo currency={symbol} />
@@ -31,7 +31,7 @@ export default function DisplayCollateralBorrowTable({ bold = true, symbol, name
 
 			<div className="flex flex-col">
 				<span className={`${bold && "font-bold"}`}>{symbol}</span>
-				<span className="font-normal">{name}</span>
+				<span className="md:w-[4rem] lg:w-[7rem] text-sm truncate">{name}</span>
 			</div>
 		</div>
 	);

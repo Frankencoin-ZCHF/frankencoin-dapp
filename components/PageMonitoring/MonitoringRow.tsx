@@ -100,7 +100,9 @@ export default function MonitoringRow({ position }: Props) {
 
 			{/* Challenges */}
 			<div className="flex flex-col gap-2">
-				<div className={`col-span-2 text-md ${challengesRatioPct > 0 ? "text-red-700 font-bold" : ""}`}>-</div>
+				<div className={`col-span-2 text-md ${challengesRatioPct > 0 ? "text-red-700 font-bold" : ""}`}>
+					{challengesRatioPct == 0 ? "-" : `${challengesRatioPct}%`}
+				</div>
 			</div>
 		</TableRow>
 	);
