@@ -52,15 +52,20 @@ export default function PositionRow({ position }: Props) {
 				<DisplayAmount
 					amount={BigInt(position.collateralBalance)}
 					currency={position.collateralSymbol}
+					subAmount={(parseInt(position.collateralBalance) * collTokenPrice) / zchfPrice / 10 ** position.collateralDecimals}
+					subCurrency={"ZCHF"}
+					subColor="text-slate-500"
 					digits={position.collateralDecimals}
 					address={position.collateral}
-					usdPrice={collTokenPrice}
 				/>
 			</div>
 			<div>
 				<DisplayAmount
 					amount={BigInt(position.price)}
 					currency={"ZCHF"}
+					subAmount={collTokenPrice / zchfPrice}
+					subCurrency="ZCHF"
+					subColor="text-slate-500"
 					hideLogo
 					// bold={positionStats.cooldown * 1000n > Date.now()}
 					digits={36 - position.collateralDecimals}
@@ -84,7 +89,6 @@ export default function PositionRow({ position }: Props) {
 						currency={"ZCHF"}
 						hideLogo
 						address={ADDRESS[chainId].frankenCoin}
-						usdPrice={zchfPrice}
 					/>
 				)}
 			</div>

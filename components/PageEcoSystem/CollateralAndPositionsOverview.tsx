@@ -40,7 +40,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 		const collateralPriceInZCHF = Math.round((collateral.price.usd / mint.price.usd) * 100) / 100;
 		const worstStatus =
 			collateralizedPct < 100
-				? `Danger, ${collateralizedPct}% collaterized`
+				? `${collateralizedPct}% collaterized`
 				: collateralizedPct < 120
 				? `${collateralizedPct}% collaterized`
 				: `${collateralizedPct}% collaterized`;

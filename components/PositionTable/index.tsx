@@ -29,7 +29,11 @@ export default function PositionTable({ showMyPos }: Props) {
 
 	return (
 		<Table>
-			<TableHeader headers={["Collateral", "Liquidation Price", "Available Amount"]} actionCol />
+			<TableHeader
+				headers={["Collateral", "Liquidation Price", "Available Amount"]}
+				subHeaders={["Collateral Value", "Market Price"]}
+				actionCol
+			/>
 			<TableBody>
 				{matchingPositions.length == 0 ? (
 					<TableRowEmpty>{showMyPos ? "You don't have any positions." : "There are no other positions yet."}</TableRowEmpty>
