@@ -94,7 +94,7 @@ export default function MonitoringRow({ position }: Props) {
 			{/* Expiration */}
 			<div className="flex flex-col gap-2">
 				<div className={`col-span-2 text-md ${maturity < 7 ? "text-red-700 font-bold" : ""}`}>
-					{maturity < 3 ? `${Math.round(maturity * 24)} hours` : `${maturity} days`}
+					{maturity < 3 ? (maturity > 0 ? `${Math.round(maturity * 24)} hours` : "Expired") : `${maturity} days`}
 				</div>
 			</div>
 

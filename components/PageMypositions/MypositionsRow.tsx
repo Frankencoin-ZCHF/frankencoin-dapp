@@ -6,12 +6,24 @@ import { useSelector } from "react-redux";
 import { formatCurrency } from "../../utils/format";
 import DisplayCollateralMyPositions from "./DisplayCollateralMyPositions";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Props {
 	position: PositionQuery;
 }
 
+type ChallengeInfos = {
+	start: number;
+	duration: number;
+	maturity: number;
+	time2exp: number;
+	isQuick: boolean;
+	decline: number;
+	challenge: ChallengesQueryItem;
+};
+
 export default function MypositionsRow({ position }: Props) {
+	const router = useRouter();
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const bids = useSelector((state: RootState) => state.bids.positions);
@@ -57,13 +69,43 @@ export default function MypositionsRow({ position }: Props) {
 	const states: string[] = ["Closed", "Challenged", "New Request", "Cooldown", "Expiring Soon", "Open"];
 	let stateIdx: number = states.length;
 	let stateTimePrint: string = "";
+	let stateChallengeInfo: ChallengeInfos;
 
 	if (position.closed || position.denied) {
 		stateIdx = 0;
 		stateTimePrint = "";
 	} else if (positionChallengesActive.length > 0) {
 		stateIdx = 1;
-		stateTimePrint = "next challenge exp";
+
+		const declineTimestamps: { [key: number]: ChallengeInfos } = {};
+		for (const c of positionChallengesActive) {
+			const _start: number = parseInt(c.start.toString()) * 1000; // timestap
+			const _duration: number = parseInt(c.duration.toString()) * 1000; // number
+			const _maturity: number = Math.min(...[position.expiration * 1000, _start + 2 * _duration]); // timestamp
+			const _time2exp: number = Math.round((_maturity - Date.now()) / 1000); // number, time to expiration
+			const _isQuick: boolean = _start + 2 * _duration > _maturity;
+			const _decline: number = _isQuick ? _start : _start + _duration; // timestamp
+
+			declineTimestamps[_decline] = {
+				start: _start,
+				duration: _duration,
+				maturity: _maturity,
+				time2exp: _time2exp,
+				isQuick: _isQuick,
+				decline: _decline,
+				challenge: c,
+			};
+		}
+
+		const lowestDeclineTimestamp: number = Math.min(...Object.keys(declineTimestamps).map((v) => parseInt(v)));
+		stateChallengeInfo = declineTimestamps[lowestDeclineTimestamp];
+
+		const diff: number = lowestDeclineTimestamp - Date.now();
+		const d: number = Math.floor(diff / 1000 / 60 / 60 / 24);
+		const h: number = Math.floor((diff / 1000 / 60 / 60 / 24 - d) * 24);
+		const m: number = Math.floor(diff / 1000 / 60 - d * 24 * 60 - h * 60);
+
+		stateTimePrint = diff > 0 ? `${d}d ${h}h ${m}m` : "0d 0h 0m";
 	} else if (position.start * 1000 > Date.now()) {
 		const diff: number = position.start * 1000 - Date.now();
 		const d: number = Math.floor(diff / 1000 / 60 / 60 / 24);
@@ -84,6 +126,16 @@ export default function MypositionsRow({ position }: Props) {
 	} else {
 		stateIdx = 5;
 		stateTimePrint = `${maturity} days`;
+	}
+
+	function navigateToChallenge() {
+		if (stateIdx != 1) return;
+
+		try {
+			router.push(`challenges/${stateChallengeInfo.challenge.number}/bid`, { scroll: true });
+		} catch (error) {
+			console.log(error);
+		}
 	}
 
 	return (
@@ -115,8 +167,10 @@ export default function MypositionsRow({ position }: Props) {
 
 			{/* State */}
 			<div className="flex flex-col">
-				<div className={`text-md ${stateIdx == 4 ? "text-red-700 font-bold" : "text-text-header "}`}>{states[stateIdx]}</div>
-				<div className="text-sm text-slate-500">{stateTimePrint}</div>
+				<div className={`text-md ${stateIdx != 5 ? "text-red-700 font-bold" : "text-text-header "}`}>{states[stateIdx]}</div>
+				<div className={`text-sm text-slate-500 ${stateIdx == 1 ? "underline cursor-pointer" : ""}`} onClick={navigateToChallenge}>
+					{stateTimePrint}
+				</div>
 			</div>
 		</TableRow>
 	);
