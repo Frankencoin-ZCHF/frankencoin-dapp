@@ -27,8 +27,11 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	const [latestConnectedToChain, setLatestConnectedToChain] = useState<boolean>(false);
 	const [latestAddress, setLatestAddress] = useState<Address | undefined>(undefined);
 
+	const loadedEcosystem: boolean = useSelector((state: RootState) => state.ecosystem.loaded);
 	const loadedPositions: boolean = useSelector((state: RootState) => state.positions.loaded);
 	const loadedPrices: boolean = useSelector((state: RootState) => state.prices.loaded);
+	const loadedChallenges: boolean = useSelector((state: RootState) => state.challenges.loaded);
+	const loadedBids: boolean = useSelector((state: RootState) => state.bids.loaded);
 
 	// --------------------------------------------------------------------------------
 	// Init
@@ -50,11 +53,11 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	// Init done
 	useEffect(() => {
 		if (initialized) return;
-		if (loadedPositions && loadedPrices) {
+		if (loadedEcosystem && loadedPositions && loadedPrices && loadedChallenges && loadedBids) {
 			console.log(`Init [BlockUpdater]: Done. ${Date.now() - initStart} ms`);
 			setInitialized(true);
 		}
-	}, [initialized, loadedPositions, loadedPrices]);
+	}, [initialized, loadedPositions, loadedPrices, loadedEcosystem, loadedChallenges, loadedBids]);
 
 	// --------------------------------------------------------------------------------
 	// Bock update policies
