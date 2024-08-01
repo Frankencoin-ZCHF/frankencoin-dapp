@@ -44,13 +44,13 @@ export default function ChallengesRow({ challenge }: Props) {
 	const isQuickAuction = start + 2 * duration > maturity;
 	const declineStartTimestamp = isQuickAuction ? start : start + duration;
 
-	const states: string[] = ["Phase 1", "Phase 2"];
+	const states: string[] = ["Fixed Price", "Declining Price", "Zero Price"];
 	let stateIdx: number = 0;
 	let stateTimeLeft: string = "";
 
 	if (time2exp < 0) {
-		stateIdx = 1;
-		stateTimeLeft = "Matured";
+		stateIdx = 2;
+		stateTimeLeft = "-";
 	} else if (declineStartTimestamp > Date.now()) {
 		stateIdx = 0;
 		const diff: number = declineStartTimestamp - Date.now();

@@ -11,9 +11,9 @@ export default function Borrow() {
 				<title>Frankencoin - Borrow</title>
 			</Head>
 
-			<div>
+{/* 			<div>
 				<AppPageHeader title="All Mintable Positions" />
-			</div>
+			</div> */}
 
 			<div className="mt-8">
 				<BorrowTable />

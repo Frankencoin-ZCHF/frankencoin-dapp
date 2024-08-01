@@ -16,7 +16,7 @@ export default function ChallengesTable() {
 
 	return (
 		<Table>
-			<TableHeader headers={["Remaining Size", "Current Price", "State", "Time Left"]} actionCol />
+			<TableHeader headers={["Available", "Price", "Phase", "Ends in"]} actionCol />
 			<TableBody>
 				{matchingChallenges.length == 0 ? (
 					<TableRowEmpty>{"There are no challenges yet."}</TableRowEmpty>

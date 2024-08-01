@@ -298,7 +298,7 @@ export default function PositionBorrow({}) {
 										onClick={() => handleClone()}
 										error={errorDate ?? error}
 									>
-										Clone and Borrow
+										Mint
 									</Button>
 								)}
 							</GuardToAllowedChainBtn>

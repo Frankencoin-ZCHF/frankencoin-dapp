@@ -12,7 +12,7 @@ export default function Positions() {
 			</Head>
 
 			<div>
-				<AppPageHeader title="Your Positions" />
+				<AppPageHeader title="Owned Positions" />
 			</div>
 
 			<div className="md:mt-8">
@@ -20,7 +20,7 @@ export default function Positions() {
 			</div>
 
 			<div>
-				<AppPageHeader title="Your Challenges" />
+				<AppPageHeader title="Initiated Challenges" />
 			</div>
 
 			<div className="md:mt-8">

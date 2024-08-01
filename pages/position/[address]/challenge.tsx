@@ -241,7 +241,7 @@ export default function PositionChallenge() {
 								<li>
 									During the fixed price phase, anyone can buy the {positionStats.collateralSymbol} you provided at the
 									liquidation price. If everything gets sold before the phase ends, the challenge is averted and you have
-									effectively sold the provided {positionStats.collateralSymbol} to the bidders for{" "}
+									effectively sold your {positionStats.collateralSymbol} to the bidders for{" "}
 									{formatBigInt(positionStats.liqPrice, 36 - positionStats.collateralDecimal)} ZCHF per unit.
 								</li>
 								<li>

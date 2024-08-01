@@ -18,7 +18,7 @@ export function NavItems() {
 				<NavButton to="/monitoring" name="Monitoring" />
 			</li>
 			<li>
-				<NavButton to="/challenges" name="Challenges" />
+				<NavButton to="/challenges" name="Auctions" />
 			</li>
 			<li>
 				<NavButton to="/pool" name="Equity" />

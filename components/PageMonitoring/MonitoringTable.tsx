@@ -34,7 +34,7 @@ export default function MonitoringTable() {
 
 	return (
 		<Table>
-			<TableHeader headers={["Collateral", "Collateralization", "Expiration", "Challenges"]} actionCol />
+			<TableHeader headers={["Collateral", "Collateralization", "Expiration", "Challenged"]} actionCol />
 			<TableBody>
 				{matchingPositions.length == 0 ? (
 					<TableRowEmpty>{"There are no other positions yet."}</TableRowEmpty>

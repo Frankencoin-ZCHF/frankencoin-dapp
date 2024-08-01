@@ -9,9 +9,9 @@ export default function ChallengesPage({}) {
 				<title>Frankencoin - Auctions</title>
 			</Head>
 
-			<div>
+{/* 			<div>
 				<AppPageHeader title="All Active Challenges" />
-			</div>
+			</div> */}
 
 			<div className="md:mt-8">
 				<ChallengesTable />

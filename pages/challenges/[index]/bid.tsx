@@ -155,17 +155,17 @@ export default function ChallengePlaceBid() {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Buy Collateral</title>
+				<title>Frankencoin - Bid</title>
 			</Head>
 
-			<div>
+{/* 			<div>
 				<AppPageHeader title="Buy Collateral" />
-			</div>
+			</div> */}
 
 			<div className="md:mt-8">
 				<section className="mx-auto max-w-2xl sm:px-8">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center mt-3">You are buying {position.collateralSymbol} with ZCHF</div>
+						<div className="text-lg font-bold text-center mt-3">Buy {position.collateralSymbol} in Auction</div>
 
 						<div className="">
 							<TokenInput
@@ -177,19 +177,19 @@ export default function ChallengePlaceBid() {
 								symbol={position.collateralSymbol}
 								error={error}
 								placeholder="Collateral Amount"
-								balanceLabel="Remaining Size"
+								balanceLabel="Available:"
 							/>
 							<div className="flex flex-col">
-								<span>Your Account balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} ZCHF</span>
+								<span>Your balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} ZCHF</span>
 							</div>
 							<div className="flex flex-col">
-								<span>Expected Costs: {formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} ZCHF</span>
+								<span>Estimated price: {formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} ZCHF</span>
 							</div>
 						</div>
 
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:col-span-2">
 							<AppBox>
-								<DisplayLabel label="Remaining Size" />
+								<DisplayLabel label="Available" />
 								<DisplayAmount
 									amount={remainingSize}
 									currency={position.collateralSymbol}
@@ -207,7 +207,7 @@ export default function ChallengePlaceBid() {
 								/>
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Original Size" />
+								<DisplayLabel label="Initially Available" />
 								<DisplayAmount
 									amount={challenge.size || 0n}
 									currency={position.collateralSymbol}
@@ -227,11 +227,11 @@ export default function ChallengePlaceBid() {
 								</Link>
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Starting to decline at" />
+								<DisplayLabel label="Fixed price until" />
 								<div>{formatDate(declineStartTimestamp / 1000) || "---"}</div>
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Reaching Zero at" />
+								<DisplayLabel label="Reaching zero at" />
 								{formatDate(maturity / 1000) || "---"}
 							</AppBox>
 						</div>

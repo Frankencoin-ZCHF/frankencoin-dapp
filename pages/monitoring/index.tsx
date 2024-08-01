@@ -9,9 +9,9 @@ export default function Positions() {
 				<title>Frankencoin - Monitoring</title>
 			</Head>
 
-			<div>
+			{/* <div>
 				<AppPageHeader title="Monitoring For All Positions" />
-			</div>
+			</div> */}
 
 			<div className="md:mt-8">
 				<MonitoringTable />

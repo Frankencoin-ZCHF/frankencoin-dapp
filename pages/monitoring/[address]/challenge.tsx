@@ -84,16 +84,17 @@ export default function PositionChallenge() {
 
 	// ---------------------------------------------------------------------------
 	const onChangeAmount = (value: string) => {
-		const valueBigInt = BigInt(value);
+		var valueBigInt = BigInt(value);
+		if (valueBigInt > _collBal){
+			valueBigInt = _collBal;
+		}
 		setAmount(valueBigInt);
 		if (valueBigInt > userBalance) {
 			setError(`Not enough ${position.collateralSymbol} in your wallet.`);
 		} else if (valueBigInt > BigInt(position.collateralBalance)) {
-			setError("Challenge collateral should be lower than position collateral");
-		} else if (valueBigInt < BigInt(position.minimumCollateral)) {
-			if (BigInt(position.collateralBalance) > BigInt(position.minimumCollateral)) {
-				setError("Challenge collateral should be greater than minimum collateral");
-			}
+			setError("Amount cannot be larger than the underlying position");
+		} else if (valueBigInt < BigInt(position.minimumCollateral) && (BigInt(position.collateralBalance) >= BigInt(position.minimumCollateral))) {
+			setError("Amount must be at least the minimum");
 		} else {
 			setError("");
 		}
@@ -190,12 +191,12 @@ export default function PositionChallenge() {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Position Challenge</title>
+				<title>Frankencoin - Challenge</title>
 			</Head>
 
-			<div>
+			{/* <div>
 				<AppPageHeader title="Lunch A Challenge" />
-			</div>
+			</div> */}
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -203,8 +204,8 @@ export default function PositionChallenge() {
 						<div className="text-lg font-bold text-center mt-3">Launch A Challenge</div>
 						<TokenInput
 							symbol={position.collateralSymbol}
-							max={maxChallengeLimit}
-							balanceLabel="Max Size"
+							max={userBalance}
+							balanceLabel="Your balance:"
 							digit={position.collateralDecimals}
 							value={amount.toString()}
 							onChange={onChangeAmount}
@@ -220,16 +221,16 @@ export default function PositionChallenge() {
 									currency={"ZCHF"}
 									digits={36 - position.collateralDecimals}
 									address={ADDRESS[chainId].frankenCoin}
-									subAmount={maxProceeds}
+									/* subAmount={maxProceeds}
 									subCurrency={"% (Coingecko)"}
-									subColor={maxProceeds > 0 ? "text-green-300" : "text-red-500"}
+									subColor={maxProceeds > 0 ? "text-green-300" : "text-red-500"} */
 									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
-								<DisplayLabel label="Maximum Proceeds" />
+								<DisplayLabel label="Potential Reward" />
 								<DisplayAmount
-									amount={BigInt(position.price) * amount}
+									amount={BigInt(position.price) * amount * 2n / 100n}
 									currency={"ZCHF"}
 									digits={36}
 									address={ADDRESS[chainId].frankenCoin}
@@ -288,25 +289,17 @@ export default function PositionChallenge() {
 						<div className="text-lg font-bold text-center mt-3">How does it work?</div>
 						<AppBox className="flex-1 mt-4">
 							<p>
-								The amount of the collateral asset you provide will be publicly auctioned in a Dutch auction. The auction
-								has two phases, a fixed price phase and a declining price phase.
+								A challenge is divided into two phases:
 							</p>
 							<ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
 								<li>
 									During the fixed price phase, anyone can buy the {position.collateralSymbol} you provided at the
-									liquidation price. If everything gets sold before the phase ends, the challenge is averted and you have
-									effectively sold the provided {position.collateralSymbol} to the bidders for{" "}
-									{formatBigInt(BigInt(position.price), 36 - position.collateralDecimals)} ZCHF per unit.
+									liquidation price of {formatBigInt(BigInt(position.price), 36 - position.collateralDecimals)} ZCHF each.
 								</li>
 								<li>
-									If the challenge is not averted, the fixed price phase is followed by a declining price phase during
-									which the price at which the
-									{position.collateralSymbol} tokens can be obtained declines linearly towards zero. In this case, the
-									challenge is considered successful and you get the provided {position.collateralSymbol} tokens back. The
-									tokens sold in this phase do not come from the challenger, but from the position owner. The total amount
-									of tokens that can be bought from the position is limited by the amount left in the challenge at the end
-									of the fixed price phase. As a reward for starting a successful challenge, you get 2% of the sales
-									proceeds.
+									If there are any {position.collateralSymbol} left after the fixed price phase ends, you get
+									the remaining {position.collateralSymbol} back and the price starts to decline towards zero. In this phase, the bidders are
+									not buying from the challenger any more, but from the position owner. You will get 2% of the sales proceeds as a reward.
 								</li>
 							</ol>
 						</AppBox>
