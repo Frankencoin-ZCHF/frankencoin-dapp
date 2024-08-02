@@ -27,9 +27,16 @@ module.exports = {
 					secondary: "#e5e7eb",
 				},
 				card: {
-					header: "#030617",
-					primary: "#020617",
-					secondary: "#1e293b",
+					body: {
+						primary: "#020617",
+						secondary: "#1e293b",
+						seperator: "#1e293b",
+					},
+					content: {
+						primary: "#94a3b8",
+						secondary: "#1e293b",
+						highlight: "#d1d5db",
+					},
 				},
 				text: {
 					header: "#95A3B8",
@@ -37,6 +44,19 @@ module.exports = {
 					primary: "#94a3b8",
 					secondary: "#e2e8f0",
 				},
+				tableHeader: {
+					primary: "#1e293b",
+					secondary: "#d1d5db",
+				},
+				tableRow: {
+					primary: "#1e293b",
+					secondary: "#d1d5db",
+					hover: "#334155",
+				},
+			},
+			badgePosition: {
+				original: "#facc15",
+				clone: "#38bdf8",
 			},
 		},
 	},

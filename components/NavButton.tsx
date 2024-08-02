@@ -1,5 +1,4 @@
 import Link from "next/link";
-import AppButton from "./AppButton";
 import { useRouter } from "next/router";
 
 interface Props {

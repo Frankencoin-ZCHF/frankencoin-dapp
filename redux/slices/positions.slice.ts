@@ -1,18 +1,16 @@
+import { PositionQuery, ApiPositionsListing, ApiPositionsOwners, ApiPositionsMapping } from "@frankencoin/api";
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
-import { Address } from "viem";
 import { uniqueValues } from "@utils";
+import { FRANKENCOIN_API_CLIENT } from "../../app.config";
 import {
 	PositionsState,
-	PositionQuery,
 	DispatchBoolean,
 	DispatchPositionQueryArray,
 	DispatchPositionQueryArray2,
-	PositionsQueryObjectArray,
-	DispatchPositionsQueryObjectArray,
-	OwnersPositionsQueryObject,
-	DispatchOwnersPositionsQueryObject,
+	DispatchApiPositionsListing,
+	DispatchApiPositionsOwners,
+	DispatchApiPositionsMapping,
 } from "./positions.types";
-import { API_URI_SELECTED } from "../../app.config";
 
 // --------------------------------------------------------------------------------
 
@@ -20,8 +18,10 @@ export const initialState: PositionsState = {
 	error: null,
 	loaded: false,
 
-	list: {},
-	ownersPositions: { num: 0, owners: [], positions: {} },
+	list: { num: 0, list: [] },
+	mapping: { num: 0, addresses: [], map: {} },
+	requests: { num: 0, addresses: [], map: {} },
+	owners: { num: 0, owners: [], map: {} },
 
 	openPositions: [],
 	closedPositions: [],
@@ -49,13 +49,25 @@ export const slice = createSlice({
 
 		// -------------------------------------
 		// SET LIST
-		setList: (state, action: { payload: PositionsQueryObjectArray }) => {
+		setList: (state, action: { payload: ApiPositionsListing }) => {
 			state.list = action.payload;
 		},
 
+		// -------------------------------------
+		// SET LIST Mapping
+		setListMapping: (state, action: { payload: ApiPositionsMapping }) => {
+			state.mapping = action.payload;
+		},
+
+		// -------------------------------------
+		// SET REQUESTS LIST
+		setRequestsList: (state, action: { payload: ApiPositionsMapping }) => {
+			state.requests = action.payload;
+		},
+
 		// SET OWNERS POSITIOS
-		setOwnersPositions: (state, action: { payload: OwnersPositionsQueryObject }) => {
-			state.ownersPositions = action.payload;
+		setOwnersPositions: (state, action: { payload: ApiPositionsOwners }) => {
+			state.owners = action.payload;
 		},
 
 		// -------------------------------------
@@ -100,8 +112,9 @@ export const fetchPositionsList =
 	async (
 		dispatch: Dispatch<
 			| DispatchBoolean
-			| DispatchPositionsQueryObjectArray
-			| DispatchOwnersPositionsQueryObject
+			| DispatchApiPositionsListing
+			| DispatchApiPositionsMapping
+			| DispatchApiPositionsOwners
 			| DispatchPositionQueryArray
 			| DispatchPositionQueryArray2
 		>
@@ -110,21 +123,26 @@ export const fetchPositionsList =
 		console.log("Loading [REDUX]: PositionsList");
 
 		// ---------------------------------------------------------------
-		// Query raw data from backend api
-		const response1 = await fetch(`${API_URI_SELECTED}/positions/list`);
-		const list = (await response1.json()) as PositionsQueryObjectArray;
-		dispatch(slice.actions.setList(list));
+		// Query raw data from backend api;
+		const response1 = await FRANKENCOIN_API_CLIENT.get("/positions/list");
+		dispatch(slice.actions.setList(response1.data as ApiPositionsListing));
 
-		const response2 = await fetch(`${API_URI_SELECTED}/positions/owners`);
-		const owners = (await response2.json()) as OwnersPositionsQueryObject;
-		dispatch(slice.actions.setOwnersPositions(owners));
+		const responseMapping = await FRANKENCOIN_API_CLIENT.get("/positions/mapping");
+		dispatch(slice.actions.setListMapping(responseMapping.data as ApiPositionsMapping));
+
+		const response2 = await FRANKENCOIN_API_CLIENT.get("/positions/owners");
+		dispatch(slice.actions.setOwnersPositions(response2.data as ApiPositionsOwners));
+
+		const response3 = await FRANKENCOIN_API_CLIENT.get("/positions/requests");
+		dispatch(slice.actions.setRequestsList(response3.data as ApiPositionsMapping));
 
 		// ---------------------------------------------------------------
 		// filter positions and dispatch
-		const listArray = Object.values(list);
+		const listArray = response1.data.list as PositionQuery[];
 		const openPositions = listArray.filter((position) => !position.denied && !position.closed);
 		const collateralAddresses = openPositions.map((position) => position.collateral).filter(uniqueValues);
 
+		// const requestedPositions = collateralAddresses.map((con) => listArray.filter((position) => position.collateral == con));
 		const closedPositioins = listArray.filter((position) => position.closed);
 		const deniedPositioins = listArray.filter((position) => position.denied);
 		const originalPositions = openPositions.filter((position) => position.isOriginal);

@@ -1,11 +1,12 @@
-import { useAccount, useChainId, useReadContracts } from "wagmi";
+import { useAccount, useReadContracts } from "wagmi";
 import { ADDRESS } from "@contracts";
 import { ABIS } from "@contracts";
 import { decodeBigIntCall } from "@utils";
 import { erc20Abi } from "viem";
+import { WAGMI_CHAIN } from "../app.config";
 
 export const useSwapStats = () => {
-	const chainId = useChainId();
+	const chainId = WAGMI_CHAIN.id as number;
 	const { address } = useAccount();
 	const account = address || "0x0";
 
@@ -13,23 +14,27 @@ export const useSwapStats = () => {
 		contracts: [
 			// XCHF Calls
 			{
+				chainId,
 				address: ADDRESS[chainId].xchf,
 				abi: erc20Abi,
 				functionName: "balanceOf",
 				args: [account],
 			},
 			{
+				chainId,
 				address: ADDRESS[chainId].xchf,
 				abi: erc20Abi,
 				functionName: "symbol",
 			},
 			{
+				chainId,
 				address: ADDRESS[chainId].xchf,
 				abi: erc20Abi,
 				functionName: "allowance",
 				args: [account, ADDRESS[chainId].bridge],
 			},
 			{
+				chainId,
 				address: ADDRESS[chainId].xchf,
 				abi: erc20Abi,
 				functionName: "balanceOf",
@@ -37,17 +42,20 @@ export const useSwapStats = () => {
 			},
 			// Frankencoin Calls
 			{
+				chainId,
 				address: ADDRESS[chainId].frankenCoin,
 				abi: erc20Abi,
 				functionName: "balanceOf",
 				args: [account],
 			},
 			{
+				chainId,
 				address: ADDRESS[chainId].frankenCoin,
 				abi: erc20Abi,
 				functionName: "symbol",
 			},
 			{
+				chainId,
 				address: ADDRESS[chainId].frankenCoin,
 				abi: erc20Abi,
 				functionName: "allowance",
@@ -55,6 +63,7 @@ export const useSwapStats = () => {
 			},
 			// Bridge Calls
 			{
+				chainId,
 				address: ADDRESS[chainId].bridge,
 				abi: ABIS.StablecoinBridgeABI,
 				functionName: "limit",
@@ -74,6 +83,9 @@ export const useSwapStats = () => {
 	const bridgeLimit: bigint = data ? decodeBigIntCall(data[7]) : BigInt(0);
 
 	return {
+		isError,
+		isLoading,
+
 		xchfUserBal,
 		xchfSymbol,
 		xchfUserAllowance,

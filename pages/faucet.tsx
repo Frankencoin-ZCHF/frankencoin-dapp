@@ -99,15 +99,13 @@ export function FaucetRow({ name, symbol, balance, decimal, addr }: RowProps) {
 export default function Faucet() {
 	const faucetStats = useFaucetStats();
 
-	if ((WAGMI_CHAIN.id as number) == (sepolia.id as number)) return <></>;
-
 	return (
 		<>
 			<Head>
 				<title>Frankencoin - Faucet</title>
 			</Head>
 			<div>
-				<AppPageHeader title="Faucets" />
+				<AppPageHeader title={`Faucets - Chain: ${WAGMI_CHAIN.name} (id: ${WAGMI_CHAIN.id})`} />
 				<Table>
 					<TableHeader headers={["Token", "", "", "Decimals", "Your Balance"]} actionCol colSpan={6} />
 					<TableBody>

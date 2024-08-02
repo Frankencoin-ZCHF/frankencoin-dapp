@@ -1,10 +1,9 @@
 import { useSelector } from "react-redux";
-import { PositionQuery } from "../../redux/slices/positions.types";
 import { RootState } from "../../redux/redux.store";
 import TokenLogo from "@components/TokenLogo";
-import { PriceQueryObjectArray } from "../../redux/slices/prices.types";
 import { Address } from "viem/accounts";
 import { formatCurrency } from "../../utils/format";
+import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 
 export type CollateralItem = {
 	collateral: {
@@ -58,6 +57,8 @@ export function PositionCollateralCalculate(listByCollateral: PositionQuery[][],
 				availableForClones += parseInt(pos.availableForClones) / 10 ** pos.zchfDecimals;
 			}
 		}
+
+		if (!collateral.price.usd || !mint.price.usd) continue;
 
 		balance = balance / 10 ** collateral.decimals;
 		const valueLockedUsd = Math.round(balance * collateral.price.usd);
@@ -121,7 +122,7 @@ export default function PositionCollateral({ children }: { children?: React.Reac
 	if (stats.length === 0) return null;
 
 	return (
-		<div className="flex bg-card-header rounded-2xl px-5 py-3 my-10 space-x-8 hide-scroll-bar">
+		<div className="flex bg-card-body-primary rounded-2xl px-5 py-3 my-10 space-x-8 hide-scroll-bar">
 			<div className="flex overflow-x-scroll hide-scroll-bar">
 				<div className="flex flex-nowrap">
 					{stats.map((c: CollateralItem, i: number) => (
@@ -172,5 +173,5 @@ export function PositionCollateralItem({ item }: { item: CollateralItem }): Reac
 }
 
 export function PositionCollateralItemSeperator(): React.ReactElement {
-	return <div className="bg-card-secondary w-[2px] h-[90%] mx-5 my-auto"></div>;
+	return <div className="bg-card-body-seperator w-[2px] h-[90%] mx-5 my-auto"></div>;
 }

@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faBook, faBookmark, faComments, faCodeCommit } from "@fortawesome/free-solid-svg-icons";
 import { faGithub, faTelegram, faXTwitter } from "@fortawesome/free-brands-svg-icons";
-import { version } from "../package.json";
 import { SubmitIssue } from "./LoadingScreen";
 
 interface ButtonProps {

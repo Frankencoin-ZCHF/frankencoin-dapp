@@ -102,37 +102,37 @@ export default function Governance() {
 				<AppPageHeader title="Governance" link={equityUrl} />
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col">
-						<div className="text-lg font-bold text-center">Delegation</div>
-						<div className="mt-5">
-							<div className="px-1 flex-1">Delegate votes to</div>
-							<div className="flex-1 gap-2 items-center rounded-lg bg-slate-800 p-2">
-								<div
-									className={`flex-1 gap-1 rounded-lg text-white p-1 bg-slate-600 border-2 ${
-										error ? "border-red-300" : "border-neutral-100 border-slate-600"
-									}`}
-								>
-									<input
-										className="w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg"
-										placeholder="Delegatee's Address"
-										value={inputField}
-										onChange={onChangeDelegatee}
-									/>
-								</div>
-								<div className="mx-auto mt-2 max-w-full flex-col">
-									<GuardToAllowedChainBtn>
-										<Button
-											isLoading={isConfirming}
-											disabled={delegator == zeroAddress || !!error}
-											onClick={() => handleDelegate()}
-										>
-											Set
-										</Button>
-									</GuardToAllowedChainBtn>
-								</div>
+						<div className="mt-4 text-lg font-bold text-center">Delegation</div>
+
+						<div className="mt-4">Delegate votes to:</div>
+						<div className="gap-2 items-center">
+							<div
+								className={`flex-1 gap-1 rounded-lg text-white p-1 bg-slate-600 border-2 ${
+									error ? "border-red-300" : "border-slate-600"
+								}`}
+							>
+								<input
+									className="w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg"
+									placeholder="Delegatee's Address"
+									value={inputField}
+									onChange={onChangeDelegatee}
+								/>
 							</div>
-							<div className="mt-2 px-1 text-red-500">{error}</div>
+							<div className="mx-auto mt-2 max-w-full flex-col">
+								<GuardToAllowedChainBtn>
+									<Button
+										isLoading={isConfirming}
+										disabled={delegator == zeroAddress || !!error}
+										onClick={() => handleDelegate()}
+									>
+										Set
+									</Button>
+								</GuardToAllowedChainBtn>
+							</div>
 						</div>
-						<div className="bg-slate-900 rounded-xl p-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+						<div className="mt-2 px-1 text-red-500">{error}</div>
+
+						<div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
 							<AppBox>
 								<DisplayLabel label="Delegated To" />
 								{delegationData.delegatedTo == zeroAddress ? (
@@ -161,6 +161,7 @@ export default function Governance() {
 								{(Number(userTotalVotesPercent) / 100).toFixed(2)} %
 							</AppBox>
 						</div>
+
 						<div className="mt-4 text-lg font-bold text-center">Delegating to You</div>
 						<div className="bg-slate-900 rounded-xl p-4 grid grid-cols-1 gap-2">
 							{delegationStats.delegatedFrom.map((from) => {
@@ -182,7 +183,7 @@ export default function Governance() {
 					</div>
 					<div className="bg-slate-950 rounded-xl p-4">
 						<div className="mt-4 text-lg font-bold text-center">Proposals</div>
-						<div className="bg-slate-900 rounded-xl p-4 flex flex-col gap-2">
+						<div className="mt-4 flex flex-col gap-2">
 							{minters.map((minter: any) => (
 								<MinterProposal
 									key={minter.id}
@@ -196,7 +197,7 @@ export default function Governance() {
 				<section className="mt-4">
 					<div className="bg-slate-950 rounded-xl p-4">
 						<div className="mt-4 text-lg font-bold text-center">Top Voters</div>
-						<div className="bg-slate-900 rounded-xl p-4 flex flex-col gap-2">
+						<div className="mt-4 flex flex-col gap-2">
 							{votingPowers.votesData.map((power) => (
 								<FPSHolder
 									key={power.holder}

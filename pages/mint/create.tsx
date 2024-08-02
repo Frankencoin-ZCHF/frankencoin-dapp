@@ -2,14 +2,14 @@
 import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import { useEffect } from "react";
-import { isAddress, maxUint256 } from "viem";
+import { Address, isAddress, maxUint256 } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useTokenData, useUserBalance } from "@hooks";
 import { useState } from "react";
 import Button from "@components/Button";
-import { useChainId } from "wagmi";
+import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { erc20Abi } from "viem";
-import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
 import { formatBigInt, shortenAddress } from "@utils";
 import { toast } from "react-toastify";
@@ -18,18 +18,19 @@ import Link from "next/link";
 import NormalInput from "@components/Input/NormalInput";
 import AddressInput from "@components/Input/AddressInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { WAGMI_CONFIG } from "../../app.config";
+import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 
 export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
 	const [initialCollAmount, setInitialCollAmount] = useState(0n);
 	const [limitAmount, setLimitAmount] = useState(1_000_000n * BigInt(1e18));
+	const [proposalFee, setProposalFee] = useState(1000n);
 	const [initPeriod, setInitPeriod] = useState(5n);
 	const [liqPrice, setLiqPrice] = useState(0n);
 	const [interest, setInterest] = useState(30000n);
 	const [maturity, setMaturity] = useState(12n);
 	const [buffer, setBuffer] = useState(200000n);
-	const [auctionDuration, setAuctionDuration] = useState(24n);
+	const [auctionDuration, setAuctionDuration] = useState(48n);
 	const [collateralAddress, setCollateralAddress] = useState("");
 	const [minCollAmountError, setMinCollAmountError] = useState("");
 	const [initialCollAmountError, setInitialCollAmountError] = useState("");
@@ -39,12 +40,36 @@ export default function PositionCreate({}) {
 	const [initError, setInitError] = useState("");
 	const [liqPriceError, setLiqPriceError] = useState("");
 	const [bufferError, setBufferError] = useState("");
-	const [auctionError, setAuctionError] = useState("");
+	const [durationError, setDurationError] = useState("");
 	const [isConfirming, setIsConfirming] = useState("");
+
+	const [userAllowance, setUserAllowance] = useState<bigint>(0n);
+	const { data } = useBlockNumber({ watch: true });
+	const account = useAccount();
 
 	const chainId = useChainId();
 	const collTokenData = useTokenData(collateralAddress);
 	const userBalance = useUserBalance();
+	const blocknumber = useBlockNumber();
+
+	useEffect(() => {
+		const acc: Address | undefined = account.address;
+		if (acc === undefined) return;
+		if (isConfirming != "approve") return;
+		if (collateralAddress == "") return;
+
+		const fetchAsync = async function () {
+			const _allowance = await readContract(WAGMI_CONFIG, {
+				address: collateralAddress as Address,
+				abi: erc20Abi,
+				functionName: "allowance",
+				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHub],
+			});
+			setUserAllowance(_allowance);
+		};
+
+		fetchAsync();
+	}, [data, account.address, collateralAddress, isConfirming]);
 
 	useEffect(() => {
 		if (isAddress(collateralAddress)) {
@@ -63,6 +88,11 @@ export default function PositionCreate({}) {
 			setCollTokenAddrError("");
 		}
 	}, [collateralAddress, collTokenData]);
+
+	const onChangeProposalFee = (value: string) => {
+		const valueBigInt = BigInt(value);
+		setProposalFee(valueBigInt);
+	};
 
 	const onChangeMinCollAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
@@ -131,7 +161,7 @@ export default function PositionCreate({}) {
 	};
 
 	function checkCollateralAmount(coll: bigint, price: bigint) {
-		if (coll * price < 5000n * 10n ** 36n) {
+		if (coll * price < 10n ** 36n) {
 			setLiqPriceError("The liquidation value of the collateral must be at least 5000 ZCHF");
 			setMinCollAmountError("The collateral must be worth at least 5000 ZCHF");
 		} else {
@@ -155,6 +185,11 @@ export default function PositionCreate({}) {
 	const onChangeAuctionDuration = (value: string) => {
 		const valueBigInt = BigInt(value);
 		setAuctionDuration(valueBigInt);
+		if (valueBigInt < 1n) {
+			setDurationError("Duration must be at least 1h");
+		} else {
+			setDurationError("");
+		}
 	};
 
 	const hasFormError = () => {
@@ -166,7 +201,7 @@ export default function PositionCreate({}) {
 			!!interestError ||
 			!!liqPriceError ||
 			!!bufferError ||
-			!!auctionError ||
+			!!durationError ||
 			!!initError
 		);
 	};
@@ -227,9 +262,9 @@ export default function PositionCreate({}) {
 					minCollAmount,
 					initialCollAmount,
 					limitAmount,
-					initPeriod * 86400n,
+					initPeriod * BigInt(24 * 60 * 60),
 					maturity * 86400n * 30n,
-					auctionDuration * 3600n,
+					auctionDuration * BigInt(60 * 60),
 					Number(interest),
 					liqPrice,
 					Number(buffer),
@@ -243,11 +278,11 @@ export default function PositionCreate({}) {
 				},
 				{
 					title: "Collateral Amount:",
-					value: formatBigInt(initialCollAmount) + collTokenData.symbol,
+					value: formatBigInt(initialCollAmount, parseInt(collTokenData.decimals.toString())) + collTokenData.symbol,
 				},
 				{
 					title: "LiqPrice: ",
-					value: formatBigInt(liqPrice),
+					value: formatBigInt(liqPrice, 36 - parseInt(collTokenData.decimals.toString())),
 				},
 				{
 					title: "Transaction:",
@@ -278,26 +313,25 @@ export default function PositionCreate({}) {
 			<Head>
 				<title>Frankencoin - Propose Position</title>
 			</Head>
+
 			<div>
-				<AppPageHeader
-					title="Propose New Position Type"
-					backText="Back to positions"
-					backTo={`/positions`}
-					tooltip="Propose a completely new position with a collateral of your choice."
-				/>
+				<AppPageHeader title="Propose a completely new position" />
+			</div>
+
+			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold justify-center mt-3 flex">Initialization</div>
+						<div className="text-lg font-bold justify-center mt-3 flex">Proposal Details</div>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							<TokenInput
 								label="Proposal Fee"
 								symbol="ZCHF"
 								hideMaxLabel
-								value={BigInt(1000 * 1e18).toString()}
-								onChange={onChangeInitialCollAmount}
-								digit={18}
+								value={proposalFee.toString()}
+								onChange={onChangeProposalFee}
+								digit={0}
 								error={userBalance.frankenBalance < BigInt(1000 * 1e18) ? "Not enough ZCHF" : ""}
-								disabled
+								disabled={true}
 							/>
 							<NormalInput
 								label="Initialization Period"
@@ -320,8 +354,10 @@ export default function PositionCreate({}) {
 							process.
 						</div>
 					</div>
+
+					{/* Collateral */}
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold justify-center mt-3 flex">Collateral</div>
+						<div className="text-lg font-bold justify-center mt-3 flex">Choose your Collateral</div>
 
 						<AddressInput
 							label="Collateral Token"
@@ -331,14 +367,11 @@ export default function PositionCreate({}) {
 							onChange={onChangeCollateralAddress}
 						/>
 						{collTokenData.symbol != "NaN" &&
-						(collTokenData.allowance == 0n ||
-							collTokenData.allowance < minCollAmount ||
-							collTokenData.allowance < initialCollAmount) ? (
+						(userAllowance == 0n || userAllowance < minCollAmount || userAllowance < initialCollAmount) ? (
 							<Button
 								isLoading={isConfirming == "approve"}
 								disabled={
-									collTokenData.symbol == "NaN" ||
-									(collTokenData.allowance > minCollAmount && collTokenData.allowance > initialCollAmount)
+									collTokenData.symbol == "NaN" || (userAllowance > minCollAmount && userAllowance > initialCollAmount)
 								}
 								onClick={() => handleApprove()}
 							>
@@ -429,7 +462,7 @@ export default function PositionCreate({}) {
 							<NormalInput
 								label="Auction Duration"
 								symbol="hours"
-								error={auctionError}
+								error={durationError}
 								hideMaxLabel
 								digit={0}
 								value={auctionDuration.toString()}
@@ -443,12 +476,7 @@ export default function PositionCreate({}) {
 					<GuardToAllowedChainBtn>
 						<Button
 							variant="primary"
-							disabled={
-								minCollAmount == 0n ||
-								collTokenData.allowance < initialCollAmount ||
-								initialCollAmount == 0n ||
-								hasFormError()
-							}
+							disabled={minCollAmount == 0n || userAllowance < initialCollAmount || initialCollAmount == 0n || hasFormError()}
 							isLoading={isConfirming == "open"}
 							onClick={() => handleOpenPosition()}
 						>

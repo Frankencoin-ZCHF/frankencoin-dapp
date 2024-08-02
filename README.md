@@ -1,15 +1,48 @@
 ## Getting Started
 
-### Edit app.config
+### Configurations for new collateral token
+
+1. Add token logo in **svg** or **png** format under `public/coin/` folder.
+2. Make sure logo file name should be in lower case and same as real token symbol.
+   e.g `public/coin/xchf.svg`
+
+### Automatic deployment
+
+1. The main branch should deploy to app.frankencoin.com
+2. The dev Branch should deploy to dev.app.frankencoin.com
+
+### Copy .env.example and adjust your environment
 
 ```
-export const APP_URI_MAINNET = "https://app.frankencoin.com";
-export const PONDER_URI_MAINNET = "https://mainnet.ponder.frankencoin.com";
+NEXT_PUBLIC_LANDINGPAGE_URL=https://frankencoin.com
+NEXT_PUBLIC_APP_URL=https://app.frankencoin.com
+NEXT_PUBLIC_API_URL=https://api.frankencoin.com
+NEXT_PUBLIC_PONDER_URL=https://ponder.frankencoin.com
+NEXT_PUBLIC_CHAIN_NAME=mainnet
+NEXT_PUBLIC_WAGMI_ID=...
+NEXT_PUBLIC_RPC_URL_MAINNET=...
+NEXT_PUBLIC_RPC_URL_POLYGON=...
+```
 
-// >>>>>> SELECTED URI HERE <<<<<<
-export const APP_URI_SELECTED = APP_URI_MAINNET;
-export const PONDER_URI_SELECTED = PONDER_URI_MAINNET;
-// >>>>>> SELECTED URI HERE <<<<<<
+### Change default environment (app.config.ts)
+
+```
+// Config
+export const CONFIG: ConfigEnv = {
+	landing: process.env.NEXT_PUBLIC_LANDINGPAGE_URL || "https://frankencoin.com",
+	app: process.env.NEXT_PUBLIC_APP_URL || "https://app.frankencoin.com",
+	api: process.env.NEXT_PUBLIC_API_URL || "https://api.frankencoin.com",
+	ponder: process.env.NEXT_PUBLIC_PONDER_URL || "https://ponder.frankencoin.com",
+	chain: process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon" ? polygon : mainnet,
+	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID,
+	rpc:
+		process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon"
+			? (process.env.NEXT_PUBLIC_RPC_URL_POLYGON as string)
+			: process.env.NEXT_PUBLIC_RPC_URL_MAINNET,
+};
+
+console.log("YOU ARE USING THIS CONFIG PROFILE:");
+console.log(CONFIG);
 ```
 
 ### Production
@@ -57,8 +90,9 @@ Drop an address if you need ETH on this network.
 ```
 
 #### Affected file: /contracts/address.ts
-- change custom chain settings
-- update SC addresses
+
+-   change custom chain settings
+-   update SC addresses
 
 ```
 [ethereum3.id]: {
@@ -75,8 +109,9 @@ Drop an address if you need ETH on this network.
 ```
 
 #### Affected file: /pages/api/prices.ts
-- change addresses of ERC20 tokens
-- "hard/softcode" a price (for dev)
+
+-   change addresses of ERC20 tokens
+-   "hard/softcode" a price (for dev)
 
 ```
 // if ethereum3 private testnet
@@ -96,28 +131,16 @@ if ((WAGMI_CHAIN.id as number) === 1337) {
 ```
 
 #### Affected file: /app.config.ts
-- change app uri and ponder uri
-- **ponder needs to runs on the same chain**
-- WAGMI_PROJECT_ID e.g. ethereum3 (custom testnet chain)
-- WAGMI_CHAIN
-- add transport
+
+-   change app uri and ponder uri
+-   **ponder needs to runs on the same chain**
+-   WAGMI_PROJECT_ID e.g. ethereum3 (custom testnet chain)
+-   WAGMI_CHAIN
+-   add transport
 
 ```
 transports: {
-   [mainnet.id]: http("https://eth-mainnet.g.alchemy.com/v2/DQBbcLnV8lboEfoEpe8Z_io7u5UJfSVd"),
+   [mainnet.id]: http("https://eth-mainnet.g.alchemy.com/v2/..."),
    [ethereum3.id]: http("https://ethereum3.3dotshub.com"),
 },
 ```
-
-
-
-## Configurations for new collateral token
-
-1. Add token logo in **svg** or **png** format under `public/coin/` folder.
-2. Make sure logo file name should be in lower case and same as real token symbol.
-   e.g `public/coin/xchf.svg`
-
-## Automatic deployment
-
-1. The main branch should deploy to app.frankencoin.com
-2. The dev Branch should deploy to dev.app.frankencoin.com

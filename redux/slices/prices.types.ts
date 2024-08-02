@@ -1,37 +1,23 @@
+import {
+	ERC20Info,
+	PriceQuery,
+	PriceQueryCurrencies,
+	ApiPriceListing,
+	ApiPriceERC20,
+	ApiPriceERC20Mapping,
+	ApiPriceMapping,
+} from "@frankencoin/api";
 import { Address } from "viem";
-
-export type ERC20Info = {
-	address: Address;
-	name: string;
-	symbol: string;
-	decimals: number;
-};
 
 // --------------------------------------------------------------------------------
 export type PricesState = {
 	error: string | null;
 	loaded: boolean;
 
-	coingecko: PriceQueryObjectArray;
-	mint: ERC20Info;
-	collateral: { [key: Address]: ERC20Info };
-};
-
-// --------------------------------------------------------------------------------
-// TODO: Implement other currencies
-export type PriceQueryCurrencies = {
-	usd: number;
-	// chf: number;
-	// eur: number;
-};
-
-export type PriceQuery = ERC20Info & {
-	timestamp: number;
-	price: PriceQueryCurrencies;
-};
-
-export type PriceQueryObjectArray = {
-	[key: Address]: PriceQuery;
+	coingecko: ApiPriceMapping;
+	mint: ERC20Info | ApiPriceERC20;
+	fps: ERC20Info | ApiPriceERC20;
+	collateral: ApiPriceERC20Mapping;
 };
 
 // --------------------------------------------------------------------------------
@@ -40,12 +26,17 @@ export type DispatchBoolean = {
 	payload: Boolean;
 };
 
-export type DispatchPriceQueryObjectArray = {
+export type DispatchApiPriceMapping = {
 	type: string;
-	payload: PriceQueryObjectArray;
+	payload: ApiPriceMapping;
 };
 
-export type DispatchERC20InfoObjectArray = {
+export type DispatchApiPriceERC20 = {
 	type: string;
-	payload: { [key: Address]: ERC20Info };
+	payload: ApiPriceERC20;
+};
+
+export type DispatchApiPriceERC20Mapping = {
+	type: string;
+	payload: ApiPriceERC20Mapping;
 };

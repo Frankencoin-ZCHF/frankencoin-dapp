@@ -215,7 +215,7 @@ export default function Pool() {
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col">
 						<div className="text-lg font-bold text-center">Pool Details</div>
-						<div className="p-4 mt-5">
+						<div className="mt-4">
 							<TokenInput
 								max={fromBalance}
 								symbol={fromSymbol}
@@ -275,7 +275,7 @@ export default function Pool() {
 								</GuardToAllowedChainBtn>
 							</div>
 						</div>
-						<div className="mt-5 bg-slate-900 rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+						<div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-2">
 							<AppBox>
 								<DisplayLabel label="Your Balance" />
 								<DisplayAmount amount={poolStats.equityBalance} currency="FPS" address={ADDRESS[chainId].equity} />
@@ -297,7 +297,7 @@ export default function Pool() {
 								{formatDuration(redeemLeft)}
 							</AppBox>
 						</div>
-						<div>
+						<div className="mt-4">
 							Also available as{" "}
 							<Link
 								href={"https://etherscan.io/address/0x5052d3cc819f53116641e89b96ff4cd1ee80b182"}
@@ -328,7 +328,6 @@ export default function Pool() {
 								type="area"
 								options={{
 									theme: {
-										mode: "dark",
 										palette: "palette1",
 									},
 									chart: {
@@ -343,7 +342,7 @@ export default function Pool() {
 										zoom: {
 											enabled: false,
 										},
-										background: "transparent",
+										background: "0",
 									},
 									stroke: {
 										width: 3,
@@ -394,7 +393,7 @@ export default function Pool() {
 								]}
 							/>
 						</div>
-						<div className="bg-slate-900 rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							<AppBox>
 								<DisplayLabel label="Market Cap" />
 								<DisplayAmount amount={(poolStats.equitySupply * poolStats.equityPrice) / BigInt(1e18)} currency="ZCHF" />

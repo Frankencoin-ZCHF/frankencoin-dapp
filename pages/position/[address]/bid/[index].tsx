@@ -10,7 +10,7 @@ import { erc20Abi, formatUnits, getAddress, zeroAddress } from "viem";
 import { formatBigInt, formatDate, formatDuration, min, shortenAddress } from "@utils";
 import Link from "next/link";
 import Button from "@components/Button";
-import { WagmiConfig, useChainId } from "wagmi";
+import { useChainId } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
@@ -50,7 +50,7 @@ export default function ChallengePlaceBid({}) {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
 
-		if (valueBigInt > positionStats.collateralUserBal) {
+		if (valueBigInt > positionStats.frankenBalance) {
 			setError("Not enough balance in your wallet.");
 		} else if (valueBigInt > remainingCol) {
 			setError("Expected winning collateral should be lower than remaining collateral.");
@@ -111,7 +111,7 @@ export default function ChallengePlaceBid({}) {
 				address: ADDRESS[chainId].mintingHub,
 				abi: ABIS.MintingHubABI,
 				functionName: "bid",
-				args: [Number(challenge?.index || 0n), amount, true],
+				args: [challengeIndex, amount, true],
 			});
 
 			const toastContent = [
@@ -161,7 +161,7 @@ export default function ChallengePlaceBid({}) {
 							<div className="space-y-4">
 								<TokenInput
 									label="You are buying"
-									max={min(positionStats.collateralUserBal, remainingCol)}
+									max={positionStats.collateralBal}
 									value={amount.toString()}
 									onChange={onChangeAmount}
 									digit={positionStats.collateralDecimal}

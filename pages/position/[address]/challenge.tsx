@@ -143,7 +143,7 @@ export default function PositionChallenge() {
 				<title>Frankencoin - Position Challenge</title>
 			</Head>
 			<div>
-				<AppPageHeader title="Launch Challenge" backText="Back to position" backTo={`/position/${position}`} />
+				<AppPageHeader title="Launch a Challenge" />
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold text-center mt-3">Challenge Details</div>
@@ -241,7 +241,7 @@ export default function PositionChallenge() {
 								<li>
 									During the fixed price phase, anyone can buy the {positionStats.collateralSymbol} you provided at the
 									liquidation price. If everything gets sold before the phase ends, the challenge is averted and you have
-									effectively sold the provided {positionStats.collateralSymbol} to the bidders for{" "}
+									effectively sold your {positionStats.collateralSymbol} to the bidders for{" "}
 									{formatBigInt(positionStats.liqPrice, 36 - positionStats.collateralDecimal)} ZCHF per unit.
 								</li>
 								<li>

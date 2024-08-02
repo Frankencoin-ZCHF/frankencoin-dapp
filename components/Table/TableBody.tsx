@@ -5,5 +5,5 @@ interface Props {
 }
 
 export default function TableBody({ children }: Props) {
-	return <div className={`grid grid-cols-1`}>{children}</div>;
+	return <div className="grid grid-cols-1">{children}</div>;
 }

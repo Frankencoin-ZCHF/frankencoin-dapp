@@ -8,7 +8,7 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import LoadingSpin from "../LoadingSpin";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { PositionQuery } from "../../redux/slices/positions.types";
+import { PositionQuery } from "@frankencoin/api";
 
 interface Props {
 	showMyPos?: boolean;

@@ -9,6 +9,9 @@ import { fetchAccount, actions as accountActions } from "../redux/slices/account
 import { useIsConnectedToCorrectChain } from "../hooks/useWalletConnectStats";
 import { WAGMI_CHAIN } from "../app.config";
 import LoadingScreen from "./LoadingScreen";
+import { fetchChallengesList } from "../redux/slices/challenges.slice";
+import { fetchBidsList } from "../redux/slices/bids.slice";
+import { fetchEcosystem } from "../redux/slices/ecosystem.slice";
 
 let initializing: boolean = false;
 let initStart: number = 0;
@@ -24,8 +27,11 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	const [latestConnectedToChain, setLatestConnectedToChain] = useState<boolean>(false);
 	const [latestAddress, setLatestAddress] = useState<Address | undefined>(undefined);
 
+	const loadedEcosystem: boolean = useSelector((state: RootState) => state.ecosystem.loaded);
 	const loadedPositions: boolean = useSelector((state: RootState) => state.positions.loaded);
 	const loadedPrices: boolean = useSelector((state: RootState) => state.prices.loaded);
+	const loadedChallenges: boolean = useSelector((state: RootState) => state.challenges.loaded);
+	const loadedBids: boolean = useSelector((state: RootState) => state.bids.loaded);
 
 	// --------------------------------------------------------------------------------
 	// Init
@@ -36,20 +42,22 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		initStart = Date.now();
 
 		console.log(`Init [BlockUpdater]: Start loading application data... ${initStart}`);
+		store.dispatch(fetchEcosystem());
 		store.dispatch(fetchPositionsList());
 		store.dispatch(fetchPricesList());
+		store.dispatch(fetchChallengesList());
+		store.dispatch(fetchBidsList());
 	}, [initialized]);
 
 	// --------------------------------------------------------------------------------
 	// Init done
-	// FIXME: re-add prices
 	useEffect(() => {
 		if (initialized) return;
-		if (loadedPositions && loadedPrices) {
+		if (loadedEcosystem && loadedPositions && loadedPrices && loadedChallenges && loadedBids) {
 			console.log(`Init [BlockUpdater]: Done. ${Date.now() - initStart} ms`);
 			setInitialized(true);
 		}
-	}, [initialized, loadedPositions, loadedPrices]);
+	}, [initialized, loadedPositions, loadedPrices, loadedEcosystem, loadedChallenges, loadedBids]);
 
 	// --------------------------------------------------------------------------------
 	// Bock update policies
@@ -69,11 +77,14 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		// Block update policy: EACH BLOCK
 		console.log(`Policy [BlockUpdater]: EACH BLOCK ${fetchedLatestHeight}`);
 		store.dispatch(fetchPositionsList());
+		store.dispatch(fetchChallengesList());
+		store.dispatch(fetchBidsList());
 		if (latestAddress) store.dispatch(fetchAccount(latestAddress));
 
 		// Block update policy: EACH 10 BLOCKS
 		if (fetchedLatestHeight % 10 === 0) {
 			console.log(`Policy [BlockUpdater]: EACH 10 BLOCKS ${fetchedLatestHeight}`);
+			store.dispatch(fetchEcosystem());
 			store.dispatch(fetchPricesList());
 		}
 

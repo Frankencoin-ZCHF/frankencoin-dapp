@@ -1,9 +1,8 @@
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/redux.store";
-import { PositionQuery, PositionsState } from "../redux/slices/positions.types";
-import { PriceQueryObjectArray } from "../redux/slices/prices.types";
-import TokenLogo from "./TokenLogo";
-import { formatCurrency } from "../utils/format";
+import { RootState } from "../../redux/redux.store";
+import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
+import TokenLogo from "../TokenLogo";
+import { formatCurrency } from "../../utils/format";
 import { Address } from "viem/accounts";
 
 export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: PriceQueryObjectArray) {
@@ -26,6 +25,8 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 				availableForClones += parseInt(pos.availableForClones) / 10 ** pos.zchfDecimals;
 			}
 		}
+
+		if (!collateral.price.usd || !mint.price.usd) continue;
 
 		balance = balance / 10 ** collateral.decimals;
 		const valueLocked = Math.round(balance * collateral.price.usd);
@@ -67,15 +68,15 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 	return stats;
 }
 
-export default function OverviewTVL() {
+export default function CollateralAndPositionsOverview() {
 	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 	const stats = calcOverviewStats(openPositionsByCollateral, coingecko);
 
 	return (
-		<section className="mx-auto flex flex-col gap-y-4 px-4 sm:px-8">
+		<div className=" flex flex-col gap-y-4">
 			{stats.map((stat) => (
-				<div key={stat.original.position} className="bg-slate-950 rounded-2xl p-8">
+				<div key={stat.original.position} className="bg-card-body-primary text-card-content-primary rounded-2xl p-8">
 					<div className="grid grid-cols-3 gap-4">
 						<TokenLogo currency={stat.collateral.symbol.toLowerCase()} />
 						<div className="col-span-2 text-2xl font-bold mb-10">
@@ -85,26 +86,28 @@ export default function OverviewTVL() {
 
 					<div className="mb-5">
 						The total locked balance is{" "}
-						<span className="front-bold font-semibold text-gray-300">
+						<span className="front-bold font-semibold text-card-content-highlight">
 							{stat.balance} {stat.collateral.symbol}
 						</span>{" "}
 						(= {formatCurrency(stat.valueLocked.toString(), 2)} $). This locked collateral serves as the foundation for minting{" "}
 						{stat.mint.name} ({stat.mint.symbol}) tokens. There are{" "}
-						<span className="front-bold font-semibold text-gray-300">
+						<span className="front-bold font-semibold text-card-content-highlight">
 							{stat.originals.length} positions opened as initial positions
 						</span>
 						. These represent the primary original positions created with their combined maximum limit of{" "}
-						<span className="front-bold font-semibold text-gray-300">
+						<span className="front-bold font-semibold text-card-content-highlight">
 							{formatCurrency(stat.limitForClones.toString(), 2)} {stat.mint.symbol} to mint
 						</span>
 						. There are{" "}
-						<span className="front-bold font-semibold text-gray-300">{stat.clones.length} positions opened as clones</span> of
-						an original position or one of their clones. There have been already{" "}
-						<span className="front-bold font-semibold text-gray-300">
+						<span className="front-bold font-semibold text-card-content-highlight">
+							{stat.clones.length} positions opened as clones
+						</span>{" "}
+						of an original position or one of their clones. There have been already{" "}
+						<span className="front-bold font-semibold text-card-content-highlight">
 							{formatCurrency(stat.minted.toString(), 2)} {stat.mint.symbol} minted
 						</span>{" "}
 						from all positions, which represents{" "}
-						<span className="front-bold font-semibold text-gray-300">
+						<span className="front-bold font-semibold text-card-content-highlight">
 							{Math.round(100 - stat.availableForClonesPct)}% of the maximum minting limit
 						</span>{" "}
 						for this collateral.
@@ -112,16 +115,18 @@ export default function OverviewTVL() {
 
 					<div className="mb-5">
 						The highest liquidation price from all positions is{" "}
-						<span className="front-bold font-semibold text-gray-300">
+						<span className="front-bold font-semibold text-card-content-highlight">
 							{formatCurrency(stat.highestZCHFPrice.toString(), 2)} ZCHF/{stat.collateral.symbol}
 						</span>
 						, which represents the worst{" "}
-						<span className="front-bold font-semibold text-gray-300">collateralisation of {stat.collateralizedPct}%</span> for
-						this collateral. The current price of {stat.collateral.name} ({stat.collateral.symbol}) on Coingecko is{" "}
-						<span className="front-bold font-semibold text-gray-300">
+						<span className="front-bold font-semibold text-card-content-highlight">
+							collateralisation of {stat.collateralizedPct}%
+						</span>{" "}
+						for this collateral. The current price of {stat.collateral.name} ({stat.collateral.symbol}) on Coingecko is{" "}
+						<span className="front-bold font-semibold text-card-content-highlight">
 							{formatCurrency(stat.collateralPriceInZCHF.toString(), 2)} ZCHF/{stat.collateral.symbol}
 						</span>{" "}
-						or {formatCurrency(stat.collateral.price.usd.toString(), 2)} USD/{stat.collateral.symbol}.
+						or {formatCurrency((stat.collateral.price.usd ?? "0").toString(), 2)} USD/{stat.collateral.symbol}.
 					</div>
 
 					<div
@@ -131,6 +136,6 @@ export default function OverviewTVL() {
 					</div>
 				</div>
 			))}
-		</section>
+		</div>
 	);
 }
