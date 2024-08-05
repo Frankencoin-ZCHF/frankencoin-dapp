@@ -102,17 +102,25 @@ export default function MyPositionsChallengesRow({ challenge }: Props) {
 	return (
 		<TableRow
 			actionCol={
-				<div>
-					{/* <Link href={`/challenges/${challenge.number}/cancel`} className="btn btn-primary w-full h-10">
-					Cancel
-				</Link> */}
+				<div className="">
+					{/* FIXME: Create new component and export Link. Within the comp. make the action call of "cancel challenge". */}
+					{/* For now, manual bid until component is available. */}
+					<Link
+						href={`/challenges/${challenge.number}/bid`}
+						className={`btn btn-primary w-full h-8 ${stateIdx == 1 ? "hidden" : ""}`}
+					>
+						{/* FIXME: rename again: Cancel */}
+						Buy Back
+					</Link>
 				</div>
 			}
 		>
 			{/* Collateral */}
-			<div className="-ml-4 gap-3 flex items-center">
+			<div className="-ml-12 flex items-center">
 				<div onClick={openExplorer}>
-					<TokenLogo currency={position.collateralSymbol} />
+					<div className="mr-4">
+						<TokenLogo currency={position.collateralSymbol} />
+					</div>
 				</div>
 				<div className={`col-span-2 text-md`}>{`${formatCurrency(challengeRemainingSize, 2, 2)} ${position.collateralSymbol}`}</div>
 			</div>

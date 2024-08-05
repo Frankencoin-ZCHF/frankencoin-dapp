@@ -19,6 +19,8 @@ import FPSHolder from "@components/FPSHolder";
 import { useVotingPowers } from "../hooks/useVotingPowers";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../app.config";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 export default function Governance() {
 	const [inputField, setInputField] = useState("");
@@ -98,11 +100,19 @@ export default function Governance() {
 			<Head>
 				<title>Frankencoin - Governance</title>
 			</Head>
-			<div>
-				<AppPageHeader title="Governance" link={equityUrl} />
+
+			<div className="md:mt-8">
+				{/* <AppPageHeader title="Governance" link={equityUrl} /> */}
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col">
-						<div className="mt-4 text-lg font-bold text-center">Delegation</div>
+						<Link href={equityUrl}>
+							<div className="mt-4 text-lg font-bold underline text-center">
+								Governance Contract
+								<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
+							</div>
+						</Link>
+
+						<div className="mt-6 text-lg font-bold text-center">Delegation</div>
 
 						<div className="mt-4">Delegate votes to:</div>
 						<div className="gap-2 items-center">

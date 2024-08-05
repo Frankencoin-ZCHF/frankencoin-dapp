@@ -13,7 +13,7 @@ import { useState } from "react";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import Button from "@components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRightArrowLeft, faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import Link from "next/link";
@@ -210,12 +210,18 @@ export default function Pool() {
 			<Head>
 				<title>Frankencoin - Equity</title>
 			</Head>
-			<div>
-				<AppPageHeader title="Frankencoin Pool Shares (FPS)" link={equityUrl} />
+
+			<div className="mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col">
-						<div className="text-lg font-bold text-center">Pool Details</div>
-						<div className="mt-4">
+						<Link href={equityUrl}>
+							<div className="mt-4 text-lg font-bold underline text-center">
+								Frankencoin Pool Shares (FPS)
+								<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
+							</div>
+						</Link>
+
+						<div className="mt-8">
 							<TokenInput
 								max={fromBalance}
 								symbol={fromSymbol}

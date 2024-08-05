@@ -54,7 +54,7 @@ export default function BorrowRow({ position }: Props) {
 	return (
 		<TableRow
 			actionCol={
-				<Link href={`/mint/${position.position}`} className="btn btn-primary w-full h-10">
+				<Link href={`/mint/${position.position}`} className="btn btn-primary w-full h-8">
 					Mint
 				</Link>
 			}

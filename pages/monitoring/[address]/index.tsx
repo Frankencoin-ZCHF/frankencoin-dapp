@@ -46,34 +46,34 @@ export default function PositionDetail() {
 			<Head>
 				<title>Frankencoin - Position Overview</title>
 			</Head>
-			<div>
-				<AppPageHeader
-					title={`Position Overview ${address && shortenAddress(position)}`}
-					link={explorerUrl}
-					backTo="/positions"
-					backText="Back to positions"
-				/>
+			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center">Position Details</div>
-						<div className="bg-slate-900 rounded-xl p-4 grid gap-2 grid-cols-2 lg:grid-cols-6">
-							<AppBox className="col-span-3">
+						<Link href={explorerUrl}>
+							<div className="text-lg font-bold underline text-center">
+								Position Details
+								<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
+							</div>
+						</Link>
+
+						<div className="grid grid-cols-6 gap-2 lg:col-span-2">
+							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Minted Total" />
 								<DisplayAmount
 									amount={positionStats.minted}
 									currency="ZCHF"
 									address={ADDRESS[chainId].frankenCoin}
-									usdPrice={zchfPrice}
+									className="mt-2"
 								/>
 							</AppBox>
-							<AppBox className="col-span-3">
+							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Collateral" />
 								<DisplayAmount
 									amount={positionStats.collateralBal}
 									currency={positionStats.collateralSymbol}
 									digits={positionStats.collateralDecimal}
 									address={positionStats.collateral}
-									usdPrice={collateralPrice}
+									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-3">
@@ -83,7 +83,7 @@ export default function PositionDetail() {
 									currency={"ZCHF"}
 									digits={36 - positionStats.collateralDecimal}
 									address={ADDRESS[chainId].frankenCoin}
-									usdPrice={zchfPrice}
+									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-3">
@@ -92,7 +92,7 @@ export default function PositionDetail() {
 									amount={positionAssignedReserve || 0n}
 									currency={"ZCHF"}
 									address={ADDRESS[chainId].frankenCoin}
-									usdPrice={zchfPrice}
+									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-3">
@@ -101,15 +101,17 @@ export default function PositionDetail() {
 									amount={positionStats.limit}
 									currency={"ZCHF"}
 									address={ADDRESS[chainId].frankenCoin}
-									usdPrice={zchfPrice}
+									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-1 sm:col-span-3">
 								<DisplayLabel label="Owner" />
-								<Link href={ownerLink} className="flex items-center" target="_blank">
-									{shortenAddress(positionStats.owner)}
-									<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
-								</Link>
+								<div className="mt-2">
+									<Link href={ownerLink} className="flex items-center underline" target="_blank">
+										{shortenAddress(positionStats.owner)}
+										<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
+									</Link>
+								</div>
 							</AppBox>
 							<AppBox className="col-span-2 sm:col-span-2">
 								<DisplayLabel label="Expiration Date" />
@@ -124,25 +126,26 @@ export default function PositionDetail() {
 								<DisplayAmount amount={positionStats.annualInterestPPM / 100n} digits={2} currency={"%"} hideLogo />
 							</AppBox>
 						</div>
-						<div className="mt-4 w-full flex">
+
+						{/* <div className="mt-4 w-full flex">
 							{positionStats.owner == account ? (
-								<Link href={`/position/${position}/adjust`} className="btn btn-primary w-72 m-auto">
+								<Link href={`/mypositions/${position}/adjust`} className="btn btn-primary w-72 m-auto">
 									Adjust
 								</Link>
 							) : (
 								<>
 									<Link
-										href={`/position/${position}/borrow`}
+										href={`/mint/${position}`}
 										className={`btn btn-primary flex-1 ${isSubjectToCooldown() && "btn-disabled"}`}
 									>
 										Clone & Mint
 									</Link>
-									<Link href={`/position/${position}/challenge`} className="btn btn-primary flex-1 ml-4">
+									<Link href={`/monitoring/${position}/challenge`} className="btn btn-primary flex-1 ml-4">
 										Challenge
 									</Link>
 								</>
 							)}
-						</div>
+						</div> */}
 					</div>
 					<div>
 						{isSubjectToCooldown() && (

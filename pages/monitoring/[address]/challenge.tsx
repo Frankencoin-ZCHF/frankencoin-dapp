@@ -267,12 +267,7 @@ export default function PositionChallenge() {
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Target Position" />
-								<Link
-									className="text-link"
-									href={ContractUrl(position.position || zeroAddress, WAGMI_CHAIN)}
-									target="_blank"
-									rel="noreferrer"
-								>
+								<Link className="text-link" href={`/monitoring/${position.position}`}>
 									{shortenAddress(position.position || zeroAddress)}
 								</Link>
 							</AppBox>
