@@ -1,7 +1,5 @@
 import Head from "next/head";
-import MypositionsCollateral from "@components/PageMypositions/MypositionsCollateral";
 import MypositionsTable from "@components/PageMypositions/MypositionsTable";
-import AppPageHeader from "@components/AppPageHeader";
 import MyPositionsChallengesTable from "@components/PageMypositions/MyPositionsChallengesTable";
 
 export default function Positions() {
