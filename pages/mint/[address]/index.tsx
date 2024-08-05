@@ -249,16 +249,15 @@ export default function PositionBorrow({}) {
 				<title>Frankencoin - Mint</title>
 			</Head>
 
-			<div>
-				<AppPageHeader title="Mint Frankencoins For Yourself" />
-			</div>
+			{/* TODO: Remove DIV after approval */}
+			{/* <div className="md:mt-8">
+				<span className="font-bold text-xl">Mint Frankencoins For Yourself</span>
+			</div> */}
 
 			<div className="mt-8">
-				{/* <AppPageHeader title="Mint Frankencoins for Yourself" backText="Back to Overview" backTo="/mint" /> */}
-
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center mt-3">Minting Amount and Collateral</div>
+						<div className="text-lg font-bold text-center mt-3">Mint Frankencoins For Yourself</div>
 						<div className="space-y-8">
 							<TokenInput
 								label="Mint Amount"

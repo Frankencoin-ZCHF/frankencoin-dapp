@@ -82,6 +82,7 @@ export default function PositionAdjust() {
 	// ---------------------------------------------------------------------------
 	if (!position) return null;
 
+	const expirationInDays: number = (position.expiration * 1000 - Date.now()) / (1000 * 60 * 60 * 24);
 	const isCooldown: boolean = position.cooldown * 1000 - Date.now() > 0;
 	const maxRepayable = (1_000_000n * userFrankBalance) / (1_000_000n - BigInt(position.reserveContribution));
 
@@ -254,8 +255,8 @@ export default function PositionAdjust() {
 				<title>Frankencoin - Adjust Position</title>
 			</Head>
 
-			<div>
-				<AppPageHeader title="Adjust Your Position" />
+			<div className="md:mt-8">
+				<span className="font-bold text-xl">Adjust Your Position</span>
 			</div>
 
 			<div className="md:mt-8">
@@ -345,7 +346,11 @@ export default function PositionAdjust() {
 								<DisplayAmount
 									amount={
 										amount > BigInt(position.minted)
-											? ((amount - BigInt(position.minted)) * BigInt(position.annualInterestPPM)) / 1_000_000n
+											? ((amount - BigInt(position.minted)) *
+													BigInt(position.annualInterestPPM) *
+													BigInt(Math.floor(expirationInDays * 1000))) /
+											  365000n /
+											  1_000_000n
 											: 0n
 									}
 									currency={"ZCHF"}

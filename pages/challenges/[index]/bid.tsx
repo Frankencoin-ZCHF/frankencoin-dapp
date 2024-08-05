@@ -158,10 +158,6 @@ export default function ChallengePlaceBid() {
 				<title>Frankencoin - Bid</title>
 			</Head>
 
-{/* 			<div>
-				<AppPageHeader title="Buy Collateral" />
-			</div> */}
-
 			<div className="md:mt-8">
 				<section className="mx-auto max-w-2xl sm:px-8">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">

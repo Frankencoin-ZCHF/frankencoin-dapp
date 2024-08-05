@@ -11,16 +11,16 @@ export default function Positions() {
 				<title>Frankencoin - Positions</title>
 			</Head>
 
-			<div>
-				<AppPageHeader title="Owned Positions" />
+			<div className="md:mt-8">
+				<span className="font-bold text-xl">Owned Positions</span>
 			</div>
 
 			<div className="md:mt-8">
 				<MypositionsTable />
 			</div>
 
-			<div>
-				<AppPageHeader title="Initiated Challenges" />
+			<div className="md:mt-10">
+				<span className="font-bold text-xl">Initiated Challenges</span>
 			</div>
 
 			<div className="md:mt-8">
