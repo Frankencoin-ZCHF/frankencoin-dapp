@@ -76,7 +76,12 @@ export default function BorrowRow({ position }: Props) {
 			</div>
 
 			<div className="flex flex-col gap-2 text-text-header">
-				<div className="col-span-2 text-md">{formatCurrency(available / 1000, 2, 2)}k ZCHF</div>
+				<div className="col-span-2 text-md">
+					{available < 9000
+						? formatCurrency(available, available < 1000 ? 2 : 0, available < 1000 ? 2 : 0)
+						: formatCurrency(available / 1000, 0, 0) + "k"}{" "}
+					ZCHF
+				</div>
 			</div>
 
 			<div className="flex flex-col gap-2 text-text-header">

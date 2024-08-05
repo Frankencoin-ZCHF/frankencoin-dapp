@@ -1,44 +1,61 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import AppPageHeader from "@components/AppPageHeader";
 import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
-import { formatDate, shortenAddress } from "@utils";
-import { getAddress, zeroAddress } from "viem";
-import { useChallengeListStats, useChallengeLists, useContractUrl, usePositionStats, useTokenPrice, useZchfPrice } from "@hooks";
-import { useAccount, useChainId, useReadContract } from "wagmi";
+import { formatCurrency, formatDate, shortenAddress } from "@utils";
+import { Address, formatUnits, getAddress, zeroAddress } from "viem";
+import { useContractUrl } from "@hooks";
 import { ABIS, ADDRESS } from "@contracts";
 import ChallengeTable from "@components/ChallengeTable";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/redux.store";
+import { CONFIG, WAGMI_CONFIG } from "../../../app.config";
+import { useEffect, useState } from "react";
+import { readContract } from "wagmi/actions";
+import { ChallengesQueryItem, PositionQuery } from "@frankencoin/api";
 
 export default function PositionDetail() {
+	const [reserve, setReserve] = useState<bigint>(0n);
+
 	const router = useRouter();
-	const { address } = router.query;
+	const address = router.query.address as Address;
+	const chainId = CONFIG.chain.id;
+
+	const positions = useSelector((state: RootState) => state.positions.list.list);
+	const challengesPositions = useSelector((state: RootState) => state.challenges.positions);
+
+	const position = positions.find((p) => p.position.toLowerCase() === address.toLowerCase());
+	const challengesActive = (challengesPositions.map[address.toLowerCase() as Address] || []).filter((c) => c.status === "Active");
+
 	const explorerUrl = useContractUrl(String(address));
-	const position = getAddress(String(address || zeroAddress));
+	const ownerLink = useContractUrl(position?.owner || zeroAddress);
 
-	const chainId = useChainId();
-	const { address: account } = useAccount();
-	const positionStats = usePositionStats(position);
-	const ownerLink = useContractUrl(positionStats.owner);
-	const { challenges, loading: queryLoading } = useChallengeLists({ position });
-	const { challengsData, loading } = useChallengeListStats(challenges);
-	const collateralPrice = useTokenPrice(positionStats.collateral);
-	const zchfPrice = useZchfPrice();
+	useEffect(() => {
+		if (!position) return;
 
-	const { data: positionAssignedReserve } = useReadContract({
-		address: ADDRESS[chainId].frankenCoin,
-		abi: ABIS.FrankencoinABI,
-		functionName: "calculateAssignedReserve",
-		args: [positionStats.minted, Number(positionStats.reserveContribution)],
-	});
+		const fetchAsync = async function () {
+			const data = await readContract(WAGMI_CONFIG, {
+				address: position.zchf,
+				abi: ABIS.FrankencoinABI,
+				functionName: "calculateAssignedReserve",
+				args: [BigInt(position.minted), position.reserveContribution],
+			});
+
+			setReserve(data);
+		};
+
+		fetchAsync();
+	}, [position]);
+
+	if (!position) return;
 
 	const isSubjectToCooldown = () => {
 		const now = BigInt(Math.floor(Date.now() / 1000));
-		return now < positionStats.cooldown && positionStats.cooldown < 32508005122n;
+		return now < position.cooldown && position.cooldown < 32508005122n;
 	};
 
 	return (
@@ -60,7 +77,7 @@ export default function PositionDetail() {
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Minted Total" />
 								<DisplayAmount
-									amount={positionStats.minted}
+									amount={BigInt(position.minted)}
 									currency="ZCHF"
 									address={ADDRESS[chainId].frankenCoin}
 									className="mt-2"
@@ -69,36 +86,31 @@ export default function PositionDetail() {
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Collateral" />
 								<DisplayAmount
-									amount={positionStats.collateralBal}
-									currency={positionStats.collateralSymbol}
-									digits={positionStats.collateralDecimal}
-									address={positionStats.collateral}
+									amount={BigInt(position.collateralBalance)}
+									currency={position.collateralSymbol}
+									digits={position.collateralDecimals}
+									address={position.collateral}
 									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-3">
 								<DisplayLabel label="Liquidation Price" />
 								<DisplayAmount
-									amount={positionStats.liqPrice}
+									amount={BigInt(position.price)}
 									currency={"ZCHF"}
-									digits={36 - positionStats.collateralDecimal}
+									digits={36 - position.collateralDecimals}
 									address={ADDRESS[chainId].frankenCoin}
 									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-3">
 								<DisplayLabel label="Retained Reserve" />
-								<DisplayAmount
-									amount={positionAssignedReserve || 0n}
-									currency={"ZCHF"}
-									address={ADDRESS[chainId].frankenCoin}
-									className="mt-2"
-								/>
+								<DisplayAmount amount={reserve} currency={"ZCHF"} address={ADDRESS[chainId].frankenCoin} className="mt-2" />
 							</AppBox>
 							<AppBox className="col-span-3">
 								<DisplayLabel label="Limit" />
 								<DisplayAmount
-									amount={positionStats.limit}
+									amount={BigInt(position.limitForClones)}
 									currency={"ZCHF"}
 									address={ADDRESS[chainId].frankenCoin}
 									className="mt-2"
@@ -108,44 +120,24 @@ export default function PositionDetail() {
 								<DisplayLabel label="Owner" />
 								<div className="mt-2">
 									<Link href={ownerLink} className="flex items-center underline" target="_blank">
-										{shortenAddress(positionStats.owner)}
+										{shortenAddress(position.owner)}
 										<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
 									</Link>
 								</div>
 							</AppBox>
 							<AppBox className="col-span-2 sm:col-span-2">
 								<DisplayLabel label="Expiration Date" />
-								<b>{positionStats.closed ? "Closed" : formatDate(positionStats.expiration)}</b>
+								<b>{position.closed ? "Closed" : formatDate(position.expiration)}</b>
 							</AppBox>
 							<AppBox className="col-span-1 sm:col-span-2">
 								<DisplayLabel label="Reserve Requirement" />
-								<DisplayAmount amount={positionStats.reserveContribution / 100n} digits={2} currency={"%"} hideLogo />
+								<DisplayAmount amount={BigInt(position.reserveContribution / 100)} digits={2} currency={"%"} hideLogo />
 							</AppBox>
 							<AppBox className="col-span-2 sm:col-span-2">
 								<DisplayLabel label="Annual Interest" />
-								<DisplayAmount amount={positionStats.annualInterestPPM / 100n} digits={2} currency={"%"} hideLogo />
+								<DisplayAmount amount={BigInt(position.annualInterestPPM / 100)} digits={2} currency={"%"} hideLogo />
 							</AppBox>
 						</div>
-
-						{/* <div className="mt-4 w-full flex">
-							{positionStats.owner == account ? (
-								<Link href={`/mypositions/${position}/adjust`} className="btn btn-primary w-72 m-auto">
-									Adjust
-								</Link>
-							) : (
-								<>
-									<Link
-										href={`/mint/${position}`}
-										className={`btn btn-primary flex-1 ${isSubjectToCooldown() && "btn-disabled"}`}
-									>
-										Clone & Mint
-									</Link>
-									<Link href={`/monitoring/${position}/challenge`} className="btn btn-primary flex-1 ml-4">
-										Challenge
-									</Link>
-								</>
-							)}
-						</div> */}
 					</div>
 					<div>
 						{isSubjectToCooldown() && (
@@ -153,21 +145,62 @@ export default function PositionDetail() {
 								<div className="text-lg font-bold text-center">Cooldown</div>
 								<AppBox className="flex-1 mt-4">
 									<p>
-										This position is subject to a cooldown period that ends on {formatDate(positionStats.cooldown)} as
-										its owner has recently increased the applicable liquidation price. The cooldown period gives other
-										users an opportunity to challenge the position before additional Frankencoins can be minted.
+										This position is subject to a cooldown period that ends on {formatDate(position.cooldown)} as its
+										owner has recently increased the applicable liquidation price. The cooldown period gives other users
+										an opportunity to challenge the position before additional Frankencoins can be minted.
 									</p>
 								</AppBox>
 							</div>
 						)}
-						<ChallengeTable
-							challenges={challengsData}
-							noContentText="This position is currently not being challenged."
-							loading={loading || queryLoading}
-						/>
+
+						<div className="bg-slate-950 rounded-xl p-4 flex flex-col mb-4">
+							<div className="text-lg font-bold text-center">Active Challenges ({challengesActive.length})</div>
+
+							{challengesActive.map((c) => ActiveAuctionsRow({ position, challenge: c }))}
+							{challengesActive.length === 0 ? <ActiveAuctionsRowEmpty /> : null}
+						</div>
 					</div>
 				</section>
 			</div>
 		</>
+	);
+}
+
+interface Props {
+	position: PositionQuery;
+	challenge: ChallengesQueryItem;
+}
+
+function ActiveAuctionsRow({ position, challenge }: Props) {
+	const beginning: number = parseFloat(formatUnits(challenge.size, position.collateralDecimals));
+	const remaining: number = parseFloat(formatUnits(challenge.size - challenge.filledSize, position.collateralDecimals));
+	return (
+		<AppBox className="flex-1 mt-4">
+			<div className={`relative flex flex-row gap-2`}>
+				<AppBox className="col-span-3">
+					<DisplayLabel label="Remaining Size" />
+					<DisplayAmount
+						amount={BigInt(challenge.size - challenge.filledSize)}
+						currency={position.collateralSymbol}
+						address={position.collateral}
+						className="mt-2"
+					/>
+				</AppBox>
+
+				<div className="absolute right-4 bottom-7">
+					<Link href={`/challenges/${challenge.number}/bid`} className="btn btn-primary w-full h-8">
+						Goto Auction
+					</Link>
+				</div>
+			</div>
+		</AppBox>
+	);
+}
+
+function ActiveAuctionsRowEmpty() {
+	return (
+		<AppBox className="flex-1 mt-4">
+			<p>This position is currently not being challenged.</p>
+		</AppBox>
 	);
 }

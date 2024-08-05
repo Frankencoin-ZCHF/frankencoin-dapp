@@ -191,6 +191,7 @@ export default function ChallengePlaceBid() {
 									currency={position.collateralSymbol}
 									address={position.collateral}
 									digits={position.collateralDecimals}
+									className="mt-4"
 								/>
 							</AppBox>
 							<AppBox>
@@ -200,6 +201,7 @@ export default function ChallengePlaceBid() {
 									digits={36 - position.collateralDecimals}
 									address={ADDRESS[chainId].frankenCoin}
 									currency={"ZCHF"}
+									className="mt-4"
 								/>
 							</AppBox>
 							<AppBox>
@@ -209,6 +211,7 @@ export default function ChallengePlaceBid() {
 									currency={position.collateralSymbol}
 									address={position.collateral}
 									digits={position.collateralDecimals}
+									className="mt-4"
 								/>
 							</AppBox>
 							<AppBox>
@@ -219,7 +222,7 @@ export default function ChallengePlaceBid() {
 									target="_blank"
 									rel="noreferrer"
 								>
-									{shortenAddress(challenge?.challenger || zeroAddress)}
+									<div className="mt-4">{shortenAddress(challenge?.challenger || zeroAddress)}</div>
 								</Link>
 							</AppBox>
 							<AppBox>
