@@ -20,6 +20,8 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { RootState } from "../../../redux/redux.store";
 import { useSelector } from "react-redux";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 export default function ChallengePlaceBid() {
 	const [isInit, setInit] = useState(false);
@@ -222,7 +224,10 @@ export default function ChallengePlaceBid() {
 									target="_blank"
 									rel="noreferrer"
 								>
-									<div className="mt-4">{shortenAddress(challenge?.challenger || zeroAddress)}</div>
+									<div className="mt-4">
+										{shortenAddress(challenge?.challenger || zeroAddress)}
+										<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
+									</div>
 								</Link>
 							</AppBox>
 							<AppBox>

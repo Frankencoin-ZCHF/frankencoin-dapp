@@ -73,8 +73,8 @@ export default function PositionDetail() {
 							</div>
 						</Link>
 
-						<div className="grid grid-cols-6 gap-2 lg:col-span-2">
-							<AppBox className="col-span-6 sm:col-span-3">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:col-span-2">
+							<AppBox>
 								<DisplayLabel label="Minted Total" />
 								<DisplayAmount
 									amount={BigInt(position.minted)}
@@ -83,7 +83,7 @@ export default function PositionDetail() {
 									className="mt-2"
 								/>
 							</AppBox>
-							<AppBox className="col-span-6 sm:col-span-3">
+							<AppBox>
 								<DisplayLabel label="Collateral" />
 								<DisplayAmount
 									amount={BigInt(position.collateralBalance)}
@@ -93,7 +93,7 @@ export default function PositionDetail() {
 									className="mt-2"
 								/>
 							</AppBox>
-							<AppBox className="col-span-3">
+							<AppBox>
 								<DisplayLabel label="Liquidation Price" />
 								<DisplayAmount
 									amount={BigInt(position.price)}
@@ -103,11 +103,11 @@ export default function PositionDetail() {
 									className="mt-2"
 								/>
 							</AppBox>
-							<AppBox className="col-span-3">
+							<AppBox>
 								<DisplayLabel label="Retained Reserve" />
 								<DisplayAmount amount={reserve} currency={"ZCHF"} address={ADDRESS[chainId].frankenCoin} className="mt-2" />
 							</AppBox>
-							<AppBox className="col-span-3">
+							<AppBox>
 								<DisplayLabel label="Limit" />
 								<DisplayAmount
 									amount={BigInt(position.limitForClones)}
@@ -116,7 +116,7 @@ export default function PositionDetail() {
 									className="mt-2"
 								/>
 							</AppBox>
-							<AppBox className="col-span-1 sm:col-span-3">
+							<AppBox>
 								<DisplayLabel label="Owner" />
 								<div className="mt-2">
 									<Link href={ownerLink} className="flex items-center underline" target="_blank">
@@ -125,17 +125,21 @@ export default function PositionDetail() {
 									</Link>
 								</div>
 							</AppBox>
-							<AppBox className="col-span-2 sm:col-span-2">
-								<DisplayLabel label="Expiration Date" />
-								<b>{position.closed ? "Closed" : formatDate(position.expiration)}</b>
-							</AppBox>
-							<AppBox className="col-span-1 sm:col-span-2">
+							<AppBox>
 								<DisplayLabel label="Reserve Requirement" />
 								<DisplayAmount amount={BigInt(position.reserveContribution / 100)} digits={2} currency={"%"} hideLogo />
 							</AppBox>
-							<AppBox className="col-span-2 sm:col-span-2">
+							<AppBox>
 								<DisplayLabel label="Annual Interest" />
 								<DisplayAmount amount={BigInt(position.annualInterestPPM / 100)} digits={2} currency={"%"} hideLogo />
+							</AppBox>
+							<AppBox>
+								<DisplayLabel label="Start Date" />
+								<b>{formatDate(position.start)}</b>
+							</AppBox>
+							<AppBox>
+								<DisplayLabel label="Expiration Date" />
+								<b>{position.closed ? "Closed" : formatDate(position.expiration)}</b>
 							</AppBox>
 						</div>
 					</div>
@@ -181,6 +185,7 @@ function ActiveAuctionsRow({ position, challenge }: Props) {
 					<DisplayLabel label="Remaining Size" />
 					<DisplayAmount
 						amount={BigInt(challenge.size - challenge.filledSize)}
+						digits={position.collateralDecimals}
 						currency={position.collateralSymbol}
 						address={position.collateral}
 						className="mt-2"
