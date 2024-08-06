@@ -54,7 +54,7 @@ export default function BorrowRow({ position }: Props) {
 	return (
 		<TableRow
 			actionCol={
-				<Link href={`/mint/${position.position}`} className="btn btn-primary w-full h-8">
+				<Link href={`/mint/${position.position}`} className="btn btn-primary w-full h-10">
 					Mint
 				</Link>
 			}
@@ -79,7 +79,7 @@ export default function BorrowRow({ position }: Props) {
 				<div className="col-span-2 text-md">
 					{available < 9000
 						? formatCurrency(available, available < 1000 ? 2 : 0, available < 1000 ? 2 : 0)
-						: formatCurrency(available / 1000, 0, 0) + "k"}{" "}
+						: formatCurrency(available, 0, 0)?.split(",").join(" ")}{" "}
 					ZCHF
 				</div>
 			</div>

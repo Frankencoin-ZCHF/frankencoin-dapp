@@ -105,7 +105,7 @@ export default function Governance() {
 				{/* <AppPageHeader title="Governance" link={equityUrl} /> */}
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col">
-						<Link href={equityUrl}>
+						<Link href={equityUrl} target="_blank">
 							<div className="mt-4 text-lg font-bold underline text-center">
 								Governance Contract
 								<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />

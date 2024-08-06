@@ -107,7 +107,7 @@ export default function MyPositionsChallengesRow({ challenge }: Props) {
 					{/* For now, manual bid until component is available. */}
 					<Link
 						href={`/challenges/${challenge.number}/bid`}
-						className={`btn btn-primary w-full h-8 ${stateIdx == 1 ? "hidden" : ""}`}
+						className={`btn btn-primary w-full h-10 ${stateIdx == 1 ? "hidden" : ""}`}
 					>
 						{/* FIXME: rename again: Cancel */}
 						Buy Back

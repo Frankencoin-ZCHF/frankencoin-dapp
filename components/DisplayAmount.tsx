@@ -54,7 +54,7 @@ export default function DisplayAmount({
 						{amount ? formatBigInt(amount, Number(digits)) : "0.00"}
 					</span>
 					<span>
-						&nbsp;
+						{currency == "%" ? "" : " "}
 						{address ? (
 							<a href={url} target="_blank" rel="noreferrer" onClick={openExplorer}>
 								{currency}

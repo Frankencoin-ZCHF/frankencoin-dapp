@@ -106,7 +106,7 @@ export default function ChallengesRow({ challenge }: Props) {
 	return (
 		<TableRow
 			actionCol={
-				<Link href={`/challenges/${challenge.number}/bid`} className="btn btn-primary w-full h-8">
+				<Link href={`/challenges/${challenge.number}/bid`} className="btn btn-primary w-full h-10">
 					Buy
 				</Link>
 			}

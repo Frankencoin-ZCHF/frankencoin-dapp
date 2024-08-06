@@ -189,7 +189,7 @@ export default function Swap() {
 			<div className="md:mt-8">
 				<section className="mx-auto flex max-w-2xl flex-col gap-y-4 px-4 sm:px-8">
 					<div className="bg-slate-950 rounded-xl p-8 flex flex-col">
-						<Link href={xchfUrl}>
+						<Link href={xchfUrl} target="_blank">
 							<div className="mt-4 text-lg font-bold underline text-center">
 								Swap XCHF and ZCHF
 								<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />

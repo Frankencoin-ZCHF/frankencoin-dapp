@@ -71,7 +71,7 @@ export default function MonitoringRow({ position }: Props) {
 	return (
 		<TableRow
 			actionCol={
-				<Link href={`/monitoring/${position.position}/challenge`} className="btn btn-primary w-full h-8">
+				<Link href={`/monitoring/${position.position}/challenge`} className="btn btn-primary w-full h-10">
 					Challenge
 				</Link>
 			}

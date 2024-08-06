@@ -154,7 +154,7 @@ export default function MypositionsRow({ position }: Props) {
 	return (
 		<TableRow
 			actionCol={
-				<Link href={`/mypositions/${position.position}/adjust`} className="btn btn-primary w-full h-8">
+				<Link href={`/mypositions/${position.position}/adjust`} className="btn btn-primary w-full h-10">
 					Adjust
 				</Link>
 			}

@@ -66,9 +66,9 @@ export default function PositionDetail() {
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-						<Link href={explorerUrl}>
+						<Link href={explorerUrl} target="_blank">
 							<div className="text-lg font-bold underline text-center">
-								Position Details
+								Position {shortenAddress(position.position)}
 								<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
 							</div>
 						</Link>
