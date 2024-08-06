@@ -2,7 +2,7 @@ import Head from "next/head";
 import AppPageHeader from "@components/AppPageHeader";
 import TokenInput from "@components/Input/TokenInput";
 import { useState } from "react";
-import { useSwapStats } from "@hooks";
+import { useContractUrl, useSwapStats } from "@hooks";
 import { erc20Abi, formatUnits, maxUint256 } from "viem";
 import Button from "@components/Button";
 import { useChainId } from "wagmi";
@@ -10,11 +10,12 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRightArrowLeft, faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { SOCIAL, formatBigInt, shortenAddress } from "@utils";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../app.config";
+import Link from "next/link";
 
 export default function Swap() {
 	const [amount, setAmount] = useState(0n);
@@ -26,6 +27,7 @@ export default function Swap() {
 
 	const chainId = useChainId();
 	const swapStats = useSwapStats();
+	const xchfUrl = useContractUrl(ADDRESS[chainId].xchf);
 
 	const handleApprove = async () => {
 		try {
@@ -183,20 +185,29 @@ export default function Swap() {
 			<Head>
 				<title>Frankencoin - Swap</title>
 			</Head>
-			<div>
-				<AppPageHeader title="Swap XCHF and ZCHF" />
+
+			<div className="md:mt-8">
 				<section className="mx-auto flex max-w-2xl flex-col gap-y-4 px-4 sm:px-8">
-					<div className="bg-slate-950 rounded-xl p-8">
-						<TokenInput
-							max={fromBalance}
-							symbol={fromSymbol}
-							limit={swapLimit}
-							limitLabel="Swap limit"
-							placeholder={"Swap Amount"}
-							onChange={onChangeAmount}
-							value={amount.toString()}
-							error={error}
-						/>
+					<div className="bg-slate-950 rounded-xl p-8 flex flex-col">
+						<Link href={xchfUrl}>
+							<div className="mt-4 text-lg font-bold underline text-center">
+								Swap XCHF and ZCHF
+								<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
+							</div>
+						</Link>
+
+						<div className="mt-8">
+							<TokenInput
+								max={fromBalance}
+								symbol={fromSymbol}
+								limit={swapLimit}
+								limitLabel="Swap limit"
+								placeholder={"Swap Amount"}
+								onChange={onChangeAmount}
+								value={amount.toString()}
+								error={error}
+							/>
+						</div>
 
 						<div className="py-4 text-center">
 							<button

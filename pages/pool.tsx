@@ -211,7 +211,7 @@ export default function Pool() {
 				<title>Frankencoin - Equity</title>
 			</Head>
 
-			<div className="mt-8">
+			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col">
 						<Link href={equityUrl}>
