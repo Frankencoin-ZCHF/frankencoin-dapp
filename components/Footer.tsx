@@ -26,13 +26,14 @@ const DynamicDocs = (): string => {
 	const p = usePathname();
 	let link: string = SOCIAL.Docs;
 
-	if (p === "/mint") link += "/positions/open";
-	else if (p === "/mypositions") link += "/positions/adjust";
-	else if (p === "/monitoring") link += "/positions/auctions";
-	else if (p === "/challenges") link += "/positions/auctions";
-	else if (p === "/pool") link += "/pool-shares";
-	else if (p === "/governance") link += "/governance";
-	else if (p === "/swap") link += "/swap";
+	if (p !== "/mint/create" && p.includes("/mint")) link += "/positions/clone";
+	else if (p === "/mint/create") link += "/positions/open";
+	else if (p.includes("/mypositions")) link += "/positions/adjust";
+	else if (p.includes("/monitoring")) link += "/positions/auctions";
+	else if (p.includes("/challenges")) link += "/positions/auctions";
+	else if (p.includes("/pool")) link += "/pool-shares";
+	else if (p.includes("/governance")) link += "/governance";
+	else if (p.includes("/swap")) link += "/swap";
 
 	return link;
 };
