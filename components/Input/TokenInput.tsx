@@ -1,8 +1,8 @@
-import { useAccount } from "wagmi";
 import DisplayAmount from "../DisplayAmount";
-import { formatBigInt } from "@utils";
+import { formatCurrency } from "@utils";
 import { BigNumberInput } from "./BigNumberInput";
 import dynamic from "next/dynamic";
+import { formatUnits } from "viem";
 const TokenLogo = dynamic(() => import("../TokenLogo"), { ssr: false });
 
 interface Props {
@@ -51,7 +51,7 @@ export default function TokenInput({
 					>
 						{balanceLabel}
 						<span className="font-bold text-link">
-							{formatBigInt(max, Number(digit))} {symbol}
+							{formatCurrency(formatUnits(max, Number(digit)))} {symbol}
 						</span>
 					</div>
 				)}
