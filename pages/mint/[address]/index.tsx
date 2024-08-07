@@ -95,8 +95,8 @@ export default function PositionBorrow({}) {
 	const collateralPriceZchf: number = prices[position.collateral.toLowerCase() as Address].price.chf || 1;
 	const interest: number = position.annualInterestPPM / 10 ** 6;
 	const reserve: number = position.reserveContribution / 10 ** 6;
-	const effectiveInterest: number = interest / (1 - reserve / 100);
 	const effectiveLTV: number = (price * (1 - reserve)) / collateralPriceZchf;
+	const effectiveInterest: number = interest / (1 - reserve);
 
 	const requiredColl =
 		BigInt(position.price) > 0 &&
