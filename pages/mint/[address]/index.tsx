@@ -20,6 +20,7 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
+import Link from "next/link";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
@@ -42,6 +43,8 @@ export default function PositionBorrow({}) {
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const position = positions.find((p) => p.position == addressQuery);
+
+	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
 	// ---------------------------------------------------------------------------
 	useEffect(() => {
@@ -88,6 +91,13 @@ export default function PositionBorrow({}) {
 	// dont continue if position not loaded correctly
 	if (!position) return null;
 
+	const price: number = parseFloat(formatUnits(BigInt(position.price), 36 - position.collateralDecimals));
+	const collateralPriceZchf: number = prices[position.collateral.toLowerCase() as Address].price.chf || 1;
+	const interest: number = position.annualInterestPPM / 10 ** 6;
+	const reserve: number = position.reserveContribution / 10 ** 6;
+	const effectiveInterest: number = interest / (1 - reserve / 100);
+	const effectiveLTV: number = (price * (1 - reserve)) / collateralPriceZchf;
+
 	const requiredColl =
 		BigInt(position.price) > 0 &&
 		(BigInt(1e18) * amount + BigInt(position.price) - 1n) / BigInt(position.price) > BigInt(position.minimumCollateral)
@@ -108,6 +118,7 @@ export default function PositionBorrow({}) {
 		BigInt(60 * 60 * 24 * 365);
 	const fees = (feePercent * amount) / 1_000_000n;
 	const paidOutToWallet = amount - borrowersReserveContribution - fees;
+	const paidOutToWalletPct = (parseInt(paidOutToWallet.toString()) * 100) / parseInt(amount.toString());
 	const availableAmount = BigInt(position.availableForClones);
 	const userValue = (userBalance * BigInt(position.price)) / BigInt(1e18);
 	const borrowingLimit = min(availableAmount, userValue);
@@ -116,10 +127,10 @@ export default function PositionBorrow({}) {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
 		if (valueBigInt > borrowingLimit) {
-			if (availableAmount > userValue) {
+			if (availableAmount < valueBigInt) {
+				setError("Can not mint more than " + formatCurrency(parseInt(borrowingLimit.toString()) / 1e18, 2, 2) + " ZCHF");
+			} else if (availableAmount > userValue) {
 				setError(`Not enough ${position.collateralSymbol} in your wallet.`);
-			} else {
-				setError("Not enough ZCHF available for this position.");
 			}
 		} else {
 			setError("");
@@ -249,11 +260,6 @@ export default function PositionBorrow({}) {
 				<title>Frankencoin - Mint</title>
 			</Head>
 
-			{/* TODO: Remove DIV after approval */}
-			{/* <div className="md:mt-8">
-				<span className="font-bold text-xl">Mint Frankencoins For Yourself</span>
-			</div> */}
-
 			<div className="mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
@@ -295,20 +301,21 @@ export default function PositionBorrow({}) {
 										disabled={amount == 0n || requiredColl > userBalance || !!error}
 										isLoading={isCloning}
 										onClick={() => handleClone()}
-										error={errorDate ?? error}
 									>
 										Mint
 									</Button>
 								)}
+								<p className="text-red-500">{errorDate}</p>
+								<p className="text-red-500">{error}</p>
 							</GuardToAllowedChainBtn>
 						</div>
 					</div>
 					<div>
 						<div className="bg-slate-950 rounded-xl p-4 flex flex-col">
 							<div className="text-lg font-bold text-center mt-3">Outcome</div>
-							<div className="bg-slate-900 rounded-xl p-4 flex flex-col gap-2">
+							<AppBox className="flex-1 mt-4">
 								<div className="flex">
-									<div className="flex-1">Sent to your wallet</div>
+									<div className="flex-1">Sent to your wallet ({formatCurrency(paidOutToWalletPct, 2, 2)}%)</div>
 									<DisplayAmount
 										amount={paidOutToWallet}
 										currency="ZCHF"
@@ -316,8 +323,11 @@ export default function PositionBorrow({}) {
 										hideLogo
 									/>
 								</div>
-								<div className="flex">
-									<div className="flex-1">Locked in borrowers reserve</div>
+
+								<div className="mt-2 flex">
+									<div className="flex-1">
+										Retained Reserve ({formatCurrency(position.reserveContribution / 10000, 2, 2)}%)
+									</div>
 									<DisplayAmount
 										amount={borrowersReserveContribution}
 										currency="ZCHF"
@@ -325,32 +335,56 @@ export default function PositionBorrow({}) {
 										hideLogo
 									/>
 								</div>
-								<div className="flex">
-									<div className="flex-1">Fees ({formatBigInt(feePercent, 4)}%)</div>
+
+								<div className="mt-2 flex">
+									<div className="flex-1">Interest ({formatBigInt(feePercent, 4)}%)</div>
 									<DisplayAmount amount={fees} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} hideLogo />
 								</div>
-								<hr className="border-slate-700 border-dashed" />
-								<div className="flex font-bold">
+
+								<hr className="mt-4 border-slate-700 border-dashed" />
+
+								<div className="mt-2 flex font-bold">
 									<div className="flex-1">Total</div>
 									<DisplayAmount amount={amount} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} hideLogo />
 								</div>
-							</div>
+							</AppBox>
 						</div>
 						<div className="bg-slate-950 rounded-xl p-4 flex flex-col mt-4">
 							<div className="text-lg font-bold text-center mt-3">Notes</div>
 							<AppBox className="flex-1 mt-4">
-								<ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
-									<li>The amount borrowed can be changed later, but not increased beyond the initial amount.</li>
-									<li>
-										The liquidation price is inherited from the parent position, but can be adjusted later. For example,
-										the liquidation price could be doubled and then half of the collateral taken out if the new
-										liquidation price is not challenged.
-									</li>
-									<li>
-										It is possible to repay partially or to repay early in order to get the collateral back, but the fee
-										is paid upfront and never returned.
-									</li>
-								</ol>
+								<div className="mt-2 flex">
+									<div className="flex-1">Effective Annual Interest</div>
+									<div className="">{formatCurrency(effectiveInterest * 100)}%</div>
+								</div>
+
+								<div className="mt-2 flex">
+									<div className="flex-1">Liquidation Price</div>
+									<div className="">
+										{formatCurrency(formatUnits(BigInt(position.price), 36 - position.collateralDecimals))} ZCHF
+									</div>
+								</div>
+
+								<div className="mt-2 flex">
+									<div className="flex-1">Market Price</div>
+									<div className="">{formatCurrency(collateralPriceZchf)} ZCHF</div>
+								</div>
+
+								<div className="mt-2 flex">
+									<div className="flex-1">Loan-To-Value</div>
+									<div className="">{formatCurrency(effectiveLTV * 100)}%</div>
+								</div>
+
+								<div className="mt-2 flex">
+									<div className="flex-1">Parent Position</div>
+									<Link className="underline" href={`/monitoring/${position.original}`}>
+										{shortenAddress(position.original)}
+									</Link>
+								</div>
+
+								<p className="mt-4">
+									While the maturity is fixed, you can adjust the liquidation price and the collateral amount later as
+									long as it covers the minted amount. No interest will be refunded when repaying earlier.
+								</p>
 							</AppBox>
 						</div>
 					</div>
