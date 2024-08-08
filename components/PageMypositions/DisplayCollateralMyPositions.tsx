@@ -21,11 +21,11 @@ export default function DisplayCollateralMyPositions({ position, collateralPrice
 		window.open(url, "_blank");
 	};
 
-	const collateralSize: number = parseInt(formatUnits(BigInt(position.collateralBalance), position.collateralDecimals - 2)) / 100;
+	const collateralSize: number = parseFloat(formatUnits(BigInt(position.collateralBalance), position.collateralDecimals));
 	const collateralValue: number = (collateralSize * collateralPrice) / zchfPrice;
 
 	return (
-		<div className={`flex items-center ${className}`}>
+		<div className={`-ml-12 flex items-center ${className}`}>
 			<Link href={url} onClick={openExplorer}>
 				<div className="mr-4">
 					<TokenLogo currency={position.collateralSymbol} />

@@ -47,8 +47,8 @@ export default function BorrowRow({ position }: Props) {
 	const expirationStr = new Date(position.expiration * 1000).toDateString().split(" ");
 	const expirationString: string = `${expirationStr[2]} ${expirationStr[1]} ${expirationStr[3]}`;
 
-	// effectiveLTC = liquidation price * (1 - reserve) / market price
-	const effectiveLTC: number = Math.round(((price * (1 - reserve / 100)) / collTokenPrice) * 10000) / 100;
+	// effectiveLTV = liquidation price * (1 - reserve) / market price
+	const effectiveLTV: number = Math.round(((price * (1 - reserve / 100)) / collTokenPrice) * zchfPrice * 10000) / 100;
 	const effectiveInterest: number = Math.round((interest / (1 - reserve / 100)) * 100) / 100;
 
 	return (
@@ -68,7 +68,7 @@ export default function BorrowRow({ position }: Props) {
 			</div>
 
 			<div className="flex flex-col gap-2 text-text-header">
-				<div className="col-span-2 text-md">{formatCurrency(effectiveLTC, 2, 2)}%</div>
+				<div className="col-span-2 text-md">{formatCurrency(effectiveLTV, 2, 2)}%</div>
 			</div>
 
 			<div className="flex flex-col gap-2 text-text-header">
@@ -76,7 +76,7 @@ export default function BorrowRow({ position }: Props) {
 			</div>
 
 			<div className="flex flex-col gap-2 text-text-header">
-				<div className="col-span-2 text-md">{formatCurrency(available / 1000, 2, 2)}k ZCHF</div>
+				<div className="col-span-2 text-md">{formatCurrency(available, 2, 2)} ZCHF</div>
 			</div>
 
 			<div className="flex flex-col gap-2 text-text-header">

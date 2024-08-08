@@ -13,7 +13,7 @@ export const useTradeQuery = (): {
 	const { data, loading } = useQuery(
 		gql`
 			query {
-				tradeCharts(orderDirection: "desc", orderBy: "time", limit: 100) {
+				tradeCharts(orderDirection: "desc", orderBy: "time", limit: 1000) {
 					items {
 						id
 						lastPrice

@@ -7,7 +7,7 @@ export const SOCIAL = {
 	Twitter: "https://twitter.com/frankencoinzchf",
 	SubStack: "https://frankencoin.substack.com/",
 	Forum: "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions",
-	Docs: "https://docs.frankencoin.com/",
+	Docs: "https://docs.frankencoin.com",
 	DefiLlama: "https://defillama.com/protocol/frankencoin",
 	Uniswap_Mainnet:
 		"https://swap.defillama.com/?from=0xdAC17F958D2ee523a2206206994597C13D831ec7&to=0xB58E61C3098d85632Df34EecfB899A1Ed80921cB&chain=ethereum",

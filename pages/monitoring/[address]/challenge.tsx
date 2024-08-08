@@ -7,7 +7,7 @@ import DisplayAmount from "@components/DisplayAmount";
 import TokenInput from "@components/Input/TokenInput";
 import { erc20Abi, getAddress, zeroAddress } from "viem";
 import { useEffect, useState } from "react";
-import { formatBigInt, formatDuration, shortenAddress } from "@utils";
+import { ContractUrl, formatBigInt, formatDuration, shortenAddress } from "@utils";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { Address } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -19,6 +19,7 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
+import Link from "next/link";
 
 export default function PositionChallenge() {
 	const [amount, setAmount] = useState(0n);
@@ -85,7 +86,7 @@ export default function PositionChallenge() {
 	// ---------------------------------------------------------------------------
 	const onChangeAmount = (value: string) => {
 		var valueBigInt = BigInt(value);
-		if (valueBigInt > _collBal){
+		if (valueBigInt > _collBal) {
 			valueBigInt = _collBal;
 		}
 		setAmount(valueBigInt);
@@ -93,7 +94,10 @@ export default function PositionChallenge() {
 			setError(`Not enough ${position.collateralSymbol} in your wallet.`);
 		} else if (valueBigInt > BigInt(position.collateralBalance)) {
 			setError("Amount cannot be larger than the underlying position");
-		} else if (valueBigInt < BigInt(position.minimumCollateral) && (BigInt(position.collateralBalance) >= BigInt(position.minimumCollateral))) {
+		} else if (
+			valueBigInt < BigInt(position.minimumCollateral) &&
+			BigInt(position.collateralBalance) >= BigInt(position.minimumCollateral)
+		) {
 			setError("Amount must be at least the minimum");
 		} else {
 			setError("");
@@ -230,7 +234,7 @@ export default function PositionChallenge() {
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Potential Reward" />
 								<DisplayAmount
-									amount={BigInt(position.price) * amount * 2n / 100n}
+									amount={(BigInt(position.price) * amount * 2n) / 100n}
 									currency={"ZCHF"}
 									digits={36}
 									address={ADDRESS[chainId].frankenCoin}
@@ -258,12 +262,14 @@ export default function PositionChallenge() {
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
-								<DisplayLabel label="Fixed Price Phase" />
+								<DisplayLabel label="Phase duration" />
 								{formatDuration(position.challengePeriod)}
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
-								<DisplayLabel label="Declining Price Phase" />
-								{formatDuration(position.challengePeriod)}
+								<DisplayLabel label="Target Position" />
+								<Link className="text-link" href={`/monitoring/${position.position}`}>
+									{shortenAddress(position.position || zeroAddress)}
+								</Link>
 							</AppBox>
 						</div>
 						<div>
@@ -288,18 +294,17 @@ export default function PositionChallenge() {
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col">
 						<div className="text-lg font-bold text-center mt-3">How does it work?</div>
 						<AppBox className="flex-1 mt-4">
-							<p>
-								A challenge is divided into two phases:
-							</p>
+							<p>A challenge is divided into two phases:</p>
 							<ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
 								<li>
 									During the fixed price phase, anyone can buy the {position.collateralSymbol} you provided at the
 									liquidation price of {formatBigInt(BigInt(position.price), 36 - position.collateralDecimals)} ZCHF each.
 								</li>
 								<li>
-									If there are any {position.collateralSymbol} left after the fixed price phase ends, you get
-									the remaining {position.collateralSymbol} back and the price starts to decline towards zero. In this phase, the bidders are
-									not buying from the challenger any more, but from the position owner. You will get 2% of the sales proceeds as a reward.
+									If there are any {position.collateralSymbol} left after the fixed price phase ends, you get the
+									remaining {position.collateralSymbol} back and the price starts to decline towards zero. In this phase,
+									the bidders are not buying from the challenger any more, but from the position owner. You will get 2% of
+									the sales proceeds as a reward.
 								</li>
 							</ol>
 						</AppBox>

@@ -20,6 +20,8 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { RootState } from "../../../redux/redux.store";
 import { useSelector } from "react-redux";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 export default function ChallengePlaceBid() {
 	const [isInit, setInit] = useState(false);
@@ -158,10 +160,6 @@ export default function ChallengePlaceBid() {
 				<title>Frankencoin - Bid</title>
 			</Head>
 
-{/* 			<div>
-				<AppPageHeader title="Buy Collateral" />
-			</div> */}
-
 			<div className="md:mt-8">
 				<section className="mx-auto max-w-2xl sm:px-8">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
@@ -195,6 +193,7 @@ export default function ChallengePlaceBid() {
 									currency={position.collateralSymbol}
 									address={position.collateral}
 									digits={position.collateralDecimals}
+									className="mt-4"
 								/>
 							</AppBox>
 							<AppBox>
@@ -204,6 +203,7 @@ export default function ChallengePlaceBid() {
 									digits={36 - position.collateralDecimals}
 									address={ADDRESS[chainId].frankenCoin}
 									currency={"ZCHF"}
+									className="mt-4"
 								/>
 							</AppBox>
 							<AppBox>
@@ -213,6 +213,7 @@ export default function ChallengePlaceBid() {
 									currency={position.collateralSymbol}
 									address={position.collateral}
 									digits={position.collateralDecimals}
+									className="mt-4"
 								/>
 							</AppBox>
 							<AppBox>
@@ -223,7 +224,10 @@ export default function ChallengePlaceBid() {
 									target="_blank"
 									rel="noreferrer"
 								>
-									{shortenAddress(challenge?.challenger || zeroAddress)}
+									<div className="mt-4">
+										{shortenAddress(challenge?.challenger || zeroAddress)}
+										<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
+									</div>
 								</Link>
 							</AppBox>
 							<AppBox>

@@ -77,9 +77,11 @@ export default function MonitoringRow({ position }: Props) {
 			}
 		>
 			{/* Collateral */}
-			<div className="-ml-4 gap-3 flex items-center">
+			<div className="-ml-12 flex items-center">
 				<div onClick={openExplorer}>
-					<TokenLogo currency={position.collateralSymbol} />
+					<div className="mr-4">
+						<TokenLogo currency={position.collateralSymbol} />
+					</div>
 				</div>
 				<div className={`col-span-2 text-md`}>{`${formatCurrency(balance, 2, 2)} ${position.collateralSymbol}`}</div>
 			</div>
@@ -100,9 +102,7 @@ export default function MonitoringRow({ position }: Props) {
 
 			{/* Challenges */}
 			<div className="flex flex-col gap-2">
-				<div className={`col-span-2 text-md`}>
-					{challengesRatioPct == 0 ? "-" : `${challengesRatioPct}%`}
-				</div>
+				<div className={`col-span-2 text-md`}>{challengesRatioPct == 0 ? "-" : `${challengesRatioPct}%`}</div>
 			</div>
 		</TableRow>
 	);

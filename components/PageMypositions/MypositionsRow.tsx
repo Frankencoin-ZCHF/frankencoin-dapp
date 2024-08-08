@@ -1,4 +1,4 @@
-import { Address } from "viem";
+import { Address, zeroAddress } from "viem";
 import TableRow from "../Table/TableRow";
 import { PositionQuery, BidsQueryItem, ChallengesQueryItem } from "@frankencoin/api";
 import { RootState } from "../../redux/redux.store";
@@ -7,6 +7,7 @@ import { formatCurrency } from "../../utils/format";
 import DisplayCollateralMyPositions from "./DisplayCollateralMyPositions";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useContractUrl } from "@hooks";
 
 interface Props {
 	position: PositionQuery;
@@ -24,6 +25,8 @@ type ChallengeInfos = {
 
 export default function MypositionsRow({ position }: Props) {
 	const router = useRouter();
+	const url = useContractUrl(position.position || zeroAddress);
+
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const bids = useSelector((state: RootState) => state.bids.positions);
@@ -66,7 +69,7 @@ export default function MypositionsRow({ position }: Props) {
 	const positionBidsAverted = positionChallengesBids.filter((b: BidsQueryItem) => b.bidType == "Averted");
 	const positionBidsSucceeded = positionChallengesBids.filter((b: BidsQueryItem) => b.bidType == "Succeeded");
 
-	const states: string[] = ["Closed", "Challenged", "New Request", "Cooldown", "Expiring Soon", "Open"];
+	const states: string[] = ["Closed", "Challenged", "New Request", "Cooldown", "Expiring Soon", "Expired", "Open"];
 	let stateIdx: number = states.length;
 	let stateTimePrint: string = "";
 	let stateChallengeInfo: ChallengeInfos;
@@ -121,10 +124,15 @@ export default function MypositionsRow({ position }: Props) {
 		stateIdx = 3;
 		stateTimePrint = `${d}d ${h}h ${m}m`;
 	} else if (maturity < 7) {
-		stateIdx = 4;
-		stateTimePrint = `${maturity} days`;
+		if (maturity > 0) {
+			stateIdx = 4;
+			stateTimePrint = `${maturity} days`;
+		} else {
+			stateIdx = 5;
+			stateTimePrint = ``;
+		}
 	} else {
-		stateIdx = 5;
+		stateIdx = 6;
 		stateTimePrint = `${maturity} days`;
 	}
 
@@ -137,6 +145,11 @@ export default function MypositionsRow({ position }: Props) {
 			console.log(error);
 		}
 	}
+
+	const openExplorer = (e: any) => {
+		e.preventDefault();
+		window.open(url, "_blank");
+	};
 
 	return (
 		<TableRow
@@ -167,7 +180,7 @@ export default function MypositionsRow({ position }: Props) {
 
 			{/* State */}
 			<div className="flex flex-col">
-				<div className={`text-md ${stateIdx != 5 ? "text-red-700 font-bold" : "text-text-header "}`}>{states[stateIdx]}</div>
+				<div className={`text-md ${stateIdx != 6 ? "text-red-700 font-bold" : "text-text-header "}`}>{states[stateIdx]}</div>
 				<div className={`text-sm text-slate-500 ${stateIdx == 1 ? "underline cursor-pointer" : ""}`} onClick={navigateToChallenge}>
 					{stateTimePrint}
 				</div>
