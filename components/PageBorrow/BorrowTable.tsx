@@ -87,7 +87,7 @@ function sortPositions(
 				const i: number = p.annualInterestPPM / 1000000;
 				return (i / (1 - r)) * 1000000;
 			};
-			return calc(b) - calc(a); // default: decrease
+			return calc(a) - calc(b); // default: increase
 		});
 	} else if (tab === headers[3]) {
 		// sort for Available

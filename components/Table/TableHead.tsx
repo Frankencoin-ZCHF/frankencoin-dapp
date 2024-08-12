@@ -19,7 +19,13 @@ export default function TableHeader({ headers, subHeaders, actionCol, colSpan, t
 			<div className={`hidden pl-8 flex-grow grid-cols-2 items-center md:grid md:grid-cols-${colSpan || headers.length}`}>
 				{headers.map((header, i) => (
 					<div key={`table-header-${i}`} onClick={(e) => handleOnClick(header)}>
-						<span className={`text-gray-300 ${tab === header ? "text-red-600" : "text-gray-300"}`}>{header}</span>
+						<span
+							className={`text-gray-300 ${!!tab ? "cursor-pointer" : ""} ${
+								tab === header ? "text-red-600" : "text-gray-300"
+							}`}
+						>
+							{header}
+						</span>
 					</div>
 				))}
 				{subHeaders

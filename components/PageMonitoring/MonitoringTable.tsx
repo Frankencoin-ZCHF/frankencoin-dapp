@@ -5,11 +5,9 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { ApiChallengesPositions, ChallengesQueryItem, PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
-import { Address, formatUnits, zeroAddress } from "viem";
-import { useAccount } from "wagmi";
+import { Address, formatUnits } from "viem";
 import MonitoringRow from "./MonitoringRow";
 import { useState } from "react";
-import { ChallengeQuery } from "@hooks";
 
 export default function MonitoringTable() {
 	const headers: string[] = ["Collateral", "Collateralization", "Expiration", "Challenged"];
@@ -89,7 +87,7 @@ function sortPositions(
 				const cs: number = ca.reduce<number>((n: number, c: ChallengesQueryItem): number => {
 					const _size: number = parseFloat(formatUnits(BigInt(c.size.toString()), p.collateralDecimals));
 					const _filled: number = parseFloat(formatUnits(BigInt(c.filledSize.toString()), p.collateralDecimals));
-					return _size - _filled;
+					return n + _size - _filled;
 				}, 0);
 				return cs / size;
 			};
