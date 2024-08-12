@@ -16,17 +16,23 @@ import {
 	PriceQueryObjectArray,
 } from "@frankencoin/api";
 import { useState } from "react";
+import { useRouter } from "next/router";
 
 export default function MyPositionsChallengesTable() {
 	const headers: string[] = ["Remaining Size", "Current Price", "State", "Time Left"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
-	const account = useAccount().address || zeroAddress;
 	const challenges = useSelector((state: RootState) => state.challenges.list.list);
 	const positions = useSelector((state: RootState) => state.positions.mapping.map);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const auction = useSelector((state: RootState) => state.challenges.challengesPrices.map);
+
+	const router = useRouter();
+	const overwrite = router.query.address as Address;
+
+	const { address } = useAccount();
+	const account = overwrite || address || zeroAddress;
 
 	const matchingChallenges = challenges.filter((c) => c.challenger.toLowerCase() === account.toLowerCase());
 
