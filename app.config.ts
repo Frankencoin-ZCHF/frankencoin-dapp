@@ -25,8 +25,8 @@ export const CONFIG: ConfigEnv = {
 	rpc:
 		process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon"
 			? (process.env.NEXT_PUBLIC_RPC_URL_POLYGON as string) ||
-			  "https://polygon-mainnet.g.alchemy.com/v2/VssZhTlQhrr8bgocJznp8xNzKegAA-AT"
-			: process.env.NEXT_PUBLIC_RPC_URL_MAINNET || "https://eth-mainnet.g.alchemy.com/v2/VssZhTlQhrr8bgocJznp8xNzKegAA-AT",
+			  "https://polygon-mainnet.g.alchemy.com/v2/dhaKbi2HDlKYW1JaSHm1i_hGkE2gnA5t"
+			: process.env.NEXT_PUBLIC_RPC_URL_MAINNET || "https://eth-mainnet.g.alchemy.com/v2/dhaKbi2HDlKYW1JaSHm1i_hGkE2gnA5t",
 };
 
 console.log("YOU ARE USING THIS CONFIG PROFILE:");
