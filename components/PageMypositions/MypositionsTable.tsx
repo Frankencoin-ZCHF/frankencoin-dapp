@@ -9,6 +9,7 @@ import { Address, formatUnits, zeroAddress } from "viem";
 import { useAccount } from "wagmi";
 import MypositionsRow from "./MypositionsRow";
 import { useState } from "react";
+import { useRouter } from "next/router";
 
 export default function MypositionsTable() {
 	const headers: string[] = ["Collateral", "Liquidation Price", "Minted", "State"];
@@ -19,8 +20,11 @@ export default function MypositionsTable() {
 	const challenges = useSelector((state: RootState) => state.challenges.positions.map);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
+	const router = useRouter();
+	const overwrite = router.query.address as Address;
+
 	const { address } = useAccount();
-	const account = address || zeroAddress;
+	const account = overwrite || address || zeroAddress;
 
 	const sortedByCollateral: { [key: Address]: PositionQuery[] } = {};
 	const closedPositions: { [key: Address]: PositionQuery[] } = {};

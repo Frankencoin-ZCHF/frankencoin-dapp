@@ -1,11 +1,10 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import AppBox from "@components/AppBox";
-import AppPageHeader from "@components/AppPageHeader";
 import Button from "@components/Button";
 import DisplayAmount from "@components/DisplayAmount";
 import TokenInput from "@components/Input/TokenInput";
-import { erc20Abi, getAddress, zeroAddress } from "viem";
+import { erc20Abi, zeroAddress } from "viem";
 import { useEffect, useState } from "react";
 import { ContractUrl, formatBigInt, formatDuration, shortenAddress } from "@utils";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
