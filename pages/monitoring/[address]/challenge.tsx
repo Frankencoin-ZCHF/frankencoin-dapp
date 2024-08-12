@@ -19,6 +19,7 @@ import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import Link from "next/link";
+import { useRouter as useNavigation } from "next/navigation";
 
 export default function PositionChallenge() {
 	const [amount, setAmount] = useState(0n);
@@ -26,6 +27,7 @@ export default function PositionChallenge() {
 	const [errorDate, setErrorDate] = useState("");
 	const [isApproving, setApproving] = useState(false);
 	const [isChallenging, setChallenging] = useState(false);
+	const [isNavigating, setNavigating] = useState(false);
 	const [expirationDate, setExpirationDate] = useState(new Date());
 
 	const [userAllowance, setUserAllowance] = useState(0n);
@@ -34,6 +36,7 @@ export default function PositionChallenge() {
 	const { data } = useBlockNumber({ watch: true });
 	const account = useAccount();
 	const router = useRouter();
+	const navigate = useNavigation();
 
 	const chainId = useChainId();
 	const addressQuery: Address = router.query.address as Address;
@@ -69,6 +72,12 @@ export default function PositionChallenge() {
 
 		fetchAsync();
 	}, [data, account.address, position]);
+
+	useEffect(() => {
+		if (isNavigating && position?.position) {
+			navigate.push(`/monitoring/${position.position}`);
+		}
+	}, [isNavigating, navigate, position]);
 
 	// ---------------------------------------------------------------------------
 	if (!position) return null;
@@ -188,6 +197,7 @@ export default function PositionChallenge() {
 			});
 		} finally {
 			setChallenging(false);
+			setNavigating(true);
 		}
 	};
 
