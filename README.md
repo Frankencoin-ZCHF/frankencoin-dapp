@@ -34,11 +34,12 @@ export const CONFIG: ConfigEnv = {
 	api: process.env.NEXT_PUBLIC_API_URL || "https://api.frankencoin.com",
 	ponder: process.env.NEXT_PUBLIC_PONDER_URL || "https://ponder.frankencoin.com",
 	chain: process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon" ? polygon : mainnet,
-	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID,
+	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID || "...",
 	rpc:
 		process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon"
-			? (process.env.NEXT_PUBLIC_RPC_URL_POLYGON as string)
-			: process.env.NEXT_PUBLIC_RPC_URL_MAINNET,
+			? (process.env.NEXT_PUBLIC_RPC_URL_POLYGON as string) ||
+			  "https://polygon-mainnet.g.alchemy.com/v2/..."
+			: process.env.NEXT_PUBLIC_RPC_URL_MAINNET || "https://eth-mainnet.g.alchemy.com/v2/...",
 };
 
 console.log("YOU ARE USING THIS CONFIG PROFILE:");

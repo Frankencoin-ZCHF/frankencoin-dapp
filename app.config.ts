@@ -8,10 +8,11 @@ import axios from "axios";
 
 export type ConfigEnv = { landing: string; app: string; api: string; ponder: string; rpc: string; wagmiId: string; chain: Chain };
 
-if (!process.env.NEXT_PUBLIC_WAGMI_ID) throw new Error("Project ID is not defined");
-if (!process.env.NEXT_PUBLIC_RPC_URL_MAINNET) throw new Error("RPC URL for at least mainnet, not available");
-if (process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon" && !process.env.NEXT_PUBLIC_RPC_URL_POLYGON)
-	throw new Error("RPC URL for polygon (testnet), not available");
+// DEV: Loaded with defaults, not needed for now.
+// if (!process.env.NEXT_PUBLIC_WAGMI_ID) throw new Error("Project ID is not defined");
+// if (!process.env.NEXT_PUBLIC_RPC_URL_MAINNET) throw new Error("RPC URL for at least mainnet, not available");
+// if (process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon" && !process.env.NEXT_PUBLIC_RPC_URL_POLYGON)
+// throw new Error("RPC URL for polygon (testnet), not available");
 
 // Config
 export const CONFIG: ConfigEnv = {
@@ -20,11 +21,12 @@ export const CONFIG: ConfigEnv = {
 	api: process.env.NEXT_PUBLIC_API_URL || "https://api.frankencoin.com",
 	ponder: process.env.NEXT_PUBLIC_PONDER_URL || "https://ponder.frankencoin.com",
 	chain: process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon" ? polygon : mainnet,
-	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID,
+	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID || "3321ad5a4f22083fe6fe82208a4c9ddc",
 	rpc:
 		process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon"
-			? (process.env.NEXT_PUBLIC_RPC_URL_POLYGON as string)
-			: process.env.NEXT_PUBLIC_RPC_URL_MAINNET,
+			? (process.env.NEXT_PUBLIC_RPC_URL_POLYGON as string) ||
+			  "https://polygon-mainnet.g.alchemy.com/v2/VssZhTlQhrr8bgocJznp8xNzKegAA-AT"
+			: process.env.NEXT_PUBLIC_RPC_URL_MAINNET || "https://eth-mainnet.g.alchemy.com/v2/VssZhTlQhrr8bgocJznp8xNzKegAA-AT",
 };
 
 console.log("YOU ARE USING THIS CONFIG PROFILE:");
@@ -42,7 +44,6 @@ export const FRANKENCOIN_API_CLIENT = axios.create({
 });
 
 // WAGMI CONFIG
-// FIXME: move to env or white list domain
 export const WAGMI_CHAIN = CONFIG.chain;
 export const WAGMI_METADATA = {
 	name: "Frankencoin",
@@ -54,6 +55,11 @@ export const WAGMI_CONFIG = createConfig({
 	chains: [WAGMI_CHAIN],
 	transports: {
 		[CONFIG.chain.id]: http(CONFIG.rpc),
+	},
+	batch: {
+		multicall: {
+			wait: 200,
+		},
 	},
 	connectors: [
 		walletConnect({ projectId: CONFIG.wagmiId, metadata: WAGMI_METADATA, showQrModal: false }),
