@@ -11,9 +11,25 @@
 1. The main branch should deploy to app.frankencoin.com
 2. The dev Branch should deploy to dev.app.frankencoin.com
 
+### Deploy or run with developer default keys
+
+```Bash
+# clone and install deps.
+git clone https://github.com/Frankencoin-ZCHF/frankencoin-dapp.git
+cd frankencoin-dapp
+yarn install --frozen-lockfile
+
+# deploy
+yarn run build
+yarn run start
+
+# or run developer mode
+yarn run dev
+```
+
 ### Copy .env.example and adjust your environment
 
-```
+```TS
 NEXT_PUBLIC_LANDINGPAGE_URL=https://frankencoin.com
 NEXT_PUBLIC_APP_URL=https://app.frankencoin.com
 NEXT_PUBLIC_API_URL=https://api.frankencoin.com
@@ -26,7 +42,7 @@ NEXT_PUBLIC_RPC_URL_POLYGON=...
 
 ### Change default environment (app.config.ts)
 
-```
+```TS
 // Config
 export const CONFIG: ConfigEnv = {
 	landing: process.env.NEXT_PUBLIC_LANDINGPAGE_URL || "https://frankencoin.com",
@@ -34,11 +50,12 @@ export const CONFIG: ConfigEnv = {
 	api: process.env.NEXT_PUBLIC_API_URL || "https://api.frankencoin.com",
 	ponder: process.env.NEXT_PUBLIC_PONDER_URL || "https://ponder.frankencoin.com",
 	chain: process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon" ? polygon : mainnet,
-	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID,
+	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID || "...",
 	rpc:
 		process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon"
-			? (process.env.NEXT_PUBLIC_RPC_URL_POLYGON as string)
-			: process.env.NEXT_PUBLIC_RPC_URL_MAINNET,
+			? (process.env.NEXT_PUBLIC_RPC_URL_POLYGON as string) ||
+			  "https://polygon-mainnet.g.alchemy.com/v2/..."
+			: process.env.NEXT_PUBLIC_RPC_URL_MAINNET || "https://eth-mainnet.g.alchemy.com/v2/...",
 };
 
 console.log("YOU ARE USING THIS CONFIG PROFILE:");
@@ -86,7 +103,6 @@ e.g. custom testnet chain
 Memory stored private blockchain for development.
 RPC: https://ethereum3.3dotshub.com
 Blocktime: 10sec
-Drop an address if you need ETH on this network.
 ```
 
 #### Affected file: /contracts/address.ts
