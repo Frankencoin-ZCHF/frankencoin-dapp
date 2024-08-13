@@ -59,7 +59,9 @@ export default function MypositionsTable() {
 		if (tab === e) {
 			setReverse(!reverse);
 		} else {
-			setReverse(false);
+			if (e === headers[1]) setReverse(true);
+			else setReverse(false);
+
 			setTab(e);
 		}
 	};
@@ -70,6 +72,7 @@ export default function MypositionsTable() {
 				headers={headers}
 				subHeaders={["Value", "Market Price", "Available", "Time Left"]}
 				tab={tab}
+				reverse={reverse}
 				tabOnChange={handleTabOnChange}
 				actionCol
 			/>
@@ -124,7 +127,7 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 				const price: number = prices[p.collateral.toLowerCase() as Address].price.chf || 1;
 				return price / liqPrice;
 			};
-			return calc(a) - calc(b);
+			return calc(b) - calc(a);
 		});
 	} else if (tab === headers[2]) {
 		// sort for minted

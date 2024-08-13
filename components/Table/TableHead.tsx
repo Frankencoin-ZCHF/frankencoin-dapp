@@ -1,3 +1,5 @@
+import { faArrowDownWideShort, faArrowUpShortWide } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 
 interface Props {
@@ -6,10 +8,11 @@ interface Props {
 	actionCol?: boolean;
 	colSpan?: number;
 	tab?: string;
+	reverse?: boolean;
 	tabOnChange?: Function;
 }
 
-export default function TableHeader({ headers, subHeaders, actionCol, colSpan, tab = "", tabOnChange }: Props) {
+export default function TableHeader({ headers, subHeaders, actionCol, colSpan, tab = "", reverse = false, tabOnChange }: Props) {
 	const handleOnClick = function (active: string) {
 		if (typeof tabOnChange === "function") tabOnChange(active);
 	};
@@ -19,9 +22,12 @@ export default function TableHeader({ headers, subHeaders, actionCol, colSpan, t
 			<div className={`hidden pl-8 flex-grow grid-cols-2 md:grid md:grid-cols-${colSpan || headers.length}`}>
 				{headers.map((header, i) => (
 					<div className={`${i > 0 ? "text-right" : ""}`} key={`table-header-${i}`} onClick={(e) => handleOnClick(header)}>
-						<span className={`${!!tab ? "cursor-pointer" : ""} ${tab === header ? "text-red-600" : "text-gray-300"}`}>
+						<span className={`text-gray-300 ${!!tab ? "cursor-pointer" : ""} ${tab === header ? "font-bold" : ""}`}>
 							{header}
 						</span>
+						{tab === header ? (
+							<FontAwesomeIcon icon={reverse ? faArrowUpShortWide : faArrowDownWideShort} className="ml-2 cursor-pointer" />
+						) : null}
 					</div>
 				))}
 				{subHeaders

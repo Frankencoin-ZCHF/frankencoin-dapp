@@ -47,14 +47,16 @@ export default function ChallengesTable() {
 		if (tab === e) {
 			setReverse(!reverse);
 		} else {
-			setReverse(false);
+			if (e === headers[1]) setReverse(true);
+			else if (e === headers[2]) setReverse(true);
+			else setReverse(false);
 			setTab(e);
 		}
 	};
 
 	return (
 		<Table>
-			<TableHeader headers={headers} tab={tab} tabOnChange={handleTabOnChange} actionCol />
+			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"There are no challenges yet."}</TableRowEmpty>
@@ -99,7 +101,7 @@ function sortChallenges(params: SortChallenges): ChallengesQueryItem[] {
 				const price: number = parseFloat(formatUnits(raw, 36 - pos.collateralDecimals)) || 0;
 				return price;
 			};
-			return calc(a) - calc(b);
+			return calc(b) - calc(a);
 		});
 	} else if (tab === headers[2]) {
 		// Phases, [Fixed Price, Declining Phase, Zero Price]

@@ -25,14 +25,17 @@ export default function MonitoringTable() {
 		if (tab === e) {
 			setReverse(!reverse);
 		} else {
-			setReverse(false);
+			if (e === headers[1]) setReverse(true);
+			else if (e === headers[2]) setReverse(true);
+			else setReverse(false);
+
 			setTab(e);
 		}
 	};
 
 	return (
 		<Table>
-			<TableHeader headers={headers} tab={tab} tabOnChange={handleTabOnChange} actionCol />
+			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"There are no other positions yet."}</TableRowEmpty>
@@ -70,12 +73,12 @@ function sortPositions(
 				const price: number = prices[p.collateral.toLowerCase() as Address].price.chf || 1;
 				return price / liqPrice;
 			};
-			return calc(a) - calc(b);
+			return calc(b) - calc(a);
 		});
 	} else if (tab === headers[2]) {
 		// sorft for Expiration
 		list.sort((a, b) => {
-			return a.expiration - b.expiration;
+			return b.expiration - a.expiration;
 		});
 	} else if (tab === headers[3]) {
 		// sort for Challenged

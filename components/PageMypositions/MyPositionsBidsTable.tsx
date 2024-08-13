@@ -50,7 +50,7 @@ export default function MyPositionsBidsTable() {
 
 	return (
 		<Table>
-			<TableHeader headers={headers} tab={tab} tabOnChange={handleTabOnChange} actionCol />
+			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"You do not have any bids yet."}</TableRowEmpty>

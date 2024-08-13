@@ -46,7 +46,7 @@ export default function BorrowTable() {
 
 	return (
 		<Table>
-			<TableHeader headers={headers} tab={tab} tabOnChange={handleTabOnChange} actionCol />
+			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"There are no other positions yet."}</TableRowEmpty>
@@ -87,7 +87,7 @@ function sortPositions(
 				const i: number = p.annualInterestPPM / 1000000;
 				return (i / (1 - r)) * 1000000;
 			};
-			return calc(a) - calc(b); // default: increase
+			return calc(b) - calc(a);
 		});
 	} else if (tab === headers[3]) {
 		// sort for Available
