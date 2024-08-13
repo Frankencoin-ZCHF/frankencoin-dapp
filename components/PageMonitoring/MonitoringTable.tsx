@@ -12,7 +12,7 @@ import { useState } from "react";
 export default function MonitoringTable() {
 	const headers: string[] = ["Collateral", "Collateralization", "Expiration", "Challenged"];
 	const [tab, setTab] = useState<string>(headers[1]);
-	const [reverse, setReverse] = useState<boolean>(false);
+	const [reverse, setReverse] = useState<boolean>(true);
 
 	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
