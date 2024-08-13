@@ -89,7 +89,7 @@ export default function MonitoringRow({ position }: Props) {
 			{/* Coll. */}
 			<div className="flex flex-col gap-2">
 				<div className={`col-span-2 text-md ${liquidationPct < 110 ? "text-red-700 font-bold" : "text-text-header"}`}>
-					{!isNaN(liquidationPct) ? liquidationPct : "-.--"}%
+					{!isNaN(liquidationPct) ? formatCurrency(liquidationPct) : "-.--"}%
 				</div>
 			</div>
 
