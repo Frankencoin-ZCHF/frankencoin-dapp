@@ -27,7 +27,7 @@ export default function DisplayCollateralMyPositions({ position, collateralPrice
 	return (
 		<div className={`-ml-12 flex items-center ${className}`}>
 			<Link href={url} onClick={openExplorer}>
-				<div className="mr-4">
+				<div className="mr-4 cursor-pointer">
 					<TokenLogo currency={position.collateralSymbol} />
 				</div>
 			</Link>

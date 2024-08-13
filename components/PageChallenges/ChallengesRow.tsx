@@ -113,11 +113,10 @@ export default function ChallengesRow({ challenge }: Props) {
 		>
 			{/* Collateral */}
 			<div className="-ml-12 flex items-center">
-				<div onClick={openExplorer}>
-					<div className="mr-4">
-						<TokenLogo currency={position.collateralSymbol} />
-					</div>
+				<div className="mr-4 cursor-pointer" onClick={openExplorer}>
+					<TokenLogo currency={position.collateralSymbol} />
 				</div>
+
 				<div className={`col-span-2 text-md`}>{`${formatCurrency(challengeRemainingSize, 2, 2)} ${position.collateralSymbol}`}</div>
 			</div>
 

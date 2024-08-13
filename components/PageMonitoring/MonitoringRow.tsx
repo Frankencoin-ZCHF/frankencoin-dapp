@@ -78,12 +78,18 @@ export default function MonitoringRow({ position }: Props) {
 		>
 			{/* Collateral */}
 			<div className="-ml-12 flex items-center">
-				<div onClick={openExplorer}>
-					<div className="mr-4">
-						<TokenLogo currency={position.collateralSymbol} />
+				<div className="mr-4 cursor-pointer" onClick={openExplorer}>
+					<TokenLogo currency={position.collateralSymbol} />
+				</div>
+
+				<div>
+					<div className={`col-span-2 text-left text-md`}>{`${formatCurrency(balance, 2, 2)} ${position.collateralSymbol}`}</div>
+					<div className={`col-span-2 text-left text-sm`}>
+						<Link href={`/mypositions?address=${position.owner}`} className="underline">
+							Owners View
+						</Link>
 					</div>
 				</div>
-				<div className={`col-span-2 text-md`}>{`${formatCurrency(balance, 2, 2)} ${position.collateralSymbol}`}</div>
 			</div>
 
 			{/* Coll. */}
