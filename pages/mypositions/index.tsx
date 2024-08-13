@@ -1,6 +1,7 @@
 import Head from "next/head";
 import MypositionsTable from "@components/PageMypositions/MypositionsTable";
 import MyPositionsChallengesTable from "@components/PageMypositions/MyPositionsChallengesTable";
+import MyPositionsBidsTable from "@components/PageMypositions/MyPositionsBidsTable";
 
 export default function Positions() {
 	return (
@@ -25,13 +26,13 @@ export default function Positions() {
 				<MyPositionsChallengesTable />
 			</div>
 
-			{/* <div>
-				<AppPageHeader title="Your Bids" />
+			<div className="md:mt-10">
+				<span className="font-bold text-xl">Bought through Bids</span>
 			</div>
 
 			<div className="md:mt-8">
-				<MypositionsTable />
-			</div> */}
+				<MyPositionsBidsTable />
+			</div>
 		</>
 	);
 }

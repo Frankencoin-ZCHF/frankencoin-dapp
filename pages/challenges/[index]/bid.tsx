@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import Head from "next/head";
-import AppPageHeader from "@components/AppPageHeader";
 import { useRouter } from "next/router";
 import AppBox from "@components/AppBox";
 import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
-import { useChallengeListStats, useChallengeLists, usePositionStats, useContractUrl } from "@hooks";
-import { Address, erc20Abi, formatUnits, getAddress, zeroAddress } from "viem";
-import { ContractUrl, formatBigInt, formatCurrency, formatDate, formatDuration, min, shortenAddress } from "@utils";
+import { Address, formatUnits, zeroAddress } from "viem";
+import { ContractUrl, formatBigInt, formatCurrency, formatDate, shortenAddress } from "@utils";
 import Link from "next/link";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
@@ -22,17 +20,20 @@ import { RootState } from "../../../redux/redux.store";
 import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { useRouter as useNavigation } from "next/navigation";
 
 export default function ChallengePlaceBid() {
 	const [isInit, setInit] = useState(false);
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [isBidding, setBidding] = useState(false);
+	const [isNavigating, setNavigating] = useState(false);
 	const [userBalance, setUserBalance] = useState(0n);
 
 	const { data } = useBlockNumber({ watch: true });
 	const account = useAccount();
 	const router = useRouter();
+	const navigate = useNavigation();
 
 	const chainId = useChainId();
 	const index: number = parseInt(String(router.query.index) || "0");
@@ -43,6 +44,8 @@ export default function ChallengePlaceBid() {
 	const auctionPriceMapping = useSelector((state: RootState) => state.challenges.challengesPrices.map);
 
 	const challenge = challenges.find((c) => c.number.toString() == index.toString());
+	const position = positions.find((p) => p.position == challenge?.position);
+	// const bids = !!challenge ? [] : bidsMapping[challenge!.id]; // can be empty
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
@@ -72,10 +75,13 @@ export default function ChallengePlaceBid() {
 		setInit(true);
 	}, [isInit, challenge]);
 
-	if (!challenge) return null;
+	useEffect(() => {
+		if (isNavigating && position?.position) {
+			navigate.push(`/mypositions`);
+		}
+	}, [isNavigating, navigate, position]);
 
-	const position = positions.find((p) => p.position == challenge?.position);
-	const bids = bidsMapping[challenge.id]; // can be empty
+	if (!challenge) return null;
 	if (!position) return null;
 
 	const auctionPrice = BigInt(auctionPriceMapping[challenge.id] ?? "0");
@@ -151,6 +157,7 @@ export default function ChallengePlaceBid() {
 			});
 		} finally {
 			setBidding(false);
+			setNavigating(true);
 		}
 	};
 
