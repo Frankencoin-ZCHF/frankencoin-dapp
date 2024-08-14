@@ -124,7 +124,7 @@ export default function ChallengePlaceBid() {
 				address: ADDRESS[chainId].mintingHub,
 				abi: ABIS.MintingHubABI,
 				functionName: "bid",
-				args: [index, amount, true],
+				args: [index, amount, false],
 			});
 
 			const toastContent = [

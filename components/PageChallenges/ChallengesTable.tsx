@@ -59,7 +59,7 @@ export default function ChallengesTable() {
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
 				{sorted.length == 0 ? (
-					<TableRowEmpty>{"There are no challenges yet."}</TableRowEmpty>
+					<TableRowEmpty>{"There are no active challenges."}</TableRowEmpty>
 				) : (
 					sorted.map((c) => <ChallengesRow key={c.id} challenge={c} />)
 				)}

@@ -5,8 +5,9 @@ import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import TokenLogo from "@components/TokenLogo";
 import { formatCurrency } from "../../utils/format";
-import Link from "next/link";
 import { useContractUrl } from "@hooks";
+import { useRouter as useNavigation } from "next/navigation";
+import Button from "@components/Button";
 
 interface Props {
 	bid: BidsQueryItem;
@@ -22,6 +23,7 @@ export default function MyPositionsBidsRow({ bid }: Props) {
 	const position = positions.map[pid];
 	const challenge = challenges.map[cid];
 	const url = useContractUrl(position.collateral || zeroAddress);
+	const navigate = useNavigation();
 	if (!position || !challenge) return null;
 
 	const openExplorer = (e: any) => {
@@ -29,16 +31,20 @@ export default function MyPositionsBidsRow({ bid }: Props) {
 		window.open(url, "_blank");
 	};
 
+	const isDisabled: boolean = challenge.status !== "Active";
+
 	return (
 		<TableRow
 			actionCol={
 				<div className="">
-					<Link
-						href={`/challenges/${bid.number}/bid`}
-						className={`btn btn-primary w-full h-10 ${challenge.status === "Active" ? "" : "hidden"}`}
+					<Button
+						className="h-10"
+						variant="primary"
+						disabled={isDisabled}
+						onClick={() => navigate.push(`/challenges/${bid.number}/bid`)}
 					>
 						Buy Again
-					</Link>
+					</Button>
 				</div>
 			}
 		>

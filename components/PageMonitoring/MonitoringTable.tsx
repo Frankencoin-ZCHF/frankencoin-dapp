@@ -38,7 +38,7 @@ export default function MonitoringTable() {
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
 				{sorted.length == 0 ? (
-					<TableRowEmpty>{"There are no other positions yet."}</TableRowEmpty>
+					<TableRowEmpty>{"There are no active positions."}</TableRowEmpty>
 				) : (
 					sorted.map((pos) => <MonitoringRow position={pos} key={pos.position} />)
 				)}

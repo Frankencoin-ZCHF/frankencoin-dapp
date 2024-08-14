@@ -78,7 +78,7 @@ export default function MypositionsTable() {
 			/>
 			<TableBody>
 				{sorted.length == 0 ? (
-					<TableRowEmpty>{"You do not have any positions"}</TableRowEmpty>
+					<TableRowEmpty>{"You do not have any positions yet."}</TableRowEmpty>
 				) : (
 					sorted.map((pos) => <MypositionsRow position={pos} key={pos.position} />)
 				)}
