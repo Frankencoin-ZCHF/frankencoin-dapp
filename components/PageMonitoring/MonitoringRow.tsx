@@ -82,14 +82,7 @@ export default function MonitoringRow({ position }: Props) {
 					<TokenLogo currency={position.collateralSymbol} />
 				</div>
 
-				<div>
-					<div className={`col-span-2 text-left text-md`}>{`${formatCurrency(balance, 2, 2)} ${position.collateralSymbol}`}</div>
-					<div className={`col-span-2 text-left text-sm`}>
-						<Link href={`/mypositions?address=${position.owner}`} className="underline">
-							Owners View
-						</Link>
-					</div>
-				</div>
+				<div className={`col-span-2 text-left text-md`}>{`${formatCurrency(balance, 2, 2)} ${position.collateralSymbol}`}</div>
 			</div>
 
 			{/* Coll. */}

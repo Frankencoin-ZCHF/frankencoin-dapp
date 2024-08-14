@@ -18,10 +18,10 @@ interface Props {
 
 export default function MyPositionsChallengesCancel({ challenge }: Props) {
 	const [isCancelling, setCancelling] = useState<boolean>(false);
-	const [isHidden, setHidden] = useState<boolean>(challenge.status !== "Active");
 	const positions: PositionsQueryObjectArray = useSelector((state: RootState) => state.positions.mapping.map);
 	const account = useAccount();
 	const chainId = CONFIG.chain.id;
+	const [isHidden, setHidden] = useState<boolean>(challenge.status !== "Active" || account.address !== challenge.challenger);
 
 	const handleCancelOnClick = async function () {
 		const pid = challenge.position.toLowerCase() as Address;

@@ -8,6 +8,7 @@ import { formatCurrency } from "../../utils/format";
 import { useContractUrl } from "@hooks";
 import { useRouter as useNavigation } from "next/navigation";
 import Button from "@components/Button";
+import { useAccount } from "wagmi";
 
 interface Props {
 	bid: BidsQueryItem;
@@ -23,6 +24,7 @@ export default function MyPositionsBidsRow({ bid }: Props) {
 	const position = positions.map[pid];
 	const challenge = challenges.map[cid];
 	const url = useContractUrl(position.collateral || zeroAddress);
+	const account = useAccount();
 	const navigate = useNavigation();
 	if (!position || !challenge) return null;
 
@@ -31,7 +33,7 @@ export default function MyPositionsBidsRow({ bid }: Props) {
 		window.open(url, "_blank");
 	};
 
-	const isDisabled: boolean = challenge.status !== "Active";
+	const isDisabled: boolean = challenge.status !== "Active" || account.address !== bid.bidder;
 
 	return (
 		<TableRow
