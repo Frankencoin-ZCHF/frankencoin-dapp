@@ -337,7 +337,7 @@ export default function PositionBorrow({}) {
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">Interest ({formatBigInt(feePercent, 4)}%)</div>
+									<div className="flex-1">Upfront interest until maturity ({formatBigInt(feePercent, 4)}%)</div>
 									<DisplayAmount amount={fees} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} hideLogo />
 								</div>
 
