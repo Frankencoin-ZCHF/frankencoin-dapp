@@ -319,7 +319,7 @@ export default function PositionBorrow({}) {
 										<span>Sent to your wallet</span>
 									</div>
 									<div className="text-right">
-										<span className="text-xs mr-3">({formatCurrency(paidOutToWalletPct)}%)</span>
+										<span className="text-xs mr-3">{formatCurrency(paidOutToWalletPct)}%</span>
 										<span>{formatCurrency(formatUnits(paidOutToWallet, 18))} ZCHF</span>
 									</div>
 								</div>
@@ -329,9 +329,7 @@ export default function PositionBorrow({}) {
 										<span>Retained Reserve</span>
 									</div>
 									<div className="text-right">
-										<span className="text-xs mr-3">
-											({formatCurrency(position.reserveContribution / 10000, 2, 2)}%)
-										</span>
+										<span className="text-xs mr-3">{formatCurrency(position.reserveContribution / 10000, 2, 2)}%</span>
 										<span>{formatCurrency(formatUnits(borrowersReserveContribution, 18))} ZCHF</span>
 									</div>
 								</div>
@@ -342,7 +340,7 @@ export default function PositionBorrow({}) {
 										<div className="text-xs">({position.annualInterestPPM / 10000}% per year)</div>
 									</div>
 									<div className="text-right">
-										<span className="text-xs mr-3">({formatBigInt(feePercent, 4)}%)</span>
+										<span className="text-xs mr-3">{formatBigInt(feePercent, 4)}%</span>
 										<span>{formatCurrency(formatUnits(fees, 18))} ZCHF</span>
 									</div>
 								</div>
@@ -354,7 +352,7 @@ export default function PositionBorrow({}) {
 										<span>Total</span>
 									</div>
 									<div className="text-right">
-										<span className="text-xs mr-3">(100%)</span>
+										<span className="text-xs mr-3">100%</span>
 										<span>{formatCurrency(formatUnits(amount, 18))} ZCHF</span>
 									</div>
 								</div>
