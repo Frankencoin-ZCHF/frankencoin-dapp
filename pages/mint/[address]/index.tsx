@@ -315,37 +315,46 @@ export default function PositionBorrow({}) {
 							<div className="text-lg font-bold text-center mt-3">Outcome</div>
 							<AppBox className="flex-1 mt-4">
 								<div className="flex">
-									<div className="flex-1">Sent to your wallet ({formatCurrency(paidOutToWalletPct, 2, 2)}%)</div>
-									<DisplayAmount
-										amount={paidOutToWallet}
-										currency="ZCHF"
-										address={ADDRESS[chainId].frankenCoin}
-										hideLogo
-									/>
+									<div className="flex-1">
+										<span>Sent to your wallet</span>
+									</div>
+									<div className="text-right">
+										<span className="text-xs mr-3">{formatCurrency(paidOutToWalletPct)}%</span>
+										<span>{formatCurrency(formatUnits(paidOutToWallet, 18))} ZCHF</span>
+									</div>
 								</div>
 
 								<div className="mt-2 flex">
 									<div className="flex-1">
-										Retained Reserve ({formatCurrency(position.reserveContribution / 10000, 2, 2)}%)
+										<span>Retained Reserve</span>
 									</div>
-									<DisplayAmount
-										amount={borrowersReserveContribution}
-										currency="ZCHF"
-										address={ADDRESS[chainId].frankenCoin}
-										hideLogo
-									/>
+									<div className="text-right">
+										<span className="text-xs mr-3">{formatCurrency(position.reserveContribution / 10000, 2, 2)}%</span>
+										<span>{formatCurrency(formatUnits(borrowersReserveContribution, 18))} ZCHF</span>
+									</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">Upfront interest until maturity ({formatBigInt(feePercent, 4)}%)</div>
-									<DisplayAmount amount={fees} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} hideLogo />
+									<div className="flex-1">
+										<span>Upfront interest</span>
+										<div className="text-xs">({position.annualInterestPPM / 10000}% per year)</div>
+									</div>
+									<div className="text-right">
+										<span className="text-xs mr-3">{formatBigInt(feePercent, 4)}%</span>
+										<span>{formatCurrency(formatUnits(fees, 18))} ZCHF</span>
+									</div>
 								</div>
 
 								<hr className="mt-4 border-slate-700 border-dashed" />
 
 								<div className="mt-2 flex font-bold">
-									<div className="flex-1">Total</div>
-									<DisplayAmount amount={amount} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} hideLogo />
+									<div className="flex-1">
+										<span>Total</span>
+									</div>
+									<div className="text-right">
+										<span className="text-xs mr-3">100%</span>
+										<span>{formatCurrency(formatUnits(amount, 18))} ZCHF</span>
+									</div>
 								</div>
 							</AppBox>
 						</div>

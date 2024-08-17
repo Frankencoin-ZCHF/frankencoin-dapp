@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { formatCurrency } from "../../utils/format";
 import DisplayCollateralMyPositions from "./DisplayCollateralMyPositions";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter as useNavigate } from "next/navigation";
 import { useContractUrl } from "@hooks";
 
 interface Props {
@@ -24,7 +24,7 @@ type ChallengeInfos = {
 };
 
 export default function MypositionsRow({ position }: Props) {
-	const router = useRouter();
+	const navigate = useNavigate();
 	const url = useContractUrl(position.position || zeroAddress);
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
@@ -140,7 +140,7 @@ export default function MypositionsRow({ position }: Props) {
 		if (stateIdx != 1) return;
 
 		try {
-			router.push(`challenges/${stateChallengeInfo.challenge.number}/bid`, { scroll: true });
+			navigate.push(`challenges/${stateChallengeInfo.challenge.number}/bid`, { scroll: true });
 		} catch (error) {
 			console.log(error);
 		}

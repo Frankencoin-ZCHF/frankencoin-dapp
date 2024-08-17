@@ -32,6 +32,14 @@ export default function LoadingScreen() {
 						</picture>
 						<h1>Frankencoin is loading...</h1>
 					</div>
+
+					<div className="absolute bottom-[15%]">
+						<h1 className="px-8 text-center">
+							This website uses third-party cookies, and certain features may not function properly if you choose to block
+							them.
+						</h1>
+					</div>
+
 					<div className="absolute bottom-10">
 						<SubmitIssue />
 					</div>
