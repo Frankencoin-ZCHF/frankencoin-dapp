@@ -5,6 +5,7 @@ import { cookieStorage, createConfig, createStorage, http } from "@wagmi/core";
 import { injected, coinbaseWallet, walletConnect } from "@wagmi/connectors";
 import { mainnet, polygon, Chain } from "@wagmi/core/chains";
 import axios from "axios";
+import { Address } from "viem";
 
 export type ConfigEnv = { landing: string; app: string; api: string; ponder: string; rpc: string; wagmiId: string; chain: Chain };
 
@@ -74,3 +75,12 @@ export const WAGMI_CONFIG = createConfig({
 		storage: cookieStorage,
 	}),
 });
+
+// MINT POSITION BLACKLIST
+export const MINT_POSITION_BLACKLIST: Address[] = ["0x98725eE62833096C1c9bE26001F3cDA9a6241EF3"];
+export const POSITION_NOT_BLACKLISTED = (addr: Address): boolean => {
+	const r = MINT_POSITION_BLACKLIST.filter((p) => {
+		return p.toLowerCase() === addr.toLowerCase();
+	});
+	return r.length == 0;
+};

@@ -8,6 +8,7 @@ import { RootState } from "../../redux/redux.store";
 import { ChallengesQueryItem, PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import { Address, formatUnits } from "viem";
 import { useState } from "react";
+import { POSITION_NOT_BLACKLISTED } from "../../app.config";
 
 export default function BorrowTable() {
 	const headers: string[] = ["Collateral", "Loan-to-Value", "Interest", "Available", "Maturity"];
@@ -20,15 +21,17 @@ export default function BorrowTable() {
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 
 	const matchingPositions: PositionQuery[] = openPositions.filter((position) => {
+		const pid: Address = position.position.toLowerCase() as Address;
+		const considerBlackList: boolean = POSITION_NOT_BLACKLISTED(pid);
 		const considerOpen: boolean = !position.closed && !position.denied;
 		const considerProposed: boolean = position.start * 1000 < Date.now();
 		const considerAvailableForClones: boolean = BigInt(position.availableForClones) > 0n;
 
-		const challengesPosition = challengesPosMap[position.position.toLowerCase() as Address] || [];
+		const challengesPosition = challengesPosMap[pid] || [];
 		const challengesActive: ChallengesQueryItem[] = challengesPosition.filter((c) => c.status == "Active");
 		const considerNoChallenges: boolean = challengesActive.length == 0;
 
-		const verifyable: boolean[] = [considerOpen, considerProposed, considerAvailableForClones, considerNoChallenges];
+		const verifyable: boolean[] = [considerBlackList, considerOpen, considerProposed, considerAvailableForClones, considerNoChallenges];
 
 		return !verifyable.includes(false);
 	});
