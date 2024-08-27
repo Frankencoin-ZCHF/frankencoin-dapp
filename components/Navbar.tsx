@@ -21,6 +21,9 @@ export function NavItems() {
 				<NavButton to="/challenges" name="Auctions" />
 			</li>
 			<li>
+				<NavButton to="/savings" name="Savings" />
+			</li>
+			<li>
 				<NavButton to="/pool" name="Equity" />
 			</li>
 			<li>
