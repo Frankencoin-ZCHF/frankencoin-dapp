@@ -15,7 +15,7 @@ interface Props {
 	disabled: boolean;
 }
 
-export default function GovernanceMintersVeto({ minter, disabled }: Props) {
+export default function GovernanceMintersAction({ minter, disabled }: Props) {
 	const [isVetoing, setVetoing] = useState<boolean>(false);
 	const account = useAccount();
 	const chainId = CONFIG.chain.id;

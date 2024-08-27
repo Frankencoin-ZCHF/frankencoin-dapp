@@ -7,46 +7,41 @@ import { Address } from "viem";
 import { shortenAddress } from "@utils";
 import GovernancePositionsTable from "@components/PageGovernance/GovernancePositionsTable";
 import GovernanceMintersTable from "@components/PageGovernance/GovernanceMintersTable";
+import GovernanceVotersTable from "@components/PageGovernance/GovernanceVotersTable";
 
 export default function Governance() {
-	const router = useRouter();
-	const overwrite: Address = router.query.address as Address;
-
 	return (
 		<>
 			<Head>
 				<title>Frankencoin - Positions</title>
 			</Head>
 
-			{/* Positions Proposal */}
+			{/* Positions Proposals */}
 			<div className="md:mt-8">
 				<span className="font-bold text-xl">Positions Proposals </span>
-				<DisplayWarningMessage overwrite={overwrite} />
 			</div>
 
 			<div className="md:mt-8">
 				<GovernancePositionsTable />
 			</div>
 
-			{/* Section Challenges */}
+			{/* Minters Proposals */}
 			<div className="md:mt-10">
 				<span className="font-bold text-xl">Minters Proposals</span>
-				<DisplayWarningMessage overwrite={overwrite} />
 			</div>
 
 			<div className="md:mt-8">
 				<GovernanceMintersTable />
 			</div>
 
-			{/* Section Bids
+			{/* Top Voters */}
 			<div className="md:mt-10">
 				<span className="font-bold text-xl">Top Voters</span>
-				<DisplayWarningMessage overwrite={overwrite} />
 			</div>
 
 			<div className="md:mt-8">
-				<MyPositionsBidsTable />
-			</div> */}
+				<GovernanceVotersTable />
+			</div>
 		</>
 	);
 }

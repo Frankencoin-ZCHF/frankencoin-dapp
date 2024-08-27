@@ -1,10 +1,8 @@
-import { Address, formatUnits, zeroAddress } from "viem";
+import { zeroAddress } from "viem";
 import TableRow from "../Table/TableRow";
 import { MinterQuery } from "@frankencoin/api";
-import { formatCurrency, shortenAddress } from "../../utils/format";
 import { useContractUrl } from "@hooks";
-import Button from "@components/Button";
-import GovernanceMintersVeto from "./GovernanceMintersVeto";
+import GovernanceMintersAction from "./GovernanceMintersAction";
 import AddressLabel from "@components/AddressLabel";
 
 interface Props {
@@ -32,7 +30,7 @@ export default function GovernanceMintersRow({ minter }: Props) {
 		<TableRow
 			actionCol={
 				<div className="">
-					<GovernanceMintersVeto key={minter.id} minter={minter} disabled={isDisabled} />
+					<GovernanceMintersAction key={minter.id} minter={minter} disabled={isDisabled} />
 				</div>
 			}
 		>

@@ -19,7 +19,7 @@ export default function GovernancePositionsTable() {
 	const challenges = useSelector((state: RootState) => state.challenges.positions.map);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
-	const matchingPositions: PositionQuery[] = positions.filter((p) => p.start > Date.now());
+	const matchingPositions: PositionQuery[] = positions.filter((p) => p.start * 1000 > Date.now());
 
 	// const sorted: PositionQuery[] = sortPositions({
 	// 	positions: matchingPositions,

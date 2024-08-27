@@ -219,7 +219,7 @@ export default function PositionCreate({}) {
 
 			const toastContent = [
 				{
-					title: "Amount:",
+					title: "Amount: ",
 					value: "infinite " + collTokenData.symbol,
 				},
 				{
@@ -278,7 +278,7 @@ export default function PositionCreate({}) {
 				},
 				{
 					title: "Collateral Amount:",
-					value: formatBigInt(initialCollAmount, parseInt(collTokenData.decimals.toString())) + collTokenData.symbol,
+					value: formatBigInt(initialCollAmount, parseInt(collTokenData.decimals.toString())) + " " + collTokenData.symbol,
 				},
 				{
 					title: "LiqPrice: ",
