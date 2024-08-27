@@ -22,7 +22,7 @@ export default function GovernanceMintersRow({ minter }: Props) {
 	const hoursUntil: number = (vetoUntil - Date.now()) / 1000 / 60 / 60;
 	const stateStr: string = `${Math.round(hoursUntil)} hours left`;
 
-	const passed: boolean = Date.now() > vetoUntil;
+	const passed: boolean = hoursUntil < 0;
 	const vetoed: boolean = minter.vetor ? true : false;
 	const isDisabled: boolean = vetoed || passed;
 
