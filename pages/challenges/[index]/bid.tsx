@@ -236,11 +236,6 @@ export default function ChallengePlaceBid() {
 										<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
 									</div>
 								</Link>
-								<div className={`col-span-2 text-left text-sm`}>
-									<Link href={`/mypositions?address=${challenge?.challenger || zeroAddress}`} className="underline">
-										Challenger View
-									</Link>
-								</div>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Fixed price until" />

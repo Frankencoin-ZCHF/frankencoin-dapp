@@ -122,12 +122,6 @@ export default function PositionDetail() {
 										{shortenAddress(position.owner)}
 										<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
 									</Link>
-
-									<div className={`col-span-2 text-left text-sm`}>
-										<Link href={`/mypositions?address=${position.owner}`} className="underline">
-											Owners View
-										</Link>
-									</div>
 								</div>
 							</AppBox>
 							<AppBox>
