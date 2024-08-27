@@ -5,6 +5,7 @@ import {
 	DispatchApiEcosystemCollateralStats,
 	DispatchApiEcosystemFpsInfo,
 	DispatchApiEcosystemFrankencoinInfo,
+	DispatchApiEcosystemFrankencoinMinters,
 	DispatchBoolean,
 	EcosystemState,
 } from "./ecosystem.types";
@@ -13,6 +14,7 @@ import {
 	ApiEcosystemCollateralStats,
 	ApiEcosystemFpsInfo,
 	ApiEcosystemFrankencoinInfo,
+	ApiMinterListing,
 } from "@frankencoin/api";
 import { zeroAddress } from "viem";
 
@@ -24,7 +26,11 @@ export const initialState: EcosystemState = {
 
 	collateralPositions: {},
 	collateralStats: { num: 0, addresses: [], totalValueLocked: { usd: 0, chf: 0 }, map: {} },
-	fpsInfo: { raw: { price: "0", totalSupply: "0" }, values: { fpsMarketCapInChf: 0, price: 0, totalSupply: 0 } },
+	fpsInfo: {
+		raw: { price: "0", totalSupply: "0" },
+		values: { fpsMarketCapInChf: 0, price: 0, totalSupply: 0 },
+		earnings: { profit: 0, loss: 0 },
+	},
 	frankencoinInfo: {
 		chain: { id: 0, name: "" },
 		counter: { mint: 0, burn: 0 },
@@ -33,6 +39,7 @@ export const initialState: EcosystemState = {
 		raw: { mint: "0", burn: "0" },
 		total: { mint: 0, burn: 0, supply: 0 },
 	},
+	frankencoinMinters: { num: 0, list: [] },
 };
 
 // --------------------------------------------------------------------------------
@@ -71,6 +78,11 @@ export const slice = createSlice({
 		setFrankencoinInfo: (state, action: { payload: ApiEcosystemFrankencoinInfo }) => {
 			state.frankencoinInfo = action.payload;
 		},
+
+		// SET Frankencoin Minters
+		setFrankencoinMinters: (state, action: { payload: ApiMinterListing }) => {
+			state.frankencoinMinters = action.payload;
+		},
 	},
 });
 
@@ -87,6 +99,7 @@ export const fetchEcosystem =
 			| DispatchApiEcosystemCollateralStats
 			| DispatchApiEcosystemFpsInfo
 			| DispatchApiEcosystemFrankencoinInfo
+			| DispatchApiEcosystemFrankencoinMinters
 		>
 	) => {
 		// ---------------------------------------------------------------
@@ -105,6 +118,9 @@ export const fetchEcosystem =
 
 		const response4 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/frankencoin/info");
 		dispatch(slice.actions.setFrankencoinInfo(response4.data as ApiEcosystemFrankencoinInfo));
+
+		const response5 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/frankencoin/minter/list");
+		dispatch(slice.actions.setFrankencoinMinters(response5.data as ApiMinterListing));
 
 		// ---------------------------------------------------------------
 		// Finalizing, loaded set to ture

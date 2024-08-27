@@ -8,7 +8,6 @@ import { formatCurrency, formatDate, shortenAddress } from "@utils";
 import { Address, formatUnits, getAddress, zeroAddress } from "viem";
 import { useContractUrl } from "@hooks";
 import { ABIS, ADDRESS } from "@contracts";
-import ChallengeTable from "@components/ChallengeTable";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
