@@ -11,15 +11,13 @@ export default function SavingsPage() {
 
 			<div className="flex flex-col items-center justify-center w-full text-center" style={{ height: "60vh" }}>
 				<h1 className="text-right text-xl font-bold">
-					<picture>
-						<img src="/assets/logo.svg" alt="logo" className="h-20" />
-					</picture>
+					Coming Soon
 				</h1>
 				<p className="text-md mt-[5rem] md:mx-[5rem]">
-					Frankencoin Association is working on a new module to allow users to earn a positive interest on their Frankencoin
-					holdings by locking them for a certain amount of time. This module will be made accessible through this page. In the
-					meantime, you might also want to consider <Link href="/pool">buying Frankencoin Pool Shares</Link>, which are more risky
-					put potentially also offer a higher reward when the system grows.
+					A <a href='https://github.com/Frankencoin-ZCHF/FrankenCoin/blob/version2024/contracts/Savings.sol'>savings module</a> is
+					under construction. It aims at enabling users to temporarily lock up some of their Frankencoinss and to earn an interest.
+					The plan is to go live with this feature before the end of the year. If you have inputs to its functionality, you can 
+					file them on <a href='https://github.com/Frankencoin-ZCHF/FrankenCoin/issues/29'>github</a>.
 				</p>
 			</div>
 		</main>
