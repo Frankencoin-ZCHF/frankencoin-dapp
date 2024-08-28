@@ -32,7 +32,7 @@ export default function GovernancePositionsRow({ position, prices }: Props) {
 	const limit = formatUnits(BigInt(position.limitForClones), 18);
 	const liqPrice = formatUnits(BigInt(position.price), 36 - position.collateralDecimals) ?? "1";
 
-	const maturity = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24 / 30;
+	const maturity = (position.expiration - position.start) / 60 / 60 / 24 / 30;
 	const denyUntil = (position.start * 1000 - Date.now()) / 1000 / 60 / 60;
 
 	// effectiveLTV = liquidation price * (1 - reserve) / market price

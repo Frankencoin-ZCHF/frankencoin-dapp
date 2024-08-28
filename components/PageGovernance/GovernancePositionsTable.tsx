@@ -12,7 +12,7 @@ import { useRouter } from "next/router";
 import GovernancePositionsRow from "./GovernancePositionsRow";
 
 export default function GovernancePositionsTable() {
-	const headers: string[] = ["Type", "Initial Collateral", "Limit", "Interest", "Maturity", "Reserve", "State"];
+	const headers: string[] = ["Type", "Initial Size", "Limit", "Interest", "Maturity", "Reserve", "State"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
@@ -21,14 +21,13 @@ export default function GovernancePositionsTable() {
 
 	const matchingPositions: PositionQuery[] = positions.filter((p) => !p.closed && !p.denied && p.start * 1000 > Date.now());
 
-	// const sorted: PositionQuery[] = sortPositions({
-	// 	positions: matchingPositions,
-	// 	challenges,
-	// 	prices,
-	// 	headers,
-	// 	tab,
-	// 	reverse,
-	// });
+	const sorted: PositionQuery[] = sortPositions({
+		positions: matchingPositions,
+		prices,
+		headers,
+		tab,
+		reverse,
+	});
 
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
@@ -50,10 +49,10 @@ export default function GovernancePositionsTable() {
 				actionCol
 			/>
 			<TableBody>
-				{matchingPositions.length == 0 ? (
+				{sorted.length == 0 ? (
 					<TableRowEmpty>{"There are no positions proposals"}</TableRowEmpty>
 				) : (
-					matchingPositions.map((pos) => <GovernancePositionsRow key={pos.position} position={pos} prices={prices} />)
+					sorted.map((pos) => <GovernancePositionsRow key={pos.position} position={pos} prices={prices} />)
 				)}
 			</TableBody>
 		</Table>
@@ -62,7 +61,6 @@ export default function GovernancePositionsTable() {
 
 type SortPositions = {
 	positions: PositionQuery[];
-	challenges: ChallengesPositionsMapping;
 	prices: PriceQueryObjectArray;
 	headers: string[];
 	tab: string;
@@ -80,58 +78,29 @@ enum PositionState {
 }
 
 function sortPositions(params: SortPositions): PositionQuery[] {
-	const { positions, challenges, prices, headers, tab, reverse } = params;
+	const { positions, prices, headers, tab, reverse } = params;
 
 	if (tab === headers[0]) {
-		// sort for Collateral Value
-		positions.sort((a, b) => {
-			const calc = function (p: PositionQuery) {
-				const size: number = parseFloat(formatUnits(BigInt(p.collateralBalance), p.collateralDecimals));
-				const price: number = prices[p.collateral.toLowerCase() as Address].price.chf || 1;
-				return size * price;
-			};
-			return calc(b) - calc(a);
-		});
+		positions.sort((a, b) => a.collateralName.localeCompare(b.collateralName));
 	} else if (tab === headers[1]) {
-		// sort for coll.
-		positions.sort((a, b) => {
-			const calc = function (p: PositionQuery) {
-				const liqPrice: number = parseFloat(formatUnits(BigInt(p.price), 36 - p.collateralDecimals));
-				const price: number = prices[p.collateral.toLowerCase() as Address].price.chf || 1;
-				return price / liqPrice;
-			};
-			return calc(b) - calc(a);
-		});
+		positions.sort((a, b) => parseInt(b.minimumCollateral) - parseInt(a.minimumCollateral));
 	} else if (tab === headers[2]) {
-		// sort for minted
-		positions.sort((a, b) => {
-			return parseInt(b.minted) - parseInt(a.minted);
-		});
+		positions.sort((a, b) => parseInt(b.limitForClones) - parseInt(a.limitForClones));
 	} else if (tab === headers[3]) {
-		// sort for state
+		positions.sort((a, b) => b.annualInterestPPM - a.annualInterestPPM);
+	} else if (tab === headers[4]) {
 		positions.sort((a, b) => {
-			const calc = function (p: PositionQuery): number {
-				const pid: Address = p.position.toLowerCase() as Address;
-				const cPos = challenges[pid] ?? [];
-				const cPosActive = cPos.filter((c) => c.status == "Active") ?? [];
-				const maturity: number = Math.round((p.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24);
-
-				if (p.closed || p.denied) {
-					return PositionState.Closed;
-				} else if (cPosActive.length > 0) {
-					return PositionState.Challenged;
-				} else if (p.start * 1000 > Date.now()) {
-					return PositionState.New;
-				} else if (p.cooldown * 1000 > Date.now()) {
-					return PositionState.Cooldown;
-				} else if (maturity < 7) {
-					if (maturity > 0) return PositionState.Expiring;
-					else return PositionState.Expired;
-				} else {
-					return PositionState.Open;
-				}
-			};
-			return calc(b) - calc(a);
+			const ma = a.expiration - a.start;
+			const mb = b.expiration - b.start;
+			return mb - ma;
+		});
+	} else if (tab === headers[5]) {
+		positions.sort((a, b) => b.reserveContribution - a.reserveContribution);
+	} else if (tab === headers[6]) {
+		positions.sort((a, b) => {
+			const ra = a.start * 1000 - Date.now();
+			const rb = b.start * 1000 - Date.now();
+			return rb - ra;
 		});
 	}
 
