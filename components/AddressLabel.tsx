@@ -17,9 +17,13 @@ export default function AddressLabel({ address, showCopy, showLink }: Props) {
 	const content = () => {
 		return (
 			<>
-				{shortenAddress(address)}
+				{
+					<div className={showLink ? "cursor-pointer" : ""} onClick={(e) => (showLink ? openExplorer(e) : undefined)}>
+						{shortenAddress(address)}
+					</div>
+				}
 				{showCopy && <FontAwesomeIcon icon={faCopy} className="w-3 ml-2 cursor-pointer" onClick={handleCopy} />}
-				{showLink && <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2 cursor-pointer" />}
+				{showLink && <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2 cursor-pointer" onClick={openExplorer} />}
 			</>
 		);
 	};
@@ -29,15 +33,14 @@ export default function AddressLabel({ address, showCopy, showLink }: Props) {
 		navigator.clipboard.writeText(address);
 	};
 
+	const openExplorer = (e: any) => {
+		e.preventDefault();
+		window.open(link, "_blank");
+	};
+
 	return (
 		<>
-			{showLink ? (
-				<Link href={link} target="_blank" className="flex items-center">
-					{content()}
-				</Link>
-			) : (
-				<div className="flex items-center">{content()}</div>
-			)}
+			<div className="flex items-center">{content()}</div>
 		</>
 	);
 }

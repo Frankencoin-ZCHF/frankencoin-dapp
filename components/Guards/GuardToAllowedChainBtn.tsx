@@ -6,6 +6,7 @@ import { useIsConnectedToCorrectChain } from "../../hooks/useWalletConnectStats"
 
 interface Props {
 	children?: React.ReactNode;
+	disabled?: boolean;
 }
 
 export default function GuardToAllowedChainBtn(props: Props) {
@@ -28,6 +29,9 @@ export default function GuardToAllowedChainBtn(props: Props) {
 	if (isDisconnected)
 		return (
 			<Button
+				className="h-10"
+				variant="primary"
+				disabled={props.disabled}
 				onClick={() => {
 					Web3Modal.open();
 					setRequestedChange(true);
@@ -41,6 +45,9 @@ export default function GuardToAllowedChainBtn(props: Props) {
 	if (!isCorrectChain)
 		return (
 			<Button
+				className="h-10"
+				variant="primary"
+				disabled={props.disabled}
 				onClick={() => {
 					Web3Modal.open({ view: "Networks" });
 					setRequestedChange(true);
