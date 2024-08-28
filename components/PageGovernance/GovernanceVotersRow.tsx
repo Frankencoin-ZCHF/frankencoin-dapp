@@ -23,7 +23,7 @@ export default function GovernanceVotersRow({ voter }: Props) {
 		<TableRow
 			actionCol={
 				<div className="">
-					<GovernanceVotersAction key={voter.holder} />
+					<GovernanceVotersAction key={voter.holder} voter={voter} />
 				</div>
 			}
 		>
@@ -36,7 +36,9 @@ export default function GovernanceVotersRow({ voter }: Props) {
 			<div className="flex flex-col">{formatCurrency(formatUnits(voter.fps, 18))} FPS</div>
 
 			{/* Voting Power */}
-			<div className={`flex flex-col`}>{formatCurrency(voter.votingPowerRatio * 100)}% Votes</div>
+			<div className={`flex flex-col ${voter.votingPowerRatio > 0.02 ? "font-bold" : ""}`}>
+				{formatCurrency(voter.votingPowerRatio * 100)}% Votes
+			</div>
 		</TableRow>
 	);
 }

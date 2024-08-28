@@ -45,9 +45,6 @@ export default function GovernanceVotersTable() {
 		if (tab === e) {
 			setReverse(!reverse);
 		} else {
-			// if (e === headers[1]) setReverse(true);
-			// else setReverse(false);
-
 			setReverse(false);
 			setTab(e);
 		}

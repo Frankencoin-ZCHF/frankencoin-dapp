@@ -9,6 +9,7 @@ import { Address, formatUnits, zeroAddress } from "viem";
 import { useAccount } from "wagmi";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import GovernancePositionsRow from "./GovernancePositionsRow";
 
 export default function GovernancePositionsTable() {
 	const headers: string[] = ["Type", "Initial Collateral", "Limit", "Interest", "Maturity", "Reserve", "State"];
@@ -16,7 +17,6 @@ export default function GovernancePositionsTable() {
 	const [reverse, setReverse] = useState<boolean>(false);
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
-	const challenges = useSelector((state: RootState) => state.challenges.positions.map);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
 	const matchingPositions: PositionQuery[] = positions.filter((p) => p.start * 1000 > Date.now());
@@ -34,9 +34,6 @@ export default function GovernancePositionsTable() {
 		if (tab === e) {
 			setReverse(!reverse);
 		} else {
-			// if (e === headers[1]) setReverse(true);
-			// else setReverse(false);
-
 			setReverse(false);
 			setTab(e);
 		}
@@ -56,7 +53,7 @@ export default function GovernancePositionsTable() {
 				{matchingPositions.length == 0 ? (
 					<TableRowEmpty>{"There are no positions proposals"}</TableRowEmpty>
 				) : (
-					matchingPositions.map((pos) => <TableRowEmpty key={pos.position}>{pos.position}</TableRowEmpty>)
+					matchingPositions.map((pos) => <GovernancePositionsRow key={pos.position} position={pos} prices={prices} />)
 				)}
 			</TableBody>
 		</Table>

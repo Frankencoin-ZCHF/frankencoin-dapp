@@ -22,7 +22,8 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 	const chainId = CONFIG.chain.id;
 	const [isHidden, setHidden] = useState<boolean>(false);
 
-	const handleCancelOnClick = async function () {
+	const handleOnClick = async function (e: any) {
+		e.preventDefault();
 		if (!account.address) return;
 
 		const m = minter.minter;
@@ -32,7 +33,7 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 		try {
 			setVetoing(true);
 
-			const cancelWriteHash = await writeContract(WAGMI_CONFIG, {
+			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].frankenCoin,
 				abi: ABIS.FrankencoinABI,
 				functionName: "denyMinter",
@@ -50,11 +51,11 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 				},
 				{
 					title: "Transaction: ",
-					hash: cancelWriteHash,
+					hash: writeHash,
 				},
 			];
 
-			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: cancelWriteHash, confirmations: 1 }), {
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
 					render: <TxToast title={`Vetoing minter...`} rows={toastContent} />,
 				},
@@ -82,7 +83,7 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 					variant="primary"
 					disabled={isHidden || disabled}
 					isLoading={isVetoing}
-					onClick={() => handleCancelOnClick()}
+					onClick={(e) => handleOnClick(e)}
 				>
 					Veto
 				</Button>

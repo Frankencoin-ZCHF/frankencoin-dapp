@@ -9,39 +9,40 @@ import { useAccount } from "wagmi";
 import Button from "@components/Button";
 import { Address, zeroAddress } from "viem";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
+import { PositionQuery } from "@frankencoin/api";
 
 interface Props {
+	position: PositionQuery;
 	disabled?: boolean;
 }
 
-// TODO: make correct action call
-export default function GovernancePositionsAction({ disabled }: Props) {
-	const [isVetoing, setVetoing] = useState<boolean>(false);
+export default function GovernancePositionsAction({ position, disabled }: Props) {
+	const [isDenying, setDenying] = useState<boolean>(false);
 	const account = useAccount();
 	const chainId = CONFIG.chain.id;
 	const [isHidden, setHidden] = useState<boolean>(false);
 
-	const handleCancelOnClick = async function () {
+	const handleOnClick = async function (e: any) {
+		e.preventDefault();
 		if (!account.address) return;
 
-		const m = zeroAddress;
 		const h = [] as Address[];
 		const msg = "No";
 
 		try {
-			setVetoing(true);
+			setDenying(true);
 
-			const cancelWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].frankenCoin,
-				abi: ABIS.FrankencoinABI,
-				functionName: "denyMinter",
-				args: [m, h, msg],
+			const writeHash = await writeContract(WAGMI_CONFIG, {
+				address: position.position,
+				abi: ABIS.PositionABI,
+				functionName: "deny",
+				args: [h, msg],
 			});
 
 			const toastContent = [
 				{
-					title: `Veto minter: `,
-					value: shortenAddress(m),
+					title: `Deny position: `,
+					value: shortenAddress(position.position),
 				},
 				{
 					title: `Deny Message: `,
@@ -49,16 +50,16 @@ export default function GovernancePositionsAction({ disabled }: Props) {
 				},
 				{
 					title: "Transaction: ",
-					hash: cancelWriteHash,
+					hash: writeHash,
 				},
 			];
 
-			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: cancelWriteHash, confirmations: 1 }), {
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Vetoing minter...`} rows={toastContent} />,
+					render: <TxToast title={`Denying position...`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully vetoed minter" rows={toastContent} />,
+					render: <TxToast title="Successfully denied position" rows={toastContent} />,
 				},
 				error: {
 					render(error: any) {
@@ -69,7 +70,7 @@ export default function GovernancePositionsAction({ disabled }: Props) {
 
 			setHidden(true);
 		} finally {
-			setVetoing(false);
+			setDenying(false);
 		}
 	};
 
@@ -80,10 +81,10 @@ export default function GovernancePositionsAction({ disabled }: Props) {
 					className="h-10"
 					variant="primary"
 					disabled={isHidden || disabled}
-					isLoading={isVetoing}
-					onClick={() => handleCancelOnClick()}
+					isLoading={isDenying}
+					onClick={(e) => handleOnClick(e)}
 				>
-					Delegate
+					Deny
 				</Button>
 			</GuardToAllowedChainBtn>
 		</div>

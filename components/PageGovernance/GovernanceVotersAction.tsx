@@ -1,4 +1,3 @@
-import { MinterQuery } from "@frankencoin/api";
 import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { CONFIG, WAGMI_CONFIG } from "../../app.config";
@@ -8,58 +7,56 @@ import { shortenAddress } from "@utils";
 import { renderErrorToast, TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
-import { Address, zeroAddress } from "viem";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
+import { VoteData } from "./GovernanceVotersTable";
 
 interface Props {
+	voter: VoteData;
 	disabled?: boolean;
 }
 
-// TODO: make correct action call
-export default function GovernanceVotersAction({ disabled }: Props) {
-	const [isVetoing, setVetoing] = useState<boolean>(false);
+export default function GovernanceVotersAction({ voter, disabled }: Props) {
+	const [isDelegating, setDelegating] = useState<boolean>(false);
 	const account = useAccount();
 	const chainId = CONFIG.chain.id;
 	const [isHidden, setHidden] = useState<boolean>(false);
 
-	const handleCancelOnClick = async function () {
+	const handleOnClick = async function (e: any) {
+		e.preventDefault();
 		if (!account.address) return;
-
-		const m = zeroAddress;
-		const h = [] as Address[];
-		const msg = "No";
+		const addr = voter.holder;
 
 		try {
-			setVetoing(true);
+			setDelegating(true);
 
-			const cancelWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].frankenCoin,
-				abi: ABIS.FrankencoinABI,
-				functionName: "denyMinter",
-				args: [m, h, msg],
+			const writeHash = await writeContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].equity,
+				abi: ABIS.EquityABI,
+				functionName: "delegateVoteTo",
+				args: [voter.holder],
 			});
 
 			const toastContent = [
 				{
-					title: `Veto minter: `,
-					value: shortenAddress(m),
+					title: `Delegete to: `,
+					value: shortenAddress(addr),
 				},
 				{
-					title: `Deny Message: `,
-					value: msg,
+					title: `Owner: `,
+					value: shortenAddress(account.address),
 				},
 				{
 					title: "Transaction: ",
-					hash: cancelWriteHash,
+					hash: writeHash,
 				},
 			];
 
-			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: cancelWriteHash, confirmations: 1 }), {
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Vetoing minter...`} rows={toastContent} />,
+					render: <TxToast title={`Delegating votes...`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully vetoed minter" rows={toastContent} />,
+					render: <TxToast title="Successfully delegated votes" rows={toastContent} />,
 				},
 				error: {
 					render(error: any) {
@@ -70,22 +67,24 @@ export default function GovernanceVotersAction({ disabled }: Props) {
 
 			setHidden(true);
 		} finally {
-			setVetoing(false);
+			setDelegating(false);
 		}
 	};
 
 	return (
 		<div className="">
 			<GuardToAllowedChainBtn disabled={isHidden || disabled}>
-				<Button
-					className="h-10"
-					variant="primary"
-					disabled={isHidden || disabled}
-					isLoading={isVetoing}
-					onClick={() => handleCancelOnClick()}
-				>
-					Delegate
-				</Button>
+				<div className="overflow-hidden">
+					<Button
+						className="h-10 scroll-nopeak"
+						variant="primary"
+						disabled={isHidden || disabled}
+						isLoading={isDelegating}
+						onClick={(e) => handleOnClick(e)}
+					>
+						Delegate
+					</Button>
+				</div>
 			</GuardToAllowedChainBtn>
 		</div>
 	);
