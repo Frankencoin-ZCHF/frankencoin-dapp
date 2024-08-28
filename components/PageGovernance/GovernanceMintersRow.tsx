@@ -18,6 +18,7 @@ export default function GovernanceMintersRow({ minter }: Props) {
 		window.open(url, "_blank");
 	};
 
+	// FIXME: @dev: old api. updated. fixed with update?
 	const vetoUntil = (minter.applyDate + minter.applicationPeriod) * 1000;
 	const hoursUntil: number = (vetoUntil - Date.now()) / 1000 / 60 / 60;
 	const stateStr: string = `${Math.round(hoursUntil)} hours left`;

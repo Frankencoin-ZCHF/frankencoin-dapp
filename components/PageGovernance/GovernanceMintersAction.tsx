@@ -9,6 +9,7 @@ import { renderErrorToast, TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
 import { Address } from "viem";
+import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 
 interface Props {
 	minter: MinterQuery;
@@ -75,15 +76,17 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 
 	return (
 		<div className="">
-			<Button
-				className="h-10"
-				variant="primary"
-				disabled={isHidden || disabled}
-				isLoading={isVetoing}
-				onClick={() => handleCancelOnClick()}
-			>
-				Veto
-			</Button>
+			<GuardToAllowedChainBtn disabled={isHidden || disabled}>
+				<Button
+					className="h-10"
+					variant="primary"
+					disabled={isHidden || disabled}
+					isLoading={isVetoing}
+					onClick={() => handleCancelOnClick()}
+				>
+					Veto
+				</Button>
+			</GuardToAllowedChainBtn>
 		</div>
 	);
 }
