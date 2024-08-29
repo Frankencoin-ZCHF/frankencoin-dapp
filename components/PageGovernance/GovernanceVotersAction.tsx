@@ -13,9 +13,10 @@ import { VoteData } from "./GovernanceVotersTable";
 interface Props {
 	voter: VoteData;
 	disabled?: boolean;
+	connectedWallet?: boolean;
 }
 
-export default function GovernanceVotersAction({ voter, disabled }: Props) {
+export default function GovernanceVotersAction({ voter, disabled, connectedWallet }: Props) {
 	const [isDelegating, setDelegating] = useState<boolean>(false);
 	const account = useAccount();
 	const chainId = CONFIG.chain.id;
@@ -38,12 +39,12 @@ export default function GovernanceVotersAction({ voter, disabled }: Props) {
 
 			const toastContent = [
 				{
-					title: `Delegete to: `,
-					value: shortenAddress(addr),
-				},
-				{
 					title: `Owner: `,
 					value: shortenAddress(account.address),
+				},
+				{
+					title: `Delegete to: `,
+					value: shortenAddress(addr),
 				},
 				{
 					title: "Transaction: ",
@@ -81,7 +82,7 @@ export default function GovernanceVotersAction({ voter, disabled }: Props) {
 						isLoading={isDelegating}
 						onClick={(e) => handleOnClick(e)}
 					>
-						Delegate
+						{connectedWallet ? "Revoke" : "Delegate"}
 					</Button>
 				</div>
 			</GuardToAllowedChainBtn>

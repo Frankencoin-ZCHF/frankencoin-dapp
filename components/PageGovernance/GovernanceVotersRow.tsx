@@ -1,35 +1,52 @@
-import { formatUnits, zeroAddress } from "viem";
+import { Address, formatUnits, zeroAddress } from "viem";
 import TableRow from "../Table/TableRow";
-import { formatCurrency } from "../../utils/format";
-import { useContractUrl } from "@hooks";
+import { formatCurrency, shortenAddress } from "../../utils/format";
+import { useContractUrl, useDelegationQuery } from "@hooks";
 import AddressLabel from "@components/AddressLabel";
 import { VoteData } from "./GovernanceVotersTable";
 import GovernanceVotersAction from "./GovernanceVotersAction";
 
 interface Props {
 	voter: VoteData;
+	connectedWallet?: boolean;
 }
 
-export default function GovernanceVotersRow({ voter }: Props) {
+export default function GovernanceVotersRow({ voter, connectedWallet }: Props) {
 	const url = useContractUrl(voter.holder || zeroAddress);
+	const delegationData = useDelegationQuery();
 	if (!voter) return null;
 
-	const openExplorer = (e: any) => {
-		e.preventDefault();
-		window.open(url, "_blank");
-	};
+	const delegatedTo = delegationData.delegaters[voter.holder.toLowerCase() as Address] || [];
+	const delegatee = delegatedTo.at(0) || zeroAddress;
+	const isDelegated: boolean = delegatedTo.length > 0;
+	const isRevoked: boolean = isDelegated && delegatedTo[0].toLowerCase() == voter.holder.toLowerCase();
 
 	return (
 		<TableRow
 			actionCol={
 				<div className="">
-					<GovernanceVotersAction key={voter.holder} voter={voter} />
+					<GovernanceVotersAction
+						key={voter.holder}
+						voter={voter}
+						connectedWallet={connectedWallet}
+						disabled={connectedWallet && (!isDelegated || (isDelegated && isRevoked))}
+					/>
 				</div>
 			}
+			className={connectedWallet ? "bg-gray-800" : undefined}
 		>
 			{/* Owner */}
 			<div className="flex items-center">
-				<AddressLabel address={voter.holder} showCopy showLink />
+				<div className="flex flex-col">
+					{connectedWallet ? (
+						<span className="font-semibold text-left">Connected Wallet</span>
+					) : (
+						<AddressLabel address={voter.holder} showCopy showLink />
+					)}
+					{isDelegated && !isRevoked ? (
+						<span className="text-xs text-left">Delegated to: {shortenAddress(delegatee)}</span>
+					) : null}
+				</div>
 			</div>
 
 			{/* FPS */}

@@ -4,11 +4,16 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { ChallengesPositionsMapping, PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import { Address, formatUnits, zeroAddress } from "viem";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFPSHolders } from "@hooks";
 import { useVotingPowers } from "../../hooks/useVotingPowers";
 import GovernanceVotersRow from "./GovernanceVotersRow";
 
+import { useAccount } from "wagmi";
+import { readContract } from "wagmi/actions";
+import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
+import { ADDRESS } from "@contracts";
+import { EquityABI } from "../../contracts/abis/Equity";
 export type VoteData = {
 	holder: Address;
 	fps: bigint;
@@ -20,7 +25,9 @@ export default function GovernanceVotersTable() {
 	const headers: string[] = ["Owner", "FPS", "Voting Power"];
 	const [tab, setTab] = useState<string>(headers[2]);
 	const [reverse, setReverse] = useState<boolean>(false);
+	const [accountVotes, setAccountVotes] = useState<VoteData>({ fps: 0n, holder: zeroAddress, votingPower: 0n, votingPowerRatio: 0 });
 
+	const account = useAccount();
 	const fpsHolders = useFPSHolders();
 	const votingPowersHook = useVotingPowers(fpsHolders.holders);
 	const votesTotal = votingPowersHook.totalVotes;
@@ -34,8 +41,37 @@ export default function GovernanceVotersTable() {
 		};
 	});
 
+	useEffect(() => {
+		if (account.address == undefined) return;
+		const holder = account.address;
+
+		const fetcher = async function () {
+			const fps = await readContract(WAGMI_CONFIG, {
+				address: ADDRESS[WAGMI_CHAIN.id].equity,
+				abi: EquityABI,
+				functionName: "balanceOf",
+				args: [holder],
+			});
+
+			const votingPowerRatio = await readContract(WAGMI_CONFIG, {
+				address: ADDRESS[WAGMI_CHAIN.id].equity,
+				abi: EquityABI,
+				functionName: "relativeVotes",
+				args: [holder],
+			});
+
+			const votingPower = votingPowerRatio * votesTotal;
+
+			setAccountVotes({ holder, fps, votingPower, votingPowerRatio: parseFloat(formatUnits(votingPowerRatio, 18)) });
+		};
+
+		fetcher();
+	}, [account, votesTotal]);
+
+	const matchingVotes: VoteData[] = votesData.filter((v) => v.holder.toLowerCase() !== account.address?.toLowerCase());
 	const votesDataSorted: VoteData[] = sortVotes({
-		votes: votesData,
+		votes: matchingVotes,
+		account: account.address,
 		headers,
 		reverse,
 		tab,
@@ -54,11 +90,14 @@ export default function GovernanceVotersTable() {
 		<Table>
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
-				{votesDataSorted.length == 0 ? (
-					<TableRowEmpty>{"There are no voters yet"}</TableRowEmpty>
-				) : (
-					votesDataSorted.map((vote) => <GovernanceVotersRow key={vote.holder} voter={vote} />)
-				)}
+				<>
+					{account.address ? <GovernanceVotersRow key={account.address} voter={accountVotes} connectedWallet /> : null}
+					{votesDataSorted.length == 0 ? (
+						<TableRowEmpty>{"There are no voters yet"}</TableRowEmpty>
+					) : (
+						votesDataSorted.map((vote) => <GovernanceVotersRow key={vote.holder} voter={vote} />)
+					)}
+				</>
 			</TableBody>
 		</Table>
 	);
@@ -66,13 +105,14 @@ export default function GovernanceVotersTable() {
 
 type SortVotes = {
 	votes: VoteData[];
+	account: Address | undefined;
 	headers: string[];
 	tab: string;
 	reverse: boolean;
 };
 
 function sortVotes(params: SortVotes): VoteData[] {
-	const { votes, headers, tab, reverse } = params;
+	const { votes, account, headers, tab, reverse } = params;
 
 	if (tab === headers[0]) {
 		votes.sort((a, b) => a.holder.localeCompare(b.holder));
@@ -82,5 +122,11 @@ function sortVotes(params: SortVotes): VoteData[] {
 		votes.sort((a, b) => b.votingPowerRatio - a.votingPowerRatio);
 	}
 
-	return reverse ? votes.reverse() : votes;
+	const considerReverse = reverse ? votes.reverse() : votes;
+
+	if (!!account) {
+		considerReverse.sort((a, b) => (a.holder.toLowerCase() === account.toLowerCase() ? -1 : 1));
+	}
+
+	return considerReverse;
 }

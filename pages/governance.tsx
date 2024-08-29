@@ -36,7 +36,7 @@ export default function Governance() {
 
 			{/* Top Voters */}
 			<div className="md:mt-10">
-				<span className="font-bold text-xl">Top Voters</span>
+				<span className="font-bold text-xl">Frankencoin Pool Share Holders</span>
 			</div>
 
 			<div className="md:mt-8">

@@ -1,28 +1,57 @@
 import { gql, useQuery } from "@apollo/client";
-import { zeroAddress } from "viem";
+import { Address, zeroAddress } from "viem";
 
-// FIXME: This will break, due to patch in Equity:Delegation due to indexing bug in runtime.
-export const useDelegationQuery = (owner: string) => {
+export type PonderDelegationQuery = {
+	owner: Address;
+	delegatedTo: Address;
+};
+
+export type DelegationQueryMappingObject = {
+	[key: Address]: Address[];
+};
+
+export type DelegationQuery = {
+	delegaters: DelegationQueryMappingObject;
+	delegatees: DelegationQueryMappingObject;
+};
+
+export const useDelegationQuery = (): DelegationQuery => {
+	const returnData: DelegationQuery = {
+		delegaters: {},
+		delegatees: {},
+	};
+
 	const { data, loading } = useQuery(
-		gql`query {
-      delegation(id: "${owner.toLowerCase()}") {
-        id
-        owner
-        delegatedTo
-        pureDelegatedFrom
-      }
-    }`
+		gql`
+			query {
+				delegations(orderBy: "id", orderDirection: "desc") {
+					items {
+						owner
+						delegatedTo
+					}
+				}
+			}
+		`,
+		{ fetchPolicy: "no-cache" }
 	);
 
-	if (loading || !data || !data.delegation) {
-		return {
-			delegatedTo: zeroAddress,
-			pureDelegatedFrom: [],
-		};
+	if (loading || !data || !data.delegations) {
+		return returnData;
 	}
 
-	return {
-		delegatedTo: data.delegation.delegatedTo || zeroAddress,
-		pureDelegatedFrom: data.delegation.pureDelegatedFrom,
-	};
+	const d = data.delegations.items as PonderDelegationQuery[];
+
+	for (const dd of d) {
+		// if (dd.owner.toLowerCase() === dd.delegatedTo.toLowerCase()) continue; // revoked
+		const o = dd.owner.toLowerCase() as Address;
+		const t = dd.delegatedTo.toLowerCase() as Address;
+
+		if (!returnData.delegaters[o]) returnData.delegaters[o] = [];
+		returnData.delegaters[o].push(t);
+
+		if (!returnData.delegatees[t]) returnData.delegatees[t] = [];
+		returnData.delegatees[t].push(o);
+	}
+
+	return returnData;
 };
