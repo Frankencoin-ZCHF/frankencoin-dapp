@@ -62,14 +62,13 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 				success: {
 					render: <TxToast title="Successfully vetoed minter" rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
 
 			setHidden(true);
+		} catch (error) {
+			toast.error(<TxToast title="Something did not work..." rows={[{ title: "Do you have veto power?" }]} />, {
+				position: toast.POSITION.BOTTOM_RIGHT,
+			});
 		} finally {
 			setVetoing(false);
 		}

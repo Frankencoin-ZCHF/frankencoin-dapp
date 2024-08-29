@@ -58,14 +58,13 @@ export default function GovernanceVotersAction({ voter, disabled }: Props) {
 				success: {
 					render: <TxToast title="Successfully delegated votes" rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
 
 			setHidden(true);
+		} catch (error) {
+			toast.error(<TxToast title="Something did not work..." rows={[{ title: "Do you have any votes to delegate?" }]} />, {
+				position: toast.POSITION.BOTTOM_RIGHT,
+			});
 		} finally {
 			setDelegating(false);
 		}
