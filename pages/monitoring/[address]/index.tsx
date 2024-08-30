@@ -192,8 +192,8 @@ function ActiveAuctionsRow({ position, challenge }: Props) {
 				</AppBox>
 
 				<div className="absolute right-4 bottom-7">
-					<Link href={`/challenges/${challenge.number}/bid`} className="btn btn-primary w-full h-8">
-						Goto Auction
+					<Link href={`/challenges/${challenge.number}/bid`} className="btn btn-primary w-24">
+						Bid
 					</Link>
 				</div>
 			</div>

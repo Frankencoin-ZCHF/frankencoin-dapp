@@ -16,25 +16,26 @@ export default function Governance() {
 				<title>Frankencoin - Positions</title>
 			</Head>
 
-			{/* Positions Proposals */}
 			<div className="md:mt-8">
-				<span className="font-bold text-xl">Positions Proposals </span>
+				<span className="font-bold text-xl">New Positions</span>
 			</div>
+
+			Participants should carefully review newly proposed position types and deny them if they think they pose a risk to the 
+			stability of the Frankencoin. There also is a <a target="_blank" href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions/categories/acceptable-collaterals?discussions_q=is%3Aopen+category%3A%22Acceptable+Collaterals%22">
+			<span className="font-bold">github forum</span></a> to discuss eligible collaterals and their parameters.
 
 			<div className="md:mt-8">
 				<GovernancePositionsTable />
 			</div>
 
-			{/* Minters Proposals */}
 			<div className="md:mt-10">
-				<span className="font-bold text-xl">Minters Proposals</span>
+				<span className="font-bold text-xl">Minting Modules</span>
 			</div>
 
 			<div className="md:mt-8">
 				<GovernanceMintersTable />
 			</div>
 
-			{/* Top Voters */}
 			<div className="md:mt-10">
 				<span className="font-bold text-xl">Frankencoin Pool Share Holders</span>
 			</div>

@@ -39,12 +39,12 @@ export default function GovernanceVotersRow({ voter, connectedWallet }: Props) {
 			<div className="flex items-center">
 				<div className="flex flex-col">
 					{connectedWallet ? (
-						<span className="font-semibold text-left">Connected Wallet</span>
+						<span className="text-left">Connected wallet</span>
 					) : (
 						<AddressLabel address={voter.holder} showCopy showLink />
 					)}
 					{isDelegated && !isRevoked ? (
-						<span className="text-xs text-left">Delegated to: {shortenAddress(delegatee)}</span>
+						<span className="text-xs text-left">Delegating to: {shortenAddress(delegatee)}</span>
 					) : null}
 				</div>
 			</div>
@@ -53,8 +53,8 @@ export default function GovernanceVotersRow({ voter, connectedWallet }: Props) {
 			<div className="flex flex-col">{formatCurrency(formatUnits(voter.fps, 18))} FPS</div>
 
 			{/* Voting Power */}
-			<div className={`flex flex-col ${voter.votingPowerRatio > 0.02 ? "font-bold" : ""}`}>
-				{formatCurrency(voter.votingPowerRatio * 100)}% Votes
+			<div className={`flex flex-col`}>
+				{formatCurrency(voter.votingPowerRatio * 100)}%
 			</div>
 		</TableRow>
 	);

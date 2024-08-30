@@ -12,7 +12,7 @@ import { useRouter } from "next/router";
 import GovernancePositionsRow from "./GovernancePositionsRow";
 
 export default function GovernancePositionsTable() {
-	const headers: string[] = ["Type", "Initial Size", "Limit", "Interest", "Maturity", "Reserve", "State"];
+	const headers: string[] = ["Collateral", "Initial Size", "Limit", "Interest", "Maturity", "Reserve", "Time Left"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
@@ -50,7 +50,7 @@ export default function GovernancePositionsTable() {
 			/>
 			<TableBody>
 				{sorted.length == 0 ? (
-					<TableRowEmpty>{"There are no positions proposals"}</TableRowEmpty>
+					<TableRowEmpty>{"If there are new positions with new parameters or a new type of collateral, they are shown here until they have passed the governance process."}</TableRowEmpty>
 				) : (
 					sorted.map((pos) => <GovernancePositionsRow key={pos.position} position={pos} prices={prices} />)
 				)}

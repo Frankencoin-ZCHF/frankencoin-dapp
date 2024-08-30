@@ -37,14 +37,14 @@ export default function GovernanceMintersRow({ minter }: Props) {
 		>
 			{/* Minter */}
 			<div className="flex items-center">
-				<AddressLabel address={minter.minter} showCopy showLink />
+				<AddressLabel address={minter.minter} showLink />
 			</div>
 
 			{/* Comment */}
 			<div className="flex flex-col">{minter.applyMessage}</div>
 
 			{/* State */}
-			<div className={`flex flex-col font-bold ${vetoed ? "text-red-500" : passed ? "text-green-300" : ""}`}>
+			<div className={`flex flex-col ${vetoed || passed ? "" : "font-bold"}`}>
 				{vetoed ? "Vetoed" : passed ? "Passed" : stateStr}
 			</div>
 		</TableRow>

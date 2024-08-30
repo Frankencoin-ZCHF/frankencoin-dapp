@@ -22,7 +22,7 @@ export type VoteData = {
 };
 
 export default function GovernanceVotersTable() {
-	const headers: string[] = ["Owner", "FPS", "Voting Power"];
+	const headers: string[] = ["Address", "Balance", "Voting Power"];
 	const [tab, setTab] = useState<string>(headers[2]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [accountVotes, setAccountVotes] = useState<VoteData>({ fps: 0n, holder: zeroAddress, votingPower: 0n, votingPowerRatio: 0 });

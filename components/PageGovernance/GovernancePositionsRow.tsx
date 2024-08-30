@@ -76,7 +76,7 @@ export default function GovernancePositionsRow({ position, prices }: Props) {
 			<div className="">{formatCurrency(position.reserveContribution / 10_000, 0, 0, 0)}%</div>
 
 			<div className="flex flex-col">
-				<span className={`text-sm ${denyUntil < 10 ? "text-red-500" : ""}`}>{Math.round(denyUntil)} hours left</span>
+				<span className={`text-sm ${denyUntil < 10 ? "text-red-500" : ""}`}>{Math.round(denyUntil)} hours</span>
 			</div>
 		</TableRow>
 	);
