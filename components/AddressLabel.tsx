@@ -44,3 +44,25 @@ export default function AddressLabel({ address, showCopy, showLink }: Props) {
 		</>
 	);
 }
+
+export function AddressLabelSimple({ address, showLink }: Props) {
+	const link = useContractUrl(address || zeroAddress);
+
+	const openExplorer = (e: any) => {
+		e.preventDefault();
+		window.open(link, "_blank");
+	};
+
+	return (
+		<div className="">
+			<span className={showLink ? "cursor-pointer" : ""} onClick={(e) => (showLink ? openExplorer(e) : undefined)}>
+				{shortenAddress(address)}
+			</span>
+			{showLink && (
+				<span>
+					<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2 my-auto cursor-pointer" onClick={openExplorer} />
+				</span>
+			)}
+		</div>
+	);
+}
