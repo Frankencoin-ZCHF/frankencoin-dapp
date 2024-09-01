@@ -91,11 +91,13 @@ export default function GovernanceVotersTable() {
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
 				<>
-					{account.address ? <GovernanceVotersRow key={account.address} voter={accountVotes} connectedWallet /> : null}
+					{account.address ? (
+						<GovernanceVotersRow key={account.address} voter={accountVotes} votesTotal={votesTotal} connectedWallet />
+					) : null}
 					{votesDataSorted.length == 0 ? (
 						<TableRowEmpty>{"There are no voters yet"}</TableRowEmpty>
 					) : (
-						votesDataSorted.map((vote) => <GovernanceVotersRow key={vote.holder} voter={vote} />)
+						votesDataSorted.map((vote) => <GovernanceVotersRow key={vote.holder} voter={vote} votesTotal={votesTotal} />)
 					)}
 				</>
 			</TableBody>

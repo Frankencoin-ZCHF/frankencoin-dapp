@@ -7,11 +7,13 @@ import Link from "next/link";
 
 interface Props {
 	address: Address;
+	label?: string;
 	showCopy?: boolean;
 	showLink?: boolean;
+	className?: string;
 }
 
-export default function AddressLabel({ address, showCopy, showLink }: Props) {
+export default function AddressLabel({ address, label, showCopy, showLink }: Props) {
 	const link = useContractUrl(address || zeroAddress);
 
 	const content = () => {
@@ -19,7 +21,7 @@ export default function AddressLabel({ address, showCopy, showLink }: Props) {
 			<>
 				{
 					<div className={showLink ? "cursor-pointer" : ""} onClick={(e) => (showLink ? openExplorer(e) : undefined)}>
-						{shortenAddress(address)}
+						{label ?? shortenAddress(address)}
 					</div>
 				}
 				{showCopy && <FontAwesomeIcon icon={faCopy} className="w-3 ml-2 cursor-pointer" onClick={handleCopy} />}
@@ -45,7 +47,7 @@ export default function AddressLabel({ address, showCopy, showLink }: Props) {
 	);
 }
 
-export function AddressLabelSimple({ address, showLink }: Props) {
+export function AddressLabelSimple({ address, label, showLink, className }: Props) {
 	const link = useContractUrl(address || zeroAddress);
 
 	const openExplorer = (e: any) => {
@@ -54,9 +56,9 @@ export function AddressLabelSimple({ address, showLink }: Props) {
 	};
 
 	return (
-		<div className="">
+		<div className={className}>
 			<span className={showLink ? "cursor-pointer" : ""} onClick={(e) => (showLink ? openExplorer(e) : undefined)}>
-				{shortenAddress(address)}
+				{label ?? shortenAddress(address)}
 			</span>
 			{showLink && (
 				<span>
@@ -71,9 +73,10 @@ type TxLabelSimpleProps = {
 	label: string;
 	tx: Hash;
 	showLink?: boolean;
+	className?: string;
 };
 
-export function TxLabelSimple({ label, tx, showLink }: TxLabelSimpleProps) {
+export function TxLabelSimple({ label, tx, showLink, className }: TxLabelSimpleProps) {
 	const link = useTxUrl(tx);
 
 	const openExplorer = (e: any) => {
@@ -82,7 +85,7 @@ export function TxLabelSimple({ label, tx, showLink }: TxLabelSimpleProps) {
 	};
 
 	return (
-		<div className="">
+		<div className={className}>
 			<span className={showLink ? "cursor-pointer" : ""} onClick={(e) => (showLink ? openExplorer(e) : undefined)}>
 				{label}
 			</span>
