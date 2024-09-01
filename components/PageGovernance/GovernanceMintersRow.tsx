@@ -1,9 +1,9 @@
-import { zeroAddress } from "viem";
+import { Hash, zeroAddress } from "viem";
 import TableRow from "../Table/TableRow";
 import { MinterQuery } from "@frankencoin/api";
 import { useContractUrl } from "@hooks";
 import GovernanceMintersAction from "./GovernanceMintersAction";
-import AddressLabel from "@components/AddressLabel";
+import AddressLabel, { AddressLabelSimple, TxLabelSimple } from "@components/AddressLabel";
 
 interface Props {
 	minter: MinterQuery;
@@ -13,12 +13,6 @@ export default function GovernanceMintersRow({ minter }: Props) {
 	const url = useContractUrl(minter.minter || zeroAddress);
 	if (!minter) return null;
 
-	const openExplorer = (e: any) => {
-		e.preventDefault();
-		window.open(url, "_blank");
-	};
-
-	// FIXME: @dev: old api. updated. fixed with update?
 	const vetoUntil = (minter.applyDate + minter.applicationPeriod) * 1000;
 	const hoursUntil: number = (vetoUntil - Date.now()) / 1000 / 60 / 60;
 	const stateStr: string = `${Math.round(hoursUntil)} hours left`;
@@ -27,26 +21,31 @@ export default function GovernanceMintersRow({ minter }: Props) {
 	const vetoed: boolean = minter.vetor ? true : false;
 	const isDisabled: boolean = vetoed || passed;
 
+	const dateArr: string[] = new Date(minter.applyDate * 1000).toDateString().split(" ");
+	const dateStr: string = `${dateArr[2]} ${dateArr[1]} ${dateArr[3]}`;
+
 	return (
 		<TableRow
 			actionCol={
 				<div className="">
-					<GovernanceMintersAction key={minter.id} minter={minter} disabled={isDisabled} />
+					{isDisabled ? null : <GovernanceMintersAction key={minter.id} minter={minter} disabled={isDisabled} />}
 				</div>
 			}
 		>
+			<div className="flex flex-col text-left">
+				<TxLabelSimple label={dateStr} tx={minter.txHash as Hash} showLink />
+			</div>
+
 			{/* Minter */}
-			<div className="flex items-center">
-				<AddressLabel address={minter.minter} showLink />
+			<div className="flex flex-col">
+				<AddressLabelSimple address={minter.minter} showLink />
 			</div>
 
 			{/* Comment */}
 			<div className="flex flex-col">{minter.applyMessage}</div>
 
 			{/* State */}
-			<div className={`flex flex-col ${vetoed || passed ? "" : "font-bold"}`}>
-				{vetoed ? "Vetoed" : passed ? "Passed" : stateStr}
-			</div>
+			<div className={`flex flex-col ${vetoed || passed ? "" : "font-bold"}`}>{vetoed ? "Vetoed" : passed ? "Passed" : stateStr}</div>
 		</TableRow>
 	);
 }

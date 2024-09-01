@@ -4,14 +4,13 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { ChallengesPositionsMapping, MinterQuery, PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
-import { Address, formatUnits, zeroAddress } from "viem";
+import { MinterQuery } from "@frankencoin/api";
 import { useState } from "react";
 import GovernanceMintersRow from "./GovernanceMintersRow";
 
 export default function GovernanceMintersTable() {
-	const headers: string[] = ["Minter", "Comment", "State"];
-	const [tab, setTab] = useState<string>(headers[2]);
+	const headers: string[] = ["Date", "Minter", "Comment", "State"];
+	const [tab, setTab] = useState<string>(headers[3]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
 	const minters = useSelector((state: RootState) => state.ecosystem.frankencoinMinters.list);
@@ -65,10 +64,12 @@ function sortMinters(params: SortMinters): MinterQuery[] {
 	const { minters, headers, tab, reverse } = params;
 
 	if (tab === headers[0]) {
-		minters.sort((a, b) => a.minter.localeCompare(b.minter));
+		minters.sort((a, b) => b.applyDate - a.applyDate);
 	} else if (tab === headers[1]) {
-		minters.sort((a, b) => a.applyMessage.localeCompare(b.applyMessage));
+		minters.sort((a, b) => a.minter.localeCompare(b.minter));
 	} else if (tab === headers[2]) {
+		minters.sort((a, b) => a.applyMessage.localeCompare(b.applyMessage));
+	} else if (tab === headers[3]) {
 		minters.sort((a, b) => {
 			const calc = function (m: MinterQuery): number {
 				const vetoUntil = (m.applyDate + m.applicationPeriod) * 1000;
