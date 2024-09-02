@@ -10,6 +10,7 @@ import { readContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS } from "@contracts";
 import { EquityABI } from "../../contracts/abis/Equity";
+import { useAccount } from "wagmi";
 
 interface Props {
 	voter: VoteData;
@@ -20,11 +21,15 @@ interface Props {
 export default function GovernanceVotersRow({ voter, votesTotal, connectedWallet }: Props) {
 	const [isDelegateeVotes, setDelegateeVotes] = useState<VoteData | undefined>(undefined);
 	const delegationData = useDelegationQuery();
+	const account = useAccount();
+	const sender: Address = account.address || zeroAddress;
 
+	const delegatedFrom = delegationData.delegatees[voter.holder.toLowerCase() as Address] || [];
 	const delegatedTo = delegationData.delegaters[voter.holder.toLowerCase() as Address] || [];
 	const delegatee = delegatedTo.at(0) || zeroAddress;
 	const isDelegated: boolean = delegatedTo.length > 0;
 	const isRevoked: boolean = isDelegated && delegatedTo[0].toLowerCase() == voter.holder.toLowerCase();
+	const isAccountDelegatedFrom: boolean = delegatedFrom.includes(sender.toLowerCase() as Address);
 
 	useEffect(() => {
 		if (!isDelegateeVotes && isDelegated && !isRevoked) {
@@ -64,7 +69,7 @@ export default function GovernanceVotersRow({ voter, votesTotal, connectedWallet
 							key={voter.holder}
 							voter={voter}
 							connectedWallet={connectedWallet}
-							disabled={connectedWallet && (!isDelegated || (isDelegated && isRevoked))}
+							disabled={(connectedWallet && (!isDelegated || (isDelegated && isRevoked))) || isAccountDelegatedFrom}
 						/>
 					)
 				}

@@ -2,11 +2,10 @@ import TableHeader from "../Table/TableHead";
 import TableBody from "../Table/TableBody";
 import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
-import { ChallengesPositionsMapping, PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { useEffect, useState } from "react";
 import { useFPSHolders } from "@hooks";
-import { useVotingPowers } from "../../hooks/useVotingPowers";
+import { useVotingPowers } from "@hooks";
 import GovernanceVotersRow from "./GovernanceVotersRow";
 
 import { useAccount } from "wagmi";
