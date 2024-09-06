@@ -20,9 +20,17 @@ export default function Governance() {
 				<span className="font-bold text-xl">New Positions</span>
 			</div>
 
-			Participants should carefully review newly proposed position types and deny them if they think they pose a risk to the 
-			stability of the Frankencoin. There also is a <a target="_blank" href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions/categories/acceptable-collaterals?discussions_q=is%3Aopen+category%3A%22Acceptable+Collaterals%22">
-			<span className="font-bold">github forum</span></a> to discuss eligible collaterals and their parameters.
+			<div className="text-gray-500">
+				Participants should carefully review newly proposed position types and deny them if they think they pose a risk to the
+				stability of the Frankencoin. There also is a{" "}
+				<a
+					target="_blank"
+					href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions/categories/acceptable-collaterals?discussions_q=is%3Aopen+category%3A%22Acceptable+Collaterals%22"
+				>
+					<span className="font-bold underline">github forum</span>
+				</a>{" "}
+				to discuss eligible collaterals and their parameters.
+			</div>
 
 			<div className="md:mt-8">
 				<GovernancePositionsTable />
