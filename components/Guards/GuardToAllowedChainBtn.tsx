@@ -6,6 +6,7 @@ import { useIsConnectedToCorrectChain } from "../../hooks/useWalletConnectStats"
 
 interface Props {
 	children?: React.ReactNode;
+	label?: string;
 	disabled?: boolean;
 }
 
@@ -37,7 +38,7 @@ export default function GuardToAllowedChainBtn(props: Props) {
 					setRequestedChange(true);
 				}}
 			>
-				Connect Wallet
+				{props?.label ?? "Connect Wallet"}
 			</Button>
 		);
 
@@ -53,7 +54,7 @@ export default function GuardToAllowedChainBtn(props: Props) {
 					setRequestedChange(true);
 				}}
 			>
-				Change Chain
+				{props?.label ?? "Change Chain"}
 			</Button>
 		);
 

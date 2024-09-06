@@ -5,7 +5,7 @@ import { CONFIG, WAGMI_CONFIG } from "../../app.config";
 import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
-import { renderErrorToast, TxToast } from "@components/TxToast";
+import { TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
 import { Address } from "viem";
@@ -76,7 +76,7 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 
 	return (
 		<div className="">
-			<GuardToAllowedChainBtn disabled={isHidden || disabled}>
+			<GuardToAllowedChainBtn label="Veto" disabled={isHidden || disabled}>
 				<Button
 					className="h-10"
 					variant="primary"

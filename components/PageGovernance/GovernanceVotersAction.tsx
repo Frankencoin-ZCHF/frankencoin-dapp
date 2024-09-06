@@ -73,7 +73,7 @@ export default function GovernanceVotersAction({ voter, disabled, connectedWalle
 
 	return (
 		<div className="">
-			<GuardToAllowedChainBtn disabled={isHidden || disabled}>
+			<GuardToAllowedChainBtn label={connectedWallet ? "Revoke" : "Delegate"} disabled={isHidden || disabled}>
 				<div className="overflow-hidden">
 					<Button
 						className="h-10 scroll-nopeak"
