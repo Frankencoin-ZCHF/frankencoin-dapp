@@ -1,8 +1,4 @@
 import Head from "next/head";
-import MypositionsTable from "@components/PageMypositions/MypositionsTable";
-import MyPositionsChallengesTable from "@components/PageMypositions/MyPositionsChallengesTable";
-import MyPositionsBidsTable from "@components/PageMypositions/MyPositionsBidsTable";
-import { useRouter } from "next/router";
 import { Address } from "viem";
 import { shortenAddress } from "@utils";
 import GovernancePositionsTable from "@components/PageGovernance/GovernancePositionsTable";
