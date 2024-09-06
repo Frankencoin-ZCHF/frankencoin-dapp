@@ -27,7 +27,6 @@ export default function USGovSanction() {
 }
 
 export const USGovSanctionList: Address[] = [
-	"0xe4F405598A2F2210359b5304706513adDa2a24f3",
 	"0x983a81ca6FB1e441266D2FbcB7D8E530AC2E05A2",
 	"0xb6f5ec1a0a9cd1526536d3f0426c429529471f40",
 	"0x4f47bc496083c727c5fbe3ce9cdf2b0f6496270c",
