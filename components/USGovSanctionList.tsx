@@ -12,7 +12,6 @@ export default function USGovSanction() {
 		const addr = account.address;
 		if (addr != undefined) {
 			const isList = USGovSanctionList.find((e) => e.toLowerCase() === addr.toLowerCase());
-			console.log(addr.toLowerCase(), USGovSanctionList.at(0));
 			if (isList == undefined) return;
 
 			const action = async () => {
