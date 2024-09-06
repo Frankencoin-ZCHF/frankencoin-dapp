@@ -13,6 +13,7 @@ import Web3ModalProvider from "@components/Web3Modal";
 import { store } from "../redux/redux.store";
 import { PONDER_CLIENT } from "../app.config";
 import BlockUpdater from "@components/BlockUpdater";
+import USGovSanctionList from "@components/USGovSanctionList";
 
 export default function App({ Component, pageProps }: AppProps) {
 	return (
@@ -22,6 +23,7 @@ export default function App({ Component, pageProps }: AppProps) {
 					<BlockUpdater>
 						<NextSeoProvider />
 						<ToastContainer position="bottom-right" hideProgressBar={false} rtl={false} theme="dark" />
+						<USGovSanctionList />
 
 						<Layout>
 							<Component {...pageProps} />
