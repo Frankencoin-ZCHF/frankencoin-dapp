@@ -9,7 +9,7 @@ import { useState } from "react";
 import GovernancePositionsRow from "./GovernancePositionsRow";
 
 export default function GovernancePositionsTable() {
-	const headers: string[] = ["Collateral", "Address", "Limit", "Interest", "Time Left"];
+	const headers: string[] = ["Collateral", "Position", "Limit", "Interest", "Time Left"];
 	const [tab, setTab] = useState<string>(headers[4]);
 	const [reverse, setReverse] = useState<boolean>(true);
 

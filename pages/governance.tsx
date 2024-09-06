@@ -13,10 +13,10 @@ export default function Governance() {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Positions</title>
+				<title>Frankencoin - Governance</title>
 			</Head>
 
-			<div className="md:mt-8">
+			<div className="md:mt-10">
 				<span className="font-bold text-xl">New Positions</span>
 			</div>
 
