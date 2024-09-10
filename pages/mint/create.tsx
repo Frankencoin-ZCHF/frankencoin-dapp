@@ -314,15 +314,10 @@ export default function PositionCreate({}) {
 				<title>Frankencoin - Propose Position</title>
 			</Head>
 
-			{/* TODO: Remove DIV after approval */}
-			{/* <div>
-				<AppPageHeader title="Propose a completely new position" />
-			</div> */}
-
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold justify-center mt-3 flex">Propose a completely new position</div>
+						<div className="text-lg font-bold justify-center mt-3 flex">Proposal Process</div>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							<TokenInput
 								label="Proposal Fee"
@@ -358,7 +353,7 @@ export default function PositionCreate({}) {
 
 					{/* Collateral */}
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold justify-center mt-3 flex">Choose your Collateral</div>
+						<div className="text-lg font-bold justify-center mt-3 flex">Collateral</div>
 
 						<AddressInput
 							label="Collateral Token"
