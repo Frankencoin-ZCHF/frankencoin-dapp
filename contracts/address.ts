@@ -104,7 +104,7 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
 		xchf: zeroAddress,
 		equity: "0x9f40894a2E47305DE4C79b53B48B7a57805065eA",
 		mintingHub: "0xa3039043B2C5a74A39b139e389b7591Ab76d20d1",
-		wFPS: zeroAddress,
+		wFPS: "0xA006454C97Ee457F48acc107cFF9Ba0438d0e785",
 
 		// bridges to mainnet (real frankencoin)
 		bridgePolygonFrankencoin: "0x02567e4b14b25549331fCEe2B56c647A8bAB16FD",
