@@ -13,6 +13,8 @@ import Web3ModalProvider from "@components/Web3Modal";
 import { store } from "../redux/redux.store";
 import { PONDER_CLIENT } from "../app.config";
 import BlockUpdater from "@components/BlockUpdater";
+import { useIsMainnet } from "@hooks";
+import USGovSanctionList from "@components/USGovSanctionList";
 
 export default function App({ Component, pageProps }: AppProps) {
 	return (
@@ -22,6 +24,15 @@ export default function App({ Component, pageProps }: AppProps) {
 					<BlockUpdater>
 						<NextSeoProvider />
 						<ToastContainer position="bottom-right" hideProgressBar={false} rtl={false} theme="dark" />
+						<USGovSanctionList />
+
+						{isMainnet ? (
+							<></>
+						) : (
+							<div className="bg-red-400 text-gray-900 absolute bottom-2 text-center font-bold inset-x-2 mx-2 px-4 rounded-xl">
+								This is a test deployment and not the real Frankencoin.
+							</div>
+						)}
 
 						<Layout>
 							<Component {...pageProps} />
