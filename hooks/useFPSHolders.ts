@@ -22,7 +22,8 @@ export const useFPSHolders = (): {
 					}
 				}
 			}
-		`
+		`,
+		{ fetchPolicy: "no-cache" }
 	);
 
 	if (!data || !data.votingPowers) {

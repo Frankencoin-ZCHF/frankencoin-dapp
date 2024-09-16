@@ -17,7 +17,6 @@ import { useIsMainnet } from "@hooks";
 import USGovSanctionList from "@components/USGovSanctionList";
 
 export default function App({ Component, pageProps }: AppProps) {
-	const isMainnet = useIsMainnet();
 	return (
 		<ReduxProvider store={store}>
 			<Web3ModalProvider>

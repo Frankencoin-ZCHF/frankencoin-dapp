@@ -13,7 +13,7 @@ interface Props {
 	className?: string;
 }
 
-export default function DisplayCollateralMyPositions({ position, collateralPrice, zchfPrice, className }: Props) {
+export default function MyPositionsDisplayCollateral({ position, collateralPrice, zchfPrice, className }: Props) {
 	const url = useContractUrl(position.position || zeroAddress);
 
 	const openExplorer = (e: any) => {
