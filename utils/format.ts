@@ -10,7 +10,7 @@ export const toTimestamp = (value: Date) => {
 	return Math.floor(value.getTime() / 1000);
 };
 
-enum FormatType {
+export enum FormatType {
 	"us",
 	"tiny",
 }

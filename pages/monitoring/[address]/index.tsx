@@ -8,7 +8,6 @@ import { formatCurrency, formatDate, shortenAddress } from "@utils";
 import { Address, formatUnits, getAddress, zeroAddress } from "viem";
 import { useContractUrl } from "@hooks";
 import { ABIS, ADDRESS } from "@contracts";
-import ChallengeTable from "@components/ChallengeTable";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
@@ -193,8 +192,8 @@ function ActiveAuctionsRow({ position, challenge }: Props) {
 				</AppBox>
 
 				<div className="absolute right-4 bottom-7">
-					<Link href={`/challenges/${challenge.number}/bid`} className="btn btn-primary w-full h-8">
-						Goto Auction
+					<Link href={`/challenges/${challenge.number}/bid`} className="btn btn-primary w-24">
+						Bid
 					</Link>
 				</div>
 			</div>

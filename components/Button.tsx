@@ -7,7 +7,7 @@ interface Props {
 	className?: string;
 	isLoading?: boolean;
 	disabled?: boolean;
-	onClick?: () => void;
+	onClick?: (e: any) => void;
 	children?: React.ReactNode;
 	error?: string;
 }
@@ -23,7 +23,7 @@ export default function Button({ variant = "primary", size = "md", className, on
 				className={`btn w-full ${className} ${sizeClass} ${variantClass} ${
 					(disabled || isLoading) && "cursor-not-allowed bg-gray-500 text-gray-400"
 				}`}
-				onClick={() => !disabled && !isLoading && onClick?.()}
+				onClick={(e) => !disabled && !isLoading && onClick?.(e)}
 			>
 				{isLoading && <LoadingSpin />}
 				{children}

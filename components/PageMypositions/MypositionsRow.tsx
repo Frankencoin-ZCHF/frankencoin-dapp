@@ -4,7 +4,7 @@ import { PositionQuery, BidsQueryItem, ChallengesQueryItem } from "@frankencoin/
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import { formatCurrency } from "../../utils/format";
-import DisplayCollateralMyPositions from "./DisplayCollateralMyPositions";
+import MyPositionsDisplayCollateral from "./MyPositionsDisplayCollateral";
 import Link from "next/link";
 import { useRouter as useNavigate } from "next/navigation";
 import { useContractUrl } from "@hooks";
@@ -161,7 +161,7 @@ export default function MypositionsRow({ position }: Props) {
 		>
 			{/* Collateral */}
 			<div>
-				<DisplayCollateralMyPositions position={position} collateralPrice={collTokenPrice} zchfPrice={zchfPrice} />
+				<MyPositionsDisplayCollateral position={position} collateralPrice={collTokenPrice} zchfPrice={zchfPrice} />
 			</div>
 
 			{/* Liquidation */}

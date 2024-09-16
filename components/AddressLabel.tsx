@@ -1,25 +1,31 @@
 import { faArrowUpRightFromSquare, faCopy } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Address } from "viem";
+import { Address, Hash, zeroAddress } from "viem";
 import { shortenAddress } from "../utils/format";
-import { useContractUrl } from "../hooks/useContractUrl";
+import { useContractUrl, useTxUrl } from "../hooks/useContractUrl";
 import Link from "next/link";
 
 interface Props {
 	address: Address;
+	label?: string;
 	showCopy?: boolean;
 	showLink?: boolean;
+	className?: string;
 }
 
-export default function AddressLabel({ address, showCopy, showLink }: Props) {
-	const link = useContractUrl(address);
+export default function AddressLabel({ address, label, showCopy, showLink }: Props) {
+	const link = useContractUrl(address || zeroAddress);
 
 	const content = () => {
 		return (
 			<>
-				{shortenAddress(address)}
+				{
+					<div className={showLink ? "cursor-pointer" : ""} onClick={(e) => (showLink ? openExplorer(e) : undefined)}>
+						{label ?? shortenAddress(address)}
+					</div>
+				}
 				{showCopy && <FontAwesomeIcon icon={faCopy} className="w-3 ml-2 cursor-pointer" onClick={handleCopy} />}
-				{showLink && <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2 cursor-pointer" />}
+				{showLink && <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2 cursor-pointer" onClick={openExplorer} />}
 			</>
 		);
 	};
@@ -29,15 +35,65 @@ export default function AddressLabel({ address, showCopy, showLink }: Props) {
 		navigator.clipboard.writeText(address);
 	};
 
+	const openExplorer = (e: any) => {
+		e.preventDefault();
+		window.open(link, "_blank");
+	};
+
 	return (
 		<>
-			{showLink ? (
-				<Link href={link} target="_blank" className="flex items-center">
-					{content()}
-				</Link>
-			) : (
-				<div className="flex items-center">{content()}</div>
-			)}
+			<div className="flex items-center">{content()}</div>
 		</>
+	);
+}
+
+export function AddressLabelSimple({ address, label, showLink, className }: Props) {
+	const link = useContractUrl(address || zeroAddress);
+
+	const openExplorer = (e: any) => {
+		e.preventDefault();
+		window.open(link, "_blank");
+	};
+
+	return (
+		<div className={className}>
+			<span className={showLink ? "cursor-pointer" : ""} onClick={(e) => (showLink ? openExplorer(e) : undefined)}>
+				{label ?? shortenAddress(address)}
+			</span>
+			{showLink && (
+				<span>
+					<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2 my-auto cursor-pointer" onClick={openExplorer} />
+				</span>
+			)}
+		</div>
+	);
+}
+
+type TxLabelSimpleProps = {
+	label: string;
+	tx: Hash;
+	showLink?: boolean;
+	className?: string;
+};
+
+export function TxLabelSimple({ label, tx, showLink, className }: TxLabelSimpleProps) {
+	const link = useTxUrl(tx);
+
+	const openExplorer = (e: any) => {
+		e.preventDefault();
+		window.open(link, "_blank");
+	};
+
+	return (
+		<div className={className}>
+			<span className={showLink ? "cursor-pointer" : ""} onClick={(e) => (showLink ? openExplorer(e) : undefined)}>
+				{label}
+			</span>
+			{showLink && (
+				<span>
+					<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2 my-auto cursor-pointer" onClick={openExplorer} />
+				</span>
+			)}
+		</div>
 	);
 }
