@@ -176,6 +176,7 @@ export default function EquityInteractionWithZCHFFPS() {
 	const result = (direction ? fpsResult : frankenResult) || 0n;
 	const fromSymbol = direction ? "ZCHF" : "FPS";
 	const toSymbol = !direction ? "ZCHF" : "FPS";
+	const unlocked = poolStats.equityUserVotes > 86_400 * 90 && poolStats.equityUserVotes < 86_400 * 365 * 30;
 	const redeemLeft = 86400n * 90n - (poolStats.equityBalance ? poolStats.equityUserVotes / poolStats.equityBalance / 2n ** 20n : 0n);
 
 	const onChangeAmount = (value: string) => {
@@ -199,6 +200,9 @@ export default function EquityInteractionWithZCHFFPS() {
 
 	return (
 		<>
+			<div className="mt-2 px-1">
+				Use your unused ZCHF to invest in FPS tokens or redeem your FPS tokens back to ZCHF after a 90-day holding period.
+			</div>
 			<div className="mt-8">
 				<TokenInput
 					max={fromBalance}
@@ -217,11 +221,7 @@ export default function EquityInteractionWithZCHFFPS() {
 					</button>
 				</div>
 				<TokenInput symbol={toSymbol} hideMaxLabel output={formatUnits(result, 18)} label="Receive" />
-				<div className={`mt-2 px-1 transition-opacity ${(shareLoading || proceedLoading) && "opacity-50"}`}>
-					{conversionNote()}
-					<br />
-					{!direction && "Redemption requires a 90 days holding period."}
-				</div>
+				<div className={`mt-2 px-1 transition-opacity ${(shareLoading || proceedLoading) && "opacity-50"}`}>{conversionNote()}</div>
 
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 					<GuardToAllowedChainBtn>
@@ -269,7 +269,9 @@ export default function EquityInteractionWithZCHFFPS() {
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Holding Duration" />
-					{poolStats.equityBalance > 0 ? formatDuration(poolStats.equityHoldingDuration) : "-"}
+					<span className={!unlocked ? "text-red-500 font-bold" : ""}>
+						{poolStats.equityBalance > 0 ? formatDuration(poolStats.equityHoldingDuration) : "-"}
+					</span>
 				</AppBox>
 				<AppBox className="flex-1">
 					<DisplayLabel label="Can redeem after" />

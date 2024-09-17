@@ -8,11 +8,14 @@ import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import Select from "react-select";
 import EquityInteractionWithZCHFFPS from "./EquityInteractionWithZCHFFPS";
+import EquityInteractionWithFPSWFPS from "./EquityInteractionWithFPSWFPS";
+import EquityInteractionWithWFPSRedeem from "./EquityInteractionWithWFPSRedeem";
+import EquityInteractionWithFPSUnlock from "./EquityInteractionWithFPSUnlock";
 
 export const EquityInteractionCardOptions = [
-	{ value: "zchffps1", label: "Swap between ZCHF and FPS" }, // invest: ZCHF -> FPS, redeem: FPS -> ZCHF (90days lock)
-	{ value: "zchfwfps1", label: "Swap between ZCHF and WFPS" }, // investAndWrap: ZCHF -> FPS -> WFPS, unwrapAndSell: WFPS -> ZCHF (avg. 90days lock)
-	{ value: "fpswfps1", label: "Wrap FPS and unwrap WFPS" }, // wrap and unwrap
+	{ value: "zchffps1", label: "Invest ZCHF and Redeem FPS" }, // invest: ZCHF -> FPS, redeem: FPS -> ZCHF (90days lock)
+	{ value: "fpswfps1", label: "Wrap FPS and Unwrap WFPS" }, // wrap and unwrap
+	{ value: "wfpsredeem1", label: "Redeem WFPS for ZCHF" }, // unwrapAndSell: WFPS -> ZCHF (avg. 90days lock)
 	{ value: "fpsunlock1", label: "Unlock FPS for ZCHF (beta)" }, // unlock and sell
 ];
 
@@ -31,8 +34,6 @@ export default function EquityInteractionCard() {
 			</Link>
 
 			<div className="mt-8">
-				{/* <span className="ml-1 text-md font-medium text-gray-400">Select Tokens and Method</span> */}
-
 				<Select
 					className="mt-1"
 					options={EquityInteractionCardOptions}
@@ -67,6 +68,9 @@ export default function EquityInteractionCard() {
 			</div>
 
 			{interactionWith.value == EquityInteractionCardOptions[0].value ? <EquityInteractionWithZCHFFPS /> : null}
+			{interactionWith.value == EquityInteractionCardOptions[1].value ? <EquityInteractionWithFPSWFPS /> : null}
+			{interactionWith.value == EquityInteractionCardOptions[2].value ? <EquityInteractionWithWFPSRedeem /> : null}
+			{interactionWith.value == EquityInteractionCardOptions[3].value ? <EquityInteractionWithFPSUnlock /> : null}
 
 			<div className="mt-4">
 				Also available as{" "}
