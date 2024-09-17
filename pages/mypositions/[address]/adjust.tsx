@@ -252,17 +252,17 @@ export default function PositionAdjust() {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Adjust Position</title>
+				<title>Frankencoin - Manage Position</title>
 			</Head>
 
 			<div className="md:mt-8">
-				<span className="font-bold text-xl">Adjust Your Position</span>
+				<span className="font-bold text-xl">Manage Position {position.position}</span>
 			</div>
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center">Adjust Your Position</div>
+						<div className="text-lg font-bold text-center">Adjustment</div>
 						<TokenInput
 							label="Amount"
 							symbol="ZCHF"
