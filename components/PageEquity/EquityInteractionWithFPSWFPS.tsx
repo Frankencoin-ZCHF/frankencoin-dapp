@@ -3,7 +3,7 @@ import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
 import { usePoolStats } from "@hooks";
-import { formatBigInt, formatDuration, shortenAddress } from "@utils";
+import { ContractUrl, formatBigInt, formatDuration, shortenAddress } from "@utils";
 import { useAccount, useBlockNumber, useChainId, useReadContract } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
@@ -230,8 +230,11 @@ export default function EquityInteractionWithFPSWFPS() {
 
 	return (
 		<>
-			<div className="flex flex-row mt-2 px-1">
-				Wrap your FPS tokens into WFPS, or unwrap your WFPS tokens back into FPS at any time.
+			<div className="mt-2 px-1">
+				Wrap your FPS tokens into WFPS, or unwrap your WFPS tokens back into FPS at any time.{" "}
+				<a className="underline" href={ContractUrl(ADDRESS[chainId].wFPS)} target="_blank">
+					WFPS Smart Contract.
+				</a>
 			</div>
 			<div className="mt-8">
 				<TokenInput

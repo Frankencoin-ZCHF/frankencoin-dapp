@@ -3,7 +3,7 @@ import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
 import { usePoolStats } from "@hooks";
-import { formatBigInt, formatDuration, shortenAddress } from "@utils";
+import { ContractUrl, formatBigInt, formatDuration, shortenAddress } from "@utils";
 import { useAccount, useChainId, useReadContract } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
@@ -201,7 +201,10 @@ export default function EquityInteractionWithZCHFFPS() {
 	return (
 		<>
 			<div className="mt-2 px-1">
-				Use your unused ZCHF to invest in FPS tokens or redeem your FPS tokens back to ZCHF after a 90-day holding period.
+				Use your unused ZCHF to invest in FPS tokens or redeem your FPS tokens back to ZCHF after a 90-day holding period.{" "}
+				<a className="underline" href={ContractUrl(ADDRESS[chainId].equity)} target="_blank">
+					Equity Smart Contract.
+				</a>
 			</div>
 			<div className="mt-8">
 				<TokenInput

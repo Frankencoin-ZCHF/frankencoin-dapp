@@ -3,7 +3,7 @@ import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
 import { usePoolStats } from "@hooks";
-import { formatBigInt, formatDuration, shortenAddress } from "@utils";
+import { ContractUrl, formatBigInt, formatDuration, shortenAddress } from "@utils";
 import { useAccount, useBlockNumber, useChainId, useReadContract } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
@@ -204,7 +204,10 @@ export default function EquityInteractionWithWFPSRedeem() {
 		<>
 			<div className="mt-2 px-1">
 				You can unlock and redeem your FPS tokens, in one step, for ZCHF once the 90-day holding period of the WFPS token contract
-				has elapsed.
+				has elapsed.{" "}
+				<a className="underline" href={ContractUrl(ADDRESS[chainId].fpsUnlock || zeroAddress)} target="_blank">
+					Unlock Smart Contract.
+				</a>
 			</div>
 			<div className="mt-8">
 				<TokenInput
