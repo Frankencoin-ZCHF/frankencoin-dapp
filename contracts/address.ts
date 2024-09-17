@@ -92,6 +92,9 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
 		mintingHub: "0x7546762fdb1a6d9146b33960545C3f6394265219",
 		wFPS: "0x5052D3Cc819f53116641e89b96Ff4cD1EE80B182",
 
+		// utils
+		fpsUnlock: zeroAddress,
+
 		bridgePolygonFrankencoin: "0x02567e4b14b25549331fCEe2B56c647A8bAB16FD",
 		bridgeArbitrumFrankencoin: "0xB33c4255938de7A6ec1200d397B2b2F329397F9B",
 		bridgeOptimismFrankencoin: "0x4F8a84C442F9675610c680990EdDb2CCDDB8aB6f",
@@ -109,7 +112,7 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
 		wFPS: "0xA006454C97Ee457F48acc107cFF9Ba0438d0e785",
 
 		// utils
-		fpsUnlock: "0xA006454C97Ee457F48acc107cFF9Ba0438d0e785", // FIXME: replace addrs
+		fpsUnlock: "0xA006454C97Ee457F48acc107cFF9Ba0438d0e785", // FIXME: replace addr
 
 		// bridges to mainnet (real frankencoin)
 		bridgePolygonFrankencoin: "0x02567e4b14b25549331fCEe2B56c647A8bAB16FD",

@@ -37,40 +37,40 @@ export default function EquityInteractionWithFPSWFPS() {
 	const account = address || zeroAddress;
 
 	useEffect(() => {
-		if (account === zeroAddress) return;
-
 		const fetchAsync = async function () {
-			const _fpsAllowance = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].equity,
-				abi: erc20Abi,
-				functionName: "allowance",
-				args: [account, ADDRESS[chainId].wFPS],
-			});
-			setFpsAllowance(_fpsAllowance);
+			if (account != zeroAddress) {
+				const _fpsAllowance = await readContract(WAGMI_CONFIG, {
+					address: ADDRESS[chainId].equity,
+					abi: erc20Abi,
+					functionName: "allowance",
+					args: [account, ADDRESS[chainId].wFPS],
+				});
+				setFpsAllowance(_fpsAllowance);
 
-			const _fpsBalance = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].equity,
-				abi: erc20Abi,
-				functionName: "balanceOf",
-				args: [account],
-			});
-			setFpsBalance(_fpsBalance);
+				const _fpsBalance = await readContract(WAGMI_CONFIG, {
+					address: ADDRESS[chainId].equity,
+					abi: erc20Abi,
+					functionName: "balanceOf",
+					args: [account],
+				});
+				setFpsBalance(_fpsBalance);
 
-			const _fpsHolding = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].equity,
-				abi: ABIS.EquityABI,
-				functionName: "holdingDuration",
-				args: [account],
-			});
-			setFpsHolding(_fpsHolding);
+				const _fpsHolding = await readContract(WAGMI_CONFIG, {
+					address: ADDRESS[chainId].equity,
+					abi: ABIS.EquityABI,
+					functionName: "holdingDuration",
+					args: [account],
+				});
+				setFpsHolding(_fpsHolding);
 
-			const _wfpsBalance = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].wFPS,
-				abi: erc20Abi,
-				functionName: "balanceOf",
-				args: [account],
-			});
-			setWfpsBalance(_wfpsBalance);
+				const _wfpsBalance = await readContract(WAGMI_CONFIG, {
+					address: ADDRESS[chainId].wFPS,
+					abi: erc20Abi,
+					functionName: "balanceOf",
+					args: [account],
+				});
+				setWfpsBalance(_wfpsBalance);
+			}
 
 			const _wfpsHolding = await readContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].equity,

@@ -35,26 +35,27 @@ export default function EquityInteractionWithWFPSRedeem() {
 	const account = address || zeroAddress;
 
 	useEffect(() => {
-		if (account === zeroAddress) return;
 		const fpsUnlock = ADDRESS[chainId].fpsUnlock;
-		if (!fpsUnlock) return;
-
 		const fetchAsync = async function () {
-			const _fpsAllowance = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].equity,
-				abi: erc20Abi,
-				functionName: "allowance",
-				args: [account, fpsUnlock],
-			});
-			setFpsAllowance(_fpsAllowance);
+			if (account != zeroAddress) {
+				if (fpsUnlock) {
+					const _fpsAllowance = await readContract(WAGMI_CONFIG, {
+						address: ADDRESS[chainId].equity,
+						abi: erc20Abi,
+						functionName: "allowance",
+						args: [account, fpsUnlock],
+					});
+					setFpsAllowance(_fpsAllowance);
+				}
 
-			const _fpsBalance = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].equity,
-				abi: erc20Abi,
-				functionName: "balanceOf",
-				args: [account],
-			});
-			setFpsBalance(_fpsBalance);
+				const _fpsBalance = await readContract(WAGMI_CONFIG, {
+					address: ADDRESS[chainId].equity,
+					abi: erc20Abi,
+					functionName: "balanceOf",
+					args: [account],
+				});
+				setFpsBalance(_fpsBalance);
+			}
 
 			const _wfpsHolding = await readContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].equity,
