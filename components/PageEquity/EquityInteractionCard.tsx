@@ -6,21 +6,19 @@ import { ADDRESS } from "@contracts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import Select from "react-select";
 import EquityInteractionWithZCHFFPS from "./EquityInteractionWithZCHFFPS";
 import EquityInteractionWithFPSWFPS from "./EquityInteractionWithFPSWFPS";
 import EquityInteractionWithWFPSRedeem from "./EquityInteractionWithWFPSRedeem";
-import EquityInteractionWithFPSUnlock from "./EquityInteractionWithFPSUnlock";
 
-export const EquityInteractionCardOptions = [
-	{ value: "zchffps1", label: "Invest ZCHF and Redeem FPS" }, // invest: ZCHF -> FPS, redeem: FPS -> ZCHF (90days lock)
-	{ value: "fpswfps1", label: "Wrap FPS and Unwrap WFPS" }, // wrap and unwrap
-	{ value: "wfpsredeem1", label: "Redeem WFPS for ZCHF" }, // unwrapAndSell: WFPS -> ZCHF (avg. 90days lock)
-	{ value: "fpsunlock1", label: "Unlock FPS for ZCHF (beta)" }, // unlock and sell
-];
+export const EquityTokenSelectorMapping: { [key: string]: string[] } = {
+	ZCHF: ["FPS"],
+	FPS: ["ZCHF", "WFPS"],
+	WFPS: ["FPS", "ZCHF"],
+};
 
 export default function EquityInteractionCard() {
-	const [interactionWith, setInteractionWith] = useState(EquityInteractionCardOptions[0]);
+	const [tokenFromTo, setTokenFromTo] = useState<{ from: string; to: string }>({ from: "ZCHF", to: "FPS" });
+
 	const chainId = useChainId();
 	const equityUrl = useContractUrl(ADDRESS[chainId].equity);
 
@@ -33,44 +31,30 @@ export default function EquityInteractionCard() {
 				</div>
 			</Link>
 
-			<div className="mt-8">
-				<Select
-					className="mt-1"
-					options={EquityInteractionCardOptions}
-					defaultValue={EquityInteractionCardOptions[0]}
-					value={interactionWith}
-					onChange={(o) => o && setInteractionWith(o)}
-					styles={{
-						control: (baseStyles, state) => ({
-							...baseStyles,
-							backgroundColor: "#1e293b",
-							color: "#e2e8f0",
-							borderRadius: "1rem", // This makes the main control rounder
-							borderColor: "#1e293b",
-						}),
-						option: (baseStyles, state) => ({
-							...baseStyles,
-							backgroundColor: state.isFocused ? "#2c3e50" : "#1e293b",
-							color: "#e2e8f0",
-						}),
-						singleValue: (baseStyles) => ({
-							...baseStyles,
-							color: "#e2e8f0",
-						}),
-						menu: (baseStyles) => ({
-							...baseStyles,
-							backgroundColor: "#1e293b",
-							borderRadius: "1rem", // This rounds the dropdown menu
-							overflow: "hidden", // This ensures the content doesn't overflow the rounded corners
-						}),
-					}}
+			{/* Load modules dynamically */}
+			{(tokenFromTo.from === "ZCHF" && tokenFromTo.to === "FPS") || (tokenFromTo.from === "FPS" && tokenFromTo.to === "ZCHF") ? (
+				<EquityInteractionWithZCHFFPS
+					tokenFromTo={tokenFromTo}
+					setTokenFromTo={setTokenFromTo}
+					selectorMapping={EquityTokenSelectorMapping}
 				/>
-			</div>
+			) : null}
 
-			{interactionWith.value == EquityInteractionCardOptions[0].value ? <EquityInteractionWithZCHFFPS /> : null}
-			{interactionWith.value == EquityInteractionCardOptions[1].value ? <EquityInteractionWithFPSWFPS /> : null}
-			{interactionWith.value == EquityInteractionCardOptions[2].value ? <EquityInteractionWithWFPSRedeem /> : null}
-			{interactionWith.value == EquityInteractionCardOptions[3].value ? <EquityInteractionWithFPSUnlock /> : null}
+			{(tokenFromTo.from === "FPS" && tokenFromTo.to === "WFPS") || (tokenFromTo.from === "WFPS" && tokenFromTo.to === "FPS") ? (
+				<EquityInteractionWithFPSWFPS
+					tokenFromTo={tokenFromTo}
+					setTokenFromTo={setTokenFromTo}
+					selectorMapping={EquityTokenSelectorMapping}
+				/>
+			) : null}
+
+			{tokenFromTo.from === "WFPS" && tokenFromTo.to === "ZCHF" ? (
+				<EquityInteractionWithWFPSRedeem
+					tokenFromTo={tokenFromTo}
+					setTokenFromTo={setTokenFromTo}
+					selectorMapping={EquityTokenSelectorMapping}
+				/>
+			) : null}
 
 			<div className="mt-4">
 				Also available as{" "}

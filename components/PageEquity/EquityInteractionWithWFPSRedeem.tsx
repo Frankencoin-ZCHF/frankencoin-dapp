@@ -3,24 +3,29 @@ import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
 import { usePoolStats } from "@hooks";
-import { ContractUrl, formatBigInt, formatDuration, shortenAddress } from "@utils";
-import { useAccount, useBlockNumber, useChainId, useReadContract } from "wagmi";
+import { formatBigInt, formatDuration, shortenAddress } from "@utils";
+import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
-import TokenInput from "@components/Input/TokenInput";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import Button from "@components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
+import TokenInputSelect from "@components/Input/TokenInputSelect";
 
-export default function EquityInteractionWithWFPSRedeem() {
+interface Props {
+	tokenFromTo: { from: string; to: string };
+	setTokenFromTo: (set: { from: string; to: string }) => void;
+	selectorMapping: { [key: string]: string[] };
+}
+
+export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenFromTo, selectorMapping }: Props) {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
-	const [direction, setDirection] = useState(true);
 	const [isApproving, setApproving] = useState(false);
 	const [isRedeeming, setRedeeming] = useState(false);
 	const [wfpsAllowance, setWfpsAllowance] = useState<bigint>(0n);
@@ -33,6 +38,12 @@ export default function EquityInteractionWithWFPSRedeem() {
 	const poolStats = usePoolStats();
 	const chainId = useChainId();
 	const account = address || zeroAddress;
+	const direction: boolean = true;
+
+	useEffect(() => {
+		setAmount(0n);
+		setError("");
+	}, [tokenFromTo]);
 
 	useEffect(() => {
 		const fetchAsync = async function () {
@@ -164,6 +175,7 @@ export default function EquityInteractionWithWFPSRedeem() {
 				},
 			});
 		} finally {
+			setAmount(0n);
 			setRedeeming(false);
 		}
 	};
@@ -171,6 +183,7 @@ export default function EquityInteractionWithWFPSRedeem() {
 	const fromSymbol = "WFPS";
 	const toSymbol = "ZCHF";
 	const unlocked = wfpsHolding > 86_400 * 90 && wfpsHolding < 86_400 * 365 * 30;
+	const redeemLeft = unlocked ? 0n : 86_400n * 90n - wfpsHolding;
 
 	const onChangeAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
@@ -193,35 +206,36 @@ export default function EquityInteractionWithWFPSRedeem() {
 
 	return (
 		<>
-			<div className="mt-2 px-1">
-				You can unwrap and redeem your WFPS tokens, in one step, for ZCHF once the 90-day holding period of the WFPS token contract
-				has elapsed.{" "}
-				<a className="underline" href={ContractUrl(ADDRESS[chainId].wFPS)} target="_blank">
-					WFPS Smart Contract.
-				</a>
-			</div>
 			<div className="mt-8">
-				<TokenInput
+				<TokenInputSelect
 					max={wfpsBalance}
 					symbol={fromSymbol}
+					symbolOptions={Object.keys(selectorMapping) || []}
+					symbolOnChange={(o) => setTokenFromTo({ from: o.label, to: selectorMapping[o.label][0] })}
 					onChange={onChangeAmount}
 					value={amount.toString()}
 					error={error}
 					placeholder={fromSymbol + " Amount"}
 				/>
+
 				<div className="py-4 text-center z-0">
-					<button
-						className={`btn btn-secondary z-0 text-slate-800 w-14 h-14 rounded-full transition ${direction && "rotate-180"}`}
-						onClick={() => {}}
-					>
-						<FontAwesomeIcon icon={faArrowRightArrowLeft} className="rotate-90 w-6 h-6" />
+					<button className={`btn btn-secondary z-0 text-slate-800 w-14 h-14 rounded-full`} onClick={() => {}}>
+						<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
 					</button>
 				</div>
-				<TokenInput symbol={toSymbol} hideMaxLabel output={formatUnits(calculateProceeds, 18)} label="Receive" />
+
+				<TokenInputSelect
+					symbol={toSymbol}
+					symbolOptions={selectorMapping[fromSymbol] || []}
+					symbolOnChange={(o) => setTokenFromTo({ from: tokenFromTo.from, to: o.label })}
+					hideMaxLabel
+					output={Math.round(parseFloat(formatUnits(calculateProceeds, 18)) * 10000) / 10000}
+					label="Receive"
+				/>
 				<div className={`mt-2 px-1 transition-opacity`}>{conversionNote()}</div>
 
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-					<GuardToAllowedChainBtn>
+					<GuardToAllowedChainBtn label="Unwrap and Redeem">
 						{amount > wfpsAllowance ? (
 							<Button isLoading={isApproving} disabled={amount == 0n || !!error || !unlocked} onClick={() => handleApprove()}>
 								Approve
@@ -259,10 +273,10 @@ export default function EquityInteractionWithWFPSRedeem() {
 						{wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 30 ? formatDuration(wfpsHolding) : "-"}
 					</span>
 				</AppBox>
-				{/* <AppBox className="flex-1">
+				<AppBox className="flex-1">
 					<DisplayLabel label="Can redeem after" />
-					{formatDuration(redeemLeft)}
-				</AppBox> */}
+					<span className={!unlocked ? "text-red-500 font-bold" : ""}>{formatDuration(redeemLeft)}</span>
+				</AppBox>
 			</div>
 		</>
 	);

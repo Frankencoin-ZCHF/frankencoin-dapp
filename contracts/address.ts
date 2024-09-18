@@ -112,7 +112,7 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
 		wFPS: "0xA006454C97Ee457F48acc107cFF9Ba0438d0e785",
 
 		// utils
-		fpsUnlock: "0xA006454C97Ee457F48acc107cFF9Ba0438d0e785", // FIXME: replace addr
+		fpsUnlock: zeroAddress,
 
 		// bridges to mainnet (real frankencoin)
 		bridgePolygonFrankencoin: "0x02567e4b14b25549331fCEe2B56c647A8bAB16FD",

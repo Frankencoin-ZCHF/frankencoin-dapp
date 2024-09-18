@@ -1,26 +1,31 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
 import { usePoolStats } from "@hooks";
-import { ContractUrl, formatBigInt, formatDuration, shortenAddress } from "@utils";
+import { formatBigInt, formatDuration, shortenAddress } from "@utils";
 import { useAccount, useChainId, useReadContract } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
-import TokenInput from "@components/Input/TokenInput";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import Button from "@components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
+import TokenInputSelect from "@components/Input/TokenInputSelect";
 
-export default function EquityInteractionWithZCHFFPS() {
+interface Props {
+	tokenFromTo: { from: string; to: string };
+	setTokenFromTo: (set: { from: string; to: string }) => void;
+	selectorMapping: { [key: string]: string[] };
+}
+
+export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFromTo, selectorMapping }: Props) {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
-	const [direction, setDirection] = useState(true);
 	const [isApproving, setApproving] = useState(false);
 	const [isInversting, setInversting] = useState(false);
 	const [isRedeeming, setRedeeming] = useState(false);
@@ -29,6 +34,12 @@ export default function EquityInteractionWithZCHFFPS() {
 	const chainId = useChainId();
 	const poolStats = usePoolStats();
 	const account = address || zeroAddress;
+	const direction: boolean = tokenFromTo.from === "ZCHF";
+
+	useEffect(() => {
+		setAmount(0n);
+		setError("");
+	}, [tokenFromTo]);
 
 	const handleApprove = async () => {
 		try {
@@ -111,6 +122,7 @@ export default function EquityInteractionWithZCHFFPS() {
 				},
 			});
 		} finally {
+			setAmount(0n);
 			setInversting(false);
 		}
 	};
@@ -154,6 +166,7 @@ export default function EquityInteractionWithZCHFFPS() {
 				},
 			});
 		} finally {
+			setAmount(0n);
 			setRedeeming(false);
 		}
 	};
@@ -176,7 +189,8 @@ export default function EquityInteractionWithZCHFFPS() {
 	const result = (direction ? fpsResult : frankenResult) || 0n;
 	const fromSymbol = direction ? "ZCHF" : "FPS";
 	const toSymbol = !direction ? "ZCHF" : "FPS";
-	const unlocked = poolStats.equityUserVotes > 86_400 * 90 && poolStats.equityUserVotes < 86_400 * 365 * 30;
+	const unlocked =
+		poolStats.equityUserVotes > 86_400 * 90 && poolStats.equityUserVotes < 86_400 * 365 * 30 && poolStats.equityUserVotes > 0n;
 	const redeemLeft = 86400n * 90n - (poolStats.equityBalance ? poolStats.equityUserVotes / poolStats.equityBalance / 2n ** 20n : 0n);
 
 	const onChangeAmount = (value: string) => {
@@ -200,34 +214,40 @@ export default function EquityInteractionWithZCHFFPS() {
 
 	return (
 		<>
-			<div className="mt-2 px-1">
-				Use your unused ZCHF to invest in FPS tokens or redeem your FPS tokens back to ZCHF after a 90-day holding period.{" "}
-				<a className="underline" href={ContractUrl(ADDRESS[chainId].equity)} target="_blank">
-					Equity Smart Contract.
-				</a>
-			</div>
 			<div className="mt-8">
-				<TokenInput
+				<TokenInputSelect
 					max={fromBalance}
 					symbol={fromSymbol}
+					symbolOptions={Object.keys(selectorMapping) || []}
+					symbolOnChange={(o) => setTokenFromTo({ from: o.label, to: selectorMapping[o.label][0] })}
 					onChange={onChangeAmount}
 					value={amount.toString()}
 					error={error}
 					placeholder={fromSymbol + " Amount"}
 				/>
+
 				<div className="py-4 text-center z-0">
 					<button
-						className={`btn btn-secondary z-0 text-slate-800 w-14 h-14 rounded-full transition ${direction && "rotate-180"}`}
-						onClick={() => setDirection(!direction)}
+						className={`btn btn-secondary z-0 text-slate-800 w-14 h-14 rounded-full`}
+						onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}
 					>
-						<FontAwesomeIcon icon={faArrowRightArrowLeft} className="rotate-90 w-6 h-6" />
+						<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
 					</button>
 				</div>
-				<TokenInput symbol={toSymbol} hideMaxLabel output={formatUnits(result, 18)} label="Receive" />
+
+				<TokenInputSelect
+					symbol={toSymbol}
+					symbolOptions={selectorMapping[fromSymbol] || []}
+					symbolOnChange={(o) => setTokenFromTo({ from: tokenFromTo.from, to: o.label })}
+					hideMaxLabel
+					output={Math.round(parseFloat(formatUnits(result, 18)) * 10000) / 10000}
+					label="Receive"
+				/>
+
 				<div className={`mt-2 px-1 transition-opacity ${(shareLoading || proceedLoading) && "opacity-50"}`}>{conversionNote()}</div>
 
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-					<GuardToAllowedChainBtn>
+					<GuardToAllowedChainBtn label={direction ? "Invest" : "Redeem"}>
 						{direction ? (
 							amount > poolStats.frankenAllowance ? (
 								<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>
@@ -278,7 +298,7 @@ export default function EquityInteractionWithZCHFFPS() {
 				</AppBox>
 				<AppBox className="flex-1">
 					<DisplayLabel label="Can redeem after" />
-					{formatDuration(redeemLeft)}
+					<span className={!unlocked ? "text-red-500 font-bold" : ""}>{formatDuration(redeemLeft)}</span>
 				</AppBox>
 			</div>
 		</>
