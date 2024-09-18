@@ -247,7 +247,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 				<div className={`mt-2 px-1 transition-opacity ${(shareLoading || proceedLoading) && "opacity-50"}`}>{conversionNote()}</div>
 
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-					<GuardToAllowedChainBtn label={direction ? "Invest" : "Redeem"}>
+					<GuardToAllowedChainBtn label={direction ? "Mint" : "Redeem"}>
 						{direction ? (
 							amount > poolStats.frankenAllowance ? (
 								<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>
@@ -260,7 +260,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 									isLoading={isInversting}
 									onClick={() => handleInvest()}
 								>
-									Invest
+									Mint
 								</Button>
 							)
 						) : (
