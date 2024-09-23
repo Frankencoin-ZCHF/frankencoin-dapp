@@ -94,27 +94,42 @@ export default function TokenInputSelect({
 				</div>
 				<div className="px-1">
 					<Select
-						className="mt-1"
+						className="-mr-3"
 						options={options}
 						defaultValue={options[symbolIdx]}
 						value={options[symbolIdx]}
 						onChange={(o) => o && symbolOnChange(o)}
 						styles={{
+							indicatorSeparator: () => ({
+								display: "none",
+							}),
+							dropdownIndicator: (baseStyles) => ({
+								...baseStyles,
+								color: "#95A3B8",
+							}),
 							control: (baseStyles, state) => ({
 								...baseStyles,
 								backgroundColor: "#1e293b",
 								color: "#e2e8f0",
 								borderRadius: "1rem", // This makes the main control rounder
 								borderWidth: "0",
+								boxShadow: "none", // Remove the focus shadow
+								"&:hover": {
+									borderColor: "transparent", // Remove border color on hover
+								},
+								"&:focus": {
+									outline: "none", // Remove outline on focus
+									borderColor: "transparent", // Remove border color on focus
+								},
 							}),
 							option: (baseStyles, state) => ({
 								...baseStyles,
 								backgroundColor: state.isFocused ? "#2c3e50" : "#1e293b",
-								color: "#e2e8f0",
+								color: "#95A3B8", // text color from option menu
 							}),
 							singleValue: (baseStyles) => ({
 								...baseStyles,
-								color: "#94a3b8",
+								color: "#95A3B8", // text color of selected value
 							}),
 							menu: (baseStyles) => ({
 								...baseStyles,
