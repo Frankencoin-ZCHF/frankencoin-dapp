@@ -195,6 +195,9 @@ export default function Swap() {
 								<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
 							</div>
 						</Link>
+						<div className="mt-8">
+							Swapping from XCHF to ZCHF will cease to function on 2024-10-26 as the crypto franc is <Link href="https://www.bitcoinsuisse.com/cryptofranc">discontinued by the isser</Link>.
+						</div>
 
 						<div className="mt-8">
 							<TokenInput
@@ -246,21 +249,6 @@ export default function Swap() {
 									</Button>
 								)}
 							</GuardToAllowedChainBtn>
-						</div>
-
-						<div className="mx-auto mt-8">
-							<a
-								href={SOCIAL.Uniswap_Mainnet}
-								target="_blank"
-								rel="noreferrer"
-								className="flex items-center justify-center underline"
-							>
-								Also available on
-								<picture>
-									<img src="/assets/uniswap.svg" alt="logo" className="w-6 mb-2 mx-1" />
-								</picture>
-								Uniswap.
-							</a>
 						</div>
 					</div>
 				</section>
