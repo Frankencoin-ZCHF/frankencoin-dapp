@@ -13,11 +13,9 @@ import Web3ModalProvider from "@components/Web3Modal";
 import { store } from "../redux/redux.store";
 import { PONDER_CLIENT } from "../app.config";
 import BlockUpdater from "@components/BlockUpdater";
-import { useIsMainnet } from "@hooks";
 import USGovSanctionList from "@components/USGovSanctionList";
 
 export default function App({ Component, pageProps }: AppProps) {
-	const isMainnet = useIsMainnet();
 	return (
 		<ReduxProvider store={store}>
 			<Web3ModalProvider>

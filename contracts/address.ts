@@ -18,6 +18,8 @@ export interface ProtocolAddress {
 	bridgeOptimismFrankencoin?: Address;
 	bridgeOptimismWfps?: Address;
 
+	fpsUnlock?: Address;
+
 	// accept any key
 	[key: string]: Address | undefined;
 }
@@ -90,6 +92,9 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
 		mintingHub: "0x7546762fdb1a6d9146b33960545C3f6394265219",
 		wFPS: "0x5052D3Cc819f53116641e89b96Ff4cD1EE80B182",
 
+		// utils
+		fpsUnlock: zeroAddress,
+
 		bridgePolygonFrankencoin: "0x02567e4b14b25549331fCEe2B56c647A8bAB16FD",
 		bridgeArbitrumFrankencoin: "0xB33c4255938de7A6ec1200d397B2b2F329397F9B",
 		bridgeOptimismFrankencoin: "0x4F8a84C442F9675610c680990EdDb2CCDDB8aB6f",
@@ -104,7 +109,10 @@ export const ADDRESS: Record<number, ProtocolAddress> = {
 		xchf: zeroAddress,
 		equity: "0x9f40894a2E47305DE4C79b53B48B7a57805065eA",
 		mintingHub: "0xa3039043B2C5a74A39b139e389b7591Ab76d20d1",
-		wFPS: zeroAddress,
+		wFPS: "0xA006454C97Ee457F48acc107cFF9Ba0438d0e785",
+
+		// utils
+		fpsUnlock: zeroAddress,
 
 		// bridges to mainnet (real frankencoin)
 		bridgePolygonFrankencoin: "0x02567e4b14b25549331fCEe2B56c647A8bAB16FD",
