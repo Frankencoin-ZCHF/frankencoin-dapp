@@ -30,7 +30,10 @@ export default function EquityFPSDetailsCard() {
 					type="area"
 					options={{
 						theme: {
-							palette: "palette2",
+							monochrome: {
+								color: "#092f62",
+								enabled: true,
+							},
 						},
 						chart: {
 							type: "area",
@@ -74,14 +77,9 @@ export default function EquityFPSDetailsCard() {
 							type: "gradient",
 							gradient: {
 								shadeIntensity: 0,
-								opacityTo: 0,
-								shade: "#1C64F2",
-								gradientToColors: ["#6C64F2"],
-							},
-						},
-						tooltip: {
-							x: {
-								format: "dd MMM yyyy",
+								opacityTo: 0.2,
+								shade: "#e7e7ea",
+								gradientToColors: ["#092f62"],
 							},
 						},
 					}}
