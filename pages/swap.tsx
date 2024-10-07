@@ -196,7 +196,8 @@ export default function Swap() {
 							</div>
 						</Link>
 						<div className="mt-8">
-							Swapping from XCHF to ZCHF will cease to function on 2024-10-26 as the crypto franc is <Link href="https://www.bitcoinsuisse.com/cryptofranc">discontinued by the isser</Link>.
+							Swapping from XCHF to ZCHF will cease to function on 2024-10-26 as the crypto franc is{" "}
+							<Link href="https://www.bitcoinsuisse.com/cryptofranc">discontinued by the isser</Link>.
 						</div>
 
 						<div className="mt-8">
