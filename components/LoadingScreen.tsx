@@ -26,9 +26,9 @@ export default function LoadingScreen() {
 		<>
 			<div className="flex items-center justify-center gap-4 h-screen">
 				<div className="flex flex-col items-center gap-8">
-					<div className="flex flex-row items-center">
+					<div className="flex flex-row items-center -mt-20">
 						<picture>
-							<img className="h-10 mr-4" src="/assets/logoSquare.svg" alt="Logo" />
+							<img className="h-10 mr-4" src="/coin/zchf.png" alt="Logo" />
 						</picture>
 						<h1>Frankencoin is loading...</h1>
 					</div>
