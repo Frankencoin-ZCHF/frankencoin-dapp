@@ -297,7 +297,7 @@ export default function PositionChallenge() {
 					</div>
 					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
 						<div className="text-lg font-bold text-center mt-3">How does it work?</div>
-						<AppBox className="flex-1 mt-4">
+						<div className="flex-1 mt-4">
 							<p>A challenge is divided into two phases:</p>
 							<ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
 								<li>
@@ -311,7 +311,7 @@ export default function PositionChallenge() {
 									the sales proceeds as a reward.
 								</li>
 							</ol>
-						</AppBox>
+						</div>
 					</div>
 				</section>
 			</div>
