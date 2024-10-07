@@ -12,8 +12,8 @@ export default function TableRow({ colSpan, children, actionCol, link, className
 	return (
 		<div
 			className={`${
-				className ?? "bg-table-row-primary"
-			} cursor-default  hover:bg-table-row-hover px-8  xl:px-12 py-4 first:border-t-0 sm:first:border-t border-t border-tableRow-hover first:rounded-t-lg sm:first:rounded-t-none last:rounded-b-lg duration-300`}
+				className ?? "bg-table-row-primary hover:bg-table-row-hover"
+			} cursor-default px-8  xl:px-12 py-4 first:border-t-0 sm:first:border-t border-t border-table-row-hover first:rounded-t-lg sm:first:rounded-t-none last:rounded-b-lg duration-300`}
 		>
 			<div className="flex sm:pl-8 flex-col justify-between gap-y-5 md:flex-row">
 				<div
