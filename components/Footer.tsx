@@ -26,6 +26,8 @@ const DynamicDocs = (): string => {
 	const p = usePathname();
 	let link: string = SOCIAL.Docs;
 
+	if (p === null) return link;
+
 	if (p !== "/mint/create" && p.includes("/mint")) link += "/positions/clone";
 	else if (p === "/mint/create") link += "/positions/open";
 	else if (p.includes("/mypositions")) link += "/positions/adjust";

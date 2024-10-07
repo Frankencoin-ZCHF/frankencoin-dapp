@@ -69,7 +69,7 @@ export function FaucetRow({ name, symbol, balance, decimal, addr }: RowProps) {
 		<TableRow
 			colSpan={6}
 			actionCol={
-				<Button variant="primary" isLoading={isConfirming} onClick={() => handleFaucet()}>
+				<Button isLoading={isConfirming} onClick={() => handleFaucet()}>
 					+1000 {symbol}
 				</Button>
 			}

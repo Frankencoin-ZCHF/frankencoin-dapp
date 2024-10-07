@@ -77,7 +77,6 @@ export default function GovernanceVotersAction({ voter, disabled, connectedWalle
 				<div className="overflow-hidden">
 					<Button
 						className="h-10 scroll-nopeak"
-						variant="primary"
 						disabled={isHidden || disabled}
 						isLoading={isDelegating}
 						onClick={(e) => handleOnClick(e)}
