@@ -8,9 +8,10 @@ interface Props {
 	onClick?: (e: any) => void;
 	children?: React.ReactNode;
 	error?: string;
+	width?: string;
 }
 
-export default function Button({ size = "md", className, onClick, isLoading, children, disabled, error }: Props) {
+export default function Button({ size = "md", width, className, onClick, isLoading, children, disabled, error }: Props) {
 	const sizeClass = size == "sm" ? "text-sm px-2 py-1 md:px-3 md:py-1" : "px-3 py-3";
 
 	return (
@@ -21,7 +22,7 @@ export default function Button({ size = "md", className, onClick, isLoading, chi
 					disabled || isLoading
 						? "cursor-not-allowed bg-card-content-primary text-layout-secondary"
 						: "bg-layout-secondary text-card-content-primary"
-				} w-full`}
+				} ${width ?? "w-full"}`}
 				onClick={(e) => !disabled && !isLoading && onClick?.(e)}
 			>
 				{isLoading && <LoadingSpin />}

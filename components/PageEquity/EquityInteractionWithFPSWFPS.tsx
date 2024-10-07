@@ -253,7 +253,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 				/>
 
 				<div className="py-4 text-center z-0">
-					<Button className={`h-[3rem] w-[3rem] rounded-full`} onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
+					<Button className={`h-10 rounded-full`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
 						<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
 					</Button>
 				</div>
