@@ -1,4 +1,3 @@
-import AppPageHeader from "@components/AppPageHeader";
 import ChallengesTable from "@components/PageChallenges/ChallengesTable";
 import Head from "next/head";
 

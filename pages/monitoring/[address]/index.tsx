@@ -16,6 +16,8 @@ import { CONFIG, WAGMI_CONFIG } from "../../../app.config";
 import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { ChallengesQueryItem, PositionQuery } from "@frankencoin/api";
+import { useRouter as useNavigation } from "next/navigation";
+import Button from "@components/Button";
 
 export default function PositionDetail() {
 	const [reserve, setReserve] = useState<bigint>(0n);
@@ -64,7 +66,7 @@ export default function PositionDetail() {
 			</Head>
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
+					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
 						<Link href={explorerUrl} target="_blank">
 							<div className="text-lg font-bold underline text-center">
 								Position {shortenAddress(position.position)}
@@ -144,7 +146,7 @@ export default function PositionDetail() {
 					</div>
 					<div>
 						{isSubjectToCooldown() && (
-							<div className="bg-slate-950 rounded-xl p-4 flex flex-col mb-4">
+							<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col mb-4">
 								<div className="text-lg font-bold text-center">Cooldown</div>
 								<AppBox className="flex-1 mt-4">
 									<p>
@@ -156,7 +158,7 @@ export default function PositionDetail() {
 							</div>
 						)}
 
-						<div className="bg-slate-950 rounded-xl p-4 flex flex-col mb-4">
+						<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col mb-4">
 							<div className="text-lg font-bold text-center">Active Challenges ({challengesActive.length})</div>
 
 							{challengesActive.map((c) => ActiveAuctionsRow({ position, challenge: c }))}
@@ -175,6 +177,8 @@ interface Props {
 }
 
 function ActiveAuctionsRow({ position, challenge }: Props) {
+	const navigate = useNavigation();
+
 	const beginning: number = parseFloat(formatUnits(challenge.size, position.collateralDecimals));
 	const remaining: number = parseFloat(formatUnits(challenge.size - challenge.filledSize, position.collateralDecimals));
 	return (
@@ -191,10 +195,10 @@ function ActiveAuctionsRow({ position, challenge }: Props) {
 					/>
 				</AppBox>
 
-				<div className="absolute right-4 bottom-7">
-					<Link href={`/challenges/${challenge.number}/bid`} className="btn btn-primary w-24">
+				<div className="absolute right-4 bottom-6 w-20">
+					<Button className="h-10" onClick={() => navigate.push(`/challenges/${challenge.number}/bid`)}>
 						Bid
-					</Link>
+					</Button>
 				</div>
 			</div>
 		</AppBox>

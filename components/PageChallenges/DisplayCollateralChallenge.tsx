@@ -51,7 +51,7 @@ export default function DisplayCollateralChallenge({
 				</div>
 			</Link>
 
-			<div className="flex flex-col">
+			<div className="flex flex-col text-text-primary">
 				<span className={`font-bold`}>
 					{challengeRemainingSize > 0 ? formatCurrency(challengeRemainingSize, 2, 2) : "-.--"} {position.collateralSymbol}
 				</span>

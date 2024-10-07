@@ -39,12 +39,7 @@ export default function MyPositionsBidsRow({ bid }: Props) {
 		<TableRow
 			actionCol={
 				<div className="">
-					<Button
-						className="h-10"
-						variant="primary"
-						disabled={isDisabled}
-						onClick={() => navigate.push(`/challenges/${bid.number}/bid`)}
-					>
+					<Button className="h-10" disabled={isDisabled} onClick={() => navigate.push(`/challenges/${bid.number}/bid`)}>
 						Buy Again
 					</Button>
 				</div>
@@ -56,31 +51,28 @@ export default function MyPositionsBidsRow({ bid }: Props) {
 					<TokenLogo currency={position.collateralSymbol} />
 				</div>
 
-				<div className={`col-span-2 text-md`}>{`${formatCurrency(formatUnits(bid.filledSize, position.collateralDecimals), 2, 2)} ${
-					position.collateralSymbol
-				}`}</div>
+				<div className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(
+					formatUnits(bid.filledSize, position.collateralDecimals),
+					2,
+					2
+				)} ${position.collateralSymbol}`}</div>
 			</div>
 
 			{/* Price */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-header">
+				<div className="text-md text-text-primary">
 					{formatCurrency(formatUnits(bid.price, 36 - position.collateralDecimals), 2, 2)} ZCHF
 				</div>
 			</div>
 
 			{/* Bid */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-header">{`${formatCurrency(formatUnits(bid.bid, 18), 2, 2)} ZCHF`}</div>
+				<div className="text-md text-text-primary">{`${formatCurrency(formatUnits(bid.bid, 18), 2, 2)} ZCHF`}</div>
 			</div>
 
 			{/* State */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-header">{bid.bidType}</div>
-				{bid.bidType === "Averted" ? null : (
-					<div className="text-sm text-text-header">
-						{formatCurrency(formatUnits(bid.acquiredCollateral, position.collateralDecimals))} {position.collateralSymbol}
-					</div>
-				)}
+				<div className="text-md text-text-primary">{bid.bidType}</div>
 			</div>
 		</TableRow>
 	);

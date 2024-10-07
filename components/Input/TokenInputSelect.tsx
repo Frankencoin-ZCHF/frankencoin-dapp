@@ -67,7 +67,7 @@ export default function TokenInputSelect({
 				)}
 			</div>
 
-			<div className="flex items-center rounded-lg bg-slate-800 p-2">
+			<div className="flex items-center rounded-lg bg-card-content-primary p-2">
 				<div className="mr-4">
 					<TokenLogo currency={symbol} size={10} />
 				</div>
@@ -76,8 +76,8 @@ export default function TokenInputSelect({
 						<div className="px-3 py-2 font-bold transition-opacity">{output}</div>
 					) : (
 						<div
-							className={`flex gap-1 rounded-lg text-white p-1 bg-slate-600 border-2 ${
-								error ? "border-red-300" : "border-slate-600"
+							className={`flex gap-1 rounded-lg p-1 bg-card-content-secondary border-2 ${
+								error ? "border-text-warning" : "border-card-content-secondary"
 							}`}
 						>
 							<BigNumberInput
@@ -92,7 +92,7 @@ export default function TokenInputSelect({
 						</div>
 					)}
 				</div>
-				<div className="px-1">
+				<div className="px-4">
 					<Select
 						className="-mr-3"
 						options={options}
@@ -105,35 +105,28 @@ export default function TokenInputSelect({
 							}),
 							dropdownIndicator: (baseStyles) => ({
 								...baseStyles,
-								color: "#95A3B8",
+								color: "#e2e8f0",
 							}),
 							control: (baseStyles, state) => ({
 								...baseStyles,
-								backgroundColor: "#1e293b",
+								backgroundColor: "#092f62",
 								color: "#e2e8f0",
 								borderRadius: "1rem", // This makes the main control rounder
 								borderWidth: "0",
 								boxShadow: "none", // Remove the focus shadow
-								"&:hover": {
-									borderColor: "transparent", // Remove border color on hover
-								},
-								"&:focus": {
-									outline: "none", // Remove outline on focus
-									borderColor: "transparent", // Remove border color on focus
-								},
 							}),
 							option: (baseStyles, state) => ({
 								...baseStyles,
-								backgroundColor: state.isFocused ? "#2c3e50" : "#1e293b",
-								color: "#95A3B8", // text color from option menu
+								backgroundColor: state.isFocused ? "#092f62" : "transparent",
+								color: state.isFocused ? "#e2e8f0" : "#092f62", // text color from option menu
 							}),
 							singleValue: (baseStyles) => ({
 								...baseStyles,
-								color: "#95A3B8", // text color of selected value
+								color: "#e2e8f0", // text color of selected value
 							}),
 							menu: (baseStyles) => ({
 								...baseStyles,
-								backgroundColor: "#1e293b",
+								backgroundColor: "#e7e7ea",
 								borderRadius: "1rem", // This rounds the dropdown menu
 								overflow: "hidden", // This ensures the content doesn't overflow the rounded corners
 							}),
@@ -141,7 +134,7 @@ export default function TokenInputSelect({
 					/>
 				</div>
 			</div>
-			{error && <div className="mt-2 px-1 text-red-500">{error}</div>}
+			{error && <div className="mt-2 px-1 text-text-warning">{error}</div>}
 			<div className="mt-2 px-1 flex items-center">
 				{limit >= 0n && limitLabel && (
 					<>

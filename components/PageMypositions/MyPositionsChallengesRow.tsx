@@ -107,24 +107,26 @@ export default function MyPositionsChallengesRow({ challenge }: Props) {
 				<div className="mr-4 cursor-pointer" onClick={openExplorer}>
 					<TokenLogo currency={position.collateralSymbol} />
 				</div>
-				<div className={`col-span-2 text-md`}>{`${formatCurrency(challengeRemainingSize, 2, 2)} ${position.collateralSymbol}`}</div>
+				<div className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(challengeRemainingSize, 2, 2)} ${
+					position.collateralSymbol
+				}`}</div>
 			</div>
 
 			{/* Current Price */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-header">
+				<div className="text-md text-text-primary">
 					{formatCurrency(formatUnits(challengePrice, 36 - position.collateralDecimals), 2, 2)} ZCHF
 				</div>
 			</div>
 
 			{/* State */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-header">{states[stateIdx]}</div>
+				<div className="text-md text-text-primary">{states[stateIdx]}</div>
 			</div>
 
 			{/* Time Left */}
 			<div className="flex flex-col">
-				<div className={`text-md text-text-header`}>{stateTimeLeft}</div>
+				<div className={`text-md text-text-primary`}>{stateTimeLeft}</div>
 			</div>
 		</TableRow>
 	);

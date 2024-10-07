@@ -227,12 +227,9 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 				/>
 
 				<div className="py-4 text-center z-0">
-					<button
-						className={`btn btn-secondary z-0 text-slate-800 w-14 h-14 rounded-full`}
-						onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}
-					>
+					<Button className={`h-[3rem] w-[3rem] rounded-full`} onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
 						<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
-					</button>
+					</Button>
 				</div>
 
 				<TokenInputSelect
@@ -254,18 +251,12 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 									Approve
 								</Button>
 							) : (
-								<Button
-									variant="primary"
-									disabled={amount == 0n || !!error}
-									isLoading={isInversting}
-									onClick={() => handleInvest()}
-								>
+								<Button disabled={amount == 0n || !!error} isLoading={isInversting} onClick={() => handleInvest()}>
 									Mint
 								</Button>
 							)
 						) : (
 							<Button
-								variant="primary"
 								isLoading={isRedeeming}
 								disabled={amount == 0n || !!error || !poolStats.equityCanRedeem}
 								onClick={() => handleRedeem()}
@@ -292,13 +283,13 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Holding Duration" />
-					<span className={!unlocked ? "text-red-500 font-bold" : ""}>
+					<span className={!unlocked ? "text-text-warning font-bold" : ""}>
 						{poolStats.equityBalance > 0 ? formatDuration(poolStats.equityHoldingDuration) : "-"}
 					</span>
 				</AppBox>
 				<AppBox className="flex-1">
 					<DisplayLabel label="Can redeem after" />
-					<span className={!unlocked ? "text-red-500 font-bold" : ""}>{formatDuration(redeemLeft)}</span>
+					<span className={!unlocked ? "text-text-warning font-bold" : ""}>{formatDuration(redeemLeft)}</span>
 				</AppBox>
 			</div>
 		</>

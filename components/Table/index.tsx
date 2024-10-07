@@ -5,7 +5,7 @@ interface Props {
 export default function Table({ children }: Props) {
 	return (
 		<section>
-			<div className="">{children}</div>
+			<div className="shadow-lg">{children}</div>
 		</section>
 	);
 }

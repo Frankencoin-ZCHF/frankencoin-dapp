@@ -28,7 +28,7 @@ export default function DisplayCollateralBorrowTable({ bold = true, symbol, name
 					<TokenLogo currency={symbol} />
 				</div>
 
-				<div className="flex flex-col">
+				<div className="flex flex-col text-text-primary">
 					<span className={`text-left ${bold && "font-bold"}`}>{symbol}</span>
 					<span className="text-left max-lg:w-[4rem] lg:w-[7rem] max-sm:w-[9rem] text-sm truncate">{name}</span>
 				</div>

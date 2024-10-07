@@ -60,7 +60,7 @@ export default function GovernanceVotersRow({ voter, votesTotal, connectedWallet
 	return (
 		<>
 			<TableRow
-				className={connectedWallet ? "bg-gray-800" : undefined}
+				className={connectedWallet ? "bg-card-content-primary" : undefined}
 				actionCol={
 					connectedWallet ? (
 						<></>
@@ -98,7 +98,7 @@ export default function GovernanceVotersRow({ voter, votesTotal, connectedWallet
 
 			{connectedWallet && isDelegated && !isRevoked ? (
 				<TableRow
-					className="bg-gray-800"
+					className="bg-card-content-primary"
 					actionCol={
 						<GovernanceVotersAction
 							key={voter.holder}

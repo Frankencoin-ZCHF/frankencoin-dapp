@@ -5,11 +5,8 @@ import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import TokenLogo from "@components/TokenLogo";
 import { formatCurrency } from "../../utils/format";
-import { BadgeCloneColor, BadgeOriginalColor } from "../../utils/customTheme";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCertificate } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
-import DisplayCollateralChallenge from "./DisplayCollateralChallenge";
+import { useRouter as useNavigation } from "next/navigation";
+import Button from "@components/Button";
 import { useContractUrl } from "@hooks";
 
 interface Props {
@@ -17,6 +14,8 @@ interface Props {
 }
 
 export default function ChallengesRow({ challenge }: Props) {
+	const navigate = useNavigation();
+
 	const positions = useSelector((state: RootState) => state.positions.mapping);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challengesPrices = useSelector((state: RootState) => state.challenges.challengesPrices);
@@ -106,9 +105,9 @@ export default function ChallengesRow({ challenge }: Props) {
 	return (
 		<TableRow
 			actionCol={
-				<Link href={`/challenges/${challenge.number}/bid`} className="btn btn-primary w-full h-10">
+				<Button className="h-10" onClick={() => navigate.push(`/challenges/${challenge.number}/bid`)}>
 					Buy
-				</Link>
+				</Button>
 			}
 		>
 			{/* Collateral */}
@@ -117,24 +116,26 @@ export default function ChallengesRow({ challenge }: Props) {
 					<TokenLogo currency={position.collateralSymbol} />
 				</div>
 
-				<div className={`col-span-2 text-md`}>{`${formatCurrency(challengeRemainingSize, 2, 2)} ${position.collateralSymbol}`}</div>
+				<div className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(challengeRemainingSize, 2, 2)} ${
+					position.collateralSymbol
+				}`}</div>
 			</div>
 
 			{/* Current Price */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-header">
+				<div className="text-md text-text-primary">
 					{formatCurrency(formatUnits(challengePrice, 36 - position.collateralDecimals), 2, 2)} ZCHF
 				</div>
 			</div>
 
 			{/* State */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-header">{states[stateIdx]}</div>
+				<div className="text-md text-text-primary">{states[stateIdx]}</div>
 			</div>
 
 			{/* Time Left */}
 			<div className="flex flex-col">
-				<div className={`text-md text-text-header`}>{stateTimeLeft}</div>
+				<div className={`text-md text-text-primary`}>{stateTimeLeft}</div>
 			</div>
 		</TableRow>
 	);

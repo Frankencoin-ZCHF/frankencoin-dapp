@@ -16,7 +16,7 @@ export default function Governance() {
 				<span className="font-bold text-xl">New Positions</span>
 			</div>
 
-			<div className="text-gray-500">
+			<div className="">
 				Participants should carefully review newly proposed position types and deny them if they think they pose a risk to the
 				stability of the Frankencoin. There also is a{" "}
 				<a

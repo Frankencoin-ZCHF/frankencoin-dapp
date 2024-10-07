@@ -13,6 +13,7 @@ createWeb3Modal({
 	wagmiConfig: WAGMI_CONFIG,
 	projectId: CONFIG.wagmiId,
 	enableAnalytics: true,
+	themeMode: "light",
 });
 
 export default function Web3ModalProvider({ children, initialState }: { children: ReactNode; initialState?: State }) {

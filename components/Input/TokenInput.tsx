@@ -57,7 +57,7 @@ export default function TokenInput({
 				)}
 			</div>
 
-			<div className="flex items-center rounded-lg bg-slate-800 p-2">
+			<div className="flex items-center rounded-lg bg-card-content-primary p-2">
 				<div className="mr-4">
 					<TokenLogo currency={symbol} size={10} />
 				</div>
@@ -66,8 +66,8 @@ export default function TokenInput({
 						<div className="px-3 py-2 font-bold transition-opacity">{output}</div>
 					) : (
 						<div
-							className={`flex gap-1 rounded-lg text-white p-1 bg-slate-600 border-2 ${
-								error ? "border-red-300" : "border-slate-600"
+							className={`flex gap-1 rounded-lg p-1 bg-card-content-secondary border-2 ${
+								error ? "border-text-warning" : "border-card-content-secondary"
 							}`}
 						>
 							<BigNumberInput
@@ -85,7 +85,7 @@ export default function TokenInput({
 
 				<div className="hidden w-20 px-4 text-end font-bold sm:block">{symbol}</div>
 			</div>
-			{error && <div className="mt-2 px-1 text-red-500">{error}</div>}
+			{error && <div className="mt-2 px-1 text-text-warning">{error}</div>}
 			<div className="mt-2 px-1 flex items-center">
 				{limit >= 0n && limitLabel && (
 					<>
