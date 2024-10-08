@@ -17,6 +17,7 @@ interface Props {
 	className?: string;
 }
 
+// @dev: not used
 export default function DisplayCollateralChallenge({
 	position,
 	challenge,
@@ -46,7 +47,7 @@ export default function DisplayCollateralChallenge({
 	return (
 		<div className={`flex items-center ${className}`}>
 			<Link href={url} onClick={openExplorer}>
-				<div className="mr-4">
+				<div className="-ml-12 mr-4">
 					<TokenLogo currency={position.collateralSymbol} />
 				</div>
 			</Link>

@@ -60,7 +60,7 @@ export default function Navbar() {
 					<WalletConnect />
 				</div>
 
-				<aside className="flex w-10 h-10 sm:hidden">
+				<aside className="flex w-10 h-10 md:hidden">
 					<div className="flex items-center">
 						<label className="absolute z-20 cursor-pointer px-3 py-6" htmlFor="ss-mobile-menu">
 							<input className="peer hidden" type="checkbox" id="ss-mobile-menu" />

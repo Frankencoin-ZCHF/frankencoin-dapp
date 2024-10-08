@@ -8,12 +8,14 @@ import { formatCurrency } from "../../utils/format";
 import Link from "next/link";
 import { useContractUrl } from "@hooks";
 import MyPositionsChallengesCancel from "./MyPositionsChallengesCancel";
+import AppBox from "@components/AppBox";
 
 interface Props {
+	headers: string[];
 	challenge: ChallengesQueryItem;
 }
 
-export default function MyPositionsChallengesRow({ challenge }: Props) {
+export default function MyPositionsChallengesRow({ headers, challenge }: Props) {
 	const positions = useSelector((state: RootState) => state.positions.mapping);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challengesPrices = useSelector((state: RootState) => state.challenges.challengesPrices);
@@ -101,15 +103,28 @@ export default function MyPositionsChallengesRow({ challenge }: Props) {
 	};
 
 	return (
-		<TableRow actionCol={<MyPositionsChallengesCancel challenge={challenge} />}>
+		<TableRow headers={headers} actionCol={<MyPositionsChallengesCancel challenge={challenge} />}>
 			{/* Collateral */}
-			<div className="-ml-12 flex items-center">
-				<div className="mr-4 cursor-pointer" onClick={openExplorer}>
-					<TokenLogo currency={position.collateralSymbol} />
+			<div className="flex flex-col max-md:mb-5">
+				{/* desktop view */}
+				<div className="max-md:hidden flex flex-row items-center -ml-12">
+					<span className="mr-4 cursor-pointer" onClick={openExplorer}>
+						<TokenLogo currency={position.collateralSymbol} />
+					</span>
+					<span className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(challengeRemainingSize, 2, 2)} ${
+						position.collateralSymbol
+					}`}</span>
 				</div>
-				<div className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(challengeRemainingSize, 2, 2)} ${
-					position.collateralSymbol
-				}`}</div>
+
+				{/* mobile view */}
+				<AppBox className="md:hidden flex flex-row items-center">
+					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
+						<TokenLogo currency={position.collateralSymbol} />
+					</div>
+					<div className={`col-span-2 text-md text-text-primary font-semibold`}>{`${formatCurrency(challengeRemainingSize)} ${
+						position.collateralSymbol
+					}`}</div>
+				</AppBox>
 			</div>
 
 			{/* Current Price */}

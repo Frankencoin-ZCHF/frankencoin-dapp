@@ -8,12 +8,14 @@ import { formatCurrency } from "../../utils/format";
 import { useRouter as useNavigation } from "next/navigation";
 import { useContractUrl } from "@hooks";
 import Button from "@components/Button";
+import AppBox from "@components/AppBox";
 
 interface Props {
+	headers: string[];
 	position: PositionQuery;
 }
 
-export default function MonitoringRow({ position }: Props) {
+export default function MonitoringRow({ headers, position }: Props) {
 	const navigate = useNavigation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
@@ -49,6 +51,7 @@ export default function MonitoringRow({ position }: Props) {
 
 	return (
 		<TableRow
+			headers={headers}
 			actionCol={
 				<Button className="h-10" onClick={() => navigate.push(`/monitoring/${position.position}/challenge`)}>
 					Challenge
@@ -56,14 +59,26 @@ export default function MonitoringRow({ position }: Props) {
 			}
 		>
 			{/* Collateral */}
-			<div className="-ml-12 flex items-center">
-				<div className="mr-4 cursor-pointer" onClick={openExplorer}>
-					<TokenLogo currency={position.collateralSymbol} />
+			<div className="flex flex-col max-md:mb-5">
+				{/* desktop view */}
+				<div className="max-md:hidden flex flex-row items-center -ml-12">
+					<span className="mr-4 cursor-pointer" onClick={openExplorer}>
+						<TokenLogo currency={position.collateralSymbol} />
+					</span>
+					<span className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(balance)} ${
+						position.collateralSymbol
+					}`}</span>
 				</div>
 
-				<div className={`col-span-2 text-text-primary text-left text-md`}>{`${formatCurrency(balance, 2, 2)} ${
-					position.collateralSymbol
-				}`}</div>
+				{/* mobile view */}
+				<AppBox className="md:hidden flex flex-row items-center">
+					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
+						<TokenLogo currency={position.collateralSymbol} />
+					</div>
+					<div className={`col-span-2 text-md text-text-primary font-semibold`}>{`${formatCurrency(balance)} ${
+						position.collateralSymbol
+					}`}</div>
+				</AppBox>
 			</div>
 
 			{/* Coll. */}

@@ -9,8 +9,11 @@ import Link from "next/link";
 import { useRouter as useNavigate } from "next/navigation";
 import { useContractUrl } from "@hooks";
 import Button from "@components/Button";
+import AppBox from "@components/AppBox";
 
 interface Props {
+	headers: string[];
+	subHeaders: string[];
 	position: PositionQuery;
 }
 
@@ -24,7 +27,7 @@ type ChallengeInfos = {
 	challenge: ChallengesQueryItem;
 };
 
-export default function MypositionsRow({ position }: Props) {
+export default function MypositionsRow({ headers, subHeaders, position }: Props) {
 	const navigate = useNavigate();
 	const url = useContractUrl(position.position || zeroAddress);
 
@@ -154,6 +157,8 @@ export default function MypositionsRow({ position }: Props) {
 
 	return (
 		<TableRow
+			headers={headers}
+			subHeaders={subHeaders}
 			actionCol={
 				<Button className="h-10" onClick={() => navigate.push(`/mypositions/${position.position}/adjust`)}>
 					Manage
@@ -161,8 +166,20 @@ export default function MypositionsRow({ position }: Props) {
 			}
 		>
 			{/* Collateral */}
-			<div>
-				<MyPositionsDisplayCollateral position={position} collateralPrice={collTokenPrice} zchfPrice={zchfPrice} />
+			<div className="flex flex-col max-md:mb-5">
+				{/* desktop view */}
+				<div className="max-md:hidden">
+					<MyPositionsDisplayCollateral position={position} collateralPrice={collTokenPrice} zchfPrice={zchfPrice} />
+				</div>
+				{/* mobile view */}
+				<AppBox className="md:hidden">
+					<MyPositionsDisplayCollateral
+						className={"justify-items-center items-center"}
+						position={position}
+						collateralPrice={collTokenPrice}
+						zchfPrice={zchfPrice}
+					/>
+				</AppBox>
 			</div>
 
 			{/* Liquidation */}

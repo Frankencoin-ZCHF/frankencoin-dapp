@@ -7,12 +7,14 @@ import { formatCurrency } from "../../utils/format";
 import { PositionQuery } from "@frankencoin/api";
 import DisplayCollateralBorrowTable from "./DisplayCollateralBorrowTable";
 import Button from "@components/Button";
+import AppBox from "@components/AppBox";
 
 interface Props {
+	headers: string[];
 	position: PositionQuery;
 }
 
-export default function BorrowRow({ position }: Props) {
+export default function BorrowRow({ headers, position }: Props) {
 	const navigate = useNavigation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
@@ -48,18 +50,28 @@ export default function BorrowRow({ position }: Props) {
 
 	return (
 		<TableRow
+			headers={headers}
 			actionCol={
 				<Button className="h-10" onClick={() => navigate.push(`/mint/${position.position}`)}>
 					Mint
 				</Button>
 			}
 		>
-			<div className="flex flex-col">
-				<DisplayCollateralBorrowTable
-					symbol={position.collateralSymbol}
-					name={position.collateralName}
-					address={position.collateral}
-				/>
+			<div className="flex flex-col max-md:mb-5">
+				<AppBox className="md:hidden">
+					<DisplayCollateralBorrowTable
+						symbol={position.collateralSymbol}
+						name={position.collateralName}
+						address={position.collateral}
+					/>
+				</AppBox>
+				<div className="max-md:hidden">
+					<DisplayCollateralBorrowTable
+						symbol={position.collateralSymbol}
+						name={position.collateralName}
+						address={position.collateral}
+					/>
+				</div>
 			</div>
 
 			<div className="flex flex-col gap-2 text-text-header">

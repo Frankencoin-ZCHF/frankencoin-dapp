@@ -9,12 +9,14 @@ import { useContractUrl } from "@hooks";
 import { useRouter as useNavigation } from "next/navigation";
 import Button from "@components/Button";
 import { useAccount } from "wagmi";
+import AppBox from "@components/AppBox";
 
 interface Props {
+	headers: string[];
 	bid: BidsQueryItem;
 }
 
-export default function MyPositionsBidsRow({ bid }: Props) {
+export default function MyPositionsBidsRow({ headers, bid }: Props) {
 	const positions = useSelector((state: RootState) => state.positions.mapping);
 	const challenges = useSelector((state: RootState) => state.challenges.mapping);
 
@@ -37,6 +39,7 @@ export default function MyPositionsBidsRow({ bid }: Props) {
 
 	return (
 		<TableRow
+			headers={headers}
 			actionCol={
 				<div className="">
 					<Button className="h-10" disabled={isDisabled} onClick={() => navigate.push(`/challenges/${bid.number}/bid`)}>
@@ -46,16 +49,26 @@ export default function MyPositionsBidsRow({ bid }: Props) {
 			}
 		>
 			{/* Collateral */}
-			<div className="-ml-12 flex items-center">
-				<div className="mr-4 cursor-pointer" onClick={openExplorer}>
-					<TokenLogo currency={position.collateralSymbol} />
+			<div className="flex flex-col max-md:mb-5">
+				{/* desktop view */}
+				<div className="max-md:hidden flex flex-row items-center -ml-12">
+					<span className="mr-4 cursor-pointer" onClick={openExplorer}>
+						<TokenLogo currency={position.collateralSymbol} />
+					</span>
+					<span className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(
+						formatUnits(bid.filledSize, position.collateralDecimals)
+					)} ${position.collateralSymbol}`}</span>
 				</div>
 
-				<div className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(
-					formatUnits(bid.filledSize, position.collateralDecimals),
-					2,
-					2
-				)} ${position.collateralSymbol}`}</div>
+				{/* mobile view */}
+				<AppBox className="md:hidden flex flex-row items-center">
+					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
+						<TokenLogo currency={position.collateralSymbol} />
+					</div>
+					<div className={`col-span-2 text-md text-text-primary font-semibold`}>{`${formatCurrency(
+						formatUnits(bid.filledSize, position.collateralDecimals)
+					)} ${position.collateralSymbol}`}</div>
+				</AppBox>
 			</div>
 
 			{/* Price */}

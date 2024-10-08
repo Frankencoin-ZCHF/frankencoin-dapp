@@ -13,12 +13,13 @@ import { EquityABI } from "../../contracts/abis/Equity";
 import { useAccount } from "wagmi";
 
 interface Props {
+	headers: string[];
 	voter: VoteData;
 	votesTotal: bigint;
 	connectedWallet?: boolean;
 }
 
-export default function GovernanceVotersRow({ voter, votesTotal, connectedWallet }: Props) {
+export default function GovernanceVotersRow({ headers, voter, votesTotal, connectedWallet }: Props) {
 	const [isDelegateeVotes, setDelegateeVotes] = useState<VoteData | undefined>(undefined);
 	const delegationData = useDelegationQuery();
 	const account = useAccount();
@@ -61,6 +62,7 @@ export default function GovernanceVotersRow({ voter, votesTotal, connectedWallet
 		<>
 			<TableRow
 				className={connectedWallet ? "bg-card-content-primary" : undefined}
+				headers={headers}
 				actionCol={
 					connectedWallet ? (
 						<></>
@@ -76,7 +78,7 @@ export default function GovernanceVotersRow({ voter, votesTotal, connectedWallet
 			>
 				{/* Owner */}
 				<div className="flex items-center">
-					<div className="flex flex-col text-left">
+					<div className="flex flex-col md:text-left max-md:text-right max-md:w-full">
 						{connectedWallet ? (
 							<AddressLabelSimple address={voter.holder} label="Connected wallet" showLink />
 						) : (
