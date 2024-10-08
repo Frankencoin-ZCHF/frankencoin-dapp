@@ -20,7 +20,7 @@ export default function GovernanceTelegramBot() {
 						and updates within the Frankencoin ecosystem.
 					</div>
 
-					<div className="grid max-md:grid-cols-1 md:grid-cols-2 w-full my-4 ml-6">
+					<div className="grid grid-cols-1 w-full my-4 ml-6">
 						<ul className="flex flex-col gap-4">
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8" />
@@ -41,9 +41,9 @@ export default function GovernanceTelegramBot() {
 						</ul>
 					</div>
 
-					<div className="mt-4">Users can subscribe to different types of updates using specific handles:</div>
+					<div>Users can subscribe to different types of updates using specific handles.</div>
 
-					<div className="grid max-md:grid-cols-1 md:grid-cols-2 w-full my-4 ml-6">
+					<div className="grid grid-cols-1 w-full my-4 ml-6">
 						<ul className="flex flex-col gap-4">
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon
