@@ -12,7 +12,9 @@ export default function NavButton({ to, name, external }: Props) {
 	const active = router.pathname.includes(to);
 	return (
 		<Link
-			className={`btn btn-nav hover:text-menu-hover ${active ? "text-menu-active font-semibold" : "text-menu-text"}`}
+			className={`btn btn-nav max-md:bg-card-body-primary max-md:w-full max-md:rounded-2xl py-3 hover:text-menu-hover ${
+				active ? "text-menu-active font-semibold" : "text-menu-text"
+			}`}
 			href={to}
 			target={external ? "_blank" : "_self"}
 		>

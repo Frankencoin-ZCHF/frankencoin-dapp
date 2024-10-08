@@ -14,6 +14,10 @@ createWeb3Modal({
 	projectId: CONFIG.wagmiId,
 	enableAnalytics: true,
 	themeMode: "light",
+	themeVariables: {
+		"--w3m-color-mix": "#ffffff",
+		"--w3m-color-mix-strength": 40,
+	},
 });
 
 export default function Web3ModalProvider({ children, initialState }: { children: ReactNode; initialState?: State }) {
