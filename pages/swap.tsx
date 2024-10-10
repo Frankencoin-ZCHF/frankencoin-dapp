@@ -10,12 +10,13 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRightArrowLeft, faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
-import { SOCIAL, formatBigInt, shortenAddress } from "@utils";
+import { faArrowDown, faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { formatBigInt, shortenAddress } from "@utils";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../app.config";
 import Link from "next/link";
+import AppCard from "@components/AppCard";
 
 export default function Swap() {
 	const [amount, setAmount] = useState(0n);
@@ -187,72 +188,65 @@ export default function Swap() {
 			</Head>
 
 			<div className="md:mt-8">
-				<section className="mx-auto flex max-w-2xl flex-col gap-y-4 px-4 sm:px-8">
-					<div className="bg-slate-950 rounded-xl p-8 flex flex-col">
-						<Link href={xchfUrl} target="_blank">
-							<div className="mt-4 text-lg font-bold underline text-center">
-								Swap XCHF and ZCHF
-								<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
-							</div>
-						</Link>
-						<div className="mt-8">
-							Swapping from XCHF to ZCHF will cease to function on 2024-10-26 as the crypto franc is{" "}
-							<Link href="https://www.bitcoinsuisse.com/cryptofranc">discontinued by the isser</Link>.
+				<AppCard>
+					<Link href={xchfUrl} target="_blank">
+						<div className="mt-4 text-lg font-bold underline text-center">
+							Swap XCHF and ZCHF
+							<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
 						</div>
+					</Link>
+					<div className="mt-8">
+						Swapping from XCHF to ZCHF will cease to function on 2024-10-26 as the crypto franc is{" "}
+						<Link href="https://www.bitcoinsuisse.com/cryptofranc">discontinued by the isser</Link>.
+					</div>
 
-						<div className="mt-8">
-							<TokenInput
-								max={fromBalance}
-								symbol={fromSymbol}
-								limit={swapLimit}
-								limitLabel="Swap limit"
-								placeholder={"Swap Amount"}
-								onChange={onChangeAmount}
-								value={amount.toString()}
-								error={error}
-							/>
-						</div>
-
-						<div className="py-4 text-center">
-							<button
-								className={`btn btn-secondary text-slate-800 w-14 h-14 rounded-full transition ${
-									direction && "rotate-180"
-								}`}
-								onClick={onChangeDirection}
-							>
-								<FontAwesomeIcon icon={faArrowRightArrowLeft} className="rotate-90 w-6 h-6" />
-							</button>
-						</div>
-
+					<div className="mt-8">
 						<TokenInput
-							symbol={toSymbol}
-							max={toBalance}
-							output={formatUnits(amount, 18)}
-							note={`1 ${fromSymbol} = 1 ${toSymbol}`}
-							label="Receive"
+							max={fromBalance}
+							symbol={fromSymbol}
+							limit={swapLimit}
+							limitLabel="Swap limit"
+							placeholder={"Swap Amount"}
+							onChange={onChangeAmount}
+							value={amount.toString()}
+							error={error}
 						/>
+					</div>
 
-						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-							<GuardToAllowedChainBtn>
-								{direction ? (
-									amount > swapStats.xchfUserAllowance ? (
-										<Button isLoading={isApproving} onClick={() => handleApprove()}>
-											Approve
-										</Button>
-									) : (
-										<Button disabled={amount == 0n || !!error} isLoading={isMinting} onClick={() => handleMint()}>
-											Swap
-										</Button>
-									)
+					<div className="py-4 text-center z-0">
+						<Button className={`h-10 rounded-full`} width="w-10" onClick={onChangeDirection}>
+							<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
+						</Button>
+					</div>
+
+					<TokenInput
+						symbol={toSymbol}
+						max={toBalance}
+						output={formatUnits(amount, 18)}
+						note={`1 ${fromSymbol} = 1 ${toSymbol}`}
+						label="Receive"
+					/>
+
+					<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+						<GuardToAllowedChainBtn>
+							{direction ? (
+								amount > swapStats.xchfUserAllowance ? (
+									<Button isLoading={isApproving} onClick={() => handleApprove()}>
+										Approve
+									</Button>
 								) : (
-									<Button isLoading={isBurning} disabled={amount == 0n || !!error} onClick={() => handleBurn()}>
+									<Button disabled={amount == 0n || !!error} isLoading={isMinting} onClick={() => handleMint()}>
 										Swap
 									</Button>
-								)}
-							</GuardToAllowedChainBtn>
-						</div>
+								)
+							) : (
+								<Button isLoading={isBurning} disabled={amount == 0n || !!error} onClick={() => handleBurn()}>
+									Swap
+								</Button>
+							)}
+						</GuardToAllowedChainBtn>
 					</div>
-				</section>
+				</AppCard>
 			</div>
 		</>
 	);
