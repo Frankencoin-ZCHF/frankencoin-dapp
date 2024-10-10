@@ -31,7 +31,6 @@ export default function GuardToAllowedChainBtn(props: Props) {
 		return (
 			<Button
 				className="h-10"
-				variant="primary"
 				disabled={props.disabled}
 				onClick={() => {
 					Web3Modal.open();
@@ -47,7 +46,6 @@ export default function GuardToAllowedChainBtn(props: Props) {
 		return (
 			<Button
 				className="h-10"
-				variant="primary"
 				disabled={props.disabled}
 				onClick={() => {
 					Web3Modal.open({ view: "Networks" });

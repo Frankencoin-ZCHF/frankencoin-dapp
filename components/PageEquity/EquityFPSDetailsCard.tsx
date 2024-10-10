@@ -14,23 +14,26 @@ export default function EquityFPSDetailsCard() {
 	const { trades } = useTradeQuery();
 
 	return (
-		<div className="bg-slate-950 rounded-xl p-4 grid grid-cols-1 gap-2">
+		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 grid grid-cols-1 gap-2">
 			<div id="chart-timeline">
 				<div className="flex justify-between">
 					<div>
 						<DisplayLabel label="FPS Price" />
-						<DisplayAmount amount={poolStats.equityPrice} currency="ZCHF" />
+						<DisplayAmount className="mt-4" amount={poolStats.equityPrice} currency="ZCHF" />
 					</div>
 					<div className="text-right">
 						<DisplayLabel label="Supply" />
-						<DisplayAmount amount={poolStats.equitySupply} currency="FPS" />
+						<DisplayAmount className="mt-4" amount={poolStats.equitySupply} currency="FPS" />
 					</div>
 				</div>
 				<ApexChart
 					type="area"
 					options={{
 						theme: {
-							palette: "palette1",
+							monochrome: {
+								color: "#092f62",
+								enabled: true,
+							},
 						},
 						chart: {
 							type: "area",
@@ -74,14 +77,9 @@ export default function EquityFPSDetailsCard() {
 							type: "gradient",
 							gradient: {
 								shadeIntensity: 0,
-								opacityTo: 0,
-								shade: "#1C64F2",
-								gradientToColors: ["#1C64F2"],
-							},
-						},
-						tooltip: {
-							x: {
-								format: "dd MMM yyyy",
+								opacityTo: 0.2,
+								shade: "#e7e7ea",
+								gradientToColors: ["#092f62"],
 							},
 						},
 					}}
@@ -114,11 +112,11 @@ export default function EquityFPSDetailsCard() {
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Total Income" />
-					<DisplayAmount amount={profit} currency="ZCHF" className="text-green-300" address={ADDRESS[chainId].frankenCoin} />
+					<DisplayAmount amount={profit} currency="ZCHF" className="text-text-success" address={ADDRESS[chainId].frankenCoin} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Total Losses" />
-					<DisplayAmount amount={loss} currency="ZCHF" className="text-rose-400" address={ADDRESS[chainId].frankenCoin} />
+					<DisplayAmount amount={loss} currency="ZCHF" className="text-text-warning" address={ADDRESS[chainId].frankenCoin} />
 				</AppBox>
 			</div>
 		</div>

@@ -8,8 +8,12 @@ import MyPositionsDisplayCollateral from "./MyPositionsDisplayCollateral";
 import Link from "next/link";
 import { useRouter as useNavigate } from "next/navigation";
 import { useContractUrl } from "@hooks";
+import Button from "@components/Button";
+import AppBox from "@components/AppBox";
 
 interface Props {
+	headers: string[];
+	subHeaders: string[];
 	position: PositionQuery;
 }
 
@@ -23,7 +27,7 @@ type ChallengeInfos = {
 	challenge: ChallengesQueryItem;
 };
 
-export default function MypositionsRow({ position }: Props) {
+export default function MypositionsRow({ headers, subHeaders, position }: Props) {
 	const navigate = useNavigate();
 	const url = useContractUrl(position.position || zeroAddress);
 
@@ -153,35 +157,52 @@ export default function MypositionsRow({ position }: Props) {
 
 	return (
 		<TableRow
+			headers={headers}
+			subHeaders={subHeaders}
 			actionCol={
-				<Link href={`/mypositions/${position.position}/adjust`} className="btn btn-primary w-full h-10">
+				<Button className="h-10" onClick={() => navigate.push(`/mypositions/${position.position}/adjust`)}>
 					Manage
-				</Link>
+				</Button>
 			}
 		>
 			{/* Collateral */}
-			<div>
-				<MyPositionsDisplayCollateral position={position} collateralPrice={collTokenPrice} zchfPrice={zchfPrice} />
+			<div className="flex flex-col max-md:mb-5">
+				{/* desktop view */}
+				<div className="max-md:hidden">
+					<MyPositionsDisplayCollateral position={position} collateralPrice={collTokenPrice} zchfPrice={zchfPrice} />
+				</div>
+				{/* mobile view */}
+				<AppBox className="md:hidden">
+					<MyPositionsDisplayCollateral
+						className={"justify-items-center items-center"}
+						position={position}
+						collateralPrice={collTokenPrice}
+						zchfPrice={zchfPrice}
+					/>
+				</AppBox>
 			</div>
 
 			{/* Liquidation */}
 			<div className="flex flex-col">
-				<span className={liquidationPct < 110 ? `text-md font-bold text-red-700` : "text-md"}>
+				<span className={liquidationPct < 110 ? `text-md font-bold text-text-warning` : "text-md text-text-primary"}>
 					{formatCurrency(liquidationZCHF, 2, 2)} ZCHF
 				</span>
-				<span className="text-sm text-slate-500">{formatCurrency(collTokenPrice / zchfPrice, 2, 2)} ZCHF</span>
+				<span className="text-sm text-text-subheader">{formatCurrency(collTokenPrice / zchfPrice, 2, 2)} ZCHF</span>
 			</div>
 
 			{/* Loan Value */}
 			<div className="flex flex-col">
-				<span className="text-md">{formatCurrency(loanZCHF, 2, 2)} ZCHF</span>
-				<span className="text-sm text-slate-500">{formatCurrency(balance * liquidationZCHF - loanZCHF, 2, 2)} ZCHF</span>
+				<span className="text-md text-text-primary">{formatCurrency(loanZCHF, 2, 2)} ZCHF</span>
+				<span className="text-sm text-text-subheader">{formatCurrency(balance * liquidationZCHF - loanZCHF, 2, 2)} ZCHF</span>
 			</div>
 
 			{/* State */}
 			<div className="flex flex-col">
-				<div className={`text-md ${stateIdx != 6 ? "text-red-700 font-bold" : "text-text-header "}`}>{states[stateIdx]}</div>
-				<div className={`text-sm text-slate-500 ${stateIdx == 1 ? "underline cursor-pointer" : ""}`} onClick={navigateToChallenge}>
+				<div className={`text-md ${stateIdx != 6 ? "text-text-warning font-bold" : "text-text-primary "}`}>{states[stateIdx]}</div>
+				<div
+					className={`text-sm text-text-subheader ${stateIdx == 1 ? "underline cursor-pointer" : ""}`}
+					onClick={navigateToChallenge}
+				>
 					{stateTimePrint}
 				</div>
 			</div>

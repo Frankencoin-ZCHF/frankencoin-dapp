@@ -24,12 +24,12 @@ export default function DateInput({ label, max, value, error, onChange }: Props)
 					</span>
 				</div>
 			</div>
-			<div className="flex items-center rounded-lg bg-slate-800 p-2">
+			<div className="flex items-center rounded-lg bg-card-content-primary p-2">
 				<FontAwesomeIcon icon={faHourglassStart} className="w-10 h-8 mr-2" />
 				<div className="flex-1">
 					<div
-						className={`flex gap-1 rounded-lg text-white p-1 bg-slate-600 border-2 ${
-							error ? "border-red-300" : " border-slate-600"
+						className={`flex gap-1 rounded-lg p-1 bg-card-content-secondary border-2 ${
+							error ? "border-text-warning" : " border-card-content-secondary"
 						}`}
 					>
 						<ReactDatePicker
@@ -44,7 +44,7 @@ export default function DateInput({ label, max, value, error, onChange }: Props)
 					<FontAwesomeIcon icon={faCalendarDays} className="w-10 h-8 ml-2" />
 				</label>
 			</div>
-			{error && <div className="mt-2 px-1 text-red-500">{error}</div>}
+			{error && <div className="mt-2 px-1 text-text-warning">{error}</div>}
 		</div>
 	);
 }

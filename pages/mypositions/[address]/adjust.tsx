@@ -20,8 +20,6 @@ import { RootState } from "../../../redux/redux.store";
 import { PositionQuery } from "@frankencoin/api";
 
 export default function PositionAdjust() {
-	const [error, setError] = useState("");
-	const [errorDate, setErrorDate] = useState("");
 	const [isApproving, setApproving] = useState(false);
 	const [isAdjusting, setAdjusting] = useState(false);
 
@@ -256,12 +254,12 @@ export default function PositionAdjust() {
 			</Head>
 
 			<div className="md:mt-8">
-				<span className="font-bold text-xl">Manage Position {position.position}</span>
+				<span className="font-bold text-xl">Manage Position at {position.position}</span>
 			</div>
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
+					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold text-center">Adjustment</div>
 						<TokenInput
 							label="Amount"
@@ -305,7 +303,6 @@ export default function PositionAdjust() {
 									</Button>
 								) : (
 									<Button
-										variant="primary"
 										disabled={
 											(amount == BigInt(position.minted) &&
 												collateralAmount == BigInt(position.collateralBalance) &&
@@ -324,9 +321,9 @@ export default function PositionAdjust() {
 							</GuardToAllowedChainBtn>
 						</div>
 					</div>
-					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
+					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold text-center">Outcome</div>
-						<div className="bg-slate-900 rounded-xl p-4 flex flex-col gap-2">
+						<div className="p-4 flex flex-col gap-2">
 							<div className="flex">
 								<div className="flex-1">Current minted amount</div>
 								<DisplayAmount amount={BigInt(position.minted)} currency={"ZCHF"} address={ADDRESS[chainId].frankenCoin} />

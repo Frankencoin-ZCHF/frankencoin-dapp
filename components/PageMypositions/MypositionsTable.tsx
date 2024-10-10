@@ -13,6 +13,7 @@ import { useRouter } from "next/router";
 
 export default function MypositionsTable() {
 	const headers: string[] = ["Collateral", "Liquidation Price", "Minted", "State"];
+	const subHeaders: string[] = ["Value", "Market Price", "Available", "Time Left"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
@@ -68,19 +69,12 @@ export default function MypositionsTable() {
 
 	return (
 		<Table>
-			<TableHeader
-				headers={headers}
-				subHeaders={["Value", "Market Price", "Available", "Time Left"]}
-				tab={tab}
-				reverse={reverse}
-				tabOnChange={handleTabOnChange}
-				actionCol
-			/>
+			<TableHeader headers={headers} subHeaders={subHeaders} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"You do not have any positions yet."}</TableRowEmpty>
 				) : (
-					sorted.map((pos) => <MypositionsRow position={pos} key={pos.position} />)
+					sorted.map((pos) => <MypositionsRow headers={headers} subHeaders={subHeaders} position={pos} key={pos.position} />)
 				)}
 			</TableBody>
 		</Table>

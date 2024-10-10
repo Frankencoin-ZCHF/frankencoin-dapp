@@ -5,18 +5,19 @@ import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import TokenLogo from "@components/TokenLogo";
 import { formatCurrency } from "../../utils/format";
-import { BadgeCloneColor, BadgeOriginalColor } from "../../utils/customTheme";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCertificate } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
-import DisplayCollateralChallenge from "./DisplayCollateralChallenge";
+import { useRouter as useNavigation } from "next/navigation";
+import Button from "@components/Button";
 import { useContractUrl } from "@hooks";
+import AppBox from "@components/AppBox";
 
 interface Props {
+	headers: string[];
 	challenge: ChallengesQueryItem;
 }
 
-export default function ChallengesRow({ challenge }: Props) {
+export default function ChallengesRow({ headers, challenge }: Props) {
+	const navigate = useNavigation();
+
 	const positions = useSelector((state: RootState) => state.positions.mapping);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challengesPrices = useSelector((state: RootState) => state.challenges.challengesPrices);
@@ -105,36 +106,51 @@ export default function ChallengesRow({ challenge }: Props) {
 
 	return (
 		<TableRow
+			headers={headers}
 			actionCol={
-				<Link href={`/challenges/${challenge.number}/bid`} className="btn btn-primary w-full h-10">
+				<Button className="h-10" onClick={() => navigate.push(`/challenges/${challenge.number}/bid`)}>
 					Buy
-				</Link>
+				</Button>
 			}
 		>
 			{/* Collateral */}
-			<div className="-ml-12 flex items-center">
-				<div className="mr-4 cursor-pointer" onClick={openExplorer}>
-					<TokenLogo currency={position.collateralSymbol} />
+			<div className="flex flex-col max-md:mb-5">
+				{/* desktop view */}
+				<div className="max-md:hidden flex flex-row items-center -ml-12">
+					<span className="mr-4 cursor-pointer" onClick={openExplorer}>
+						<TokenLogo currency={position.collateralSymbol} />
+					</span>
+					<span className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(challengeRemainingSize)} ${
+						position.collateralSymbol
+					}`}</span>
 				</div>
 
-				<div className={`col-span-2 text-md`}>{`${formatCurrency(challengeRemainingSize, 2, 2)} ${position.collateralSymbol}`}</div>
+				{/* mobile view */}
+				<AppBox className="md:hidden flex flex-row items-center">
+					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
+						<TokenLogo currency={position.collateralSymbol} />
+					</div>
+					<div className={`col-span-2 text-md text-text-primary font-semibold`}>{`${formatCurrency(challengeRemainingSize)} ${
+						position.collateralSymbol
+					}`}</div>
+				</AppBox>
 			</div>
 
 			{/* Current Price */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-header">
+				<div className="text-md text-text-primary">
 					{formatCurrency(formatUnits(challengePrice, 36 - position.collateralDecimals), 2, 2)} ZCHF
 				</div>
 			</div>
 
 			{/* State */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-header">{states[stateIdx]}</div>
+				<div className="text-md text-text-primary">{states[stateIdx]}</div>
 			</div>
 
 			{/* Time Left */}
 			<div className="flex flex-col">
-				<div className={`text-md text-text-header`}>{stateTimeLeft}</div>
+				<div className={`text-md text-text-primary`}>{stateTimeLeft}</div>
 			</div>
 		</TableRow>
 	);

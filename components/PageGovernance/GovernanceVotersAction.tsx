@@ -63,7 +63,7 @@ export default function GovernanceVotersAction({ voter, disabled, connectedWalle
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(<TxToast title="Something did not work..." rows={[{ title: "Do you have any votes to delegate?" }]} />, {
+			toast.error(<TxToast title="Something did not work..." rows={[{ title: "Did you reject the Transaction?" }]} />, {
 				position: toast.POSITION.BOTTOM_RIGHT,
 			});
 		} finally {
@@ -77,7 +77,6 @@ export default function GovernanceVotersAction({ voter, disabled, connectedWalle
 				<div className="overflow-hidden">
 					<Button
 						className="h-10 scroll-nopeak"
-						variant="primary"
 						disabled={isHidden || disabled}
 						isLoading={isDelegating}
 						onClick={(e) => handleOnClick(e)}

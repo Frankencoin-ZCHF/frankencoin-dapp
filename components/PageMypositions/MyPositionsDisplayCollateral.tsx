@@ -25,7 +25,7 @@ export default function MyPositionsDisplayCollateral({ position, collateralPrice
 	const collateralValue: number = (collateralSize * collateralPrice) / zchfPrice;
 
 	return (
-		<div className={`-ml-12 flex items-center ${className}`}>
+		<div className={`md:-ml-12 flex items-center ${className}`}>
 			<Link href={url} onClick={openExplorer}>
 				<div className="mr-4 cursor-pointer">
 					<TokenLogo currency={position.collateralSymbol} />
@@ -33,8 +33,10 @@ export default function MyPositionsDisplayCollateral({ position, collateralPrice
 			</Link>
 
 			<div className="flex flex-col">
-				<span className={`text-left font-bold`}>{formatCurrency(collateralSize, 2, 2) + " " + position.collateralSymbol}</span>
-				<span className="text-left text-sm text-slate-500">{formatCurrency(collateralValue, 2, 2)} ZCHF</span>
+				<span className={`text-left text-text-primary font-bold`}>
+					{formatCurrency(collateralSize, 2, 2) + " " + position.collateralSymbol}
+				</span>
+				<span className="text-left text-text-subheader text-sm">{formatCurrency(collateralValue, 2, 2)} ZCHF</span>
 			</div>
 		</div>
 	);

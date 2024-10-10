@@ -10,10 +10,10 @@ export default function AddressInput({ label, placeholder, value, error, onChang
 	return (
 		<div>
 			<div className="mb-1 flex gap-2 px-1">{label}</div>
-			<div className="flex gap-2 items-center rounded-lg bg-slate-800 p-2">
+			<div className="flex gap-2 items-center rounded-lg bg-card-content-primary p-2">
 				<div
-					className={`flex-1 gap-1 rounded-lg text-white p-1 bg-slate-600 border-2 ${
-						error ? "border-red-300" : "border-slate-600"
+					className={`flex-1 gap-1 rounded-lg text-text-primary p-1 bg-card-content-secondary border-2 ${
+						error ? "border-text-warning" : "bg-card-content-secondary"
 					}`}
 				>
 					<input
@@ -24,7 +24,7 @@ export default function AddressInput({ label, placeholder, value, error, onChang
 					/>
 				</div>
 			</div>
-			<div className="mt-2 px-1 text-red-500">{error}</div>
+			<div className="mt-2 px-1 text-text-warning">{error}</div>
 		</div>
 	);
 }

@@ -35,14 +35,14 @@ export default function NormalInput({
 				<div className="flex-1">{label}</div>
 			</div>
 
-			<div className="flex items-center rounded-lg bg-slate-800 p-2">
+			<div className="flex items-center rounded-lg bg-card-content-primary p-2">
 				<div className="flex-1">
 					{output ? (
 						<div className="px-3 py-2 font-bold transition-opacity">{output}</div>
 					) : (
 						<div
-							className={`flex gap-1 rounded-lg text-white p-1 bg-slate-600 border-2 ${
-								error ? "border-red-300" : "border-slate-600"
+							className={`flex gap-1 rounded-lg text-text-primary p-1 bg-card-content-secondary border-2 ${
+								error ? "border-text-warning" : "border-card-content-secondary"
 							}`}
 						>
 							<BigNumberInput

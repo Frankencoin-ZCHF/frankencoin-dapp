@@ -2,21 +2,21 @@ import { Address } from "viem";
 import TableRow from "../Table/TableRow";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
-import TokenLogo from "@components/TokenLogo";
+import { useRouter as useNavigation } from "next/navigation";
 import { formatCurrency } from "../../utils/format";
 import { PositionQuery } from "@frankencoin/api";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { BadgeCloneColor, BadgeOriginalColor } from "../../utils/customTheme";
-import { faCertificate } from "@fortawesome/free-solid-svg-icons";
-import DisplayAmount from "@components/DisplayAmount";
 import DisplayCollateralBorrowTable from "./DisplayCollateralBorrowTable";
-import Link from "next/link";
+import Button from "@components/Button";
+import AppBox from "@components/AppBox";
 
 interface Props {
+	headers: string[];
 	position: PositionQuery;
 }
 
-export default function BorrowRow({ position }: Props) {
+export default function BorrowRow({ headers, position }: Props) {
+	const navigate = useNavigation();
+
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
 	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
@@ -26,11 +26,8 @@ export default function BorrowRow({ position }: Props) {
 	const reserve: number = Math.round((position.reserveContribution / 10 ** 4) * 100) / 100;
 
 	const available: number = Math.round((parseInt(position.availableForClones) / 10 ** position.zchfDecimals) * 100) / 100;
-	const availableK: string = formatCurrency((Math.round(available / 100) / 10).toString(), 2) + "k";
 	const price: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
 	const since: number = Math.round((Date.now() - position.start * 1000) / 1000 / 60 / 60 / 24);
-	const maturity: number = Math.round((position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24);
-	const maturityStatusColors = maturity > 60 ? "text-green-300" : maturity < 30 ? "text-red-500" : "text-red-300";
 
 	const startStr = new Date(position.start * 1000).toDateString().split(" ");
 	const startString: string = `${startStr[2]} ${startStr[1]} ${startStr[3]} (${since}d)`;
@@ -53,18 +50,28 @@ export default function BorrowRow({ position }: Props) {
 
 	return (
 		<TableRow
+			headers={headers}
 			actionCol={
-				<Link href={`/mint/${position.position}`} className="btn btn-primary w-full h-10">
+				<Button className="h-10" onClick={() => navigate.push(`/mint/${position.position}`)}>
 					Mint
-				</Link>
+				</Button>
 			}
 		>
-			<div className="flex flex-col">
-				<DisplayCollateralBorrowTable
-					symbol={position.collateralSymbol}
-					name={position.collateralName}
-					address={position.collateral}
-				/>
+			<div className="flex flex-col max-md:mb-5">
+				<AppBox className="md:hidden">
+					<DisplayCollateralBorrowTable
+						symbol={position.collateralSymbol}
+						name={position.collateralName}
+						address={position.collateral}
+					/>
+				</AppBox>
+				<div className="max-md:hidden">
+					<DisplayCollateralBorrowTable
+						symbol={position.collateralSymbol}
+						name={position.collateralName}
+						address={position.collateral}
+					/>
+				</div>
 			</div>
 
 			<div className="flex flex-col gap-2 text-text-header">

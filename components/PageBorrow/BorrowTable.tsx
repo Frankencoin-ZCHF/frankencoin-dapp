@@ -54,7 +54,7 @@ export default function BorrowTable() {
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"There are no other positions yet."}</TableRowEmpty>
 				) : (
-					sorted.map((pos) => <PositionRow position={pos} key={pos.position} />)
+					sorted.map((pos) => <PositionRow headers={headers} position={pos} key={pos.position} />)
 				)}
 			</TableBody>
 		</Table>

@@ -78,7 +78,7 @@ export default function MyPositionsChallengesCancel({ challenge }: Props) {
 
 	return (
 		<div className="">
-			<Button className="h-10" variant="primary" disabled={isHidden} isLoading={isCancelling} onClick={() => handleCancelOnClick()}>
+			<Button className="h-10" disabled={isHidden} isLoading={isCancelling} onClick={() => handleCancelOnClick()}>
 				Cancel
 			</Button>
 		</div>

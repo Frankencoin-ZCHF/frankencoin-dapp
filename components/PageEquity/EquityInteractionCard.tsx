@@ -23,7 +23,7 @@ export default function EquityInteractionCard() {
 	const equityUrl = useContractUrl(ADDRESS[chainId].equity);
 
 	return (
-		<div className="bg-slate-950 rounded-xl p-4 flex flex-col">
+		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
 			<Link href={equityUrl} target="_blank">
 				<div className="mt-4 text-lg font-bold underline text-center">
 					Frankencoin Pool Shares (FPS)

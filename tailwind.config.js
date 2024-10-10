@@ -23,40 +23,47 @@ module.exports = {
 			},
 			colors: {
 				layout: {
-					primary: "#111827",
-					secondary: "#e5e7eb",
+					primary: "#ffffff",
+					secondary: "#092f62",
+				},
+				menu: {
+					text: "#092f62",
+					active: "#092f62",
+					hover: "#b7bfd1",
+					separator: "#f7f7f9",
 				},
 				card: {
 					body: {
-						primary: "#020617",
-						secondary: "#1e293b",
+						primary: "#f7f7f9",
+						secondary: "#092f62",
 						seperator: "#1e293b",
 					},
 					content: {
-						primary: "#94a3b8",
-						secondary: "#1e293b",
-						highlight: "#d1d5db",
+						primary: "#e7e7ea", // e7e7ea
+						secondary: "#f7f7f9",
+						highlight: "#ff293b",
 					},
 				},
 				text: {
-					header: "#95A3B8",
+					header: "#092f62",
 					subheader: "#677180",
-					primary: "#94a3b8",
+					active: "#ff44dd",
+					primary: "#092f62",
 					secondary: "#e2e8f0",
+					warning: "#ef4444",
+					success: "#22c55e",
 				},
-				tableHeader: {
-					primary: "#1e293b",
-					secondary: "#d1d5db",
+				table: {
+					header: {
+						primary: "#f7f7f9",
+						secondary: "#d1d5db",
+					},
+					row: {
+						primary: "#f7f7f9",
+						secondary: "#d1d5db",
+						hover: "#d1d5db",
+					},
 				},
-				tableRow: {
-					primary: "#1e293b",
-					secondary: "#d1d5db",
-					hover: "#334155",
-				},
-			},
-			badgePosition: {
-				original: "#facc15",
-				clone: "#38bdf8",
 			},
 		},
 	},

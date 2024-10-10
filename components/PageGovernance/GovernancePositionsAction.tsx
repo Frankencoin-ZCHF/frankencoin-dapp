@@ -76,13 +76,7 @@ export default function GovernancePositionsAction({ position, disabled }: Props)
 	return (
 		<div className="">
 			<GuardToAllowedChainBtn label="Deny" disabled={isHidden || disabled}>
-				<Button
-					className="h-10"
-					variant="primary"
-					disabled={isHidden || disabled}
-					isLoading={isDenying}
-					onClick={(e) => handleOnClick(e)}
-				>
+				<Button className="h-10" disabled={isHidden || disabled} isLoading={isDenying} onClick={(e) => handleOnClick(e)}>
 					Deny
 				</Button>
 			</GuardToAllowedChainBtn>

@@ -253,12 +253,9 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 				/>
 
 				<div className="py-4 text-center z-0">
-					<button
-						className={`btn btn-secondary z-0 text-slate-800 w-14 h-14 rounded-full`}
-						onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}
-					>
+					<Button className={`h-10 rounded-full`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
 						<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
-					</button>
+					</Button>
 				</div>
 
 				<TokenInputSelect
@@ -281,22 +278,12 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 									Approve
 								</Button>
 							) : (
-								<Button
-									variant="primary"
-									disabled={amount == 0n || !!error}
-									isLoading={isWrapping}
-									onClick={() => handleWrapping()}
-								>
+								<Button disabled={amount == 0n || !!error} isLoading={isWrapping} onClick={() => handleWrapping()}>
 									Wrap
 								</Button>
 							)
 						) : (
-							<Button
-								variant="primary"
-								isLoading={isUnwrapping}
-								disabled={amount == 0n || !!error}
-								onClick={() => handleUnwrapping()}
-							>
+							<Button isLoading={isUnwrapping} disabled={amount == 0n || !!error} onClick={() => handleUnwrapping()}>
 								Unwrap
 							</Button>
 						)}

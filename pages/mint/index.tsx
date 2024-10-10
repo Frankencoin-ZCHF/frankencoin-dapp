@@ -11,7 +11,7 @@ export default function Borrow() {
 				<title>Frankencoin - Borrow</title>
 			</Head>
 
-{/* 			<div>
+			{/* 			<div>
 				<AppPageHeader title="All Mintable Positions" />
 			</div> */}
 
@@ -20,7 +20,7 @@ export default function Borrow() {
 			</div>
 
 			<div className="flex">
-				<Link href={"mint/create"} className="btn btn-primary m-auto">
+				<Link href={"mint/create"} className="btn bg-layout-secondary text-layout-primary m-auto">
 					Propose New Position or Collateral
 				</Link>
 			</div>

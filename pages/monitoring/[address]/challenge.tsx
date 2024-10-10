@@ -213,7 +213,7 @@ export default function PositionChallenge() {
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
+					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold text-center mt-3">Launch A Challenge</div>
 						<TokenInput
 							symbol={position.collateralSymbol}
@@ -288,21 +288,16 @@ export default function PositionChallenge() {
 										Approve
 									</Button>
 								) : (
-									<Button
-										variant="primary"
-										isLoading={isChallenging}
-										disabled={!!error || amount == 0n}
-										onClick={() => handleChallenge()}
-									>
+									<Button isLoading={isChallenging} disabled={!!error || amount == 0n} onClick={() => handleChallenge()}>
 										Challenge
 									</Button>
 								)}
 							</GuardToAllowedChainBtn>
 						</div>
 					</div>
-					<div className="bg-slate-950 rounded-xl p-4 flex flex-col">
+					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
 						<div className="text-lg font-bold text-center mt-3">How does it work?</div>
-						<AppBox className="flex-1 mt-4">
+						<div className="flex-1 mt-4">
 							<p>A challenge is divided into two phases:</p>
 							<ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
 								<li>
@@ -316,7 +311,7 @@ export default function PositionChallenge() {
 									the sales proceeds as a reward.
 								</li>
 							</ol>
-						</AppBox>
+						</div>
 					</div>
 				</section>
 			</div>

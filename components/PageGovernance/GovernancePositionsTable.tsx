@@ -10,6 +10,7 @@ import GovernancePositionsRow from "./GovernancePositionsRow";
 
 export default function GovernancePositionsTable() {
 	const headers: string[] = ["Collateral", "Position", "Limit", "Interest", "Time Left"];
+	const subHeaders: string[] = ["", "Owner", "Reserve", "Maturity", "Auction duration"];
 	const [tab, setTab] = useState<string>(headers[4]);
 	const [reverse, setReverse] = useState<boolean>(true);
 
@@ -37,14 +38,7 @@ export default function GovernancePositionsTable() {
 
 	return (
 		<Table>
-			<TableHeader
-				headers={headers}
-				subHeaders={["", "Owner", "Reserve", "Maturity", "Auction duration"]}
-				tab={tab}
-				reverse={reverse}
-				tabOnChange={handleTabOnChange}
-				actionCol
-			/>
+			<TableHeader headers={headers} subHeaders={subHeaders} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
 				{sorted.length == 0 ? (
 					<TableRowEmpty>
@@ -52,7 +46,15 @@ export default function GovernancePositionsTable() {
 						passed the governance process.
 					</TableRowEmpty>
 				) : (
-					sorted.map((pos) => <GovernancePositionsRow key={pos.position} position={pos} prices={prices} />)
+					sorted.map((pos) => (
+						<GovernancePositionsRow
+							key={pos.position}
+							headers={headers}
+							subHeaders={subHeaders}
+							position={pos}
+							prices={prices}
+						/>
+					))
 				)}
 			</TableBody>
 		</Table>

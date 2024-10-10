@@ -169,7 +169,7 @@ export default function ChallengePlaceBid() {
 
 			<div className="md:mt-8">
 				<section className="mx-auto max-w-2xl sm:px-8">
-					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
+					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold text-center mt-3">Buy {position.collateralSymbol} in Auction</div>
 
 						<div className="">
@@ -249,7 +249,6 @@ export default function ChallengePlaceBid() {
 						<div className="mx-auto mt-4 w-72 max-w-full flex-col">
 							<GuardToAllowedChainBtn>
 								<Button
-									variant="primary"
 									disabled={amount == 0n || expectedZCHF() > userBalance || error != ""}
 									isLoading={isBidding}
 									onClick={() => handleBid()}

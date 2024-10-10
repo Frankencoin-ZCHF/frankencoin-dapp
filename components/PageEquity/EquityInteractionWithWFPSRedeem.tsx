@@ -219,9 +219,9 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 				/>
 
 				<div className="py-4 text-center z-0">
-					<button className={`btn btn-secondary z-0 text-slate-800 w-14 h-14 rounded-full`} onClick={() => {}}>
+					<Button className={`h-10 rounded-full`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
 						<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
-					</button>
+					</Button>
 				</div>
 
 				<TokenInputSelect
@@ -241,12 +241,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 								Approve
 							</Button>
 						) : (
-							<Button
-								variant="primary"
-								isLoading={isRedeeming}
-								disabled={amount == 0n || !!error || !unlocked}
-								onClick={() => handleRedeem()}
-							>
+							<Button isLoading={isRedeeming} disabled={amount == 0n || !!error || !unlocked} onClick={() => handleRedeem()}>
 								Unwrap and Redeem
 							</Button>
 						)}
@@ -269,13 +264,13 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Holding Duration WFPS Contract" />
-					<span className={!unlocked ? "text-red-500 font-bold" : ""}>
+					<span className={!unlocked ? "text-text-warning font-bold" : ""}>
 						{wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 30 ? formatDuration(wfpsHolding) : "-"}
 					</span>
 				</AppBox>
 				<AppBox className="flex-1">
 					<DisplayLabel label="Can redeem after" />
-					<span className={!unlocked ? "text-red-500 font-bold" : ""}>{formatDuration(redeemLeft)}</span>
+					<span className={!unlocked ? "text-text-warning font-bold" : ""}>{formatDuration(redeemLeft)}</span>
 				</AppBox>
 			</div>
 		</>

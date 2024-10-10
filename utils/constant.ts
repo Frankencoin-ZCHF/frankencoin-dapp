@@ -4,6 +4,7 @@ export const SOCIAL = {
 	Github_dapp_new_issue: "https://github.com/Frankencoin-ZCHF/frankencoin-dapp/issues/new/choose",
 	GitLab: "https://gitlab.com/frankencoin-zchf/frankencoin",
 	Telegram: "https://t.me/frankencoinzchf",
+	TelegramApiBot: "https://t.me/FrankencoinApiBot",
 	Twitter: "https://twitter.com/frankencoinzchf",
 	SubStack: "https://frankencoin.substack.com/",
 	Forum: "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions",

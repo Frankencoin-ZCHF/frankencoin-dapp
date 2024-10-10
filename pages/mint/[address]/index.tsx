@@ -1,11 +1,9 @@
 import Head from "next/head";
-import AppPageHeader from "@components/AppPageHeader";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { formatUnits, getAddress, zeroAddress, maxUint256, erc20Abi } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useState } from "react";
-import DisplayAmount from "@components/DisplayAmount";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -14,7 +12,6 @@ import { Address } from "viem";
 import { formatBigInt, formatCurrency, min, shortenAddress, toTimestamp } from "@utils";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
-import AppBox from "@components/AppBox";
 import DateInput from "@components/Input/DateInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
@@ -262,7 +259,7 @@ export default function PositionBorrow({}) {
 
 			<div className="mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-slate-950 rounded-xl p-4 flex flex-col gap-y-4">
+					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold text-center mt-3">Mint Frankencoins For Yourself</div>
 						<div className="space-y-8">
 							<TokenInput
@@ -297,7 +294,6 @@ export default function PositionBorrow({}) {
 									</Button>
 								) : (
 									<Button
-										variant="primary"
 										disabled={amount == 0n || requiredColl > userBalance || !!error}
 										isLoading={isCloning}
 										onClick={() => handleClone()}
@@ -305,15 +301,15 @@ export default function PositionBorrow({}) {
 										Mint
 									</Button>
 								)}
-								<p className="text-red-500">{errorDate}</p>
-								<p className="text-red-500">{error}</p>
+								<p className="text-text-warning">{errorDate}</p>
+								<p className="text-text-warning">{error}</p>
 							</GuardToAllowedChainBtn>
 						</div>
 					</div>
 					<div>
-						<div className="bg-slate-950 rounded-xl p-4 flex flex-col">
+						<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
 							<div className="text-lg font-bold text-center mt-3">Outcome</div>
-							<AppBox className="flex-1 mt-4">
+							<div className="flex-1 mt-4">
 								<div className="flex">
 									<div className="flex-1">
 										<span>Sent to your wallet</span>
@@ -356,11 +352,11 @@ export default function PositionBorrow({}) {
 										<span>{formatCurrency(formatUnits(amount, 18))} ZCHF</span>
 									</div>
 								</div>
-							</AppBox>
+							</div>
 						</div>
-						<div className="bg-slate-950 rounded-xl p-4 flex flex-col mt-4">
+						<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col mt-4">
 							<div className="text-lg font-bold text-center mt-3">Notes</div>
-							<AppBox className="flex-1 mt-4">
+							<div className="flex-1 mt-4">
 								<div className="mt-2 flex">
 									<div className="flex-1">Effective Annual Interest</div>
 									<div className="">{formatCurrency(effectiveInterest * 100)}%</div>
@@ -394,7 +390,7 @@ export default function PositionBorrow({}) {
 									While the maturity is fixed, you can adjust the liquidation price and the collateral amount later as
 									long as it covers the minted amount. No interest will be refunded when repaying earlier.
 								</p>
-							</AppBox>
+							</div>
 						</div>
 					</div>
 				</section>
