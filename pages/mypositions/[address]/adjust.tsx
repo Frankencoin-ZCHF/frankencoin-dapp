@@ -1,9 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { formatUnits, maxUint256, getAddress, zeroAddress, erc20Abi, Address } from "viem";
-import { usePositionStats } from "@hooks";
+import { formatUnits, maxUint256, erc20Abi, Address } from "viem";
 import Head from "next/head";
-import AppPageHeader from "@components/AppPageHeader";
 import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
 import { abs, formatBigInt, formatCurrency, shortenAddress } from "@utils";
@@ -82,14 +80,11 @@ export default function PositionAdjust() {
 
 	const expirationInDays: number = (position.expiration * 1000 - Date.now()) / (1000 * 60 * 60 * 24);
 	const isCooldown: boolean = position.cooldown * 1000 - Date.now() > 0;
-	const maxRepayable = (1_000_000n * userFrankBalance) / (1_000_000n - BigInt(position.reserveContribution));
 
-	const maxMintableForCollateralAmount: bigint = BigInt(formatUnits(BigInt(position.price) * collateralAmount, 36 - 18));
+	const maxMintableForCollateralAmount: bigint = BigInt(formatUnits(BigInt(position.price) * collateralAmount, 36 - 18).split(".")[0]);
 	const maxMintableInclClones: bigint = BigInt(position.availableForClones) + BigInt(position.minted);
 	const maxTotalLimit: bigint =
 		maxMintableForCollateralAmount <= maxMintableInclClones ? maxMintableForCollateralAmount : maxMintableInclClones;
-
-	const repayPosition = maxRepayable > BigInt(position.minted) ? 0n : BigInt(position.minted) - maxRepayable;
 
 	// ---------------------------------------------------------------------------
 	const paidOutAmount = () => {
