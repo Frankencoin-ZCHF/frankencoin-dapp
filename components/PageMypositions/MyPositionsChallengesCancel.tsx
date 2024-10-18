@@ -2,7 +2,6 @@ import { ChallengesQueryItem, PositionQuery, PositionsQueryObjectArray } from "@
 import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { CONFIG, WAGMI_CONFIG } from "../../app.config";
-import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { formatBigInt } from "@utils";
 import { renderErrorToast, TxToast } from "@components/TxToast";
@@ -11,6 +10,7 @@ import { useSelector } from "react-redux";
 import { Address } from "viem";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
+import { ABI, ADDRESS } from "@frankencoin/zchf";
 
 interface Props {
 	challenge: ChallengesQueryItem;
@@ -36,8 +36,8 @@ export default function MyPositionsChallengesCancel({ challenge }: Props) {
 			setCancelling(true);
 
 			const cancelWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHub,
-				abi: ABIS.MintingHubABI,
+				address: ADDRESS[chainId].mintingHubV1,
+				abi: ABI.MintingHubV1ABI,
 				functionName: "bid",
 				args: [n, r, false],
 			});
