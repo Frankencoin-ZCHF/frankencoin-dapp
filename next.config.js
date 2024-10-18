@@ -2,10 +2,10 @@
 
 const nextConfig = {
 	reactStrictMode: true,
-	swcMinify: true,
+	transpilePackages: ["@frankencoin/zchf", "@frankencoin/api"],
+
 	// @dev: if you want to set the iFrame SAMEORIGIN headers,
 	// to prevent injecting in cross domains.
-
 	// headers: [
 	// 	{
 	// 		key: "X-Frame-Options",
