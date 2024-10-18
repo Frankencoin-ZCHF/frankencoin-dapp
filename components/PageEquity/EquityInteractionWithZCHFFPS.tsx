@@ -6,16 +6,16 @@ import { usePoolStats } from "@hooks";
 import { formatBigInt, formatDuration, shortenAddress } from "@utils";
 import { useAccount, useChainId, useReadContract } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ABIS, ADDRESS } from "@contracts";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import Button from "@components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
-import { TxToast, renderErrorToast } from "@components/TxToast";
+import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
+import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -74,12 +74,9 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 				success: {
 					render: <TxToast title="Successfully Approved ZCHF" rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setApproving(false);
 		}
@@ -88,7 +85,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 		try {
 			const investWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].equity,
-				abi: ABIS.EquityABI,
+				abi: EquityABI,
 				functionName: "invest",
 				args: [amount, result],
 			});
@@ -115,12 +112,9 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 				success: {
 					render: <TxToast title="Successfully Invested" rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setAmount(0n);
 			setInversting(false);
@@ -132,7 +126,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 
 			const redeemWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].equity,
-				abi: ABIS.EquityABI,
+				abi: EquityABI,
 				functionName: "redeem",
 				args: [account, amount],
 			});
@@ -159,12 +153,9 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 				success: {
 					render: <TxToast title="Successfully Redeemed" rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setAmount(0n);
 			setRedeeming(false);
@@ -173,14 +164,14 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 
 	const { data: fpsResult, isLoading: shareLoading } = useReadContract({
 		address: ADDRESS[chainId].equity,
-		abi: ABIS.EquityABI,
+		abi: EquityABI,
 		functionName: "calculateShares",
 		args: [amount],
 	});
 
 	const { data: frankenResult, isLoading: proceedLoading } = useReadContract({
 		address: ADDRESS[chainId].equity,
-		abi: ABIS.EquityABI,
+		abi: EquityABI,
 		functionName: "calculateProceeds",
 		args: [amount],
 	});
@@ -271,11 +262,12 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 			<div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
 					<DisplayLabel label="Your Balance" />
-					<DisplayAmount amount={poolStats.equityBalance} currency="FPS" address={ADDRESS[chainId].equity} />
+					<DisplayAmount className="mt-4" amount={poolStats.equityBalance} currency="FPS" address={ADDRESS[chainId].equity} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Value at Current Price" />
 					<DisplayAmount
+						className="mt-4"
 						amount={(poolStats.equityPrice * poolStats.equityBalance) / BigInt(1e18)}
 						currency="ZCHF"
 						address={ADDRESS[chainId].frankenCoin}

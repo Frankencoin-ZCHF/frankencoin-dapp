@@ -68,7 +68,7 @@ export default function TokenInput({
 						<div
 							className={`flex gap-1 rounded-lg p-1 bg-card-content-secondary border-2 ${
 								error ? "border-text-warning" : "border-card-content-secondary"
-							}`}
+							} ${disabled ? "bg-card-body-primary text-text-header" : ""}`}
 						>
 							<BigNumberInput
 								autofocus={true}

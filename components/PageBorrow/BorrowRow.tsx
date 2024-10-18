@@ -61,6 +61,7 @@ export default function BorrowRow({ headers, position }: Props) {
 				<AppBox className="md:hidden">
 					<DisplayCollateralBorrowTable
 						symbol={position.collateralSymbol}
+						symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
 					/>
@@ -68,6 +69,7 @@ export default function BorrowRow({ headers, position }: Props) {
 				<div className="max-md:hidden">
 					<DisplayCollateralBorrowTable
 						symbol={position.collateralSymbol}
+						symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
 					/>

@@ -25,6 +25,7 @@ module.exports = {
 				layout: {
 					primary: "#ffffff",
 					secondary: "#092f62",
+					footer: "#272B38",
 				},
 				menu: {
 					text: "#092f62",

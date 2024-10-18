@@ -1,13 +1,11 @@
-import { Address, zeroAddress } from "viem";
+import { Address } from "viem";
 import TableRow from "../Table/TableRow";
-import { PositionQuery, BidsQueryItem, ChallengesQueryItem } from "@frankencoin/api";
+import { PositionQuery, ChallengesQueryItem } from "@frankencoin/api";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import { formatCurrency } from "../../utils/format";
 import MyPositionsDisplayCollateral from "./MyPositionsDisplayCollateral";
-import Link from "next/link";
 import { useRouter as useNavigate } from "next/navigation";
-import { useContractUrl } from "@hooks";
 import Button from "@components/Button";
 import AppBox from "@components/AppBox";
 
@@ -29,7 +27,6 @@ type ChallengeInfos = {
 
 export default function MypositionsRow({ headers, subHeaders, position }: Props) {
 	const navigate = useNavigate();
-	const url = useContractUrl(position.position || zeroAddress);
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
@@ -38,40 +35,18 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
 	if (!collTokenPrice || !zchfPrice) return null;
 
-	const interest: number = Math.round((position.annualInterestPPM / 10 ** 4) * 100) / 100;
-	const reserve: number = Math.round((position.reserveContribution / 10 ** 4) * 100) / 100;
-	const available: number = Math.round((parseInt(position.availableForClones) / 10 ** position.zchfDecimals) * 100) / 100;
-	const price: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
-	const since: number = Math.round((Date.now() - position.start * 1000) / 1000 / 60 / 60 / 24);
-	const maturity: number = Math.round((position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24);
-	const maturityStatusColors = maturity > 60 ? "text-green-300" : maturity < 30 ? "text-red-500" : "text-red-300";
+	const maturity: number = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
 
-	const startStr = new Date(position.start * 1000).toDateString().split(" ");
-	const startString: string = `${startStr[2]} ${startStr[1]} ${startStr[3]} (${since}d)`;
+	const balance: number = parseInt(position.collateralBalance) / 10 ** position.collateralDecimals;
+	const balanceZCHF: number = (balance * collTokenPrice) / zchfPrice;
 
-	const expirationStr = new Date(position.expiration * 1000).toDateString().split(" ");
-	const expirationString: string = `${expirationStr[2]} ${expirationStr[1]} ${expirationStr[3]} (${maturity}d)`;
+	const loanZCHF: number = parseInt(position.minted) / 10 ** position.zchfDecimals;
 
-	const balance: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
-	const balanceZCHF: number = Math.round(((balance * collTokenPrice) / zchfPrice) * 100) / 100;
-	const ballanceUSD: number = Math.round(balance * collTokenPrice * 100) / 100;
-
-	const loanZCHF: number = Math.round((parseInt(position.minted) / 10 ** position.zchfDecimals) * 100) / 100;
-	const loanUSD: number = Math.round(loanZCHF * zchfPrice * 100) / 100;
-	const loanPct: number = Math.round((loanZCHF / balanceZCHF) * 10000) / 100;
-	const loanStatusColors = loanPct > 100 ? "bg-red-300" : loanPct > 10000 / 120 ? "bg-blue-300" : "bg-green-300";
-
-	const liquidationZCHF: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
-	const liquidationUSD: number = Math.round(liquidationZCHF * zchfPrice * 100) / 100;
-	const liquidationPct: number = Math.round((balanceZCHF / (liquidationZCHF * balance)) * 10000) / 100;
-	const liauidationStatusColors = liquidationPct < 100 ? "text-red-500" : liquidationPct < 120 ? "text-red-300" : "text-green-300";
+	const liquidationZCHF: number = parseInt(position.price) / 10 ** (36 - position.collateralDecimals);
+	const liquidationPct: number = (balanceZCHF / (liquidationZCHF * balance)) * 100;
 
 	const positionChallenges = challenges.map[position.position.toLowerCase() as Address] ?? [];
 	const positionChallengesActive = positionChallenges.filter((ch: ChallengesQueryItem) => ch.status == "Active") ?? [];
-
-	const positionChallengesBids = bids.map[position.position.toLowerCase() as Address] ?? [];
-	const positionBidsAverted = positionChallengesBids.filter((b: BidsQueryItem) => b.bidType == "Averted");
-	const positionBidsSucceeded = positionChallengesBids.filter((b: BidsQueryItem) => b.bidType == "Succeeded");
 
 	const states: string[] = ["Closed", "Challenged", "New Request", "Cooldown", "Expiring Soon", "Expired", "Open"];
 	let stateIdx: number = states.length;
@@ -130,14 +105,18 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 	} else if (maturity < 7) {
 		if (maturity > 0) {
 			stateIdx = 4;
-			stateTimePrint = `${maturity} days`;
+			if (maturity < 3) {
+				stateTimePrint = `${formatCurrency(maturity * 24)} hours`;
+			} else {
+				stateTimePrint = `${formatCurrency(Math.round(maturity))} days`;
+			}
 		} else {
 			stateIdx = 5;
 			stateTimePrint = ``;
 		}
 	} else {
 		stateIdx = 6;
-		stateTimePrint = `${maturity} days`;
+		stateTimePrint = `${Math.round(maturity)} days`;
 	}
 
 	function navigateToChallenge() {
@@ -149,11 +128,6 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 			console.log(error);
 		}
 	}
-
-	const openExplorer = (e: any) => {
-		e.preventDefault();
-		window.open(url, "_blank");
-	};
 
 	return (
 		<TableRow

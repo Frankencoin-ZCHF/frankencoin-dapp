@@ -1,6 +1,6 @@
 import Head from "next/head";
-import StableCoinBridgeXCHF from "@components/PageEcoSystem/StableCoinBridgeXCHF";
 import CollateralAndPositionsOverview from "@components/PageEcoSystem/CollateralAndPositionsOverview";
+import DistributionZCHF from "@components/PageEcoSystem/DistributionZCHF";
 
 export default function Overview() {
 	return (
@@ -10,7 +10,8 @@ export default function Overview() {
 			</Head>
 
 			<div className="flex flex-col gap-[4rem] mt-[4rem]">
-				<StableCoinBridgeXCHF />
+				<DistributionZCHF />
+
 				<CollateralAndPositionsOverview />
 			</div>
 		</div>

@@ -5,10 +5,21 @@ import MyPositionsBidsTable from "@components/PageMypositions/MyPositionsBidsTab
 import { useRouter } from "next/router";
 import { Address } from "viem";
 import { shortenAddress } from "@utils";
+import { useEffect } from "react";
+import { store } from "../../redux/redux.store";
+import { fetchPositionsList } from "../../redux/slices/positions.slice";
+import { fetchChallengesList } from "../../redux/slices/challenges.slice";
+import { fetchBidsList } from "../../redux/slices/bids.slice";
 
 export default function Positions() {
 	const router = useRouter();
 	const overwrite: Address = router.query.address as Address;
+
+	useEffect(() => {
+		store.dispatch(fetchPositionsList());
+		store.dispatch(fetchChallengesList());
+		store.dispatch(fetchBidsList());
+	}, []);
 
 	return (
 		<>

@@ -1,23 +1,23 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { formatUnits, getAddress, zeroAddress, maxUint256, erc20Abi } from "viem";
+import { formatUnits, maxUint256, erc20Abi, Hash, zeroHash } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useState } from "react";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ABIS, ADDRESS } from "@contracts";
 import { Address } from "viem";
 import { formatBigInt, formatCurrency, min, shortenAddress, toTimestamp } from "@utils";
 import { toast } from "react-toastify";
-import { TxToast, renderErrorToast } from "@components/TxToast";
+import { TxToast, renderErrorToast, renderErrorTxStackToast, renderErrorTxToast } from "@components/TxToast";
 import DateInput from "@components/Input/DateInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import Link from "next/link";
+import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
@@ -59,7 +59,6 @@ export default function PositionBorrow({}) {
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
-		const fc: Address = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
 		if (acc === undefined) return;
 		if (!position || !position.collateral) return;
 
@@ -76,7 +75,7 @@ export default function PositionBorrow({}) {
 				address: position.collateral,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHub],
+				args: [acc, position.version == 1 ? ADDRESS[WAGMI_CHAIN.id].mintingHubV1 : ADDRESS[WAGMI_CHAIN.id].mintingHubV2],
 			});
 			setUserAllowance(_allowance);
 		};
@@ -170,7 +169,7 @@ export default function PositionBorrow({}) {
 				address: position.collateral as Address,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [ADDRESS[chainId].mintingHub, maxUint256],
+				args: [position.version == 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2, maxUint256],
 			});
 
 			const toastContent = [
@@ -180,7 +179,7 @@ export default function PositionBorrow({}) {
 				},
 				{
 					title: "Spender: ",
-					value: shortenAddress(ADDRESS[chainId].mintingHub),
+					value: shortenAddress(ADDRESS[chainId].mintingHubV1),
 				},
 				{
 					title: "Transaction:",
@@ -195,12 +194,9 @@ export default function PositionBorrow({}) {
 				success: {
 					render: <TxToast title={`Successfully Approved ${position.collateralSymbol}`} rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setApproving(false);
 		}
@@ -210,13 +206,23 @@ export default function PositionBorrow({}) {
 		try {
 			setCloning(true);
 			const expirationTime = toTimestamp(expirationDate);
+			let cloneWriteHash: Hash = zeroHash;
 
-			const cloneWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHub,
-				abi: ABIS.MintingHubABI,
-				functionName: "clone",
-				args: [position.position, requiredColl, amount, BigInt(expirationTime)],
-			});
+			if (position.version == 1) {
+				cloneWriteHash = await writeContract(WAGMI_CONFIG, {
+					address: ADDRESS[chainId].mintingHubV1,
+					abi: MintingHubV1ABI,
+					functionName: "clone",
+					args: [position.position, requiredColl, amount, BigInt(expirationTime)],
+				});
+			} else if (position.version == 2) {
+				cloneWriteHash = await writeContract(WAGMI_CONFIG, {
+					address: ADDRESS[chainId].mintingHubV2,
+					abi: MintingHubV2ABI,
+					functionName: "clone",
+					args: [position.position, requiredColl, amount, expirationTime],
+				});
+			}
 
 			const toastContent = [
 				{
@@ -240,12 +246,9 @@ export default function PositionBorrow({}) {
 				success: {
 					render: <TxToast title="Successfully Minted ZCHF" rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setCloning(false);
 		}
@@ -283,7 +286,7 @@ export default function PositionBorrow({}) {
 							<DateInput label="Expiration" max={position.expiration} value={expirationDate} onChange={onChangeExpiration} />
 						</div>
 						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-							<GuardToAllowedChainBtn>
+							<GuardToAllowedChainBtn label={amount > userAllowance ? "Approve" : "Mint"}>
 								{requiredColl > userAllowance ? (
 									<Button
 										disabled={amount == 0n || requiredColl > userBalance || !!error}
