@@ -11,6 +11,10 @@ export default function Borrow() {
 				<title>Frankencoin - Borrow</title>
 			</Head>
 
+			<div className="mt-4">
+			⚠️New modules with more user-friendly borrowing are planned to be released in November. We recommend to wait for these updates before opening new positions. By that time, WBTC should also be available again as collateral.
+			</div>
+
 			{/* 			<div>
 				<AppPageHeader title="All Mintable Positions" />
 			</div> */}
