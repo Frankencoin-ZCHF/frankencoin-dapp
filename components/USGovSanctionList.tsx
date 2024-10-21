@@ -16,7 +16,7 @@ export default function USGovSanction() {
 
 			const action = async () => {
 				await disconnect(WAGMI_CONFIG);
-				toast.error("You address is included in the US government sanction list 🙈😅", { position: "bottom-right" });
+				toast.error("Your address is included in the US government sanction list 🙈😅", { position: "bottom-right" });
 			};
 
 			action();

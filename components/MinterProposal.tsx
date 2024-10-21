@@ -6,11 +6,11 @@ import { useContractUrl } from "@hooks";
 import Button from "./Button";
 import { useChainId } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ADDRESS, ABIS } from "@contracts";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "./TxToast";
 import { useState } from "react";
 import { WAGMI_CONFIG } from "../app.config";
+import { ADDRESS, FrankencoinABI } from "@frankencoin/zchf";
 
 interface Props {
 	minter: Minter;
@@ -45,7 +45,7 @@ export default function MinterProposal({ minter, helpers }: Props) {
 
 			const vetoHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].frankenCoin,
-				abi: ABIS.FrankencoinABI,
+				abi: FrankencoinABI,
 				functionName: "denyMinter",
 				args: [minter.minter, helpers, "No"],
 			});

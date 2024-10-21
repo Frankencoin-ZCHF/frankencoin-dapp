@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { CONFIG, WAGMI_CONFIG } from "../../app.config";
-import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
 import { renderErrorToast, TxToast } from "@components/TxToast";
@@ -10,6 +9,7 @@ import Button from "@components/Button";
 import { Address, zeroAddress } from "viem";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { PositionQuery } from "@frankencoin/api";
+import { PositionV1ABI } from "@frankencoin/zchf";
 
 interface Props {
 	position: PositionQuery;
@@ -18,9 +18,8 @@ interface Props {
 
 export default function GovernancePositionsAction({ position, disabled }: Props) {
 	const [isDenying, setDenying] = useState<boolean>(false);
-	const account = useAccount();
-	const chainId = CONFIG.chain.id;
 	const [isHidden, setHidden] = useState<boolean>(false);
+	const account = useAccount();
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
@@ -34,7 +33,7 @@ export default function GovernancePositionsAction({ position, disabled }: Props)
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: position.position,
-				abi: ABIS.PositionABI,
+				abi: PositionV1ABI,
 				functionName: "deny",
 				args: [h, msg],
 			});

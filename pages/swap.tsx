@@ -1,5 +1,4 @@
 import Head from "next/head";
-import AppPageHeader from "@components/AppPageHeader";
 import TokenInput from "@components/Input/TokenInput";
 import { useState } from "react";
 import { useContractUrl, useSwapStats } from "@hooks";
@@ -7,7 +6,6 @@ import { erc20Abi, formatUnits, maxUint256 } from "viem";
 import Button from "@components/Button";
 import { useChainId } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown, faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
@@ -17,6 +15,7 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../app.config";
 import Link from "next/link";
 import AppCard from "@components/AppCard";
+import { ADDRESS, StablecoinBridgeABI } from "@frankencoin/zchf";
 
 export default function Swap() {
 	const [amount, setAmount] = useState(0n);
@@ -77,7 +76,7 @@ export default function Swap() {
 			setMinting(true);
 			const mintWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].bridge,
-				abi: ABIS.StablecoinBridgeABI,
+				abi: StablecoinBridgeABI,
 				functionName: "mint",
 				args: [amount],
 			});
@@ -120,7 +119,7 @@ export default function Swap() {
 
 			const burnWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].bridge,
-				abi: ABIS.StablecoinBridgeABI,
+				abi: StablecoinBridgeABI,
 				functionName: "burn",
 				args: [amount],
 			});

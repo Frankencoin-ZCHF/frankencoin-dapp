@@ -8,9 +8,8 @@ import GovernanceVotersAction from "./GovernanceVotersAction";
 import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
-import { ADDRESS } from "@contracts";
-import { EquityABI } from "../../contracts/abis/Equity";
 import { useAccount } from "wagmi";
+import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 
 interface Props {
 	headers: string[];

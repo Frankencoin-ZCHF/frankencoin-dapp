@@ -1,6 +1,4 @@
 import Head from "next/head";
-import Link from "next/link";
-import { SOCIAL } from "@utils";
 
 export default function SavingsPage() {
 	return (

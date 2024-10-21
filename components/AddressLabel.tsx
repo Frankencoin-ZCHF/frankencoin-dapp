@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Address, Hash, zeroAddress } from "viem";
 import { shortenAddress } from "../utils/format";
 import { useContractUrl, useTxUrl } from "../hooks/useContractUrl";
-import Link from "next/link";
 
 interface Props {
 	address: Address;

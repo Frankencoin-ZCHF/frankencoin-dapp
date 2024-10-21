@@ -2,7 +2,6 @@ import { MinterQuery } from "@frankencoin/api";
 import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { CONFIG, WAGMI_CONFIG } from "../../app.config";
-import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
 import { TxToast } from "@components/TxToast";
@@ -10,6 +9,7 @@ import { useAccount } from "wagmi";
 import Button from "@components/Button";
 import { Address } from "viem";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
+import { ADDRESS, FrankencoinABI } from "@frankencoin/zchf";
 
 interface Props {
 	minter: MinterQuery;
@@ -35,7 +35,7 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].frankenCoin,
-				abi: ABIS.FrankencoinABI,
+				abi: FrankencoinABI,
 				functionName: "denyMinter",
 				args: [m, h, msg],
 			});

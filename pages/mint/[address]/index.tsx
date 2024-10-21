@@ -1,13 +1,12 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { formatUnits, getAddress, zeroAddress, maxUint256, erc20Abi } from "viem";
+import { formatUnits, maxUint256, erc20Abi } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useState } from "react";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ABIS, ADDRESS } from "@contracts";
 import { Address } from "viem";
 import { formatBigInt, formatCurrency, min, shortenAddress, toTimestamp } from "@utils";
 import { toast } from "react-toastify";
@@ -18,6 +17,7 @@ import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import Link from "next/link";
+import { ADDRESS, MintingHubV1ABI } from "@frankencoin/zchf";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
@@ -76,7 +76,7 @@ export default function PositionBorrow({}) {
 				address: position.collateral,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHub],
+				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHubV1],
 			});
 			setUserAllowance(_allowance);
 		};
@@ -170,7 +170,7 @@ export default function PositionBorrow({}) {
 				address: position.collateral as Address,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [ADDRESS[chainId].mintingHub, maxUint256],
+				args: [ADDRESS[chainId].mintingHubV1, maxUint256],
 			});
 
 			const toastContent = [
@@ -180,7 +180,7 @@ export default function PositionBorrow({}) {
 				},
 				{
 					title: "Spender: ",
-					value: shortenAddress(ADDRESS[chainId].mintingHub),
+					value: shortenAddress(ADDRESS[chainId].mintingHubV1),
 				},
 				{
 					title: "Transaction:",
@@ -212,8 +212,8 @@ export default function PositionBorrow({}) {
 			const expirationTime = toTimestamp(expirationDate);
 
 			const cloneWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHub,
-				abi: ABIS.MintingHubABI,
+				address: ADDRESS[chainId].mintingHubV1,
+				abi: MintingHubV1ABI,
 				functionName: "clone",
 				args: [position.position, requiredColl, amount, BigInt(expirationTime)],
 			});

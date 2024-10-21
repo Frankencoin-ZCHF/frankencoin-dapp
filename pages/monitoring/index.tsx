@@ -1,6 +1,5 @@
 import Head from "next/head";
 import MonitoringTable from "@components/PageMonitoring/MonitoringTable";
-import AppPageHeader from "@components/AppPageHeader";
 
 export default function Positions() {
 	return (

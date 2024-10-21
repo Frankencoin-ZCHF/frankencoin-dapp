@@ -6,7 +6,6 @@ import { usePoolStats } from "@hooks";
 import { formatBigInt, formatDuration, shortenAddress } from "@utils";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ABIS, ADDRESS } from "@contracts";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import Button from "@components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -16,6 +15,7 @@ import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
+import { ADDRESS, EquityABI, FPSWrapperABI } from "@frankencoin/zchf";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -67,7 +67,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 
 			const _wfpsHolding = await readContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].equity,
-				abi: ABIS.EquityABI,
+				abi: EquityABI,
 				functionName: "holdingDuration",
 				args: [ADDRESS[chainId].wFPS],
 			});
@@ -81,7 +81,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 		const fetchAsync = async function () {
 			const _calculateProceeds = await readContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].equity,
-				abi: ABIS.EquityABI,
+				abi: EquityABI,
 				functionName: "calculateProceeds",
 				args: [amount],
 			});
@@ -141,7 +141,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].wFPS,
-				abi: ABIS.FPSWrapperABI,
+				abi: FPSWrapperABI,
 				functionName: "unwrapAndSell",
 				args: [amount],
 			});

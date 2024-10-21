@@ -11,8 +11,7 @@ import GovernanceVotersRow from "./GovernanceVotersRow";
 import { useAccount } from "wagmi";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
-import { ADDRESS } from "@contracts";
-import { EquityABI } from "../../contracts/abis/Equity";
+import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 export type VoteData = {
 	holder: Address;
 	fps: bigint;

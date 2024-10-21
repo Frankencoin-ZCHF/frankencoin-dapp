@@ -1,10 +1,10 @@
 import AppBox from "@components/AppBox";
 import DisplayAmount from "@components/DisplayAmount";
 import DisplayLabel from "@components/DisplayLabel";
-import { ADDRESS } from "@contracts";
 import { useFPSQuery, usePoolStats, useTradeQuery } from "@hooks";
 import { useChainId } from "wagmi";
 import dynamic from "next/dynamic";
+import { ADDRESS } from "@frankencoin/zchf";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function EquityFPSDetailsCard() {

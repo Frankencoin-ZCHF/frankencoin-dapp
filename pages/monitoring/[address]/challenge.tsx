@@ -10,7 +10,6 @@ import { ContractUrl, formatBigInt, formatDuration, shortenAddress } from "@util
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { Address } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import DisplayLabel from "@components/DisplayLabel";
@@ -20,6 +19,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import Link from "next/link";
 import { useRouter as useNavigation } from "next/navigation";
+import { ADDRESS, MintingHubV1ABI } from "@frankencoin/zchf";
 
 export default function PositionChallenge() {
 	const [amount, setAmount] = useState(0n);
@@ -65,7 +65,7 @@ export default function PositionChallenge() {
 				address: position.collateral,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHub],
+				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHubV1],
 			});
 			setUserAllowance(_allowanceColl);
 		};
@@ -120,7 +120,7 @@ export default function PositionChallenge() {
 				address: position.collateral as Address,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [ADDRESS[chainId].mintingHub, amount],
+				args: [ADDRESS[chainId].mintingHubV1, amount],
 			});
 
 			const toastContent = [
@@ -130,7 +130,7 @@ export default function PositionChallenge() {
 				},
 				{
 					title: "Spender: ",
-					value: shortenAddress(ADDRESS[chainId].mintingHub),
+					value: shortenAddress(ADDRESS[chainId].mintingHubV1),
 				},
 				{
 					title: "Transaction:",
@@ -161,8 +161,8 @@ export default function PositionChallenge() {
 			setChallenging(true);
 
 			const challengeWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHub,
-				abi: ABIS.MintingHubABI,
+				address: ADDRESS[chainId].mintingHubV1,
+				abi: MintingHubV1ABI,
 				functionName: "challenge",
 				args: [position.position, amount, BigInt(position.price)],
 			});
