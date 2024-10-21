@@ -4,10 +4,9 @@ import Link from "next/link";
 import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
-import { formatCurrency, formatDate, shortenAddress } from "@utils";
-import { Address, formatUnits, getAddress, zeroAddress } from "viem";
+import { formatDate, shortenAddress } from "@utils";
+import { Address, formatUnits, zeroAddress } from "viem";
 import { useContractUrl } from "@hooks";
-import { ABIS, ADDRESS } from "@contracts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
@@ -18,6 +17,7 @@ import { readContract } from "wagmi/actions";
 import { ChallengesQueryItem, PositionQuery } from "@frankencoin/api";
 import { useRouter as useNavigation } from "next/navigation";
 import Button from "@components/Button";
+import { ADDRESS, FrankencoinABI } from "@frankencoin/zchf";
 
 export default function PositionDetail() {
 	const [reserve, setReserve] = useState<bigint>(0n);
@@ -41,7 +41,7 @@ export default function PositionDetail() {
 		const fetchAsync = async function () {
 			const data = await readContract(WAGMI_CONFIG, {
 				address: position.zchf,
-				abi: ABIS.FrankencoinABI,
+				abi: FrankencoinABI,
 				functionName: "calculateAssignedReserve",
 				args: [BigInt(position.minted), position.reserveContribution],
 			});

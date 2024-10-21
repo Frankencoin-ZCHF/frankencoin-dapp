@@ -1,6 +1,5 @@
 "use client";
 import Head from "next/head";
-import AppPageHeader from "@components/AppPageHeader";
 import { useEffect } from "react";
 import { Address, isAddress, maxUint256 } from "viem";
 import TokenInput from "@components/Input/TokenInput";
@@ -10,7 +9,6 @@ import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { erc20Abi } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ABIS, ADDRESS } from "@contracts";
 import { formatBigInt, shortenAddress } from "@utils";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
@@ -19,6 +17,7 @@ import NormalInput from "@components/Input/NormalInput";
 import AddressInput from "@components/Input/AddressInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
+import { ADDRESS, MintingHubV1ABI } from "@frankencoin/zchf";
 
 export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
@@ -63,7 +62,7 @@ export default function PositionCreate({}) {
 				address: collateralAddress as Address,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHub],
+				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHubV1],
 			});
 			setUserAllowance(_allowance);
 		};
@@ -214,7 +213,7 @@ export default function PositionCreate({}) {
 				address: collTokenData.address,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [ADDRESS[chainId].mintingHub, maxUint256],
+				args: [ADDRESS[chainId].mintingHubV1, maxUint256],
 			});
 
 			const toastContent = [
@@ -224,7 +223,7 @@ export default function PositionCreate({}) {
 				},
 				{
 					title: "Spender: ",
-					value: shortenAddress(ADDRESS[chainId].mintingHub),
+					value: shortenAddress(ADDRESS[chainId].mintingHubV1),
 				},
 				{
 					title: "Transaction:",
@@ -254,8 +253,8 @@ export default function PositionCreate({}) {
 		try {
 			setIsConfirming("open");
 			const openWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHub,
-				abi: ABIS.MintingHubABI,
+				address: ADDRESS[chainId].mintingHubV1,
+				abi: MintingHubV1ABI,
 				functionName: "openPosition",
 				args: [
 					collTokenData.address,

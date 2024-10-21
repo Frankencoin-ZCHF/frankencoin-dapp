@@ -10,7 +10,6 @@ import Link from "next/link";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import DisplayLabel from "@components/DisplayLabel";
@@ -21,6 +20,7 @@ import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useRouter as useNavigation } from "next/navigation";
+import { ADDRESS, FrankencoinABI, MintingHubV1ABI } from "@frankencoin/zchf";
 
 export default function ChallengePlaceBid() {
 	const [isInit, setInit] = useState(false);
@@ -55,7 +55,7 @@ export default function ChallengePlaceBid() {
 		const fetchAsync = async function () {
 			const _balance = await readContract(WAGMI_CONFIG, {
 				address: fc,
-				abi: ABIS.FrankencoinABI,
+				abi: FrankencoinABI,
 				functionName: "balanceOf",
 				args: [acc],
 			});
@@ -121,8 +121,8 @@ export default function ChallengePlaceBid() {
 			setBidding(true);
 
 			const bidWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHub,
-				abi: ABIS.MintingHubABI,
+				address: ADDRESS[chainId].mintingHubV1,
+				abi: MintingHubV1ABI,
 				functionName: "bid",
 				args: [index, amount, false],
 			});

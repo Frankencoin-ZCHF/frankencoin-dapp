@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { useContractUrl } from "@hooks";
 import { SOCIAL } from "@utils";
 import { useChainId } from "wagmi";
-import { ADDRESS } from "@contracts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import EquityInteractionWithZCHFFPS from "./EquityInteractionWithZCHFFPS";
 import EquityInteractionWithFPSWFPS from "./EquityInteractionWithFPSWFPS";
 import EquityInteractionWithWFPSRedeem from "./EquityInteractionWithWFPSRedeem";
+import { ADDRESS } from "@frankencoin/zchf";
 
 export const EquityTokenSelectorMapping: { [key: string]: string[] } = {
 	ZCHF: ["FPS"],

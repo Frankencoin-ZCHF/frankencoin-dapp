@@ -1,6 +1,4 @@
 import Head from "next/head";
-import { Address } from "viem";
-import { shortenAddress } from "@utils";
 import GovernancePositionsTable from "@components/PageGovernance/GovernancePositionsTable";
 import GovernanceMintersTable from "@components/PageGovernance/GovernanceMintersTable";
 import GovernanceVotersTable from "@components/PageGovernance/GovernanceVotersTable";

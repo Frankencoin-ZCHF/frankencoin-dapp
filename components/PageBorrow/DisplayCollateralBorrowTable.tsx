@@ -1,9 +1,8 @@
-import { formatBigInt, formatCurrency } from "@utils";
 import dynamic from "next/dynamic";
 import { useContractUrl } from "../../hooks/useContractUrl";
 import { zeroAddress } from "viem";
 import Link from "next/link";
-import AppBox from "@components/AppBox";
+
 const TokenLogo = dynamic(() => import("../TokenLogo"), { ssr: false });
 
 interface Props {

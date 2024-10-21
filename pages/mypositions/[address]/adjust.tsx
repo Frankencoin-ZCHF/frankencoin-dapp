@@ -8,7 +8,6 @@ import { abs, formatBigInt, formatCurrency, shortenAddress } from "@utils";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast } from "@components/TxToast";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
@@ -16,6 +15,7 @@ import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import { PositionQuery } from "@frankencoin/api";
+import { ADDRESS, PositionV1ABI } from "@frankencoin/zchf";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -200,7 +200,7 @@ export default function PositionAdjust() {
 			setAdjusting(true);
 			const adjustWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: position.position,
-				abi: ABIS.PositionABI,
+				abi: PositionV1ABI,
 				functionName: "adjust",
 				args: [amount, collateralAmount, liqPrice],
 			});

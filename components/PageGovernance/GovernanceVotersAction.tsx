@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { CONFIG, WAGMI_CONFIG } from "../../app.config";
-import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
 import { renderErrorToast, TxToast } from "@components/TxToast";
@@ -9,6 +8,7 @@ import { useAccount } from "wagmi";
 import Button from "@components/Button";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { VoteData } from "./GovernanceVotersTable";
+import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 
 interface Props {
 	voter: VoteData;
@@ -32,7 +32,7 @@ export default function GovernanceVotersAction({ voter, disabled, connectedWalle
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].equity,
-				abi: ABIS.EquityABI,
+				abi: EquityABI,
 				functionName: "delegateVoteTo",
 				args: [voter.holder],
 			});
