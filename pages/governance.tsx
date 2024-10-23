@@ -4,6 +4,8 @@ import GovernanceMintersTable from "@components/PageGovernance/GovernanceMinters
 import GovernanceVotersTable from "@components/PageGovernance/GovernanceVotersTable";
 import GovernanceTelegramBot from "@components/PageGovernance/GovernanceTelegramBot";
 import { SOCIAL } from "@utils";
+import GovernanceLeadrateTable from "@components/PageGovernance/GovernanceLeadrateTable";
+import GovernanceLeadrateCurrent from "@components/PageGovernance/GovernanceLeadrateCurrent";
 
 export default function Governance() {
 	return (
@@ -41,7 +43,7 @@ export default function Governance() {
 			</div>
 
 			<div className="">
-				Qualified FPS holders can propose changes to the leadrate, which determines the minimum interest rate for all Frankencoin
+				Qualified FPS holders can propose changes to the leadrate, which determines the base interest rate for all Frankencoin
 				positions. After a proposal period of 7 days, the change can be applied and affects the entire systems stability and growth.
 				Join the discussion in the{" "}
 				<a target="_blank" href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions">
@@ -55,7 +57,11 @@ export default function Governance() {
 			</div>
 
 			<div className="md:mt-8">
-				<GovernanceMintersTable />
+				<GovernanceLeadrateCurrent />
+			</div>
+
+			<div className="md:mt-8">
+				<GovernanceLeadrateTable />
 			</div>
 
 			<div className="md:mt-10">
