@@ -249,7 +249,7 @@ export default function PositionAdjust() {
 			</Head>
 
 			<div className="md:mt-8">
-				<span className="font-bold text-xl">Manage Position at {position.position}</span>
+				<span className="font-bold text-xl">Manage Position at {shortenAddress(position.position)}</span>
 			</div>
 
 			<div className="md:mt-8">

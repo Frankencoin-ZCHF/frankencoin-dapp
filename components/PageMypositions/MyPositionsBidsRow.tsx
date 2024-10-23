@@ -42,7 +42,7 @@ export default function MyPositionsBidsRow({ headers, bid }: Props) {
 			headers={headers}
 			actionCol={
 				<div className="">
-					<Button className="h-10" disabled={isDisabled} onClick={() => navigate.push(`/challenges/${bid.number}/bid`)}>
+					<Button className="h-10" disabled={isDisabled} onClick={() => navigate.push(`/challenges/${challenge.id}/bid`)}>
 						Buy Again
 					</Button>
 				</div>

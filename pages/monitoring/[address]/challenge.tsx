@@ -19,7 +19,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import Link from "next/link";
 import { useRouter as useNavigation } from "next/navigation";
-import { ADDRESS, MintingHubV1ABI } from "@frankencoin/zchf";
+import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 
 export default function PositionChallenge() {
 	const [amount, setAmount] = useState(0n);
@@ -65,7 +65,7 @@ export default function PositionChallenge() {
 				address: position.collateral,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHubV1],
+				args: [acc, position.version === 1 ? ADDRESS[WAGMI_CHAIN.id].mintingHubV1 : ADDRESS[WAGMI_CHAIN.id].mintingHubV2],
 			});
 			setUserAllowance(_allowanceColl);
 		};
@@ -120,7 +120,7 @@ export default function PositionChallenge() {
 				address: position.collateral as Address,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [ADDRESS[chainId].mintingHubV1, amount],
+				args: [position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2, amount],
 			});
 
 			const toastContent = [
@@ -161,8 +161,8 @@ export default function PositionChallenge() {
 			setChallenging(true);
 
 			const challengeWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHubV1,
-				abi: MintingHubV1ABI,
+				address: position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2,
+				abi: position.version === 1 ? MintingHubV1ABI : MintingHubV2ABI,
 				functionName: "challenge",
 				args: [position.position, amount, BigInt(position.price)],
 			});

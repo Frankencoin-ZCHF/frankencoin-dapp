@@ -17,7 +17,7 @@ import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import Link from "next/link";
-import { ADDRESS, MintingHubV1ABI } from "@frankencoin/zchf";
+import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
@@ -59,7 +59,6 @@ export default function PositionBorrow({}) {
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
-		const fc: Address = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
 		if (acc === undefined) return;
 		if (!position || !position.collateral) return;
 
@@ -76,7 +75,7 @@ export default function PositionBorrow({}) {
 				address: position.collateral,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHubV1],
+				args: [acc, position.version == 1 ? ADDRESS[WAGMI_CHAIN.id].mintingHubV1 : ADDRESS[WAGMI_CHAIN.id].mintingHubV2],
 			});
 			setUserAllowance(_allowance);
 		};
@@ -170,7 +169,7 @@ export default function PositionBorrow({}) {
 				address: position.collateral as Address,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [ADDRESS[chainId].mintingHubV1, maxUint256],
+				args: [position.version == 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2, maxUint256],
 			});
 
 			const toastContent = [
@@ -212,8 +211,8 @@ export default function PositionBorrow({}) {
 			const expirationTime = toTimestamp(expirationDate);
 
 			const cloneWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHubV1,
-				abi: MintingHubV1ABI,
+				address: position.version == 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2,
+				abi: position.version == 1 ? MintingHubV1ABI : MintingHubV2ABI,
 				functionName: "clone",
 				args: [position.position, requiredColl, amount, BigInt(expirationTime)],
 			});

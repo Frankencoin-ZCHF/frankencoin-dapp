@@ -36,8 +36,8 @@ export default function MyPositionsChallengesCancel({ challenge }: Props) {
 			setCancelling(true);
 
 			const cancelWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHubV1,
-				abi: ABI.MintingHubV1ABI,
+				address: p.version == 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2,
+				abi: p.version == 1 ? ABI.MintingHubV1ABI : ABI.MintingHubV2ABI,
 				functionName: "bid",
 				args: [n, r, false],
 			});

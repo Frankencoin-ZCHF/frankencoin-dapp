@@ -20,7 +20,8 @@ import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useRouter as useNavigation } from "next/navigation";
-import { ADDRESS, FrankencoinABI, MintingHubV1ABI } from "@frankencoin/zchf";
+import { ADDRESS, FrankencoinABI, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
+import { ChallengesId } from "@frankencoin/api";
 
 export default function ChallengePlaceBid() {
 	const [isInit, setInit] = useState(false);
@@ -36,14 +37,13 @@ export default function ChallengePlaceBid() {
 	const navigate = useNavigation();
 
 	const chainId = useChainId();
-	const index: number = parseInt(String(router.query.index) || "0");
+	const challengeId: ChallengesId = (String(router.query.index) as ChallengesId) || `${zeroAddress}-challenge-0`;
 
 	const challenges = useSelector((state: RootState) => state.challenges.list.list);
 	const positions = useSelector((state: RootState) => state.positions.list.list);
-	const bidsMapping = useSelector((state: RootState) => state.bids.challenges.map);
 	const auctionPriceMapping = useSelector((state: RootState) => state.challenges.challengesPrices.map);
 
-	const challenge = challenges.find((c) => c.number.toString() == index.toString());
+	const challenge = challenges.find((c) => c.id == challengeId);
 	const position = positions.find((p) => p.position == challenge?.position);
 	// const bids = !!challenge ? [] : bidsMapping[challenge!.id]; // can be empty
 
@@ -121,10 +121,10 @@ export default function ChallengePlaceBid() {
 			setBidding(true);
 
 			const bidWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHubV1,
-				abi: MintingHubV1ABI,
+				address: position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2,
+				abi: position.version === 1 ? MintingHubV1ABI : MintingHubV2ABI,
 				functionName: "bid",
-				args: [index, amount, false],
+				args: [parseInt(challenge.number.toString()), amount, false],
 			});
 
 			const toastContent = [

@@ -31,7 +31,7 @@ export default function ChallengesRow({ headers, challenge }: Props) {
 	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
 	if (!collTokenPrice || !zchfPrice) return null;
 
-	const challengePrice: bigint = BigInt(challengesPrices.map[challenge.id as ChallengesId]);
+	const challengePrice: bigint = BigInt(challengesPrices.map[challenge.id as ChallengesId] ?? 1);
 	if (challengePrice == undefined) return null;
 
 	// Maturity
@@ -108,7 +108,7 @@ export default function ChallengesRow({ headers, challenge }: Props) {
 		<TableRow
 			headers={headers}
 			actionCol={
-				<Button className="h-10" onClick={() => navigate.push(`/challenges/${challenge.number}/bid`)}>
+				<Button className="h-10" onClick={() => navigate.push(`/challenges/${challenge.id}/bid`)}>
 					Buy
 				</Button>
 			}

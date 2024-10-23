@@ -17,7 +17,7 @@ import NormalInput from "@components/Input/NormalInput";
 import AddressInput from "@components/Input/AddressInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
-import { ADDRESS, MintingHubV1ABI } from "@frankencoin/zchf";
+import { ADDRESS, MintingHubV2ABI } from "@frankencoin/zchf";
 
 export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
@@ -49,7 +49,6 @@ export default function PositionCreate({}) {
 	const chainId = useChainId();
 	const collTokenData = useTokenData(collateralAddress);
 	const userBalance = useUserBalance();
-	const blocknumber = useBlockNumber();
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
@@ -62,7 +61,7 @@ export default function PositionCreate({}) {
 				address: collateralAddress as Address,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHubV1],
+				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHubV2],
 			});
 			setUserAllowance(_allowance);
 		};
@@ -213,7 +212,7 @@ export default function PositionCreate({}) {
 				address: collTokenData.address,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [ADDRESS[chainId].mintingHubV1, maxUint256],
+				args: [ADDRESS[chainId].mintingHubV2, maxUint256],
 			});
 
 			const toastContent = [
@@ -223,7 +222,7 @@ export default function PositionCreate({}) {
 				},
 				{
 					title: "Spender: ",
-					value: shortenAddress(ADDRESS[chainId].mintingHubV1),
+					value: shortenAddress(ADDRESS[chainId].mintingHubV2),
 				},
 				{
 					title: "Transaction:",
@@ -253,17 +252,17 @@ export default function PositionCreate({}) {
 		try {
 			setIsConfirming("open");
 			const openWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHubV1,
-				abi: MintingHubV1ABI,
+				address: ADDRESS[chainId].mintingHubV2,
+				abi: MintingHubV2ABI,
 				functionName: "openPosition",
 				args: [
 					collTokenData.address,
 					minCollAmount,
 					initialCollAmount,
 					limitAmount,
-					initPeriod * BigInt(24 * 60 * 60),
-					maturity * 86400n * 30n,
-					auctionDuration * BigInt(60 * 60),
+					parseInt(initPeriod.toString()) * 24 * 60 * 60,
+					parseInt(maturity.toString()) * 86400 * 30,
+					parseInt(auctionDuration.toString()) * 60 * 60,
 					Number(interest),
 					liqPrice,
 					Number(buffer),
@@ -399,24 +398,24 @@ export default function PositionCreate({}) {
 					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold text-center mt-3">Financial Terms</div>
 						<TokenInput
-							label="Minting Limit"
+							label="Global Minting Limit"
 							hideMaxLabel
 							symbol="ZCHF"
 							error={limitAmountError}
 							value={limitAmount.toString()}
 							onChange={onChangeLimitAmount}
-							placeholder="Limit Amount"
+							placeholder="Global Limit Amount"
 						/>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							<NormalInput
-								label="Annual Interest"
+								label="Risk Premium"
 								symbol="%"
 								error={interestError}
 								digit={4}
 								hideMaxLabel
 								value={interest.toString()}
 								onChange={onChangeInterest}
-								placeholder="Annual Interest Percent"
+								placeholder="Risk Premium Percent"
 							/>
 							<NormalInput
 								label="Maturity"

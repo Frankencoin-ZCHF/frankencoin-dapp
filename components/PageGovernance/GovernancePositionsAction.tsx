@@ -9,7 +9,7 @@ import Button from "@components/Button";
 import { Address, zeroAddress } from "viem";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { PositionQuery } from "@frankencoin/api";
-import { PositionV1ABI } from "@frankencoin/zchf";
+import { PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
 
 interface Props {
 	position: PositionQuery;
@@ -33,7 +33,7 @@ export default function GovernancePositionsAction({ position, disabled }: Props)
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: position.position,
-				abi: PositionV1ABI,
+				abi: position.version == 1 ? PositionV1ABI : PositionV2ABI,
 				functionName: "deny",
 				args: [h, msg],
 			});
