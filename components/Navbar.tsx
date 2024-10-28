@@ -30,11 +30,6 @@ export function NavItems() {
 			<li>
 				<NavButton to="/governance" name="Governance" />
 			</li>
-			{isMainet && (
-				<li>
-					<NavButton to="/swap" name="Swap" />
-				</li>
-			)}
 		</>
 	);
 }
