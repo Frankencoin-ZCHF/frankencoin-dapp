@@ -39,7 +39,7 @@ export default function Governance() {
 			</div>
 
 			<div className="md:mt-10">
-				<span className="font-bold text-xl">Leadrate Proposals</span>
+				<span className="font-bold text-xl">Leadrate</span>
 			</div>
 
 			<div className="">

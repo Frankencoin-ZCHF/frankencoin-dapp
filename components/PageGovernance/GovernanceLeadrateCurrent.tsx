@@ -92,36 +92,29 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 
 	return (
 		<AppCard>
-			<div className="grid items-center md:gap-16 md:grid-cols-3 md:pl-16 md:pr-8 max-md:mt-4 max-md:gap-4 max-md:grid-cols-1 max-md:px-4">
-				<AppBox>
-					<div className="flex flex-row py-1">
-						<div className="flex-1 text-left">Current Rate</div>
-						<div className="text-right">{formatCurrency(info.rate / 10_000)}%</div>
-					</div>
-				</AppBox>
+			<div className="grid gap-8 md:grid-cols-2 md:px-12 md:py-4 max-md:grid-cols-1 max-md:p-4">
+				<div className="flex flex-col gap-4">
+					<NormalInput
+						symbol="%"
+						label="Lead Rate:"
+						placeholder={`Current Leadrate: ${formatCurrency(info.rate?.toString())}%`}
+						value={newRate?.toString() ?? ""}
+						digit={4}
+						onChange={(v) => changeNewRate(v)}
+					/>
+				</div>
 
-				<NormalInput
-					symbol="%"
-					label=""
-					placeholder="New rate"
-					value={newRate?.toString() ?? ""}
-					digit={4}
-					onChange={(v) => changeNewRate(v)}
-				/>
-
-				<div className="flex justify-end">
-					<div className="my-2 md:w-[8rem] max-md:w-full">
-						<GuardToAllowedChainBtn label="Propose" disabled={isDisabled || isHidden}>
-							<Button
-								className="h-10"
-								disabled={isDisabled || isHidden}
-								isLoading={isHandling}
-								onClick={(e) => handleOnClick(e)}
-							>
-								Propose
-							</Button>
-						</GuardToAllowedChainBtn>
-					</div>
+				<div className="md:mt-8 md:px-16">
+					<GuardToAllowedChainBtn label="Propose" disabled={isDisabled || isHidden}>
+						<Button
+							className="max-md:h-10 md:h-12"
+							disabled={isDisabled || isHidden}
+							isLoading={isHandling}
+							onClick={(e) => handleOnClick(e)}
+						>
+							Propose new Leadrate
+						</Button>
+					</GuardToAllowedChainBtn>
 				</div>
 			</div>
 		</AppCard>

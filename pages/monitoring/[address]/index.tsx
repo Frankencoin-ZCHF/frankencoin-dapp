@@ -136,7 +136,7 @@ export default function PositionDetail() {
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Start Date" />
-								<b>{formatDate(position.start)}</b>
+								<b>{formatDate(position.isOriginal ? position.start : position.created)}</b>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Expiration Date" />
@@ -196,7 +196,7 @@ function ActiveAuctionsRow({ position, challenge }: Props) {
 				</AppBox>
 
 				<div className="absolute right-4 bottom-6 w-20">
-					<Button className="h-10" onClick={() => navigate.push(`/challenges/${challenge.number}/bid`)}>
+					<Button className="h-10" onClick={() => navigate.push(`/challenges/${challenge.id}/bid`)}>
 						Bid
 					</Button>
 				</div>

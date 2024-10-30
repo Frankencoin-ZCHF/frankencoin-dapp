@@ -76,7 +76,7 @@ export default function CollateralAndPositionsOverview() {
 	return (
 		<div className=" flex flex-col gap-y-4">
 			{stats.map((stat) => (
-				<div key={stat.original.position} className="bg-card-body-primary text-card-content-primary rounded-2xl p-8">
+				<div key={stat.original.position} className="bg-card-body-primary text-text-primary rounded-2xl p-8">
 					<div className="grid grid-cols-3 gap-4">
 						<TokenLogo currency={stat.collateral.symbol.toLowerCase()} />
 						<div className="col-span-2 text-2xl font-bold mb-10">
@@ -86,28 +86,26 @@ export default function CollateralAndPositionsOverview() {
 
 					<div className="mb-5">
 						The total locked balance is{" "}
-						<span className="front-bold font-semibold text-card-content-highlight">
+						<span className="front-bold font-semibold text-text-header">
 							{stat.balance} {stat.collateral.symbol}
 						</span>{" "}
 						(= {formatCurrency(stat.valueLocked.toString(), 2)} $). This locked collateral serves as the foundation for minting{" "}
 						{stat.mint.name} ({stat.mint.symbol}) tokens. There are{" "}
-						<span className="front-bold font-semibold text-card-content-highlight">
+						<span className="front-bold font-semibold text-text-header">
 							{stat.originals.length} positions opened as initial positions
 						</span>
 						. These represent the primary original positions created with their combined maximum limit of{" "}
-						<span className="front-bold font-semibold text-card-content-highlight">
+						<span className="front-bold font-semibold text-text-header">
 							{formatCurrency(stat.limitForClones.toString(), 2)} {stat.mint.symbol} to mint
 						</span>
 						. There are{" "}
-						<span className="front-bold font-semibold text-card-content-highlight">
-							{stat.clones.length} positions opened as clones
-						</span>{" "}
+						<span className="front-bold font-semibold text-text-header">{stat.clones.length} positions opened as clones</span>{" "}
 						of an original position or one of their clones. There have been already{" "}
-						<span className="front-bold font-semibold text-card-content-highlight">
+						<span className="front-bold font-semibold text-text-header">
 							{formatCurrency(stat.minted.toString(), 2)} {stat.mint.symbol} minted
 						</span>{" "}
 						from all positions, which represents{" "}
-						<span className="front-bold font-semibold text-card-content-highlight">
+						<span className="front-bold font-semibold text-text-header">
 							{Math.round(100 - stat.availableForClonesPct)}% of the maximum minting limit
 						</span>{" "}
 						for this collateral.
@@ -115,15 +113,13 @@ export default function CollateralAndPositionsOverview() {
 
 					<div className="mb-5">
 						The highest liquidation price from all positions is{" "}
-						<span className="front-bold font-semibold text-card-content-highlight">
+						<span className="front-bold font-semibold text-text-header">
 							{formatCurrency(stat.highestZCHFPrice.toString(), 2)} ZCHF/{stat.collateral.symbol}
 						</span>
 						, which represents the worst{" "}
-						<span className="front-bold font-semibold text-card-content-highlight">
-							collateralisation of {stat.collateralizedPct}%
-						</span>{" "}
+						<span className="front-bold font-semibold text-text-header">collateralisation of {stat.collateralizedPct}%</span>{" "}
 						for this collateral. The current price of {stat.collateral.name} ({stat.collateral.symbol}) on Coingecko is{" "}
-						<span className="front-bold font-semibold text-card-content-highlight">
+						<span className="front-bold font-semibold text-text-header">
 							{formatCurrency(stat.collateralPriceInZCHF.toString(), 2)} ZCHF/{stat.collateral.symbol}
 						</span>{" "}
 						or {formatCurrency((stat.collateral.price.usd ?? "0").toString(), 2)} USD/{stat.collateral.symbol}.

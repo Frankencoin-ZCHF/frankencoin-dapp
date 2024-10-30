@@ -179,7 +179,9 @@ export default function GovernanceLeadrateRow({ headers, info, proposal, current
 					{proposal.nextRate / 10_000} %
 				</div>
 
-				<div className="flex flex-col">{currentProposal ? (hoursUntil > 0 ? stateStr : "Passed") : "Expired"}</div>
+				<div className="flex flex-col">
+					{currentProposal ? (hoursUntil > 0 ? stateStr : info.rate != proposal.nextRate ? "Ready" : "Passed") : "Expired"}
+				</div>
 			</TableRow>
 		</>
 	);
