@@ -1,3 +1,9 @@
+import SavingsDetailsCard from "@components/PageSavings/SavingsDetailsCard";
+import SavingsGlobalCard from "@components/PageSavings/SavingsGlobalCard";
+import SavingsInteractionCard from "@components/PageSavings/SavingsInteractionCard";
+import SavingsInterestTable from "@components/PageSavings/SavingsInterestTable";
+import SavingsSavedTable from "@components/PageSavings/SavingsSavedTable";
+import SavingsWithdrawnTable from "@components/PageSavings/SavingsWithdrawnTable";
 import Head from "next/head";
 
 export default function SavingsPage() {
@@ -7,15 +13,40 @@ export default function SavingsPage() {
 				<title>Frankencoin - Savings</title>
 			</Head>
 
-			<div className="flex flex-col items-center justify-center w-full text-center" style={{ height: "60vh" }}>
-				<h1 className="text-xl font-bold">Coming Soon</h1>
-				<p className="text-md mt-[5rem] md:mx-[10rem]">
-					A <a href="https://github.com/Frankencoin-ZCHF/FrankenCoin/blob/version2024/contracts/Savings.sol">savings module</a> is
-					under construction. It aims at enabling users to temporarily lock up some of their Frankencoinss and to earn an
-					interest. The plan is to go live with this feature before the end of the year. If you have inputs to its functionality,
-					you can file them on <a href="https://github.com/Frankencoin-ZCHF/FrankenCoin/issues/29">github</a>.
-				</p>
+			<div className="md:mt-10">
+				<span className="font-bold text-xl">Savings Statistics</span>
 			</div>
+
+			<div className="md:mt-8">{<SavingsGlobalCard />}</div>
+
+			<div className="md:mt-10">
+				<span className="font-bold text-xl">Earn some Interest</span>
+			</div>
+
+			<div className="md:mt-8">
+				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">
+					<SavingsInteractionCard />
+					<SavingsDetailsCard />
+				</section>
+			</div>
+
+			<div className="md:mt-10">
+				<span className="font-bold text-xl">Latest Saved</span>
+			</div>
+
+			<div className="md:mt-8">{<SavingsSavedTable />}</div>
+
+			<div className="md:mt-10">
+				<span className="font-bold text-xl">Latest Interest Claimed</span>
+			</div>
+
+			<div className="md:mt-8">{<SavingsInterestTable />}</div>
+
+			<div className="md:mt-10">
+				<span className="font-bold text-xl">Latest Withdrawn</span>
+			</div>
+
+			<div className="md:mt-8">{<SavingsWithdrawnTable />}</div>
 		</main>
 	);
 }

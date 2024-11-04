@@ -4,10 +4,13 @@ import {
 	DispatchApiLeadrateInfo,
 	DispatchApiLeadrateProposed,
 	DispatchApiLeadrateRate,
+	DispatchApiSavingsInfo,
+	DispatchApiSavingsUserTable,
 	DispatchBoolean,
 	SavingsState,
 } from "./savings.types";
-import { ApiLeadrateInfo, ApiLeadrateProposed, ApiLeadrateRate } from "@frankencoin/api";
+import { ApiLeadrateInfo, ApiLeadrateProposed, ApiLeadrateRate, ApiSavingsInfo, ApiSavingsUserTable } from "@frankencoin/api";
+import { Address } from "viem";
 
 // --------------------------------------------------------------------------------
 
@@ -36,6 +39,21 @@ export const initialState: SavingsState = {
 		num: 0,
 		list: [],
 	},
+
+	savingsInfo: {
+		totalSaved: 0,
+		totalWithdrawn: 0,
+		totalBalance: 0,
+		totalInterest: 0,
+		rate: 0,
+		ratioOfSupply: 0,
+	},
+
+	savingsUserTable: {
+		interest: [],
+		save: [],
+		withdraw: [],
+	},
 };
 
 // --------------------------------------------------------------------------------
@@ -63,6 +81,14 @@ export const slice = createSlice({
 		setLeadrateRate: (state, action: { payload: ApiLeadrateRate }) => {
 			state.leadrateRate = action.payload;
 		},
+
+		setSavingsInfo: (state, action: { payload: ApiSavingsInfo }) => {
+			state.savingsInfo = action.payload;
+		},
+
+		setSavingsUserTable: (state, action: { payload: ApiSavingsUserTable }) => {
+			state.savingsUserTable = action.payload;
+		},
 	},
 });
 
@@ -71,7 +97,17 @@ export const actions = slice.actions;
 
 // --------------------------------------------------------------------------------
 export const fetchSavings =
-	() => async (dispatch: Dispatch<DispatchBoolean | DispatchApiLeadrateInfo | DispatchApiLeadrateProposed | DispatchApiLeadrateRate>) => {
+	(account: Address | undefined) =>
+	async (
+		dispatch: Dispatch<
+			| DispatchBoolean
+			| DispatchApiLeadrateInfo
+			| DispatchApiLeadrateProposed
+			| DispatchApiLeadrateRate
+			| DispatchApiSavingsInfo
+			| DispatchApiSavingsUserTable
+		>
+	) => {
 		// ---------------------------------------------------------------
 		console.log("Loading [REDUX]: Savings");
 
@@ -85,6 +121,16 @@ export const fetchSavings =
 
 		const response3 = await FRANKENCOIN_API_CLIENT.get("/savings/leadrate/rates");
 		dispatch(slice.actions.setLeadrateRate(response3.data as ApiLeadrateRate));
+
+		const response4 = await FRANKENCOIN_API_CLIENT.get("/savings/core/info");
+		dispatch(slice.actions.setSavingsInfo(response4.data as ApiSavingsInfo));
+
+		if (account == undefined) {
+			dispatch(slice.actions.setSavingsUserTable(initialState.savingsUserTable));
+		} else {
+			const response5 = await FRANKENCOIN_API_CLIENT.get(`/savings/core/user/${account}`);
+			dispatch(slice.actions.setSavingsUserTable(response5.data as ApiSavingsUserTable));
+		}
 
 		// ---------------------------------------------------------------
 		// Finalizing, loaded set to ture
