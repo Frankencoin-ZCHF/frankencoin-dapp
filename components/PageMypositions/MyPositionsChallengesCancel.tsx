@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 import { Address } from "viem";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
-import { ABI, ADDRESS } from "@frankencoin/zchf";
+import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 
 interface Props {
 	challenge: ChallengesQueryItem;
@@ -37,7 +37,7 @@ export default function MyPositionsChallengesCancel({ challenge }: Props) {
 
 			const cancelWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: p.version == 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2,
-				abi: p.version == 1 ? ABI.MintingHubV1ABI : ABI.MintingHubV2ABI,
+				abi: p.version == 1 ? MintingHubV1ABI : MintingHubV2ABI,
 				functionName: "bid",
 				args: [n, r, false],
 			});
