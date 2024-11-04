@@ -1,7 +1,6 @@
 import AppCard from "@components/AppCard";
 import TokenInput from "@components/Input/TokenInput";
-import TokenInputSelect from "@components/Input/TokenInputSelect";
-import { faArrowDown, faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ADDRESS } from "@frankencoin/zchf";
 import { useContractUrl } from "@hooks";
@@ -9,10 +8,9 @@ import Button from "@components/Button";
 import Link from "next/link";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { Address, zeroAddress } from "viem";
+import { parseEther, zeroAddress } from "viem";
 import { useEffect, useState } from "react";
-import { readContract } from "wagmi/actions";
-import { WAGMI_CONFIG } from "../../app.config";
+import SavingsDetailsCard from "./SavingsDetailsCard";
 
 export default function SavingsInteractionCard() {
 	const [amount, setAmount] = useState(0n);
@@ -78,44 +76,54 @@ export default function SavingsInteractionCard() {
 	};
 
 	return (
-		<AppCard>
-			<Link href={url} target="_blank">
-				<div className="mt-4 text-lg font-bold underline text-center">
-					Savings Module
-					<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
+		<section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">
+			<AppCard>
+				<Link href={url} target="_blank">
+					<div className="mt-4 text-lg font-bold underline text-center">
+						Savings Module
+						<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
+					</div>
+				</Link>
+
+				<div className="mt-8">
+					<TokenInput
+						label="Save"
+						max={fromBalance}
+						symbol={fromSymbol}
+						placeholder={fromSymbol + " Amount"}
+						value={amount.toString()}
+						onChange={onChangeAmount}
+					/>
 				</div>
-			</Link>
 
-			<div className="mt-8">
-				<TokenInput
-					label="Save"
-					max={fromBalance}
-					symbol={fromSymbol}
-					placeholder={fromSymbol + " Amount"}
-					value={amount.toString()}
-					onChange={onChangeAmount}
-				/>
-			</div>
-
-			<div className="mx-auto my-4 w-72 max-w-full flex-col">
-				<GuardToAllowedChainBtn label={direction ? "Save" : "Withdraw"}>
-					{direction ? (
-						amount > allowanceFrankencoin ? (
-							<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => {}}>
-								Approve
-							</Button>
+				<div className="mx-auto my-4 w-72 max-w-full flex-col">
+					<GuardToAllowedChainBtn label={direction ? "Save" : "Withdraw"}>
+						{direction ? (
+							amount > allowanceFrankencoin ? (
+								<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => {}}>
+									Approve
+								</Button>
+							) : (
+								<Button disabled={amount == 0n || !!error} isLoading={isInversting} onClick={() => {}}>
+									Save
+								</Button>
+							)
 						) : (
-							<Button disabled={amount == 0n || !!error} isLoading={isInversting} onClick={() => {}}>
-								Save
+							<Button isLoading={isRedeeming} disabled={amount == 0n || !!error} onClick={() => {}}>
+								Withdraw
 							</Button>
-						)
-					) : (
-						<Button isLoading={isRedeeming} disabled={amount == 0n || !!error} onClick={() => {}}>
-							Withdraw
-						</Button>
-					)}
-				</GuardToAllowedChainBtn>
-			</div>
-		</AppCard>
+						)}
+					</GuardToAllowedChainBtn>
+				</div>
+			</AppCard>
+
+			<SavingsDetailsCard
+				balance={parseEther("541234")}
+				change={parseEther("61234")}
+				direction={true}
+				interest={parseEther("2434")}
+				locked={true}
+			/>
+		</section>
 	);
 }

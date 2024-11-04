@@ -1,4 +1,3 @@
-import SavingsDetailsCard from "@components/PageSavings/SavingsDetailsCard";
 import SavingsGlobalCard from "@components/PageSavings/SavingsGlobalCard";
 import SavingsInteractionCard from "@components/PageSavings/SavingsInteractionCard";
 import SavingsInterestTable from "@components/PageSavings/SavingsInterestTable";
@@ -13,40 +12,37 @@ export default function SavingsPage() {
 				<title>Frankencoin - Savings</title>
 			</Head>
 
-			<div className="md:mt-10">
+			<div className="mt-10">
 				<span className="font-bold text-xl">Savings Statistics</span>
 			</div>
 
-			<div className="md:mt-8">{<SavingsGlobalCard />}</div>
+			<div className="mt-8">{<SavingsGlobalCard />}</div>
 
-			<div className="md:mt-10">
+			<div className="mt-10">
 				<span className="font-bold text-xl">Earn some Interest</span>
 			</div>
 
-			<div className="md:mt-8">
-				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">
-					<SavingsInteractionCard />
-					<SavingsDetailsCard />
-				</section>
+			<div className="mt-8">
+				<SavingsInteractionCard />
 			</div>
 
-			<div className="md:mt-10">
+			<div className="mt-10">
 				<span className="font-bold text-xl">Latest Saved</span>
 			</div>
 
-			<div className="md:mt-8">{<SavingsSavedTable />}</div>
+			<div className="mt-8">{<SavingsSavedTable />}</div>
 
-			<div className="md:mt-10">
+			<div className="mt-10">
 				<span className="font-bold text-xl">Latest Interest Claimed</span>
 			</div>
 
-			<div className="md:mt-8">{<SavingsInterestTable />}</div>
+			<div className="mt-8">{<SavingsInterestTable />}</div>
 
-			<div className="md:mt-10">
+			<div className="mt-10">
 				<span className="font-bold text-xl">Latest Withdrawn</span>
 			</div>
 
-			<div className="md:mt-8">{<SavingsWithdrawnTable />}</div>
+			<div className="mt-8">{<SavingsWithdrawnTable />}</div>
 		</main>
 	);
 }
