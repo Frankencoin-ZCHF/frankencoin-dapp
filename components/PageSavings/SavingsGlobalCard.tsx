@@ -21,7 +21,7 @@ export default function SavingsGlobalCard() {
 
 				<AppBox>
 					<DisplayLabel label="Saved of Total Supply" />
-					<DisplayAmount className="mt-1" amount={ratioOfSupply} currency="%" hideLogo />
+					<DisplayAmount className="mt-1" amount={ratioOfSupply * 100} currency="%" hideLogo />
 				</AppBox>
 
 				<AppBox>

@@ -15,6 +15,9 @@ import { readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
+import SavingsActionInterest from "./SavingsActionInterest";
+import SavingsActionSave from "./SavingsActionSave";
+import SavingsActionWithdraw from "./SavingsActionWithdraw";
 
 export default function SavingsInteractionCard() {
 	const [amount, setAmount] = useState(0n);
@@ -44,6 +47,8 @@ export default function SavingsInteractionCard() {
 	const direction: boolean = amount >= userSavingsBalance;
 	const claimable: boolean = userSavingsInterest > 0n;
 
+	const change: bigint = amount - (userSavingsBalance + userSavingsInterest);
+
 	console.log({ direction, claimable });
 
 	// ---------------------------------------------------------------------------
@@ -69,12 +74,11 @@ export default function SavingsInteractionCard() {
 			setUserSavingsBalance(_userSavings);
 			setUserSavingsTicks(_userTicks);
 
-			const _current =
-				(await readContract(WAGMI_CONFIG, {
-					address: ADDR.savings,
-					abi: SavingsABI,
-					functionName: "currentTicks",
-				})) + 5_560_000_000_000_000_000_000n;
+			const _current = await readContract(WAGMI_CONFIG, {
+				address: ADDR.savings,
+				abi: SavingsABI,
+				functionName: "currentTicks",
+			});
 			setCurrentTicks(_current);
 
 			const _locktime = _userTicks >= _current ? (_userTicks - _current) / BigInt(leadrate) : 0n;
@@ -142,18 +146,16 @@ export default function SavingsInteractionCard() {
 					<GuardToAllowedChainBtn label={direction ? "Save" : "Withdraw"}>
 						{direction ? (
 							userSavingsInterest > 0 && amount == userSavingsBalance ? (
-								<Button disabled={!!error} isLoading={isClaiming} onClick={() => {}}>
-									Claim Interest
-								</Button>
+								<SavingsActionInterest disabled={!!error} balance={userSavingsBalance} interest={userSavingsInterest} />
 							) : (
-								<Button disabled={!!error} isLoading={isSaving} onClick={() => {}}>
-									Save
-								</Button>
+								<SavingsActionSave disabled={!!error} amount={change} interest={userSavingsInterest} />
 							)
 						) : (
-							<Button isLoading={isWithdrawing} disabled={userSavingsBalance == 0n || !!error} onClick={() => {}}>
-								Withdraw
-							</Button>
+							<SavingsActionWithdraw
+								disabled={userSavingsBalance == 0n || !!error}
+								balance={userSavingsBalance + change + userSavingsInterest}
+								amount={change}
+							/>
 						)}
 					</GuardToAllowedChainBtn>
 				</div>
@@ -161,7 +163,7 @@ export default function SavingsInteractionCard() {
 
 			<SavingsDetailsCard
 				balance={userSavingsBalance}
-				change={amount - (userSavingsBalance + userSavingsInterest)}
+				change={change}
 				direction={direction}
 				interest={userSavingsInterest}
 				locktime={userSavingsLocktime}
