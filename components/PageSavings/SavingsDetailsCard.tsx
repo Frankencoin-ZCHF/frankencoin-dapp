@@ -8,10 +8,10 @@ interface Props {
 	change: bigint;
 	direction: boolean;
 	interest: bigint;
-	locked: boolean;
+	locktime: bigint;
 }
 
-export default function SavingsDetailsCard({ balance, change, direction, interest, locked }: Props) {
+export default function SavingsDetailsCard({ balance, change, direction, interest, locktime }: Props) {
 	const chainId = useChainId();
 	const amount = 1000n;
 
@@ -34,13 +34,20 @@ export default function SavingsDetailsCard({ balance, change, direction, interes
 				<hr className="border-slate-700 border-dashed" />
 				<div className="flex font-bold">
 					<div className="flex-1">Future saved amount</div>
-					<div className="">{formatCurrency(formatUnits(balance + (direction ? change : -change) + interest, 18))} ZCHF</div>
+					<div className="">{formatCurrency(formatUnits(balance + change + interest, 18))} ZCHF</div>
 				</div>
 
 				<div className="flex mt-8">
-					<div className={`flex-1 ${locked ? "" : "hidden"}`}>
-						<span className="font-bold">Note:</span> Interest will be shifted for an weighted avg. of 3 days into the future,
-						the primarly use case is to lock the funds for 3 days.
+					<div className={`flex-1`}>
+						<span className="font-bold">Note:</span> Interest will be shifted for 3 days into the future (weighted average). The
+						primarly use case is to lock the funds for 3 days.{" "}
+						<span className="font-semibold">
+							{locktime > 0
+								? `Your funds are still locked for ${formatCurrency(
+										(parseFloat(locktime.toString()) / 60 / 60).toString()
+								  )} hours.`
+								: ""}
+						</span>
 					</div>
 				</div>
 			</div>

@@ -16,22 +16,22 @@ export default function SavingsGlobalCard() {
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-2">
 				<AppBox>
 					<DisplayLabel label="Total Saved Balance" />
-					<DisplayAmount amount={totalBalance} currency="ZCHF" />
+					<DisplayAmount className="mt-1" amount={totalBalance} currency="ZCHF" hideLogo />
 				</AppBox>
 
 				<AppBox>
-					<DisplayLabel label="Total Supply Saved" />
+					<DisplayLabel label="Saved of Total Supply" />
 					<DisplayAmount className="mt-1" amount={ratioOfSupply} currency="%" hideLogo />
 				</AppBox>
 
 				<AppBox>
 					<DisplayLabel label="Total Interest Claimed" />
-					<DisplayAmount amount={totalInterest} currency="ZCHF" />
+					<DisplayAmount className="mt-1" amount={totalInterest} currency="ZCHF" hideLogo />
 				</AppBox>
 
 				<AppBox>
 					<DisplayLabel label="Saving Rate" />
-					<DisplayAmount className="mt-1" amount={rate / 10_000} currency="%" hideLogo />
+					<DisplayAmount className="mt-1 font-semibold" amount={rate / 10_000} currency="%" hideLogo />
 				</AppBox>
 			</div>
 		</AppCard>

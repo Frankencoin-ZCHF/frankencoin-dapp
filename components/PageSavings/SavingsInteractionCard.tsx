@@ -2,7 +2,7 @@ import AppCard from "@components/AppCard";
 import TokenInput from "@components/Input/TokenInput";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ADDRESS } from "@frankencoin/zchf";
+import { ADDRESS, FrankencoinABI, SavingsABI } from "@frankencoin/zchf";
 import { useContractUrl } from "@hooks";
 import Button from "@components/Button";
 import Link from "next/link";
@@ -11,28 +11,40 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { parseEther, zeroAddress } from "viem";
 import { useEffect, useState } from "react";
 import SavingsDetailsCard from "./SavingsDetailsCard";
+import { readContract } from "wagmi/actions";
+import { WAGMI_CONFIG } from "../../app.config";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/redux.store";
 
 export default function SavingsInteractionCard() {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
-	const [isApproving, setApproving] = useState(false);
-	const [isInversting, setInversting] = useState(false);
-	const [isRedeeming, setRedeeming] = useState(false);
-	const [allowanceFrankencoin, setAllowanceFrankencoin] = useState(0n);
-	const [direction, setDirection] = useState<Boolean>(true);
+	const [isLoaded, setLoaded] = useState<boolean>(false);
+	const [isSaving, setSaving] = useState(false);
+	const [isClaiming, setClaiming] = useState(false);
+	const [isWithdrawing, setWithdrawing] = useState(false);
 
-	const [userAllowance, setUserAllowance] = useState(0n);
 	const [userBalance, setUserBalance] = useState(0n);
+	const [userSavingsBalance, setUserSavingsBalance] = useState(0n);
+	const [userSavingsTicks, setUserSavingsTicks] = useState(0n);
+	const [userSavingsInterest, setUserSavingsInterest] = useState(0n);
+	const [userSavingsLocktime, setUserSavingsLocktime] = useState(0n);
+	const [currentTicks, setCurrentTicks] = useState(0n);
+
+	const leadrate = useSelector((state: RootState) => state.savings.savingsInfo.rate);
 
 	const { data } = useBlockNumber({ watch: true });
 	const { address } = useAccount();
 	const chainId = useChainId();
 	const url = useContractUrl(ADDRESS[chainId].savings);
 	const account = address || zeroAddress;
+	const ADDR = ADDRESS[chainId];
 
-	const fromBalance: bigint = 12000n;
 	const fromSymbol = "ZCHF";
-	const toSymbol = "ZCHF";
+	const direction: boolean = amount >= userSavingsBalance;
+	const claimable: boolean = userSavingsInterest > 0n;
+
+	console.log({ direction, claimable });
 
 	// ---------------------------------------------------------------------------
 
@@ -40,39 +52,67 @@ export default function SavingsInteractionCard() {
 		if (account === zeroAddress) return;
 
 		const fetchAsync = async function () {
-			// const _balance = await readContract(WAGMI_CONFIG, {
-			// 	address: position.collateral,
-			// 	abi: erc20Abi,
-			// 	functionName: "balanceOf",
-			// 	args: [acc],
-			// });
-			// setUserBalance(_balance);
-			// const _allowance = await readContract(WAGMI_CONFIG, {
-			// 	address: position.collateral,
-			// 	abi: erc20Abi,
-			// 	functionName: "allowance",
-			// 	args: [acc, position.version == 1 ? ADDRESS[WAGMI_CHAIN.id].mintingHubV1 : ADDRESS[WAGMI_CHAIN.id].mintingHubV2],
-			// });
-			// setUserAllowance(_allowance);
+			const _balance = await readContract(WAGMI_CONFIG, {
+				address: ADDR.frankenCoin,
+				abi: FrankencoinABI,
+				functionName: "balanceOf",
+				args: [account],
+			});
+			setUserBalance(_balance);
+
+			const [_userSavings, _userTicks] = await readContract(WAGMI_CONFIG, {
+				address: ADDR.savings,
+				abi: SavingsABI,
+				functionName: "savings",
+				args: [account],
+			});
+			setUserSavingsBalance(_userSavings);
+			setUserSavingsTicks(_userTicks);
+
+			const _current =
+				(await readContract(WAGMI_CONFIG, {
+					address: ADDR.savings,
+					abi: SavingsABI,
+					functionName: "currentTicks",
+				})) + 5_560_000_000_000_000_000_000n;
+			setCurrentTicks(_current);
+
+			const _locktime = _userTicks >= _current ? (_userTicks - _current) / BigInt(leadrate) : 0n;
+			setUserSavingsLocktime(_locktime);
+
+			const _interest = _userTicks == 0n || _locktime > 0 ? 0n : ((_current - _userTicks) * BigInt(leadrate)) / 1_000_000n;
+
+			console.log({
+				_current,
+				_userTicks,
+				_locktime,
+				_interest,
+			});
+			setUserSavingsInterest(_interest);
+
+			if (!isLoaded) {
+				setAmount(_userSavings);
+				setLoaded(true);
+			}
 		};
 
 		fetchAsync();
-	}, [data, account]);
+	}, [data, account, ADDR, isLoaded, leadrate]);
+
+	useEffect(() => {
+		setLoaded(false);
+	}, [account]);
 
 	// ---------------------------------------------------------------------------
 
 	const onChangeAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
-		if (valueBigInt > fromBalance) {
+		if (valueBigInt > userBalance + userSavingsBalance) {
 			setError(`Not enough ${fromSymbol} in your wallet.`);
 		} else {
 			setError("");
 		}
-	};
-
-	const handleDirectionToggle = () => {
-		setDirection(!direction);
 	};
 
 	return (
@@ -88,28 +128,30 @@ export default function SavingsInteractionCard() {
 				<div className="mt-8">
 					<TokenInput
 						label="Save"
-						max={fromBalance}
+						max={userBalance + userSavingsBalance}
+						balanceLabel="Max to Save"
 						symbol={fromSymbol}
 						placeholder={fromSymbol + " Amount"}
 						value={amount.toString()}
 						onChange={onChangeAmount}
+						error={error}
 					/>
 				</div>
 
-				<div className="mx-auto my-4 w-72 max-w-full flex-col">
+				<div className="mx-auto my-4 w-72 max-w-full flex-col flex gap-4">
 					<GuardToAllowedChainBtn label={direction ? "Save" : "Withdraw"}>
 						{direction ? (
-							amount > allowanceFrankencoin ? (
-								<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => {}}>
-									Approve
+							userSavingsInterest > 0 && amount == userSavingsBalance ? (
+								<Button disabled={!!error} isLoading={isClaiming} onClick={() => {}}>
+									Claim Interest
 								</Button>
 							) : (
-								<Button disabled={amount == 0n || !!error} isLoading={isInversting} onClick={() => {}}>
+								<Button disabled={!!error} isLoading={isSaving} onClick={() => {}}>
 									Save
 								</Button>
 							)
 						) : (
-							<Button isLoading={isRedeeming} disabled={amount == 0n || !!error} onClick={() => {}}>
+							<Button isLoading={isWithdrawing} disabled={userSavingsBalance == 0n || !!error} onClick={() => {}}>
 								Withdraw
 							</Button>
 						)}
@@ -118,11 +160,11 @@ export default function SavingsInteractionCard() {
 			</AppCard>
 
 			<SavingsDetailsCard
-				balance={parseEther("541234")}
-				change={parseEther("61234")}
-				direction={true}
-				interest={parseEther("2434")}
-				locked={true}
+				balance={userSavingsBalance}
+				change={amount - (userSavingsBalance + userSavingsInterest)}
+				direction={direction}
+				interest={userSavingsInterest}
+				locktime={userSavingsLocktime}
 			/>
 		</section>
 	);
