@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
@@ -13,9 +13,10 @@ interface Props {
 	amount: bigint;
 	interest: bigint;
 	disabled?: boolean;
+	setLoaded?: (val: boolean) => Dispatch<SetStateAction<boolean>>;
 }
 
-export default function SavingsActionSave({ amount, interest, disabled }: Props) {
+export default function SavingsActionSave({ amount, interest, disabled, setLoaded }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
 	const account = useAccount();
@@ -65,6 +66,7 @@ export default function SavingsActionSave({ amount, interest, disabled }: Props)
 				position: toast.POSITION.BOTTOM_RIGHT,
 			});
 		} finally {
+			if (setLoaded != undefined) setLoaded(false);
 			setAction(false);
 		}
 	};

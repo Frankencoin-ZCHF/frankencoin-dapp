@@ -84,11 +84,15 @@ export default function SavingsInteractionCard() {
 			const _locktime = _userTicks >= _current ? (_userTicks - _current) / BigInt(leadrate) : 0n;
 			setUserSavingsLocktime(_locktime);
 
-			const _interest = _userTicks == 0n || _locktime > 0 ? 0n : ((_current - _userTicks) * BigInt(leadrate)) / 1_000_000n;
+			const _tickDiff = _current - _userTicks;
+			const _interest = _userTicks == 0n || _locktime > 0 ? 0n : (_tickDiff * _userSavings) / (1_000_000n * 365n * 24n * 60n * 60n);
 
 			console.log({
+				_balance,
+				_userSavings,
 				_current,
 				_userTicks,
+				_tickDiff,
 				_locktime,
 				_interest,
 			});
@@ -163,7 +167,7 @@ export default function SavingsInteractionCard() {
 
 			<SavingsDetailsCard
 				balance={userSavingsBalance}
-				change={change}
+				change={userSavingsBalance == amount ? 0n : change}
 				direction={direction}
 				interest={userSavingsInterest}
 				locktime={userSavingsLocktime}
