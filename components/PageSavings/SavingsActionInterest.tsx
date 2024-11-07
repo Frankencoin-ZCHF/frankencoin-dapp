@@ -28,11 +28,15 @@ export default function SavingsActionInterest({ balance, interest, disabled, set
 
 		try {
 			setAction(true);
-
+			/**
+			 * @dev: checkout if you want to return back to "claim" into savings account, aka reinvest via SC function "refreshMyBalance"
+			 * https://github.com/Frankencoin-ZCHF/frankencoin-dapp/blob/b1356dc0e45157b0e65b20fef019af00e5126653/components/PageSavings/SavingsActionInterest.tsx
+			 */
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].savings,
 				abi: SavingsABI,
-				functionName: "refreshMyBalance",
+				functionName: "adjust",
+				args: [balance],
 			});
 
 			const toastContent = [

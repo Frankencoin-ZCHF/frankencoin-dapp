@@ -35,8 +35,6 @@ export default function GovernanceLeadrateRow({ headers, info, proposal, current
 	const dateArr: string[] = new Date(proposal.created * 1000).toDateString().split(" ");
 	const dateStr: string = `${dateArr[2]} ${dateArr[1]} ${dateArr[3]}`;
 
-	const isActive: boolean = hoursUntil > 0;
-
 	const handleOnApply = async function (e: any) {
 		e.preventDefault();
 
@@ -137,18 +135,18 @@ export default function GovernanceLeadrateRow({ headers, info, proposal, current
 				headers={headers}
 				actionCol={
 					currentProposal ? (
-						isActive && info.isProposal ? (
-							<GuardToAllowedChainBtn label="Deny" disabled={!isActive || !info.isProposal}>
+						info.isPending && info.isProposal ? (
+							<GuardToAllowedChainBtn label="Deny" disabled={!info.isPending || !info.isProposal}>
 								<Button
 									className="h-10"
-									disabled={!isActive || !info.isProposal || isHidden}
+									disabled={!info.isPending || !info.isProposal || isHidden}
 									isLoading={isDenying}
 									onClick={(e) => handleOnDeny(e)}
 								>
 									Deny
 								</Button>
 							</GuardToAllowedChainBtn>
-						) : info.isProposal ? (
+						) : (
 							<GuardToAllowedChainBtn label="Apply" disabled={!info.isProposal}>
 								<Button
 									className="h-10"
@@ -159,8 +157,6 @@ export default function GovernanceLeadrateRow({ headers, info, proposal, current
 									Apply
 								</Button>
 							</GuardToAllowedChainBtn>
-						) : (
-							<></>
 						)
 					) : (
 						<></>

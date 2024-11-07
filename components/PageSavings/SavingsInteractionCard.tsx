@@ -23,9 +23,6 @@ export default function SavingsInteractionCard() {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [isLoaded, setLoaded] = useState<boolean>(false);
-	const [isSaving, setSaving] = useState(false);
-	const [isClaiming, setClaiming] = useState(false);
-	const [isWithdrawing, setWithdrawing] = useState(false);
 
 	const [userBalance, setUserBalance] = useState(0n);
 	const [userSavingsBalance, setUserSavingsBalance] = useState(0n);
@@ -46,10 +43,7 @@ export default function SavingsInteractionCard() {
 	const fromSymbol = "ZCHF";
 	const direction: boolean = amount >= userSavingsBalance;
 	const claimable: boolean = userSavingsInterest > 0n;
-
 	const change: bigint = amount - (userSavingsBalance + userSavingsInterest);
-
-	console.log({ direction, claimable });
 
 	// ---------------------------------------------------------------------------
 
@@ -87,15 +81,6 @@ export default function SavingsInteractionCard() {
 			const _tickDiff = _current - _userTicks;
 			const _interest = _userTicks == 0n || _locktime > 0 ? 0n : (_tickDiff * _userSavings) / (1_000_000n * 365n * 24n * 60n * 60n);
 
-			console.log({
-				_balance,
-				_userSavings,
-				_current,
-				_userTicks,
-				_tickDiff,
-				_locktime,
-				_interest,
-			});
 			setUserSavingsInterest(_interest);
 
 			if (!isLoaded) {
@@ -135,7 +120,7 @@ export default function SavingsInteractionCard() {
 
 				<div className="mt-8">
 					<TokenInput
-						label="Save"
+						label="Save Amount"
 						max={userBalance + userSavingsBalance}
 						balanceLabel="Max to Save"
 						symbol={fromSymbol}
@@ -152,14 +137,10 @@ export default function SavingsInteractionCard() {
 							userSavingsInterest > 0 && amount == userSavingsBalance ? (
 								<SavingsActionInterest disabled={!!error} balance={userSavingsBalance} interest={userSavingsInterest} />
 							) : (
-								<SavingsActionSave disabled={!!error} amount={change} interest={userSavingsInterest} />
+								<SavingsActionSave disabled={!!error} amount={amount} interest={userSavingsInterest} />
 							)
 						) : (
-							<SavingsActionWithdraw
-								disabled={userSavingsBalance == 0n || !!error}
-								balance={userSavingsBalance + change + userSavingsInterest}
-								amount={change}
-							/>
+							<SavingsActionWithdraw disabled={userSavingsBalance == 0n || !!error} balance={amount} change={change} />
 						)}
 					</GuardToAllowedChainBtn>
 				</div>

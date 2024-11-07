@@ -11,12 +11,12 @@ import { ADDRESS, SavingsABI } from "@frankencoin/zchf";
 
 interface Props {
 	balance: bigint;
-	amount: bigint;
+	change: bigint;
 	disabled?: boolean;
 	setLoaded?: (val: boolean) => Dispatch<SetStateAction<boolean>>;
 }
 
-export default function SavingsActionWithdraw({ balance, amount, disabled, setLoaded }: Props) {
+export default function SavingsActionWithdraw({ balance, change, disabled, setLoaded }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
 	const account = useAccount();
@@ -32,8 +32,8 @@ export default function SavingsActionWithdraw({ balance, amount, disabled, setLo
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].savings,
 				abi: SavingsABI,
-				functionName: "save",
-				args: [amount],
+				functionName: "adjust",
+				args: [balance],
 			});
 
 			const toastContent = [
@@ -43,7 +43,7 @@ export default function SavingsActionWithdraw({ balance, amount, disabled, setLo
 				},
 				{
 					title: `Withdraw: `,
-					value: `${formatCurrency(formatUnits(amount, 18))} ZCHF`,
+					value: `${formatCurrency(formatUnits(change, 18))} ZCHF`,
 				},
 				{
 					title: "Transaction: ",

@@ -37,9 +37,10 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 	if (!info) return null;
 
 	const changeNewRate = (value: string) => {
+		if (!value || value?.length == 0) return;
 		const n = parseFloat(value);
-		if (typeof n != "number") return;
-		setNewRate(n);
+		if (typeof n != "number") setNewRate(0);
+		else setNewRate(n);
 	};
 
 	const handleOnClick = async function (e: any) {
@@ -97,8 +98,8 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 					<NormalInput
 						symbol="%"
 						label="Lead Rate:"
-						placeholder={`Current Leadrate: ${formatCurrency(info.rate?.toString())}%`}
-						value={newRate?.toString() ?? ""}
+						placeholder={`Current Leadrate: %`}
+						value={newRate.toString()}
 						digit={4}
 						onChange={(v) => changeNewRate(v)}
 					/>
