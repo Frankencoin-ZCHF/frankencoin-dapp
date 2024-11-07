@@ -41,9 +41,9 @@ export default function SavingsInteractionCard() {
 	const ADDR = ADDRESS[chainId];
 
 	const fromSymbol = "ZCHF";
-	const direction: boolean = amount >= userSavingsBalance;
-	const claimable: boolean = userSavingsInterest > 0n;
 	const change: bigint = amount - (userSavingsBalance + userSavingsInterest);
+	const direction: boolean = amount >= userSavingsBalance + userSavingsInterest;
+	const claimable: boolean = userSavingsInterest > 0n;
 
 	// ---------------------------------------------------------------------------
 
@@ -133,12 +133,10 @@ export default function SavingsInteractionCard() {
 
 				<div className="mx-auto my-4 w-72 max-w-full flex-col flex gap-4">
 					<GuardToAllowedChainBtn label={direction ? "Save" : "Withdraw"}>
-						{direction ? (
-							userSavingsInterest > 0 && amount == userSavingsBalance ? (
-								<SavingsActionInterest disabled={!!error} balance={userSavingsBalance} interest={userSavingsInterest} />
-							) : (
-								<SavingsActionSave disabled={!!error} amount={amount} interest={userSavingsInterest} />
-							)
+						{userSavingsInterest > 0 && amount == userSavingsBalance ? (
+							<SavingsActionInterest disabled={!!error} balance={userSavingsBalance} interest={userSavingsInterest} />
+						) : amount > userSavingsBalance ? (
+							<SavingsActionSave disabled={!!error} amount={amount} interest={userSavingsInterest} />
 						) : (
 							<SavingsActionWithdraw disabled={userSavingsBalance == 0n || !!error} balance={amount} change={change} />
 						)}
@@ -148,9 +146,9 @@ export default function SavingsInteractionCard() {
 
 			<SavingsDetailsCard
 				balance={userSavingsBalance}
-				change={userSavingsBalance == amount ? 0n : change}
+				change={isLoaded ? change : 0n}
 				direction={direction}
-				interest={userSavingsInterest}
+				interest={isLoaded ? userSavingsInterest : 0n}
 				locktime={userSavingsLocktime}
 			/>
 		</section>

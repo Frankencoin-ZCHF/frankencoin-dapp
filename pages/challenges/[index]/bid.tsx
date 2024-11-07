@@ -155,9 +155,9 @@ export default function ChallengePlaceBid() {
 					},
 				},
 			});
+			setNavigating(true);
 		} finally {
 			setBidding(false);
-			setNavigating(true);
 		}
 	};
 

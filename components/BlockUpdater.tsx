@@ -85,12 +85,12 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		store.dispatch(fetchBidsList());
 		store.dispatch(fetchAccount(latestAddress));
 		store.dispatch(fetchSavings(latestAddress));
+		store.dispatch(fetchPricesList());
+		store.dispatch(fetchEcosystem());
 
 		// Block update policy: EACH 10 BLOCKS
 		if (fetchedLatestHeight >= latestHeight10 + 10) {
 			console.log(`Policy [BlockUpdater]: EACH 10 BLOCKS ${fetchedLatestHeight}`);
-			store.dispatch(fetchEcosystem());
-			store.dispatch(fetchPricesList());
 			setLatestHeight10(fetchedLatestHeight);
 		}
 

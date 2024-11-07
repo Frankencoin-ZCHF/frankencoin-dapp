@@ -70,9 +70,9 @@ export default function MyPositionsChallengesCancel({ challenge }: Props) {
 					},
 				},
 			});
+			setHidden(true);
 		} finally {
 			setCancelling(false);
-			setHidden(true);
 		}
 	};
 

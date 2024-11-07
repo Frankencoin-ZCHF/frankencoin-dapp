@@ -53,8 +53,8 @@ export default function PositionCreate({}) {
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
 		if (acc === undefined) return;
-		if (isConfirming != "approve") return;
-		if (collateralAddress == "") return;
+		if (isConfirming == "approve") return;
+		if (isAddress(collateralAddress) == false) return;
 
 		const fetchAsync = async function () {
 			const _allowance = await readContract(WAGMI_CONFIG, {
@@ -360,8 +360,7 @@ export default function PositionCreate({}) {
 							value={collateralAddress}
 							onChange={onChangeCollateralAddress}
 						/>
-						{collTokenData.symbol != "NaN" &&
-						(userAllowance == 0n || userAllowance < minCollAmount || userAllowance < initialCollAmount) ? (
+						{collTokenData.symbol != "NaN" && initialCollAmount > userAllowance ? (
 							<Button
 								isLoading={isConfirming == "approve"}
 								disabled={
