@@ -20,6 +20,7 @@ export const initialState: SavingsState = {
 
 	leadrateInfo: {
 		isProposal: false,
+		isPending: false,
 		nextchange: 0,
 		nextRate: 0,
 		rate: 0,
