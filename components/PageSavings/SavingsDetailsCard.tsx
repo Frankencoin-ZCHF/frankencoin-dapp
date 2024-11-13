@@ -16,27 +16,26 @@ export default function SavingsDetailsCard({ balance, change, direction, interes
 			<div className="text-lg font-bold text-center">Outcome</div>
 			<div className="p-4 flex flex-col gap-2">
 				<div className="flex">
-					<div className="flex-1">Current saved amount</div>
+					<div className="flex-1">Your current balance</div>
 					<div className="">{formatCurrency(formatUnits(balance, 18))} ZCHF</div>
 				</div>
 				<div className="flex">
-					<div className="flex-1">{direction ? "You put into savings" : "You withdraw from savings"}</div>
+					<div className="flex-1">{direction ? "To be added from your wallet" : "Withdrawn to your wallet"}</div>
 					<div className="">{formatCurrency(formatUnits(change, 18))} ZCHF</div>
 				</div>
 				<div className="flex">
-					<div className="flex-1">Accured Interest</div>
+					<div className="flex-1">Interest to be collected</div>
 					<div className="">{formatCurrency(formatUnits(interest, 18))} ZCHF</div>
 				</div>
 				<hr className="border-slate-700 border-dashed" />
 				<div className="flex font-bold">
-					<div className="flex-1">Future saved amount</div>
+					<div className="flex-1">Resulting balance</div>
 					<div className="">{formatCurrency(formatUnits(balance + change + interest, 18))} ZCHF</div>
 				</div>
 
 				<div className="flex mt-8">
 					<div className={`flex-1`}>
-						<span className="font-bold">Note:</span> Interest will be shifted for 3 days into the future (weighted average). The
-						primarly use case is to lock the funds for 3 days.{" "}
+						Your balance will be locked until interest starts accruing, which can take up to three days. {" "}
 						<span className="font-semibold">
 							{locktime > 0
 								? `Your funds are still locked for ${formatCurrency(

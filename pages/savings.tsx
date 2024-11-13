@@ -23,33 +23,29 @@ export default function SavingsPage() {
 			</Head>
 
 			<div className="mt-10">
-				<span className="font-bold text-xl">Savings Statistics</span>
+				<span className="font-bold text-xl">Save Your Frankencoins</span>
 			</div>
 
 			<div className="mt-8">{<SavingsGlobalCard />}</div>
-
-			<div className="mt-10">
-				<span className="font-bold text-xl">Earn some Interest</span>
-			</div>
-
+			
 			<div className="mt-8">
 				<SavingsInteractionCard />
 			</div>
 
 			<div className="mt-10">
-				<span className="font-bold text-xl">Latest Saved</span>
+				<span className="font-bold text-xl">Recent Deposits</span>
 			</div>
 
 			<div className="mt-8">{<SavingsSavedTable />}</div>
 
 			<div className="mt-10">
-				<span className="font-bold text-xl">Latest Interest Claimed</span>
+				<span className="font-bold text-xl">Recent Interest Claims</span>
 			</div>
 
 			<div className="mt-8">{<SavingsInterestTable />}</div>
 
 			<div className="mt-10">
-				<span className="font-bold text-xl">Latest Withdrawn</span>
+				<span className="font-bold text-xl">Recent Withdrawals</span>
 			</div>
 
 			<div className="mt-8">{<SavingsWithdrawnTable />}</div>

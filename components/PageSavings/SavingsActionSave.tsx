@@ -53,10 +53,10 @@ export default function SavingsActionSave({ amount, interest, disabled, setLoade
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Earn some Interest...`} rows={toastContent} />,
+					render: <TxToast title={`Increasing savings...`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully saved" rows={toastContent} />,
+					render: <TxToast title="Savings increased" rows={toastContent} />,
 				},
 			});
 
