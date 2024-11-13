@@ -280,7 +280,7 @@ export default function PositionCreate({}) {
 				},
 				{
 					title: "LiqPrice: ",
-					value: formatBigInt(liqPrice, 36 - parseInt(collTokenData.decimals.toString())),
+					value: formatBigInt(liqPrice, 36 - parseInt(collTokenData.decimals.toString())) + " ZCHF",
 				},
 				{
 					title: "Transaction:",

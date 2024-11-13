@@ -24,11 +24,9 @@ import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 export default function PositionChallenge() {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
-	const [errorDate, setErrorDate] = useState("");
 	const [isApproving, setApproving] = useState(false);
 	const [isChallenging, setChallenging] = useState(false);
 	const [isNavigating, setNavigating] = useState(false);
-	const [expirationDate, setExpirationDate] = useState(new Date());
 
 	const [userAllowance, setUserAllowance] = useState(0n);
 	const [userBalance, setUserBalance] = useState(0n);
@@ -174,7 +172,7 @@ export default function PositionChallenge() {
 				},
 				{
 					title: "Price: ",
-					value: formatBigInt(BigInt(position.price), 36 - position.collateralDecimals),
+					value: formatBigInt(BigInt(position.price), 36 - position.collateralDecimals) + " ZCHF",
 				},
 				{
 					title: "Transaction:",
@@ -195,9 +193,9 @@ export default function PositionChallenge() {
 					},
 				},
 			});
+			setNavigating(true);
 		} finally {
 			setChallenging(false);
-			setNavigating(true);
 		}
 	};
 

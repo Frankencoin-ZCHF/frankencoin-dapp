@@ -1,5 +1,4 @@
 import AppCard from "@components/AppCard";
-import { useChainId } from "wagmi";
 import { formatCurrency } from "@utils";
 import { formatUnits } from "viem";
 
@@ -12,9 +11,6 @@ interface Props {
 }
 
 export default function SavingsDetailsCard({ balance, change, direction, interest, locktime }: Props) {
-	const chainId = useChainId();
-	const amount = 1000n;
-
 	return (
 		<AppCard>
 			<div className="text-lg font-bold text-center">Outcome</div>

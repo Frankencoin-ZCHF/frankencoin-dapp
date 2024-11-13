@@ -1,8 +1,15 @@
 import Head from "next/head";
 import Link from "next/link";
 import BorrowTable from "@components/PageBorrow/BorrowTable";
+import { useEffect } from "react";
+import { store } from "../../redux/redux.store";
+import { fetchPositionsList } from "../../redux/slices/positions.slice";
 
 export default function Borrow() {
+	useEffect(() => {
+		store.dispatch(fetchPositionsList());
+	}, []);
+
 	return (
 		<>
 			<Head>

@@ -1,4 +1,4 @@
-import { Address, formatUnits, zeroAddress } from "viem";
+import { Address, formatUnits, parseEther, zeroAddress } from "viem";
 import TableRow from "../Table/TableRow";
 import { ChallengesId, ChallengesQueryItem } from "@frankencoin/api";
 import { RootState } from "../../redux/redux.store";
@@ -21,7 +21,6 @@ export default function ChallengesRow({ headers, challenge }: Props) {
 	const positions = useSelector((state: RootState) => state.positions.mapping);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challengesPrices = useSelector((state: RootState) => state.challenges.challengesPrices);
-	const bidsChallenges = useSelector((state: RootState) => state.bids.challenges);
 
 	const position = positions.map[challenge.position.toLowerCase() as Address];
 	const url = useContractUrl(position.collateral || zeroAddress);
@@ -31,25 +30,21 @@ export default function ChallengesRow({ headers, challenge }: Props) {
 	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
 	if (!collTokenPrice || !zchfPrice) return null;
 
-	const challengePrice: bigint = BigInt(challengesPrices.map[challenge.id as ChallengesId] ?? 1);
-	if (challengePrice == undefined) return null;
-
-	// Maturity
-	const start: number = parseInt(challenge.start.toString()) * 1000; // timestap
-	const since: number = Math.round(((Date.now() - start) / 1000 / 60 / 60) * 10) / 10; // since timestamp to now
-
+	const challengePrice: bigint = BigInt(challengesPrices.map[challenge.id as ChallengesId] ?? parseEther("1"));
+	const start: number = parseInt(challenge.start.toString()) * 1000; // timestamp
 	const duration: number = parseInt(challenge.duration.toString()) * 1000;
-	const maturity: number = Math.min(...[position.expiration * 1000, start + 2 * duration]); // timestamp
-	const time2exp: number = Math.round(((maturity - Date.now()) / 1000 / 60 / 60) * 10) / 10; // time to expiration
 
-	const isQuickAuction = start + 2 * duration > maturity;
-	const declineStartTimestamp = isQuickAuction ? start : start + duration;
+	const timeToExpiration = start >= position.expiration * 1000 ? 0 : position.expiration * 1000 - start;
+	const phase1 = Math.min(timeToExpiration, duration);
+
+	const declineStartTimestamp = start + phase1;
+	const zeroPriceTimestamp = start + phase1 + duration;
 
 	const states: string[] = ["Fixed Price", "Declining Price", "Zero Price"];
 	let stateIdx: number = 0;
 	let stateTimeLeft: string = "";
 
-	if (time2exp < 0) {
+	if (zeroPriceTimestamp < Date.now()) {
 		stateIdx = 2;
 		stateTimeLeft = "-";
 	} else if (declineStartTimestamp > Date.now()) {
@@ -61,43 +56,15 @@ export default function ChallengesRow({ headers, challenge }: Props) {
 		stateTimeLeft = `${d}d ${h}h ${m}m`;
 	} else {
 		stateIdx = 1;
-		const diff: number = maturity - Date.now();
+		const diff: number = zeroPriceTimestamp - Date.now();
 		const d: number = Math.floor(diff / 1000 / 60 / 60 / 24);
 		const h: number = Math.floor((diff / 1000 / 60 / 60 / 24 - d) * 24);
 		const m: number = Math.floor(diff / 1000 / 60 - d * 24 * 60 - h * 60);
 		stateTimeLeft = `${d}d ${h}h ${m}m`;
 	}
 
-	const bids = bidsChallenges.map[challenge.id] || [];
-	const bidsAverted = bids.filter((b) => b.bidType === "Averted");
-	const bidsSucceeded = bids.filter((b) => b.bidType === "Succeeded");
-
-	// Balance
-	const challengeSize: number = parseInt(challenge.size.toString()) / 10 ** position.collateralDecimals;
-	const challengeSizeUsd: number = collTokenPrice;
-	const challengeSizeZchf: number = collTokenPrice / zchfPrice;
-
-	// Challenge
 	const challengeRemainingSize: number =
 		(parseInt(challenge.size.toString()) - parseInt(challenge.filledSize.toString())) / 10 ** position.collateralDecimals;
-
-	// Averted
-	const avertedSize: number =
-		bidsAverted.reduce<number>((acc, bid) => acc + parseInt(bid.filledSize.toString()), 0) / 10 ** position.collateralDecimals;
-	const avertedAvgPriceZchf: number = parseInt(challenge.liqPrice.toString()) / 10 ** (36 - position.collateralDecimals);
-	const avertedPriceColor: string = avertedAvgPriceZchf <= challengeSizeZchf ? "text-green-300" : "text-red-300";
-
-	// reducer acc. values
-
-	// Succeeded
-	const succeededSize: number =
-		bidsSucceeded.reduce<number>((acc, bid) => acc + parseInt(bid.filledSize.toString()), 0) / 10 ** position.collateralDecimals;
-	const succeededAvgPriceZchf: number =
-		bidsSucceeded.reduce<number>((acc, bid) => {
-			const filledSize: number = parseInt(bid.filledSize.toString()) / 10 ** position.collateralDecimals;
-			const bidPrice: number = parseInt(bid.price.toString()) / 10 ** (36 - position.collateralDecimals);
-			return acc + bidPrice * filledSize;
-		}, 0) / succeededSize;
 
 	const openExplorer = (e: any) => {
 		e.preventDefault();

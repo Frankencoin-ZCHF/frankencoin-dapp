@@ -30,6 +30,7 @@ export default function ChallengePlaceBid() {
 	const [isBidding, setBidding] = useState(false);
 	const [isNavigating, setNavigating] = useState(false);
 	const [userBalance, setUserBalance] = useState(0n);
+	const [auctionPrice, setAuctionPrice] = useState<bigint>(0n);
 
 	const { data } = useBlockNumber({ watch: true });
 	const account = useAccount();
@@ -45,25 +46,34 @@ export default function ChallengePlaceBid() {
 
 	const challenge = challenges.find((c) => c.id == challengeId);
 	const position = positions.find((p) => p.position == challenge?.position);
-	// const bids = !!challenge ? [] : bidsMapping[challenge!.id]; // can be empty
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
-		const fc: Address = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
+		const ADDR = ADDRESS[WAGMI_CHAIN.id];
 		if (acc === undefined) return;
+		if (position === undefined) return;
+		if (challenge === undefined) return;
 
 		const fetchAsync = async function () {
 			const _balance = await readContract(WAGMI_CONFIG, {
-				address: fc,
+				address: ADDR.frankenCoin,
 				abi: FrankencoinABI,
 				functionName: "balanceOf",
 				args: [acc],
 			});
 			setUserBalance(_balance);
+
+			const _price = await readContract(WAGMI_CONFIG, {
+				address: position.version === 1 ? ADDR.mintingHubV1 : ADDR.mintingHubV2,
+				abi: position.version === 1 ? MintingHubV1ABI : MintingHubV2ABI,
+				functionName: "price",
+				args: [parseInt(challenge.number.toString())],
+			});
+			setAuctionPrice(_price);
 		};
 
 		fetchAsync();
-	}, [data, account.address]);
+	}, [data, position, challenge, account.address]);
 
 	useEffect(() => {
 		if (isInit) return;
@@ -84,7 +94,6 @@ export default function ChallengePlaceBid() {
 	if (!challenge) return null;
 	if (!position) return null;
 
-	const auctionPrice = BigInt(auctionPriceMapping[challenge.id] ?? "0");
 	const remainingSize = BigInt(parseInt(challenge.size.toString()) - parseInt(challenge.filledSize.toString()));
 
 	// Maturity
@@ -134,7 +143,7 @@ export default function ChallengePlaceBid() {
 				},
 				{
 					title: `Expected ZCHF: `,
-					value: formatBigInt(expectedZCHF()) + " ZCHF",
+					value: formatCurrency(formatUnits(expectedZCHF(), 18)) + " ZCHF",
 				},
 				{
 					title: "Transaction:",
