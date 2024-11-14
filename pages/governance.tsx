@@ -39,21 +39,12 @@ export default function Governance() {
 			</div>
 
 			<div className="md:mt-10">
-				<span className="font-bold text-xl">Leadrate</span>
+				<span className="font-bold text-xl">Base Rate</span>
 			</div>
 
 			<div className="">
-				Qualified FPS holders can propose changes to the leadrate, which determines the base interest rate for all Frankencoin
-				positions. After a proposal period of 7 days, the change can be applied and affects the entire systems stability and growth.
-				Join the discussion in the{" "}
-				<a target="_blank" href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions">
-					<span className="font-bold underline">github forum</span>
-				</a>
-				{" or "}
-				<a target="_blank" href={SOCIAL.Telegram}>
-					<span className="font-bold underline">telegram group</span>
-				</a>{" "}
-				to evaluate and debate proposed lead rate adjustments.
+				This is the base rate that is applied when minting new Frankencoins and the rate at which savers continuously accrue interest.
+				Anyone with veto power can propose a change, which can be applied if there is no counter-proposal within seven days.
 			</div>
 
 			<div className="md:mt-8">

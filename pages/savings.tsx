@@ -23,7 +23,7 @@ export default function SavingsPage() {
 			</Head>
 
 			<div className="mt-10">
-				<span className="font-bold text-xl">Save Your Frankencoins</span>
+				<span className="font-bold text-xl">Savings</span>
 			</div>
 
 			<div className="mt-8">{<SavingsGlobalCard />}</div>

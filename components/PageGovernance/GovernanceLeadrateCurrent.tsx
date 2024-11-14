@@ -97,7 +97,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 				<div className="flex flex-col gap-4">
 					<NormalInput
 						symbol="%"
-						label="Lead Rate:"
+						label="Current value"
 						placeholder={`Current Leadrate: %`}
 						value={newRate.toString()}
 						digit={4}
@@ -113,7 +113,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 							isLoading={isHandling}
 							onClick={(e) => handleOnClick(e)}
 						>
-							Propose new Leadrate
+							Propose Change
 						</Button>
 					</GuardToAllowedChainBtn>
 				</div>

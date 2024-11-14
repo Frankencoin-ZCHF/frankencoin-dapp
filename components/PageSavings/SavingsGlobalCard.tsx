@@ -23,7 +23,7 @@ export default function SavingsGlobalCard() {
 
 	return (
 		<AppCard>
-			<div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+			<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
 				<AppBox>
 					<DisplayLabel label="Current Interest Rate" />
 					<DisplayAmount className="mt-1" amount={rate / 10_000} currency="%" hideLogo />
@@ -31,10 +31,6 @@ export default function SavingsGlobalCard() {
 				<AppBox>
 					<DisplayLabel label="Total Savings" />
 					<DisplayAmount className="mt-1" amount={totalBalance} currency="ZCHF" hideLogo />
-				</AppBox>
-				<AppBox>
-					<DisplayLabel label="Total Interest Claimed" />
-					<DisplayAmount className="mt-1" amount={totalInterest} currency="ZCHF" hideLogo />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Module Contract" />
