@@ -86,24 +86,21 @@ export default function PositionChallenge() {
 
 	const _collBal: bigint = BigInt(position.collateralBalance);
 	const maxChallengeLimit: bigint = _collBal <= userBalance ? _collBal : userBalance;
-
 	const maxProceeds = (parseInt(position.price) / collateralPriceCHF / 10 ** (36 - position.collateralDecimals)) * 100 - 100;
+	const belowMinBalance: boolean = _collBal < BigInt(position.minimumCollateral);
 
 	// ---------------------------------------------------------------------------
 	const onChangeAmount = (value: string) => {
 		var valueBigInt = BigInt(value);
-		if (valueBigInt > _collBal) {
+		if (valueBigInt > _collBal && !belowMinBalance) {
 			valueBigInt = _collBal;
 		}
 		setAmount(valueBigInt);
 		if (valueBigInt > userBalance) {
 			setError(`Not enough ${position.collateralSymbol} in your wallet.`);
-		} else if (valueBigInt > BigInt(position.collateralBalance)) {
+		} else if (valueBigInt > BigInt(position.collateralBalance) && !belowMinBalance) {
 			setError("Amount cannot be larger than the underlying position");
-		} else if (
-			valueBigInt < BigInt(position.minimumCollateral) &&
-			BigInt(position.collateralBalance) >= BigInt(position.minimumCollateral)
-		) {
+		} else if (valueBigInt < BigInt(position.minimumCollateral) && !belowMinBalance) {
 			setError("Amount must be at least the minimum");
 		} else {
 			setError("");

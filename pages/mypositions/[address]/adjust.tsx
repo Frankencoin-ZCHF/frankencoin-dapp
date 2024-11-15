@@ -302,9 +302,7 @@ export default function PositionAdjust() {
 											(amount == BigInt(position.minted) &&
 												collateralAmount == BigInt(position.collateralBalance) &&
 												liqPrice == BigInt(position.price)) ||
-											isCooldown ||
-											!!getAmountError() ||
-											!!getCollateralError()
+											(!position.denied && (isCooldown || !!getAmountError() || !!getCollateralError()))
 										}
 										error={position.owner != account.address ? "You can only adjust your own position" : ""}
 										isLoading={isAdjusting}
