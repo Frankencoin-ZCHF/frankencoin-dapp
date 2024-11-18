@@ -6,21 +6,7 @@ import { faBook, faBookmark, faComments, faCodeCommit } from "@fortawesome/free-
 import { faGithub, faTelegram, faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { SubmitIssue } from "./LoadingScreen";
 import { usePathname } from "next/navigation";
-
-interface ButtonProps {
-	link: string;
-	text: string;
-	icon: IconProp;
-}
-
-const FooterButton = ({ link, text, icon }: ButtonProps) => {
-	return (
-		<Link href={link} target="_blank" rel="noreferrer" className="flex gap-1 hover:opacity-70">
-			<FontAwesomeIcon icon={icon} className="w-6 h-6" />
-			<div className="hidden sm:block">{text}</div>
-		</Link>
-	);
-};
+import { useIsMainnet } from "@hooks";
 
 const DynamicDocs = (): string => {
 	const p = usePathname();
@@ -33,7 +19,7 @@ const DynamicDocs = (): string => {
 	else if (p.includes("/mypositions")) link += "/positions/adjust";
 	else if (p.includes("/monitoring")) link += "/positions/auctions";
 	else if (p.includes("/challenges")) link += "/positions/auctions";
-	else if (p.includes("/pool")) link += "/pool-shares";
+	else if (p.includes("/equity")) link += "/pool-shares";
 	else if (p.includes("/savings")) link += "/savings-todo";
 	else if (p.includes("/governance")) link += "/governance";
 	else if (p.includes("/swap")) link += "/swap";
@@ -42,9 +28,15 @@ const DynamicDocs = (): string => {
 };
 
 export default function Footer() {
+	const isMainnet = useIsMainnet();
+
 	return (
-		<>
-			<ul className="mt-12 mb-4 flex items-center justify-center gap-8">
+		<div className="flex max-md:px-4 md:px-16 bg-layout-footer text-layout-primary">
+			<div className="flex-1 justify-start mb-32 mt-4">
+				<SubmitIssue />
+			</div>
+
+			<ul className="mt-4 flex justify-end gap-8">
 				<li>
 					<FooterButton link={DynamicDocs()} text="Doc" icon={faBook} />
 				</li>
@@ -61,9 +53,21 @@ export default function Footer() {
 					<FooterButton link={SOCIAL.Telegram} text="Telegram" icon={faTelegram} />
 				</li>
 			</ul>
-			<div className="mb-8 mt-8">
-				<SubmitIssue />
-			</div>
-		</>
+		</div>
 	);
 }
+
+interface ButtonProps {
+	link: string;
+	text: string;
+	icon: IconProp;
+}
+
+const FooterButton = ({ link, text, icon }: ButtonProps) => {
+	return (
+		<Link href={link} target="_blank" rel="noreferrer" className="flex gap-1 hover:opacity-70">
+			<FontAwesomeIcon icon={icon} className="w-6 h-6" />
+			<div className="hidden sm:block">{text}</div>
+		</Link>
+	);
+};

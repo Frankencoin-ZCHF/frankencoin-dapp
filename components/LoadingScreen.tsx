@@ -51,7 +51,7 @@ export default function LoadingScreen() {
 
 export function SubmitIssue() {
 	return (
-		<ul className="flex items-center justify-center gap-8">
+		<ul className="flex items-center gap-8">
 			<li>
 				<FooterButton link={SOCIAL.Github_dapp_new_issue} text="Submit an Issue" icon={faGithub} />
 			</li>
