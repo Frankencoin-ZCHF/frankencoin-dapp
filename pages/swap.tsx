@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown, faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { formatBigInt, shortenAddress } from "@utils";
-import { TxToast, renderErrorToast } from "@components/TxToast";
+import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../app.config";
 import Link from "next/link";
@@ -61,12 +61,9 @@ export default function Swap() {
 				success: {
 					render: <TxToast title="Successfully Approved XCHF" rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setApproving(false);
 		}
@@ -103,12 +100,9 @@ export default function Swap() {
 				success: {
 					render: <TxToast title={`Successfully Swapped ${fromSymbol} to ${toSymbol}`} rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setMinting(false);
 		}
@@ -146,12 +140,9 @@ export default function Swap() {
 				success: {
 					render: <TxToast title={`Successfully Swapped ${fromSymbol} to ${toSymbol}`} rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setBurning(false);
 		}

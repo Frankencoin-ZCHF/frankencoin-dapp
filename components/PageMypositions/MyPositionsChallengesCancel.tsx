@@ -4,7 +4,7 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { CONFIG, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { formatBigInt } from "@utils";
-import { renderErrorToast, TxToast } from "@components/TxToast";
+import { renderErrorToast, renderErrorTxToast, TxToast } from "@components/TxToast";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import { Address } from "viem";
@@ -67,13 +67,10 @@ export default function MyPositionsChallengesCancel({ challenge, hidden }: Props
 				success: {
 					render: <TxToast title="Successfully Cancelled Challenge" rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
 			setHidden(true);
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setCancelling(false);
 		}

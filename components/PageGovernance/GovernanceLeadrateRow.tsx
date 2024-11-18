@@ -11,7 +11,7 @@ import { ApiLeadrateInfo, LeadrateProposed } from "@frankencoin/api";
 import Button from "@components/Button";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { toast } from "react-toastify";
-import { TxToast } from "@components/TxToast";
+import { renderErrorTxToast, TxToast } from "@components/TxToast";
 
 interface Props {
 	headers: string[];
@@ -74,9 +74,7 @@ export default function GovernanceLeadrateRow({ headers, info, proposal, current
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(<TxToast title="Something did not work..." rows={[{ title: "Did you reject the Transaction?" }]} />, {
-				position: toast.POSITION.BOTTOM_RIGHT,
-			});
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setApplying(false);
 		}
@@ -121,9 +119,7 @@ export default function GovernanceLeadrateRow({ headers, info, proposal, current
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(<TxToast title="Something did not work..." rows={[{ title: "Did you reject the Transaction?" }]} />, {
-				position: toast.POSITION.BOTTOM_RIGHT,
-			});
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setDenying(false);
 		}

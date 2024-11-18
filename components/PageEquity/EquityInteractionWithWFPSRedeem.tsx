@@ -10,7 +10,7 @@ import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import Button from "@components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
-import { TxToast, renderErrorToast } from "@components/TxToast";
+import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
@@ -124,12 +124,9 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 				success: {
 					render: <TxToast title="Successfully Approved WFPS" rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setApproving(false);
 		}
@@ -168,12 +165,9 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 				success: {
 					render: <TxToast title="Successfully Redeemed WFPS" rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setAmount(0n);
 			setRedeeming(false);
@@ -252,11 +246,12 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 			<div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
 					<DisplayLabel label="Your Balance" />
-					<DisplayAmount amount={wfpsBalance} currency="WFPS" address={ADDRESS[chainId].wFPS} />
+					<DisplayAmount className="mt-4" amount={wfpsBalance} currency="WFPS" address={ADDRESS[chainId].wFPS} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Value at Current Price" />
 					<DisplayAmount
+						className="mt-4"
 						amount={(poolStats.equityPrice * wfpsBalance) / BigInt(1e18)}
 						currency="ZCHF"
 						address={ADDRESS[chainId].frankenCoin}
@@ -265,7 +260,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 				<AppBox>
 					<DisplayLabel label="Holding Duration WFPS Contract" />
 					<span className={!unlocked ? "text-text-warning font-bold" : ""}>
-						{wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 30 ? formatDuration(wfpsHolding) : "-"}
+						{wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 10 ? formatDuration(wfpsHolding) : "-"}
 					</span>
 				</AppBox>
 				<AppBox className="flex-1">

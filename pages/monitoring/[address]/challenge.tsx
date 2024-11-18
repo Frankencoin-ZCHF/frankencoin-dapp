@@ -11,7 +11,7 @@ import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { Address } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
-import { TxToast, renderErrorToast } from "@components/TxToast";
+import { TxToast, renderErrorToast, renderErrorTxStackToast, renderErrorTxToast } from "@components/TxToast";
 import DisplayLabel from "@components/DisplayLabel";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
@@ -80,13 +80,7 @@ export default function PositionChallenge() {
 	// ---------------------------------------------------------------------------
 	if (!position) return null;
 
-	const zchfPrice: number = prices[position.zchf.toLowerCase() as Address].price.usd || 1;
-	const collateralPriceUSD: number = prices[position.collateral.toLowerCase() as Address].price.usd || 1;
-	const collateralPriceCHF: number = collateralPriceUSD / zchfPrice;
-
 	const _collBal: bigint = BigInt(position.collateralBalance);
-	const maxChallengeLimit: bigint = _collBal <= userBalance ? _collBal : userBalance;
-	const maxProceeds = (parseInt(position.price) / collateralPriceCHF / 10 ** (36 - position.collateralDecimals)) * 100 - 100;
 	const belowMinBalance: boolean = _collBal < BigInt(position.minimumCollateral);
 
 	// ---------------------------------------------------------------------------
@@ -140,12 +134,9 @@ export default function PositionChallenge() {
 				success: {
 					render: <TxToast title={`Successfully Approved ${position.collateralSymbol}`} rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setApproving(false);
 		}
@@ -184,13 +175,11 @@ export default function PositionChallenge() {
 				success: {
 					render: <TxToast title={`Successfully Launched challenge`} rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+
 			setNavigating(true);
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setChallenging(false);
 		}

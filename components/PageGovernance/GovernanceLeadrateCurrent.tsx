@@ -15,7 +15,7 @@ import { useAccount } from "wagmi";
 import { CONFIG, WAGMI_CONFIG } from "../../app.config";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ADDRESS, SavingsABI } from "@frankencoin/zchf";
-import { TxToast } from "@components/TxToast";
+import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 
 interface Props {}
@@ -83,9 +83,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(<TxToast title="Something did not work..." rows={[{ title: "Did you reject the Transaction?" }]} />, {
-				position: toast.POSITION.BOTTOM_RIGHT,
-			});
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setHandling(false);
 		}

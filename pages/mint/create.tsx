@@ -11,7 +11,7 @@ import { erc20Abi } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { formatBigInt, shortenAddress } from "@utils";
 import { toast } from "react-toastify";
-import { TxToast, renderErrorToast } from "@components/TxToast";
+import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
 import Link from "next/link";
 import NormalInput from "@components/Input/NormalInput";
 import AddressInput from "@components/Input/AddressInput";
@@ -237,12 +237,9 @@ export default function PositionCreate({}) {
 				success: {
 					render: <TxToast title={`Successfully Approved ${collTokenData.symbol}`} rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setIsConfirming("");
 		}
@@ -295,12 +292,9 @@ export default function PositionCreate({}) {
 				success: {
 					render: <TxToast title={`Successfully created a position`} rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setIsConfirming("");
 		}

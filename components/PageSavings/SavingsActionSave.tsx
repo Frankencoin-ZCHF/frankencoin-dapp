@@ -3,7 +3,7 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { formatCurrency } from "@utils";
-import { TxToast } from "@components/TxToast";
+import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount, useChainId } from "wagmi";
 import Button from "@components/Button";
 import { formatUnits } from "viem";
@@ -62,9 +62,7 @@ export default function SavingsActionSave({ amount, interest, disabled, setLoade
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(<TxToast title="Something did not work..." rows={[{ title: "Did you reject the Transaction?" }]} />, {
-				position: toast.POSITION.BOTTOM_RIGHT,
-			});
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			if (setLoaded != undefined) setLoaded(false);
 			setAction(false);

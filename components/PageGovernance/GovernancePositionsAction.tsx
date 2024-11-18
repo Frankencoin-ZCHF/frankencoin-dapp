@@ -3,7 +3,7 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { CONFIG, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
-import { renderErrorToast, TxToast } from "@components/TxToast";
+import { renderErrorToast, renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
 import { Address, zeroAddress } from "viem";
@@ -64,9 +64,7 @@ export default function GovernancePositionsAction({ position, disabled }: Props)
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(<TxToast title="Something did not work..." rows={[{ title: "Do you have veto power?" }]} />, {
-				position: toast.POSITION.BOTTOM_RIGHT,
-			});
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setDenying(false);
 		}

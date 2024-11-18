@@ -11,7 +11,7 @@ import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
-import { TxToast, renderErrorToast } from "@components/TxToast";
+import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
 import DisplayLabel from "@components/DisplayLabel";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
@@ -102,7 +102,6 @@ export default function ChallengePlaceBid() {
 
 	const duration: number = parseInt(challenge.duration.toString()) * 1000;
 	const maturity: number = Math.min(...[position.expiration * 1000, start + 2 * duration]); // timestamp
-	const time2exp: number = Math.round(((maturity - Date.now()) / 1000 / 60 / 60) * 10) / 10; // time to expiration
 
 	const isQuickAuction = start + 2 * duration > maturity;
 	const declineStartTimestamp = isQuickAuction ? start : start + duration;
@@ -158,13 +157,10 @@ export default function ChallengePlaceBid() {
 				success: {
 					render: <TxToast title="Successfully Placed Bid" rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
 			setNavigating(true);
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setBidding(false);
 		}
@@ -197,7 +193,7 @@ export default function ChallengePlaceBid() {
 								<span>Your balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} ZCHF</span>
 							</div>
 							<div className="flex flex-col">
-								<span>Estimated price: {formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} ZCHF</span>
+								<span>Estimated cost: {formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} ZCHF</span>
 							</div>
 						</div>
 
