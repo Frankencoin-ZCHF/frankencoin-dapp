@@ -10,11 +10,11 @@ import SavingsWithdrawnRow from "./SavingsWithdrawnRow";
 import { Address, parseEther } from "viem";
 
 export default function SavingsWithdrawnTable() {
-	const headers: string[] = ["Date", "Amount", "Rate", "Balance", "Total Withdrawn"];
+	const headers: string[] = ["Date", "Saver", "Amount", "Rate", "Balance"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
-	const { withdraw } = useSelector((state: RootState) => state.savings.savingsUserTable);
+	const { withdraw } = useSelector((state: RootState) => state.savings.savingsAllUserTable);
 	if (!withdraw) return null;
 
 	const sorted: SavingsWithdrawQuery[] = withdraw;

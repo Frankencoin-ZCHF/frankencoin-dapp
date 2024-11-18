@@ -9,11 +9,11 @@ import { SavingsInterestQuery } from "@frankencoin/api";
 import SavingsInterestRow from "./SavingsInterestRow";
 
 export default function SavingsInterestTable() {
-	const headers: string[] = ["Date", "Interest", "Rate", "Balance", "Total Claimed"];
+	const headers: string[] = ["Date", "Saver", "Interest", "Rate", "Balance"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
-	const { interest } = useSelector((state: RootState) => state.savings.savingsUserTable);
+	const { interest } = useSelector((state: RootState) => state.savings.savingsAllUserTable);
 	if (!interest) return null;
 
 	const sorted: SavingsInterestQuery[] = interest;

@@ -1,13 +1,10 @@
 import AppCard from "@components/AppCard";
 import TokenInput from "@components/Input/TokenInput";
-import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ADDRESS, FrankencoinABI, SavingsABI } from "@frankencoin/zchf";
 import { useContractUrl } from "@hooks";
-import Link from "next/link";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { parseEther, zeroAddress } from "viem";
+import { zeroAddress } from "viem";
 import { useEffect, useState } from "react";
 import SavingsDetailsCard from "./SavingsDetailsCard";
 import { readContract } from "wagmi/actions";
@@ -110,14 +107,12 @@ export default function SavingsInteractionCard() {
 	return (
 		<section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">
 			<AppCard>
-				<div className="text-lg font-bold text-center">
-					Adjustment
-				</div>
+				<div className="text-lg font-bold text-center">Adjustment</div>
 
 				<div className="mt-8">
 					<TokenInput
 						label="Your savings"
-						max={userBalance + userSavingsBalance}
+						max={userBalance + userSavingsBalance + userSavingsInterest}
 						balanceLabel="Max:"
 						symbol={fromSymbol}
 						placeholder={fromSymbol + " Amount"}
@@ -129,10 +124,10 @@ export default function SavingsInteractionCard() {
 
 				<div className="mx-auto my-4 w-72 max-w-full flex-col flex gap-4">
 					<GuardToAllowedChainBtn label={direction ? "Save" : "Withdraw"}>
-						{amount > userSavingsBalance && (amount - userSavingsBalance <= userSavingsInterest) ? (
+						{userSavingsInterest > 0 && amount == userSavingsBalance ? (
 							<SavingsActionInterest disabled={!!error} balance={userSavingsBalance} interest={userSavingsInterest} />
-						) : amount >= userSavingsBalance ? (
-							<SavingsActionSave disabled={amount == userSavingsBalance || !!error} amount={amount} interest={userSavingsInterest} />
+						) : amount > userSavingsBalance ? (
+							<SavingsActionSave disabled={!!error} amount={amount} interest={userSavingsInterest} />
 						) : (
 							<SavingsActionWithdraw disabled={userSavingsBalance == 0n || !!error} balance={amount} change={change} />
 						)}

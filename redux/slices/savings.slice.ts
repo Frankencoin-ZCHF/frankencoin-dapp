@@ -10,7 +10,7 @@ import {
 	SavingsState,
 } from "./savings.types";
 import { ApiLeadrateInfo, ApiLeadrateProposed, ApiLeadrateRate, ApiSavingsInfo, ApiSavingsUserTable } from "@frankencoin/api";
-import { Address } from "viem";
+import { Address, zeroAddress } from "viem";
 
 // --------------------------------------------------------------------------------
 
@@ -55,6 +55,12 @@ export const initialState: SavingsState = {
 		save: [],
 		withdraw: [],
 	},
+
+	savingsAllUserTable: {
+		interest: [],
+		save: [],
+		withdraw: [],
+	},
 };
 
 // --------------------------------------------------------------------------------
@@ -89,6 +95,10 @@ export const slice = createSlice({
 
 		setSavingsUserTable: (state, action: { payload: ApiSavingsUserTable }) => {
 			state.savingsUserTable = action.payload;
+		},
+
+		setSavingsAllUserTable: (state, action: { payload: ApiSavingsUserTable }) => {
+			state.savingsAllUserTable = action.payload;
 		},
 	},
 });
@@ -125,6 +135,9 @@ export const fetchSavings =
 
 		const response4 = await FRANKENCOIN_API_CLIENT.get("/savings/core/info");
 		dispatch(slice.actions.setSavingsInfo(response4.data as ApiSavingsInfo));
+
+		const response6 = await FRANKENCOIN_API_CLIENT.get(`/savings/core/user/${zeroAddress}`);
+		dispatch(slice.actions.setSavingsAllUserTable(response6.data as ApiSavingsUserTable));
 
 		if (account == undefined) {
 			dispatch(slice.actions.setSavingsUserTable(initialState.savingsUserTable));

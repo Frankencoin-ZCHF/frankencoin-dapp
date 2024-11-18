@@ -12,6 +12,7 @@ export type SavingsState = {
 	savingsInfo: ApiSavingsInfo;
 
 	savingsUserTable: ApiSavingsUserTable;
+	savingsAllUserTable: ApiSavingsUserTable;
 };
 
 // --------------------------------------------------------------------------------
