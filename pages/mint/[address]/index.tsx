@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { formatUnits, maxUint256, erc20Abi } from "viem";
+import { formatUnits, maxUint256, erc20Abi, Hash, zeroHash } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useState } from "react";
 import Button from "@components/Button";
@@ -10,7 +10,7 @@ import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/ac
 import { Address } from "viem";
 import { formatBigInt, formatCurrency, min, shortenAddress, toTimestamp } from "@utils";
 import { toast } from "react-toastify";
-import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
+import { TxToast, renderErrorToast, renderErrorTxStackToast, renderErrorTxToast } from "@components/TxToast";
 import DateInput from "@components/Input/DateInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
@@ -206,13 +206,23 @@ export default function PositionBorrow({}) {
 		try {
 			setCloning(true);
 			const expirationTime = toTimestamp(expirationDate);
+			let cloneWriteHash: Hash = zeroHash;
 
-			const cloneWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: position.version == 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2,
-				abi: position.version == 1 ? MintingHubV1ABI : MintingHubV2ABI,
-				functionName: "clone",
-				args: [position.position, requiredColl, amount, BigInt(expirationTime)],
-			});
+			if (position.version == 1) {
+				cloneWriteHash = await writeContract(WAGMI_CONFIG, {
+					address: ADDRESS[chainId].mintingHubV1,
+					abi: MintingHubV1ABI,
+					functionName: "clone",
+					args: [position.position, requiredColl, amount, BigInt(expirationTime)],
+				});
+			} else if (position.version == 2) {
+				cloneWriteHash = await writeContract(WAGMI_CONFIG, {
+					address: ADDRESS[chainId].mintingHubV2,
+					abi: MintingHubV2ABI,
+					functionName: "clone",
+					args: [position.position, requiredColl, amount, expirationTime],
+				});
+			}
 
 			const toastContent = [
 				{

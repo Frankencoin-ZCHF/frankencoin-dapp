@@ -17,24 +17,14 @@ export const renderErrorToast = (error: string | string[]) => {
 
 export const renderErrorTxToast = (error: any) => {
 	const errorLines: string[] = error.message.split("\n");
-	return (
-		<TxToast
-			title="Transaction Failed!"
-			rows={[
-				{
-					title: "",
-					value: errorLines[0] || "Something went wrong...",
-				},
-			]}
-		/>
-	);
+	return renderErrorTxStackToast(error, 2);
 };
-export const renderErrorTxStackToast = (error: any) => {
+export const renderErrorTxStackToast = (error: any, limit: number) => {
 	const errorLines: string[] = error.message.split("\n");
 	return (
 		<TxToast
 			title="Transaction Failed!"
-			rows={errorLines.slice(0, errorLines.length - 3).map((line) => {
+			rows={errorLines.slice(0, limit == 0 ? errorLines.length : limit).map((line) => {
 				return {
 					title: "",
 					value: line,

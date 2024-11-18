@@ -20,14 +20,14 @@ export default function Governance() {
 
 			<div className="">
 				Participants should carefully review newly proposed position types and deny them if they think they pose a risk to the
-				stability of the Frankencoin. There also is a{" "}
+				stability of the Frankencoin. There is also a{" "}
 				<a
 					target="_blank"
 					href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions/categories/acceptable-collaterals?discussions_q=is%3Aopen+category%3A%22Acceptable+Collaterals%22"
 				>
 					<span className="font-bold underline">github forum</span>
 				</a>
-				{" or "}
+				{" and a "}
 				<a target="_blank" href={SOCIAL.Telegram}>
 					<span className="font-bold underline">telegram group</span>
 				</a>{" "}
@@ -43,8 +43,9 @@ export default function Governance() {
 			</div>
 
 			<div className="">
-				This is the base rate that is applied when minting new Frankencoins and the rate at which savers continuously accrue interest.
-				Anyone with veto power can propose a change, which can be applied if there is no counter-proposal within seven days.
+				This is the base rate that is applied when minting new Frankencoins and the rate at which savers continuously accrue
+				interest. Anyone with veto power can propose a change, which can be applied if there is no counter-proposal within seven
+				days.
 			</div>
 
 			<div className="md:mt-8">

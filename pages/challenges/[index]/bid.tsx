@@ -11,7 +11,7 @@ import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
-import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
+import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import DisplayLabel from "@components/DisplayLabel";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
@@ -42,7 +42,6 @@ export default function ChallengePlaceBid() {
 
 	const challenges = useSelector((state: RootState) => state.challenges.list.list);
 	const positions = useSelector((state: RootState) => state.positions.list.list);
-	const auctionPriceMapping = useSelector((state: RootState) => state.challenges.challengesPrices.map);
 
 	const challenge = challenges.find((c) => c.id == challengeId);
 	const position = positions.find((p) => p.position == challenge?.position);
