@@ -14,14 +14,17 @@ import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 
 interface Props {
 	challenge: ChallengesQueryItem;
+	hidden?: boolean;
 }
 
-export default function MyPositionsChallengesCancel({ challenge }: Props) {
+export default function MyPositionsChallengesCancel({ challenge, hidden }: Props) {
 	const [isCancelling, setCancelling] = useState<boolean>(false);
 	const positions: PositionsQueryObjectArray = useSelector((state: RootState) => state.positions.mapping.map);
 	const account = useAccount();
 	const chainId = CONFIG.chain.id;
-	const [isHidden, setHidden] = useState<boolean>(challenge.status !== "Active" || account.address !== challenge.challenger);
+	const [isHidden, setHidden] = useState<boolean>(
+		hidden == true || challenge.status !== "Active" || account.address !== challenge.challenger
+	);
 
 	const handleCancelOnClick = async function () {
 		const pid = challenge.position.toLowerCase() as Address;
