@@ -95,15 +95,14 @@ export default function ChallengePlaceBid() {
 
 	const remainingSize = BigInt(parseInt(challenge.size.toString()) - parseInt(challenge.filledSize.toString()));
 
-	// Maturity
-	const start: number = parseInt(challenge.start.toString()) * 1000; // timestap
-	const since: number = Math.round(((Date.now() - start) / 1000 / 60 / 60) * 10) / 10; // since timestamp to now
-
+	const start: number = parseInt(challenge.start.toString()) * 1000; // timestamp
 	const duration: number = parseInt(challenge.duration.toString()) * 1000;
-	const maturity: number = Math.min(...[position.expiration * 1000, start + 2 * duration]); // timestamp
 
-	const isQuickAuction = start + 2 * duration > maturity;
-	const declineStartTimestamp = isQuickAuction ? start : start + duration;
+	const timeToExpiration = start >= position.expiration * 1000 ? 0 : position.expiration * 1000 - start;
+	const phase1 = Math.min(timeToExpiration, duration);
+
+	const declineStartTimestamp = start + phase1;
+	const zeroPriceTimestamp = start + phase1 + duration;
 
 	const expectedZCHF = (bidAmount?: bigint) => {
 		if (!bidAmount) bidAmount = amount;
@@ -247,7 +246,7 @@ export default function ChallengePlaceBid() {
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Reaching zero at" />
-								{formatDate(maturity / 1000) || "---"}
+								{formatDate(zeroPriceTimestamp / 1000) || "---"}
 							</AppBox>
 						</div>
 						<div className="mx-auto mt-4 w-72 max-w-full flex-col">
