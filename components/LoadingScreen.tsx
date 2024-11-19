@@ -19,14 +19,14 @@ export default function LoadingScreen() {
 						<h1>Frankencoin is loading...</h1>
 					</div>
 
-					<div className="absolute bottom-[15%]">
+					<div className="absolute bottom-[20%]">
 						<h1 className="px-8 text-center">
 							This website uses third-party cookies, and certain features may not function properly if you choose to block
 							them.
 						</h1>
 					</div>
 
-					<div className="absolute bottom-10">
+					<div className="absolute bottom-0 bg-layout-footer w-full pb-8 pt-8 justify-items-center">
 						<SubmitIssue />
 					</div>
 				</div>
@@ -39,7 +39,7 @@ export function SubmitIssue() {
 	const isMainnet = useIsMainnet();
 
 	return (
-		<ul className="flex items-center gap-8">
+		<ul className="flex items-center gap-8 text-layout-primary">
 			<li>
 				<FooterButton link={SOCIAL.Github_dapp_new_issue} text="Submit an Issue" icon={faGithub} />
 			</li>
