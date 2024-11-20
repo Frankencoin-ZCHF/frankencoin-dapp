@@ -21,9 +21,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useRouter as useNavigation } from "next/navigation";
 import { ADDRESS, FrankencoinABI, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
-import { ChallengesId } from "@frankencoin/api";
 
-export default function ChallengePlaceBid() {
+export default function MonitoringForceSell() {
 	const [isInit, setInit] = useState(false);
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
@@ -38,19 +37,14 @@ export default function ChallengePlaceBid() {
 	const navigate = useNavigation();
 
 	const chainId = useChainId();
-	const challengeId: ChallengesId = (String(router.query.index) as ChallengesId) || `${zeroAddress}-challenge-0`;
-
-	const challenges = useSelector((state: RootState) => state.challenges.list.list);
+	const queryAddress: Address = (String(router.query.address) as Address) || zeroAddress;
 	const positions = useSelector((state: RootState) => state.positions.list.list);
-
-	const challenge = challenges.find((c) => c.id == challengeId);
-	const position = positions.find((p) => p.position == challenge?.position);
+	const position = positions.find((p) => p.position.toLowerCase() == queryAddress.toLowerCase());
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
 		const ADDR = ADDRESS[WAGMI_CHAIN.id];
 		if (position === undefined) return;
-		if (challenge === undefined) return;
 
 		const fetchAsync = async function () {
 			if (acc !== undefined) {
@@ -64,26 +58,24 @@ export default function ChallengePlaceBid() {
 			}
 
 			const _price = await readContract(WAGMI_CONFIG, {
-				address: position.version === 1 ? ADDR.mintingHubV1 : ADDR.mintingHubV2,
-				abi: position.version === 1 ? MintingHubV1ABI : MintingHubV2ABI,
-				functionName: "price",
-				args: [parseInt(challenge.number.toString())],
+				address: ADDR.mintingHubV2,
+				abi: MintingHubV2ABI,
+				functionName: "expiredPurchasePrice",
+				args: [position.position],
 			});
 			setAuctionPrice(_price);
 		};
 
 		fetchAsync();
-	}, [data, position, challenge, account.address]);
+	}, [data, position, account.address]);
 
 	useEffect(() => {
 		if (isInit) return;
-		if (challenge === undefined) return;
-
-		const _amount = BigInt(parseInt(challenge.size.toString()) - parseInt(challenge.filledSize.toString()));
-		setAmount(_amount);
+		if (position === undefined) return;
+		setAmount(BigInt(position.collateralBalance));
 
 		setInit(true);
-	}, [isInit, challenge]);
+	}, [isInit, position]);
 
 	useEffect(() => {
 		if (isNavigating && position?.position) {
@@ -91,23 +83,17 @@ export default function ChallengePlaceBid() {
 		}
 	}, [isNavigating, navigate, position]);
 
-	if (!challenge) return null;
 	if (!position) return null;
 
-	const remainingSize = BigInt(parseInt(challenge.size.toString()) - parseInt(challenge.filledSize.toString()));
+	const start: number = position.expiration * 1000; // timestamp when expired
+	const duration: number = position.challengePeriod * 1000;
 
-	const start: number = parseInt(challenge.start.toString()) * 1000; // timestamp
-	const duration: number = parseInt(challenge.duration.toString()) * 1000;
-
-	const timeToExpiration = start >= position.expiration * 1000 ? 0 : position.expiration * 1000 - start;
-	const phase1 = Math.min(timeToExpiration, duration);
-
-	const declineStartTimestamp = start + phase1;
-	const zeroPriceTimestamp = start + phase1 + duration;
+	const declineOnePriceTimestamp = start + duration;
+	const zeroPriceTimestamp = start + 2 * duration;
 
 	const expectedZCHF = (bidAmount?: bigint) => {
 		if (!bidAmount) bidAmount = amount;
-		return challenge ? (bidAmount * auctionPrice) / BigInt(1e18) : BigInt(0);
+		return (bidAmount * auctionPrice) / BigInt(1e18);
 	};
 
 	const onChangeAmount = (value: string) => {
@@ -116,8 +102,8 @@ export default function ChallengePlaceBid() {
 
 		if (expectedZCHF() > userBalance) {
 			setError("Not enough ZCHF in your wallet to cover the expected costs.");
-		} else if (valueBigInt > remainingSize) {
-			setError("Expected winning collateral should be lower than remaining collateral.");
+		} else if (valueBigInt > BigInt(position.collateralBalance)) {
+			setError("Expected buying collateral should be lower than remaining collateral.");
 		} else {
 			setError("");
 		}
@@ -128,15 +114,15 @@ export default function ChallengePlaceBid() {
 			setBidding(true);
 
 			const bidWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2,
-				abi: position.version === 1 ? MintingHubV1ABI : MintingHubV2ABI,
-				functionName: "bid",
-				args: [parseInt(challenge.number.toString()), amount, false],
+				address: ADDRESS[chainId].mintingHubV2,
+				abi: MintingHubV2ABI,
+				functionName: "buyExpiredCollateral",
+				args: [position.position, amount],
 			});
 
 			const toastContent = [
 				{
-					title: `Bid Amount: `,
+					title: `ForceSell Amount: `,
 					value: formatBigInt(amount, position.collateralDecimals) + " " + position.collateralSymbol,
 				},
 				{
@@ -151,10 +137,10 @@ export default function ChallengePlaceBid() {
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: bidWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Placing a bid`} rows={toastContent} />,
+					render: <TxToast title={`Force to Sell ${position.collateralSymbol}`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully Placed Bid" rows={toastContent} />,
+					render: <TxToast title="Successfully Forced to Sell" rows={toastContent} />,
 				},
 			});
 			setNavigating(true);
@@ -168,18 +154,18 @@ export default function ChallengePlaceBid() {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Bid</title>
+				<title>Frankencoin - Force Sell</title>
 			</Head>
 
 			<div className="md:mt-8">
 				<section className="mx-auto max-w-2xl sm:px-8">
 					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center mt-3">Buy {position.collateralSymbol} in Auction</div>
+						<div className="text-lg font-bold text-center mt-3">Force to Sell and Buy {position.collateralSymbol}</div>
 
 						<div className="">
 							<TokenInput
 								label=""
-								max={remainingSize}
+								max={BigInt(position.collateralBalance)}
 								value={amount.toString()}
 								onChange={onChangeAmount}
 								digit={position.collateralDecimals}
@@ -200,7 +186,7 @@ export default function ChallengePlaceBid() {
 							<AppBox>
 								<DisplayLabel label="Available" />
 								<DisplayAmount
-									amount={remainingSize}
+									amount={BigInt(position.collateralBalance)}
 									currency={position.collateralSymbol}
 									address={position.collateral}
 									digits={position.collateralDecimals}
@@ -218,32 +204,28 @@ export default function ChallengePlaceBid() {
 								/>
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Initially Available" />
-								<DisplayAmount
-									amount={challenge.size || 0n}
-									currency={position.collateralSymbol}
-									address={position.collateral}
-									digits={position.collateralDecimals}
-									className="mt-4"
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Challenger" />
+								<DisplayLabel label="Owner" />
 								<Link
 									className="text-link"
-									href={ContractUrl(challenge?.challenger || zeroAddress, WAGMI_CHAIN)}
+									href={ContractUrl(position.owner, WAGMI_CHAIN)}
 									target="_blank"
 									rel="noreferrer"
 								>
 									<div className="mt-4">
-										{shortenAddress(challenge?.challenger || zeroAddress)}
+										{shortenAddress(position.owner)}
 										<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
 									</div>
 								</Link>
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Fixed price until" />
-								<div>{formatDate(declineStartTimestamp / 1000) || "---"}</div>
+								<DisplayLabel label="Position" />
+								<Link className="text-link" href={`/monitoring/${position.position}`}>
+									<div className="mt-4">{shortenAddress(position.position)}</div>
+								</Link>
+							</AppBox>
+							<AppBox>
+								<DisplayLabel label="From 10x price decline until" />
+								<div>{formatDate(declineOnePriceTimestamp / 1000) || "---"}</div>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Reaching zero at" />
@@ -257,7 +239,7 @@ export default function ChallengePlaceBid() {
 									isLoading={isBidding}
 									onClick={() => handleBid()}
 								>
-									Buy
+									Force Sell
 								</Button>
 							</GuardToAllowedChainBtn>
 						</div>
