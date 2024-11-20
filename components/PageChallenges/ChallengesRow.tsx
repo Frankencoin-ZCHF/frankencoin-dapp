@@ -30,7 +30,8 @@ export default function ChallengesRow({ headers, challenge }: Props) {
 	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
 	if (!collTokenPrice || !zchfPrice) return null;
 
-	const challengePrice: bigint = BigInt(challengesPrices.map[challenge.id as ChallengesId] ?? parseEther("0"));
+	const challengePriceSearch: string | undefined = challengesPrices.map[challenge.id as ChallengesId];
+	const challengePrice: string = formatUnits(BigInt(challengePriceSearch ?? "0"), 36 - position.collateralDecimals);
 	const start: number = parseInt(challenge.start.toString()) * 1000; // timestamp
 	const duration: number = parseInt(challenge.duration.toString()) * 1000;
 
@@ -106,7 +107,7 @@ export default function ChallengesRow({ headers, challenge }: Props) {
 			{/* Current Price */}
 			<div className="flex flex-col">
 				<div className="text-md text-text-primary">
-					{formatCurrency(formatUnits(challengePrice, 36 - position.collateralDecimals), 2, 2)} ZCHF
+					{challengePriceSearch ? formatCurrency(challengePrice, 2, 2) : "(pending)"} ZCHF
 				</div>
 			</div>
 
