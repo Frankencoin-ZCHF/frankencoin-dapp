@@ -44,7 +44,7 @@ export function SubmitIssue() {
 				<FooterButton link={SOCIAL.Github_dapp_new_issue} text="Submit an Issue" icon={faGithub} />
 			</li>
 			<li>
-				<FooterButton link={SOCIAL.Github_dapp} text={`${version} / ${isMainnet ? "Mainnet" : "Testnet"}`} icon={faCodeCommit} />
+				<FooterButton link={SOCIAL.Github_dapp} text={`${version} - ${isMainnet ? "Mainnet" : "Testnet"}`} icon={faCodeCommit} />
 			</li>
 		</ul>
 	);

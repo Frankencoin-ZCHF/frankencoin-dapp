@@ -211,7 +211,7 @@ export default function MonitoringForceSell() {
 									target="_blank"
 									rel="noreferrer"
 								>
-									<div className="mt-4">
+									<div className="">
 										{shortenAddress(position.owner)}
 										<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
 									</div>
@@ -220,7 +220,7 @@ export default function MonitoringForceSell() {
 							<AppBox>
 								<DisplayLabel label="Position" />
 								<Link className="text-link" href={`/monitoring/${position.position}`}>
-									<div className="mt-4">{shortenAddress(position.position)}</div>
+									<div className="">{shortenAddress(position.position)}</div>
 								</Link>
 							</AppBox>
 							<AppBox>
@@ -233,7 +233,8 @@ export default function MonitoringForceSell() {
 							</AppBox>
 						</div>
 						<div className="mx-auto mt-4 w-72 max-w-full flex-col">
-							<GuardToAllowedChainBtn>
+							{/* Override lable here */}
+							<GuardToAllowedChainBtn label="Force Sell">
 								<Button
 									disabled={amount == 0n || expectedZCHF() > userBalance || error != ""}
 									isLoading={isBidding}

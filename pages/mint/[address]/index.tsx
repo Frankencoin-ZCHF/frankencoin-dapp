@@ -286,7 +286,7 @@ export default function PositionBorrow({}) {
 							<DateInput label="Expiration" max={position.expiration} value={expirationDate} onChange={onChangeExpiration} />
 						</div>
 						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-							<GuardToAllowedChainBtn>
+							<GuardToAllowedChainBtn label={amount > userAllowance ? "Approve" : "Mint"}>
 								{requiredColl > userAllowance ? (
 									<Button
 										disabled={amount == 0n || requiredColl > userBalance || !!error}

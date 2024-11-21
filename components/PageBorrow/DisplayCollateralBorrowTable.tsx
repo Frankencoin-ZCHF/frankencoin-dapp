@@ -2,6 +2,8 @@ import dynamic from "next/dynamic";
 import { useContractUrl } from "../../hooks/useContractUrl";
 import { zeroAddress } from "viem";
 import Link from "next/link";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 const TokenLogo = dynamic(() => import("../TokenLogo"), { ssr: false });
 
@@ -33,6 +35,7 @@ export default function DisplayCollateralBorrowTable({ bold = true, symbol, symb
 					<span className={`text-left ${bold && "font-bold"}`}>
 						{symbol}
 						<span className="text-xs font-normal">{` ${symbolTiny}`}</span>
+						<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2 cursor-pointer" />
 					</span>
 					<span className="text-text-subheader text-left max-lg:w-[4rem] lg:w-[7rem] max-sm:w-[9rem] text-sm truncate">
 						{name}
