@@ -15,11 +15,13 @@ import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import { PositionQuery } from "@frankencoin/api";
-import { ADDRESS, PositionV1ABI } from "@frankencoin/zchf";
+import { ADDRESS, PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
 	const [isAdjusting, setAdjusting] = useState(false);
+
+	const [challengeSize, setChallengeSize] = useState(0n);
 
 	const [userCollAllowance, setUserCollAllowance] = useState(0n);
 	const [userCollBalance, setUserCollBalance] = useState(0n);
@@ -43,33 +45,41 @@ export default function PositionAdjust() {
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
 		const fc: Address = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
-		if (acc === undefined) return;
 		if (!position || !position.collateral) return;
 
 		const fetchAsync = async function () {
-			const _balanceFrank = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[WAGMI_CHAIN.id].frankenCoin,
-				abi: erc20Abi,
-				functionName: "balanceOf",
-				args: [acc],
-			});
-			setUserFrankBalance(_balanceFrank);
+			if (acc !== undefined) {
+				const _balanceFrank = await readContract(WAGMI_CONFIG, {
+					address: ADDRESS[WAGMI_CHAIN.id].frankenCoin,
+					abi: erc20Abi,
+					functionName: "balanceOf",
+					args: [acc],
+				});
+				setUserFrankBalance(_balanceFrank);
 
-			const _balanceColl = await readContract(WAGMI_CONFIG, {
-				address: position.collateral,
-				abi: erc20Abi,
-				functionName: "balanceOf",
-				args: [acc],
-			});
-			setUserCollBalance(_balanceColl);
+				const _balanceColl = await readContract(WAGMI_CONFIG, {
+					address: position.collateral,
+					abi: erc20Abi,
+					functionName: "balanceOf",
+					args: [acc],
+				});
+				setUserCollBalance(_balanceColl);
 
-			const _allowanceColl = await readContract(WAGMI_CONFIG, {
-				address: position.collateral,
-				abi: erc20Abi,
-				functionName: "allowance",
-				args: [acc, position.position],
+				const _allowanceColl = await readContract(WAGMI_CONFIG, {
+					address: position.collateral,
+					abi: erc20Abi,
+					functionName: "allowance",
+					args: [acc, position.position],
+				});
+				setUserCollAllowance(_allowanceColl);
+			}
+
+			const _balanceChallenge = await readContract(WAGMI_CONFIG, {
+				address: position.position,
+				abi: position.version === 1 ? PositionV1ABI : PositionV2ABI,
+				functionName: "challengedAmount",
 			});
-			setUserCollAllowance(_allowanceColl);
+			setChallengeSize(_balanceChallenge);
 		};
 
 		fetchAsync();
@@ -296,7 +306,9 @@ export default function PositionAdjust() {
 											(amount == BigInt(position.minted) &&
 												collateralAmount == BigInt(position.collateralBalance) &&
 												liqPrice == BigInt(position.price)) ||
-											(!position.denied && (isCooldown || !!getAmountError() || !!getCollateralError()))
+											(!position.denied &&
+												((isCooldown && amount > 0n) || !!getAmountError() || !!getCollateralError())) ||
+											(challengeSize > 0n && collateralAmount < BigInt(position.collateralBalance))
 										}
 										error={position.owner != account.address ? "You can only adjust your own position" : ""}
 										isLoading={isAdjusting}
