@@ -115,7 +115,7 @@ export default function EquityFPSDetailsCard() {
 					<DisplayAmount amount={profit} currency="ZCHF" className="text-text-success" address={ADDRESS[chainId].frankenCoin} />
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Total Losses" />
+					<DisplayLabel label="Total Spendings" />
 					<DisplayAmount amount={loss} currency="ZCHF" className="text-text-warning" address={ADDRESS[chainId].frankenCoin} />
 				</AppBox>
 			</div>
