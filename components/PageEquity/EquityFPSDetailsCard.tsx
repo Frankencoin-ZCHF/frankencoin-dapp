@@ -62,6 +62,11 @@ export default function EquityFPSDetailsCard() {
 							type: "datetime",
 							labels: {
 								show: false,
+								formatter: (value) => {
+									const local = new Date(value).toLocaleString();
+									const d = local.split(",")[0].split("/");
+									return `${d[1]}.${d[0]}.${d[2]}`;
+								},
 							},
 							axisBorder: {
 								show: false,
