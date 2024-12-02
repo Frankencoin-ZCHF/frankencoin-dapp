@@ -1,7 +1,7 @@
 import { AddressLabelSimple, TxLabelSimple } from "@components/AddressLabel";
 import TableRow from "@components/Table/TableRow";
-import { SavingsWithdrawQuery } from "@frankencoin/api";
-import { formatCurrency } from "@utils";
+import { SavingsWithdrawQuery } from "@deuro/api";
+import { formatCurrency, TOKEN_SYMBOL } from "@utils";
 import { formatUnits, Hash } from "viem";
 
 interface Props {
@@ -24,13 +24,13 @@ export default function SavingsWithdrawnRow({ headers, item }: Props) {
 					<AddressLabelSimple address={item.account} showLink />
 				</div>
 
-				<div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.amount), 18))} ZCHF</div>
+				<div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.amount), 18))} {TOKEN_SYMBOL}</div>
 
 				<div className={`flex flex-col`}>{formatCurrency(item.rate / 10_000)} %</div>
 
-				<div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.balance), 18))} ZCHF</div>
+				<div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.balance), 18))} {TOKEN_SYMBOL}</div>
 
-				{/* <div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.total), 18))} ZCHF</div> */}
+				{/* <div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.total), 18))} {TOKEN_SYMBOL}</div> */}
 			</TableRow>
 		</>
 	);

@@ -7,6 +7,7 @@ import { faGithub, faTelegram, faXTwitter, faTwitter } from "@fortawesome/free-b
 import { SubmitIssue } from "./LoadingScreen";
 import { usePathname } from "next/navigation";
 import { useIsMainnet } from "@hooks";
+import { useFrontendCode } from "../hooks/useFrontendCode";
 
 const DynamicDocs = (): string => {
 	const p = usePathname();
@@ -29,19 +30,22 @@ const DynamicDocs = (): string => {
 
 export default function Footer() {
 	const isMainnet = useIsMainnet();
+	const { marketingCode } = useFrontendCode();
 
 	return (
 		<div className="md:flex max-md:grid-rows-2 max-md:justify-items-center md:px-12 pb-12 pt-6 bg-layout-footer text-layout-primary">
-			<div className="flex-1 justify-start">
+			<div className="flex-1 justify-start text-center md:text-left">
 				<SubmitIssue />
+				{marketingCode && (
+					<div className="mt-4 text-sm text-layout-primary">
+						Using referral code: <span className="font-bold">{marketingCode}</span>
+					</div>
+				)}
 			</div>
 
 			<ul className="flex justify-end gap-8 max-md:pt-12">
 				<li>
 					<FooterButton link={DynamicDocs()} text="Doc" icon={faBook} />
-				</li>
-				<li>
-					<FooterButton link={SOCIAL.SubStack} text="Blog" icon={faBookmark} />
 				</li>
 				<li>
 					<FooterButton link={SOCIAL.Github_contract} text="Github" icon={faGithub} />

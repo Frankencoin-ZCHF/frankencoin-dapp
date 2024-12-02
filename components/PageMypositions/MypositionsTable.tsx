@@ -4,7 +4,7 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { ChallengesPositionsMapping, PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
+import { ChallengesPositionsMapping, PositionQuery, PriceQueryObjectArray } from "@deuro/api";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { useAccount } from "wagmi";
 import MypositionsRow from "./MypositionsRow";
@@ -108,7 +108,7 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 		positions.sort((a, b) => {
 			const calc = function (p: PositionQuery) {
 				const size: number = parseFloat(formatUnits(BigInt(p.collateralBalance), p.collateralDecimals));
-				const price: number = prices[p.collateral.toLowerCase() as Address]?.price?.chf || 1;
+				const price: number = prices[p.collateral.toLowerCase() as Address]?.price?.eur || 1;
 				return size * price;
 			};
 			return calc(b) - calc(a);
@@ -118,7 +118,7 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 		positions.sort((a, b) => {
 			const calc = function (p: PositionQuery) {
 				const liqPrice: number = parseFloat(formatUnits(BigInt(p.price), 36 - p.collateralDecimals));
-				const price: number = prices[p.collateral.toLowerCase() as Address]?.price?.chf || 1;
+				const price: number = prices[p.collateral.toLowerCase() as Address]?.price?.eur || 1;
 				return price / liqPrice;
 			};
 			return calc(b) - calc(a);

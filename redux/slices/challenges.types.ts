@@ -4,7 +4,7 @@ import {
 	ApiChallengesMapping,
 	ApiChallengesPositions,
 	ApiChallengesPrices,
-} from "@frankencoin/api";
+} from "@deuro/api";
 
 // --------------------------------------------------------------------------------
 export type ChallengesState = {

@@ -6,7 +6,7 @@ import DisplayAmount from "@components/DisplayAmount";
 import TokenInput from "@components/Input/TokenInput";
 import { erc20Abi, zeroAddress } from "viem";
 import { useEffect, useState } from "react";
-import { ContractUrl, formatBigInt, formatDuration, shortenAddress } from "@utils";
+import { ContractUrl, formatBigInt, formatDuration, shortenAddress, TOKEN_SYMBOL } from "@utils";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { Address } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -19,7 +19,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import Link from "next/link";
 import { useRouter as useNavigation } from "next/navigation";
-import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
+import { ADDRESS, MintingHubV2ABI } from "@deuro/eurocoin";
 
 export default function PositionChallenge() {
 	const [amount, setAmount] = useState(0n);
@@ -46,7 +46,7 @@ export default function PositionChallenge() {
 	// ---------------------------------------------------------------------------
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
-		const fc: Address = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
+		const fc: Address = ADDRESS[WAGMI_CHAIN.id].decentralizedEURO;
 		if (acc === undefined) return;
 		if (!position || !position.collateral) return;
 
@@ -63,7 +63,7 @@ export default function PositionChallenge() {
 				address: position.collateral,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [acc, position.version === 1 ? ADDRESS[WAGMI_CHAIN.id].mintingHubV1 : ADDRESS[WAGMI_CHAIN.id].mintingHubV2],
+				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHubV2],
 			});
 			setUserAllowance(_allowanceColl);
 		};
@@ -109,7 +109,7 @@ export default function PositionChallenge() {
 				address: position.collateral as Address,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2, amount],
+				args: [ADDRESS[chainId].mintingHubV2, amount],
 			});
 
 			const toastContent = [
@@ -119,7 +119,7 @@ export default function PositionChallenge() {
 				},
 				{
 					title: "Spender: ",
-					value: shortenAddress(ADDRESS[chainId].mintingHubV1),
+					value: shortenAddress(ADDRESS[chainId].mintingHubV2),
 				},
 				{
 					title: "Transaction:",
@@ -147,8 +147,8 @@ export default function PositionChallenge() {
 			setChallenging(true);
 
 			const challengeWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2,
-				abi: position.version === 1 ? MintingHubV1ABI : MintingHubV2ABI,
+				address: ADDRESS[chainId].mintingHubV2,
+				abi: MintingHubV2ABI,
 				functionName: "challenge",
 				args: [position.position, amount, BigInt(position.price)],
 			});
@@ -160,7 +160,7 @@ export default function PositionChallenge() {
 				},
 				{
 					title: "Price: ",
-					value: formatBigInt(BigInt(position.price), 36 - position.collateralDecimals) + " ZCHF",
+					value: formatBigInt(BigInt(position.price), 36 - position.collateralDecimals) + ` ${TOKEN_SYMBOL}`,
 				},
 				{
 					title: "Transaction:",
@@ -188,7 +188,7 @@ export default function PositionChallenge() {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Challenge</title>
+				<title>dEURO - Challenge</title>
 			</Head>
 
 			{/* <div>
@@ -215,9 +215,9 @@ export default function PositionChallenge() {
 								<DisplayLabel label="Starting Price" />
 								<DisplayAmount
 									amount={BigInt(position.price)}
-									currency={"ZCHF"}
+									currency={TOKEN_SYMBOL}
 									digits={36 - position.collateralDecimals}
-									address={ADDRESS[chainId].frankenCoin}
+									address={ADDRESS[chainId].decentralizedEURO}
 									/* subAmount={maxProceeds}
 									subCurrency={"% (Coingecko)"}
 									subColor={maxProceeds > 0 ? "text-green-300" : "text-red-500"} */
@@ -228,9 +228,9 @@ export default function PositionChallenge() {
 								<DisplayLabel label="Potential Reward" />
 								<DisplayAmount
 									amount={(BigInt(position.price) * amount * 2n) / 100n}
-									currency={"ZCHF"}
+									currency={TOKEN_SYMBOL}
 									digits={36}
-									address={ADDRESS[chainId].frankenCoin}
+									address={ADDRESS[chainId].decentralizedEURO}
 									className="mt-2"
 								/>
 							</AppBox>
@@ -286,7 +286,7 @@ export default function PositionChallenge() {
 							<ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
 								<li>
 									During the fixed price phase, anyone can buy the {position.collateralSymbol} you provided at the
-									liquidation price of {formatBigInt(BigInt(position.price), 36 - position.collateralDecimals)} ZCHF each.
+									liquidation price of {formatBigInt(BigInt(position.price), 36 - position.collateralDecimals)} {TOKEN_SYMBOL} each.
 								</li>
 								<li>
 									If there are any {position.collateralSymbol} left after the fixed price phase ends, you get the

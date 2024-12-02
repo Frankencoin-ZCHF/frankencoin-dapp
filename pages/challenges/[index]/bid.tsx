@@ -5,7 +5,7 @@ import AppBox from "@components/AppBox";
 import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
 import { Address, formatUnits, zeroAddress } from "viem";
-import { ContractUrl, formatBigInt, formatCurrency, formatDate, shortenAddress } from "@utils";
+import { ContractUrl, formatBigInt, formatCurrency, formatDate, shortenAddress, TOKEN_SYMBOL } from "@utils";
 import Link from "next/link";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
@@ -20,8 +20,8 @@ import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useRouter as useNavigation } from "next/navigation";
-import { ADDRESS, FrankencoinABI, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
-import { ChallengesId } from "@frankencoin/api";
+import { ADDRESS, DecentralizedEUROABI, MintingHubV2ABI } from "@deuro/eurocoin";
+import { ChallengesId } from "@deuro/api";
 
 export default function ChallengePlaceBid() {
 	const [isInit, setInit] = useState(false);
@@ -55,8 +55,8 @@ export default function ChallengePlaceBid() {
 		const fetchAsync = async function () {
 			if (acc !== undefined) {
 				const _balance = await readContract(WAGMI_CONFIG, {
-					address: ADDR.frankenCoin,
-					abi: FrankencoinABI,
+					address: ADDR.decentralizedEURO,
+					abi: DecentralizedEUROABI,
 					functionName: "balanceOf",
 					args: [acc],
 				});
@@ -64,8 +64,8 @@ export default function ChallengePlaceBid() {
 			}
 
 			const _price = await readContract(WAGMI_CONFIG, {
-				address: position.version === 1 ? ADDR.mintingHubV1 : ADDR.mintingHubV2,
-				abi: position.version === 1 ? MintingHubV1ABI : MintingHubV2ABI,
+				address: ADDR.mintingHubV2,
+				abi: MintingHubV2ABI,
 				functionName: "price",
 				args: [parseInt(challenge.number.toString())],
 			});
@@ -115,7 +115,7 @@ export default function ChallengePlaceBid() {
 		setAmount(valueBigInt);
 
 		if (expectedZCHF() > userBalance) {
-			setError("Not enough ZCHF in your wallet to cover the expected costs.");
+			setError(`Not enough ${TOKEN_SYMBOL} in your wallet to cover the expected costs.`);
 		} else if (valueBigInt > remainingSize) {
 			setError("Expected winning collateral should be lower than remaining collateral.");
 		} else {
@@ -128,8 +128,8 @@ export default function ChallengePlaceBid() {
 			setBidding(true);
 
 			const bidWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2,
-				abi: position.version === 1 ? MintingHubV1ABI : MintingHubV2ABI,
+				address: ADDRESS[chainId].mintingHubV2,
+				abi: MintingHubV2ABI,
 				functionName: "bid",
 				args: [parseInt(challenge.number.toString()), amount, false],
 			});
@@ -140,8 +140,8 @@ export default function ChallengePlaceBid() {
 					value: formatBigInt(amount, position.collateralDecimals) + " " + position.collateralSymbol,
 				},
 				{
-					title: `Expected ZCHF: `,
-					value: formatCurrency(formatUnits(expectedZCHF(), 18)) + " ZCHF",
+					title: `Expected ${TOKEN_SYMBOL}: `,
+					value: formatCurrency(formatUnits(expectedZCHF(), 18)) + " " + TOKEN_SYMBOL,
 				},
 				{
 					title: "Transaction:",
@@ -168,7 +168,7 @@ export default function ChallengePlaceBid() {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Bid</title>
+				<title>dEURO - Bid</title>
 			</Head>
 
 			<div className="md:mt-8">
@@ -189,10 +189,10 @@ export default function ChallengePlaceBid() {
 								balanceLabel="Available:"
 							/>
 							<div className="flex flex-col">
-								<span>Your balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} ZCHF</span>
+								<span>Your balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} {TOKEN_SYMBOL}</span>
 							</div>
 							<div className="flex flex-col">
-								<span>Estimated cost: {formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} ZCHF</span>
+								<span>Estimated cost: {formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} {TOKEN_SYMBOL}</span>
 							</div>
 						</div>
 
@@ -212,8 +212,8 @@ export default function ChallengePlaceBid() {
 								<DisplayAmount
 									amount={auctionPrice}
 									digits={36 - position.collateralDecimals}
-									address={ADDRESS[chainId].frankenCoin}
-									currency={"ZCHF"}
+									address={ADDRESS[chainId].decentralizedEURO}
+									currency={TOKEN_SYMBOL}
 									className="mt-4"
 								/>
 							</AppBox>

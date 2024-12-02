@@ -7,7 +7,19 @@ import { mainnet, polygon, Chain } from "@wagmi/core/chains";
 import axios from "axios";
 import { Address } from "viem";
 
-export type ConfigEnv = { landing: string; app: string; api: string; ponder: string; rpc: string; wagmiId: string; chain: Chain };
+export type ConfigEnv = { 
+	landing: string;
+	app: string;
+	api: string;
+	ponder: string;
+	wagmiId: string;
+	alchemyApiKey: string;
+	chain: string;
+	network: {
+		mainnet: string;
+		polygon: string;
+	};
+};
 
 // DEV: Loaded with defaults, not needed for now.
 // if (!process.env.NEXT_PUBLIC_WAGMI_ID) throw new Error("Project ID is not defined");
@@ -17,21 +29,50 @@ export type ConfigEnv = { landing: string; app: string; api: string; ponder: str
 
 // Config
 export const CONFIG: ConfigEnv = {
-	landing: process.env.NEXT_PUBLIC_LANDINGPAGE_URL || "https://frankencoin.com",
-	app: process.env.NEXT_PUBLIC_APP_URL || "https://app.frankencoin.com",
-	api: process.env.NEXT_PUBLIC_API_URL || "https://api.frankencoin.com",
-	ponder: process.env.NEXT_PUBLIC_PONDER_URL || "https://ponder.frankencoin.com",
-	chain: process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon" ? polygon : mainnet,
-	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID || "3321ad5a4f22083fe6fe82208a4c9ddc",
-	rpc:
-		process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon"
-			? (process.env.NEXT_PUBLIC_RPC_URL_POLYGON as string) ||
-			  "https://polygon-mainnet.g.alchemy.com/v2/dhaKbi2HDlKYW1JaSHm1i_hGkE2gnA5t"
-			: process.env.NEXT_PUBLIC_RPC_URL_MAINNET || "https://eth-mainnet.g.alchemy.com/v2/dhaKbi2HDlKYW1JaSHm1i_hGkE2gnA5t",
+	landing: process.env.NEXT_PUBLIC_LANDINGPAGE_URL ?? "https://deuro.com",
+	app: process.env.NEXT_PUBLIC_APP_URL ?? "https://app.deuro.com",
+	api: process.env.NEXT_PUBLIC_API_URL ?? "https://api.deuro.com",
+	ponder: process.env.NEXT_PUBLIC_PONDER_URL ?? "https://ponder.deuro.com",
+	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID ?? "",
+	alchemyApiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY ?? "",
+	chain: process.env.NEXT_PUBLIC_CHAIN_NAME ?? "mainnet",
+	network: {
+		mainnet: process.env.NEXT_PUBLIC_RPC_URL_MAINNET ?? "https://eth-mainnet.g.alchemy.com/v2",
+		polygon: process.env.NEXT_PUBLIC_RPC_URL_POLYGON ?? "https://polygon-mainnet.g.alchemy.com/v2",
+	}
 };
 
+const PRINT_CONFIG = (): ConfigEnv => {
+	const printConfig = { ...CONFIG};
+
+	printConfig.wagmiId = TRUNCATE_STRING(printConfig.wagmiId, 5, 5);
+	printConfig.alchemyApiKey = TRUNCATE_STRING(printConfig.alchemyApiKey, 5, 5);
+
+	return printConfig;
+}
+
+const TRUNCATE_STRING = (text: string, startCount: number, endCount: number): string => {
+	if (text.length <= startCount + endCount) return text;
+
+	const first = text.slice(0, startCount);
+	const last = text.slice(-endCount);
+
+	return `${first}...${last}`;
+}
+
+// PRINT CONFIGURATION PROFILE
 console.log("YOU ARE USING THIS CONFIG PROFILE:");
-console.log(CONFIG);
+console.log(PRINT_CONFIG());
+
+// CONFIG CHAIN
+export const CONFIG_CHAIN = (): Chain => {
+	return CONFIG.chain === "polygon" ? polygon : mainnet;
+}
+
+// CONFIG RPC
+export const CONFIG_RPC = (): string => {
+	return CONFIG.chain === "polygon" ? `${CONFIG.network.polygon}/${CONFIG.alchemyApiKey}` : `${CONFIG.network.mainnet}/${CONFIG.alchemyApiKey}`;
+}
 
 // PONDER CLIENT
 export const PONDER_CLIENT = new ApolloClient({
@@ -39,23 +80,23 @@ export const PONDER_CLIENT = new ApolloClient({
 	cache: new InMemoryCache(),
 });
 
-// FRANKENCOIN API CLIENT
-export const FRANKENCOIN_API_CLIENT = axios.create({
+// DEURO API CLIENT
+export const DEURO_API_CLIENT = axios.create({
 	baseURL: CONFIG.api,
 });
 
 // WAGMI CONFIG
-export const WAGMI_CHAIN = CONFIG.chain;
+export const WAGMI_CHAIN = CONFIG_CHAIN();
 export const WAGMI_METADATA = {
-	name: "Frankencoin",
-	description: "Frankencoin Frontend Application",
+	name: "dEURO",
+	description: "dEURO Frontend Application",
 	url: CONFIG.landing,
 	icons: ["https://avatars.githubusercontent.com/u/37784886"],
 };
 export const WAGMI_CONFIG = createConfig({
 	chains: [WAGMI_CHAIN],
 	transports: {
-		[CONFIG.chain.id]: http(CONFIG.rpc),
+		[WAGMI_CHAIN.id]: http(CONFIG_RPC()),
 	},
 	batch: {
 		multicall: {

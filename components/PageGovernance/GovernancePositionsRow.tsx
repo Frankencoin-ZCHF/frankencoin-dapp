@@ -1,6 +1,6 @@
 import { Address, formatUnits, zeroAddress } from "viem";
 import TableRow from "../Table/TableRow";
-import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
+import { PositionQuery, PriceQueryObjectArray } from "@deuro/api";
 import { formatCurrency, FormatType, shortenAddress } from "../../utils/format";
 import { useContractUrl } from "@hooks";
 import GovernancePositionsAction from "./GovernancePositionsAction";
@@ -8,6 +8,7 @@ import DisplayCollateralBorrowTable from "@components/PageBorrow/DisplayCollater
 import { AddressLabelSimple } from "@components/AddressLabel";
 import Link from "next/link";
 import AppBox from "@components/AppBox";
+import { TOKEN_SYMBOL } from "@utils";
 
 interface Props {
 	headers: string[];
@@ -65,7 +66,7 @@ export default function GovernancePositionsRow({ headers, subHeaders, position, 
 
 			<div className="flex flex-col">
 				<span className="">
-					{formatCurrency(limit)} <span className="">ZCHF</span>
+					{formatCurrency(limit)} <span className="">{TOKEN_SYMBOL}</span>
 				</span>
 				<div className="text-sm text-text-subheader">{formatCurrency(position.reserveContribution / 10_000, 0, 0, 0)}%</div>
 			</div>

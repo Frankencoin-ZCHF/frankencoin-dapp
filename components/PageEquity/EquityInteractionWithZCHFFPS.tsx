@@ -3,7 +3,7 @@ import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
 import { usePoolStats } from "@hooks";
-import { formatBigInt, formatDuration, shortenAddress } from "@utils";
+import { formatBigInt, formatDuration, NATIVE_POOL_SHARE_TOKEN_SYMBOL, shortenAddress, TOKEN_SYMBOL } from "@utils";
 import { useAccount, useChainId, useReadContract } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
@@ -15,7 +15,9 @@ import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
-import { ADDRESS, EquityABI } from "@frankencoin/zchf";
+import { ADDRESS, EquityABI, FrontendGatewayABI } from "@deuro/eurocoin";
+import { useFrontendCode } from "../../hooks/useFrontendCode";
+import { useFrontendGatewayStats } from "../../hooks/useFrontendGatewayStats";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -30,11 +32,13 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 	const [isInversting, setInversting] = useState(false);
 	const [isRedeeming, setRedeeming] = useState(false);
 
+	const { frontendGatewayAllowance } = useFrontendGatewayStats();
+	const { frontendCode } = useFrontendCode();
 	const { address } = useAccount();
 	const chainId = useChainId();
 	const poolStats = usePoolStats();
 	const account = address || zeroAddress;
-	const direction: boolean = tokenFromTo.from === "ZCHF";
+	const direction: boolean = tokenFromTo.from === TOKEN_SYMBOL;
 
 	useEffect(() => {
 		setAmount(0n);
@@ -46,16 +50,16 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 			setApproving(true);
 
 			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].frankenCoin,
+				address: ADDRESS[chainId].decentralizedEURO,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [ADDRESS[chainId].equity, amount],
+				args: [ADDRESS[chainId].frontendGateway, amount],
 			});
 
 			const toastContent = [
 				{
 					title: "Amount:",
-					value: formatBigInt(amount) + " ZCHF",
+					value: formatBigInt(amount) + " " + TOKEN_SYMBOL,
 				},
 				{
 					title: "Spender: ",
@@ -69,10 +73,10 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Approving ZCHF`} rows={toastContent} />,
+					render: <TxToast title={`Approving ${TOKEN_SYMBOL}`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully Approved ZCHF" rows={toastContent} />,
+					render: <TxToast title={`Successfully Approved ${TOKEN_SYMBOL}`} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
@@ -84,20 +88,20 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 	const handleInvest = async () => {
 		try {
 			const investWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].equity,
-				abi: EquityABI,
+				address: ADDRESS[chainId].frontendGateway,
+				abi: FrontendGatewayABI,
 				functionName: "invest",
-				args: [amount, result],
+				args: [amount, result, frontendCode],
 			});
 
 			const toastContent = [
 				{
 					title: "Amount:",
-					value: formatBigInt(amount, 18) + " ZCHF",
+					value: formatBigInt(amount, 18) + " " + TOKEN_SYMBOL,
 				},
 				{
 					title: "Shares: ",
-					value: formatBigInt(result) + " FPS",
+					value: formatBigInt(result) + " " + NATIVE_POOL_SHARE_TOKEN_SYMBOL,
 				},
 				{
 					title: "Transaction: ",
@@ -107,7 +111,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: investWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Investing ZCHF`} rows={toastContent} />,
+					render: <TxToast title={`Investing ${TOKEN_SYMBOL}`} rows={toastContent} />,
 				},
 				success: {
 					render: <TxToast title="Successfully Invested" rows={toastContent} />,
@@ -134,11 +138,11 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 			const toastContent = [
 				{
 					title: "Amount:",
-					value: formatBigInt(amount) + " FPS",
+					value: formatBigInt(amount) + " " + NATIVE_POOL_SHARE_TOKEN_SYMBOL,
 				},
 				{
 					title: "Receive: ",
-					value: formatBigInt(result) + " ZCHF",
+					value: formatBigInt(result) + " " + TOKEN_SYMBOL,
 				},
 				{
 					title: "Transaction: ",
@@ -148,7 +152,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: redeemWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Redeeming FPS`} rows={toastContent} />,
+					render: <TxToast title={`Redeeming ${NATIVE_POOL_SHARE_TOKEN_SYMBOL}`} rows={toastContent} />,
 				},
 				success: {
 					render: <TxToast title="Successfully Redeemed" rows={toastContent} />,
@@ -178,8 +182,8 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 
 	const fromBalance = direction ? poolStats.frankenBalance : poolStats.equityBalance;
 	const result = (direction ? fpsResult : frankenResult) || 0n;
-	const fromSymbol = direction ? "ZCHF" : "FPS";
-	const toSymbol = !direction ? "ZCHF" : "FPS";
+	const fromSymbol = direction ? TOKEN_SYMBOL : NATIVE_POOL_SHARE_TOKEN_SYMBOL;
+	const toSymbol = !direction ? TOKEN_SYMBOL : NATIVE_POOL_SHARE_TOKEN_SYMBOL;
 	const unlocked =
 		poolStats.equityUserVotes > 86_400 * 90 && poolStats.equityUserVotes < 86_400 * 365 * 30 && poolStats.equityUserVotes > 0n;
 	const redeemLeft = 86400n * 90n - (poolStats.equityBalance ? poolStats.equityUserVotes / poolStats.equityBalance / 2n ** 20n : 0n);
@@ -237,7 +241,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 					<GuardToAllowedChainBtn label={direction ? "Mint" : "Redeem"}>
 						{direction ? (
-							amount > poolStats.frankenAllowance ? (
+							amount > frontendGatewayAllowance ? (
 								<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>
 									Approve
 								</Button>
@@ -262,15 +266,15 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 			<div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
 					<DisplayLabel label="Your Balance" />
-					<DisplayAmount className="mt-4" amount={poolStats.equityBalance} currency="FPS" address={ADDRESS[chainId].equity} />
+					<DisplayAmount className="mt-4" amount={poolStats.equityBalance} currency={NATIVE_POOL_SHARE_TOKEN_SYMBOL} address={ADDRESS[chainId].equity} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Value at Current Price" />
 					<DisplayAmount
 						className="mt-4"
 						amount={(poolStats.equityPrice * poolStats.equityBalance) / BigInt(1e18)}
-						currency="ZCHF"
-						address={ADDRESS[chainId].frankenCoin}
+						currency={TOKEN_SYMBOL}
+						address={ADDRESS[chainId].decentralizedEURO}
 					/>
 				</AppBox>
 				<AppBox>

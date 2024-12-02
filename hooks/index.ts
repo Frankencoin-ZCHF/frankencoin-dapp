@@ -10,7 +10,6 @@ export * from "./useTradeQuery";
 export * from "./useTvl";
 export * from "./useFPSHolders";
 export * from "./useVotingPowers";
-export * from "./useZchfPrice";
 export * from "./useTokenData";
 export * from "./useUserBalance";
 export * from "./useWalletConnectStats";

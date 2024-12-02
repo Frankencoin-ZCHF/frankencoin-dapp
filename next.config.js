@@ -2,7 +2,7 @@
 
 const nextConfig = {
 	reactStrictMode: true,
-	transpilePackages: ["@frankencoin/zchf", "@frankencoin/api"],
+	transpilePackages: ["@deuro/eurocoin", "@deuro/api"],
 
 	// @dev: if you want to set the iFrame SAMEORIGIN headers,
 	// to prevent injecting in cross domains.

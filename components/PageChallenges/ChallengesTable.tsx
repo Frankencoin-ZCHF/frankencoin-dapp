@@ -13,7 +13,7 @@ import {
 	PositionQuery,
 	PositionsQueryObjectArray,
 	PriceQueryObjectArray,
-} from "@frankencoin/api";
+} from "@deuro/api";
 import { Address, formatUnits } from "viem";
 
 export default function ChallengesTable() {
@@ -87,7 +87,7 @@ function sortChallenges(params: SortChallenges): ChallengesQueryItem[] {
 			const calc = function (c: ChallengesQueryItem) {
 				const pos: PositionQuery = positions[c.position.toLowerCase() as Address];
 				const size: number = parseFloat(formatUnits(c.size, pos.collateralDecimals));
-				const price: number = prices[pos.collateral.toLowerCase() as Address].price.chf || 1;
+				const price: number = prices[pos.collateral.toLowerCase() as Address].price.eur || 1;
 				return size * price;
 			};
 			return calc(b) - calc(a);

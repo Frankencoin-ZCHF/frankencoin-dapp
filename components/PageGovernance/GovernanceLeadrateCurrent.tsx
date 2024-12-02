@@ -12,9 +12,9 @@ import { RootState } from "../../redux/redux.store";
 import AppBox from "@components/AppBox";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
-import { CONFIG, WAGMI_CONFIG } from "../../app.config";
+import { CONFIG_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ADDRESS, SavingsABI } from "@frankencoin/zchf";
+import { ADDRESS, SavingsABI } from "@deuro/eurocoin";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 
@@ -23,7 +23,7 @@ interface Props {}
 export default function GovernanceLeadrateCurrent({}: Props) {
 	const [isHandling, setHandling] = useState<boolean>(false);
 	const account = useAccount();
-	const chainId = CONFIG.chain.id;
+	const chainId = CONFIG_CHAIN().id;
 	const info = useSelector((state: RootState) => state.savings.leadrateInfo);
 	const [newRate, setNewRate] = useState<number>(info.rate || 0);
 	const [isHidden, setHidden] = useState<boolean>(false);

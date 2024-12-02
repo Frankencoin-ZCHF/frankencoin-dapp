@@ -1,5 +1,5 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
-import { FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { DEURO_API_CLIENT } from "../../app.config";
 import {
 	DispatchApiEcosystemCollateralPositions,
 	DispatchApiEcosystemCollateralStats,
@@ -12,10 +12,10 @@ import {
 import {
 	ApiEcosystemCollateralPositions,
 	ApiEcosystemCollateralStats,
-	ApiEcosystemFpsInfo,
-	ApiEcosystemFrankencoinInfo,
+	ApiEcosystemDepsInfo,
+	ApiEcosystemStablecoinInfo,
 	ApiMinterListing,
-} from "@frankencoin/api";
+} from "@deuro/api";
 import { zeroAddress } from "viem";
 
 // --------------------------------------------------------------------------------
@@ -25,13 +25,13 @@ export const initialState: EcosystemState = {
 	loaded: false,
 
 	collateralPositions: {},
-	collateralStats: { num: 0, addresses: [], totalValueLocked: { usd: 0, chf: 0 }, map: {} },
-	fpsInfo: {
-		raw: { price: "0", totalSupply: "0" },
-		values: { fpsMarketCapInChf: 0, price: 0, totalSupply: 0 },
+	collateralStats: { num: 0, addresses: [], totalValueLocked: { usd: 0, eur: 0 }, map: {} },
+	depsInfo: {	
+		values: { depsMarketCapInChf: 0, price: 0, totalSupply: 0 },
 		earnings: { profit: 0, loss: 0 },
+		reserve: { balance: 0, equity: 0, minter: 0 },
 	},
-	frankencoinInfo: {
+	stablecoinInfo: {
 		raw: { mint: "0", burn: "0" },
 		total: { mint: 0, burn: 0, supply: 0 },
 		counter: { mint: 0, burn: 0 },
@@ -39,14 +39,14 @@ export const initialState: EcosystemState = {
 		erc20: { address: zeroAddress, decimals: 0, name: "", symbol: "" },
 		chain: { id: 0, name: "" },
 		price: { usd: 0 },
-		fps: {
+		deps: {
 			price: 0,
 			totalSupply: 0,
-			fpsMarketCapInChf: 0,
+			depsMarketCapInChf: 0,
 		},
-		tvl: { usd: 0, chf: 0 },
+		tvl: { usd: 0, eur: 0 },
 	},
-	frankencoinMinters: { num: 0, list: [] },
+	stablecoinMinters: { num: 0, list: [] },
 };
 
 // --------------------------------------------------------------------------------
@@ -76,19 +76,19 @@ export const slice = createSlice({
 			state.collateralStats = action.payload;
 		},
 
-		// SET Fps Info
-		setFpsInfo: (state, action: { payload: ApiEcosystemFpsInfo }) => {
-			state.fpsInfo = action.payload;
+		// SET Deps Info
+		setDepsInfo: (state, action: { payload: ApiEcosystemDepsInfo }) => {
+			state.depsInfo = action.payload;
 		},
 
 		// SET Frankencoin Info
-		setFrankencoinInfo: (state, action: { payload: ApiEcosystemFrankencoinInfo }) => {
-			state.frankencoinInfo = action.payload;
+		setStablecoinInfo: (state, action: { payload: ApiEcosystemStablecoinInfo }) => {
+			state.stablecoinInfo = action.payload;
 		},
 
 		// SET Frankencoin Minters
-		setFrankencoinMinters: (state, action: { payload: ApiMinterListing }) => {
-			state.frankencoinMinters = action.payload;
+		setStablecoinMinters: (state, action: { payload: ApiMinterListing }) => {
+			state.stablecoinMinters = action.payload;
 		},
 	},
 });
@@ -114,20 +114,22 @@ export const fetchEcosystem =
 
 		// ---------------------------------------------------------------
 		// Query raw data from backend api
-		const response1 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/collateral/positions");
+		const response1 = await DEURO_API_CLIENT.get("/ecosystem/collateral/positions");
 		dispatch(slice.actions.setCollateralPositions(response1.data as ApiEcosystemCollateralPositions));
 
-		const response2 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/collateral/stats");
+		const response2 = await DEURO_API_CLIENT.get("/ecosystem/collateral/stats");
 		dispatch(slice.actions.setCollateralStats(response2.data as ApiEcosystemCollateralStats));
 
-		const response3 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/fps/info");
-		dispatch(slice.actions.setFpsInfo(response3.data as ApiEcosystemFpsInfo));
+		const response3 = await DEURO_API_CLIENT.get("/ecosystem/deps/info");
+		dispatch(slice.actions.setDepsInfo(response3.data as ApiEcosystemDepsInfo));
 
-		const response4 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/frankencoin/info");
-		dispatch(slice.actions.setFrankencoinInfo(response4.data as ApiEcosystemFrankencoinInfo));
+		/* TODO: Reactivate when API is ready
+		const response4 = await DEURO_API_CLIENT.get("/ecosystem/stablecoin/info");
+		dispatch(slice.actions.setStablecoinInfo(response4.data as ApiEcosystemStablecoinInfo));
+		*/
 
-		const response5 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/frankencoin/minter/list");
-		dispatch(slice.actions.setFrankencoinMinters(response5.data as ApiMinterListing));
+		const response5 = await DEURO_API_CLIENT.get("/ecosystem/stablecoin/minter/list");
+		dispatch(slice.actions.setStablecoinMinters(response5.data as ApiMinterListing));
 
 		// ---------------------------------------------------------------
 		// Finalizing, loaded set to ture

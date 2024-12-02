@@ -4,10 +4,10 @@ import { formatCurrency } from "../../utils/format";
 import { AddressLabelSimple, TxLabelSimple } from "@components/AddressLabel";
 import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { CONFIG, WAGMI_CONFIG } from "../../app.config";
+import { CONFIG_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { useAccount } from "wagmi";
-import { ADDRESS, SavingsABI } from "@frankencoin/zchf";
-import { ApiLeadrateInfo, LeadrateProposed } from "@frankencoin/api";
+import { ADDRESS, SavingsABI } from "@deuro/eurocoin";
+import { ApiLeadrateInfo, LeadrateProposed } from "@deuro/api";
 import Button from "@components/Button";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { toast } from "react-toastify";
@@ -26,7 +26,7 @@ export default function GovernanceLeadrateRow({ headers, info, proposal, current
 	const [isHidden, setHidden] = useState<boolean>(false);
 
 	const account = useAccount();
-	const chainId = CONFIG.chain.id;
+	const chainId = CONFIG_CHAIN().id;
 
 	const vetoUntil = proposal.nextChange * 1000;
 	const hoursUntil: number = (vetoUntil - Date.now()) / 1000 / 60 / 60;

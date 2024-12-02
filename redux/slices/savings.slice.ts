@@ -1,5 +1,5 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
-import { FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { DEURO_API_CLIENT } from "../../app.config";
 import {
 	DispatchApiLeadrateInfo,
 	DispatchApiLeadrateProposed,
@@ -9,7 +9,7 @@ import {
 	DispatchBoolean,
 	SavingsState,
 } from "./savings.types";
-import { ApiLeadrateInfo, ApiLeadrateProposed, ApiLeadrateRate, ApiSavingsInfo, ApiSavingsUserTable } from "@frankencoin/api";
+import { ApiLeadrateInfo, ApiLeadrateProposed, ApiLeadrateRate, ApiSavingsInfo, ApiSavingsUserTable } from "@deuro/api";
 import { Address, zeroAddress } from "viem";
 
 // --------------------------------------------------------------------------------
@@ -124,25 +124,27 @@ export const fetchSavings =
 
 		// ---------------------------------------------------------------
 		// Query raw data from backend api
-		const response1 = await FRANKENCOIN_API_CLIENT.get("/savings/leadrate/info");
+		const response1 = await DEURO_API_CLIENT.get("/savings/leadrate/info");
 		dispatch(slice.actions.setLeadrateInfo(response1.data as ApiLeadrateInfo));
 
-		const response2 = await FRANKENCOIN_API_CLIENT.get("/savings/leadrate/proposals");
+		const response2 = await DEURO_API_CLIENT.get("/savings/leadrate/proposals");
 		dispatch(slice.actions.setLeadrateProposed(response2.data as ApiLeadrateProposed));
 
-		const response3 = await FRANKENCOIN_API_CLIENT.get("/savings/leadrate/rates");
+		const response3 = await DEURO_API_CLIENT.get("/savings/leadrate/rates");
 		dispatch(slice.actions.setLeadrateRate(response3.data as ApiLeadrateRate));
 
-		const response4 = await FRANKENCOIN_API_CLIENT.get("/savings/core/info");
+		/* TODO: Reactivate when API is ready
+		const response4 = await DEURO_API_CLIENT.get("/savings/core/info");
 		dispatch(slice.actions.setSavingsInfo(response4.data as ApiSavingsInfo));
+		*/
 
-		const response6 = await FRANKENCOIN_API_CLIENT.get(`/savings/core/user/${zeroAddress}`);
+		const response6 = await DEURO_API_CLIENT.get(`/savings/core/user/${zeroAddress}`);
 		dispatch(slice.actions.setSavingsAllUserTable(response6.data as ApiSavingsUserTable));
 
 		if (account == undefined) {
 			dispatch(slice.actions.setSavingsUserTable(initialState.savingsUserTable));
 		} else {
-			const response5 = await FRANKENCOIN_API_CLIENT.get(`/savings/core/user/${account}`);
+			const response5 = await DEURO_API_CLIENT.get(`/savings/core/user/${account}`);
 			dispatch(slice.actions.setSavingsUserTable(response5.data as ApiSavingsUserTable));
 		}
 
@@ -150,3 +152,9 @@ export const fetchSavings =
 		// Finalizing, loaded set to ture
 		dispatch(slice.actions.setLoaded(true));
 	};
+
+// TODO: Deactivate when API is ready, and add this call to fetchSavings
+export const fetchSavingsCoreInfo = () => async (dispatch: Dispatch<DispatchApiSavingsInfo>) => {
+	const response = await DEURO_API_CLIENT.get("/savings/core/info");
+	dispatch(slice.actions.setSavingsInfo(response.data as ApiSavingsInfo));
+};

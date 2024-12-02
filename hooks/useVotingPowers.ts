@@ -2,7 +2,7 @@ import { useReadContracts } from "wagmi";
 import { FPSHolder } from "./useFPSHolders";
 import { decodeBigIntCall } from "../utils/format";
 import { WAGMI_CHAIN } from "../app.config";
-import { ADDRESS, EquityABI } from "@frankencoin/zchf";
+import { ADDRESS, EquityABI } from "@deuro/eurocoin";
 
 export const useVotingPowers = (holders: FPSHolder[]) => {
 	let contractCalls: any[] = [];

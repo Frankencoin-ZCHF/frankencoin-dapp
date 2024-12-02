@@ -1,7 +1,7 @@
 import { useAccount, useChainId, useReadContracts } from "wagmi";
 import { decodeBigIntCall } from "@utils";
 import { Address, zeroAddress, erc20Abi } from "viem";
-import { ADDRESS, EquityABI } from "@frankencoin/zchf";
+import { ADDRESS, EquityABI } from "@deuro/eurocoin";
 
 export const useGovStats = (helpers?: Address[]) => {
 	const chainId = useChainId();

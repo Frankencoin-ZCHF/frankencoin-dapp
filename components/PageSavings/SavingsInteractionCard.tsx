@@ -1,6 +1,6 @@
 import AppCard from "@components/AppCard";
 import TokenInput from "@components/Input/TokenInput";
-import { ADDRESS, FrankencoinABI, SavingsABI } from "@frankencoin/zchf";
+import { ADDRESS, DecentralizedEUROABI, SavingsABI } from "@deuro/eurocoin";
 import { useContractUrl } from "@hooks";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
@@ -14,6 +14,7 @@ import { RootState } from "../../redux/redux.store";
 import SavingsActionInterest from "./SavingsActionInterest";
 import SavingsActionSave from "./SavingsActionSave";
 import SavingsActionWithdraw from "./SavingsActionWithdraw";
+import { TOKEN_SYMBOL } from "@utils";
 
 export default function SavingsInteractionCard() {
 	const [amount, setAmount] = useState(0n);
@@ -36,7 +37,7 @@ export default function SavingsInteractionCard() {
 	const account = address || zeroAddress;
 	const ADDR = ADDRESS[chainId];
 
-	const fromSymbol = "ZCHF";
+	const fromSymbol = TOKEN_SYMBOL;
 	const change: bigint = amount - (userSavingsBalance + userSavingsInterest);
 	const direction: boolean = amount >= userSavingsBalance + userSavingsInterest;
 	const claimable: boolean = userSavingsInterest > 0n;
@@ -48,8 +49,8 @@ export default function SavingsInteractionCard() {
 
 		const fetchAsync = async function () {
 			const _balance = await readContract(WAGMI_CONFIG, {
-				address: ADDR.frankenCoin,
-				abi: FrankencoinABI,
+				address: ADDR.decentralizedEURO,
+				abi: DecentralizedEUROABI,
 				functionName: "balanceOf",
 				args: [account],
 			});

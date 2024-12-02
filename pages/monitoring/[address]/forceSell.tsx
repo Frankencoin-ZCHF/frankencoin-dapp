@@ -5,7 +5,7 @@ import AppBox from "@components/AppBox";
 import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
 import { Address, formatUnits, zeroAddress } from "viem";
-import { ContractUrl, formatBigInt, formatCurrency, formatDate, shortenAddress } from "@utils";
+import { ContractUrl, formatBigInt, formatCurrency, formatDate, shortenAddress, TOKEN_SYMBOL } from "@utils";
 import Link from "next/link";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
@@ -20,7 +20,7 @@ import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useRouter as useNavigation } from "next/navigation";
-import { ADDRESS, FrankencoinABI, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
+import { ADDRESS, DecentralizedEUROABI, MintingHubV2ABI } from "@deuro/eurocoin";
 
 export default function MonitoringForceSell() {
 	const [isInit, setInit] = useState(false);
@@ -49,8 +49,8 @@ export default function MonitoringForceSell() {
 		const fetchAsync = async function () {
 			if (acc !== undefined) {
 				const _balance = await readContract(WAGMI_CONFIG, {
-					address: ADDR.frankenCoin,
-					abi: FrankencoinABI,
+					address: ADDR.decentralizedEURO,
+					abi: DecentralizedEUROABI,
 					functionName: "balanceOf",
 					args: [acc],
 				});
@@ -101,7 +101,7 @@ export default function MonitoringForceSell() {
 		setAmount(valueBigInt);
 
 		if (expectedZCHF() > userBalance) {
-			setError("Not enough ZCHF in your wallet to cover the expected costs.");
+			setError(`Not enough ${TOKEN_SYMBOL} in your wallet to cover the expected costs.`);
 		} else if (valueBigInt > BigInt(position.collateralBalance)) {
 			setError("Expected buying collateral should be lower than remaining collateral.");
 		} else {
@@ -126,8 +126,8 @@ export default function MonitoringForceSell() {
 					value: formatBigInt(amount, position.collateralDecimals) + " " + position.collateralSymbol,
 				},
 				{
-					title: `Expected ZCHF: `,
-					value: formatCurrency(formatUnits(expectedZCHF(), 18)) + " ZCHF",
+					title: `Expected ${TOKEN_SYMBOL}: `,
+					value: formatCurrency(formatUnits(expectedZCHF(), 18)) + " " + TOKEN_SYMBOL,
 				},
 				{
 					title: "Transaction:",
@@ -154,7 +154,7 @@ export default function MonitoringForceSell() {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Force Sell</title>
+				<title>dEURO - Force Sell</title>
 			</Head>
 
 			<div className="md:mt-8">
@@ -175,10 +175,10 @@ export default function MonitoringForceSell() {
 								balanceLabel="Available:"
 							/>
 							<div className="flex flex-col">
-								<span>Your balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} ZCHF</span>
+								<span>Your balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} {TOKEN_SYMBOL}</span>
 							</div>
 							<div className="flex flex-col">
-								<span>Estimated cost: {formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} ZCHF</span>
+								<span>Estimated cost: {formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} {TOKEN_SYMBOL}</span>
 							</div>
 						</div>
 
@@ -198,8 +198,8 @@ export default function MonitoringForceSell() {
 								<DisplayAmount
 									amount={auctionPrice}
 									digits={36 - position.collateralDecimals}
-									address={ADDRESS[chainId].frankenCoin}
-									currency={"ZCHF"}
+									address={ADDRESS[chainId].decentralizedEURO}
+									currency={TOKEN_SYMBOL}
 									className="mt-4"
 								/>
 							</AppBox>

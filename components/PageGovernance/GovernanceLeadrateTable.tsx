@@ -5,7 +5,7 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { useState } from "react";
-import { LeadrateProposed } from "@frankencoin/api";
+import { LeadrateProposed } from "@deuro/api";
 import GovernanceLeadrateRow from "./GovernanceLeadrateRow";
 
 export default function GovernanceLeadrateTable() {

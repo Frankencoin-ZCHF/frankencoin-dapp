@@ -2,12 +2,12 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
-import { formatCurrency } from "@utils";
+import { formatCurrency, TOKEN_SYMBOL } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount, useChainId } from "wagmi";
 import Button from "@components/Button";
 import { formatUnits } from "viem";
-import { ADDRESS, SavingsABI } from "@frankencoin/zchf";
+import { ADDRESS, SavingsABI } from "@deuro/eurocoin";
 
 interface Props {
 	balance: bigint;
@@ -39,11 +39,11 @@ export default function SavingsActionWithdraw({ balance, change, disabled, setLo
 			const toastContent = [
 				{
 					title: `Saved amount: `,
-					value: `${formatCurrency(formatUnits(balance, 18))} ZCHF`,
+					value: `${formatCurrency(formatUnits(balance, 18))} ${TOKEN_SYMBOL}`,
 				},
 				{
 					title: `Withdraw: `,
-					value: `${formatCurrency(formatUnits(change, 18))} ZCHF`,
+					value: `${formatCurrency(formatUnits(change, 18))} ${TOKEN_SYMBOL}`,
 				},
 				{
 					title: "Transaction: ",

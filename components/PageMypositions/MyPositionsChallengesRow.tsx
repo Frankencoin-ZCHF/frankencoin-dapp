@@ -1,6 +1,6 @@
 import { Address, formatUnits, parseEther, zeroAddress } from "viem";
 import TableRow from "../Table/TableRow";
-import { ChallengesId, ChallengesQueryItem } from "@frankencoin/api";
+import { ChallengesId, ChallengesQueryItem } from "@deuro/api";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import TokenLogo from "@components/TokenLogo";
@@ -8,6 +8,7 @@ import { formatCurrency } from "../../utils/format";
 import { useContractUrl } from "@hooks";
 import MyPositionsChallengesCancel from "./MyPositionsChallengesCancel";
 import AppBox from "@components/AppBox";
+import { TOKEN_SYMBOL } from "@utils";
 
 interface Props {
 	headers: string[];
@@ -24,8 +25,8 @@ export default function MyPositionsChallengesRow({ headers, challenge }: Props) 
 	if (!position) return null;
 
 	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
-	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
-	if (!collTokenPrice || !zchfPrice) return null;
+	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd;
+	if (!collTokenPrice || !deuroPrice) return null;
 
 	const challengePrice: bigint = BigInt(challengesPrices.map[challenge.id as ChallengesId] ?? parseEther("0"));
 	const start: number = parseInt(challenge.start.toString()) * 1000; // timestap
@@ -96,7 +97,7 @@ export default function MyPositionsChallengesRow({ headers, challenge }: Props) 
 			{/* Current Price */}
 			<div className="flex flex-col">
 				<div className="text-md text-text-primary">
-					{formatCurrency(formatUnits(challengePrice, 36 - position.collateralDecimals), 2, 2)} ZCHF
+					{formatCurrency(formatUnits(challengePrice, 36 - position.collateralDecimals), 2, 2)} {TOKEN_SYMBOL}
 				</div>
 			</div>
 

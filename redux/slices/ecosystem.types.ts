@@ -1,10 +1,10 @@
 import {
 	ApiEcosystemCollateralPositions,
 	ApiEcosystemCollateralStats,
-	ApiEcosystemFpsInfo,
-	ApiEcosystemFrankencoinInfo,
+	ApiEcosystemDepsInfo,
+	ApiEcosystemStablecoinInfo,
 	ApiMinterListing,
-} from "@frankencoin/api";
+} from "@deuro/api";
 
 // --------------------------------------------------------------------------------
 export type EcosystemState = {
@@ -13,9 +13,9 @@ export type EcosystemState = {
 
 	collateralPositions: ApiEcosystemCollateralPositions;
 	collateralStats: ApiEcosystemCollateralStats;
-	fpsInfo: ApiEcosystemFpsInfo;
-	frankencoinInfo: ApiEcosystemFrankencoinInfo;
-	frankencoinMinters: ApiMinterListing;
+	depsInfo: ApiEcosystemDepsInfo;
+	stablecoinInfo: ApiEcosystemStablecoinInfo;
+	stablecoinMinters: ApiMinterListing;
 };
 
 // --------------------------------------------------------------------------------
@@ -36,12 +36,12 @@ export type DispatchApiEcosystemCollateralStats = {
 
 export type DispatchApiEcosystemFpsInfo = {
 	type: string;
-	payload: ApiEcosystemFpsInfo;
+	payload: ApiEcosystemDepsInfo;
 };
 
 export type DispatchApiEcosystemFrankencoinInfo = {
 	type: string;
-	payload: ApiEcosystemFrankencoinInfo;
+	payload: ApiEcosystemStablecoinInfo;
 };
 
 export type DispatchApiEcosystemFrankencoinMinters = {

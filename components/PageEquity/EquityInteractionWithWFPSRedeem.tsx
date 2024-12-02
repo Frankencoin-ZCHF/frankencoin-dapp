@@ -3,7 +3,7 @@ import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
 import { usePoolStats } from "@hooks";
-import { formatBigInt, formatDuration, shortenAddress } from "@utils";
+import { formatBigInt, formatDuration, POOL_SHARE_TOKEN_SYMBOL, shortenAddress, TOKEN_SYMBOL } from "@utils";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
-import { ADDRESS, EquityABI, FPSWrapperABI } from "@frankencoin/zchf";
+import { ADDRESS, EquityABI, DEPSWrapperABI } from "@deuro/eurocoin";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -49,15 +49,15 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 		const fetchAsync = async function () {
 			if (account != zeroAddress) {
 				const _wfpsAllowance = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[chainId].wFPS,
+					address: ADDRESS[chainId].DEPSwrapper,
 					abi: erc20Abi,
 					functionName: "allowance",
-					args: [account, ADDRESS[chainId].wFPS],
+					args: [account, ADDRESS[chainId].DEPSwrapper],
 				});
 				setWfpsAllowance(_wfpsAllowance);
 
 				const _wfpsBalance = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[chainId].wFPS,
+					address: ADDRESS[chainId].DEPSwrapper,
 					abi: erc20Abi,
 					functionName: "balanceOf",
 					args: [account],
@@ -69,7 +69,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 				address: ADDRESS[chainId].equity,
 				abi: EquityABI,
 				functionName: "holdingDuration",
-				args: [ADDRESS[chainId].wFPS],
+				args: [ADDRESS[chainId].DEPSwrapper],
 			});
 			setWfpsHolding(_wfpsHolding);
 		};
@@ -96,20 +96,20 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 			setApproving(true);
 
 			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].wFPS,
+				address: ADDRESS[chainId].DEPSwrapper,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [ADDRESS[chainId].wFPS, amount],
+				args: [ADDRESS[chainId].DEPSwrapper, amount],
 			});
 
 			const toastContent = [
 				{
 					title: "Amount:",
-					value: formatBigInt(amount) + " WFPS",
+					value: formatBigInt(amount) + " " + POOL_SHARE_TOKEN_SYMBOL,
 				},
 				{
 					title: "Spender: ",
-					value: shortenAddress(ADDRESS[chainId].wFPS),
+					value: shortenAddress(ADDRESS[chainId].DEPSwrapper),
 				},
 				{
 					title: "Transaction:",
@@ -119,10 +119,10 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Approving WFPS`} rows={toastContent} />,
+					render: <TxToast title={`Approving ${POOL_SHARE_TOKEN_SYMBOL}`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully Approved WFPS" rows={toastContent} />,
+					render: <TxToast title={`Successfully Approved ${POOL_SHARE_TOKEN_SYMBOL}`} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
@@ -137,8 +137,8 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 			setRedeeming(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].wFPS,
-				abi: FPSWrapperABI,
+				address: ADDRESS[chainId].DEPSwrapper,
+				abi: DEPSWrapperABI,
 				functionName: "unwrapAndSell",
 				args: [amount],
 			});
@@ -146,11 +146,11 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 			const toastContent = [
 				{
 					title: "Amount:",
-					value: formatBigInt(amount) + " WFPS",
+					value: formatBigInt(amount) + " " + POOL_SHARE_TOKEN_SYMBOL,
 				},
 				{
 					title: "Receive: ",
-					value: formatBigInt(calculateProceeds) + " ZCHF",
+					value: formatBigInt(calculateProceeds) + " " + TOKEN_SYMBOL,
 				},
 				{
 					title: "Transaction: ",
@@ -160,10 +160,10 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Unwrap and Redeeming WFPS`} rows={toastContent} />,
+					render: <TxToast title={`Unwrap and Redeeming ${POOL_SHARE_TOKEN_SYMBOL}`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully Redeemed WFPS" rows={toastContent} />,
+					render: <TxToast title={`Successfully Redeemed ${POOL_SHARE_TOKEN_SYMBOL}`} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
@@ -174,8 +174,8 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 		}
 	};
 
-	const fromSymbol = "WFPS";
-	const toSymbol = "ZCHF";
+	const fromSymbol = POOL_SHARE_TOKEN_SYMBOL;
+	const toSymbol = TOKEN_SYMBOL;
 	const unlocked = wfpsHolding > 86_400 * 90 && wfpsHolding < 86_400 * 365 * 30;
 	const redeemLeft = unlocked ? 0n : 86_400n * 90n - wfpsHolding;
 
@@ -246,19 +246,19 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 			<div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
 					<DisplayLabel label="Your Balance" />
-					<DisplayAmount className="mt-4" amount={wfpsBalance} currency="WFPS" address={ADDRESS[chainId].wFPS} />
+					<DisplayAmount className="mt-4" amount={wfpsBalance} currency={POOL_SHARE_TOKEN_SYMBOL} address={ADDRESS[chainId].DEPSwrapper} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Value at Current Price" />
 					<DisplayAmount
 						className="mt-4"
 						amount={(poolStats.equityPrice * wfpsBalance) / BigInt(1e18)}
-						currency="ZCHF"
-						address={ADDRESS[chainId].frankenCoin}
+						currency={TOKEN_SYMBOL}
+						address={ADDRESS[chainId].decentralizedEURO}
 					/>
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Holding Duration WFPS Contract" />
+					<DisplayLabel label={`Holding Duration ${POOL_SHARE_TOKEN_SYMBOL} Contract`} />
 					<span className={!unlocked ? "text-text-warning font-bold" : ""}>
 						{wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 10 ? formatDuration(wfpsHolding) : "-"}
 					</span>

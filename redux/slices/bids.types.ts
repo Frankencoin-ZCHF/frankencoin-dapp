@@ -1,4 +1,4 @@
-import { ApiBidsBidders, ApiBidsChallenges, ApiBidsListing, ApiBidsMapping, ApiBidsPositions } from "@frankencoin/api";
+import { ApiBidsBidders, ApiBidsChallenges, ApiBidsListing, ApiBidsMapping, ApiBidsPositions } from "@deuro/api";
 
 // --------------------------------------------------------------------------------
 export type BidsState = {

@@ -2,6 +2,7 @@ import { formatBigInt, shortenAddress } from "../utils/format";
 import { Address } from "viem";
 import AppBox from "./AppBox";
 import AddressLabel from "./AddressLabel";
+import { NATIVE_POOL_SHARE_TOKEN_SYMBOL } from "../utils/constant";
 
 interface Props {
 	id: string;
@@ -17,7 +18,7 @@ export default function FPSHolder({ id, holder, fps, votingPower, totalVotingPow
 			<div className="col-span-1">
 				<AddressLabel address={holder} showCopy showLink />
 			</div>
-			<div className="col-span-1 sm:text-center">{formatBigInt(fps)} FPS</div>
+			<div className="col-span-1 sm:text-center">{formatBigInt(fps)} {NATIVE_POOL_SHARE_TOKEN_SYMBOL}</div>
 			<div className="col-span-1 sm:text-right">{formatBigInt((votingPower * 10000n) / totalVotingPower, 2)} % Votes</div>
 		</AppBox>
 	);

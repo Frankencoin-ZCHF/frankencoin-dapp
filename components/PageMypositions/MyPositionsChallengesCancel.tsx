@@ -1,16 +1,16 @@
-import { ChallengesQueryItem, PositionQuery, PositionsQueryObjectArray } from "@frankencoin/api";
+import { ChallengesQueryItem, PositionQuery, PositionsQueryObjectArray } from "@deuro/api";
 import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { CONFIG, WAGMI_CONFIG } from "../../app.config";
+import { CONFIG_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
-import { formatBigInt } from "@utils";
+import { formatBigInt, TOKEN_SYMBOL } from "@utils";
 import { renderErrorToast, renderErrorTxToast, TxToast } from "@components/TxToast";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import { Address } from "viem";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
-import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
+import { ADDRESS, MintingHubV2ABI } from "@deuro/eurocoin";
 
 interface Props {
 	challenge: ChallengesQueryItem;
@@ -21,7 +21,7 @@ export default function MyPositionsChallengesCancel({ challenge, hidden }: Props
 	const [isCancelling, setCancelling] = useState<boolean>(false);
 	const positions: PositionsQueryObjectArray = useSelector((state: RootState) => state.positions.mapping.map);
 	const account = useAccount();
-	const chainId = CONFIG.chain.id;
+	const chainId = CONFIG_CHAIN().id;
 	const [isHidden, setHidden] = useState<boolean>(
 		hidden == true || challenge.status !== "Active" || account.address !== challenge.challenger
 	);
@@ -39,8 +39,8 @@ export default function MyPositionsChallengesCancel({ challenge, hidden }: Props
 			setCancelling(true);
 
 			const cancelWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: p.version == 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2,
-				abi: p.version == 1 ? MintingHubV1ABI : MintingHubV2ABI,
+				address: ADDRESS[chainId].mintingHubV2,
+				abi: MintingHubV2ABI,
 				functionName: "bid",
 				args: [n, r, false],
 			});
@@ -51,8 +51,8 @@ export default function MyPositionsChallengesCancel({ challenge, hidden }: Props
 					value: formatBigInt(r, p.collateralDecimals) + " " + p.collateralSymbol,
 				},
 				{
-					title: `Expected ZCHF: `,
-					value: "0.00 ZCHF",
+					title: `Expected ${TOKEN_SYMBOL}: `,
+					value: "0.00 " + TOKEN_SYMBOL,
 				},
 				{
 					title: "Transaction:",

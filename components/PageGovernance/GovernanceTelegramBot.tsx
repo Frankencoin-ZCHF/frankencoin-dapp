@@ -15,8 +15,8 @@ export default function GovernanceTelegramBot() {
 			<div className="grid max-md:grid-cols-1 md:grid-cols-2">
 				<div className="flex flex-col gap-4 p-2 md:px-4 justify-center items-left">
 					<div>
-						The Frankencoin API Bot is a Telegram communication tool designed to keep users informed about various activities
-						and updates within the Frankencoin ecosystem.
+						The dEURO API Bot is a Telegram communication tool designed to keep users informed about various activities
+						and updates within the dEURO ecosystem.
 					</div>
 
 					<div className="grid grid-cols-1 w-full my-4 ml-6">

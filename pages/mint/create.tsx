@@ -9,7 +9,7 @@ import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { erc20Abi } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { formatBigInt, shortenAddress } from "@utils";
+import { formatBigInt, shortenAddress, TOKEN_SYMBOL, SOCIAL } from "@utils";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
 import Link from "next/link";
@@ -17,7 +17,7 @@ import NormalInput from "@components/Input/NormalInput";
 import AddressInput from "@components/Input/AddressInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
-import { ADDRESS, MintingHubV2ABI } from "@frankencoin/zchf";
+import { ADDRESS, MintingHubV2ABI } from "@deuro/eurocoin";
 
 export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
@@ -160,8 +160,8 @@ export default function PositionCreate({}) {
 
 	function checkCollateralAmount(coll: bigint, price: bigint) {
 		if (coll * price < 10n ** 36n) {
-			setLiqPriceError("The liquidation value of the collateral must be at least 5000 ZCHF");
-			setMinCollAmountError("The collateral must be worth at least 5000 ZCHF");
+			setLiqPriceError(`The liquidation value of the collateral must be at least 5000 ${TOKEN_SYMBOL}`);
+			setMinCollAmountError(`The collateral must be worth at least 5000 ${TOKEN_SYMBOL}`);
 		} else {
 			setLiqPriceError("");
 			setMinCollAmountError("");
@@ -277,7 +277,7 @@ export default function PositionCreate({}) {
 				},
 				{
 					title: "LiqPrice: ",
-					value: formatBigInt(liqPrice, 36 - parseInt(collTokenData.decimals.toString())) + " ZCHF",
+					value: formatBigInt(liqPrice, 36 - parseInt(collTokenData.decimals.toString())) + ` ${TOKEN_SYMBOL}`,
 				},
 				{
 					title: "Transaction:",
@@ -303,7 +303,7 @@ export default function PositionCreate({}) {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Propose Position</title>
+				<title>dEURO - Propose Position</title>
 			</Head>
 
 			<div className="md:mt-8">
@@ -313,12 +313,12 @@ export default function PositionCreate({}) {
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							<TokenInput
 								label="Proposal Fee"
-								symbol="ZCHF"
+								symbol={TOKEN_SYMBOL}
 								hideMaxLabel
 								value={proposalFee.toString()}
 								onChange={onChangeProposalFee}
 								digit={0}
-								error={userBalance.frankenBalance < BigInt(1000 * 1e18) ? "Not enough ZCHF" : ""}
+								error={userBalance.frankenBalance < BigInt(1000 * 1e18) ? `Not enough ${TOKEN_SYMBOL}` : ""}
 								disabled={true}
 							/>
 							<NormalInput
@@ -334,7 +334,7 @@ export default function PositionCreate({}) {
 						</div>
 						<div>
 							It is recommended to{" "}
-							<Link href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions" target="_blank">
+							<Link href={SOCIAL.Forum} target="_blank">
 								{" "}
 								discuss{" "}
 							</Link>{" "}
@@ -393,7 +393,7 @@ export default function PositionCreate({}) {
 						<TokenInput
 							label="Global Minting Limit"
 							hideMaxLabel
-							symbol="ZCHF"
+							symbol={TOKEN_SYMBOL}
 							error={limitAmountError}
 							value={limitAmount.toString()}
 							onChange={onChangeLimitAmount}
@@ -426,7 +426,7 @@ export default function PositionCreate({}) {
 						<TokenInput
 							label="Liquidation Price"
 							balanceLabel="Pick"
-							symbol="ZCHF"
+							symbol={TOKEN_SYMBOL}
 							error={liqPriceError}
 							digit={36n - collTokenData.decimals}
 							hideMaxLabel={minCollAmount == 0n}

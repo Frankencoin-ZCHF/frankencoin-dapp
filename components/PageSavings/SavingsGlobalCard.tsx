@@ -6,10 +6,10 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ADDRESS, FrankencoinABI, SavingsABI } from "@frankencoin/zchf";
+import { ADDRESS } from "@deuro/eurocoin";
 import { useChainId } from "wagmi";
 import { useContractUrl } from "@hooks";
-import { shortenAddress } from "@utils";;
+import { shortenAddress, TOKEN_SYMBOL } from "@utils";;
 import Button from "@components/Button";
 import Link from "next/link";
 
@@ -30,7 +30,7 @@ export default function SavingsGlobalCard() {
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Total Savings" />
-					<DisplayAmount className="mt-1" amount={totalBalance} currency="ZCHF" hideLogo />
+					<DisplayAmount className="mt-1" amount={totalBalance} currency={TOKEN_SYMBOL} hideLogo />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Module Contract" />

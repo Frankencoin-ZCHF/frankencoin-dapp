@@ -6,7 +6,7 @@ import SavingsWithdrawnTable from "@components/PageSavings/SavingsWithdrawnTable
 import Head from "next/head";
 import { useEffect } from "react";
 import { store } from "../redux/redux.store";
-import { fetchSavings } from "../redux/slices/savings.slice";
+import { fetchSavings, fetchSavingsCoreInfo } from "../redux/slices/savings.slice";
 import { useAccount } from "wagmi";
 
 export default function SavingsPage() {
@@ -14,12 +14,13 @@ export default function SavingsPage() {
 
 	useEffect(() => {
 		store.dispatch(fetchSavings(address));
+		store.dispatch(fetchSavingsCoreInfo());
 	}, [address]);
 
 	return (
 		<main className="section">
 			<Head>
-				<title>Frankencoin - Savings</title>
+				<title>dEURO - Savings</title>
 			</Head>
 
 			<div className="mt-10">

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { formatUnits, maxUint256, erc20Abi, Address, parseUnits } from "viem";
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
-import { abs, formatBigInt, formatCurrency, shortenAddress } from "@utils";
+import { abs, formatBigInt, formatCurrency, shortenAddress, TOKEN_SYMBOL } from "@utils";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -13,8 +13,8 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
-import { PositionQuery } from "@frankencoin/api";
-import { ADDRESS, PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
+import { PositionQuery } from "@deuro/api";
+import { ADDRESS, PositionV2ABI } from "@deuro/eurocoin";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -44,13 +44,13 @@ export default function PositionAdjust() {
 	// ---------------------------------------------------------------------------
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
-		const fc: Address = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
+		const fc: Address = ADDRESS[WAGMI_CHAIN.id].decentralizedEURO;
 		if (!position || !position.collateral) return;
 
 		const fetchAsync = async function () {
 			if (acc !== undefined) {
 				const _balanceFrank = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[WAGMI_CHAIN.id].frankenCoin,
+					address: ADDRESS[WAGMI_CHAIN.id].decentralizedEURO,
 					abi: erc20Abi,
 					functionName: "balanceOf",
 					args: [acc],
@@ -76,7 +76,7 @@ export default function PositionAdjust() {
 
 			const _balanceChallenge = await readContract(WAGMI_CONFIG, {
 				address: position.position,
-				abi: position.version === 1 ? PositionV1ABI : PositionV2ABI,
+				abi: PositionV2ABI,
 				functionName: "challengedAmount",
 			});
 			setChallengeSize(_balanceChallenge);
@@ -89,13 +89,6 @@ export default function PositionAdjust() {
 	if (!position) return null;
 
 	const isCooldown: boolean = position.cooldown * 1000 - Date.now() > 0;
-
-	const price: number = parseFloat(formatUnits(BigInt(position.price), 36 - position.collateralDecimals));
-	const collateralPriceZchf: number = prices[position.collateral.toLowerCase() as Address].price.chf || 1;
-	const interest: number = position.annualInterestPPM / 10 ** 6;
-	const reserve: number = position.reserveContribution / 10 ** 6;
-	const effectiveLTV: number = (price * (1 - reserve)) / collateralPriceZchf;
-	const effectiveInterest: number = interest / (1 - reserve);
 
 	const maxMintableForCollateralAmount: bigint = BigInt(formatUnits(BigInt(position.price) * collateralAmount, 36 - 18).split(".")[0]);
 	const maxMintableInclClones: bigint = BigInt(position.availableForClones) + BigInt(position.minted);
@@ -153,11 +146,11 @@ export default function PositionAdjust() {
 		if (isCooldown) {
 			return `This position is ${position.cooldown > 1e30 ? "closed" : "in cooldown, please wait"}`;
 		} else if (amount - BigInt(position.minted) > maxTotalLimit) {
-			return `This position is limited to ${formatCurrency(formatUnits(maxTotalLimit, 18), 2, 2)} ZCHF`;
+			return `This position is limited to ${formatCurrency(formatUnits(maxTotalLimit, 18), 2, 2)} ${TOKEN_SYMBOL}`;
 		} else if (-paidOutAmount() > userFrankBalance) {
-			return "Insufficient ZCHF in wallet";
+			return `Insufficient ${TOKEN_SYMBOL} in wallet`;
 		} else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
-			return `Can mint at most ${formatUnits((collateralAmount * liqPrice) / 10n ** 36n, 0)} ZCHF given price and collateral.`;
+			return `Can mint at most ${formatUnits((collateralAmount * liqPrice) / 10n ** 36n, 0)} ${TOKEN_SYMBOL} given price and collateral.`;
 		} else if (BigInt(position.price) * collateralAmount < amount * 10n ** 18n) {
 			return "Amount can only be increased after new price has gone through cooldown.";
 		} else {
@@ -216,7 +209,7 @@ export default function PositionAdjust() {
 			setAdjusting(true);
 			const adjustWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: position.position,
-				abi: PositionV1ABI,
+				abi: PositionV2ABI,
 				functionName: "adjust",
 				args: [amount, collateralAmount, liqPrice],
 			});
@@ -258,7 +251,7 @@ export default function PositionAdjust() {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Manage Position</title>
+				<title>dEURO - Manage Position</title>
 			</Head>
 
 			<div className="md:mt-8">
@@ -272,7 +265,7 @@ export default function PositionAdjust() {
 						<div className="space-y-8">
 							<TokenInput
 								label="Amount"
-								symbol="ZCHF"
+								symbol={TOKEN_SYMBOL}
 								output={position.closed ? "0" : ""}
 								balanceLabel="Max:"
 								max={maxTotalLimit}
@@ -297,7 +290,7 @@ export default function PositionAdjust() {
 							<TokenInput
 								label="Liquidation Price"
 								balanceLabel="Current Value"
-								symbol={"ZCHF"}
+								symbol={TOKEN_SYMBOL}
 								max={BigInt(position.price)}
 								value={liqPrice.toString()}
 								digit={36 - position.collateralDecimals}
@@ -348,7 +341,7 @@ export default function PositionAdjust() {
 									</div>
 									<div className="text-right">
 										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
-										{formatCurrency(formatUnits(BigInt(position.minted), 18))} ZCHF
+										{formatCurrency(formatUnits(BigInt(position.minted), 18))} {TOKEN_SYMBOL}
 									</div>
 								</div>
 
@@ -358,7 +351,7 @@ export default function PositionAdjust() {
 									</div>
 									<div className="text-right">
 										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
-										{formatCurrency(formatUnits(paidOutAmount(), 18))} ZCHF
+										{formatCurrency(formatUnits(paidOutAmount(), 18))} {TOKEN_SYMBOL}
 									</div>
 								</div>
 
@@ -368,7 +361,7 @@ export default function PositionAdjust() {
 									</div>
 									<div className="text-right">
 										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
-										{formatCurrency(formatUnits(returnFromReserve(), 18))} ZCHF
+										{formatCurrency(formatUnits(returnFromReserve(), 18))} {TOKEN_SYMBOL}
 									</div>
 								</div>
 
@@ -379,7 +372,7 @@ export default function PositionAdjust() {
 									</div>
 									<div className="text-right">
 										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
-										{formatCurrency(formatUnits(fees, 18))} ZCHF
+										{formatCurrency(formatUnits(fees, 18))} {TOKEN_SYMBOL}
 									</div>
 								</div>
 
@@ -391,7 +384,7 @@ export default function PositionAdjust() {
 									</div>
 									<div className="text-right">
 										{/* <span className="text-xs mr-3">100%</span> */}
-										<span>{formatCurrency(formatUnits(amount, 18))} ZCHF</span>
+										<span>{formatCurrency(formatUnits(amount, 18))} {TOKEN_SYMBOL}</span>
 									</div>
 								</div>
 							</div>

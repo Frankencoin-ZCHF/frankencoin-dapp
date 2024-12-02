@@ -5,7 +5,7 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { useState } from "react";
-import { SavingsInterestQuery } from "@frankencoin/api";
+import { SavingsInterestQuery } from "@deuro/api";
 import SavingsInterestRow from "./SavingsInterestRow";
 
 export default function SavingsInterestTable() {

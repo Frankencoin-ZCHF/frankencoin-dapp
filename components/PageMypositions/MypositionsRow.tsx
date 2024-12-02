@@ -1,6 +1,6 @@
 import { Address } from "viem";
 import TableRow from "../Table/TableRow";
-import { PositionQuery, ChallengesQueryItem } from "@frankencoin/api";
+import { PositionQuery, ChallengesQueryItem } from "@deuro/api";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import { formatCurrency } from "../../utils/format";
@@ -8,6 +8,7 @@ import MyPositionsDisplayCollateral from "./MyPositionsDisplayCollateral";
 import { useRouter as useNavigate } from "next/navigation";
 import Button from "@components/Button";
 import AppBox from "@components/AppBox";
+import { TOKEN_SYMBOL } from "@utils";
 
 interface Props {
 	headers: string[];
@@ -32,18 +33,18 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const bids = useSelector((state: RootState) => state.bids.positions);
 	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
-	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
-	if (!collTokenPrice || !zchfPrice) return null;
+	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd;
+	if (!collTokenPrice || !deuroPrice) return null;
 
 	const maturity: number = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
 
 	const balance: number = parseInt(position.collateralBalance) / 10 ** position.collateralDecimals;
-	const balanceZCHF: number = (balance * collTokenPrice) / zchfPrice;
+	const balanceDEURO: number = (balance * collTokenPrice) / deuroPrice;
 
-	const loanZCHF: number = parseInt(position.minted) / 10 ** position.zchfDecimals;
+	const loanDEURO: number = parseInt(position.minted) / 10 ** position.deuroDecimals;
 
-	const liquidationZCHF: number = parseInt(position.price) / 10 ** (36 - position.collateralDecimals);
-	const liquidationPct: number = (balanceZCHF / (liquidationZCHF * balance)) * 100;
+	const liquidationDEURO: number = parseInt(position.price) / 10 ** (36 - position.collateralDecimals);
+	const liquidationPct: number = (balanceDEURO / (liquidationDEURO * balance)) * 100;
 
 	const positionChallenges = challenges.map[position.position.toLowerCase() as Address] ?? [];
 	const positionChallengesActive = positionChallenges.filter((ch: ChallengesQueryItem) => ch.status == "Active") ?? [];
@@ -143,7 +144,7 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 			<div className="flex flex-col max-md:mb-5">
 				{/* desktop view */}
 				<div className="max-md:hidden">
-					<MyPositionsDisplayCollateral position={position} collateralPrice={collTokenPrice} zchfPrice={zchfPrice} />
+					<MyPositionsDisplayCollateral position={position} collateralPrice={collTokenPrice} zchfPrice={deuroPrice} />
 				</div>
 				{/* mobile view */}
 				<AppBox className="md:hidden">
@@ -151,7 +152,7 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 						className={"justify-items-center items-center"}
 						position={position}
 						collateralPrice={collTokenPrice}
-						zchfPrice={zchfPrice}
+						zchfPrice={deuroPrice}
 					/>
 				</AppBox>
 			</div>
@@ -159,15 +160,15 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 			{/* Liquidation */}
 			<div className="flex flex-col">
 				<span className={liquidationPct < 110 ? `text-md font-bold text-text-warning` : "text-md text-text-primary"}>
-					{formatCurrency(liquidationZCHF, 2, 2)} ZCHF
+					{formatCurrency(liquidationDEURO, 2, 2)} {TOKEN_SYMBOL}
 				</span>
-				<span className="text-sm text-text-subheader">{formatCurrency(collTokenPrice / zchfPrice, 2, 2)} ZCHF</span>
+				<span className="text-sm text-text-subheader">{formatCurrency(collTokenPrice / deuroPrice, 2, 2)} {TOKEN_SYMBOL}</span>
 			</div>
 
 			{/* Loan Value */}
 			<div className="flex flex-col">
-				<span className="text-md text-text-primary">{formatCurrency(loanZCHF, 2, 2)} ZCHF</span>
-				<span className="text-sm text-text-subheader">{formatCurrency(balance * liquidationZCHF - loanZCHF, 2, 2)} ZCHF</span>
+				<span className="text-md text-text-primary">{formatCurrency(loanDEURO, 2, 2)} {TOKEN_SYMBOL}</span>
+				<span className="text-sm text-text-subheader">{formatCurrency(balance * liquidationDEURO - loanDEURO, 2, 2)} {TOKEN_SYMBOL}</span>
 			</div>
 
 			{/* State */}

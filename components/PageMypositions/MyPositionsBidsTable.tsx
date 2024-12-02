@@ -6,7 +6,7 @@ import TableBody from "@components/Table/TableBody";
 import TableRowEmpty from "@components/Table/TableRowEmpty";
 import { useAccount } from "wagmi";
 import { Address, formatUnits, zeroAddress } from "viem";
-import { BidsQueryItem, ChallengesQueryItemMapping, PositionQuery, PositionsQueryObjectArray } from "@frankencoin/api";
+import { BidsQueryItem, ChallengesQueryItemMapping, PositionQuery, PositionsQueryObjectArray } from "@deuro/api";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import MyPositionsBidsRow from "./MyPositionsBidsRow";

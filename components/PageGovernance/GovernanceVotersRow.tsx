@@ -9,7 +9,8 @@ import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { useAccount } from "wagmi";
-import { ADDRESS, EquityABI } from "@frankencoin/zchf";
+import { ADDRESS, EquityABI } from "@deuro/eurocoin";
+import { NATIVE_POOL_SHARE_TOKEN_SYMBOL } from "../../utils/constant";
 
 interface Props {
 	headers: string[];
@@ -93,7 +94,7 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 					</div>
 				</div>
 
-				<div className="flex flex-col">{formatCurrency(formatUnits(voter.fps, 18))} FPS</div>
+				<div className="flex flex-col">{formatCurrency(formatUnits(voter.fps, 18))} {NATIVE_POOL_SHARE_TOKEN_SYMBOL}</div>
 				<div className={`flex flex-col`}>{formatCurrency(voter.votingPowerRatio * 100)}%</div>
 			</TableRow>
 
@@ -110,7 +111,7 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 					}
 				>
 					<AddressLabelSimple className="text-left" address={delegatee} label="Delegate address" showLink />
-					<div className="flex flex-col">{formatCurrency(formatUnits(isDelegateeVotes?.fps || 0n, 18))} FPS</div>
+					<div className="flex flex-col">{formatCurrency(formatUnits(isDelegateeVotes?.fps || 0n, 18))} {NATIVE_POOL_SHARE_TOKEN_SYMBOL}</div>
 					<div className={`flex flex-col`}>{formatCurrency((isDelegateeVotes?.votingPowerRatio || 0) * 100)}%</div>
 				</TableRow>
 			) : null}

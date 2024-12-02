@@ -12,7 +12,7 @@ export default function Positions() {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Monitoring</title>
+				<title>dEURO - Monitoring</title>
 			</Head>
 
 			<div className="md:mt-8">

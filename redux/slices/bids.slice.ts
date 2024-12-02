@@ -1,5 +1,5 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
-import { FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { DEURO_API_CLIENT } from "../../app.config";
 import {
 	BidsState,
 	DispatchBoolean,
@@ -9,7 +9,7 @@ import {
 	DispatchApiBidsPositions,
 	DispatchApiBidsMapping,
 } from "./bids.types";
-import { ApiBidsBidders, ApiBidsChallenges, ApiBidsListing, ApiBidsMapping, ApiBidsPositions } from "@frankencoin/api";
+import { ApiBidsBidders, ApiBidsChallenges, ApiBidsListing, ApiBidsMapping, ApiBidsPositions } from "@deuro/api";
 
 // --------------------------------------------------------------------------------
 
@@ -94,19 +94,19 @@ export const fetchBidsList =
 
 		// ---------------------------------------------------------------
 		// Query raw data from backend api
-		const response1 = await FRANKENCOIN_API_CLIENT.get("/challenges/bids/list");
+		const response1 = await DEURO_API_CLIENT.get("/challenges/bids/list");
 		dispatch(slice.actions.setList(response1.data as ApiBidsListing));
 
-		const responseMapping = await FRANKENCOIN_API_CLIENT.get("/challenges/bids/mapping");
+		const responseMapping = await DEURO_API_CLIENT.get("/challenges/bids/mapping");
 		dispatch(slice.actions.setMapping(responseMapping.data as ApiBidsMapping));
 
-		const response2 = await FRANKENCOIN_API_CLIENT.get("/challenges/bids/bidders");
+		const response2 = await DEURO_API_CLIENT.get("/challenges/bids/bidders");
 		dispatch(slice.actions.setBidders(response2.data as ApiBidsBidders));
 
-		const response3 = await FRANKENCOIN_API_CLIENT.get("/challenges/bids/challenges");
+		const response3 = await DEURO_API_CLIENT.get("/challenges/bids/challenges");
 		dispatch(slice.actions.setChallenges(response3.data as ApiBidsChallenges));
 
-		const response4 = await FRANKENCOIN_API_CLIENT.get("/challenges/bids/positions");
+		const response4 = await DEURO_API_CLIENT.get("/challenges/bids/positions");
 		dispatch(slice.actions.setPositions(response4.data as ApiBidsPositions));
 
 		// ---------------------------------------------------------------
