@@ -26,8 +26,10 @@ export default function SavingsPage() {
 				<span className="font-bold text-xl">Savings</span>
 			</div>
 
-			<div className="mt-8">{<SavingsGlobalCard />}</div>
-			
+			<div className="mt-8">
+				<SavingsGlobalCard />
+			</div>
+
 			<div className="mt-8">
 				<SavingsInteractionCard />
 			</div>

@@ -26,15 +26,25 @@ export default function BorrowTable() {
 		const considerOpen: boolean = !position.closed && !position.denied;
 		const considerProposed: boolean = position.start * 1000 < Date.now();
 		const considerAvailableForClones: boolean = BigInt(position.availableForClones) > 0n;
+		const considerCollateralBalance: boolean = BigInt(position.collateralBalance) > 0n;
 
 		const challengesPosition = challengesPosMap[pid] || [];
 		const challengesActive: ChallengesQueryItem[] = challengesPosition.filter((c) => c.status == "Active");
 		const considerNoChallenges: boolean = challengesActive.length == 0;
 
-		const verifyable: boolean[] = [considerBlackList, considerOpen, considerProposed, considerAvailableForClones, considerNoChallenges];
+		const verifyable: boolean[] = [
+			considerBlackList,
+			considerOpen,
+			considerProposed,
+			considerAvailableForClones,
+			considerCollateralBalance,
+			considerNoChallenges,
+		];
 
 		return !verifyable.includes(false);
 	});
+
+	console.log(matchingPositions);
 
 	const sorted: PositionQuery[] = sortPositions(matchingPositions, coingecko, headers, tab, reverse);
 

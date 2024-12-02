@@ -105,7 +105,7 @@ export default function SavingsInteractionCard() {
 	};
 
 	return (
-		<section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">
+		<section className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-auto">
 			<AppCard>
 				<div className="text-lg font-bold text-center">Adjustment</div>
 
