@@ -150,7 +150,7 @@ export default function EquityFPSDetailsCard() {
 					/>
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Total Losses" />
+					<DisplayLabel label="Total Spendings" />
 					<DisplayAmount
 						className="mt-4 text-text-warning"
 						amount={loss}
