@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { store } from "../redux/redux.store";
 import { fetchSavings } from "../redux/slices/savings.slice";
 import { useAccount } from "wagmi";
+import Link from "next/link";
 
 export default function SavingsPage() {
 	const { address } = useAccount();
@@ -21,6 +22,15 @@ export default function SavingsPage() {
 			<Head>
 				<title>Frankencoin - Savings</title>
 			</Head>
+
+			<div className="mt-4">
+				ℹ️ This savings module is deployed on mainnet and has been applied as a minter. You can track its governance proposal status
+				on the{" "}
+				<Link className="underline" href="/governance">
+					governance page
+				</Link>
+				. Once the governance process completes without a veto, this savings module will be ready for use!
+			</div>
 
 			<div className="mt-10">
 				<span className="font-bold text-xl">Savings</span>
