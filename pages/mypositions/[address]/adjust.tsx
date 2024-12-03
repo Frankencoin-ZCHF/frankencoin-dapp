@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { formatUnits, maxUint256, erc20Abi, Address, parseUnits } from "viem";
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
-import { abs, formatBigInt, formatCurrency, shortenAddress } from "@utils";
+import { abs, bigIntMax, bigIntMin, formatBigInt, formatCurrency, shortenAddress } from "@utils";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -90,17 +90,14 @@ export default function PositionAdjust() {
 
 	const isCooldown: boolean = position.cooldown * 1000 - Date.now() > 0;
 
-	const price: number = parseFloat(formatUnits(BigInt(position.price), 36 - position.collateralDecimals));
-	const collateralPriceZchf: number = prices[position.collateral.toLowerCase() as Address].price.chf || 1;
-	const interest: number = position.annualInterestPPM / 10 ** 6;
-	const reserve: number = position.reserveContribution / 10 ** 6;
-	const effectiveLTV: number = (price * (1 - reserve)) / collateralPriceZchf;
-	const effectiveInterest: number = interest / (1 - reserve);
-
 	const maxMintableForCollateralAmount: bigint = BigInt(formatUnits(BigInt(position.price) * collateralAmount, 36 - 18).split(".")[0]);
 	const maxMintableInclClones: bigint = BigInt(position.availableForClones) + BigInt(position.minted);
-	const maxTotalLimit: bigint =
-		maxMintableForCollateralAmount <= maxMintableInclClones ? maxMintableForCollateralAmount : maxMintableInclClones;
+	const maxTotalLimit: bigint = bigIntMin(maxMintableForCollateralAmount, maxMintableInclClones);
+
+	// console.log({
+	// 	maxMintableForCollateralAmount,
+	// 	maxMintableInclClones,
+	// });
 
 	const calcDirection = amount > BigInt(position.minted);
 	const feeDuration = BigInt(Math.floor(position.expiration * 1000 - Date.now())) / 1000n;

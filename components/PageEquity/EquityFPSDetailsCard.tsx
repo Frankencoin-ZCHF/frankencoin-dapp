@@ -13,6 +13,12 @@ export default function EquityFPSDetailsCard() {
 	const { profit, loss } = useFPSQuery(ADDRESS[chainId].frankenCoin);
 	const { trades } = useTradeQuery();
 
+	// @dev: show 1yr or trades
+	const startTrades = Date.now() / 1000 - 365 * 24 * 60 * 60;
+	const matchingTrades = trades.filter((t) => {
+		return parseInt(t.time) >= startTrades;
+	});
+
 	return (
 		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 grid grid-cols-1 gap-2">
 			<div id="chart-timeline">
@@ -91,7 +97,7 @@ export default function EquityFPSDetailsCard() {
 					series={[
 						{
 							name: "FPS Price",
-							data: trades.map((trade) => {
+							data: matchingTrades.map((trade) => {
 								return [parseFloat(trade.time) * 1000, Math.round(Number(trade.lastPrice) / 10 ** 16) / 100];
 							}),
 						},

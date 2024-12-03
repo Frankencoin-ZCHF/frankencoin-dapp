@@ -44,8 +44,6 @@ export default function BorrowTable() {
 		return !verifyable.includes(false);
 	});
 
-	console.log(matchingPositions);
-
 	const sorted: PositionQuery[] = sortPositions(matchingPositions, coingecko, headers, tab, reverse);
 
 	const handleTabOnChange = function (e: string) {
