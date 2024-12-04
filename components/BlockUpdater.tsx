@@ -12,6 +12,7 @@ import LoadingScreen from "./LoadingScreen";
 import { fetchChallengesList } from "../redux/slices/challenges.slice";
 import { fetchBidsList } from "../redux/slices/bids.slice";
 import { fetchEcosystem } from "../redux/slices/ecosystem.slice";
+import { fetchSavings } from "../redux/slices/savings.slice";
 
 let initializing: boolean = false;
 let initStart: number = 0;
@@ -24,6 +25,7 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 
 	const [initialized, setInitialized] = useState<boolean>(false);
 	const [latestHeight, setLatestHeight] = useState<number>(0);
+	const [latestHeight10, setLatestHeight10] = useState<number>(0);
 	const [latestConnectedToChain, setLatestConnectedToChain] = useState<boolean>(false);
 	const [latestAddress, setLatestAddress] = useState<Address | undefined>(undefined);
 
@@ -32,6 +34,7 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	const loadedPrices: boolean = useSelector((state: RootState) => state.prices.loaded);
 	const loadedChallenges: boolean = useSelector((state: RootState) => state.challenges.loaded);
 	const loadedBids: boolean = useSelector((state: RootState) => state.bids.loaded);
+	const loadedSavings: boolean = useSelector((state: RootState) => state.savings.loaded);
 
 	// --------------------------------------------------------------------------------
 	// Init
@@ -47,17 +50,18 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		store.dispatch(fetchPricesList());
 		store.dispatch(fetchChallengesList());
 		store.dispatch(fetchBidsList());
-	}, [initialized]);
+		store.dispatch(fetchSavings(latestAddress));
+	}, [initialized, latestAddress]);
 
 	// --------------------------------------------------------------------------------
 	// Init done
 	useEffect(() => {
 		if (initialized) return;
-		if (loadedEcosystem && loadedPositions && loadedPrices && loadedChallenges && loadedBids) {
+		if (loadedEcosystem && loadedPositions && loadedPrices && loadedChallenges && loadedBids && loadedSavings) {
 			console.log(`Init [BlockUpdater]: Done. ${Date.now() - initStart} ms`);
 			setInitialized(true);
 		}
-	}, [initialized, loadedPositions, loadedPrices, loadedEcosystem, loadedChallenges, loadedBids]);
+	}, [initialized, loadedPositions, loadedPrices, loadedEcosystem, loadedChallenges, loadedBids, loadedSavings]);
 
 	// --------------------------------------------------------------------------------
 	// Bock update policies
@@ -79,24 +83,20 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		store.dispatch(fetchPositionsList());
 		store.dispatch(fetchChallengesList());
 		store.dispatch(fetchBidsList());
-		if (latestAddress) store.dispatch(fetchAccount(latestAddress));
+		store.dispatch(fetchAccount(latestAddress));
+		store.dispatch(fetchSavings(latestAddress));
+		store.dispatch(fetchPricesList());
+		store.dispatch(fetchEcosystem());
 
 		// Block update policy: EACH 10 BLOCKS
-		if (fetchedLatestHeight % 5 === 0) {
+		if (fetchedLatestHeight >= latestHeight10 + 10) {
 			console.log(`Policy [BlockUpdater]: EACH 10 BLOCKS ${fetchedLatestHeight}`);
-			store.dispatch(fetchEcosystem());
-			store.dispatch(fetchPricesList());
-		}
-
-		// Block update policy: EACH 100 BLOCKS
-		if (fetchedLatestHeight % 100 === 0) {
-			console.log(`Policy [BlockUpdater]: EACH 100 BLOCKS ${fetchedLatestHeight}`);
-			// store.dispatch(fetchPricesList());
+			setLatestHeight10(fetchedLatestHeight);
 		}
 
 		// Unlock block updates
 		loading = false;
-	}, [initialized, error, data, latestHeight, latestAddress]);
+	}, [initialized, error, data, latestHeight, latestHeight10, latestAddress]);
 
 	// --------------------------------------------------------------------------------
 	// Connected to correct chain changes
@@ -114,10 +114,12 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 			setLatestAddress(undefined);
 			console.log(`Policy [BlockUpdater]: Address reset`);
 			store.dispatch(accountActions.resetAccountState());
-		} else if (address && !latestAddress) {
+			store.dispatch(fetchSavings(undefined));
+		} else if (address && (!latestAddress || address != latestAddress)) {
 			setLatestAddress(address);
 			console.log(`Policy [BlockUpdater]: Address changed to: ${address}`);
 			store.dispatch(fetchAccount(address));
+			store.dispatch(fetchSavings(address));
 		}
 	}, [address, latestAddress]);
 

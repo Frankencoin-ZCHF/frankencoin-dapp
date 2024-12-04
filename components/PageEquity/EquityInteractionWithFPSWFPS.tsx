@@ -5,16 +5,16 @@ import DisplayAmount from "@components/DisplayAmount";
 import { formatBigInt, formatDuration, shortenAddress } from "@utils";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ABIS, ADDRESS } from "@contracts";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import Button from "@components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
-import { TxToast, renderErrorToast } from "@components/TxToast";
+import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
+import { ADDRESS, EquityABI, FPSWrapperABI } from "@frankencoin/zchf";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -65,7 +65,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 
 				const _fpsHolding = await readContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId].equity,
-					abi: ABIS.EquityABI,
+					abi: EquityABI,
 					functionName: "holdingDuration",
 					args: [account],
 				});
@@ -82,7 +82,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 
 			const _wfpsHolding = await readContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].equity,
-				abi: ABIS.EquityABI,
+				abi: EquityABI,
 				functionName: "holdingDuration",
 				args: [ADDRESS[chainId].wFPS],
 			});
@@ -125,12 +125,9 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 				success: {
 					render: <TxToast title="Successfully Approved FPS" rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setApproving(false);
 		}
@@ -141,7 +138,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].wFPS,
-				abi: ABIS.FPSWrapperABI,
+				abi: FPSWrapperABI,
 				functionName: "depositFor",
 				args: [account, amount],
 			});
@@ -168,12 +165,9 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 				success: {
 					render: <TxToast title="Successfully Wrapped FPS" rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setAmount(0n);
 			setWrapping(false);
@@ -185,7 +179,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].wFPS,
-				abi: ABIS.FPSWrapperABI,
+				abi: FPSWrapperABI,
 				functionName: "withdrawTo",
 				args: [account, amount],
 			});
@@ -212,12 +206,9 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 				success: {
 					render: <TxToast title="Successfully Unwrapped WFPS" rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setAmount(0n);
 			setUnwrapping(false);
@@ -294,19 +285,19 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 			<div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
 					<DisplayLabel label="Your Balance" />
-					<DisplayAmount amount={fpsBalance} currency="FPS" address={ADDRESS[chainId].equity} />
+					<DisplayAmount className="mt-4" amount={fpsBalance} currency="FPS" address={ADDRESS[chainId].equity} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Holding Duration FPS" />
-					{fpsHolding > 0 ? formatDuration(fpsHolding) : "-"}
+					{fpsHolding > 0 && fpsHolding < 86_400 * 365 * 10 ? formatDuration(fpsHolding) : "-"}
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Your Balance" />
-					<DisplayAmount amount={wfpsBalance} currency="WFPS" address={ADDRESS[chainId].wFPS} />
+					<DisplayAmount className="mt-4" amount={wfpsBalance} currency="WFPS" address={ADDRESS[chainId].wFPS} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Holding Duration WFPS Contract" />
-					{wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 30 ? formatDuration(wfpsHolding) : "-"}
+					{wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 10 ? formatDuration(wfpsHolding) : "-"}
 				</AppBox>
 			</div>
 		</>

@@ -39,6 +39,7 @@ export default function GovernancePositionsRow({ headers, subHeaders, position, 
 				<div className="max-md:hidden flex flex-row items-center">
 					<DisplayCollateralBorrowTable
 						symbol={position.collateralSymbol}
+						symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
 					/>
@@ -48,6 +49,7 @@ export default function GovernancePositionsRow({ headers, subHeaders, position, 
 				<AppBox className="md:hidden flex flex-row items-center">
 					<DisplayCollateralBorrowTable
 						symbol={position.collateralSymbol}
+						symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
 					/>

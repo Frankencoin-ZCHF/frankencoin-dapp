@@ -139,7 +139,9 @@ export const fetchPositionsList =
 		// ---------------------------------------------------------------
 		// filter positions and dispatch
 		const listArray = response1.data.list as PositionQuery[];
-		const openPositions = listArray.filter((position) => !position.denied && !position.closed);
+		const openPositions = listArray.filter(
+			(position) => !position.denied && !position.closed && BigInt(position.collateralBalance) > 0n
+		);
 		const collateralAddresses = openPositions.map((position) => position.collateral).filter(uniqueValues);
 
 		// const requestedPositions = collateralAddresses.map((con) => listArray.filter((position) => position.collateral == con));

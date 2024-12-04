@@ -111,7 +111,7 @@ export default function TokenInputSelect({
 								...baseStyles,
 								backgroundColor: "#092f62",
 								color: "#e2e8f0",
-								borderRadius: "1rem", // This makes the main control rounder
+								borderRadius: "0.5rem", // This makes the main control rounder
 								borderWidth: "0",
 								boxShadow: "none", // Remove the focus shadow
 							}),
@@ -127,7 +127,7 @@ export default function TokenInputSelect({
 							menu: (baseStyles) => ({
 								...baseStyles,
 								backgroundColor: "#e7e7ea",
-								borderRadius: "1rem", // This rounds the dropdown menu
+								borderRadius: "0.5rem", // This rounds the dropdown menu
 								overflow: "hidden", // This ensures the content doesn't overflow the rounded corners
 							}),
 						}}

@@ -26,7 +26,7 @@ export default function MonitoringRow({ headers, position }: Props) {
 	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
 	if (!collTokenPrice || !zchfPrice) return null;
 
-	const maturity: number = ((position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24);
+	const maturity: number = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
 
 	const balance: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
 	const balanceZCHF: number = Math.round(((balance * collTokenPrice) / zchfPrice) * 100) / 100;
@@ -53,8 +53,11 @@ export default function MonitoringRow({ headers, position }: Props) {
 		<TableRow
 			headers={headers}
 			actionCol={
-				<Button className="h-10" onClick={() => navigate.push(`/monitoring/${position.position}/challenge`)}>
-					Challenge
+				<Button
+					className="h-10"
+					onClick={() => navigate.push(`/monitoring/${position.position}/${maturity <= 0 ? "forceSell" : "challenge"}`)}
+				>
+					{maturity <= 0 ? "Force Sell" : "Challenge"}
 				</Button>
 			}
 		>
@@ -91,7 +94,11 @@ export default function MonitoringRow({ headers, position }: Props) {
 			{/* Expiration */}
 			<div className="flex flex-col gap-2">
 				<div className={`col-span-2 text-md ${maturity < 7 ? "text-text-warning font-bold" : "text-text-primary"}`}>
-					{maturity < 3 ? (maturity > 0 ? `${formatCurrency(maturity * 24)} hours` : "Expired") : `${formatCurrency(Math.round(maturity))} days`}
+					{maturity < 3
+						? maturity > 0
+							? `${formatCurrency(maturity * 24)} hours`
+							: "Expired"
+						: `${formatCurrency(Math.round(maturity))} days`}
 				</div>
 			</div>
 

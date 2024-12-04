@@ -10,9 +10,8 @@ import { ContractUrl, formatBigInt, formatDuration, shortenAddress } from "@util
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { Address } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
-import { TxToast, renderErrorToast } from "@components/TxToast";
+import { TxToast, renderErrorToast, renderErrorTxStackToast, renderErrorTxToast } from "@components/TxToast";
 import DisplayLabel from "@components/DisplayLabel";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
@@ -20,15 +19,14 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import Link from "next/link";
 import { useRouter as useNavigation } from "next/navigation";
+import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 
 export default function PositionChallenge() {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
-	const [errorDate, setErrorDate] = useState("");
 	const [isApproving, setApproving] = useState(false);
 	const [isChallenging, setChallenging] = useState(false);
 	const [isNavigating, setNavigating] = useState(false);
-	const [expirationDate, setExpirationDate] = useState(new Date());
 
 	const [userAllowance, setUserAllowance] = useState(0n);
 	const [userBalance, setUserBalance] = useState(0n);
@@ -65,7 +63,7 @@ export default function PositionChallenge() {
 				address: position.collateral,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHub],
+				args: [acc, position.version === 1 ? ADDRESS[WAGMI_CHAIN.id].mintingHubV1 : ADDRESS[WAGMI_CHAIN.id].mintingHubV2],
 			});
 			setUserAllowance(_allowanceColl);
 		};
@@ -82,30 +80,21 @@ export default function PositionChallenge() {
 	// ---------------------------------------------------------------------------
 	if (!position) return null;
 
-	const zchfPrice: number = prices[position.zchf.toLowerCase() as Address].price.usd || 1;
-	const collateralPriceUSD: number = prices[position.collateral.toLowerCase() as Address].price.usd || 1;
-	const collateralPriceCHF: number = collateralPriceUSD / zchfPrice;
-
 	const _collBal: bigint = BigInt(position.collateralBalance);
-	const maxChallengeLimit: bigint = _collBal <= userBalance ? _collBal : userBalance;
-
-	const maxProceeds = (parseInt(position.price) / collateralPriceCHF / 10 ** (36 - position.collateralDecimals)) * 100 - 100;
+	const belowMinBalance: boolean = _collBal < BigInt(position.minimumCollateral);
 
 	// ---------------------------------------------------------------------------
 	const onChangeAmount = (value: string) => {
 		var valueBigInt = BigInt(value);
-		if (valueBigInt > _collBal) {
+		if (valueBigInt > _collBal && !belowMinBalance) {
 			valueBigInt = _collBal;
 		}
 		setAmount(valueBigInt);
 		if (valueBigInt > userBalance) {
 			setError(`Not enough ${position.collateralSymbol} in your wallet.`);
-		} else if (valueBigInt > BigInt(position.collateralBalance)) {
+		} else if (valueBigInt > BigInt(position.collateralBalance) && !belowMinBalance) {
 			setError("Amount cannot be larger than the underlying position");
-		} else if (
-			valueBigInt < BigInt(position.minimumCollateral) &&
-			BigInt(position.collateralBalance) >= BigInt(position.minimumCollateral)
-		) {
+		} else if (valueBigInt < BigInt(position.minimumCollateral) && !belowMinBalance) {
 			setError("Amount must be at least the minimum");
 		} else {
 			setError("");
@@ -120,7 +109,7 @@ export default function PositionChallenge() {
 				address: position.collateral as Address,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [ADDRESS[chainId].mintingHub, amount],
+				args: [position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2, amount],
 			});
 
 			const toastContent = [
@@ -130,7 +119,7 @@ export default function PositionChallenge() {
 				},
 				{
 					title: "Spender: ",
-					value: shortenAddress(ADDRESS[chainId].mintingHub),
+					value: shortenAddress(ADDRESS[chainId].mintingHubV1),
 				},
 				{
 					title: "Transaction:",
@@ -145,12 +134,9 @@ export default function PositionChallenge() {
 				success: {
 					render: <TxToast title={`Successfully Approved ${position.collateralSymbol}`} rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setApproving(false);
 		}
@@ -161,8 +147,8 @@ export default function PositionChallenge() {
 			setChallenging(true);
 
 			const challengeWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHub,
-				abi: ABIS.MintingHubABI,
+				address: position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2,
+				abi: position.version === 1 ? MintingHubV1ABI : MintingHubV2ABI,
 				functionName: "challenge",
 				args: [position.position, amount, BigInt(position.price)],
 			});
@@ -174,7 +160,7 @@ export default function PositionChallenge() {
 				},
 				{
 					title: "Price: ",
-					value: formatBigInt(BigInt(position.price), 36 - position.collateralDecimals),
+					value: formatBigInt(BigInt(position.price), 36 - position.collateralDecimals) + " ZCHF",
 				},
 				{
 					title: "Transaction:",
@@ -189,15 +175,13 @@ export default function PositionChallenge() {
 				success: {
 					render: <TxToast title={`Successfully Launched challenge`} rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+
+			setNavigating(true);
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setChallenging(false);
-			setNavigating(true);
 		}
 	};
 
@@ -281,8 +265,8 @@ export default function PositionChallenge() {
 								</Link>
 							</AppBox>
 						</div>
-						<div>
-							<GuardToAllowedChainBtn>
+						<div className="mx-auto mt-4 w-72 max-w-full flex-col">
+							<GuardToAllowedChainBtn label={amount > userAllowance ? "Approve" : "Challenge"}>
 								{amount > userAllowance ? (
 									<Button isLoading={isApproving} disabled={!!error} onClick={() => handleApprove()}>
 										Approve

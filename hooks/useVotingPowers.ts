@@ -1,22 +1,22 @@
 import { useReadContracts } from "wagmi";
-import { ABIS, ADDRESS } from "@contracts";
 import { FPSHolder } from "./useFPSHolders";
 import { decodeBigIntCall } from "../utils/format";
 import { WAGMI_CHAIN } from "../app.config";
+import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 
 export const useVotingPowers = (holders: FPSHolder[]) => {
 	let contractCalls: any[] = [];
 	holders.forEach((holder) => {
 		contractCalls.push({
 			address: ADDRESS[WAGMI_CHAIN.id].equity,
-			abi: ABIS.EquityABI,
+			abi: EquityABI,
 			functionName: "votes",
 			args: [holder.address],
 		});
 	});
 	contractCalls.push({
 		address: ADDRESS[WAGMI_CHAIN.id].equity,
-		abi: ABIS.EquityABI,
+		abi: EquityABI,
 		functionName: "totalVotes",
 	});
 

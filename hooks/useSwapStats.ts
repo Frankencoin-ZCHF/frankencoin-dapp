@@ -1,9 +1,8 @@
 import { useAccount, useReadContracts } from "wagmi";
-import { ADDRESS } from "@contracts";
-import { ABIS } from "@contracts";
 import { decodeBigIntCall } from "@utils";
 import { erc20Abi } from "viem";
 import { WAGMI_CHAIN } from "../app.config";
+import { ADDRESS, StablecoinBridgeABI } from "@frankencoin/zchf";
 
 export const useSwapStats = () => {
 	const chainId = WAGMI_CHAIN.id as number;
@@ -65,7 +64,7 @@ export const useSwapStats = () => {
 			{
 				chainId,
 				address: ADDRESS[chainId].bridge,
-				abi: ABIS.StablecoinBridgeABI,
+				abi: StablecoinBridgeABI,
 				functionName: "limit",
 			},
 		],

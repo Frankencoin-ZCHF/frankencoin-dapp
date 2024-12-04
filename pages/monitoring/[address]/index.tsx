@@ -4,10 +4,9 @@ import Link from "next/link";
 import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
-import { formatCurrency, formatDate, shortenAddress } from "@utils";
-import { Address, formatUnits, getAddress, zeroAddress } from "viem";
+import { formatDate, shortenAddress } from "@utils";
+import { Address, formatUnits, zeroAddress } from "viem";
 import { useContractUrl } from "@hooks";
-import { ABIS, ADDRESS } from "@contracts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
@@ -18,6 +17,7 @@ import { readContract } from "wagmi/actions";
 import { ChallengesQueryItem, PositionQuery } from "@frankencoin/api";
 import { useRouter as useNavigation } from "next/navigation";
 import Button from "@components/Button";
+import { ADDRESS, FrankencoinABI } from "@frankencoin/zchf";
 
 export default function PositionDetail() {
 	const [reserve, setReserve] = useState<bigint>(0n);
@@ -41,7 +41,7 @@ export default function PositionDetail() {
 		const fetchAsync = async function () {
 			const data = await readContract(WAGMI_CONFIG, {
 				address: position.zchf,
-				abi: ABIS.FrankencoinABI,
+				abi: FrankencoinABI,
 				functionName: "calculateAssignedReserve",
 				args: [BigInt(position.minted), position.reserveContribution],
 			});
@@ -136,7 +136,7 @@ export default function PositionDetail() {
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Start Date" />
-								<b>{formatDate(position.start)}</b>
+								<b>{formatDate(position.isOriginal ? position.start : position.created)}</b>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Expiration Date" />
@@ -196,7 +196,7 @@ function ActiveAuctionsRow({ position, challenge }: Props) {
 				</AppBox>
 
 				<div className="absolute right-4 bottom-6 w-20">
-					<Button className="h-10" onClick={() => navigate.push(`/challenges/${challenge.number}/bid`)}>
+					<Button className="h-10" onClick={() => navigate.push(`/challenges/${challenge.id}/bid`)}>
 						Bid
 					</Button>
 				</div>

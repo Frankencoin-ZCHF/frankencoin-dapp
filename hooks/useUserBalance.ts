@@ -1,7 +1,6 @@
 import { useAccount, useChainId, useReadContracts } from "wagmi";
-import { ADDRESS } from "@contracts";
-import { ABIS } from "@contracts";
 import { decodeBigIntCall } from "@utils";
+import { ADDRESS, EquityABI, FrankencoinABI } from "@frankencoin/zchf";
 
 export const useUserBalance = () => {
 	const chainId = useChainId();
@@ -9,12 +8,12 @@ export const useUserBalance = () => {
 
 	const frankenContract = {
 		address: ADDRESS[chainId].frankenCoin,
-		abi: ABIS.FrankencoinABI,
+		abi: FrankencoinABI,
 	} as const;
 
 	const equityContract = {
 		address: ADDRESS[chainId].equity,
-		abi: ABIS.EquityABI,
+		abi: EquityABI,
 	};
 
 	const account = address || "0x0";

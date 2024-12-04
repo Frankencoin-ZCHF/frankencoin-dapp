@@ -1,10 +1,10 @@
 import AppBox from "@components/AppBox";
 import DisplayAmount from "@components/DisplayAmount";
 import DisplayLabel from "@components/DisplayLabel";
-import { ADDRESS } from "@contracts";
 import { useFPSQuery, usePoolStats, useTradeQuery } from "@hooks";
 import { useChainId } from "wagmi";
 import dynamic from "next/dynamic";
+import { ADDRESS } from "@frankencoin/zchf";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function EquityFPSDetailsCard() {
@@ -12,6 +12,12 @@ export default function EquityFPSDetailsCard() {
 	const poolStats = usePoolStats();
 	const { profit, loss } = useFPSQuery(ADDRESS[chainId].frankenCoin);
 	const { trades } = useTradeQuery();
+
+	// @dev: show 1yr or trades
+	const startTrades = Date.now() / 1000 - 365 * 24 * 60 * 60;
+	const matchingTrades = trades.filter((t) => {
+		return parseInt(t.time) >= startTrades;
+	});
 
 	return (
 		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 grid grid-cols-1 gap-2">
@@ -62,6 +68,11 @@ export default function EquityFPSDetailsCard() {
 							type: "datetime",
 							labels: {
 								show: false,
+								formatter: (value) => {
+									const local = new Date(value).toLocaleString();
+									const d = local.split(",")[0].split("/");
+									return `${d[1]}.${d[0]}.${d[2]}`;
+								},
 							},
 							axisBorder: {
 								show: false,
@@ -86,7 +97,7 @@ export default function EquityFPSDetailsCard() {
 					series={[
 						{
 							name: "FPS Price",
-							data: trades.map((trade) => {
+							data: matchingTrades.map((trade) => {
 								return [parseFloat(trade.time) * 1000, Math.round(Number(trade.lastPrice) / 10 ** 16) / 100];
 							}),
 						},
@@ -96,27 +107,56 @@ export default function EquityFPSDetailsCard() {
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
 					<DisplayLabel label="Market Cap" />
-					<DisplayAmount amount={(poolStats.equitySupply * poolStats.equityPrice) / BigInt(1e18)} currency="ZCHF" />
+					<DisplayAmount
+						className="mt-4"
+						amount={(poolStats.equitySupply * poolStats.equityPrice) / BigInt(1e18)}
+						currency="ZCHF"
+					/>
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Total Reserve" />
-					<DisplayAmount amount={poolStats.frankenTotalReserve} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
+					<DisplayAmount
+						className="mt-4"
+						amount={poolStats.frankenTotalReserve}
+						currency="ZCHF"
+						address={ADDRESS[chainId].frankenCoin}
+					/>
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Equity Capital" />
-					<DisplayAmount amount={poolStats.frankenEquity} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
+					<DisplayAmount
+						className="mt-4"
+						amount={poolStats.frankenEquity}
+						currency="ZCHF"
+						address={ADDRESS[chainId].frankenCoin}
+					/>
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Minter Reserve" />
-					<DisplayAmount amount={poolStats.frankenMinterReserve} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
+					<DisplayAmount
+						className="mt-4"
+						amount={poolStats.frankenMinterReserve}
+						currency="ZCHF"
+						address={ADDRESS[chainId].frankenCoin}
+					/>
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Total Income" />
-					<DisplayAmount amount={profit} currency="ZCHF" className="text-text-success" address={ADDRESS[chainId].frankenCoin} />
+					<DisplayAmount
+						className="mt-4 text-text-success"
+						amount={profit}
+						currency="ZCHF"
+						address={ADDRESS[chainId].frankenCoin}
+					/>
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Total Spendings" />
-					<DisplayAmount amount={loss} currency="ZCHF" className="text-text-warning" address={ADDRESS[chainId].frankenCoin} />
+					<DisplayAmount
+						className="mt-4 text-text-warning"
+						amount={loss}
+						currency="ZCHF"
+						address={ADDRESS[chainId].frankenCoin}
+					/>
 				</AppBox>
 			</div>
 		</div>

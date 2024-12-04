@@ -1,23 +1,20 @@
 import Head from "next/head";
 import Link from "next/link";
 import BorrowTable from "@components/PageBorrow/BorrowTable";
-import BorrowCollateral from "@components/PageBorrow/BorrowCollateral";
-import AppPageHeader from "@components/AppPageHeader";
+import { useEffect } from "react";
+import { store } from "../../redux/redux.store";
+import { fetchPositionsList } from "../../redux/slices/positions.slice";
 
 export default function Borrow() {
+	useEffect(() => {
+		store.dispatch(fetchPositionsList());
+	}, []);
+
 	return (
 		<>
 			<Head>
 				<title>Frankencoin - Borrow</title>
 			</Head>
-
-			<div className="mt-4">
-			⚠️New modules with more user-friendly borrowing are planned to be released in early December.  We recommend to wait for these updates before opening new positions. By that time, WBTC should also be available again as collateral.
-			</div>
-
-			{/* 			<div>
-				<AppPageHeader title="All Mintable Positions" />
-			</div> */}
 
 			<div className="mt-8">
 				<BorrowTable />

@@ -32,12 +32,19 @@ export const initialState: EcosystemState = {
 		earnings: { profit: 0, loss: 0 },
 	},
 	frankencoinInfo: {
-		chain: { id: 0, name: "" },
-		counter: { mint: 0, burn: 0 },
-		erc20: { address: zeroAddress, decimals: 0, name: "", symbol: "" },
-		price: { usd: 0 },
 		raw: { mint: "0", burn: "0" },
 		total: { mint: 0, burn: 0, supply: 0 },
+		counter: { mint: 0, burn: 0 },
+
+		erc20: { address: zeroAddress, decimals: 0, name: "", symbol: "" },
+		chain: { id: 0, name: "" },
+		price: { usd: 0 },
+		fps: {
+			price: 0,
+			totalSupply: 0,
+			fpsMarketCapInChf: 0,
+		},
+		tvl: { usd: 0, chf: 0 },
 	},
 	frankencoinMinters: { num: 0, list: [] },
 };

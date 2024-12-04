@@ -1,4 +1,3 @@
-import AppBox from "@components/AppBox";
 import AppCard from "@components/AppCard";
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -24,11 +23,11 @@ export default function GovernanceTelegramBot() {
 						<ul className="flex flex-col gap-4">
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8" />
-								<span className="ml-5 text-center">New Minter Proposal</span>
+								<span className="ml-5 text-center">New Minter Proposal and Vetoed</span>
 							</li>
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8" />
-								<span className="ml-5 text-center">Minter Proposal Vetoed</span>
+								<span className="ml-5 text-center">New Leadrate Proposal and Changed</span>
 							</li>
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8" />
@@ -36,7 +35,7 @@ export default function GovernanceTelegramBot() {
 							</li>
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8" />
-								<span className="ml-5 text-center">New Challenge Started</span>
+								<span className="ml-5 text-center">Challenge Started and Bid Taken</span>
 							</li>
 						</ul>
 					</div>
