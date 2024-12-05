@@ -2,11 +2,10 @@ import Link from "next/link";
 import { SOCIAL } from "@utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { faBook, faBookmark, faComments, faCodeCommit } from "@fortawesome/free-solid-svg-icons";
-import { faGithub, faTelegram, faXTwitter, faTwitter } from "@fortawesome/free-brands-svg-icons";
+import { faBook, faBookmark, faComments } from "@fortawesome/free-solid-svg-icons";
+import { faGithub, faTelegram, faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { SubmitIssue } from "./LoadingScreen";
 import { usePathname } from "next/navigation";
-import { useIsMainnet } from "@hooks";
 
 const DynamicDocs = (): string => {
 	const p = usePathname();
@@ -28,17 +27,21 @@ const DynamicDocs = (): string => {
 };
 
 export default function Footer() {
-	const isMainnet = useIsMainnet();
-
 	return (
-		<div className="md:flex max-md:grid-rows-2 max-md:justify-items-center md:px-12 pb-12 pt-6 bg-layout-footer text-layout-primary">
+		<div className="md:flex max-md:grid-rows-2 max-md:justify-items-center md:px-12 md:pb-[80px] max-md:pb-[40px] pt-6 bg-layout-footer text-layout-primary">
 			<div className="flex-1 justify-start">
 				<SubmitIssue />
 			</div>
 
 			<ul className="flex justify-end gap-8 max-md:pt-12">
 				<li>
-					<FooterButton link={DynamicDocs()} text="Doc" icon={faBook} />
+					<FooterButton link={SOCIAL.Twitter} text="Twitter" icon={faXTwitter} />
+				</li>
+				<li>
+					<FooterButton link={SOCIAL.Telegram} text="Telegram" icon={faTelegram} />
+				</li>
+				<li>
+					<FooterButton link={SOCIAL.Forum} text="Forum" icon={faComments} />
 				</li>
 				<li>
 					<FooterButton link={SOCIAL.SubStack} text="Blog" icon={faBookmark} />
@@ -47,13 +50,7 @@ export default function Footer() {
 					<FooterButton link={SOCIAL.Github_contract} text="Github" icon={faGithub} />
 				</li>
 				<li>
-					<FooterButton link={SOCIAL.Forum} text="Forum" icon={faComments} />
-				</li>
-				<li>
-					<FooterButton link={SOCIAL.Telegram} text="Telegram" icon={faTelegram} />
-				</li>
-				<li>
-					<FooterButton link={SOCIAL.Twitter} text="Twitter" icon={faXTwitter} />
+					<FooterButton link={DynamicDocs()} text="Doc" icon={faBook} />
 				</li>
 			</ul>
 		</div>

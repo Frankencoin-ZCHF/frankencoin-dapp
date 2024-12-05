@@ -37,20 +37,21 @@ module.exports = {
 				},
 				card: {
 					body: {
-						primary: "#f7f7f9",
+						primary: "#FFFFFF",
 						secondary: "#092f62",
 						seperator: "#1e293b",
 					},
 					content: {
-						primary: "#e7e7ea", // e7e7ea
-						secondary: "#f7f7f9",
+						primary: "#F0F1F5",
+						secondary: "#FFFFFF",
 						highlight: "#ff293b",
 					},
 				},
 				text: {
-					header: "#092f62",
-					subheader: "#677180",
-					active: "#ff44dd",
+					header: "#8B92A8",
+					subheader: "#8B92A8",
+					active: "#092F62",
+					title: "#272B38",
 					primary: "#092f62",
 					secondary: "#e2e8f0",
 					warning: "#ef4444",
@@ -58,14 +59,20 @@ module.exports = {
 				},
 				table: {
 					header: {
-						primary: "#f7f7f9",
-						secondary: "#d1d5db",
+						primary: "#FFFFFF",
+						secondary: "#F0F1F5",
 					},
 					row: {
-						primary: "#f7f7f9",
-						secondary: "#d1d5db",
-						hover: "#d1d5db",
+						primary: "#FFFFFF",
+						secondary: "#F0F1F5",
+						hover: "#F0F1F5",
 					},
+				},
+				button: {
+					default: "#092F62",
+					hover: "#0F80F0",
+					disabled: "#EAEBF0",
+					textdisabled: "#ADB2C2",
 				},
 			},
 		},

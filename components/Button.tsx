@@ -20,9 +20,9 @@ export default function Button({ size = "md", width, className, onClick, isLoadi
 			<button
 				className={`btn ${className} ${sizeClass} ${
 					disabled || isLoading
-						? "cursor-not-allowed bg-card-content-primary text-layout-secondary"
-						: "bg-layout-secondary text-card-content-primary"
-				} ${width ?? "w-full"}`}
+						? "cursor-not-allowed bg-button-disabled text-button-textdisabled"
+						: "bg-button-default text-white"
+				} ${width ?? "w-full"} hover:bg-button-hover`}
 				onClick={(e) => !disabled && !isLoading && onClick?.(e)}
 			>
 				{isLoading && <LoadingSpin />}
