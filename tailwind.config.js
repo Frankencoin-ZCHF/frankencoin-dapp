@@ -23,15 +23,17 @@ module.exports = {
 			},
 			colors: {
 				layout: {
-					primary: "#ffffff",
-					secondary: "#092f62",
+					primary: "#F0F1F5",
+					secondary: "#FFFFFF",
 					footer: "#272B38",
 				},
 				menu: {
-					text: "#092f62",
-					active: "#092f62",
-					hover: "#b7bfd1",
-					separator: "#f7f7f9",
+					text: "#272B38",
+					textactive: "#272B38",
+					active: "#F0F1F5",
+					hover: "#B7BFD1",
+					back: "#FFFFFF",
+					separator: "#EAEBF0",
 				},
 				card: {
 					body: {
