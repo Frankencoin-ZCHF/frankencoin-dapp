@@ -24,12 +24,11 @@ export default function SavingsPage() {
 			</Head>
 
 			<div className="mt-4">
-				ℹ️ This savings module is deployed on mainnet and has been applied as a minter. You can track its governance proposal status
-				on the{" "}
+				ℹ️ This module has been deployed on 2024-11-27 and is going through a 14 days the{" "}
 				<Link className="underline" href="/governance">
-					governance page
+					approval process
 				</Link>
-				. Once the governance process completes without a veto, this savings module will be ready for use!
+				. Once the 14 days have passed without anyone casting a veto, the savings module will be ready for use.
 			</div>
 
 			<div className="mt-10">

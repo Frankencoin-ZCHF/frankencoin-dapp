@@ -382,8 +382,17 @@ export default function PositionBorrow({}) {
 									<div className="">{formatCurrency(effectiveLTV * 100)}%</div>
 								</div>
 
+								{ position.position != position.original &&
+									<div className="mt-2 flex">
+										<div className="flex-1">Parent Position</div>
+										<Link className="underline" href={`/monitoring/${position.position}`}>
+											{shortenAddress(position.position)}
+										</Link>
+									</div>
+								}
+
 								<div className="mt-2 flex">
-									<div className="flex-1">Parent Position</div>
+									<div className="flex-1">Original Position</div>
 									<Link className="underline" href={`/monitoring/${position.original}`}>
 										{shortenAddress(position.original)}
 									</Link>
