@@ -9,6 +9,7 @@ import { store } from "../redux/redux.store";
 import { fetchSavings } from "../redux/slices/savings.slice";
 import { useAccount } from "wagmi";
 import Link from "next/link";
+import AppTitle from "@components/AppTitle";
 
 export default function SavingsPage() {
 	const { address } = useAccount();
@@ -18,49 +19,37 @@ export default function SavingsPage() {
 	}, [address]);
 
 	return (
-		<main className="section">
+		<>
 			<Head>
 				<title>Frankencoin - Savings</title>
 			</Head>
 
-			<div className="mt-4">
-				ℹ️ This savings module is deployed on mainnet and has been applied as a minter. You can track its governance proposal status
-				on the{" "}
-				<Link className="underline" href="/governance">
-					governance page
-				</Link>
-				. Once the governance process completes without a veto, this savings module will be ready for use!
-			</div>
+			<AppTitle title="Savings">
+				<div className="">
+					ℹ️ This savings module is deployed on mainnet and has been applied as a minter. You can track its governance proposal
+					status on the{" "}
+					<Link className="underline" href="/governance">
+						governance page
+					</Link>
+					. Once the governance process completes without a veto, this savings module will be ready for use!
+				</div>
+			</AppTitle>
 
-			<div className="mt-10">
-				<span className="font-bold text-xl">Savings</span>
-			</div>
+			<SavingsGlobalCard />
 
-			<div className="mt-8">
-				<SavingsGlobalCard />
-			</div>
+			<SavingsInteractionCard />
 
-			<div className="mt-8">
-				<SavingsInteractionCard />
-			</div>
+			<AppTitle title="Recent Deposits" />
 
-			<div className="mt-10">
-				<span className="font-bold text-xl">Recent Deposits</span>
-			</div>
+			<SavingsSavedTable />
 
-			<div className="mt-8">{<SavingsSavedTable />}</div>
+			<AppTitle title="Recent Interest Claims" />
 
-			<div className="mt-10">
-				<span className="font-bold text-xl">Recent Interest Claims</span>
-			</div>
+			<SavingsInterestTable />
 
-			<div className="mt-8">{<SavingsInterestTable />}</div>
+			<AppTitle title="Recent Withdrawals" />
 
-			<div className="mt-10">
-				<span className="font-bold text-xl">Recent Withdrawals</span>
-			</div>
-
-			<div className="mt-8">{<SavingsWithdrawnTable />}</div>
-		</main>
+			<SavingsWithdrawnTable />
+		</>
 	);
 }

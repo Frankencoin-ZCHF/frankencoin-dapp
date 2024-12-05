@@ -10,6 +10,7 @@ import { store } from "../../redux/redux.store";
 import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import { fetchChallengesList } from "../../redux/slices/challenges.slice";
 import { fetchBidsList } from "../../redux/slices/bids.slice";
+import AppTitle from "@components/AppTitle";
 
 export default function Positions() {
 	const router = useRouter();
@@ -28,34 +29,25 @@ export default function Positions() {
 			</Head>
 
 			{/* Section Positions */}
-			<div className="md:mt-8">
-				<span className="font-bold text-xl">Owned Positions </span>
+			<AppTitle title="Owned Positions">
 				<DisplayWarningMessage overwrite={overwrite} />
-			</div>
+			</AppTitle>
 
-			<div className="md:mt-8">
-				<MypositionsTable />
-			</div>
+			<MypositionsTable />
 
 			{/* Section Challenges */}
-			<div className="md:mt-10">
-				<span className="font-bold text-xl">Initiated Challenges</span>
+			<AppTitle title="Initiated Challenges">
 				<DisplayWarningMessage overwrite={overwrite} />
-			</div>
+			</AppTitle>
 
-			<div className="md:mt-8">
-				<MyPositionsChallengesTable />
-			</div>
+			<MyPositionsChallengesTable />
 
 			{/* Section Bids */}
-			<div className="md:mt-10">
-				<span className="font-bold text-xl">Bought through Bids</span>
+			<AppTitle title="Bought through Bids">
 				<DisplayWarningMessage overwrite={overwrite} />
-			</div>
+			</AppTitle>
 
-			<div className="md:mt-8">
-				<MyPositionsBidsTable />
-			</div>
+			<MyPositionsBidsTable />
 		</>
 	);
 }
