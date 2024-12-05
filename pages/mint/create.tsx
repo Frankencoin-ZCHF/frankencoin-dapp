@@ -308,7 +308,7 @@ export default function PositionCreate({}) {
 			</Head>
 
 			<AppTitle title="Propose New Position">
-				<div className="">
+				<div className="text-text-secondary">
 					ℹ️ The MintingHub V2 Module is deployed on mainnet and has been applied as a minter. You can track its governance
 					proposal status on the{" "}
 					<Link className="underline" href="/governance">

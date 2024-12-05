@@ -25,7 +25,7 @@ export default function SavingsPage() {
 			</Head>
 
 			<AppTitle title="Savings">
-				<div className="">
+				<div className="text-text-secondary">
 					ℹ️ This savings module is deployed on mainnet and has been applied as a minter. You can track its governance proposal
 					status on the{" "}
 					<Link className="underline" href="/governance">
