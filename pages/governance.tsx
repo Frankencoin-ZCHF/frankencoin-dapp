@@ -6,6 +6,7 @@ import GovernanceTelegramBot from "@components/PageGovernance/GovernanceTelegram
 import { SOCIAL } from "@utils";
 import GovernanceLeadrateTable from "@components/PageGovernance/GovernanceLeadrateTable";
 import GovernanceLeadrateCurrent from "@components/PageGovernance/GovernanceLeadrateCurrent";
+import AppTitle from "@components/AppTitle";
 
 export default function Governance() {
 	return (
@@ -14,71 +15,49 @@ export default function Governance() {
 				<title>Frankencoin - Governance</title>
 			</Head>
 
-			<div className="md:mt-10">
-				<span className="font-bold text-xl">New Positions</span>
-			</div>
+			<AppTitle title="New Positions">
+				<div className="text-text-secondary">
+					Participants should carefully review newly proposed position types and deny them if they think they pose a risk to the
+					stability of the Frankencoin. There is also a{" "}
+					<a
+						target="_blank"
+						href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions/categories/acceptable-collaterals?discussions_q=is%3Aopen+category%3A%22Acceptable+Collaterals%22"
+					>
+						<span className="font-bold underline">github forum</span>
+					</a>
+					{" and a "}
+					<a target="_blank" href={SOCIAL.Telegram}>
+						<span className="font-bold underline">telegram group</span>
+					</a>{" "}
+					to discuss eligible collaterals and their parameters.
+				</div>
+			</AppTitle>
 
-			<div className="">
-				Participants should carefully review newly proposed position types and deny them if they think they pose a risk to the
-				stability of the Frankencoin. There is also a{" "}
-				<a
-					target="_blank"
-					href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions/categories/acceptable-collaterals?discussions_q=is%3Aopen+category%3A%22Acceptable+Collaterals%22"
-				>
-					<span className="font-bold underline">github forum</span>
-				</a>
-				{" and a "}
-				<a target="_blank" href={SOCIAL.Telegram}>
-					<span className="font-bold underline">telegram group</span>
-				</a>{" "}
-				to discuss eligible collaterals and their parameters.
-			</div>
+			<GovernancePositionsTable />
 
-			<div className="md:mt-8">
-				<GovernancePositionsTable />
-			</div>
+			<AppTitle title="Base Rate">
+				<div className="text-text-secondary">
+					This is the base rate that is applied when minting new Frankencoins and the rate at which savers continuously accrue
+					interest. Anyone with veto power can propose a change, which can be applied if there is no counter-proposal within seven
+					days.
+				</div>
+			</AppTitle>
 
-			<div className="md:mt-10">
-				<span className="font-bold text-xl">Base Rate</span>
-			</div>
+			<GovernanceLeadrateCurrent />
 
-			<div className="">
-				This is the base rate that is applied when minting new Frankencoins and the rate at which savers continuously accrue
-				interest. Anyone with veto power can propose a change, which can be applied if there is no counter-proposal within seven
-				days.
-			</div>
+			<GovernanceLeadrateTable />
 
-			<div className="md:mt-8">
-				<GovernanceLeadrateCurrent />
-			</div>
+			<AppTitle title="Minting Modules" />
 
-			<div className="md:mt-8">
-				<GovernanceLeadrateTable />
-			</div>
+			<GovernanceMintersTable />
 
-			<div className="md:mt-10">
-				<span className="font-bold text-xl">Minting Modules</span>
-			</div>
+			<AppTitle title="Frankencoin Pool Share Holders" />
 
-			<div className="md:mt-8">
-				<GovernanceMintersTable />
-			</div>
+			<GovernanceVotersTable />
 
-			<div className="md:mt-10">
-				<span className="font-bold text-xl">Frankencoin Pool Share Holders</span>
-			</div>
+			<AppTitle title="Frankencoin Api Bot" />
 
-			<div className="md:mt-8">
-				<GovernanceVotersTable />
-			</div>
-
-			<div className="md:mt-10">
-				<span className="font-bold text-xl">Frankencoin Api Bot</span>
-			</div>
-
-			<div className="md:mt-8">
-				<GovernanceTelegramBot />
-			</div>
+			<GovernanceTelegramBot />
 		</>
 	);
 }

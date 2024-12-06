@@ -19,22 +19,22 @@ export default function GovernanceTelegramBot() {
 						and updates within the Frankencoin ecosystem.
 					</div>
 
-					<div className="grid grid-cols-1 w-full my-4 ml-6">
+					<div className="grid grid-cols-1 w-full my-4 md:ml-6 max-md:ml-2">
 						<ul className="flex flex-col gap-4">
 							<li className="flex justify-left items-center">
-								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8" />
+								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-card-body-secondary" />
 								<span className="ml-5 text-center">New Minter Proposal and Vetoed</span>
 							</li>
 							<li className="flex justify-left items-center">
-								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8" />
-								<span className="ml-5 text-center">New Leadrate Proposal and Changed</span>
+								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-card-body-secondary" />
+								<span className="ml-5 text-center">New Leadrate Proposal</span>
 							</li>
 							<li className="flex justify-left items-center">
-								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8" />
+								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-card-body-secondary" />
 								<span className="ml-5 text-center">New Position Proposal</span>
 							</li>
 							<li className="flex justify-left items-center">
-								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8" />
+								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-card-body-secondary" />
 								<span className="ml-5 text-center">Challenge Started and Bid Taken</span>
 							</li>
 						</ul>
@@ -42,12 +42,12 @@ export default function GovernanceTelegramBot() {
 
 					<div>Users can subscribe to different types of updates using specific handles.</div>
 
-					<div className="grid grid-cols-1 w-full my-4 ml-6">
+					<div className="grid grid-cols-1 w-full my-4 md:ml-6 max-md:ml-2">
 						<ul className="flex flex-col gap-4">
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon
 									icon={faCircleCheck}
-									className="w-8 h-8 bg-layout-secondary rounded-full border-layout-secondary border-2"
+									className="w-8 h-8 bg-card-body-secondary rounded-full border-card-body-secondary border-2"
 									inverse
 								/>
 								<span className="ml-5 text-center">New Minting Updates</span>

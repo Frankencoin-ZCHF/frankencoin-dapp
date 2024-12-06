@@ -21,7 +21,10 @@ export default function Borrow() {
 			</div>
 
 			<div className="flex">
-				<Link href={"mint/create"} className="btn bg-layout-secondary text-layout-primary m-auto">
+				<Link
+					href={"mint/create"}
+					className="btn bg-layout-primary border-text-primary text-menu-text hover:bg-button-hover m-auto"
+				>
 					Propose New Position or Collateral
 				</Link>
 			</div>

@@ -76,19 +76,19 @@ export default function BorrowRow({ headers, position }: Props) {
 				</div>
 			</div>
 
-			<div className="flex flex-col gap-2 text-text-header">
+			<div className="flex flex-col gap-2">
 				<div className="col-span-2 text-md">{formatCurrency(effectiveLTV, 2, 2)}%</div>
 			</div>
 
-			<div className="flex flex-col gap-2 text-text-header">
+			<div className="flex flex-col gap-2">
 				<div className="col-span-2 text-md">{formatCurrency(effectiveInterest, 2, 2)}%</div>
 			</div>
 
-			<div className="flex flex-col gap-2 text-text-header">
+			<div className="flex flex-col gap-2">
 				<div className="col-span-2 text-md">{formatCurrency(available, 2, 2)} ZCHF</div>
 			</div>
 
-			<div className="flex flex-col gap-2 text-text-header">
+			<div className="flex flex-col gap-2">
 				<div className="col-span-2 text-md">{expirationString}</div>
 			</div>
 		</TableRow>

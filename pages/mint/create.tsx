@@ -18,6 +18,7 @@ import AddressInput from "@components/Input/AddressInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, MintingHubV2ABI } from "@frankencoin/zchf";
+import AppTitle from "@components/AppTitle";
 
 export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
@@ -306,14 +307,16 @@ export default function PositionCreate({}) {
 				<title>Frankencoin - Propose Position</title>
 			</Head>
 
-			<div className="mt-4">
-				ℹ️ The MintingHub V2 Module is deployed on mainnet and has been applied as a minter. You can track its governance proposal
-				status on the{" "}
-				<Link className="underline" href="/governance">
-					governance page
-				</Link>
-				. Once the governance process completes without a veto, this minting module will be ready for use!
-			</div>
+			<AppTitle title="Propose New Position">
+				<div className="text-text-secondary">
+					ℹ️ The MintingHub V2 Module is deployed on mainnet and has been applied as a minter. You can track its governance
+					proposal status on the{" "}
+					<Link className="underline" href="/governance">
+						governance page
+					</Link>
+					. Once the governance process completes without a veto, this minting module will be ready for use!
+				</div>
+			</AppTitle>
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">

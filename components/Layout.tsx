@@ -2,15 +2,12 @@ import Head from "next/head";
 import { ReactNode } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import { useIsMainnet } from "../hooks/useWalletConnectStats";
 
 type LayoutProps = {
 	children: NonNullable<ReactNode>;
 };
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-	const isMainnet = useIsMainnet();
-
 	return (
 		<div>
 			<Head>
