@@ -1,4 +1,4 @@
-import { Address } from "viem";
+import { Address, formatUnits } from "viem";
 import TableRow from "../Table/TableRow";
 import { PositionQuery, ChallengesQueryItem } from "@frankencoin/api";
 import { RootState } from "../../redux/redux.store";
@@ -41,6 +41,7 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 	const balanceZCHF: number = (balance * collTokenPrice) / zchfPrice;
 
 	const loanZCHF: number = parseInt(position.minted) / 10 ** position.zchfDecimals;
+	const loanAvailableV2: number = parseFloat(formatUnits(position.version == 2 ? BigInt(position.availableForMinting) : 0n, 18));
 
 	const liquidationZCHF: number = parseInt(position.price) / 10 ** (36 - position.collateralDecimals);
 	const liquidationPct: number = (balanceZCHF / (liquidationZCHF * balance)) * 100;
@@ -167,7 +168,9 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 			{/* Loan Value */}
 			<div className="flex flex-col">
 				<span className="text-md text-text-primary">{formatCurrency(loanZCHF, 2, 2)} ZCHF</span>
-				<span className="text-sm text-text-subheader">{formatCurrency(balance * liquidationZCHF - loanZCHF, 2, 2)} ZCHF</span>
+				<span className="text-sm text-text-subheader">
+					{formatCurrency(position.version == 2 ? loanAvailableV2 : balance * liquidationZCHF - loanZCHF, 2, 2)} ZCHF
+				</span>
 			</div>
 
 			{/* State */}

@@ -92,13 +92,17 @@ export default function PositionAdjust() {
 	const isCooldown: boolean = position.cooldown * 1000 - Date.now() > 0;
 
 	const maxMintableForCollateralAmount: bigint = BigInt(formatUnits(BigInt(position.price) * collateralAmount, 36 - 18).split(".")[0]);
-	const maxMintableInclClones: bigint = BigInt(position.availableForClones) + BigInt(position.minted);
-	const maxTotalLimit: bigint = bigIntMin(maxMintableForCollateralAmount, maxMintableInclClones);
+	let maxMintableInclClones: bigint = 0n;
 
-	// console.log({
-	// 	maxMintableForCollateralAmount,
-	// 	maxMintableInclClones,
-	// });
+	if (position.version == 1) {
+		maxMintableInclClones = BigInt(position.availableForClones) + BigInt(position.minted);
+	} else if (position.version == 2) {
+		maxMintableInclClones = BigInt(position.availableForMinting);
+	}
+
+	// @dev: deactivated limitation for collateral balance
+	// const maxTotalLimit: bigint = bigIntMin(maxMintableForCollateralAmount, maxMintableInclClones);
+	const maxTotalLimit: bigint = maxMintableInclClones;
 
 	const calcDirection = amount > BigInt(position.minted);
 	const feeDuration = BigInt(Math.floor(position.expiration * 1000 - Date.now())) / 1000n;
