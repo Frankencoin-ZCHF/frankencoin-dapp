@@ -79,7 +79,7 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 				<div className="flex items-center">
 					<div className="flex flex-col md:text-left max-md:text-right max-md:w-full">
 						{connectedWallet ? (
-							<AddressLabelSimple address={voter.holder} label="Connected wallet" showLink />
+							<AddressLabelSimple className="font-semibold" address={voter.holder} label="Connected wallet" showLink />
 						) : (
 							<AddressLabelSimple address={voter.holder} showLink />
 						)}
@@ -93,8 +93,12 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 					</div>
 				</div>
 
-				<div className="flex flex-col">{formatCurrency(formatUnits(voter.fps, 18))} FPS</div>
-				<div className={`flex flex-col`}>{formatCurrency(voter.votingPowerRatio * 100)}%</div>
+				<div className={`flex flex-col ${connectedWallet ? "font-semibold" : ""}`}>
+					{formatCurrency(formatUnits(voter.fps, 18))} FPS
+				</div>
+				<div className={`flex flex-col ${connectedWallet ? "font-semibold" : ""}`}>
+					{formatCurrency(voter.votingPowerRatio * 100)}%
+				</div>
 			</TableRow>
 
 			{connectedWallet && isDelegated && !isRevoked ? (

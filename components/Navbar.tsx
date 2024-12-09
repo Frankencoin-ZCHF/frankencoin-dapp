@@ -1,12 +1,10 @@
 import Link from "next/link";
 import WalletConnect from "./WalletConnect";
 import NavButton from "./NavButton";
-import { useIsMainnet } from "@hooks";
 import { CONFIG } from "../app.config";
 import { useState } from "react";
 
 export function NavItems() {
-	const isMainet = useIsMainnet();
 	return (
 		<>
 			<li>
@@ -38,8 +36,8 @@ export default function Navbar() {
 	const [isNavBarOpen, setIsNavBarOpen] = useState(false);
 
 	return (
-		<div className="fixed top-0 left-0 right-0 z-10 backdrop-blur border-b-2 border-menu-separator">
-			<header className="flex items-center py-2 md:py-4 px-4 md:gap-x-4 relative w-full">
+		<div className="fixed top-0 left-0 right-0 z-10 backdrop-blur border-b-2 border-menu-separator bg-menu-back">
+			<header className="flex items-center py-4 px-4 md:gap-x-4 relative w-full">
 				<Link className="" href={CONFIG.landing}>
 					<picture>
 						<img className="h-9 transition" src="/coin/zchf.png" alt="Logo" />
@@ -83,7 +81,7 @@ export default function Navbar() {
 									isNavBarOpen ? "translate-x-0" : "translate-x-full"
 								}`}
 							>
-								<div className="min-h-full w-full bg-layout-primary rounded-l-[2rem] backdrop-blur px-6 pt-12 shadow-xl relative">
+								<div className="min-h-full w-full bg-menu-back rounded-l-xl backdrop-blur px-[16px] pt-[20px] shadow-xl relative">
 									<button className="absolute top-4 right-4" onClick={() => setIsNavBarOpen(false)}>
 										<svg
 											xmlns="http://www.w3.org/2000/svg"
@@ -95,10 +93,7 @@ export default function Navbar() {
 											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
 										</svg>
 									</button>
-									<menu
-										className="grid grid-cols-1 gap-6 mt-12 place-content-stretch"
-										onClick={() => setIsNavBarOpen(false)}
-									>
+									<menu className="grid grid-cols-1 gap-2 mt-12" onClick={() => setIsNavBarOpen(false)}>
 										<NavItems />
 									</menu>
 								</div>
