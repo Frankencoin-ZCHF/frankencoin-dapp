@@ -4,12 +4,12 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { CONFIG, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
-import { renderErrorTxToast, TxToast } from "@components/TxToast";
+import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
 import { Address } from "viem";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { ADDRESS, FrankencoinABI } from "@frankencoin/zchf";
+import { ADDRESS, EquityABI, FrankencoinABI } from "@frankencoin/zchf";
 
 interface Props {
 	minter: MinterQuery;
@@ -66,7 +66,7 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToastDecode(error, EquityABI));
 		} finally {
 			setVetoing(false);
 		}
