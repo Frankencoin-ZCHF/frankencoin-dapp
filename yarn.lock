@@ -1094,14 +1094,14 @@
   dependencies:
     prop-types "^15.8.1"
 
-"@frankencoin/api@^0.2.4":
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/@frankencoin/api/-/api-0.2.4.tgz#48efe6cdcf2af4264bd0d52b831a4fe8d042bcb2"
-  integrity sha512-0m6KqXmk4nUZNhO7mm/RpIPNXg9mM8YYPUh95zr/yAAWrH0CKveah/GXFZTlw8G5HucHCZ74u7m6jGaHwaHaDA==
+"@frankencoin/api@^0.2.7":
+  version "0.2.7"
+  resolved "https://registry.yarnpkg.com/@frankencoin/api/-/api-0.2.7.tgz#dd459c5ef271adad582c4e5690d41ddf0bb67b1b"
+  integrity sha512-YgNW7OrTej9G0LG9xosyN7ZMRVm1yOad476aeLpE+73GnA+KHJxb0LL1FcfNMrTcCHZbFxkaKEXw5RH8ru95IA==
   dependencies:
     "@apollo/client" "^3.10.5"
     "@aws-sdk/client-s3" "^3.620.0"
-    "@frankencoin/zchf" "^0.2.15"
+    "@frankencoin/zchf" "^0.2.17"
     "@nestjs/common" "^10.0.0"
     "@nestjs/config" "^3.2.3"
     "@nestjs/core" "^10.0.0"
@@ -1118,14 +1118,6 @@
     reflect-metadata "^0.2.0"
     rxjs "^7.8.1"
     viem "^2.19.1"
-
-"@frankencoin/zchf@^0.2.15":
-  version "0.2.15"
-  resolved "https://registry.yarnpkg.com/@frankencoin/zchf/-/zchf-0.2.15.tgz#24a0fa4965ee214b45aa0f346e6c20803c517ed5"
-  integrity sha512-ISkn5dNfjaVGfQMBRtvVVEOc7zNgFhTkl3UewSFtxMKPDTR+aaTDnR7Ht4/qiRhG7I0C8lAUNAIRP9aEswDOIA==
-  dependencies:
-    ts-node "^10.9.1"
-    typescript "^5.2.2"
 
 "@frankencoin/zchf@^0.2.17":
   version "0.2.17"

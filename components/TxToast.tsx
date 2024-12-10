@@ -18,18 +18,24 @@ export const renderErrorToast = (error: string | string[]) => {
 export const renderErrorTxToast = (error: any) => {
 	return renderErrorTxStackToast(error, 2);
 };
-export const renderErrorTxToastDecode = (error: any, abi: Abi) => {
+export const renderErrorTxToastDecode = (error: any, abi: Abi, stackLimit: number = 10) => {
 	const errorLines: string[] = error.message.split("\n");
 	const errorSignature = errorLines[1];
 
 	if (typeof errorSignature == "string") {
 		if (errorSignature.slice(0, 2) == "0x") {
-			const customError = decodeErrorResult({
-				abi,
-				data: errorSignature as `0x${string}`,
-			});
+			try {
+				const customError = decodeErrorResult({
+					abi,
+					data: errorSignature as `0x${string}`,
+				});
 
-			return <TxToast title="Transaction Failed!" rows={[{ title: customError.errorName, value: customError.args?.join("\n") }]} />;
+				return (
+					<TxToast title="Transaction Failed!" rows={[{ title: customError.errorName, value: customError.args?.join("\n") }]} />
+				);
+			} catch (error) {
+				return renderErrorTxStackToast(error, stackLimit);
+			}
 		}
 	} else {
 		return renderErrorTxStackToast(error, 2);

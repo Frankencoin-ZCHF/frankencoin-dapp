@@ -1,21 +1,16 @@
-import { Address, formatUnits, zeroAddress } from "viem";
-import TableRow from "../Table/TableRow";
-import { formatCurrency, shortenAddress } from "../../utils/format";
-import { useDelegationQuery } from "@hooks";
-import { AddressLabelSimple } from "@components/AddressLabel";
+import { formatCurrency } from "../../utils/format";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import Button from "@components/Button";
 import NormalInput from "@components/Input/NormalInput";
 import AppCard from "@components/AppCard";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import AppBox from "@components/AppBox";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { CONFIG, WAGMI_CONFIG } from "../../app.config";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ADDRESS, SavingsABI } from "@frankencoin/zchf";
-import { renderErrorTxToast, TxToast } from "@components/TxToast";
+import { ADDRESS, EquityABI, SavingsABI } from "@frankencoin/zchf";
+import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 
 interface Props {}
@@ -83,7 +78,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToastDecode(error, EquityABI));
 		} finally {
 			setHandling(false);
 		}

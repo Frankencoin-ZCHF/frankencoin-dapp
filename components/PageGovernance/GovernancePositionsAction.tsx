@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { CONFIG, WAGMI_CONFIG } from "../../app.config";
+import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
-import { renderErrorToast, renderErrorTxToast, TxToast } from "@components/TxToast";
+import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
-import { Address, zeroAddress } from "viem";
+import { Address } from "viem";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { PositionQuery } from "@frankencoin/api";
-import { PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
+import { EquityABI, PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
 
 interface Props {
 	position: PositionQuery;
@@ -64,7 +64,7 @@ export default function GovernancePositionsAction({ position, disabled }: Props)
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToastDecode(error, EquityABI));
 		} finally {
 			setDenying(false);
 		}
