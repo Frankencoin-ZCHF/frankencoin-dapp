@@ -258,7 +258,7 @@ export default function PositionCreate({}) {
 					minCollAmount,
 					initialCollAmount,
 					limitAmount,
-					parseInt(initPeriod.toString()),
+					parseInt(initPeriod.toString()) * 24 * 60 * 60,
 					parseInt(maturity.toString()) * 86400 * 30,
 					parseInt(auctionDuration.toString()) * 60 * 60,
 					Number(interest),
