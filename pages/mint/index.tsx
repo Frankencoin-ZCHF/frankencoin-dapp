@@ -4,6 +4,7 @@ import BorrowTable from "@components/PageBorrow/BorrowTable";
 import { useEffect } from "react";
 import { store } from "../../redux/redux.store";
 import { fetchPositionsList } from "../../redux/slices/positions.slice";
+import AppTitle from "@components/AppTitle";
 
 export default function Borrow() {
 	useEffect(() => {
@@ -15,6 +16,13 @@ export default function Borrow() {
 			<Head>
 				<title>Frankencoin - Borrow</title>
 			</Head>
+
+			<AppTitle title="New Minting Module">
+				<div className="text-text-secondary">
+					⚠️ New modules with more user-friendly borrowing are planned to be released in early December. We recommend to wait for
+					these updates before opening new positions. By that time, WBTC should also be available again as collate
+				</div>
+			</AppTitle>
 
 			<div className="mt-8">
 				<BorrowTable />
