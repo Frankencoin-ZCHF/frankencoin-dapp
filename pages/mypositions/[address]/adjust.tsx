@@ -1,14 +1,14 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { formatUnits, maxUint256, erc20Abi, Address, parseUnits } from "viem";
+import { formatUnits, maxUint256, erc20Abi, Address, parseEther } from "viem";
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
-import { abs, bigIntMax, bigIntMin, formatBigInt, formatCurrency, shortenAddress } from "@utils";
+import { abs, formatBigInt, formatCurrency, shortenAddress } from "@utils";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
-import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
+import { TxToast, renderErrorTxToast, renderErrorTxToastDecode } from "@components/TxToast";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
@@ -91,16 +91,16 @@ export default function PositionAdjust() {
 
 	const isCooldown: boolean = position.cooldown * 1000 - Date.now() > 0;
 
-	const maxMintableForCollateralAmount: bigint = BigInt(formatUnits(BigInt(position.price) * collateralAmount, 36 - 18).split(".")[0]);
 	let maxMintableInclClones: bigint = 0n;
 
 	if (position.version == 1) {
 		maxMintableInclClones = BigInt(position.availableForClones) + BigInt(position.minted);
 	} else if (position.version == 2) {
-		maxMintableInclClones = BigInt(position.availableForMinting);
+		maxMintableInclClones = BigInt(position.availableForMinting) + BigInt(position.minted);
 	}
 
 	// @dev: deactivated limitation for collateral balance
+	//const maxMintableForCollateralAmount: bigint = BigInt(formatUnits(BigInt(position.price) * collateralAmount, 36 - 18).split(".")[0]);
 	// const maxTotalLimit: bigint = bigIntMin(maxMintableForCollateralAmount, maxMintableInclClones);
 	const maxTotalLimit: bigint = maxMintableInclClones;
 
@@ -137,15 +137,25 @@ export default function PositionAdjust() {
 
 	const onChangeAmount = (value: string) => {
 		setAmount(BigInt(value));
+		if (liqPrice > 0n && liqPrice <= BigInt(position.price)) {
+			setCollateralAmount((BigInt(value) * parseEther("1")) / liqPrice);
+		} else if (liqPrice > BigInt(position.price)) {
+			setCollateralAmount((BigInt(value) * parseEther("1")) / BigInt(position.price));
+		}
 	};
 
 	const onChangeCollAmount = (value: string) => {
 		setCollateralAmount(BigInt(value));
+		if (liqPrice > 0n && liqPrice > BigInt(position.price)) {
+			setAmount((BigInt(value) * BigInt(position.price)) / parseEther("1"));
+		}
 	};
 
 	function getCollateralError() {
 		if (collateralAmount - BigInt(position.collateralBalance) > userCollBalance) {
 			return `Insufficient ${position.collateralSymbol} in your wallet.`;
+		} else if (liqPrice > BigInt(position.price) && BigInt(position.price) * collateralAmount < amount * parseEther("1")) {
+			return "This position is limited to the old price, add some collateral.";
 		} else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
 			return "Not enough collateral for the given price and mint amount.";
 		}
@@ -160,7 +170,9 @@ export default function PositionAdjust() {
 			return "Insufficient ZCHF in wallet";
 		} else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
 			return `Can mint at most ${formatUnits((collateralAmount * liqPrice) / 10n ** 36n, 0)} ZCHF given price and collateral.`;
-		} else if (BigInt(position.price) * collateralAmount < amount * 10n ** 18n) {
+		} else if (liqPrice > BigInt(position.price) && BigInt(position.price) * collateralAmount < amount * parseEther("1")) {
+			return "This position is limited to the old price, decrease the mint.";
+		} else if (BigInt(position.price) * collateralAmount < BigInt(position.minted)) {
 			return "Amount can only be increased after new price has gone through cooldown.";
 		} else {
 			return "";
@@ -169,7 +181,14 @@ export default function PositionAdjust() {
 
 	const onChangeLiqAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
+		const isHigher = valueBigInt > BigInt(position.price);
 		setLiqPrice(valueBigInt);
+		if (valueBigInt > 0n && !isHigher) {
+			setCollateralAmount((amount * parseEther("1")) / valueBigInt);
+		} else if (isHigher) {
+			setAmount(BigInt(position.minted));
+			setCollateralAmount(BigInt(position.collateralBalance));
+		}
 	};
 
 	const handleApprove = async () => {
@@ -216,9 +235,10 @@ export default function PositionAdjust() {
 	const handleAdjust = async () => {
 		try {
 			setAdjusting(true);
+
 			const adjustWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: position.position,
-				abi: PositionV1ABI,
+				abi: position.version == 2 ? PositionV2ABI : PositionV1ABI,
 				functionName: "adjust",
 				args: [amount, collateralAmount, liqPrice],
 			});
@@ -251,7 +271,7 @@ export default function PositionAdjust() {
 				},
 			});
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToastDecode(error, position.version == 2 ? PositionV2ABI : PositionV1ABI, 2));
 		} finally {
 			setAdjusting(false);
 		}
