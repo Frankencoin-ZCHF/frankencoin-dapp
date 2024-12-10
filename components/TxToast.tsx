@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { shortenHash, transactionLink } from "@utils";
-import { Hash } from "viem";
+import { Abi, decodeErrorResult, Hash } from "viem";
 import { WAGMI_CHAIN } from "../app.config";
 
 export const renderErrorToast = (error: string | string[]) => {
@@ -16,8 +16,26 @@ export const renderErrorToast = (error: string | string[]) => {
 };
 
 export const renderErrorTxToast = (error: any) => {
-	const errorLines: string[] = error.message.split("\n");
 	return renderErrorTxStackToast(error, 2);
+};
+export const renderErrorTxToastDecode = (error: any, abi: Abi, stackLimit: number = 2) => {
+	const errorLines: string[] = error.message.split("\n");
+	const errorSignature = errorLines[1];
+
+	if (typeof errorSignature == "string" && errorSignature.slice(0, 2) == "0x") {
+		try {
+			const customError = decodeErrorResult({
+				abi,
+				data: errorSignature as `0x${string}`,
+			});
+
+			return <TxToast title="Transaction Failed!" rows={[{ title: customError.errorName, value: customError.args?.join("\n") }]} />;
+		} catch (error) {
+			return renderErrorTxStackToast(error, stackLimit);
+		}
+	} else {
+		return renderErrorTxStackToast(error, stackLimit);
+	}
 };
 export const renderErrorTxStackToast = (error: any, limit: number) => {
 	const errorLines: string[] = error.message.split("\n");

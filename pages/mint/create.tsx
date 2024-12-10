@@ -258,7 +258,7 @@ export default function PositionCreate({}) {
 					minCollAmount,
 					initialCollAmount,
 					limitAmount,
-					parseInt(initPeriod.toString()) * 24 * 60 * 60,
+					parseInt(initPeriod.toString()),
 					parseInt(maturity.toString()) * 86400 * 30,
 					parseInt(auctionDuration.toString()) * 60 * 60,
 					Number(interest),
@@ -309,12 +309,11 @@ export default function PositionCreate({}) {
 
 			<AppTitle title="Propose New Position">
 				<div className="text-text-secondary">
-					ℹ️ The MintingHub V2 Module is deployed on mainnet and has been applied as a minter. You can track its governance
-					proposal status on the{" "}
+					ℹ️ This module has been deployed on 2024-11-27 and is going through a 14 days the{" "}
 					<Link className="underline" href="/governance">
-						governance page
+						approval process
 					</Link>
-					. Once the governance process completes without a veto, this minting module will be ready for use!
+					. Once the 14 days have passed without anyone casting a veto, the minting module will be ready for use.
 				</div>
 			</AppTitle>
 

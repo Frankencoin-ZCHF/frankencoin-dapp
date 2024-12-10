@@ -382,21 +382,26 @@ export default function PositionBorrow({}) {
 									<div className="">{formatCurrency(effectiveLTV * 100)}%</div>
 								</div>
 
-								{ position.position != position.original &&
+								{position.isClone && (
 									<div className="mt-2 flex">
 										<div className="flex-1">Parent Position</div>
-										<Link className="underline" href={`/monitoring/${position.position}`}>
-											{shortenAddress(position.position)}
+										<Link
+											className="underline"
+											href={`/monitoring/${position.version == 2 ? position.parent : position.original}`}
+										>
+											{shortenAddress(position.version == 2 ? position.parent : position.original)}
 										</Link>
 									</div>
-								}
+								)}
 
-								<div className="mt-2 flex">
-									<div className="flex-1">Original Position</div>
-									<Link className="underline" href={`/monitoring/${position.original}`}>
-										{shortenAddress(position.original)}
-									</Link>
-								</div>
+								{position.version == 2 && (
+									<div className="mt-2 flex">
+										<div className="flex-1">Original Position</div>
+										<Link className="underline" href={`/monitoring/${position.original}`}>
+											{shortenAddress(position.original)}
+										</Link>
+									</div>
+								)}
 
 								<p className="mt-4">
 									While the maturity is fixed, you can adjust the liquidation price and the collateral amount later as

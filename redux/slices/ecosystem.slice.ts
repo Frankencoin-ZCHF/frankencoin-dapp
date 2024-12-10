@@ -27,7 +27,7 @@ export const initialState: EcosystemState = {
 	collateralPositions: {},
 	collateralStats: { num: 0, addresses: [], totalValueLocked: { usd: 0, chf: 0 }, map: {} },
 	fpsInfo: {
-		raw: { price: "0", totalSupply: "0" },
+		reserve: { balance: 0, equity: 0, minter: 0 },
 		values: { fpsMarketCapInChf: 0, price: 0, totalSupply: 0 },
 		earnings: { profit: 0, loss: 0 },
 	},

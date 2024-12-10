@@ -5,7 +5,7 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { ChallengesQueryItem, PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
+import { ChallengesQueryItem, PositionQuery, PositionQueryV2, PriceQueryObjectArray } from "@frankencoin/api";
 import { Address, formatUnits } from "viem";
 import { useState } from "react";
 import { POSITION_NOT_BLACKLISTED } from "../../app.config";
@@ -20,12 +20,14 @@ export default function BorrowTable() {
 	const openPositions: PositionQuery[] = openPositionsByCollateral.flat(1);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 
-	const matchingPositions: PositionQuery[] = openPositions.filter((position) => {
+	const posV2: PositionQueryV2[] = openPositions.filter((p) => p.version == 2);
+	const matchingPositions: PositionQueryV2[] = posV2.filter((position) => {
 		const pid: Address = position.position.toLowerCase() as Address;
 		const considerBlackList: boolean = POSITION_NOT_BLACKLISTED(pid);
 		const considerOpen: boolean = !position.closed && !position.denied;
 		const considerProposed: boolean = position.start * 1000 < Date.now();
-		const considerAvailableForClones: boolean = BigInt(position.availableForClones) > 0n;
+		const considerAvailableForClones: boolean =
+			BigInt(position.isOriginal ? position.availableForClones : position.availableForMinting) > 0n;
 		const considerCollateralBalance: boolean = BigInt(position.collateralBalance) > 0n;
 
 		const challengesPosition = challengesPosMap[pid] || [];
@@ -44,7 +46,7 @@ export default function BorrowTable() {
 		return !verifyable.includes(false);
 	});
 
-	const sorted: PositionQuery[] = sortPositions(matchingPositions, coingecko, headers, tab, reverse);
+	const sorted: PositionQueryV2[] = sortPositions(matchingPositions, coingecko, headers, tab, reverse);
 
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
@@ -70,19 +72,19 @@ export default function BorrowTable() {
 }
 
 function sortPositions(
-	list: PositionQuery[],
+	list: PositionQueryV2[],
 	prices: PriceQueryObjectArray,
 	headers: string[],
 	tab: string,
 	reverse: boolean
-): PositionQuery[] {
+): PositionQueryV2[] {
 	if (tab === headers[0]) {
 		// sort for Collateral
 		list.sort((a, b) => a.collateralSymbol.localeCompare(b.collateralName)); // default: increase
 	} else if (tab === headers[1]) {
 		// sort for LTV, LTV = liquidation price * (1 - reserve) / market price
 		list.sort((a, b) => {
-			const calc = function (p: PositionQuery) {
+			const calc = function (p: PositionQueryV2) {
 				const liqPrice: number = parseFloat(formatUnits(BigInt(p.price), 36 - p.collateralDecimals));
 				const reserve: number = p.reserveContribution / 1000000;
 				const price: number = prices[p.collateral.toLowerCase() as Address].price.chf || 1;
@@ -93,7 +95,7 @@ function sortPositions(
 	} else if (tab === headers[2]) {
 		// sort for Interest, effI = interest / (1 - reserve)
 		list.sort((a, b) => {
-			const calc = function (p: PositionQuery) {
+			const calc = function (p: PositionQueryV2) {
 				const r: number = p.reserveContribution / 1000000;
 				const i: number = p.annualInterestPPM / 1000000;
 				return (i / (1 - r)) * 1000000;
@@ -102,7 +104,11 @@ function sortPositions(
 		});
 	} else if (tab === headers[3]) {
 		// sort for Available
-		list.sort((a, b) => parseInt(b.availableForClones) - parseInt(a.availableForClones)); // default: decrease
+		list.sort(
+			(a, b) =>
+				parseInt(b.isOriginal ? b.availableForClones : b.availableForMinting) -
+				parseInt(a.isOriginal ? a.availableForClones : a.availableForMinting)
+		); // default: decrease
 	} else if (tab === headers[4]) {
 		// sort for Maturity
 		list.sort((a, b) => b.expiration - a.expiration); // default: decrease
