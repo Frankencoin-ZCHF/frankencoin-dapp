@@ -107,7 +107,7 @@ function sortPositions(
 		list.sort(
 			(a, b) =>
 				parseInt(b.isOriginal ? b.availableForClones : b.availableForMinting) -
-				parseInt(a.isOriginal ? a.availableForClones : b.availableForMinting)
+				parseInt(a.isOriginal ? a.availableForClones : a.availableForMinting)
 		); // default: decrease
 	} else if (tab === headers[4]) {
 		// sort for Maturity

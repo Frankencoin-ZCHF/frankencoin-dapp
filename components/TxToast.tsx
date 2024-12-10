@@ -18,27 +18,23 @@ export const renderErrorToast = (error: string | string[]) => {
 export const renderErrorTxToast = (error: any) => {
 	return renderErrorTxStackToast(error, 2);
 };
-export const renderErrorTxToastDecode = (error: any, abi: Abi, stackLimit: number = 10) => {
+export const renderErrorTxToastDecode = (error: any, abi: Abi, stackLimit: number = 2) => {
 	const errorLines: string[] = error.message.split("\n");
 	const errorSignature = errorLines[1];
 
-	if (typeof errorSignature == "string") {
-		if (errorSignature.slice(0, 2) == "0x") {
-			try {
-				const customError = decodeErrorResult({
-					abi,
-					data: errorSignature as `0x${string}`,
-				});
+	if (typeof errorSignature == "string" && errorSignature.slice(0, 2) == "0x") {
+		try {
+			const customError = decodeErrorResult({
+				abi,
+				data: errorSignature as `0x${string}`,
+			});
 
-				return (
-					<TxToast title="Transaction Failed!" rows={[{ title: customError.errorName, value: customError.args?.join("\n") }]} />
-				);
-			} catch (error) {
-				return renderErrorTxStackToast(error, stackLimit);
-			}
+			return <TxToast title="Transaction Failed!" rows={[{ title: customError.errorName, value: customError.args?.join("\n") }]} />;
+		} catch (error) {
+			return renderErrorTxStackToast(error, stackLimit);
 		}
 	} else {
-		return renderErrorTxStackToast(error, 2);
+		return renderErrorTxStackToast(error, stackLimit);
 	}
 };
 export const renderErrorTxStackToast = (error: any, limit: number) => {
