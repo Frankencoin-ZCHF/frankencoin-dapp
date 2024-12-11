@@ -9,6 +9,7 @@ interface Props {
 	classNameMobile?: string;
 	headers?: string[];
 	subHeaders?: string[];
+	tab: string;
 }
 
 export default function TableRow({
@@ -18,6 +19,7 @@ export default function TableRow({
 	link,
 	headers = [],
 	subHeaders = [],
+	tab = "",
 	className,
 	classNameMobile = "",
 }: Props) {
@@ -34,7 +36,7 @@ export default function TableRow({
 				</div>
 
 				{/* @dev: this is mobile view */}
-				<TableRowMobile headers={headers} subHeaders={subHeaders} className={classNameMobile}>
+				<TableRowMobile headers={headers} subHeaders={subHeaders} tab={tab} className={classNameMobile}>
 					{children}
 				</TableRowMobile>
 
@@ -49,10 +51,11 @@ interface TableRowMobileProps {
 	children: React.ReactElement[];
 	headers: string[];
 	subHeaders: string[];
+	tab: string;
 	className: string;
 }
 
-function TableRowMobile({ children, headers, subHeaders, className }: TableRowMobileProps) {
+function TableRowMobile({ children, headers, subHeaders, tab, className }: TableRowMobileProps) {
 	if (headers.length === 0) {
 		return <div className={`${className} md:hidden justify-items-center text-center gap-6 grid flex-grow grid-cols-1`}>{children}</div>;
 	} else {
@@ -64,15 +67,27 @@ function TableRowMobile({ children, headers, subHeaders, className }: TableRowMo
 							{idx === 0 ? (
 								c
 							) : subHeaders.length === 0 ? (
-								headers[idx]
+								<div
+									className={`text-md ${headers[idx] == tab ? "text-text-primary font-semibold" : "text-text-subheader"}`}
+								>
+									{headers[idx]}
+								</div>
 							) : (
 								<div>
-									<div>{headers[idx]}</div>
+									<div
+										className={`text-md ${
+											headers[idx] == tab ? "text-md text-text-primary font-semibold" : "text-text-subheader"
+										}`}
+									>
+										{headers[idx]}
+									</div>
 									<div className="text-sm text-text-subheader">{subHeaders[idx]}</div>
 								</div>
 							)}
 						</div>
-						<div className="text-right">{idx === 0 ? "" : c}</div>
+						<div className={`text-right ${headers[idx] == tab ? "text-text-primary font-semibold" : "text-text-subheader"}`}>
+							{idx === 0 ? "" : c}
+						</div>
 					</div>
 				))}
 			</div>

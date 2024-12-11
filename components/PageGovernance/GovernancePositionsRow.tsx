@@ -12,11 +12,12 @@ import AppBox from "@components/AppBox";
 interface Props {
 	headers: string[];
 	subHeaders: string[];
+	tab: string;
 	position: PositionQuery;
 	prices: PriceQueryObjectArray;
 }
 
-export default function GovernancePositionsRow({ headers, subHeaders, position, prices }: Props) {
+export default function GovernancePositionsRow({ headers, subHeaders, tab, position, prices }: Props) {
 	const price = prices[position.collateral.toLowerCase() as Address];
 	if (!position || !price) return null;
 
@@ -28,6 +29,7 @@ export default function GovernancePositionsRow({ headers, subHeaders, position, 
 		<TableRow
 			headers={headers}
 			subHeaders={subHeaders}
+			tab={tab}
 			actionCol={
 				<div className="">
 					<GovernancePositionsAction key={position.position} position={position} />
@@ -67,17 +69,19 @@ export default function GovernancePositionsRow({ headers, subHeaders, position, 
 				<span className="">
 					{formatCurrency(limit)} <span className="">ZCHF</span>
 				</span>
-				<div className="text-sm text-text-subheader">{formatCurrency(position.reserveContribution / 10_000, 0, 0, 0)}%</div>
+				<div className="text-sm text-text-subheader font-normal">
+					{formatCurrency(position.reserveContribution / 10_000, 0, 0, 0)}%
+				</div>
 			</div>
 
 			<div className="flex flex-col">
 				<div className="">{formatCurrency(position.annualInterestPPM / 10_000)}%</div>
-				<span className="text-sm text-text-subheader">{formatCurrency(maturity, 1, 1, FormatType.us)} months</span>
+				<span className="text-sm text-text-subheader font-normal">{formatCurrency(maturity, 1, 1, FormatType.us)} months</span>
 			</div>
 
 			<div className="flex flex-col">
 				<span className={` ${denyUntil < 10 ? "text-red-500" : ""}`}>{Math.round(denyUntil)} hours</span>
-				<span className="text-sm text-text-subheader">
+				<span className="text-sm text-text-subheader font-normal">
 					{formatCurrency(position.challengePeriod / 60 / 60, 1, 1, FormatType.us)} hours
 				</span>
 			</div>

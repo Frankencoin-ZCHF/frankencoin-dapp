@@ -12,10 +12,11 @@ import AppBox from "@components/AppBox";
 
 interface Props {
 	headers: string[];
+	tab: string;
 	position: PositionQuery;
 }
 
-export default function MonitoringRow({ headers, position }: Props) {
+export default function MonitoringRow({ headers, tab, position }: Props) {
 	const navigate = useNavigation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
@@ -52,6 +53,7 @@ export default function MonitoringRow({ headers, position }: Props) {
 	return (
 		<TableRow
 			headers={headers}
+			tab={tab}
 			actionCol={
 				<Button
 					className="h-10"

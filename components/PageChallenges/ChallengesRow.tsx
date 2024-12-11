@@ -12,10 +12,11 @@ import AppBox from "@components/AppBox";
 
 interface Props {
 	headers: string[];
+	tab: string;
 	challenge: ChallengesQueryItem;
 }
 
-export default function ChallengesRow({ headers, challenge }: Props) {
+export default function ChallengesRow({ headers, tab, challenge }: Props) {
 	const navigate = useNavigation();
 
 	const positions = useSelector((state: RootState) => state.positions.mapping);
@@ -75,6 +76,7 @@ export default function ChallengesRow({ headers, challenge }: Props) {
 	return (
 		<TableRow
 			headers={headers}
+			tab={tab}
 			actionCol={
 				<Button className="h-10" onClick={() => navigate.push(`/challenges/${challenge.id}/bid`)}>
 					Buy

@@ -15,12 +15,13 @@ import { renderErrorTxToast, TxToast } from "@components/TxToast";
 
 interface Props {
 	headers: string[];
+	tab: string;
 	info: ApiLeadrateInfo;
 	proposal: LeadrateProposed;
 	currentProposal: boolean;
 }
 
-export default function GovernanceLeadrateRow({ headers, info, proposal, currentProposal }: Props) {
+export default function GovernanceLeadrateRow({ headers, tab, info, proposal, currentProposal }: Props) {
 	const [isDenying, setDenying] = useState<boolean>(false);
 	const [isApplying, setApplying] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
@@ -129,6 +130,7 @@ export default function GovernanceLeadrateRow({ headers, info, proposal, current
 		<>
 			<TableRow
 				headers={headers}
+				tab={tab}
 				actionCol={
 					currentProposal ? (
 						info.isPending && info.isProposal ? (

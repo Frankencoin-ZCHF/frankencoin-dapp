@@ -40,6 +40,7 @@ export default function GovernanceLeadrateTable() {
 					sorted.map((p, idx) => (
 						<GovernanceLeadrateRow
 							headers={headers}
+							tab={tab}
 							key={p.id}
 							info={info}
 							proposal={p}

@@ -34,7 +34,7 @@ export default function GovernanceLeadrateTable() {
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"There are no savings yet."}</TableRowEmpty>
 				) : (
-					sorted.map((r, idx) => <SavingsSavedRow headers={headers} key={r.id} item={r} />)
+					sorted.map((r, idx) => <SavingsSavedRow headers={headers} tab={tab} key={r.id} item={r} />)
 				)}
 			</TableBody>
 		</Table>
