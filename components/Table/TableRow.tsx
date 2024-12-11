@@ -24,8 +24,8 @@ export default function TableRow({
 	return (
 		<div
 			className={`${
-				className ?? "bg-table-row-primary hover:bg-table-row-hover"
-			} cursor-default px-8  xl:px-12 py-4 first:border-t-0 sm:first:border-t border-t border-table-row-hover first:rounded-t-xl sm:first:rounded-t-none last:rounded-b-xl duration-300`}
+				className ?? "bg-table-row-primary md:hover:bg-table-row-hover"
+			} cursor-default px-8  xl:px-12 py-4 border-t border-table-row-hover last:rounded-b-xl duration-300`}
 		>
 			<div className="flex sm:pl-8 flex-col justify-between gap-y-5 md:flex-row">
 				{/* @dev: this is desktop view */}
