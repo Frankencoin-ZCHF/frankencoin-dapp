@@ -18,10 +18,6 @@ export default function Borrow() {
 			</Head>
 
 			<AppTitle title="New Minting Module">
-				<div className="text-text-secondary">
-					⚠️ New modules with more user-friendly borrowing are planned to be released in early December. We recommend to wait for
-					these updates before opening new positions. By that time, WBTC should also be available again as collateral.
-				</div>
 			</AppTitle>
 
 			<div className="mt-8">

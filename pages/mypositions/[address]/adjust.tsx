@@ -16,6 +16,7 @@ import { RootState } from "../../../redux/redux.store";
 import { PositionQuery } from "@frankencoin/api";
 import { ADDRESS, PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
 import AppTitle from "@components/AppTitle";
+import Link from "next/link";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -283,7 +284,11 @@ export default function PositionAdjust() {
 				<title>Frankencoin - Manage Position</title>
 			</Head>
 
-			<AppTitle title={`Manage Position at ${shortenAddress(position.position)}`} />
+			<AppTitle title={`Manage Position `}>
+			<Link className="underline" href={`/monitoring/${position.position}`}>
+				(overview)
+			</Link>
+			</AppTitle>
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">

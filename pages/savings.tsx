@@ -25,13 +25,6 @@ export default function SavingsPage() {
 			</Head>
 
 			<AppTitle title="Savings">
-				<div className="text-text-secondary">
-					ℹ️ This module has been deployed on 2024-11-27 and is going through a 14 days the{" "}
-					<Link className="underline" href="/governance">
-						approval process
-					</Link>
-					. Once the 14 days have passed without anyone casting a veto, the savings module will be ready for use.
-				</div>
 			</AppTitle>
 
 			<SavingsGlobalCard />

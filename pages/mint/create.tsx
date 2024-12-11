@@ -307,16 +307,6 @@ export default function PositionCreate({}) {
 				<title>Frankencoin - Propose Position</title>
 			</Head>
 
-			<AppTitle title="Propose New Position">
-				<div className="text-text-secondary">
-					ℹ️ This module has been deployed on 2024-11-27 and is going through a 14 days the{" "}
-					<Link className="underline" href="/governance">
-						approval process
-					</Link>
-					. Once the 14 days have passed without anyone casting a veto, the minting module will be ready for use.
-				</div>
-			</AppTitle>
-
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
