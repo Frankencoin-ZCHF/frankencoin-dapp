@@ -96,19 +96,17 @@ export default function MyPositionsChallengesRow({ headers, tab, challenge }: Pr
 
 			{/* Current Price */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-primary">
-					{formatCurrency(formatUnits(challengePrice, 36 - position.collateralDecimals), 2, 2)} ZCHF
-				</div>
+				<div className="text-md">{formatCurrency(formatUnits(challengePrice, 36 - position.collateralDecimals), 2, 2)} ZCHF</div>
 			</div>
 
 			{/* State */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-primary">{states[stateIdx]}</div>
+				<div className="text-md">{states[stateIdx]}</div>
 			</div>
 
 			{/* Time Left */}
 			<div className="flex flex-col">
-				<div className={`text-md text-text-primary`}>{stateTimeLeft}</div>
+				<div className={`text-md`}>{stateTimeLeft}</div>
 			</div>
 		</TableRow>
 	);

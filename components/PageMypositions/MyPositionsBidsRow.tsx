@@ -75,19 +75,17 @@ export default function MyPositionsBidsRow({ headers, tab, bid }: Props) {
 
 			{/* Price */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-primary">
-					{formatCurrency(formatUnits(bid.price, 36 - position.collateralDecimals), 2, 2)} ZCHF
-				</div>
+				<div className="text-md">{formatCurrency(formatUnits(bid.price, 36 - position.collateralDecimals), 2, 2)} ZCHF</div>
 			</div>
 
 			{/* Bid */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-primary">{`${formatCurrency(formatUnits(bid.bid, 18), 2, 2)} ZCHF`}</div>
+				<div className="text-md">{`${formatCurrency(formatUnits(bid.bid, 18), 2, 2)} ZCHF`}</div>
 			</div>
 
 			{/* State */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-primary">{bid.bidType}</div>
+				<div className="text-md">{bid.bidType}</div>
 			</div>
 		</TableRow>
 	);
