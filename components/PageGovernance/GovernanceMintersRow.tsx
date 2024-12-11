@@ -17,7 +17,7 @@ export default function GovernanceMintersRow({ headers, tab, minter }: Props) {
 
 	const vetoUntil = (minter.applyDate + minter.applicationPeriod) * 1000;
 	const hoursUntil: number = (vetoUntil - Date.now()) / 1000 / 60 / 60;
-	const stateStr: string = `${Math.round(hoursUntil)} hours left`;
+	const stateStr: string = hoursUntil < 1.5 ? `${Math.round(hoursUntil * 60)} minutes left` : `${Math.round(hoursUntil)} hours left`;
 
 	const passed: boolean = hoursUntil < 0;
 	const vetoed: boolean = minter.vetor ? true : false;
