@@ -17,7 +17,8 @@ export default function Borrow() {
 				<title>Frankencoin - Borrow</title>
 			</Head>
 
-			<AppTitle title="New Minting Module">
+			<AppTitle title="Mint fresh Frankencoins">
+				<div>New collateral types are currently undergoing the governance process and will be available soon.</div>
 			</AppTitle>
 
 			<div className="mt-8">
