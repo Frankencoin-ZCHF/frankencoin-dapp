@@ -14,7 +14,7 @@ export default function GovernanceTelegramBot() {
 		<AppCard>
 			<div className="grid max-md:grid-cols-1 md:grid-cols-2">
 				<div className="flex flex-col gap-4 p-2 md:px-4 justify-center items-left">
-					<div>
+					<div className="text-text-secondary">
 						The Frankencoin API Bot is a Telegram communication tool designed to keep users informed about various activities
 						and updates within the Frankencoin ecosystem.
 					</div>
@@ -40,7 +40,7 @@ export default function GovernanceTelegramBot() {
 						</ul>
 					</div>
 
-					<div>Users can subscribe to different types of updates using specific handles.</div>
+					<div className="text-text-secondary">Users can subscribe to different types of updates using specific handles.</div>
 
 					<div className="grid grid-cols-1 w-full my-4 md:ml-6 max-md:ml-2">
 						<ul className="flex flex-col gap-4">
