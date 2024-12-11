@@ -13,12 +13,13 @@ import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 
 interface Props {
 	headers: string[];
+	tab: string;
 	voter: VoteData;
 	votesTotal: bigint;
 	connectedWallet?: boolean;
 }
 
-export default function GovernanceVotersRow({ headers, voter, votesTotal, connectedWallet }: Props) {
+export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, connectedWallet }: Props) {
 	const [isDelegateeVotes, setDelegateeVotes] = useState<VoteData | undefined>(undefined);
 	const delegationData = useDelegationQuery();
 	const account = useAccount();
@@ -62,6 +63,7 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 			<TableRow
 				className={connectedWallet ? "bg-card-content-primary" : undefined}
 				headers={headers}
+				tab={tab}
 				actionCol={
 					connectedWallet ? (
 						<></>
@@ -104,6 +106,7 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 			{connectedWallet && isDelegated && !isRevoked ? (
 				<TableRow
 					className="bg-card-content-primary"
+					tab={tab}
 					actionCol={
 						<GovernanceVotersAction
 							key={voter.holder}

@@ -12,10 +12,11 @@ import AppBox from "@components/AppBox";
 
 interface Props {
 	headers: string[];
+	tab: string;
 	challenge: ChallengesQueryItem;
 }
 
-export default function ChallengesRow({ headers, challenge }: Props) {
+export default function ChallengesRow({ headers, tab, challenge }: Props) {
 	const navigate = useNavigation();
 
 	const positions = useSelector((state: RootState) => state.positions.mapping);
@@ -75,6 +76,7 @@ export default function ChallengesRow({ headers, challenge }: Props) {
 	return (
 		<TableRow
 			headers={headers}
+			tab={tab}
 			actionCol={
 				<Button className="h-10" onClick={() => navigate.push(`/challenges/${challenge.id}/bid`)}>
 					Buy
@@ -106,19 +108,17 @@ export default function ChallengesRow({ headers, challenge }: Props) {
 
 			{/* Current Price */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-primary">
-					{challengePriceSearch ? formatCurrency(challengePrice, 2, 2) : "(pending)"} ZCHF
-				</div>
+				<div className="text-md">{challengePriceSearch ? formatCurrency(challengePrice, 2, 2) : "(pending)"} ZCHF</div>
 			</div>
 
 			{/* State */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-primary">{states[stateIdx]}</div>
+				<div className="text-md">{states[stateIdx]}</div>
 			</div>
 
 			{/* Time Left */}
 			<div className="flex flex-col">
-				<div className={`text-md text-text-primary`}>{stateTimeLeft}</div>
+				<div className={`text-md`}>{stateTimeLeft}</div>
 			</div>
 		</TableRow>
 	);

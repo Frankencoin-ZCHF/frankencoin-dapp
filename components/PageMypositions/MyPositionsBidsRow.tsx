@@ -13,10 +13,11 @@ import AppBox from "@components/AppBox";
 
 interface Props {
 	headers: string[];
+	tab: string;
 	bid: BidsQueryItem;
 }
 
-export default function MyPositionsBidsRow({ headers, bid }: Props) {
+export default function MyPositionsBidsRow({ headers, tab, bid }: Props) {
 	const positions = useSelector((state: RootState) => state.positions.mapping);
 	const challenges = useSelector((state: RootState) => state.challenges.mapping);
 
@@ -40,6 +41,7 @@ export default function MyPositionsBidsRow({ headers, bid }: Props) {
 	return (
 		<TableRow
 			headers={headers}
+			tab={tab}
 			actionCol={
 				<div className="">
 					<Button className="h-10" disabled={isDisabled} onClick={() => navigate.push(`/challenges/${challenge.id}/bid`)}>

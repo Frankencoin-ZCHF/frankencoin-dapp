@@ -7,10 +7,11 @@ import { AddressLabelSimple, TxLabelSimple } from "@components/AddressLabel";
 
 interface Props {
 	headers: string[];
+	tab: string;
 	minter: MinterQuery;
 }
 
-export default function GovernanceMintersRow({ headers, minter }: Props) {
+export default function GovernanceMintersRow({ headers, tab, minter }: Props) {
 	const url = useContractUrl(minter.minter || zeroAddress);
 	if (!minter) return null;
 
@@ -28,6 +29,7 @@ export default function GovernanceMintersRow({ headers, minter }: Props) {
 	return (
 		<TableRow
 			headers={headers}
+			tab={tab}
 			actionCol={
 				<div className="">
 					{isDisabled ? null : <GovernanceMintersAction key={minter.id} minter={minter} disabled={isDisabled} />}

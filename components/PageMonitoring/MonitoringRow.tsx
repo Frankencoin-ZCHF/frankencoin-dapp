@@ -12,10 +12,11 @@ import AppBox from "@components/AppBox";
 
 interface Props {
 	headers: string[];
+	tab: string;
 	position: PositionQuery;
 }
 
-export default function MonitoringRow({ headers, position }: Props) {
+export default function MonitoringRow({ headers, tab, position }: Props) {
 	const navigate = useNavigation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
@@ -52,6 +53,7 @@ export default function MonitoringRow({ headers, position }: Props) {
 	return (
 		<TableRow
 			headers={headers}
+			tab={tab}
 			actionCol={
 				<Button
 					className="h-10"
@@ -86,14 +88,14 @@ export default function MonitoringRow({ headers, position }: Props) {
 
 			{/* Coll. */}
 			<div className="flex flex-col gap-2">
-				<div className={`col-span-2 text-md ${liquidationPct < 110 ? "text-text-warning font-bold" : "text-text-primary"}`}>
+				<div className={`col-span-2 text-md ${liquidationPct < 110 ? "text-text-warning font-bold" : ""}`}>
 					{!isNaN(liquidationPct) ? formatCurrency(liquidationPct) : "-.--"}%
 				</div>
 			</div>
 
 			{/* Expiration */}
 			<div className="flex flex-col gap-2">
-				<div className={`col-span-2 text-md ${maturity < 7 ? "text-text-warning font-bold" : "text-text-primary"}`}>
+				<div className={`col-span-2 text-md ${maturity < 7 ? "text-text-warning font-bold" : ""}`}>
 					{maturity < 3
 						? maturity > 0
 							? `${formatCurrency(maturity * 24)} hours`
@@ -104,7 +106,7 @@ export default function MonitoringRow({ headers, position }: Props) {
 
 			{/* Challenges */}
 			<div className="flex flex-col gap-2">
-				<div className={`col-span-2 text-md text-text-primary`}>{challengesRatioPct == 0 ? "-" : `${challengesRatioPct}%`}</div>
+				<div className={`col-span-2 text-md`}>{challengesRatioPct == 0 ? "-" : `${challengesRatioPct}%`}</div>
 			</div>
 		</TableRow>
 	);

@@ -1,4 +1,4 @@
-import PositionRow from "./BorrowRow";
+import BorrowRow from "./BorrowRow";
 import TableHeader from "../Table/TableHead";
 import TableBody from "../Table/TableBody";
 import Table from "../Table";
@@ -64,7 +64,7 @@ export default function BorrowTable() {
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"There are no other positions yet."}</TableRowEmpty>
 				) : (
-					sorted.map((pos) => <PositionRow headers={headers} position={pos} key={pos.position} />)
+					sorted.map((pos) => <BorrowRow headers={headers} tab={tab} position={pos} key={pos.position} />)
 				)}
 			</TableBody>
 		</Table>

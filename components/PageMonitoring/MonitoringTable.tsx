@@ -40,7 +40,7 @@ export default function MonitoringTable() {
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"There are no active positions."}</TableRowEmpty>
 				) : (
-					sorted.map((pos) => <MonitoringRow headers={headers} position={pos} key={pos.position} />)
+					sorted.map((pos) => <MonitoringRow headers={headers} tab={tab} position={pos} key={pos.position} />)
 				)}
 			</TableBody>
 		</Table>

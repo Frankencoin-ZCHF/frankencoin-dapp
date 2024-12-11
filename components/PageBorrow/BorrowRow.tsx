@@ -11,10 +11,11 @@ import AppBox from "@components/AppBox";
 
 interface Props {
 	headers: string[];
+	tab: string;
 	position: PositionQueryV2;
 }
 
-export default function BorrowRow({ headers, position }: Props) {
+export default function BorrowRow({ headers, tab, position }: Props) {
 	const navigate = useNavigation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
@@ -39,6 +40,7 @@ export default function BorrowRow({ headers, position }: Props) {
 	return (
 		<TableRow
 			headers={headers}
+			tab={tab}
 			actionCol={
 				<Button className="h-10" onClick={() => navigate.push(`/mint/${position.position}`)}>
 					Mint

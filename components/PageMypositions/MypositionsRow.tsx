@@ -11,6 +11,7 @@ import AppBox from "@components/AppBox";
 
 interface Props {
 	headers: string[];
+	tab: string;
 	subHeaders: string[];
 	position: PositionQuery;
 }
@@ -25,7 +26,7 @@ type ChallengeInfos = {
 	challenge: ChallengesQueryItem;
 };
 
-export default function MypositionsRow({ headers, subHeaders, position }: Props) {
+export default function MypositionsRow({ headers, tab, subHeaders, position }: Props) {
 	const navigate = useNavigate();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
@@ -134,6 +135,7 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 		<TableRow
 			headers={headers}
 			subHeaders={subHeaders}
+			tab={tab}
 			actionCol={
 				<Button className="h-10" onClick={() => navigate.push(`/mypositions/${position.position}/adjust`)}>
 					Manage
@@ -159,25 +161,25 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 
 			{/* Liquidation */}
 			<div className="flex flex-col">
-				<span className={liquidationPct < 110 ? `text-md font-bold text-text-warning` : "text-md text-text-primary"}>
+				<span className={liquidationPct < 110 ? `text-md font-bold text-text-warning` : "text-md"}>
 					{formatCurrency(liquidationZCHF, 2, 2)} ZCHF
 				</span>
-				<span className="text-sm text-text-subheader">{formatCurrency(collTokenPrice / zchfPrice, 2, 2)} ZCHF</span>
+				<span className="text-sm text-text-subheader font-normal">{formatCurrency(collTokenPrice / zchfPrice, 2, 2)} ZCHF</span>
 			</div>
 
 			{/* Loan Value */}
 			<div className="flex flex-col">
-				<span className="text-md text-text-primary">{formatCurrency(loanZCHF, 2, 2)} ZCHF</span>
-				<span className="text-sm text-text-subheader">
+				<span className="text-md">{formatCurrency(loanZCHF, 2, 2)} ZCHF</span>
+				<span className="text-sm text-text-subheader font-normal">
 					{formatCurrency(position.version == 2 ? loanAvailableV2 : balance * liquidationZCHF - loanZCHF, 2, 2)} ZCHF
 				</span>
 			</div>
 
 			{/* State */}
 			<div className="flex flex-col">
-				<div className={`text-md ${stateIdx != 6 ? "text-text-warning font-bold" : "text-text-primary "}`}>{states[stateIdx]}</div>
+				<div className={`text-md ${stateIdx != 6 ? "text-text-warning font-bold" : ""}`}>{states[stateIdx]}</div>
 				<div
-					className={`text-sm text-text-subheader ${stateIdx == 1 ? "underline cursor-pointer" : ""}`}
+					className={`text-sm text-text-subheader font-normal ${stateIdx == 1 ? "underline cursor-pointer" : ""}`}
 					onClick={navigateToChallenge}
 				>
 					{stateTimePrint}
