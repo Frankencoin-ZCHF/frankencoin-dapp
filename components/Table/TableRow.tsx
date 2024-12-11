@@ -65,7 +65,9 @@ function TableRowMobile({ children, headers, subHeaders, tab, className }: Table
 					<div className="mt-2 flex" key={c.key}>
 						<div className="flex-1 text-left">
 							{idx === 0 ? (
-								c
+								<div className={`${headers[idx] == tab ? "text-text-primary font-semibold" : "text-text-subheader"}`}>
+									{c}
+								</div>
 							) : subHeaders.length === 0 ? (
 								<div
 									className={`text-md ${headers[idx] == tab ? "text-text-primary font-semibold" : "text-text-subheader"}`}

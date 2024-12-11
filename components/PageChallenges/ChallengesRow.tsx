@@ -108,19 +108,17 @@ export default function ChallengesRow({ headers, tab, challenge }: Props) {
 
 			{/* Current Price */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-primary">
-					{challengePriceSearch ? formatCurrency(challengePrice, 2, 2) : "(pending)"} ZCHF
-				</div>
+				<div className="text-md">{challengePriceSearch ? formatCurrency(challengePrice, 2, 2) : "(pending)"} ZCHF</div>
 			</div>
 
 			{/* State */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-primary">{states[stateIdx]}</div>
+				<div className="text-md">{states[stateIdx]}</div>
 			</div>
 
 			{/* Time Left */}
 			<div className="flex flex-col">
-				<div className={`text-md text-text-primary`}>{stateTimeLeft}</div>
+				<div className={`text-md`}>{stateTimeLeft}</div>
 			</div>
 		</TableRow>
 	);

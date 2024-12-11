@@ -6,12 +6,12 @@ import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { CONFIG, WAGMI_CONFIG } from "../../app.config";
 import { useAccount } from "wagmi";
-import { ADDRESS, SavingsABI } from "@frankencoin/zchf";
+import { ADDRESS, EquityABI, SavingsABI } from "@frankencoin/zchf";
 import { ApiLeadrateInfo, LeadrateProposed } from "@frankencoin/api";
 import Button from "@components/Button";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { toast } from "react-toastify";
-import { renderErrorTxToast, TxToast } from "@components/TxToast";
+import { renderErrorTxToast, renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 
 interface Props {
 	headers: string[];
@@ -120,7 +120,7 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToastDecode(error, EquityABI));
 		} finally {
 			setDenying(false);
 		}
