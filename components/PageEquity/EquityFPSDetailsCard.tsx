@@ -13,8 +13,8 @@ export default function EquityFPSDetailsCard() {
 	const { profit, loss } = useFPSQuery(ADDRESS[chainId].frankenCoin);
 	const { trades } = useTradeQuery();
 
-	// @dev: show 1yr or trades
-	const startTrades = Date.now() / 1000 - 365 * 24 * 60 * 60;
+	// @dev: show trades since start
+	const startTrades = Date.now() / 1000 - 90 * 24 * 60 * 60;
 	const matchingTrades = trades.filter((t) => {
 		return parseInt(t.time) >= startTrades;
 	});
@@ -69,9 +69,11 @@ export default function EquityFPSDetailsCard() {
 							labels: {
 								show: false,
 								formatter: (value) => {
-									const local = new Date(value).toLocaleString();
-									const d = local.split(",")[0].split("/");
-									return `${d[1]}.${d[0]}.${d[2]}`;
+									const date = new Date(value);
+									const d = date.getDay();
+									const m = date.getMonth();
+									const y = date.getFullYear();
+									return `${d}.${m}.${y}`;
 								},
 							},
 							axisBorder: {
