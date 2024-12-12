@@ -1,6 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
 
-interface TradeChart {
+export interface TradeChart {
 	id: string;
 	lastPrice: string;
 	time: string;

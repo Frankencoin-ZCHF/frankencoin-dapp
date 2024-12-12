@@ -1,11 +1,13 @@
 import AppBox from "@components/AppBox";
 import DisplayAmount from "@components/DisplayAmount";
 import DisplayLabel from "@components/DisplayLabel";
-import { useFPSQuery, usePoolStats, useTradeQuery } from "@hooks";
+import { TradeChart, useFPSQuery, usePoolStats, useTradeQuery } from "@hooks";
 import { useChainId } from "wagmi";
 import dynamic from "next/dynamic";
 import { ADDRESS } from "@frankencoin/zchf";
 import { Dispatch, SetStateAction, useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/redux.store";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const Timeframes = ["All", "1Y", "1Q", "1M", "1W", "1D"];
@@ -15,6 +17,7 @@ export default function EquityFPSDetailsCard() {
 	const chainId = useChainId();
 	const poolStats = usePoolStats();
 	const { profit, loss } = useFPSQuery(ADDRESS[chainId].frankenCoin);
+	const { price } = useSelector((state: RootState) => state.ecosystem.fpsInfo.values);
 	const { trades } = useTradeQuery();
 
 	// @dev: show trades since start
@@ -24,12 +27,38 @@ export default function EquityFPSDetailsCard() {
 	else if (timeframe == Timeframes[2]) startTrades -= 90 * 24 * 60 * 60; // 1Q
 	else if (timeframe == Timeframes[3]) startTrades -= 30 * 24 * 60 * 60; // 1M
 	else if (timeframe == Timeframes[4]) startTrades -= 7 * 24 * 60 * 60; // 1W
-	else if (timeframe == Timeframes[5]) startTrades -= 24 * 60 * 60; // 1D
+	else if (timeframe == Timeframes[5]) startTrades = Math.floor(new Date().setHours(0, 0, 0, 0) / 1000); // Beginning of today
 	else startTrades = 0; // All
 
-	const matchingTrades = trades.filter((t) => {
+	let matchingTrades = trades.filter((t) => {
 		return parseInt(t.time) >= startTrades;
 	});
+
+	// @dev: check if you can have at least the beginning of today
+	if (timeframe == Timeframes[5]) {
+		const beginning = new Date();
+		beginning.setHours(0, 0, 0, 0);
+
+		const lastTrade = trades.find((t) => parseInt(t.time) < Math.floor(beginning.getTime() / 1000));
+
+		const beginningDayPriceEntry: TradeChart = {
+			id: "BeginningDayPriceEntry",
+			time: Math.floor(beginning.getTime() / 1000).toString(),
+			lastPrice: lastTrade ? lastTrade.lastPrice : Math.floor(price * 10 ** 18).toString(),
+		};
+
+		matchingTrades = [...matchingTrades, beginningDayPriceEntry];
+	}
+
+	// @dev: construct current price state
+	const currentPriceEntry: TradeChart = {
+		id: "CurrentSmartContractPrice",
+		time: Math.floor(Date.now() / 1000).toString(),
+		lastPrice: Math.floor(price * 10 ** 18).toString(),
+	};
+
+	// @dev: include smart contract price as current timestamp
+	matchingTrades = [currentPriceEntry, ...matchingTrades];
 
 	return (
 		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 grid grid-cols-1 gap-2">
@@ -84,8 +113,8 @@ export default function EquityFPSDetailsCard() {
 									show: false,
 									formatter: (value) => {
 										const date = new Date(value);
-										const d = date.getDay();
-										const m = date.getMonth();
+										const d = date.getDate();
+										const m = date.getMonth() + 1;
 										const y = date.getFullYear();
 										return `${d}.${m}.${y}`;
 									},
