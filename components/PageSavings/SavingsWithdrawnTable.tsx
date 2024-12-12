@@ -10,7 +10,7 @@ import SavingsWithdrawnRow from "./SavingsWithdrawnRow";
 import { Address, parseEther } from "viem";
 
 export default function SavingsWithdrawnTable() {
-	const headers: string[] = ["Date", "Saver", "Amount", "Rate", "Balance"];
+	const headers: string[] = ["Date", "Saver", "Amount", "Balance"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 

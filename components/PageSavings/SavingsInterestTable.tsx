@@ -9,7 +9,7 @@ import { SavingsInterestQuery } from "@frankencoin/api";
 import SavingsInterestRow from "./SavingsInterestRow";
 
 export default function SavingsInterestTable() {
-	const headers: string[] = ["Date", "Saver", "Interest", "Rate", "Balance"];
+	const headers: string[] = ["Date", "Saver", "Interest", "Balance"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 

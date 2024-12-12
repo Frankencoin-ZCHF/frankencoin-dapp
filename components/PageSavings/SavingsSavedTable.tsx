@@ -9,7 +9,7 @@ import { SavingsSavedQuery } from "@frankencoin/api";
 import SavingsSavedRow from "./SavingsSavedRow";
 
 export default function GovernanceLeadrateTable() {
-	const headers: string[] = ["Date", "Saver", "Amount", "Rate", "Balance"];
+	const headers: string[] = ["Date", "Saver", "Amount", "Balance"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
