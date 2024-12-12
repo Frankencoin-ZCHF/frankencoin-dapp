@@ -37,7 +37,7 @@ export default function Navbar() {
 
 	return (
 		<div className="fixed top-0 left-0 right-0 z-10 backdrop-blur border-b-2 border-menu-separator bg-menu-back">
-			<header className="flex items-center py-4 px-4 md:gap-x-4 relative w-full">
+			<header className="flex items-center md:py-4 px-4 md:gap-x-4 relative w-full">
 				<Link className="" href={CONFIG.landing}>
 					<picture>
 						<img className="h-9 transition" src="/coin/zchf.png" alt="Logo" />
@@ -53,7 +53,7 @@ export default function Navbar() {
 				</div>
 
 				<div className="md:hidden">
-					<button onClick={() => setIsNavBarOpen(!isNavBarOpen)} className="cursor-pointer flex items-center">
+					<button onClick={() => setIsNavBarOpen(!isNavBarOpen)} className="-mr-4 p-5 cursor-pointer flex items-center">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-8 h-8">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
 						</svg>
@@ -82,7 +82,7 @@ export default function Navbar() {
 								}`}
 							>
 								<div className="min-h-full w-full bg-menu-back rounded-l-xl backdrop-blur px-[16px] pt-[20px] shadow-xl relative">
-									<button className="absolute top-4 right-4" onClick={() => setIsNavBarOpen(false)}>
+									<button className="absolute top-0 right-0 p-6" onClick={() => setIsNavBarOpen(false)}>
 										<svg
 											xmlns="http://www.w3.org/2000/svg"
 											fill="none"
