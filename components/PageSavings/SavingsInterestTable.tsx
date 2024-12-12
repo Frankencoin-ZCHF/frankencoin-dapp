@@ -16,7 +16,7 @@ export default function SavingsInterestTable() {
 	const { interest } = useSelector((state: RootState) => state.savings.savingsAllUserTable);
 	if (!interest) return null;
 
-	const sorted: SavingsInterestQuery[] = interest;
+	const sorted: SavingsInterestQuery[] = sortFunction({ list: interest, headers, tab, reverse });
 
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
@@ -39,4 +39,32 @@ export default function SavingsInterestTable() {
 			</TableBody>
 		</Table>
 	);
+}
+
+type sortFunctionParams = {
+	list: SavingsInterestQuery[];
+	headers: string[];
+	tab: string;
+	reverse: boolean;
+};
+
+function sortFunction(params: sortFunctionParams): SavingsInterestQuery[] {
+	const { list, headers, tab, reverse } = params;
+	let sortingList = [...list]; // make it writeable
+
+	if (tab === headers[0]) {
+		// Date
+		sortingList.sort((a, b) => b.created - a.created);
+	} else if (tab === headers[1]) {
+		// Saver
+		sortingList.sort((a, b) => a.account.localeCompare(b.account));
+	} else if (tab === headers[2]) {
+		// Interest / Amount
+		sortingList.sort((a, b) => parseInt(b.amount) - parseInt(a.amount));
+	} else if (tab === headers[3]) {
+		// Balance
+		sortingList.sort((a, b) => parseInt(b.balance) - parseInt(a.balance));
+	}
+
+	return reverse ? sortingList.reverse() : sortingList;
 }
