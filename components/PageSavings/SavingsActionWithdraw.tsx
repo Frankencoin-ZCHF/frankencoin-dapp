@@ -71,7 +71,7 @@ export default function SavingsActionWithdraw({ balance, change, disabled, setLo
 
 	return (
 		<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
-			Withdraw
+			Adjust
 		</Button>
 	);
 }

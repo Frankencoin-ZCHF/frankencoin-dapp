@@ -5,7 +5,7 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { useState } from "react";
-import { LeadrateProposed } from "@frankencoin/api";
+import { ApiLeadrateInfo, LeadrateProposed } from "@frankencoin/api";
 import GovernanceLeadrateRow from "./GovernanceLeadrateRow";
 
 export default function GovernanceLeadrateTable() {
@@ -19,7 +19,7 @@ export default function GovernanceLeadrateTable() {
 	if (!info || !proposals || !rates) return null;
 
 	const currentProposal = proposals.list.length > 0 ? proposals.list[0] : undefined;
-	const sorted: LeadrateProposed[] = proposals.list.slice(0, 5);
+	const sorted: LeadrateProposed[] = sortFunction({ list: proposals.list.slice(0, 5), info, currentProposal, headers, tab, reverse });
 
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
@@ -51,4 +51,57 @@ export default function GovernanceLeadrateTable() {
 			</TableBody>
 		</Table>
 	);
+}
+
+type SortFunctionParams = {
+	list: LeadrateProposed[];
+	info: ApiLeadrateInfo;
+	currentProposal: LeadrateProposed | undefined;
+	headers: string[];
+	tab: string;
+	reverse: boolean;
+};
+
+// @dev: for sorting priorities
+enum SortFunctionState {
+	Expired,
+	Passed,
+	Ready,
+	TimeLeft,
+}
+
+function sortFunction(params: SortFunctionParams): LeadrateProposed[] {
+	const { list, currentProposal, info, headers, tab, reverse } = params;
+	let sortingList = [...list]; // make it writeable
+
+	if (tab === headers[0]) {
+		// Date
+		sortingList.sort((a, b) => b.created - a.created);
+	} else if (tab === headers[1]) {
+		// Proposer
+		sortingList.sort((a, b) => a.proposer.localeCompare(b.proposer));
+	} else if (tab === headers[2]) {
+		// Rate
+		sortingList.sort((a, b) => b.nextRate - a.nextRate);
+	} else if (tab === headers[3]) {
+		// State
+		sortingList.sort((a, b) => {
+			const calc = function (l: LeadrateProposed): number {
+				const vetoUntil = l.nextChange * 1000;
+				const hoursUntil: number = (vetoUntil - Date.now()) / 1000 / 60 / 60;
+
+				// {currentProposal ? (hoursUntil > 0 ? stateStr : info.rate != proposal.nextRate ? "Ready" : "Passed") : "Expired"}
+				if (currentProposal?.id == l.id) {
+					if (hoursUntil > 0) return SortFunctionState.TimeLeft;
+					else if (info.rate != l.nextRate) return SortFunctionState.Ready;
+					else return SortFunctionState.Passed;
+				} else {
+					return SortFunctionState.Expired;
+				}
+			};
+			return calc(b) - calc(a);
+		});
+	}
+
+	return reverse ? sortingList.reverse() : sortingList;
 }

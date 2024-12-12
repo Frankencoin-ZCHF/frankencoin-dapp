@@ -74,7 +74,7 @@ export default function SavingsActionInterest({ balance, interest, disabled, set
 
 	return (
 		<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
-			Claim Interest
+			Adjust
 		</Button>
 	);
 }
