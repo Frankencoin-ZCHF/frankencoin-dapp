@@ -71,7 +71,7 @@ export default function SavingsActionSave({ amount, interest, disabled, setLoade
 
 	return (
 		<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
-			Save
+			Adjust
 		</Button>
 	);
 }
