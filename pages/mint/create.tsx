@@ -307,8 +307,7 @@ export default function PositionCreate({}) {
 				<title>Frankencoin - Propose Position</title>
 			</Head>
 
-			<AppTitle title="Propose New Position">
-			</AppTitle>
+			<AppTitle title="Propose New Position"></AppTitle>
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -336,13 +335,17 @@ export default function PositionCreate({}) {
 								placeholder="Initialization Period"
 							/>
 						</div>
-						<div>
+						<div className="text-text-secondary">
 							It is recommended to{" "}
-							<Link className="underline" href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions" target="_blank">
+							<Link
+								className="underline font-semibold"
+								href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions"
+								target="_blank"
+							>
 								{" "}
 								discuss
 							</Link>{" "}
-							{" "}new positions before initiating them to increase the probability of passing the decentralized governance
+							new positions before initiating them to increase the probability of passing the decentralized governance
 							process.
 						</div>
 					</div>

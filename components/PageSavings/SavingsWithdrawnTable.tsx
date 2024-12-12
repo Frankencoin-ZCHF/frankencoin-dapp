@@ -42,14 +42,14 @@ export default function SavingsWithdrawnTable() {
 	);
 }
 
-type sortFunctionParams = {
+type SortFunctionParams = {
 	list: SavingsWithdrawQuery[];
 	headers: string[];
 	tab: string;
 	reverse: boolean;
 };
 
-function sortFunction(params: sortFunctionParams): SavingsWithdrawQuery[] {
+function sortFunction(params: SortFunctionParams): SavingsWithdrawQuery[] {
 	const { list, headers, tab, reverse } = params;
 	let sortingList = [...list]; // make it writeable
 

@@ -5,7 +5,6 @@ import { AddressLabelSimple, TxLabelSimple } from "@components/AddressLabel";
 import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { CONFIG, WAGMI_CONFIG } from "../../app.config";
-import { useAccount } from "wagmi";
 import { ADDRESS, EquityABI, SavingsABI } from "@frankencoin/zchf";
 import { ApiLeadrateInfo, LeadrateProposed } from "@frankencoin/api";
 import Button from "@components/Button";
@@ -26,7 +25,6 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 	const [isApplying, setApplying] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
 
-	const account = useAccount();
 	const chainId = CONFIG.chain.id;
 
 	const vetoUntil = proposal.nextChange * 1000;

@@ -41,14 +41,14 @@ export default function SavingsInterestTable() {
 	);
 }
 
-type sortFunctionParams = {
+type SortFunctionParams = {
 	list: SavingsInterestQuery[];
 	headers: string[];
 	tab: string;
 	reverse: boolean;
 };
 
-function sortFunction(params: sortFunctionParams): SavingsInterestQuery[] {
+function sortFunction(params: SortFunctionParams): SavingsInterestQuery[] {
 	const { list, headers, tab, reverse } = params;
 	let sortingList = [...list]; // make it writeable
 

@@ -41,14 +41,14 @@ export default function GovernanceLeadrateTable() {
 	);
 }
 
-type sortFunctionParams = {
+type SortFunctionParams = {
 	list: SavingsSavedQuery[];
 	headers: string[];
 	tab: string;
 	reverse: boolean;
 };
 
-function sortFunction(params: sortFunctionParams): SavingsSavedQuery[] {
+function sortFunction(params: SortFunctionParams): SavingsSavedQuery[] {
 	const { list, headers, tab, reverse } = params;
 	let sortingList = [...list]; // make it writeable
 
