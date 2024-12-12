@@ -36,7 +36,7 @@ export default function SavingsDetailsCard({ balance, change, direction, interes
 				<div className="flex mt-8">
 					<div className={`flex-1 text-text-secondary`}>
 						When saving additional funds, your balance will be locked until interest starts accruing, which can take up to three
-						days. This rules serves to disincentivize the saving of funds held for transactional purposes.{" "}
+						days. This rule serves to disincentivize the saving of funds held for transactional purposes.{" "}
 						<span className="font-semibold text-text-primary">
 							{locktime > 0
 								? `Your funds are still locked for ${formatCurrency(
