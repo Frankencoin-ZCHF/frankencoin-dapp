@@ -35,11 +35,7 @@ export default function BorrowTable() {
 				}
 			}
 		});
-		console.log("Map ", highestMaturityMap);
-		const iterator = highestMaturityMap.values();
-		console.log("Iterator ", iterator);
-		console.log("Array ", iterator.toArray());
-		return highestMaturityMap.values().toArray();
+		return Array.from(highestMaturityMap.values());
 	};
 
 	const matchingPositions: PositionQueryV2[] = makeUnique(posV2.filter((position) => {
