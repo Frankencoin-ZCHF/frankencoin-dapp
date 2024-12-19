@@ -8,7 +8,7 @@ import { RootState } from "../../redux/redux.store";
 import { ChallengesQueryItem, PositionQuery, PositionQueryV2, PriceQueryObjectArray } from "@frankencoin/api";
 import { Address, formatUnits } from "viem";
 import { useState } from "react";
-import { POSITION_NOT_BLACKLISTED } from "../../app.config";
+import { POSITION_BLACKLISTED } from "../../app.config";
 
 export default function BorrowTable() {
 	const headers: string[] = ["Collateral", "Loan-to-Value", "Interest", "Available", "Maturity"];
@@ -21,30 +21,39 @@ export default function BorrowTable() {
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 
 	const posV2: PositionQueryV2[] = openPositions.filter((p) => p.version == 2);
-	const matchingPositions: PositionQueryV2[] = posV2.filter((position) => {
+
+	const makeUnique = function (positions: PositionQueryV2[]) {
+		const highestMaturityMap = new Map();
+		positions.forEach((pos) => {
+			const key = pos.original + "-" + pos.price;
+			if (!highestMaturityMap.has(key)){
+				highestMaturityMap.set(key, pos);
+			} else {
+				const highest = highestMaturityMap.get(key);
+				if (pos.expiration > highest.expiration){
+					highestMaturityMap.set(key, pos);
+				}
+			}
+		});
+		return highestMaturityMap.values().toArray();
+	};
+
+	const matchingPositions: PositionQueryV2[] = makeUnique(posV2.filter((position) => {
 		const pid: Address = position.position.toLowerCase() as Address;
-		const considerBlackList: boolean = POSITION_NOT_BLACKLISTED(pid);
-		const considerOpen: boolean = !position.closed && !position.denied;
-		const considerProposed: boolean = position.start * 1000 < Date.now();
-		const considerAvailableForClones: boolean =
-			BigInt(position.isOriginal ? position.availableForClones : position.availableForMinting) > 0n;
-		const considerCollateralBalance: boolean = BigInt(position.collateralBalance) > 0n;
-
-		const challengesPosition = challengesPosMap[pid] || [];
-		const challengesActive: ChallengesQueryItem[] = challengesPosition.filter((c) => c.status == "Active");
-		const considerNoChallenges: boolean = challengesActive.length == 0;
-
-		const verifyable: boolean[] = [
-			considerBlackList,
-			considerOpen,
-			considerProposed,
-			considerAvailableForClones,
-			considerCollateralBalance,
-			considerNoChallenges,
-		];
-
-		return !verifyable.includes(false);
-	});
+		if (POSITION_BLACKLISTED(pid)){
+			return false;
+		} else if (position.closed || position.denied){
+			return false;
+		} else if (position.cooldown * 1000 > Date.now()){
+			return false; // under cooldown 
+		} else if (BigInt(position.isOriginal ? position.availableForClones : position.availableForMinting) == 0n){
+			return false;
+		} else if ((challengesPosMap[pid] || []).filter((c) => c.status == "Active").length > 1){
+			return false; // active challenges
+		} else {
+			return true;
+		}
+	}));
 
 	const sorted: PositionQueryV2[] = sortPositions(matchingPositions, coingecko, headers, tab, reverse);
 
