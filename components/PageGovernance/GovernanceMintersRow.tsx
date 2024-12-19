@@ -1,9 +1,9 @@
 import { Hash, zeroAddress } from "viem";
 import TableRow from "../Table/TableRow";
-import { MinterQuery } from "@frankencoin/api";
+import { MinterQuery } from "@deuro/api";
 import { useContractUrl } from "@hooks";
 import GovernanceMintersAction from "./GovernanceMintersAction";
-import AddressLabel, { AddressLabelSimple, TxLabelSimple } from "@components/AddressLabel";
+import { AddressLabelSimple, TxLabelSimple } from "@components/AddressLabel";
 
 interface Props {
 	headers: string[];

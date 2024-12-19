@@ -1,0 +1,17 @@
+.dev/
+.next/
+node_modules/
+
+.github
+.gitignore
+.npmignore
+.prettierignore
+
+.env
+.env.example
+
+.eslintrc.json
+.prettierrc.json
+
+Dockerfile
+README.md

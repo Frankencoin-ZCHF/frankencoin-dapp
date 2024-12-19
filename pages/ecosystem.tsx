@@ -1,16 +1,17 @@
 import Head from "next/head";
-import StableCoinBridgeXCHF from "@components/PageEcoSystem/StableCoinBridgeXCHF";
 import CollateralAndPositionsOverview from "@components/PageEcoSystem/CollateralAndPositionsOverview";
+import DistributionZCHF from "@components/PageEcoSystem/DistributionZCHF";
 
 export default function Overview() {
 	return (
 		<div>
 			<Head>
-				<title>Frankencoin - EcoSystem</title>
+				<title>dEURO - EcoSystem</title>
 			</Head>
 
 			<div className="flex flex-col gap-[4rem] mt-[4rem]">
-				<StableCoinBridgeXCHF />
+				<DistributionZCHF />
+
 				<CollateralAndPositionsOverview />
 			</div>
 		</div>

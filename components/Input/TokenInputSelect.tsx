@@ -18,6 +18,7 @@ interface Props {
 	hideMaxLabel?: boolean;
 	limit?: bigint;
 	limitLabel?: string;
+	limitDigits?: bigint | number;
 	output?: string | number;
 	note?: string;
 	value?: string;
@@ -38,6 +39,7 @@ export default function TokenInputSelect({
 	hideMaxLabel,
 	limit = 0n,
 	limitLabel,
+	limitDigits = 18n,
 	output,
 	note,
 	value,
@@ -111,7 +113,7 @@ export default function TokenInputSelect({
 								...baseStyles,
 								backgroundColor: "#092f62",
 								color: "#e2e8f0",
-								borderRadius: "1rem", // This makes the main control rounder
+								borderRadius: "0.5rem", // This makes the main control rounder
 								borderWidth: "0",
 								boxShadow: "none", // Remove the focus shadow
 							}),
@@ -127,7 +129,7 @@ export default function TokenInputSelect({
 							menu: (baseStyles) => ({
 								...baseStyles,
 								backgroundColor: "#e7e7ea",
-								borderRadius: "1rem", // This rounds the dropdown menu
+								borderRadius: "0.5rem", // This rounds the dropdown menu
 								overflow: "hidden", // This ensures the content doesn't overflow the rounded corners
 							}),
 						}}
@@ -139,7 +141,7 @@ export default function TokenInputSelect({
 				{limit >= 0n && limitLabel && (
 					<>
 						<span>{limitLabel} :&nbsp;</span>
-						<DisplayAmount amount={limit} currency={symbol} />
+						<DisplayAmount amount={limit} currency={symbol} digits={limitDigits} />
 					</>
 				)}
 				{note && <span>{note}</span>}

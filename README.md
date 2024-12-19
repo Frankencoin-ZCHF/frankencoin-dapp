@@ -15,8 +15,8 @@
 
 ```Bash
 # clone and install deps.
-git clone https://github.com/Frankencoin-ZCHF/frankencoin-dapp.git
-cd frankencoin-dapp
+git clone https://github.com/d-EURO/dapp
+cd dapp
 yarn install --frozen-lockfile
 
 # deploy
@@ -30,12 +30,13 @@ yarn run dev
 ### Copy .env.example and adjust your environment
 
 ```TS
-NEXT_PUBLIC_LANDINGPAGE_URL=https://frankencoin.com
-NEXT_PUBLIC_APP_URL=https://app.frankencoin.com
-NEXT_PUBLIC_API_URL=https://api.frankencoin.com
-NEXT_PUBLIC_PONDER_URL=https://ponder.frankencoin.com
+NEXT_PUBLIC_LANDINGPAGE_URL=https://deuro.com/
+NEXT_PUBLIC_APP_URL=https://app.deuro.com/
+NEXT_PUBLIC_API_URL=https://api.deuro.com
+NEXT_PUBLIC_PONDER_URL=https://ponder.deuro.com
 NEXT_PUBLIC_CHAIN_NAME=mainnet
 NEXT_PUBLIC_WAGMI_ID=...
+NEXT_PUBLIC_ALCHEMY_API_KEY=...
 NEXT_PUBLIC_RPC_URL_MAINNET=...
 NEXT_PUBLIC_RPC_URL_POLYGON=...
 ```
@@ -45,21 +46,37 @@ NEXT_PUBLIC_RPC_URL_POLYGON=...
 ```TS
 // Config
 export const CONFIG: ConfigEnv = {
-	landing: process.env.NEXT_PUBLIC_LANDINGPAGE_URL || "https://frankencoin.com",
-	app: process.env.NEXT_PUBLIC_APP_URL || "https://app.frankencoin.com",
-	api: process.env.NEXT_PUBLIC_API_URL || "https://api.frankencoin.com",
-	ponder: process.env.NEXT_PUBLIC_PONDER_URL || "https://ponder.frankencoin.com",
-	chain: process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon" ? polygon : mainnet,
-	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID || "...",
-	rpc:
-		process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon"
-			? (process.env.NEXT_PUBLIC_RPC_URL_POLYGON as string) ||
-			  "https://polygon-mainnet.g.alchemy.com/v2/..."
-			: process.env.NEXT_PUBLIC_RPC_URL_MAINNET || "https://eth-mainnet.g.alchemy.com/v2/...",
+	landing: process.env.NEXT_PUBLIC_LANDINGPAGE_URL ?? "https://deuro.com",
+	app: process.env.NEXT_PUBLIC_APP_URL ?? "https://app.deuro.com",
+	api: process.env.NEXT_PUBLIC_API_URL ?? "https://api.deuro.com",
+	ponder: process.env.NEXT_PUBLIC_PONDER_URL ?? "https://ponder.deuro.com",
+	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID ?? "",
+	alchemyApiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY ?? "",
+	chain: process.env.NEXT_PUBLIC_CHAIN_NAME ?? "mainnet",
+	network: {
+		mainnet: process.env.NEXT_PUBLIC_RPC_URL_MAINNET ?? "https://eth-mainnet.g.alchemy.com/v2",
+		polygon: process.env.NEXT_PUBLIC_RPC_URL_POLYGON ?? "https://polygon-mainnet.g.alchemy.com/v2",
+	}
 };
+```
 
-console.log("YOU ARE USING THIS CONFIG PROFILE:");
-console.log(CONFIG);
+### Building a docker image
+Please note the following when creating a Docker image:
+
+The environment variables are used at build time and cannot be passed at runtime. The environment variables must be set as placeholders in the dockerfile so that they are set via the docker entry point before the application is started.
+
+```
+Dockerfile:
+
+ENV NEXT_PUBLIC_LANDINGPAGE_URL=NEXT_PUBLIC_LANDINGPAGE_URL
+ENV NEXT_PUBLIC_APP_URL=NEXT_PUBLIC_APP_URL
+ENV NEXT_PUBLIC_API_URL=NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_PONDER_URL=NEXT_PUBLIC_PONDER_URL
+ENV NEXT_PUBLIC_WAGMI_ID=NEXT_PUBLIC_WAGMI_ID
+ENV NEXT_PUBLIC_ALCHEMY_API_KEY=NEXT_PUBLIC_ALCHEMY_API_KEY
+ENV NEXT_PUBLIC_CHAIN_NAME=NEXT_PUBLIC_CHAIN_NAME
+ENV NEXT_PUBLIC_RPC_URL_MAINNET=NEXT_PUBLIC_RPC_URL_MAINNET
+ENV NEXT_PUBLIC_RPC_URL_POLYGON=NEXT_PUBLIC_RPC_URL_POLYGON
 ```
 
 ### Production

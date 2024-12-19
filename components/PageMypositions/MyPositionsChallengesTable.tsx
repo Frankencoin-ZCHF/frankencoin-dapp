@@ -14,7 +14,7 @@ import {
 	PositionQuery,
 	PositionsQueryObjectArray,
 	PriceQueryObjectArray,
-} from "@frankencoin/api";
+} from "@deuro/api";
 import { useState } from "react";
 import { useRouter } from "next/router";
 
@@ -89,7 +89,7 @@ function sortChallenges(params: SortChallenges): ChallengesQueryItem[] {
 				const pos: PositionQuery = positions[c.position.toLowerCase() as Address];
 				const size: number = parseFloat(formatUnits(c.size, pos.collateralDecimals));
 				const filled: number = parseFloat(formatUnits(c.filledSize, pos.collateralDecimals));
-				const price: number = prices[pos.collateral.toLowerCase() as Address].price.chf || 1;
+				const price: number = prices[pos.collateral.toLowerCase() as Address].price.eur || 1;
 				return (size - filled) * price;
 			};
 			return calc(b) - calc(a);

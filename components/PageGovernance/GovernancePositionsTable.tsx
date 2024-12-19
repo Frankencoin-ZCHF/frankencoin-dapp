@@ -4,7 +4,7 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
+import { PositionQuery, PriceQueryObjectArray } from "@deuro/api";
 import { useState } from "react";
 import GovernancePositionsRow from "./GovernancePositionsRow";
 

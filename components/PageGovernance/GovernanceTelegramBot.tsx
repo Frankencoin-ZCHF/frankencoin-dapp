@@ -1,4 +1,3 @@
-import AppBox from "@components/AppBox";
 import AppCard from "@components/AppCard";
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -16,19 +15,19 @@ export default function GovernanceTelegramBot() {
 			<div className="grid max-md:grid-cols-1 md:grid-cols-2">
 				<div className="flex flex-col gap-4 p-2 md:px-4 justify-center items-left">
 					<div>
-						The Frankencoin API Bot is a Telegram communication tool designed to keep users informed about various activities
-						and updates within the Frankencoin ecosystem.
+						The dEURO API Bot is a Telegram communication tool designed to keep users informed about various activities
+						and updates within the dEURO ecosystem.
 					</div>
 
 					<div className="grid grid-cols-1 w-full my-4 ml-6">
 						<ul className="flex flex-col gap-4">
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8" />
-								<span className="ml-5 text-center">New Minter Proposal</span>
+								<span className="ml-5 text-center">New Minter Proposal and Vetoed</span>
 							</li>
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8" />
-								<span className="ml-5 text-center">Minter Proposal Vetoed</span>
+								<span className="ml-5 text-center">New Leadrate Proposal and Changed</span>
 							</li>
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8" />
@@ -36,7 +35,7 @@ export default function GovernanceTelegramBot() {
 							</li>
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8" />
-								<span className="ml-5 text-center">New Challenge Started</span>
+								<span className="ml-5 text-center">Challenge Started and Bid Taken</span>
 							</li>
 						</ul>
 					</div>

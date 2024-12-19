@@ -36,8 +36,8 @@ export const formatCurrency = (value: string | number, minimumFractionDigits = 0
 	// tiny
 	if (format === FormatType.tiny) {
 		const formatter = new Intl.NumberFormat("en-US", {
-			maximumFractionDigits: amount < 1000 ? 2 : 0,
-			minimumFractionDigits: amount < 1000 ? 2 : 0,
+			maximumFractionDigits: amount < 1000 && amount > -1000 ? 2 : 0,
+			minimumFractionDigits: amount < 1000 && amount > -1000 ? 2 : 0,
 		});
 		return formatter.format(amount).split(",").join(" ");
 	}

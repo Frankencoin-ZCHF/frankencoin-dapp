@@ -5,14 +5,13 @@ import AppBox from "@components/AppBox";
 import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
 import { Address, formatUnits, zeroAddress } from "viem";
-import { ContractUrl, formatBigInt, formatCurrency, formatDate, shortenAddress } from "@utils";
+import { ContractUrl, formatBigInt, formatCurrency, formatDate, shortenAddress, TOKEN_SYMBOL } from "@utils";
 import Link from "next/link";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
-import { TxToast, renderErrorToast } from "@components/TxToast";
+import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import DisplayLabel from "@components/DisplayLabel";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
@@ -21,6 +20,8 @@ import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useRouter as useNavigation } from "next/navigation";
+import { ADDRESS, DecentralizedEUROABI, MintingHubV2ABI } from "@deuro/eurocoin";
+import { ChallengesId } from "@deuro/api";
 
 export default function ChallengePlaceBid() {
 	const [isInit, setInit] = useState(false);
@@ -29,6 +30,7 @@ export default function ChallengePlaceBid() {
 	const [isBidding, setBidding] = useState(false);
 	const [isNavigating, setNavigating] = useState(false);
 	const [userBalance, setUserBalance] = useState(0n);
+	const [auctionPrice, setAuctionPrice] = useState<bigint>(0n);
 
 	const { data } = useBlockNumber({ watch: true });
 	const account = useAccount();
@@ -36,34 +38,42 @@ export default function ChallengePlaceBid() {
 	const navigate = useNavigation();
 
 	const chainId = useChainId();
-	const index: number = parseInt(String(router.query.index) || "0");
+	const challengeId: ChallengesId = (String(router.query.index) as ChallengesId) || `${zeroAddress}-challenge-0`;
 
 	const challenges = useSelector((state: RootState) => state.challenges.list.list);
 	const positions = useSelector((state: RootState) => state.positions.list.list);
-	const bidsMapping = useSelector((state: RootState) => state.bids.challenges.map);
-	const auctionPriceMapping = useSelector((state: RootState) => state.challenges.challengesPrices.map);
 
-	const challenge = challenges.find((c) => c.number.toString() == index.toString());
+	const challenge = challenges.find((c) => c.id == challengeId);
 	const position = positions.find((p) => p.position == challenge?.position);
-	// const bids = !!challenge ? [] : bidsMapping[challenge!.id]; // can be empty
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
-		const fc: Address = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
-		if (acc === undefined) return;
+		const ADDR = ADDRESS[WAGMI_CHAIN.id];
+		if (position === undefined) return;
+		if (challenge === undefined) return;
 
 		const fetchAsync = async function () {
-			const _balance = await readContract(WAGMI_CONFIG, {
-				address: fc,
-				abi: ABIS.FrankencoinABI,
-				functionName: "balanceOf",
-				args: [acc],
+			if (acc !== undefined) {
+				const _balance = await readContract(WAGMI_CONFIG, {
+					address: ADDR.decentralizedEURO,
+					abi: DecentralizedEUROABI,
+					functionName: "balanceOf",
+					args: [acc],
+				});
+				setUserBalance(_balance);
+			}
+
+			const _price = await readContract(WAGMI_CONFIG, {
+				address: ADDR.mintingHubV2,
+				abi: MintingHubV2ABI,
+				functionName: "price",
+				args: [parseInt(challenge.number.toString())],
 			});
-			setUserBalance(_balance);
+			setAuctionPrice(_price);
 		};
 
 		fetchAsync();
-	}, [data, account.address]);
+	}, [data, position, challenge, account.address]);
 
 	useEffect(() => {
 		if (isInit) return;
@@ -84,19 +94,16 @@ export default function ChallengePlaceBid() {
 	if (!challenge) return null;
 	if (!position) return null;
 
-	const auctionPrice = BigInt(auctionPriceMapping[challenge.id] ?? "0");
 	const remainingSize = BigInt(parseInt(challenge.size.toString()) - parseInt(challenge.filledSize.toString()));
 
-	// Maturity
-	const start: number = parseInt(challenge.start.toString()) * 1000; // timestap
-	const since: number = Math.round(((Date.now() - start) / 1000 / 60 / 60) * 10) / 10; // since timestamp to now
-
+	const start: number = parseInt(challenge.start.toString()) * 1000; // timestamp
 	const duration: number = parseInt(challenge.duration.toString()) * 1000;
-	const maturity: number = Math.min(...[position.expiration * 1000, start + 2 * duration]); // timestamp
-	const time2exp: number = Math.round(((maturity - Date.now()) / 1000 / 60 / 60) * 10) / 10; // time to expiration
 
-	const isQuickAuction = start + 2 * duration > maturity;
-	const declineStartTimestamp = isQuickAuction ? start : start + duration;
+	const timeToExpiration = start >= position.expiration * 1000 ? 0 : position.expiration * 1000 - start;
+	const phase1 = Math.min(timeToExpiration, duration);
+
+	const declineStartTimestamp = start + phase1;
+	const zeroPriceTimestamp = start + phase1 + duration;
 
 	const expectedZCHF = (bidAmount?: bigint) => {
 		if (!bidAmount) bidAmount = amount;
@@ -108,7 +115,7 @@ export default function ChallengePlaceBid() {
 		setAmount(valueBigInt);
 
 		if (expectedZCHF() > userBalance) {
-			setError("Not enough ZCHF in your wallet to cover the expected costs.");
+			setError(`Not enough ${TOKEN_SYMBOL} in your wallet to cover the expected costs.`);
 		} else if (valueBigInt > remainingSize) {
 			setError("Expected winning collateral should be lower than remaining collateral.");
 		} else {
@@ -121,10 +128,10 @@ export default function ChallengePlaceBid() {
 			setBidding(true);
 
 			const bidWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHub,
-				abi: ABIS.MintingHubABI,
+				address: ADDRESS[chainId].mintingHubV2,
+				abi: MintingHubV2ABI,
 				functionName: "bid",
-				args: [index, amount, false],
+				args: [parseInt(challenge.number.toString()), amount, false],
 			});
 
 			const toastContent = [
@@ -133,8 +140,8 @@ export default function ChallengePlaceBid() {
 					value: formatBigInt(amount, position.collateralDecimals) + " " + position.collateralSymbol,
 				},
 				{
-					title: `Expected ZCHF: `,
-					value: formatBigInt(expectedZCHF()) + " ZCHF",
+					title: `Expected ${TOKEN_SYMBOL}: `,
+					value: formatCurrency(formatUnits(expectedZCHF(), 18)) + " " + TOKEN_SYMBOL,
 				},
 				{
 					title: "Transaction:",
@@ -149,22 +156,19 @@ export default function ChallengePlaceBid() {
 				success: {
 					render: <TxToast title="Successfully Placed Bid" rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+			setNavigating(true);
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setBidding(false);
-			setNavigating(true);
 		}
 	};
 
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Bid</title>
+				<title>dEURO - Bid</title>
 			</Head>
 
 			<div className="md:mt-8">
@@ -185,10 +189,10 @@ export default function ChallengePlaceBid() {
 								balanceLabel="Available:"
 							/>
 							<div className="flex flex-col">
-								<span>Your balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} ZCHF</span>
+								<span>Your balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} {TOKEN_SYMBOL}</span>
 							</div>
 							<div className="flex flex-col">
-								<span>Estimated price: {formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} ZCHF</span>
+								<span>Estimated cost: {formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} {TOKEN_SYMBOL}</span>
 							</div>
 						</div>
 
@@ -208,8 +212,8 @@ export default function ChallengePlaceBid() {
 								<DisplayAmount
 									amount={auctionPrice}
 									digits={36 - position.collateralDecimals}
-									address={ADDRESS[chainId].frankenCoin}
-									currency={"ZCHF"}
+									address={ADDRESS[chainId].decentralizedEURO}
+									currency={TOKEN_SYMBOL}
 									className="mt-4"
 								/>
 							</AppBox>
@@ -243,11 +247,11 @@ export default function ChallengePlaceBid() {
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Reaching zero at" />
-								{formatDate(maturity / 1000) || "---"}
+								{formatDate(zeroPriceTimestamp / 1000) || "---"}
 							</AppBox>
 						</div>
 						<div className="mx-auto mt-4 w-72 max-w-full flex-col">
-							<GuardToAllowedChainBtn>
+							<GuardToAllowedChainBtn label="Buy">
 								<Button
 									disabled={amount == 0n || expectedZCHF() > userBalance || error != ""}
 									isLoading={isBidding}

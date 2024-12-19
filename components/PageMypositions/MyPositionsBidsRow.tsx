@@ -1,6 +1,6 @@
 import { Address, formatUnits, zeroAddress } from "viem";
 import TableRow from "../Table/TableRow";
-import { BidsQueryItem, ChallengesId } from "@frankencoin/api";
+import { BidsQueryItem, ChallengesId } from "@deuro/api";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import TokenLogo from "@components/TokenLogo";
@@ -10,6 +10,7 @@ import { useRouter as useNavigation } from "next/navigation";
 import Button from "@components/Button";
 import { useAccount } from "wagmi";
 import AppBox from "@components/AppBox";
+import { TOKEN_SYMBOL } from "@utils";
 
 interface Props {
 	headers: string[];
@@ -42,7 +43,7 @@ export default function MyPositionsBidsRow({ headers, bid }: Props) {
 			headers={headers}
 			actionCol={
 				<div className="">
-					<Button className="h-10" disabled={isDisabled} onClick={() => navigate.push(`/challenges/${bid.number}/bid`)}>
+					<Button className="h-10" disabled={isDisabled} onClick={() => navigate.push(`/challenges/${challenge.id}/bid`)}>
 						Buy Again
 					</Button>
 				</div>
@@ -74,13 +75,13 @@ export default function MyPositionsBidsRow({ headers, bid }: Props) {
 			{/* Price */}
 			<div className="flex flex-col">
 				<div className="text-md text-text-primary">
-					{formatCurrency(formatUnits(bid.price, 36 - position.collateralDecimals), 2, 2)} ZCHF
+					{formatCurrency(formatUnits(bid.price, 36 - position.collateralDecimals), 2, 2)} {TOKEN_SYMBOL}
 				</div>
 			</div>
 
 			{/* Bid */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-primary">{`${formatCurrency(formatUnits(bid.bid, 18), 2, 2)} ZCHF`}</div>
+				<div className="text-md text-text-primary">{`${formatCurrency(formatUnits(bid.bid, 18), 2, 2)} ${TOKEN_SYMBOL}`}</div>
 			</div>
 
 			{/* State */}

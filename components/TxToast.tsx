@@ -3,12 +3,28 @@ import { shortenHash, transactionLink } from "@utils";
 import { Hash } from "viem";
 import { WAGMI_CHAIN } from "../app.config";
 
-export const renderErrorToast = (error: any) => {
+export const renderErrorToast = (error: string | string[]) => {
+	error = typeof error == "string" ? [error] : error;
+	return (
+		<TxToast
+			title="Transaction Failed!"
+			rows={error.map((e) => {
+				return { title: e };
+			})}
+		/>
+	);
+};
+
+export const renderErrorTxToast = (error: any) => {
+	const errorLines: string[] = error.message.split("\n");
+	return renderErrorTxStackToast(error, 2);
+};
+export const renderErrorTxStackToast = (error: any, limit: number) => {
 	const errorLines: string[] = error.message.split("\n");
 	return (
 		<TxToast
 			title="Transaction Failed!"
-			rows={errorLines.slice(0, errorLines.length - 3).map((line) => {
+			rows={errorLines.slice(0, limit == 0 ? errorLines.length : limit).map((line) => {
 				return {
 					title: "",
 					value: line,

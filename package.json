@@ -1,6 +1,6 @@
 {
-	"name": "frankencoin-dapp",
-	"version": "0.2.0",
+	"name": "euro-dapp",
+	"version": "1.0.0",
 	"private": false,
 	"license": "MIT",
 	"scripts": {
@@ -14,16 +14,18 @@
 		"lint:check": "prettier --check .",
 		"lint:fix": "prettier --write .",
 		"prettier-watch": "onchange \"**/*\" -- prettier --write --ignore-unknown {{changed}}",
-		"deploy": "gh-pages -d build"
+		"deploy": "gh-pages -d build",
+		"docker": "next build && next start"
 	},
 	"dependencies": {
 		"@apollo/client": "^3.8.0",
+		"@deuro/api": "^0.2.5",
+		"@deuro/eurocoin": "1.0.7",
 		"@ethersproject/units": "^5.7.0",
 		"@fortawesome/fontawesome-svg-core": "^6.4.2",
 		"@fortawesome/free-brands-svg-icons": "^6.4.2",
 		"@fortawesome/free-solid-svg-icons": "^6.4.2",
 		"@fortawesome/react-fontawesome": "^0.2.0",
-		"@frankencoin/api": "^0.0.13",
 		"@reduxjs/toolkit": "^2.2.5",
 		"@tanstack/react-query": "^5.40.0",
 		"@types/node": "18.11.11",
@@ -70,5 +72,6 @@
 	"resolutions": {
 		"@types/react": "^18.3.0",
 		"@types/react-dom": "18.3.0"
-	}
+	},
+	"packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

@@ -1,4 +1,4 @@
-import { PositionQuery, ApiPositionsListing, ApiPositionsOwners, ApiPositionsMapping } from "@frankencoin/api";
+import { PositionQuery, ApiPositionsListing, ApiPositionsOwners, ApiPositionsMapping } from "@deuro/api";
 import { Address } from "viem";
 
 // --------------------------------------------------------------------------------

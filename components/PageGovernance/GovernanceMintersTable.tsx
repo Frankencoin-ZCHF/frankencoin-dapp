@@ -4,7 +4,7 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { MinterQuery } from "@frankencoin/api";
+import { MinterQuery } from "@deuro/api";
 import { useState } from "react";
 import GovernanceMintersRow from "./GovernanceMintersRow";
 
@@ -13,7 +13,7 @@ export default function GovernanceMintersTable() {
 	const [tab, setTab] = useState<string>(headers[3]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
-	const minters = useSelector((state: RootState) => state.ecosystem.frankencoinMinters.list);
+	const minters = useSelector((state: RootState) => state.ecosystem.stablecoinMinters.list);
 	if (!minters) return null;
 
 	const sorted: MinterQuery[] = sortMinters({

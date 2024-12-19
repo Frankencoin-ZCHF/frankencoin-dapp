@@ -1,7 +1,7 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
 import { PricesState, DispatchBoolean, DispatchApiPriceMapping, DispatchApiPriceERC20Mapping } from "./prices.types";
-import { ApiPriceERC20, ApiPriceERC20Mapping, ApiPriceMapping } from "@frankencoin/api";
-import { FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { ApiPriceERC20, ApiPriceERC20Mapping, ApiPriceMapping } from "@deuro/api";
+import { DEURO_API_CLIENT } from "../../app.config";
 import { zeroAddress } from "viem";
 
 // --------------------------------------------------------------------------------
@@ -78,16 +78,16 @@ export const fetchPricesList =
 
 		// ---------------------------------------------------------------
 		// Query raw data from backend api
-		const response1 = await FRANKENCOIN_API_CLIENT.get("/prices/mapping");
+		const response1 = await DEURO_API_CLIENT.get("/prices/mapping");
 		dispatch(slice.actions.setListMapping(response1.data as ApiPriceMapping));
 
-		const response2 = await FRANKENCOIN_API_CLIENT.get("/prices/erc20/mint");
+		const response2 = await DEURO_API_CLIENT.get("/prices/erc20/mint");
 		dispatch(slice.actions.setMintERC20Info(response2.data as ApiPriceERC20));
 
-		const response3 = await FRANKENCOIN_API_CLIENT.get("/prices/erc20/collateral");
+		const response3 = await DEURO_API_CLIENT.get("/prices/erc20/collateral");
 		dispatch(slice.actions.setCollateralERC20Info(response3.data as ApiPriceERC20Mapping));
 
-		const response4 = await FRANKENCOIN_API_CLIENT.get("/prices/erc20/fps");
+		const response4 = await DEURO_API_CLIENT.get("/prices/erc20/deps");
 		dispatch(slice.actions.setFpsERC20Info(response4.data as ApiPriceERC20));
 
 		// ---------------------------------------------------------------

@@ -5,7 +5,7 @@ import { formatUnits, zeroAddress } from "viem";
 const TokenLogo = dynamic(() => import("./TokenLogo"), { ssr: false });
 
 interface Props {
-	amount?: bigint;
+	amount?: bigint | number;
 	subAmount?: number;
 	subCurrency?: string;
 	subColor?: string;
@@ -51,7 +51,7 @@ export default function DisplayAmount({
 			<div>
 				<div>
 					<span className={`${bold && "font-bold"} ${big && "text-3xl"}`}>
-						{amount ? formatCurrency(formatUnits(amount, Number(digits))) : "0.00"}
+						{amount ? formatCurrency(typeof amount === "number" ? amount : formatUnits(amount, Number(digits))) : "0.00"}
 					</span>
 					<span>
 						{currency == "%" ? "" : " "}
@@ -67,7 +67,15 @@ export default function DisplayAmount({
 				{subAmount == undefined && usdPrice && usdPrice > 0 && (
 					<div>
 						<span className="text-sm text-slate-500">
-							{amount ? formatCurrency(formatUnits(amount * BigInt(usdPrice * 1e18), Number(digits) + 18)) : "0.00"} USD
+							{amount
+								? formatCurrency(
+										formatUnits(
+											typeof amount === "number" ? BigInt(amount) : amount * BigInt(usdPrice * 1e18),
+											Number(digits) + 18
+										)
+								  )
+								: "0.00"}{" "}
+							USD
 						</span>
 					</div>
 				)}

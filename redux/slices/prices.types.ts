@@ -1,13 +1,9 @@
 import {
 	ERC20Info,
-	PriceQuery,
-	PriceQueryCurrencies,
-	ApiPriceListing,
 	ApiPriceERC20,
 	ApiPriceERC20Mapping,
 	ApiPriceMapping,
-} from "@frankencoin/api";
-import { Address } from "viem";
+} from "@deuro/api";
 
 // --------------------------------------------------------------------------------
 export type PricesState = {

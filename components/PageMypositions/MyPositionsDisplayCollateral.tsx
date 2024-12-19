@@ -1,9 +1,9 @@
-import { formatBigInt, formatCurrency } from "@utils";
+import { formatCurrency, TOKEN_SYMBOL } from "@utils";
 import dynamic from "next/dynamic";
 import { useContractUrl } from "../../hooks/useContractUrl";
 import { Address, formatUnits, zeroAddress } from "viem";
 import Link from "next/link";
-import { PositionQuery } from "@frankencoin/api";
+import { PositionQuery } from "@deuro/api";
 const TokenLogo = dynamic(() => import("../TokenLogo"), { ssr: false });
 
 interface Props {
@@ -36,7 +36,7 @@ export default function MyPositionsDisplayCollateral({ position, collateralPrice
 				<span className={`text-left text-text-primary font-bold`}>
 					{formatCurrency(collateralSize, 2, 2) + " " + position.collateralSymbol}
 				</span>
-				<span className="text-left text-text-subheader text-sm">{formatCurrency(collateralValue, 2, 2)} ZCHF</span>
+				<span className="text-left text-text-subheader text-sm">{formatCurrency(collateralValue, 2, 2)} {TOKEN_SYMBOL}</span>
 			</div>
 		</div>
 	);

@@ -1,43 +1,182 @@
 import Head from "next/head";
-import AppPageHeader from "@components/AppPageHeader";
-import TokenInput from "@components/Input/TokenInput";
-import { useState } from "react";
-import { useContractUrl, useSwapStats } from "@hooks";
+import { useCallback, useEffect, useState } from "react";
 import { erc20Abi, formatUnits, maxUint256 } from "viem";
 import Button from "@components/Button";
-import { useChainId } from "wagmi";
+import { useSwapStats } from "@hooks";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ABIS, ADDRESS } from "@contracts";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown, faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
-import { formatBigInt, shortenAddress } from "@utils";
-import { TxToast, renderErrorToast } from "@components/TxToast";
+import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
+import { formatBigInt, shortenAddress, TOKEN_SYMBOL } from "@utils";
+import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../app.config";
-import Link from "next/link";
 import AppCard from "@components/AppCard";
+import { StablecoinBridgeABI } from "@deuro/eurocoin";
+import TokenInputSelect from "@components/Input/TokenInputSelect";
+
+const STABLECOIN_SYMBOLS = ["EURT", "EURC", "VEUR", "EURS"];
+
+const noTokenMeta = {
+	symbol: "",
+	userBal: 0n,
+	userAllowance: 0n,
+	limit: 0n,
+	minted: 0n,
+	remaining: 0n,
+	decimals: 0n,
+	bridgeBal: 0n,
+	contractBridgeAddress: "0x0",
+	contractAddress: "0x0",
+};
+
+const rebaseDecimals = (amount: bigint, fromDecimals: bigint, toDecimals: bigint) => {
+	return amount * 10n ** toDecimals / 10n ** fromDecimals;
+};
+
+const getAmountWithLeastPrecision = (amount: bigint, fromDecimals: bigint, toDecimals: bigint) => {
+	const potentialAmount = rebaseDecimals(rebaseDecimals(amount, fromDecimals, toDecimals), toDecimals, fromDecimals);
+	return potentialAmount > amount ? amount : potentialAmount;
+};
 
 export default function Swap() {
+	const [fromSymbol, setFromSymbol] = useState(TOKEN_SYMBOL);
+	const [fromOptions, setFromOptions] = useState([TOKEN_SYMBOL]);
+	const [toSymbol, setToSymbol] = useState(STABLECOIN_SYMBOLS[0]);
+	const [toOptions, setToOptions] = useState(STABLECOIN_SYMBOLS);
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
-	const [direction, setDirection] = useState(true);
-	const [isApproving, setApproving] = useState(false);
-	const [isMinting, setMinting] = useState(false);
-	const [isBurning, setBurning] = useState(false);
+	const [isTxOnGoing, setTxOnGoing] = useState(false);
 
-	const chainId = useChainId();
 	const swapStats = useSwapStats();
-	const xchfUrl = useContractUrl(ADDRESS[chainId].xchf);
+
+	const getSelectedStablecoinSymbol = useCallback(() => {
+		return fromSymbol === TOKEN_SYMBOL ? toSymbol : fromSymbol;
+	}, [fromSymbol, toSymbol]);
+
+	const getTokenMetaBySymbol = useCallback(
+		(symbol: string) => {
+			switch (symbol) {
+				case TOKEN_SYMBOL:
+					const stablecoinSymbol = getSelectedStablecoinSymbol();
+					const userAllowance = swapStats.dEuro.bridgeAllowance[stablecoinSymbol as keyof typeof swapStats.dEuro.bridgeAllowance];
+					return {
+						symbol: TOKEN_SYMBOL,
+						userBal: swapStats.dEuro.userBal,
+						userAllowance: userAllowance,
+						limit: 0n,
+						minted: 0n,
+						remaining: 0n,
+						decimals: swapStats.dEuro.decimals,
+						bridgeBal: 0n,
+						contractBridgeAddress: "0x0",
+						contractAddress: swapStats.dEuro.contractAddress,
+					};
+				case "EURT":
+					return swapStats.eurt;
+				case "EURC":
+					return swapStats.eurc;
+				case "VEUR":
+					return swapStats.veur;
+				case "EURS":
+					return swapStats.eurs;
+				default:
+					return noTokenMeta;
+			}
+		},
+		[swapStats, getSelectedStablecoinSymbol]
+	);
+
+	const onChangeAmount = useCallback(
+		(value: string) => {
+			const valueBigInt = BigInt(value);
+			const fromTokenDecimals = getTokenMetaBySymbol(fromSymbol).decimals;
+			const toTokenDecimals = getTokenMetaBySymbol(toSymbol).decimals;
+			const newAmount = getAmountWithLeastPrecision(valueBigInt, fromTokenDecimals, toTokenDecimals);
+			setAmount(newAmount);
+		},
+		[fromSymbol, toSymbol, getTokenMetaBySymbol]
+	);
+
+	const onChangeDirection = () => {
+		// swap symbols
+		const prevFromSymbol = fromSymbol;
+		const prevToSymbol = toSymbol;
+		setFromSymbol(prevToSymbol);
+		setToSymbol(prevFromSymbol);
+
+		// swap options
+		const prevFromOptions = fromOptions;
+		const prevToOptions = toOptions;
+		setFromOptions(prevToOptions);
+		setToOptions(prevFromOptions);
+
+		if (amount > 0n) {
+			const fromTokenData = getTokenMetaBySymbol(fromSymbol);
+			const toTokenData = getTokenMetaBySymbol(toSymbol);
+			const newAmount = rebaseDecimals(amount, fromTokenData.decimals, toTokenData.decimals);
+			setAmount(newAmount);
+		}
+	};
+
+	const onSetFromSymbol = (symbol: string) => {
+		if (amount > 0n) {
+			const newToken = getTokenMetaBySymbol(symbol);
+			const oldToken = getTokenMetaBySymbol(fromSymbol);
+			const newAmount = rebaseDecimals(amount, oldToken.decimals, newToken.decimals);
+			setAmount(newAmount);
+		}
+		setFromSymbol(symbol);
+	};
+
+	const onSetToSymbol = (symbol: string) => {
+		if (amount > 0n) {
+			const fromTokenDecimals = getTokenMetaBySymbol(fromSymbol).decimals;
+			const newTokenDecimals = getTokenMetaBySymbol(symbol).decimals;
+			const newAmount = getAmountWithLeastPrecision(amount, fromTokenDecimals, newTokenDecimals);
+			setAmount(newAmount);
+		}
+		setToSymbol(symbol);
+	};
+
+	// Only for triggering errors when the amount or the symbol is changed
+	useEffect(() => {
+		const fromTokenData = getTokenMetaBySymbol(fromSymbol);
+		const toTokenData = getTokenMetaBySymbol(toSymbol);
+		const isBurning = fromSymbol === TOKEN_SYMBOL;
+		const isMinting = toSymbol === TOKEN_SYMBOL;
+
+		// For adjusting because of the decimal differences between the two token contracts
+		const forwardSubtraction = fromTokenData.decimals - toTokenData.decimals;
+		const backwardSubtraction = toTokenData.decimals - fromTokenData.decimals;
+		const forwardCoefficient = Number(forwardSubtraction) > 0 ? 10n ** BigInt(forwardSubtraction) : 1n;
+		const backwardCoefficient = Number(backwardSubtraction) > 0 ? 10n ** BigInt(backwardSubtraction) : 1n;
+
+		if (amount > fromTokenData.userBal) {
+			setError(`Not enough ${fromSymbol} in your wallet.`);
+		} else if (isBurning && amount * backwardCoefficient > toTokenData.bridgeBal * forwardCoefficient) {
+			setError(`Not enough ${toSymbol} available to swap.`);
+		} else if (isMinting && amount * backwardCoefficient > fromTokenData.remaining * forwardCoefficient) {
+			setError(`Amount exceeds the swap limit.`);
+		} else {
+			setError("");
+		}
+	}, [amount, fromSymbol, toSymbol, getTokenMetaBySymbol]);
 
 	const handleApprove = async () => {
 		try {
-			setApproving(true);
+			setTxOnGoing(true);
+			const fromTokenData = getTokenMetaBySymbol(fromSymbol);
+			const fromContractAddress = fromTokenData.contractAddress;
+
+			const stablecoinSymbol = getSelectedStablecoinSymbol();
+			const bridgeAddress = getTokenMetaBySymbol(stablecoinSymbol).contractBridgeAddress as `0x${string}`;
+
 			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].xchf,
+				address: fromContractAddress as `0x${string}`,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [ADDRESS[chainId].bridge, maxUint256],
+				args: [bridgeAddress, maxUint256],
 			});
 
 			const toastContent = [
@@ -47,7 +186,7 @@ export default function Swap() {
 				},
 				{
 					title: "Spender: ",
-					value: shortenAddress(ADDRESS[chainId].bridge),
+					value: shortenAddress(bridgeAddress),
 				},
 				{
 					title: "Transaction:",
@@ -57,39 +196,43 @@ export default function Swap() {
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title="Approving XCHF" rows={toastContent} />,
+					render: <TxToast title={`Approving ${fromSymbol}`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully Approved XCHF" rows={toastContent} />,
-				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
+					render: <TxToast title={`Successfully Approved ${fromSymbol}`} rows={toastContent} />,
 				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
-			setApproving(false);
+			setTxOnGoing(false);
 		}
 	};
+
+	// You send an stable coin and receive dEUROs
 	const handleMint = async () => {
 		try {
-			setMinting(true);
+			setTxOnGoing(true);
+			const stablecoinSymbol = getSelectedStablecoinSymbol();
+			const bridgeAddress = getTokenMetaBySymbol(stablecoinSymbol).contractBridgeAddress as `0x${string}`;
+
 			const mintWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].bridge,
-				abi: ABIS.StablecoinBridgeABI,
+				address: bridgeAddress,
+				abi: StablecoinBridgeABI,
 				functionName: "mint",
 				args: [amount],
 			});
 
+			const fromDecimals = getTokenMetaBySymbol(fromSymbol).decimals;
+
 			const toastContent = [
 				{
 					title: `${fromSymbol} Amount: `,
-					value: formatBigInt(amount) + " " + fromSymbol,
+					value: formatBigInt(amount, Number(fromDecimals)) + " " + fromSymbol,
 				},
 				{
 					title: `${toSymbol} Amount: `,
-					value: formatBigInt(amount) + " " + toSymbol,
+					value: formatBigInt(amount, Number(fromDecimals)) + " " + toSymbol,
 				},
 				{
 					title: "Transaction:",
@@ -104,35 +247,39 @@ export default function Swap() {
 				success: {
 					render: <TxToast title={`Successfully Swapped ${fromSymbol} to ${toSymbol}`} rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
-			setMinting(false);
+			setTxOnGoing(false);
 		}
 	};
+
+	// You send dEUROs and receive and stable coin
 	const handleBurn = async () => {
 		try {
-			setBurning(true);
+			setTxOnGoing(true);
+
+			const stablecoinSymbol = getSelectedStablecoinSymbol();
+			const bridgeAddress = getTokenMetaBySymbol(stablecoinSymbol).contractBridgeAddress as `0x${string}`;
 
 			const burnWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].bridge,
-				abi: ABIS.StablecoinBridgeABI,
+				address: bridgeAddress,
+				abi: StablecoinBridgeABI,
 				functionName: "burn",
 				args: [amount],
 			});
 
+			const fromDecimals = getTokenMetaBySymbol(fromSymbol).decimals;
+
 			const toastContent = [
 				{
 					title: `${fromSymbol} Amount: `,
-					value: formatBigInt(amount) + " " + fromSymbol,
+					value: formatBigInt(amount, Number(fromDecimals)) + " " + fromSymbol,
 				},
 				{
 					title: `${toSymbol} Amount: `,
-					value: formatBigInt(amount) + " " + toSymbol,
+					value: formatBigInt(amount, Number(fromDecimals)) + " " + toSymbol,
 				},
 				{
 					title: "Transaction:",
@@ -147,65 +294,42 @@ export default function Swap() {
 				success: {
 					render: <TxToast title={`Successfully Swapped ${fromSymbol} to ${toSymbol}`} rows={toastContent} />,
 				},
-				error: {
-					render(error: any) {
-						return renderErrorToast(error);
-					},
-				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
 		} finally {
-			setBurning(false);
+			setTxOnGoing(false);
 		}
 	};
 
-	const fromBalance = direction ? swapStats.xchfUserBal : swapStats.zchfUserBal;
-	const toBalance = !direction ? swapStats.xchfUserBal : swapStats.zchfUserBal;
-	const fromSymbol = direction ? "XCHF" : "ZCHF";
-	const toSymbol = !direction ? "XCHF" : "ZCHF";
-	const swapLimit = direction ? swapStats.bridgeLimit - swapStats.xchfBridgeBal : swapStats.xchfBridgeBal;
+	const fromTokenMeta = getTokenMetaBySymbol(fromSymbol);
+	const toTokenMeta = getTokenMetaBySymbol(toSymbol);
 
-	const onChangeDirection = () => {
-		setDirection(!direction);
-	};
+	const stablecoinMeta = getTokenMetaBySymbol(getSelectedStablecoinSymbol());
+	const limit = fromSymbol === TOKEN_SYMBOL ? stablecoinMeta.bridgeBal : stablecoinMeta.remaining;
 
-	const onChangeAmount = (value: string) => {
-		const valueBigInt = BigInt(value);
-		setAmount(valueBigInt);
-
-		if (valueBigInt > fromBalance) {
-			setError(`Not enough ${fromSymbol} in your wallet.`);
-		} else if (valueBigInt > swapLimit) {
-			setError(`Not enough ${toSymbol} available to swap.`);
-		} else {
-			setError("");
-		}
-	};
+	const outputAmount = formatUnits(rebaseDecimals(amount, fromTokenMeta.decimals, toTokenMeta.decimals), Number(toTokenMeta.decimals));
 
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Swap</title>
+				<title>dEURO - Swap</title>
 			</Head>
 
 			<div className="md:mt-8">
 				<AppCard>
-					<Link href={xchfUrl} target="_blank">
-						<div className="mt-4 text-lg font-bold underline text-center">
-							Swap XCHF and ZCHF
-							<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
-						</div>
-					</Link>
-					<div className="mt-8">
-						Swapping from XCHF to ZCHF will cease to function on 2024-10-26 as the crypto franc is{" "}
-						<Link href="https://www.bitcoinsuisse.com/cryptofranc">discontinued by the isser</Link>.
-					</div>
+					<div className="mt-4 text-lg font-bold underline text-center">Swap {TOKEN_SYMBOL} for other stablecoins</div>
 
 					<div className="mt-8">
-						<TokenInput
-							max={fromBalance}
-							symbol={fromSymbol}
-							limit={swapLimit}
+						<TokenInputSelect
+							digit={fromTokenMeta.decimals}
+							max={fromTokenMeta.userBal}
+							symbol={fromTokenMeta.symbol}
+							symbolOptions={fromOptions}
+							symbolOnChange={(o) => onSetFromSymbol(o.value)}
+							limit={limit}
 							limitLabel="Swap limit"
+							limitDigits={toTokenMeta.decimals}
 							placeholder={"Swap Amount"}
 							onChange={onChangeAmount}
 							value={amount.toString()}
@@ -219,28 +343,29 @@ export default function Swap() {
 						</Button>
 					</div>
 
-					<TokenInput
-						symbol={toSymbol}
-						max={toBalance}
-						output={formatUnits(amount, 18)}
+					<TokenInputSelect
+						digit={toTokenMeta.decimals}
+						max={toTokenMeta.userBal}
+						symbol={toTokenMeta.symbol}
+						symbolOptions={toOptions}
+						symbolOnChange={(o) => onSetToSymbol(o.value)}
+						output={outputAmount}
 						note={`1 ${fromSymbol} = 1 ${toSymbol}`}
 						label="Receive"
 					/>
 
 					<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 						<GuardToAllowedChainBtn>
-							{direction ? (
-								amount > swapStats.xchfUserAllowance ? (
-									<Button isLoading={isApproving} onClick={() => handleApprove()}>
-										Approve
-									</Button>
-								) : (
-									<Button disabled={amount == 0n || !!error} isLoading={isMinting} onClick={() => handleMint()}>
-										Swap
-									</Button>
-								)
+							{amount > fromTokenMeta.userAllowance ? (
+								<Button isLoading={isTxOnGoing} onClick={() => handleApprove()}>
+									Approve
+								</Button>
+							) : fromSymbol === TOKEN_SYMBOL ? (
+								<Button disabled={amount == 0n || !!error} isLoading={isTxOnGoing} onClick={() => handleBurn()}>
+									Swap
+								</Button>
 							) : (
-								<Button isLoading={isBurning} disabled={amount == 0n || !!error} onClick={() => handleBurn()}>
+								<Button disabled={amount == 0n || !!error} isLoading={isTxOnGoing} onClick={() => handleMint()}>
 									Swap
 								</Button>
 							)}

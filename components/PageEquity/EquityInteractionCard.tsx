@@ -1,23 +1,36 @@
 import React, { useState } from "react";
 import { useContractUrl } from "@hooks";
-import { SOCIAL } from "@utils";
+import { NATIVE_POOL_SHARE_TOKEN_SYMBOL, POOL_SHARE_TOKEN_SYMBOL, TOKEN_SYMBOL } from "@utils";
 import { useChainId } from "wagmi";
-import { ADDRESS } from "@contracts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import EquityInteractionWithZCHFFPS from "./EquityInteractionWithZCHFFPS";
 import EquityInteractionWithFPSWFPS from "./EquityInteractionWithFPSWFPS";
 import EquityInteractionWithWFPSRedeem from "./EquityInteractionWithWFPSRedeem";
+import { ADDRESS } from "@deuro/eurocoin";
 
 export const EquityTokenSelectorMapping: { [key: string]: string[] } = {
-	ZCHF: ["FPS"],
-	FPS: ["ZCHF", "WFPS"],
-	WFPS: ["FPS", "ZCHF"],
+	[TOKEN_SYMBOL]: [NATIVE_POOL_SHARE_TOKEN_SYMBOL],
+	[NATIVE_POOL_SHARE_TOKEN_SYMBOL]: [TOKEN_SYMBOL, POOL_SHARE_TOKEN_SYMBOL],
+	[POOL_SHARE_TOKEN_SYMBOL]: [NATIVE_POOL_SHARE_TOKEN_SYMBOL, TOKEN_SYMBOL],
 };
 
 export default function EquityInteractionCard() {
-	const [tokenFromTo, setTokenFromTo] = useState<{ from: string; to: string }>({ from: "ZCHF", to: "FPS" });
+	const [tokenFromTo, setTokenFromTo] = useState<{ from: string; to: string }>({
+		from: TOKEN_SYMBOL,
+		to: NATIVE_POOL_SHARE_TOKEN_SYMBOL,
+	});
+
+	const onTokenFromToChange = (newSelection: { from: string; to: string }) => {
+		const toTokenOptions = EquityTokenSelectorMapping[newSelection.from];
+		const isToTokenAvailable = toTokenOptions.includes(newSelection.to);
+		const adjustedSelection = {
+			from: newSelection.from,
+			to: isToTokenAvailable ? newSelection.to : toTokenOptions[0],
+		}		
+		setTokenFromTo(adjustedSelection);
+	};
 
 	const chainId = useChainId();
 	const equityUrl = useContractUrl(ADDRESS[chainId].equity);
@@ -26,32 +39,34 @@ export default function EquityInteractionCard() {
 		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
 			<Link href={equityUrl} target="_blank">
 				<div className="mt-4 text-lg font-bold underline text-center">
-					Frankencoin Pool Shares (FPS)
+					Decentralized Euro Pool Shares ({NATIVE_POOL_SHARE_TOKEN_SYMBOL})
 					<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
 				</div>
 			</Link>
 
 			{/* Load modules dynamically */}
-			{(tokenFromTo.from === "ZCHF" && tokenFromTo.to === "FPS") || (tokenFromTo.from === "FPS" && tokenFromTo.to === "ZCHF") ? (
+			{(tokenFromTo.from === TOKEN_SYMBOL && tokenFromTo.to === NATIVE_POOL_SHARE_TOKEN_SYMBOL) ||
+			(tokenFromTo.from === NATIVE_POOL_SHARE_TOKEN_SYMBOL && tokenFromTo.to === TOKEN_SYMBOL) ? (
 				<EquityInteractionWithZCHFFPS
 					tokenFromTo={tokenFromTo}
-					setTokenFromTo={setTokenFromTo}
+					setTokenFromTo={onTokenFromToChange}
 					selectorMapping={EquityTokenSelectorMapping}
 				/>
 			) : null}
 
-			{(tokenFromTo.from === "FPS" && tokenFromTo.to === "WFPS") || (tokenFromTo.from === "WFPS" && tokenFromTo.to === "FPS") ? (
+			{(tokenFromTo.from === NATIVE_POOL_SHARE_TOKEN_SYMBOL && tokenFromTo.to === POOL_SHARE_TOKEN_SYMBOL) ||
+			(tokenFromTo.from === POOL_SHARE_TOKEN_SYMBOL && tokenFromTo.to === NATIVE_POOL_SHARE_TOKEN_SYMBOL) ? (
 				<EquityInteractionWithFPSWFPS
 					tokenFromTo={tokenFromTo}
-					setTokenFromTo={setTokenFromTo}
+					setTokenFromTo={onTokenFromToChange}
 					selectorMapping={EquityTokenSelectorMapping}
 				/>
 			) : null}
 
-			{tokenFromTo.from === "WFPS" && tokenFromTo.to === "ZCHF" ? (
+			{tokenFromTo.from === POOL_SHARE_TOKEN_SYMBOL && tokenFromTo.to === TOKEN_SYMBOL ? (
 				<EquityInteractionWithWFPSRedeem
 					tokenFromTo={tokenFromTo}
-					setTokenFromTo={setTokenFromTo}
+					setTokenFromTo={onTokenFromToChange}
 					selectorMapping={EquityTokenSelectorMapping}
 				/>
 			) : null}
@@ -63,11 +78,7 @@ export default function EquityInteractionCard() {
 					target="_blank"
 					className="underline"
 				>
-					WFPS
-				</Link>{" "}
-				for{" "}
-				<Link href={SOCIAL.Uniswap_WFPS_Polygon} target="_blank" className="underline">
-					trading on Polygon
+					{POOL_SHARE_TOKEN_SYMBOL}
 				</Link>
 			</div>
 		</div>

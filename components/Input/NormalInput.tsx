@@ -15,6 +15,8 @@ interface Props {
 	value?: string;
 	onChange?: (value: string) => void;
 	error?: string;
+	autofocus?: boolean;
+	disabled?: boolean;
 }
 
 export default function NormalInput({
@@ -28,6 +30,8 @@ export default function NormalInput({
 	value,
 	onChange,
 	error,
+	autofocus = false,
+	disabled = false,
 }: Props) {
 	return (
 		<div>
@@ -46,12 +50,13 @@ export default function NormalInput({
 							}`}
 						>
 							<BigNumberInput
-								autofocus={true}
+								autofocus={autofocus}
 								decimals={Number(digit)}
 								placeholder={placeholder}
 								value={value || ""}
 								onChange={(e) => onChange?.(e)}
 								className={`w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg`}
+								disabled={disabled}
 							/>
 						</div>
 					)}

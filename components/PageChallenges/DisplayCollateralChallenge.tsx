@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 import { useContractUrl } from "../../hooks/useContractUrl";
 import { Address, formatUnits, zeroAddress } from "viem";
 import Link from "next/link";
-import { ChallengesQueryItem, PositionQuery } from "@frankencoin/api";
+import { ChallengesQueryItem, PositionQuery } from "@deuro/api";
 const TokenLogo = dynamic(() => import("../TokenLogo"), { ssr: false });
 
 interface Props {
@@ -57,7 +57,7 @@ export default function DisplayCollateralChallenge({
 					{challengeRemainingSize > 0 ? formatCurrency(challengeRemainingSize, 2, 2) : "-.--"} {position.collateralSymbol}
 				</span>
 				<span className={`text-sm ${challengeAuctionPriceColor}`}>
-					{formatCurrency(challengeRemainingPriceZchf, 2, 2) || "0.00"} {position.zchfSymbol}
+					{formatCurrency(challengeRemainingPriceZchf, 2, 2) || "0.00"} {position.deuroSymbol}
 				</span>
 			</div>
 		</div>

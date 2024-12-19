@@ -1,15 +1,14 @@
-import { Address, zeroAddress } from "viem";
+import { Address } from "viem";
 import TableRow from "../Table/TableRow";
-import { PositionQuery, BidsQueryItem, ChallengesQueryItem } from "@frankencoin/api";
+import { PositionQuery, ChallengesQueryItem } from "@deuro/api";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import { formatCurrency } from "../../utils/format";
 import MyPositionsDisplayCollateral from "./MyPositionsDisplayCollateral";
-import Link from "next/link";
 import { useRouter as useNavigate } from "next/navigation";
-import { useContractUrl } from "@hooks";
 import Button from "@components/Button";
 import AppBox from "@components/AppBox";
+import { TOKEN_SYMBOL } from "@utils";
 
 interface Props {
 	headers: string[];
@@ -29,49 +28,26 @@ type ChallengeInfos = {
 
 export default function MypositionsRow({ headers, subHeaders, position }: Props) {
 	const navigate = useNavigate();
-	const url = useContractUrl(position.position || zeroAddress);
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const bids = useSelector((state: RootState) => state.bids.positions);
 	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
-	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
-	if (!collTokenPrice || !zchfPrice) return null;
+	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd;
+	if (!collTokenPrice || !deuroPrice) return null;
 
-	const interest: number = Math.round((position.annualInterestPPM / 10 ** 4) * 100) / 100;
-	const reserve: number = Math.round((position.reserveContribution / 10 ** 4) * 100) / 100;
-	const available: number = Math.round((parseInt(position.availableForClones) / 10 ** position.zchfDecimals) * 100) / 100;
-	const price: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
-	const since: number = Math.round((Date.now() - position.start * 1000) / 1000 / 60 / 60 / 24);
-	const maturity: number = Math.round((position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24);
-	const maturityStatusColors = maturity > 60 ? "text-green-300" : maturity < 30 ? "text-red-500" : "text-red-300";
+	const maturity: number = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
 
-	const startStr = new Date(position.start * 1000).toDateString().split(" ");
-	const startString: string = `${startStr[2]} ${startStr[1]} ${startStr[3]} (${since}d)`;
+	const balance: number = parseInt(position.collateralBalance) / 10 ** position.collateralDecimals;
+	const balanceDEURO: number = (balance * collTokenPrice) / deuroPrice;
 
-	const expirationStr = new Date(position.expiration * 1000).toDateString().split(" ");
-	const expirationString: string = `${expirationStr[2]} ${expirationStr[1]} ${expirationStr[3]} (${maturity}d)`;
+	const loanDEURO: number = parseInt(position.minted) / 10 ** position.deuroDecimals;
 
-	const balance: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
-	const balanceZCHF: number = Math.round(((balance * collTokenPrice) / zchfPrice) * 100) / 100;
-	const ballanceUSD: number = Math.round(balance * collTokenPrice * 100) / 100;
-
-	const loanZCHF: number = Math.round((parseInt(position.minted) / 10 ** position.zchfDecimals) * 100) / 100;
-	const loanUSD: number = Math.round(loanZCHF * zchfPrice * 100) / 100;
-	const loanPct: number = Math.round((loanZCHF / balanceZCHF) * 10000) / 100;
-	const loanStatusColors = loanPct > 100 ? "bg-red-300" : loanPct > 10000 / 120 ? "bg-blue-300" : "bg-green-300";
-
-	const liquidationZCHF: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
-	const liquidationUSD: number = Math.round(liquidationZCHF * zchfPrice * 100) / 100;
-	const liquidationPct: number = Math.round((balanceZCHF / (liquidationZCHF * balance)) * 10000) / 100;
-	const liauidationStatusColors = liquidationPct < 100 ? "text-red-500" : liquidationPct < 120 ? "text-red-300" : "text-green-300";
+	const liquidationDEURO: number = parseInt(position.price) / 10 ** (36 - position.collateralDecimals);
+	const liquidationPct: number = (balanceDEURO / (liquidationDEURO * balance)) * 100;
 
 	const positionChallenges = challenges.map[position.position.toLowerCase() as Address] ?? [];
 	const positionChallengesActive = positionChallenges.filter((ch: ChallengesQueryItem) => ch.status == "Active") ?? [];
-
-	const positionChallengesBids = bids.map[position.position.toLowerCase() as Address] ?? [];
-	const positionBidsAverted = positionChallengesBids.filter((b: BidsQueryItem) => b.bidType == "Averted");
-	const positionBidsSucceeded = positionChallengesBids.filter((b: BidsQueryItem) => b.bidType == "Succeeded");
 
 	const states: string[] = ["Closed", "Challenged", "New Request", "Cooldown", "Expiring Soon", "Expired", "Open"];
 	let stateIdx: number = states.length;
@@ -130,14 +106,18 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 	} else if (maturity < 7) {
 		if (maturity > 0) {
 			stateIdx = 4;
-			stateTimePrint = `${maturity} days`;
+			if (maturity < 3) {
+				stateTimePrint = `${formatCurrency(maturity * 24)} hours`;
+			} else {
+				stateTimePrint = `${formatCurrency(Math.round(maturity))} days`;
+			}
 		} else {
 			stateIdx = 5;
 			stateTimePrint = ``;
 		}
 	} else {
 		stateIdx = 6;
-		stateTimePrint = `${maturity} days`;
+		stateTimePrint = `${Math.round(maturity)} days`;
 	}
 
 	function navigateToChallenge() {
@@ -149,11 +129,6 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 			console.log(error);
 		}
 	}
-
-	const openExplorer = (e: any) => {
-		e.preventDefault();
-		window.open(url, "_blank");
-	};
 
 	return (
 		<TableRow
@@ -169,7 +144,7 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 			<div className="flex flex-col max-md:mb-5">
 				{/* desktop view */}
 				<div className="max-md:hidden">
-					<MyPositionsDisplayCollateral position={position} collateralPrice={collTokenPrice} zchfPrice={zchfPrice} />
+					<MyPositionsDisplayCollateral position={position} collateralPrice={collTokenPrice} zchfPrice={deuroPrice} />
 				</div>
 				{/* mobile view */}
 				<AppBox className="md:hidden">
@@ -177,7 +152,7 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 						className={"justify-items-center items-center"}
 						position={position}
 						collateralPrice={collTokenPrice}
-						zchfPrice={zchfPrice}
+						zchfPrice={deuroPrice}
 					/>
 				</AppBox>
 			</div>
@@ -185,15 +160,15 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 			{/* Liquidation */}
 			<div className="flex flex-col">
 				<span className={liquidationPct < 110 ? `text-md font-bold text-text-warning` : "text-md text-text-primary"}>
-					{formatCurrency(liquidationZCHF, 2, 2)} ZCHF
+					{formatCurrency(liquidationDEURO, 2, 2)} {TOKEN_SYMBOL}
 				</span>
-				<span className="text-sm text-text-subheader">{formatCurrency(collTokenPrice / zchfPrice, 2, 2)} ZCHF</span>
+				<span className="text-sm text-text-subheader">{formatCurrency(collTokenPrice / deuroPrice, 2, 2)} {TOKEN_SYMBOL}</span>
 			</div>
 
 			{/* Loan Value */}
 			<div className="flex flex-col">
-				<span className="text-md text-text-primary">{formatCurrency(loanZCHF, 2, 2)} ZCHF</span>
-				<span className="text-sm text-text-subheader">{formatCurrency(balance * liquidationZCHF - loanZCHF, 2, 2)} ZCHF</span>
+				<span className="text-md text-text-primary">{formatCurrency(loanDEURO, 2, 2)} {TOKEN_SYMBOL}</span>
+				<span className="text-sm text-text-subheader">{formatCurrency(balance * liquidationDEURO - loanDEURO, 2, 2)} {TOKEN_SYMBOL}</span>
 			</div>
 
 			{/* State */}
