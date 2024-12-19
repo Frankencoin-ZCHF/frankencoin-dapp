@@ -43,7 +43,7 @@ export default function Governance() {
 			</div>
 
 			<div className="">
-				This is the base rate that is applied when minting new Frankencoins and the rate at which savers continuously accrue
+				This is the base rate that is applied when minting new dEUROs and the rate at which savers continuously accrue
 				interest. Anyone with veto power can propose a change, which can be applied if there is no counter-proposal within seven
 				days.
 			</div>
