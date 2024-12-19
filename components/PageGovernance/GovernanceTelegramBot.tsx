@@ -56,13 +56,13 @@ export default function GovernanceTelegramBot() {
 					</div>
 				</div>
 
-				<div className="">
+				<div className="p-4 flex justify-end items-center">
 					<Image
 						className="cursor-pointer"
 						src="/assets/telegram-qr.png"
 						alt="Logo"
-						width={1000}
-						height={1000}
+						width={450}
+						height={450}
 						onClick={openExplorer}
 					/>
 				</div>
