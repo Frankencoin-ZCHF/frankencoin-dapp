@@ -35,6 +35,10 @@ export default function BorrowTable() {
 				}
 			}
 		});
+		console.log("Map ", highestMaturityMap);
+		const iterator = highestMaturityMap.values();
+		console.log("Iterator ", iterator);
+		console.log("Array ", iterator.toArray());
 		return highestMaturityMap.values().toArray();
 	};
 
