@@ -9,14 +9,6 @@ export default function NextSeoProvider() {
 				type: "website",
 				locale: "en_US",
 				url: "https://app.deuro.com/",
-				// images: [
-				//   {
-				//     url: "https://frankencoin.com//splash.png",
-				//     width: 1670,
-				//     height: 1158,
-				//     alt: "landing page preview",
-				//   },
-				// ],
 			}}
 			twitter={{
 				handle: "@dEURO_com",

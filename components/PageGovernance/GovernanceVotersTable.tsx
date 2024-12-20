@@ -4,7 +4,7 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { useEffect, useState } from "react";
-import { useFPSHolders } from "@hooks";
+import { useNativePSHolders } from "@hooks";
 import { useVotingPowers } from "@hooks";
 import GovernanceVotersRow from "./GovernanceVotersRow";
 
@@ -12,9 +12,10 @@ import { useAccount } from "wagmi";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, EquityABI } from "@deuro/eurocoin";
+
 export type VoteData = {
 	holder: Address;
-	fps: bigint;
+	nativePS: bigint;
 	votingPower: bigint;
 	votingPowerRatio: number;
 };
@@ -23,17 +24,17 @@ export default function GovernanceVotersTable() {
 	const headers: string[] = ["Address", "Balance", "Voting Power"];
 	const [tab, setTab] = useState<string>(headers[2]);
 	const [reverse, setReverse] = useState<boolean>(false);
-	const [accountVotes, setAccountVotes] = useState<VoteData>({ fps: 0n, holder: zeroAddress, votingPower: 0n, votingPowerRatio: 0 });
+	const [accountVotes, setAccountVotes] = useState<VoteData>({ nativePS: 0n, holder: zeroAddress, votingPower: 0n, votingPowerRatio: 0 });
 
 	const account = useAccount();
-	const fpsHolders = useFPSHolders();
-	const votingPowersHook = useVotingPowers(fpsHolders.holders);
+	const nativePoolShareHolders = useNativePSHolders();
+	const votingPowersHook = useVotingPowers(nativePoolShareHolders.holders);
 	const votesTotal = votingPowersHook.totalVotes;
 	const votesData: VoteData[] = votingPowersHook.votesData.map((vp) => {
 		const ratio: number = parseInt(vp.votingPower.toString()) / parseInt(votesTotal.toString());
 		return {
 			holder: vp.holder as Address,
-			fps: BigInt(vp.fps),
+			nativePS: BigInt(vp.nativePS),
 			votingPower: vp.votingPower as bigint,
 			votingPowerRatio: ratio,
 		};
@@ -44,7 +45,7 @@ export default function GovernanceVotersTable() {
 		const holder = account.address;
 
 		const fetcher = async function () {
-			const fps = await readContract(WAGMI_CONFIG, {
+			const nativePS = await readContract(WAGMI_CONFIG, {
 				address: ADDRESS[WAGMI_CHAIN.id].equity,
 				abi: EquityABI,
 				functionName: "balanceOf",
@@ -60,7 +61,7 @@ export default function GovernanceVotersTable() {
 
 			const votingPower = votingPowerRatio * votesTotal;
 
-			setAccountVotes({ holder, fps, votingPower, votingPowerRatio: parseFloat(formatUnits(votingPowerRatio, 18)) });
+			setAccountVotes({ holder, nativePS, votingPower, votingPowerRatio: parseFloat(formatUnits(votingPowerRatio, 18)) });
 		};
 
 		fetcher();
@@ -125,7 +126,7 @@ function sortVotes(params: SortVotes): VoteData[] {
 	if (tab === headers[0]) {
 		votes.sort((a, b) => a.holder.localeCompare(b.holder));
 	} else if (tab === headers[1]) {
-		votes.sort((a, b) => parseInt(b.fps.toString()) - parseInt(a.fps.toString()));
+		votes.sort((a, b) => parseInt(b.nativePS.toString()) - parseInt(a.nativePS.toString()));
 	} else if (tab === headers[2]) {
 		votes.sort((a, b) => b.votingPowerRatio - a.votingPowerRatio);
 	}

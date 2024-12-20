@@ -6,7 +6,7 @@ export const useUserBalance = () => {
 	const chainId = useChainId();
 	const { address } = useAccount();
 
-	const frankenContract = {
+	const deuroContract = {
 		address: ADDRESS[chainId].decentralizedEURO,
 		abi: DecentralizedEUROABI,
 	} as const;
@@ -19,11 +19,10 @@ export const useUserBalance = () => {
 	const account = address || "0x0";
 
 	// Fetch all blockchain stats in one web3 call using multicall
-	const { data, isError, isLoading } = useReadContracts({
+	const { data } = useReadContracts({
 		contracts: [
-			// Frankencoin Calls
 			{
-				...frankenContract,
+				...deuroContract,
 				functionName: "balanceOf",
 				args: [account],
 			},
@@ -35,11 +34,11 @@ export const useUserBalance = () => {
 		],
 	});
 
-	const frankenBalance: bigint = data ? decodeBigIntCall(data[0]) : BigInt(0);
+	const deuroBalance: bigint = data ? decodeBigIntCall(data[0]) : BigInt(0);
 	const equityBalance: bigint = data ? decodeBigIntCall(data[1]) : BigInt(0);
 
 	return {
-		frankenBalance,
+		deuroBalance,
 		equityBalance,
 	};
 };

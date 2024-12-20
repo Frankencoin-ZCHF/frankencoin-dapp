@@ -5,9 +5,9 @@ import { useChainId } from "wagmi";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import EquityInteractionWithZCHFFPS from "./EquityInteractionWithZCHFFPS";
-import EquityInteractionWithFPSWFPS from "./EquityInteractionWithFPSWFPS";
-import EquityInteractionWithWFPSRedeem from "./EquityInteractionWithWFPSRedeem";
+import InteractionStablecoinAndNativePS from "./InteractionStablecoinAndNativePS";
+import InteractionNativePSAndPoolShareToken from "./InteractionNativePSAndPoolShareToken";
+import InteractionPoolShareTokenRedeem from "./InteractionPoolShareTokenRedeem";
 import { ADDRESS } from "@deuro/eurocoin";
 
 export const EquityTokenSelectorMapping: { [key: string]: string[] } = {
@@ -47,7 +47,7 @@ export default function EquityInteractionCard() {
 			{/* Load modules dynamically */}
 			{(tokenFromTo.from === TOKEN_SYMBOL && tokenFromTo.to === NATIVE_POOL_SHARE_TOKEN_SYMBOL) ||
 			(tokenFromTo.from === NATIVE_POOL_SHARE_TOKEN_SYMBOL && tokenFromTo.to === TOKEN_SYMBOL) ? (
-				<EquityInteractionWithZCHFFPS
+				<InteractionStablecoinAndNativePS
 					tokenFromTo={tokenFromTo}
 					setTokenFromTo={onTokenFromToChange}
 					selectorMapping={EquityTokenSelectorMapping}
@@ -56,7 +56,7 @@ export default function EquityInteractionCard() {
 
 			{(tokenFromTo.from === NATIVE_POOL_SHARE_TOKEN_SYMBOL && tokenFromTo.to === POOL_SHARE_TOKEN_SYMBOL) ||
 			(tokenFromTo.from === POOL_SHARE_TOKEN_SYMBOL && tokenFromTo.to === NATIVE_POOL_SHARE_TOKEN_SYMBOL) ? (
-				<EquityInteractionWithFPSWFPS
+				<InteractionNativePSAndPoolShareToken
 					tokenFromTo={tokenFromTo}
 					setTokenFromTo={onTokenFromToChange}
 					selectorMapping={EquityTokenSelectorMapping}
@@ -64,7 +64,7 @@ export default function EquityInteractionCard() {
 			) : null}
 
 			{tokenFromTo.from === POOL_SHARE_TOKEN_SYMBOL && tokenFromTo.to === TOKEN_SYMBOL ? (
-				<EquityInteractionWithWFPSRedeem
+				<InteractionPoolShareTokenRedeem
 					tokenFromTo={tokenFromTo}
 					setTokenFromTo={onTokenFromToChange}
 					selectorMapping={EquityTokenSelectorMapping}

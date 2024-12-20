@@ -22,17 +22,17 @@ interface Props {
 	selectorMapping: { [key: string]: string[] };
 }
 
-export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFromTo, selectorMapping }: Props) {
+export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setTokenFromTo, selectorMapping }: Props) {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [isApproving, setApproving] = useState(false);
 	const [isWrapping, setWrapping] = useState(false);
 	const [isUnwrapping, setUnwrapping] = useState(false);
-	const [fpsAllowance, setFpsAllowance] = useState<bigint>(0n);
-	const [fpsBalance, setFpsBalance] = useState<bigint>(0n);
-	const [wfpsBalance, setWfpsBalance] = useState<bigint>(0n);
-	const [fpsHolding, setFpsHolding] = useState<bigint>(0n);
-	const [wfpsHolding, setWfpsHolding] = useState<bigint>(0n);
+	const [nativePSAllowance, setNativePSAllowance] = useState<bigint>(0n);
+	const [nativePSBalance, setNativePSBalance] = useState<bigint>(0n);
+	const [nativePSHolding, setNativePSHolding] = useState<bigint>(0n);
+	const [psTokenBalance, setPsTokenBalance] = useState<bigint>(0n);
+	const [psTokenHolding, setPsTokenHolding] = useState<bigint>(0n);
 
 	const { data } = useBlockNumber({ watch: true });
 	const { address } = useAccount();
@@ -47,46 +47,46 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 	useEffect(() => {
 		const fetchAsync = async function () {
 			if (account != zeroAddress) {
-				const _fpsAllowance = await readContract(WAGMI_CONFIG, {
+				const _nativePSAllowance = await readContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId].equity,
 					abi: erc20Abi,
 					functionName: "allowance",
 					args: [account, ADDRESS[chainId].DEPSwrapper],
 				});
-				setFpsAllowance(_fpsAllowance);
+				setNativePSAllowance(_nativePSAllowance);
 
-				const _fpsBalance = await readContract(WAGMI_CONFIG, {
+				const _nativePSBalance = await readContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId].equity,
 					abi: erc20Abi,
 					functionName: "balanceOf",
 					args: [account],
 				});
-				setFpsBalance(_fpsBalance);
+				setNativePSBalance(_nativePSBalance);
 
-				const _fpsHolding = await readContract(WAGMI_CONFIG, {
+				const _nativePSHolding = await readContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId].equity,
 					abi: EquityABI,
 					functionName: "holdingDuration",
 					args: [account],
 				});
-				setFpsHolding(_fpsHolding);
+				setNativePSHolding(_nativePSHolding);
 
-				const _wfpsBalance = await readContract(WAGMI_CONFIG, {
+				const _psTokenBalance = await readContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId].DEPSwrapper,
 					abi: erc20Abi,
 					functionName: "balanceOf",
 					args: [account],
 				});
-				setWfpsBalance(_wfpsBalance);
+				setPsTokenBalance(_psTokenBalance);
 			}
 
-			const _wfpsHolding = await readContract(WAGMI_CONFIG, {
+			const _psTokenHolding = await readContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].equity,
 				abi: EquityABI,
 				functionName: "holdingDuration",
 				args: [ADDRESS[chainId].DEPSwrapper],
 			});
-			setWfpsHolding(_wfpsHolding);
+			setPsTokenHolding(_psTokenHolding);
 		};
 
 		fetchAsync();
@@ -215,7 +215,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 		}
 	};
 
-	const fromBalance = direction ? fpsBalance : wfpsBalance;
+	const fromBalance = direction ? nativePSBalance : psTokenBalance;
 	const fromSymbol = direction ? NATIVE_POOL_SHARE_TOKEN_SYMBOL : POOL_SHARE_TOKEN_SYMBOL;
 	const toSymbol = !direction ? NATIVE_POOL_SHARE_TOKEN_SYMBOL : POOL_SHARE_TOKEN_SYMBOL;
 
@@ -264,7 +264,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 					<GuardToAllowedChainBtn label={direction ? "Wrap" : "Unwrap"}>
 						{direction ? (
-							amount > fpsAllowance ? (
+							amount > nativePSAllowance ? (
 								<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>
 									Approve
 								</Button>
@@ -285,19 +285,19 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 			<div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
 					<DisplayLabel label="Your Balance" />
-					<DisplayAmount className="mt-4" amount={fpsBalance} currency={NATIVE_POOL_SHARE_TOKEN_SYMBOL} address={ADDRESS[chainId].equity} />
+					<DisplayAmount className="mt-4" amount={nativePSBalance} currency={NATIVE_POOL_SHARE_TOKEN_SYMBOL} address={ADDRESS[chainId].equity} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label={`Holding Duration ${NATIVE_POOL_SHARE_TOKEN_SYMBOL}`} />
-					{fpsHolding > 0 && fpsHolding < 86_400 * 365 * 10 ? formatDuration(fpsHolding) : "-"}
+					{nativePSHolding > 0 && nativePSHolding < 86_400 * 365 * 10 ? formatDuration(nativePSHolding) : "-"}
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Your Balance" />
-					<DisplayAmount className="mt-4" amount={wfpsBalance} currency={POOL_SHARE_TOKEN_SYMBOL} address={ADDRESS[chainId].DEPSwrapper} />
+					<DisplayAmount className="mt-4" amount={psTokenBalance} currency={POOL_SHARE_TOKEN_SYMBOL} address={ADDRESS[chainId].DEPSwrapper} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label={`Holding Duration ${POOL_SHARE_TOKEN_SYMBOL}`} />
-					{wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 10 ? formatDuration(wfpsHolding) : "-"}
+					{psTokenHolding > 0 && psTokenHolding < 86_400 * 365 * 10 ? formatDuration(psTokenHolding) : "-"}
 				</AppBox>
 			</div>
 		</>

@@ -318,7 +318,7 @@ export default function PositionCreate({}) {
 								value={proposalFee.toString()}
 								onChange={onChangeProposalFee}
 								digit={0}
-								error={userBalance.frankenBalance < BigInt(1000 * 1e18) ? `Not enough ${TOKEN_SYMBOL}` : ""}
+								error={userBalance.deuroBalance < BigInt(1000 * 1e18) ? `Not enough ${TOKEN_SYMBOL}` : ""}
 								disabled={true}
 							/>
 							<NormalInput

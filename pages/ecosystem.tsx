@@ -1,6 +1,6 @@
 import Head from "next/head";
 import CollateralAndPositionsOverview from "@components/PageEcoSystem/CollateralAndPositionsOverview";
-import DistributionZCHF from "@components/PageEcoSystem/DistributionZCHF";
+import DistributionDEURO from "@components/PageEcoSystem/DistributionDEURO";
 
 export default function Overview() {
 	return (
@@ -10,7 +10,7 @@ export default function Overview() {
 			</Head>
 
 			<div className="flex flex-col gap-[4rem] mt-[4rem]">
-				<DistributionZCHF />
+				<DistributionDEURO />
 
 				<CollateralAndPositionsOverview />
 			</div>

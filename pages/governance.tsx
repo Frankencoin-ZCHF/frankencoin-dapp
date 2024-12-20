@@ -23,7 +23,7 @@ export default function Governance() {
 				stability of the dEURO. There is also a{" "}
 				<a
 					target="_blank"
-					href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions/categories/acceptable-collaterals?discussions_q=is%3Aopen+category%3A%22Acceptable+Collaterals%22"
+					href={SOCIAL.Github_contract_discussion}
 				>
 					<span className="font-bold underline">github forum</span>
 				</a>

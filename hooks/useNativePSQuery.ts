@@ -1,6 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
 
-export const useFPSQuery = (id: string) => {
+export const useNativePSQuery = (id: string) => {
 	const { data, loading } = useQuery(
 		gql`
       query {

@@ -34,17 +34,17 @@ export type DispatchApiEcosystemCollateralStats = {
 	payload: ApiEcosystemCollateralStats;
 };
 
-export type DispatchApiEcosystemFpsInfo = {
+export type DispatchApiEcosystemNativePoolShareInfo = {
 	type: string;
 	payload: ApiEcosystemDepsInfo;
 };
 
-export type DispatchApiEcosystemFrankencoinInfo = {
+export type DispatchApiEcosystemStablecoinInfo = {
 	type: string;
 	payload: ApiEcosystemStablecoinInfo;
 };
 
-export type DispatchApiEcosystemFrankencoinMinters = {
+export type DispatchApiEcosystemStablecoinMinters = {
 	type: string;
 	payload: ApiMinterListing;
 };

@@ -144,7 +144,7 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 			<div className="flex flex-col max-md:mb-5">
 				{/* desktop view */}
 				<div className="max-md:hidden">
-					<MyPositionsDisplayCollateral position={position} collateralPrice={collTokenPrice} zchfPrice={deuroPrice} />
+					<MyPositionsDisplayCollateral position={position} collateralPrice={collTokenPrice} deuroPrice={deuroPrice} />
 				</div>
 				{/* mobile view */}
 				<AppBox className="md:hidden">
@@ -152,7 +152,7 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 						className={"justify-items-center items-center"}
 						position={position}
 						collateralPrice={collTokenPrice}
-						zchfPrice={deuroPrice}
+						deuroPrice={deuroPrice}
 					/>
 				</AppBox>
 			</div>

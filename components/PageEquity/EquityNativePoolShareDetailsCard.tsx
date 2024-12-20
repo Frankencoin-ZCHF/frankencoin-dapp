@@ -1,17 +1,17 @@
 import AppBox from "@components/AppBox";
 import DisplayAmount from "@components/DisplayAmount";
 import DisplayLabel from "@components/DisplayLabel";
-import { useFPSQuery, usePoolStats, useTradeQuery } from "@hooks";
+import { useNativePSQuery, usePoolStats, useTradeQuery } from "@hooks";
 import { useChainId } from "wagmi";
 import dynamic from "next/dynamic";
 import { ADDRESS } from "@deuro/eurocoin";
 import { POOL_SHARE_TOKEN_SYMBOL, TOKEN_SYMBOL } from "@utils";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
-export default function EquityFPSDetailsCard() {
+export default function EquityNativePoolShareDetailsCard() {
 	const chainId = useChainId();
 	const poolStats = usePoolStats();
-	const { profit, loss } = useFPSQuery(ADDRESS[chainId].decentralizedEURO);
+	const { profit, loss } = useNativePSQuery(ADDRESS[chainId].decentralizedEURO);
 	const { trades } = useTradeQuery();
 
 	return (
@@ -107,7 +107,7 @@ export default function EquityFPSDetailsCard() {
 					<DisplayLabel label="Total Reserve" />
 					<DisplayAmount
 						className="mt-4"
-						amount={poolStats.frankenTotalReserve}
+						amount={poolStats.deuroTotalReserve}
 						currency={TOKEN_SYMBOL}
 						address={ADDRESS[chainId].decentralizedEURO}
 					/>
@@ -116,7 +116,7 @@ export default function EquityFPSDetailsCard() {
 					<DisplayLabel label="Equity Capital" />
 					<DisplayAmount
 						className="mt-4"
-						amount={poolStats.frankenEquity}
+						amount={poolStats.deuroEquity}
 						currency={TOKEN_SYMBOL}
 						address={ADDRESS[chainId].decentralizedEURO}
 					/>
@@ -125,7 +125,7 @@ export default function EquityFPSDetailsCard() {
 					<DisplayLabel label="Minter Reserve" />
 					<DisplayAmount
 						className="mt-4"
-						amount={poolStats.frankenMinterReserve}
+						amount={poolStats.deuroMinterReserve}
 						currency={TOKEN_SYMBOL}
 						address={ADDRESS[chainId].decentralizedEURO}
 					/>

@@ -25,7 +25,7 @@ interface Props {
 	selectorMapping: { [key: string]: string[] };
 }
 
-export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFromTo, selectorMapping }: Props) {
+export default function InteractionStablecoinAndNativePS({ tokenFromTo, setTokenFromTo, selectorMapping }: Props) {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [isApproving, setApproving] = useState(false);
@@ -166,22 +166,22 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 		}
 	};
 
-	const { data: fpsResult, isLoading: shareLoading } = useReadContract({
+	const { data: nativePSResult, isLoading: shareLoading } = useReadContract({
 		address: ADDRESS[chainId].equity,
 		abi: EquityABI,
 		functionName: "calculateShares",
 		args: [amount],
 	});
 
-	const { data: frankenResult, isLoading: proceedLoading } = useReadContract({
+	const { data: deuroResult, isLoading: proceedLoading } = useReadContract({
 		address: ADDRESS[chainId].equity,
 		abi: EquityABI,
 		functionName: "calculateProceeds",
 		args: [amount],
 	});
 
-	const fromBalance = direction ? poolStats.frankenBalance : poolStats.equityBalance;
-	const result = (direction ? fpsResult : frankenResult) || 0n;
+	const fromBalance = direction ? poolStats.deuroBalance : poolStats.equityBalance;
+	const result = (direction ? nativePSResult : deuroResult) || 0n;
 	const fromSymbol = direction ? TOKEN_SYMBOL : NATIVE_POOL_SHARE_TOKEN_SYMBOL;
 	const toSymbol = !direction ? TOKEN_SYMBOL : NATIVE_POOL_SHARE_TOKEN_SYMBOL;
 	const unlocked =

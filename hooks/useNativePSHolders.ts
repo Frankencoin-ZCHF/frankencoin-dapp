@@ -1,15 +1,15 @@
 import { gql, useQuery } from "@apollo/client";
 import { Address } from "viem";
 
-export interface FPSHolder {
+export interface NativePSHolder {
 	id: string;
 	address: Address;
 	votingPower: bigint;
 }
 
-export const useFPSHolders = (): {
+export const useNativePSHolders = (): {
 	loading: boolean;
-	holders: FPSHolder[];
+	holders: NativePSHolder[];
 } => {
 	const { data, loading } = useQuery(
 		gql`

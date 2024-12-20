@@ -91,7 +91,7 @@ export default function MonitoringForceSell() {
 	const declineOnePriceTimestamp = start + duration;
 	const zeroPriceTimestamp = start + 2 * duration;
 
-	const expectedZCHF = (bidAmount?: bigint) => {
+	const expectedEURO = (bidAmount?: bigint) => {
 		if (!bidAmount) bidAmount = amount;
 		return (bidAmount * auctionPrice) / BigInt(1e18);
 	};
@@ -100,7 +100,7 @@ export default function MonitoringForceSell() {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
 
-		if (expectedZCHF() > userBalance) {
+		if (expectedEURO() > userBalance) {
 			setError(`Not enough ${TOKEN_SYMBOL} in your wallet to cover the expected costs.`);
 		} else if (valueBigInt > BigInt(position.collateralBalance)) {
 			setError("Expected buying collateral should be lower than remaining collateral.");
@@ -127,7 +127,7 @@ export default function MonitoringForceSell() {
 				},
 				{
 					title: `Expected ${TOKEN_SYMBOL}: `,
-					value: formatCurrency(formatUnits(expectedZCHF(), 18)) + " " + TOKEN_SYMBOL,
+					value: formatCurrency(formatUnits(expectedEURO(), 18)) + " " + TOKEN_SYMBOL,
 				},
 				{
 					title: "Transaction:",
@@ -178,7 +178,7 @@ export default function MonitoringForceSell() {
 								<span>Your balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} {TOKEN_SYMBOL}</span>
 							</div>
 							<div className="flex flex-col">
-								<span>Estimated cost: {formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} {TOKEN_SYMBOL}</span>
+								<span>Estimated cost: {formatCurrency(formatUnits(expectedEURO(), 18), 2, 2)} {TOKEN_SYMBOL}</span>
 							</div>
 						</div>
 
@@ -236,7 +236,7 @@ export default function MonitoringForceSell() {
 							{/* Override lable here */}
 							<GuardToAllowedChainBtn label="Force Sell">
 								<Button
-									disabled={amount == 0n || expectedZCHF() > userBalance || error != ""}
+									disabled={amount == 0n || expectedEURO() > userBalance || error != ""}
 									isLoading={isBidding}
 									onClick={() => handleBid()}
 								>

@@ -35,7 +35,7 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 	useEffect(() => {
 		if (!isDelegateeVotes && isDelegated && !isRevoked) {
 			const fetcher = async function () {
-				const fps = await readContract(WAGMI_CONFIG, {
+				const nativePS = await readContract(WAGMI_CONFIG, {
 					address: ADDRESS[WAGMI_CHAIN.id].equity,
 					abi: EquityABI,
 					functionName: "balanceOf",
@@ -51,7 +51,7 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 
 				const votingPower = votingPowerRatio * votesTotal;
 
-				setDelegateeVotes({ holder: delegatee, fps, votingPower, votingPowerRatio: parseFloat(formatUnits(votingPowerRatio, 18)) });
+				setDelegateeVotes({ holder: delegatee, nativePS, votingPower, votingPowerRatio: parseFloat(formatUnits(votingPowerRatio, 18)) });
 			};
 
 			fetcher();
@@ -94,7 +94,7 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 					</div>
 				</div>
 
-				<div className="flex flex-col">{formatCurrency(formatUnits(voter.fps, 18))} {NATIVE_POOL_SHARE_TOKEN_SYMBOL}</div>
+				<div className="flex flex-col">{formatCurrency(formatUnits(voter.nativePS, 18))} {NATIVE_POOL_SHARE_TOKEN_SYMBOL}</div>
 				<div className={`flex flex-col`}>{formatCurrency(voter.votingPowerRatio * 100)}%</div>
 			</TableRow>
 
@@ -111,7 +111,7 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 					}
 				>
 					<AddressLabelSimple className="text-left" address={delegatee} label="Delegate address" showLink />
-					<div className="flex flex-col">{formatCurrency(formatUnits(isDelegateeVotes?.fps || 0n, 18))} {NATIVE_POOL_SHARE_TOKEN_SYMBOL}</div>
+					<div className="flex flex-col">{formatCurrency(formatUnits(isDelegateeVotes?.nativePS || 0n, 18))} {NATIVE_POOL_SHARE_TOKEN_SYMBOL}</div>
 					<div className={`flex flex-col`}>{formatCurrency((isDelegateeVotes?.votingPowerRatio || 0) * 100)}%</div>
 				</TableRow>
 			) : null}

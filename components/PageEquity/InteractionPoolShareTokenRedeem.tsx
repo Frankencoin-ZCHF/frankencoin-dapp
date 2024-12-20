@@ -23,14 +23,14 @@ interface Props {
 	selectorMapping: { [key: string]: string[] };
 }
 
-export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenFromTo, selectorMapping }: Props) {
+export default function InteractionPoolShareTokenRedeem({ tokenFromTo, setTokenFromTo, selectorMapping }: Props) {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [isApproving, setApproving] = useState(false);
 	const [isRedeeming, setRedeeming] = useState(false);
-	const [wfpsAllowance, setWfpsAllowance] = useState<bigint>(0n);
-	const [wfpsBalance, setWfpsBalance] = useState<bigint>(0n);
-	const [wfpsHolding, setWfpsHolding] = useState<bigint>(0n);
+	const [psTokenAllowance, setPsTokenAllowance] = useState<bigint>(0n);
+	const [psTokenBalance, setPsTokenBalance] = useState<bigint>(0n);
+	const [psTokenHolding, setPsTokenHolding] = useState<bigint>(0n);
 	const [calculateProceeds, setCalculateProceeds] = useState<bigint>(0n);
 
 	const { data } = useBlockNumber({ watch: true });
@@ -48,30 +48,30 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 	useEffect(() => {
 		const fetchAsync = async function () {
 			if (account != zeroAddress) {
-				const _wfpsAllowance = await readContract(WAGMI_CONFIG, {
+				const _psTokenAllowance = await readContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId].DEPSwrapper,
 					abi: erc20Abi,
 					functionName: "allowance",
 					args: [account, ADDRESS[chainId].DEPSwrapper],
 				});
-				setWfpsAllowance(_wfpsAllowance);
+				setPsTokenAllowance(_psTokenAllowance);
 
-				const _wfpsBalance = await readContract(WAGMI_CONFIG, {
+				const _psTokenBalance = await readContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId].DEPSwrapper,
 					abi: erc20Abi,
 					functionName: "balanceOf",
 					args: [account],
 				});
-				setWfpsBalance(_wfpsBalance);
+				setPsTokenBalance(_psTokenBalance);
 			}
 
-			const _wfpsHolding = await readContract(WAGMI_CONFIG, {
+			const _psTokenHolding = await readContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].equity,
 				abi: EquityABI,
 				functionName: "holdingDuration",
 				args: [ADDRESS[chainId].DEPSwrapper],
 			});
-			setWfpsHolding(_wfpsHolding);
+			setPsTokenHolding(_psTokenHolding);
 		};
 
 		fetchAsync();
@@ -176,13 +176,13 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 
 	const fromSymbol = POOL_SHARE_TOKEN_SYMBOL;
 	const toSymbol = TOKEN_SYMBOL;
-	const unlocked = wfpsHolding > 86_400 * 90 && wfpsHolding < 86_400 * 365 * 30;
-	const redeemLeft = unlocked ? 0n : 86_400n * 90n - wfpsHolding;
+	const unlocked = psTokenHolding > 86_400 * 90 && psTokenHolding < 86_400 * 365 * 30;
+	const redeemLeft = unlocked ? 0n : 86_400n * 90n - psTokenHolding;
 
 	const onChangeAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
-		if (valueBigInt > wfpsBalance) {
+		if (valueBigInt > psTokenBalance) {
 			setError(`Not enough ${fromSymbol} in your wallet.`);
 		} else {
 			setError("");
@@ -202,7 +202,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 		<>
 			<div className="mt-8">
 				<TokenInputSelect
-					max={wfpsBalance}
+					max={psTokenBalance}
 					symbol={fromSymbol}
 					symbolOptions={Object.keys(selectorMapping) || []}
 					symbolOnChange={(o) => setTokenFromTo({ from: o.label, to: selectorMapping[o.label][0] })}
@@ -230,7 +230,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 					<GuardToAllowedChainBtn label="Unwrap and Redeem">
-						{amount > wfpsAllowance ? (
+						{amount > psTokenAllowance ? (
 							<Button isLoading={isApproving} disabled={amount == 0n || !!error || !unlocked} onClick={() => handleApprove()}>
 								Approve
 							</Button>
@@ -246,13 +246,13 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 			<div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
 					<DisplayLabel label="Your Balance" />
-					<DisplayAmount className="mt-4" amount={wfpsBalance} currency={POOL_SHARE_TOKEN_SYMBOL} address={ADDRESS[chainId].DEPSwrapper} />
+					<DisplayAmount className="mt-4" amount={psTokenBalance} currency={POOL_SHARE_TOKEN_SYMBOL} address={ADDRESS[chainId].DEPSwrapper} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Value at Current Price" />
 					<DisplayAmount
 						className="mt-4"
-						amount={(poolStats.equityPrice * wfpsBalance) / BigInt(1e18)}
+						amount={(poolStats.equityPrice * psTokenBalance) / BigInt(1e18)}
 						currency={TOKEN_SYMBOL}
 						address={ADDRESS[chainId].decentralizedEURO}
 					/>
@@ -260,7 +260,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 				<AppBox>
 					<DisplayLabel label={`Holding Duration ${POOL_SHARE_TOKEN_SYMBOL} Contract`} />
 					<span className={!unlocked ? "text-text-warning font-bold" : ""}>
-						{wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 10 ? formatDuration(wfpsHolding) : "-"}
+						{psTokenHolding > 0 && psTokenHolding < 86_400 * 365 * 10 ? formatDuration(psTokenHolding) : "-"}
 					</span>
 				</AppBox>
 				<AppBox className="flex-1">

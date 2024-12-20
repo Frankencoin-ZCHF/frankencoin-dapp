@@ -105,7 +105,7 @@ export default function ChallengePlaceBid() {
 	const declineStartTimestamp = start + phase1;
 	const zeroPriceTimestamp = start + phase1 + duration;
 
-	const expectedZCHF = (bidAmount?: bigint) => {
+	const expectedDEURO = (bidAmount?: bigint) => {
 		if (!bidAmount) bidAmount = amount;
 		return challenge ? (bidAmount * auctionPrice) / BigInt(1e18) : BigInt(0);
 	};
@@ -114,7 +114,7 @@ export default function ChallengePlaceBid() {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
 
-		if (expectedZCHF() > userBalance) {
+		if (expectedDEURO() > userBalance) {
 			setError(`Not enough ${TOKEN_SYMBOL} in your wallet to cover the expected costs.`);
 		} else if (valueBigInt > remainingSize) {
 			setError("Expected winning collateral should be lower than remaining collateral.");
@@ -141,7 +141,7 @@ export default function ChallengePlaceBid() {
 				},
 				{
 					title: `Expected ${TOKEN_SYMBOL}: `,
-					value: formatCurrency(formatUnits(expectedZCHF(), 18)) + " " + TOKEN_SYMBOL,
+					value: formatCurrency(formatUnits(expectedDEURO(), 18)) + " " + TOKEN_SYMBOL,
 				},
 				{
 					title: "Transaction:",
@@ -192,7 +192,7 @@ export default function ChallengePlaceBid() {
 								<span>Your balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} {TOKEN_SYMBOL}</span>
 							</div>
 							<div className="flex flex-col">
-								<span>Estimated cost: {formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} {TOKEN_SYMBOL}</span>
+								<span>Estimated cost: {formatCurrency(formatUnits(expectedDEURO(), 18), 2, 2)} {TOKEN_SYMBOL}</span>
 							</div>
 						</div>
 
@@ -253,7 +253,7 @@ export default function ChallengePlaceBid() {
 						<div className="mx-auto mt-4 w-72 max-w-full flex-col">
 							<GuardToAllowedChainBtn label="Buy">
 								<Button
-									disabled={amount == 0n || expectedZCHF() > userBalance || error != ""}
+									disabled={amount == 0n || expectedDEURO() > userBalance || error != ""}
 									isLoading={isBidding}
 									onClick={() => handleBid()}
 								>
