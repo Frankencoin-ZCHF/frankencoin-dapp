@@ -138,18 +138,10 @@ export default function PositionAdjust() {
 
 	const onChangeAmount = (value: string) => {
 		setAmount(BigInt(value));
-		if (liqPrice > 0n && liqPrice <= BigInt(position.price)) {
-			setCollateralAmount((BigInt(value) * parseEther("1")) / liqPrice);
-		} else if (liqPrice > BigInt(position.price)) {
-			setCollateralAmount((BigInt(value) * parseEther("1")) / BigInt(position.price));
-		}
 	};
 
 	const onChangeCollAmount = (value: string) => {
 		setCollateralAmount(BigInt(value));
-		if (liqPrice > 0n && liqPrice > BigInt(position.price)) {
-			setAmount((BigInt(value) * BigInt(position.price)) / parseEther("1"));
-		}
 	};
 
 	function getCollateralError() {
@@ -184,12 +176,6 @@ export default function PositionAdjust() {
 		const valueBigInt = BigInt(value);
 		const isHigher = valueBigInt > BigInt(position.price);
 		setLiqPrice(valueBigInt);
-		if (valueBigInt > 0n && !isHigher) {
-			setCollateralAmount((amount * parseEther("1")) / valueBigInt);
-		} else if (isHigher) {
-			setAmount(BigInt(position.minted));
-			setCollateralAmount(BigInt(position.collateralBalance));
-		}
 	};
 
 	const handleApprove = async () => {
