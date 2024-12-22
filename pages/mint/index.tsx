@@ -18,13 +18,6 @@ export default function Borrow() {
 			</Head>
 
 			<AppTitle title="Mint fresh Frankencoins">
-				<div className="text-text-secondary">
-					New collateral types are currently undergoing the{" "}
-					<Link className="underline font-semibold" href="/governance">
-						governance process
-					</Link>{" "}
-					and will be available soon.
-				</div>
 			</AppTitle>
 
 			<div className="mt-8">

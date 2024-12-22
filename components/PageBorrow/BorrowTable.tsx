@@ -11,8 +11,8 @@ import { useState } from "react";
 import { POSITION_BLACKLISTED } from "../../app.config";
 
 export default function BorrowTable() {
-	const headers: string[] = ["Collateral", "Loan-to-Value", "Interest", "Available", "Maturity"];
-	const [tab, setTab] = useState<string>(headers[3]);
+	const headers: string[] = ["Collateral", "Loan-to-Value", "Effective Interest", "Liquidation Price", "Maturity"];
+	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
 	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
@@ -114,9 +114,9 @@ function sortPositions(
 	} else if (tab === headers[3]) {
 		// sort for Available
 		list.sort(
-			(a, b) =>
-				parseInt(b.isOriginal ? b.availableForClones : b.availableForMinting) -
-				parseInt(a.isOriginal ? a.availableForClones : a.availableForMinting)
+			(a, b) => 
+				parseInt(b.price) -
+				parseInt(a.price)
 		); // default: decrease
 	} else if (tab === headers[4]) {
 		// sort for Maturity

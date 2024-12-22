@@ -26,9 +26,6 @@ export default function BorrowRow({ headers, tab, position }: Props) {
 	const interest: number = position.annualInterestPPM / 10 ** 4;
 	const reserve: number = position.reserveContribution / 10 ** 4;
 
-	const available: number = parseFloat(
-		formatUnits(BigInt(position.isOriginal ? position.availableForClones : position.availableForMinting), 18)
-	);
 	const price: number = parseInt(position.price) / 10 ** (36 - position.collateralDecimals);
 
 	const expirationStr = new Date(position.expiration * 1000).toDateString().split(" ");
@@ -75,7 +72,7 @@ export default function BorrowRow({ headers, tab, position }: Props) {
 			</div>
 
 			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-md">{formatCurrency(available, 2, 2)} ZCHF</div>
+				<div className="col-span-2 text-md">{formatCurrency(price, 2, 2)} ZCHF</div>
 			</div>
 
 			<div className="flex flex-col gap-2">
