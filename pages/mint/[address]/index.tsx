@@ -263,7 +263,7 @@ export default function PositionBorrow({}) {
 			<div className="mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center mt-3">Mint Frankencoins For Yourself</div>
+						<div className="text-lg font-bold text-center mt-3">Mint Fresh Frankencoins</div>
 						<div className="space-y-8">
 							<TokenInput
 								label="Mint Amount"
