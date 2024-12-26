@@ -34,6 +34,7 @@ export default function EquityInteractionCard() {
 
 	const chainId = useChainId();
 	const equityUrl = useContractUrl(ADDRESS[chainId].equity);
+	const wrappedPoolShareUrl = useContractUrl(ADDRESS[chainId].DEPSwrapper);
 
 	return (
 		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
@@ -74,7 +75,7 @@ export default function EquityInteractionCard() {
 			<div className="mt-4">
 				Also available as{" "}
 				<Link
-					href={"https://etherscan.io/address/0x5052d3cc819f53116641e89b96ff4cd1ee80b182"}
+					href={wrappedPoolShareUrl}
 					target="_blank"
 					className="underline"
 				>

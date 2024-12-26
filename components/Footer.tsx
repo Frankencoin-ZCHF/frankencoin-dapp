@@ -20,7 +20,7 @@ const DynamicDocs = (): string => {
 	else if (p.includes("/mypositions")) link += "/positions/adjust";
 	else if (p.includes("/monitoring")) link += "/positions/auctions";
 	else if (p.includes("/challenges")) link += "/positions/auctions";
-	else if (p.includes("/equity")) link += "/pool-shares";
+	else if (p.includes("/equity")) link += "/reserve/pool-shares";
 	else if (p.includes("/savings")) link += "/savings-todo";
 	else if (p.includes("/governance")) link += "/governance";
 	else if (p.includes("/swap")) link += "/swap";
@@ -48,7 +48,7 @@ export default function Footer() {
 					<FooterButton link={DynamicDocs()} text="Doc" icon={faBook} />
 				</li>
 				<li>
-					<FooterButton link={SOCIAL.Github_contract} text="Github" icon={faGithub} />
+					<FooterButton link={SOCIAL.Github_organization} text="Github" icon={faGithub} />
 				</li>
 				<li>
 					<FooterButton link={SOCIAL.Forum} text="Forum" icon={faComments} />
