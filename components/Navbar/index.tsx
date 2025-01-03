@@ -1,12 +1,18 @@
+import { useState } from "react";
 import Link from "next/link";
+import { useSelector } from "react-redux";
 import WalletConnect from "./WalletConnect";
 import NavButton from "./NavButton";
 import { useIsMainnet } from "@hooks";
-import { CONFIG } from "../app.config";
-import { useState } from "react";
+import { CONFIG } from "../../app.config";
+import { GlobalPreferences } from "./GlobalPreferences";
+import { RootState } from "../../redux/redux.store";
+import { ExpertModeToogle } from "./ExpertModeToogle";
 
 export function NavItems() {
 	const isMainet = useIsMainnet();
+	const expertMode = useSelector((state: RootState) => state.globalPreferences.expertMode);
+
 	return (
 		<>
 			<li>
@@ -24,19 +30,19 @@ export function NavItems() {
 			<li>
 				<NavButton to="/challenges" name="Auctions" />
 			</li>
-			{
-				/* TODO: Reactivate when API is ready
+			{/* TODO: Reactivate when API is ready
 				<li>
 					<NavButton to="/savings" name="Savings" />
 				</li>
-				*/
-			}
+				*/}
 			<li>
 				<NavButton to="/equity" name="Equity" />
 			</li>
-			<li>
-				<NavButton to="/governance" name="Governance" />
-			</li>
+			{expertMode && (
+				<li>
+					<NavButton to="/governance" name="Governance" />
+				</li>
+			)}
 		</>
 	);
 }
@@ -62,6 +68,9 @@ export default function Navbar() {
 					</ul>
 
 					<div className="flex flex-1 justify-end items-center max-md:pr-4">
+						<div className=" hidden md:block">
+							<GlobalPreferences />
+						</div>
 						<WalletConnect />
 					</div>
 
@@ -123,6 +132,9 @@ export default function Navbar() {
 										>
 											<NavItems />
 										</menu>
+										<div className="absolute bottom-8 left-6 w-4/5 p-4 border-t border-menu-separator">
+											<ExpertModeToogle />
+										</div>
 									</div>
 								</div>
 							</label>
