@@ -145,12 +145,12 @@ export default function PositionAdjust() {
 	};
 
 	function getCollateralError() {
-		if (collateralAmount - BigInt(position.collateralBalance) > userCollBalance) {
-			return `Insufficient ${position.collateralSymbol} in your wallet.`;
-		} else if (liqPrice > BigInt(position.price) && BigInt(position.price) * collateralAmount < amount * parseEther("1")) {
+		if (liqPrice > BigInt(position.price) && BigInt(position.price) * collateralAmount < amount * parseEther("1")) {
 			return "This position is limited to the old price, add some collateral.";
 		} else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
 			return "Not enough collateral for the given price and mint amount.";
+		} else if (collateralAmount - BigInt(position.collateralBalance) > userCollBalance) {
+			return `Insufficient ${position.collateralSymbol} in your wallet.`;
 		}
 	}
 
@@ -159,14 +159,14 @@ export default function PositionAdjust() {
 			return `This position is ${position.cooldown > 1e30 ? "closed" : "in cooldown, please wait"}`;
 		} else if (amount - BigInt(position.minted) > maxTotalLimit) {
 			return `This position is limited to ${formatCurrency(formatUnits(maxTotalLimit, 18), 2, 2)} ZCHF`;
-		} else if (-paidOutAmount() > userFrankBalance) {
-			return "Insufficient ZCHF in wallet";
 		} else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
 			return `Can mint at most ${formatUnits((collateralAmount * liqPrice) / 10n ** 36n, 0)} ZCHF given price and collateral.`;
+		} else if (amount > BigInt(position.minted) && liqPrice > BigInt(position.price)) {
+			return "Amount can only be increased after new price has gone through cooldown.";
 		} else if (liqPrice > BigInt(position.price) && BigInt(position.price) * collateralAmount < amount * parseEther("1")) {
 			return "This position is limited to the old price, decrease the mint.";
-		} else if (BigInt(position.price) * collateralAmount < BigInt(position.minted)) {
-			return "Amount can only be increased after new price has gone through cooldown.";
+		} else if (userFrankBalance + paidOutAmount() < 0) {
+			return "Insufficient ZCHF in wallet";
 		} else {
 			return "";
 		}
@@ -331,7 +331,6 @@ export default function PositionAdjust() {
 													((isCooldown && amount > 0n) || !!getAmountError() || !!getCollateralError())) ||
 												(challengeSize > 0n && collateralAmount < BigInt(position.collateralBalance))
 											}
-											error={position.owner != account.address ? "You can only adjust your own position" : ""}
 											isLoading={isAdjusting}
 											onClick={() => handleAdjust()}
 										>
