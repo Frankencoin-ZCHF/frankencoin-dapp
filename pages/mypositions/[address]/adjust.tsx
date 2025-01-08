@@ -26,7 +26,7 @@ export default function PositionAdjust() {
 
 	const [userCollAllowance, setUserCollAllowance] = useState(0n);
 	const [userCollBalance, setUserCollBalance] = useState(0n);
-	const [userFrankBalance, setUserFrankBalance] = useState(0n);
+	const [userFrancBalance, setUserFrancBalance] = useState(0n);
 
 	const { data } = useBlockNumber({ watch: true });
 	const account = useAccount();
@@ -51,13 +51,13 @@ export default function PositionAdjust() {
 
 		const fetchAsync = async function () {
 			if (acc !== undefined) {
-				const _balanceFrank = await readContract(WAGMI_CONFIG, {
+				const _balanceFranc = await readContract(WAGMI_CONFIG, {
 					address: ADDRESS[WAGMI_CHAIN.id].frankenCoin,
 					abi: erc20Abi,
 					functionName: "balanceOf",
 					args: [acc],
 				});
-				setUserFrankBalance(_balanceFrank);
+				setUserFrancBalance(_balanceFranc);
 
 				const _balanceColl = await readContract(WAGMI_CONFIG, {
 					address: position.collateral,
@@ -165,7 +165,7 @@ export default function PositionAdjust() {
 			return "Amount can only be increased after new price has gone through cooldown.";
 		} else if (liqPrice > BigInt(position.price) && BigInt(position.price) * collateralAmount < amount * parseEther("1")) {
 			return "This position is limited to the old price, decrease the mint.";
-		} else if (userFrankBalance + paidOutAmount() < 0) {
+		} else if (userFrancBalance + paidOutAmount() < 0) {
 			return "Insufficient ZCHF in wallet";
 		} else {
 			return "";
