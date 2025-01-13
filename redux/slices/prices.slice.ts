@@ -1,7 +1,7 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
 import { PricesState, DispatchBoolean, DispatchApiPriceMapping, DispatchApiPriceERC20Mapping } from "./prices.types";
 import { ApiPriceERC20, ApiPriceERC20Mapping, ApiPriceMapping } from "@frankencoin/api";
-import { FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
 import { zeroAddress } from "viem";
 
 // --------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ export const actions = slice.actions;
 export const fetchPricesList =
 	() => async (dispatch: Dispatch<DispatchBoolean | DispatchApiPriceMapping | DispatchApiPriceERC20Mapping>) => {
 		// ---------------------------------------------------------------
-		console.log("Loading [REDUX]: PricesList");
+		CONFIG.verbose && console.log("Loading [REDUX]: PricesList");
 
 		// ---------------------------------------------------------------
 		// Query raw data from backend api

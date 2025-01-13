@@ -1,6 +1,7 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
 import { Address } from "viem";
 import { DashboardState, DispatchBoolean } from "./dashboard.types";
+import { CONFIG } from "../../app.config";
 
 // --------------------------------------------------------------------------------
 
@@ -40,7 +41,7 @@ export const actions = slice.actions;
 // --------------------------------------------------------------------------------
 export const fetchDashboard = (address: Address) => async (dispatch: Dispatch<DispatchBoolean>) => {
 	// ---------------------------------------------------------------
-	console.log("Loading [REDUX]: Dashboard");
+	CONFIG.verbose && console.log("Loading [REDUX]: Dashboard");
 
 	// ---------------------------------------------------------------
 	// Finalizing, loaded set to true

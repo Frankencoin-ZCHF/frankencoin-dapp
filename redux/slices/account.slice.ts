@@ -1,6 +1,7 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
 import { AccountState, DispatchBoolean } from "./account.types";
 import { Address } from "viem";
+import { CONFIG } from "../../app.config";
 
 // --------------------------------------------------------------------------------
 
@@ -42,7 +43,7 @@ export const actions = slice.actions;
 export const fetchAccount = (address: Address | undefined) => async (dispatch: Dispatch<DispatchBoolean>) => {
 	// ---------------------------------------------------------------
 	// Log, set loading to true
-	console.log("Loading [REDUX]: Account");
+	CONFIG.verbose && console.log("Loading [REDUX]: Account");
 	dispatch(slice.actions.setLoading(true));
 
 	// ---------------------------------------------------------------

@@ -1,5 +1,5 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
-import { FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
 import {
 	DispatchApiEcosystemCollateralPositions,
 	DispatchApiEcosystemCollateralStats,
@@ -110,7 +110,7 @@ export const fetchEcosystem =
 		>
 	) => {
 		// ---------------------------------------------------------------
-		console.log("Loading [REDUX]: Ecosystem");
+		CONFIG.verbose && console.log("Loading [REDUX]: Ecosystem");
 
 		// ---------------------------------------------------------------
 		// Query raw data from backend api

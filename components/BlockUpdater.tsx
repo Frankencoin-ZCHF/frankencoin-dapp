@@ -7,7 +7,7 @@ import { fetchPositionsList } from "../redux/slices/positions.slice";
 import { fetchPricesList } from "../redux/slices/prices.slice";
 import { fetchAccount, actions as accountActions } from "../redux/slices/account.slice";
 import { useIsConnectedToCorrectChain } from "../hooks/useWalletConnectStats";
-import { WAGMI_CHAIN } from "../app.config";
+import { CONFIG, WAGMI_CHAIN } from "../app.config";
 import LoadingScreen from "./LoadingScreen";
 import { fetchChallengesList } from "../redux/slices/challenges.slice";
 import { fetchBidsList } from "../redux/slices/bids.slice";
@@ -79,7 +79,7 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		setLatestHeight(fetchedLatestHeight);
 
 		// Block update policy: EACH BLOCK
-		console.log(`Policy [BlockUpdater]: EACH BLOCK ${fetchedLatestHeight}`);
+		CONFIG.verbose && console.log(`Policy [BlockUpdater]: EACH BLOCK ${fetchedLatestHeight}`);
 		store.dispatch(fetchPositionsList());
 		store.dispatch(fetchChallengesList());
 		store.dispatch(fetchBidsList());
@@ -90,7 +90,7 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 
 		// Block update policy: EACH 10 BLOCKS
 		if (fetchedLatestHeight >= latestHeight10 + 10) {
-			console.log(`Policy [BlockUpdater]: EACH 10 BLOCKS ${fetchedLatestHeight}`);
+			CONFIG.verbose && console.log(`Policy [BlockUpdater]: EACH 10 BLOCKS ${fetchedLatestHeight}`);
 			setLatestHeight10(fetchedLatestHeight);
 		}
 
@@ -102,7 +102,7 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	// Connected to correct chain changes
 	useEffect(() => {
 		if (isConnectedToCorrectChain !== latestConnectedToChain) {
-			console.log(`Policy [BlockUpdater]: Connected to correct chain changed: ${isConnectedToCorrectChain}`);
+			CONFIG.verbose && console.log(`Policy [BlockUpdater]: Connected to correct chain changed: ${isConnectedToCorrectChain}`);
 			setLatestConnectedToChain(isConnectedToCorrectChain);
 		}
 	}, [isConnectedToCorrectChain, latestConnectedToChain]);
@@ -112,12 +112,12 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	useEffect(() => {
 		if (!address && latestAddress) {
 			setLatestAddress(undefined);
-			console.log(`Policy [BlockUpdater]: Address reset`);
+			CONFIG.verbose && console.log(`Policy [BlockUpdater]: Address reset`);
 			store.dispatch(accountActions.resetAccountState());
 			store.dispatch(fetchSavings(undefined));
 		} else if (address && (!latestAddress || address != latestAddress)) {
 			setLatestAddress(address);
-			console.log(`Policy [BlockUpdater]: Address changed to: ${address}`);
+			CONFIG.verbose && console.log(`Policy [BlockUpdater]: Address changed to: ${address}`);
 			store.dispatch(fetchAccount(address));
 			store.dispatch(fetchSavings(address));
 		}

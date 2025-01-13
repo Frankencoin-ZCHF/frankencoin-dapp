@@ -1,7 +1,7 @@
 import { PositionQuery, ApiPositionsListing, ApiPositionsOwners, ApiPositionsMapping } from "@frankencoin/api";
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
 import { uniqueValues } from "@utils";
-import { FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
 import {
 	PositionsState,
 	DispatchBoolean,
@@ -120,7 +120,7 @@ export const fetchPositionsList =
 		>
 	) => {
 		// ---------------------------------------------------------------
-		console.log("Loading [REDUX]: PositionsList");
+		CONFIG.verbose && console.log("Loading [REDUX]: PositionsList");
 
 		// ---------------------------------------------------------------
 		// Query raw data from backend api;

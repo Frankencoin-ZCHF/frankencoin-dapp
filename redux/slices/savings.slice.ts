@@ -1,5 +1,5 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
-import { FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
 import {
 	DispatchApiLeadrateInfo,
 	DispatchApiLeadrateProposed,
@@ -120,7 +120,7 @@ export const fetchSavings =
 		>
 	) => {
 		// ---------------------------------------------------------------
-		console.log("Loading [REDUX]: Savings");
+		CONFIG.verbose && console.log("Loading [REDUX]: Savings");
 
 		// ---------------------------------------------------------------
 		// Query raw data from backend api
