@@ -17,6 +17,7 @@ import { PositionQuery } from "@frankencoin/api";
 import { ADDRESS, PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
 import AppTitle from "@components/AppTitle";
 import Link from "next/link";
+import PositionRollerTable from "@components/PageMypositions/PositionRollerTable";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -271,9 +272,9 @@ export default function PositionAdjust() {
 			</Head>
 
 			<AppTitle title={`Manage Position `}>
-			<Link className="underline" href={`/monitoring/${position.position}`}>
-				(overview)
-			</Link>
+				<Link className="underline" href={`/monitoring/${position.position}`}>
+					({shortenAddress(position.position)})
+				</Link>
 			</AppTitle>
 
 			<div className="md:mt-8">
@@ -408,6 +409,12 @@ export default function PositionAdjust() {
 						</div>
 					</div>
 				</section>
+			</div>
+
+			<AppTitle title={`Renewal Possibilities`}>{/* <div className="text-text-secondary">description</div> */}</AppTitle>
+
+			<div className="md:mt-8">
+				<PositionRollerTable position={position} />
 			</div>
 		</>
 	);
