@@ -14,12 +14,11 @@ export default function MonitoringTable() {
 	const [tab, setTab] = useState<string>(headers[1]);
 	const [reverse, setReverse] = useState<boolean>(true);
 
-	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
+	const { openPositions } = useSelector((state: RootState) => state.positions);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
-	const matchingPositions = openPositionsByCollateral.flat();
 
-	const sorted: PositionQuery[] = sortPositions(matchingPositions, coingecko, challenges, headers, tab, reverse);
+	const sorted: PositionQuery[] = sortPositions(openPositions, coingecko, challenges, headers, tab, reverse);
 
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
@@ -55,9 +54,11 @@ function sortPositions(
 	tab: string,
 	reverse: boolean
 ): PositionQuery[] {
+	let sortingList = [...list]; // make it writeable
+
 	if (tab === headers[0]) {
 		// sort for Collateral Value
-		list.sort((a, b) => {
+		sortingList.sort((a, b) => {
 			const calc = function (p: PositionQuery) {
 				const size: number = parseFloat(formatUnits(BigInt(p.collateralBalance), p.collateralDecimals));
 				const price: number = prices[p.collateral.toLowerCase() as Address]?.price?.chf || 1;
@@ -67,7 +68,7 @@ function sortPositions(
 		});
 	} else if (tab === headers[1]) {
 		// sort for coll.
-		list.sort((a, b) => {
+		sortingList.sort((a, b) => {
 			const calc = function (p: PositionQuery) {
 				const liqPrice: number = parseFloat(formatUnits(BigInt(p.price), 36 - p.collateralDecimals));
 				const price: number = prices[p.collateral.toLowerCase() as Address]?.price?.chf || 1;
@@ -77,12 +78,12 @@ function sortPositions(
 		});
 	} else if (tab === headers[2]) {
 		// sorft for Expiration
-		list.sort((a, b) => {
+		sortingList.sort((a, b) => {
 			return b.expiration - a.expiration;
 		});
 	} else if (tab === headers[3]) {
 		// sort for Challenged
-		list.sort((a, b) => {
+		sortingList.sort((a, b) => {
 			const calc = function (p: PositionQuery) {
 				const size: number = parseFloat(formatUnits(BigInt(p.collateralBalance), p.collateralDecimals));
 				const cp: ChallengesQueryItem[] = challenges.map[p.position.toLowerCase() as Address] || [];
@@ -98,5 +99,5 @@ function sortPositions(
 		});
 	}
 
-	return reverse ? list.reverse() : list;
+	return reverse ? sortingList.reverse() : sortingList;
 }
