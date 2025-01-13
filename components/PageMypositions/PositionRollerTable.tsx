@@ -5,7 +5,7 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
-import { Address, formatUnits, zeroAddress } from "viem";
+import { formatUnits } from "viem";
 import { useState } from "react";
 import PositionRollerRow from "./PositionRollerRow";
 
@@ -27,7 +27,10 @@ export default function PositionRollerTable(params: PositionRollerTableParams) {
 		const toCheck: boolean[] = [];
 		toCheck.push(p.version == 2);
 		toCheck.push(p.collateral.toLowerCase() == position.collateral.toLowerCase());
-		toCheck.push(p.expiration >= position.expiration);
+		toCheck.push(p.position.toLowerCase() != position.position.toLowerCase());
+		toCheck.push(p.expiration > position.expiration);
+		toCheck.push(p.cooldown * 1000 < Date.now());
+		toCheck.push(!p.closed && !p.denied);
 		toCheck.push(BigInt(p.availableForClones) > 0n);
 		return !toCheck.includes(false);
 	});

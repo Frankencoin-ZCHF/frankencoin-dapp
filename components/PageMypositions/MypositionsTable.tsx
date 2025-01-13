@@ -104,10 +104,11 @@ enum PositionState {
 
 function sortPositions(params: SortPositions): PositionQuery[] {
 	const { positions, challenges, prices, headers, tab, reverse } = params;
+	let sortingList = [...positions]; // make it writeable
 
 	if (tab === headers[0]) {
 		// sort for Collateral Value
-		positions.sort((a, b) => {
+		sortingList.sort((a, b) => {
 			const calc = function (p: PositionQuery) {
 				const size: number = parseFloat(formatUnits(BigInt(p.collateralBalance), p.collateralDecimals));
 				const price: number = prices[p.collateral.toLowerCase() as Address]?.price?.chf || 1;
@@ -117,7 +118,7 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 		});
 	} else if (tab === headers[1]) {
 		// sort for coll.
-		positions.sort((a, b) => {
+		sortingList.sort((a, b) => {
 			const calc = function (p: PositionQuery) {
 				const liqPrice: number = parseFloat(formatUnits(BigInt(p.price), 36 - p.collateralDecimals));
 				const price: number = prices[p.collateral.toLowerCase() as Address]?.price?.chf || 1;
@@ -127,12 +128,12 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 		});
 	} else if (tab === headers[2]) {
 		// sort for minted
-		positions.sort((a, b) => {
+		sortingList.sort((a, b) => {
 			return parseInt(b.minted) - parseInt(a.minted);
 		});
 	} else if (tab === headers[3]) {
 		// sort for state
-		positions.sort((a, b) => {
+		sortingList.sort((a, b) => {
 			const calc = function (p: PositionQuery): number {
 				const pid: Address = p.position.toLowerCase() as Address;
 				const cPos = challenges[pid] ?? [];
@@ -158,5 +159,5 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 		});
 	}
 
-	return reverse ? positions.reverse() : positions;
+	return reverse ? sortingList.reverse() : sortingList;
 }

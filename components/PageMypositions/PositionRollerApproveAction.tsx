@@ -6,9 +6,9 @@ import { formatCurrency, shortenAddress } from "@utils";
 import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
-import { Address, formatUnits } from "viem";
+import { Address, formatUnits, maxUint256 } from "viem";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { ADDRESS, EquityABI, FrankencoinABI, PositionRollerABI } from "@frankencoin/zchf";
+import { ADDRESS, EquityABI, ERC20ABI, FrankencoinABI } from "@frankencoin/zchf";
 
 interface Props {
 	amount: bigint;
@@ -31,17 +31,17 @@ export default function PositionRollerApproveAction({ amount, disabled }: Props)
 				address: ADDRESS[WAGMI_CHAIN.id].frankenCoin,
 				abi: FrankencoinABI,
 				functionName: "approve",
-				args: [ADDRESS[WAGMI_CHAIN.id].roller, amount],
+				args: [ADDRESS[WAGMI_CHAIN.id].roller, maxUint256],
 			});
 
 			const toastContent = [
 				{
-					title: `Approve Roller: `,
+					title: `Roller: `,
 					value: shortenAddress(ADDRESS[WAGMI_CHAIN.id].roller),
 				},
 				{
 					title: `Amount: `,
-					value: formatCurrency(formatUnits(amount, 18), 2, 2) || "",
+					value: formatCurrency(formatUnits(amount, 18), 2, 2) + " ZCHF",
 				},
 				{
 					title: "Transaction: ",
@@ -60,7 +60,7 @@ export default function PositionRollerApproveAction({ amount, disabled }: Props)
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(renderErrorTxToastDecode(error, PositionRollerABI));
+			toast.error(renderErrorTxToastDecode(error, ERC20ABI));
 		} finally {
 			setAction(false);
 		}

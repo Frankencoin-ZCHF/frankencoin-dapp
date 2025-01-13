@@ -7,8 +7,9 @@ import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, FrankencoinABI } from "@frankencoin/zchf";
-import { useAccount } from "wagmi";
+import { useAccount, useBlockNumber } from "wagmi";
 import PositionRollerApproveAction from "./PositionRollerApproveAction";
+import PositionRollerFullRollAction from "./PositionRollerFullRollAction";
 
 interface Props {
 	headers: string[];
@@ -19,6 +20,7 @@ interface Props {
 
 export default function PositionRollerRow({ headers, tab, positionToRoll, position }: Props) {
 	const [userAllowance, setUserAllowance] = useState<bigint>(0n);
+	const { data } = useBlockNumber({ watch: true });
 	const { address } = useAccount();
 	const account = address || zeroAddress;
 
@@ -27,7 +29,7 @@ export default function PositionRollerRow({ headers, tab, positionToRoll, positi
 
 		const fetcher = async function () {
 			const allowance = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[WAGMI_CHAIN.id].equity,
+				address: ADDRESS[WAGMI_CHAIN.id].frankenCoin,
 				abi: FrankencoinABI,
 				functionName: "allowance",
 				args: [account, ADDRESS[WAGMI_CHAIN.id].roller],
@@ -37,7 +39,7 @@ export default function PositionRollerRow({ headers, tab, positionToRoll, positi
 		};
 
 		fetcher();
-	}, [account]);
+	}, [data, account]);
 
 	return (
 		<TableRow
@@ -47,9 +49,7 @@ export default function PositionRollerRow({ headers, tab, positionToRoll, positi
 				userAllowance < BigInt(positionToRoll.minted) ? (
 					<PositionRollerApproveAction amount={BigInt(positionToRoll.minted)} />
 				) : (
-					<Button className="h-10" size="md">
-						Roll
-					</Button>
+					<PositionRollerFullRollAction source={positionToRoll} target={position} />
 				)
 			}
 		>

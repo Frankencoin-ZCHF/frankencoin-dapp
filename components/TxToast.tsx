@@ -18,6 +18,7 @@ export const renderErrorToast = (error: string | string[]) => {
 export const renderErrorTxToast = (error: any) => {
 	return renderErrorTxStackToast(error, 2);
 };
+
 export const renderErrorTxToastDecode = (error: any, abi: Abi, stackLimit: number = 2) => {
 	const errorLines: string[] = error.message.split("\n");
 	const errorSignature = errorLines[1];
@@ -37,6 +38,7 @@ export const renderErrorTxToastDecode = (error: any, abi: Abi, stackLimit: numbe
 		return renderErrorTxStackToast(error, stackLimit);
 	}
 };
+
 export const renderErrorTxStackToast = (error: any, limit: number) => {
 	const errorLines: string[] = error.message.split("\n");
 	return (

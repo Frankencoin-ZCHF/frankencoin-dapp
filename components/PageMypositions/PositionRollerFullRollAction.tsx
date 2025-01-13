@@ -3,12 +3,11 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { formatCurrency, shortenAddress } from "@utils";
-import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
+import { renderErrorTxStackToast, renderErrorTxToast, renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
-import { Address, formatUnits } from "viem";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { ADDRESS, EquityABI, FrankencoinABI, PositionRollerABI } from "@frankencoin/zchf";
+import { ADDRESS, ERC20ABI, FrankencoinABI, PositionRollerABI, PositionV2ABI } from "@frankencoin/zchf";
 import { PositionQuery } from "@frankencoin/api";
 
 interface Props {
@@ -62,16 +61,17 @@ export default function PositionRollerFullRollAction({ source, target, disabled 
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(renderErrorTxToastDecode(error, PositionRollerABI));
+			toast.error(renderErrorTxToastDecode(error, PositionV2ABI));
+			// toast.error(renderErrorTxToast(error));
 		} finally {
 			setAction(false);
 		}
 	};
 
 	return (
-		<GuardToAllowedChainBtn label="Rolling" disabled={isHidden || disabled}>
+		<GuardToAllowedChainBtn label="Roll" disabled={isHidden || disabled}>
 			<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
-				Rolling
+				Roll
 			</Button>
 		</GuardToAllowedChainBtn>
 	);
