@@ -29,7 +29,6 @@ export default function PositionRollerTable(params: PositionRollerTableParams) {
 		toCheck.push(p.collateral.toLowerCase() == position.collateral.toLowerCase());
 		toCheck.push(p.position.toLowerCase() != position.position.toLowerCase());
 		toCheck.push(p.expiration > position.expiration);
-		toCheck.push(p.cooldown * 1000 < Date.now());
 		toCheck.push(!p.closed && !p.denied);
 		toCheck.push(BigInt(p.availableForClones) > 0n);
 		return !toCheck.includes(false);

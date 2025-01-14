@@ -2,21 +2,22 @@ import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
-import { formatCurrency, shortenAddress } from "@utils";
-import { renderErrorTxStackToast, renderErrorTxToast, renderErrorTxToastDecode, TxToast } from "@components/TxToast";
+import { shortenAddress } from "@utils";
+import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { ADDRESS, ERC20ABI, FrankencoinABI, PositionRollerABI, PositionV2ABI } from "@frankencoin/zchf";
+import { ADDRESS, PositionRollerABI, PositionV2ABI } from "@frankencoin/zchf";
 import { PositionQuery } from "@frankencoin/api";
 
 interface Props {
+	label?: string;
 	source: PositionQuery;
 	target: PositionQuery;
 	disabled?: boolean;
 }
 
-export default function PositionRollerFullRollAction({ source, target, disabled }: Props) {
+export default function PositionRollerFullRollAction({ label = "Roll", source, target, disabled }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
 	const account = useAccount();
@@ -69,9 +70,9 @@ export default function PositionRollerFullRollAction({ source, target, disabled 
 	};
 
 	return (
-		<GuardToAllowedChainBtn label="Roll" disabled={isHidden || disabled}>
+		<GuardToAllowedChainBtn label={label} disabled={isHidden || disabled}>
 			<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
-				Roll
+				{label}
 			</Button>
 		</GuardToAllowedChainBtn>
 	);

@@ -1,12 +1,11 @@
 import { formatUnits, zeroAddress } from "viem";
 import TableRow from "../Table/TableRow";
 import { PositionQuery } from "@frankencoin/api";
-import { formatCurrency, shortenAddress } from "../../utils/format";
-import Button from "@components/Button";
+import { formatCurrency, FormatType, shortenAddress } from "../../utils/format";
 import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
-import { ADDRESS, FrankencoinABI } from "@frankencoin/zchf";
+import { ADDRESS, ERC20ABI } from "@frankencoin/zchf";
 import { useAccount, useBlockNumber } from "wagmi";
 import PositionRollerApproveAction from "./PositionRollerApproveAction";
 import PositionRollerFullRollAction from "./PositionRollerFullRollAction";
@@ -19,7 +18,7 @@ interface Props {
 }
 
 export default function PositionRollerRow({ headers, tab, positionToRoll, position }: Props) {
-	const [userAllowance, setUserAllowance] = useState<bigint>(0n);
+	const [userCollAllowance, setUserCollAllowance] = useState<bigint>(0n);
 	const { data } = useBlockNumber({ watch: true });
 	const { address } = useAccount();
 	const account = address || zeroAddress;
@@ -29,27 +28,38 @@ export default function PositionRollerRow({ headers, tab, positionToRoll, positi
 
 		const fetcher = async function () {
 			const allowance = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[WAGMI_CHAIN.id].frankenCoin,
-				abi: FrankencoinABI,
+				address: position.collateral,
+				abi: ERC20ABI,
 				functionName: "allowance",
 				args: [account, ADDRESS[WAGMI_CHAIN.id].roller],
 			});
 
-			setUserAllowance(allowance);
+			setUserCollAllowance(allowance);
 		};
 
 		fetcher();
-	}, [data, account]);
+	}, [data, account, position.collateral]);
+
+	const cooldownTimestamp = position.cooldown * 1000;
+	const isCooldown = cooldownTimestamp > Date.now();
+	const timeLeft = isCooldown ? (cooldownTimestamp - Date.now()) / 1000 / 60 / 60 : 0;
+	const cooldownText = formatCurrency(timeLeft, 1, 1, FormatType.us) + "h cooldown";
 
 	return (
 		<TableRow
 			headers={headers}
 			tab={tab}
 			actionCol={
-				userAllowance < BigInt(positionToRoll.minted) ? (
+				// FIXME: use collateral instead of zchf
+				false ? (
 					<PositionRollerApproveAction amount={BigInt(positionToRoll.minted)} />
 				) : (
-					<PositionRollerFullRollAction source={positionToRoll} target={position} />
+					<PositionRollerFullRollAction
+						label={isCooldown ? cooldownText : "Roll"}
+						disabled={isCooldown}
+						source={positionToRoll}
+						target={position}
+					/>
 				)
 			}
 		>
