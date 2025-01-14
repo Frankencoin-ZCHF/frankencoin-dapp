@@ -2,20 +2,21 @@ import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
-import { formatCurrency, shortenAddress } from "@utils";
+import { shortenAddress } from "@utils";
 import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
-import { Address, formatUnits, maxUint256 } from "viem";
+import { maxUint256 } from "viem";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { ADDRESS, EquityABI, ERC20ABI, FrankencoinABI } from "@frankencoin/zchf";
+import { ADDRESS, ERC20ABI } from "@frankencoin/zchf";
+import { PositionQuery } from "@frankencoin/api";
 
 interface Props {
-	amount: bigint;
+	source: PositionQuery;
 	disabled?: boolean;
 }
 
-export default function PositionRollerApproveAction({ amount, disabled }: Props) {
+export default function PositionRollerApproveAction({ source, disabled }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
 	const account = useAccount();
@@ -28,8 +29,8 @@ export default function PositionRollerApproveAction({ amount, disabled }: Props)
 			setAction(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[WAGMI_CHAIN.id].frankenCoin,
-				abi: FrankencoinABI,
+				address: source.collateral,
+				abi: ERC20ABI,
 				functionName: "approve",
 				args: [ADDRESS[WAGMI_CHAIN.id].roller, maxUint256],
 			});
@@ -40,8 +41,8 @@ export default function PositionRollerApproveAction({ amount, disabled }: Props)
 					value: shortenAddress(ADDRESS[WAGMI_CHAIN.id].roller),
 				},
 				{
-					title: `Amount: `,
-					value: formatCurrency(formatUnits(amount, 18), 2, 2) + " ZCHF",
+					title: `Collateral: `,
+					value: shortenAddress(source.collateral),
 				},
 				{
 					title: "Transaction: ",
@@ -51,10 +52,10 @@ export default function PositionRollerApproveAction({ amount, disabled }: Props)
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Approving roller...`} rows={toastContent} />,
+					render: <TxToast title={`Approving collateral for roller...`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully approved roller" rows={toastContent} />,
+					render: <TxToast title="Successfully approved collateral" rows={toastContent} />,
 				},
 			});
 

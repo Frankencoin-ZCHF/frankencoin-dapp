@@ -3,11 +3,11 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
-import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
+import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { ADDRESS, PositionRollerABI, PositionV2ABI } from "@frankencoin/zchf";
+import { ADDRESS, PositionRollerABI } from "@frankencoin/zchf";
 import { PositionQuery } from "@frankencoin/api";
 
 interface Props {
@@ -62,8 +62,7 @@ export default function PositionRollerFullRollAction({ label = "Roll", source, t
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(renderErrorTxToastDecode(error, PositionV2ABI));
-			// toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error));
 		} finally {
 			setAction(false);
 		}

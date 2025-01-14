@@ -50,9 +50,8 @@ export default function PositionRollerRow({ headers, tab, positionToRoll, positi
 			headers={headers}
 			tab={tab}
 			actionCol={
-				// FIXME: use collateral instead of zchf
-				false ? (
-					<PositionRollerApproveAction amount={BigInt(positionToRoll.minted)} />
+				userCollAllowance < BigInt(positionToRoll.collateralBalance) ? (
+					<PositionRollerApproveAction source={positionToRoll} />
 				) : (
 					<PositionRollerFullRollAction
 						label={isCooldown ? cooldownText : "Roll"}
