@@ -13,6 +13,7 @@ import { fetchChallengesList } from "../redux/slices/challenges.slice";
 import { fetchBidsList } from "../redux/slices/bids.slice";
 import { fetchEcosystem } from "../redux/slices/ecosystem.slice";
 import { fetchSavings } from "../redux/slices/savings.slice";
+import { fetchDashboard } from "../redux/slices/dashboard.slice";
 
 let initializing: boolean = false;
 let initStart: number = 0;
@@ -51,6 +52,7 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		store.dispatch(fetchChallengesList());
 		store.dispatch(fetchBidsList());
 		store.dispatch(fetchSavings(latestAddress));
+		store.dispatch(fetchDashboard());
 	}, [initialized, latestAddress]);
 
 	// --------------------------------------------------------------------------------

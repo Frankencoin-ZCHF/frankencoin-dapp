@@ -8,57 +8,43 @@ import { ADDRESS } from "@frankencoin/zchf";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
+import { formatUnits, parseEther, parseUnits } from "viem";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
-const Timeframes = ["All", "1Y", "1Q", "1M", "1W", "1D"];
+const Timeframes = ["All", "1Y", "1Q", "1M", "1W"];
+const TypeCharts = ["FPS Price", "FPS Supply", "Realized Earnings", "Annualized Earnings"];
 
 export default function EquityFPSDetailsCard() {
 	const [timeframe, setTimeframe] = useState<string>(Timeframes[1]);
+	const [typechart, setTypechart] = useState<string>(TypeCharts[0]);
 	const chainId = useChainId();
 	const poolStats = usePoolStats();
-	const { profit, loss } = useFPSQuery(ADDRESS[chainId].frankenCoin);
-	const { price } = useSelector((state: RootState) => state.ecosystem.fpsInfo.values);
-	const { trades } = useTradeQuery();
+	const { logs } = useSelector((state: RootState) => state.dashboard.dailyLog);
 
 	// @dev: show trades since start
-	let startTrades = Date.now() / 1000;
+	let startTrades = Date.now();
 
-	if (timeframe == Timeframes[1]) startTrades -= 365 * 24 * 60 * 60; // 1Y
-	else if (timeframe == Timeframes[2]) startTrades -= 90 * 24 * 60 * 60; // 1Q
-	else if (timeframe == Timeframes[3]) startTrades -= 30 * 24 * 60 * 60; // 1M
-	else if (timeframe == Timeframes[4]) startTrades -= 7 * 24 * 60 * 60; // 1W
-	else if (timeframe == Timeframes[5]) startTrades = Math.floor(new Date().setHours(0, 0, 0, 0) / 1000); // Beginning of today
+	if (timeframe == Timeframes[1]) startTrades -= 365 * 24 * 60 * 60 * 1000; // 1Y
+	else if (timeframe == Timeframes[2]) startTrades -= 90 * 24 * 60 * 60 * 1000; // 1Q
+	else if (timeframe == Timeframes[3]) startTrades -= 30 * 24 * 60 * 60 * 1000; // 1M
+	else if (timeframe == Timeframes[4]) startTrades -= 7 * 24 * 60 * 60 * 1000; // 1W
 	else startTrades = 0; // All
 
-	let matchingTrades = trades.filter((t) => {
-		return parseInt(t.time) >= startTrades;
+	let matchingLogs = logs.filter((t) => {
+		return parseInt(t.timestamp) >= startTrades;
 	});
 
-	// @dev: check if you can have at least the beginning of today
-	if (timeframe == Timeframes[5]) {
-		const beginning = new Date();
-		beginning.setHours(0, 0, 0, 0);
+	const realizedNetEarningsBegin = BigInt(matchingLogs.at(0)?.realizedNetEarnings || "0");
+	const realizedNetEarningsEnd = BigInt(matchingLogs.at(-1)?.realizedNetEarnings || "0");
+	const netIncome = realizedNetEarningsEnd - realizedNetEarningsBegin;
 
-		const lastTrade = trades.find((t) => parseInt(t.time) < Math.floor(beginning.getTime() / 1000));
+	const timestampBegin = BigInt(matchingLogs.at(0)?.timestamp || "0");
+	const timestampEnd = BigInt(matchingLogs.at(-1)?.timestamp || "0");
+	const timestampDiff = timestampEnd - timestampBegin;
+	const oneYear = 365n * 24n * 60n * 60n * 1000n;
 
-		const beginningDayPriceEntry: TradeChart = {
-			id: "BeginningDayPriceEntry",
-			time: Math.floor(beginning.getTime() / 1000).toString(),
-			lastPrice: lastTrade ? lastTrade.lastPrice : Math.floor(price * 10 ** 18).toString(),
-		};
-
-		matchingTrades = [...matchingTrades, beginningDayPriceEntry];
-	}
-
-	// @dev: construct current price state
-	const currentPriceEntry: TradeChart = {
-		id: "CurrentSmartContractPrice",
-		time: Math.floor(Date.now() / 1000).toString(),
-		lastPrice: Math.floor(price * 10 ** 18).toString(),
-	};
-
-	// @dev: include smart contract price as current timestamp
-	matchingTrades = [currentPriceEntry, ...matchingTrades];
+	const totalEquity = BigInt(matchingLogs.at(-1)?.totalEquity || "0");
+	const annualReturn = totalEquity > 0n ? (((netIncome * parseEther("1")) / totalEquity) * oneYear) / timestampDiff : 0n;
 
 	return (
 		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 grid grid-cols-1 gap-2">
@@ -141,18 +127,31 @@ export default function EquityFPSDetailsCard() {
 						}}
 						series={[
 							{
-								name: "FPS Price",
-								data: matchingTrades.map((trade) => {
-									return [parseFloat(trade.time) * 1000, Math.round(Number(trade.lastPrice) / 10 ** 16) / 100];
+								name: typechart,
+								data: matchingLogs.map((entry) => {
+									if (typechart == TypeCharts[0]) {
+										return [parseFloat(entry.timestamp), Math.round(Number(entry.fpsPrice) / 10 ** 16) / 100];
+									} else if (typechart == TypeCharts[1]) {
+										return [parseFloat(entry.timestamp), Math.round(Number(entry.fpsTotalSupply) / 10 ** 16) / 100];
+									} else if (typechart == TypeCharts[2]) {
+										return [
+											parseFloat(entry.timestamp),
+											Math.round(Number(entry.realizedNetEarnings) / 10 ** 16) / 100,
+										];
+									} else {
+										return [parseFloat(entry.timestamp), Math.round(Number(entry.annualNetEarnings) / 10 ** 16) / 100];
+									}
 								}),
 							},
 						]}
 					/>
 				</div>
 
-				{matchingTrades.length == 0 ? (
+				{matchingLogs.length == 0 ? (
 					<div className="flex justify-center text-text-warning">No data available for selected timeframe.</div>
 				) : null}
+
+				<TypeTabs tabs={TypeCharts} tab={typechart} setTab={setTypechart} />
 
 				<TimeframeTabs tabs={Timeframes} tab={timeframe} setTab={setTimeframe} />
 			</div>
@@ -194,20 +193,16 @@ export default function EquityFPSDetailsCard() {
 					/>
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Total Income" />
-					<DisplayAmount
-						className="mt-4 text-text-success"
-						amount={profit}
-						currency="ZCHF"
-						address={ADDRESS[chainId].frankenCoin}
-					/>
+					<DisplayLabel label="Net Income" />
+					<DisplayAmount className="mt-4" amount={netIncome} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Total Spendings" />
+					<DisplayLabel label="Annual Return" />
 					<DisplayAmount
-						className="mt-4 text-text-warning"
-						amount={loss}
+						className="mt-4"
+						amount={annualReturn * 100n}
 						currency="ZCHF"
+						unit="%"
 						address={ADDRESS[chainId].frankenCoin}
 					/>
 				</AppBox>
@@ -233,6 +228,35 @@ function TimeframeTabs(params: TimeframeTabsInterface) {
 					<div
 						key={"key_" + ts}
 						className={`px-6 max-md:px-2 py-2 ${ts == tab ? "text-text-primary font-semibold" : "cursor-pointer"}`}
+						onClick={() => setTab(ts)}
+					>
+						{ts}
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}
+
+interface TypeTabsInterface {
+	tabs: string[];
+	tab: string;
+	setTab: Dispatch<SetStateAction<string>>;
+}
+
+function TypeTabs(params: TypeTabsInterface) {
+	const { tabs, tab, setTab } = params;
+	if (tabs.length == 0) return null;
+
+	return (
+		<div className="bg-card-content-primary mb-5 rounded-2xl">
+			<div className="flex flex-row justify-between px-6 text-text-secondary">
+				{tabs.map((ts) => (
+					<div
+						key={"key_" + ts}
+						className={`px-6 max-md:px-2 py-2 text-sm text-center ${
+							ts == tab ? "text-text-primary font-semibold" : "cursor-pointer"
+						}`}
 						onClick={() => setTab(ts)}
 					>
 						{ts}

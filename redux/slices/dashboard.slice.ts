@@ -1,17 +1,15 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
 import { Address } from "viem";
-import { DashboardState, DispatchBoolean } from "./dashboard.types";
-import { CONFIG } from "../../app.config";
+import { DashboardState, DispatchApiDailyLog, DispatchBoolean } from "./dashboard.types";
+import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { ApiDailyLog } from "@frankencoin/api";
 
 // --------------------------------------------------------------------------------
 
 export const initialState: DashboardState = {
 	error: null,
 	loaded: false,
-	tabs: {
-		positionsTab: "observatory",
-		positionTab: "create",
-	},
+	dailyLog: { num: 0, logs: [] },
 };
 
 // --------------------------------------------------------------------------------
@@ -31,7 +29,10 @@ export const slice = createSlice({
 		},
 
 		// -------------------------------------
-		// SET
+		// SET DAILY LOG
+		setDailyLog: (state, action: { payload: ApiDailyLog }) => {
+			state.dailyLog = action.payload;
+		},
 	},
 });
 
@@ -39,9 +40,14 @@ export const reducer = slice.reducer;
 export const actions = slice.actions;
 
 // --------------------------------------------------------------------------------
-export const fetchDashboard = (address: Address) => async (dispatch: Dispatch<DispatchBoolean>) => {
+export const fetchDashboard = () => async (dispatch: Dispatch<DispatchBoolean | DispatchApiDailyLog>) => {
 	// ---------------------------------------------------------------
 	CONFIG.verbose && console.log("Loading [REDUX]: Dashboard");
+
+	// ---------------------------------------------------------------
+	// Query raw data from backend api;
+	const response1 = await FRANKENCOIN_API_CLIENT.get("/analytics/dailyLog/json");
+	dispatch(slice.actions.setDailyLog(response1.data as ApiDailyLog));
 
 	// ---------------------------------------------------------------
 	// Finalizing, loaded set to true
