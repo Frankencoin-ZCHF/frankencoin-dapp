@@ -5,7 +5,7 @@ import AppBox from "@components/AppBox";
 import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
 import { Address, formatUnits, zeroAddress } from "viem";
-import { ContractUrl, formatBigInt, formatCurrency, formatDate, shortenAddress } from "@utils";
+import { ContractUrl, formatBigInt, formatCurrency, formatDateTime, shortenAddress } from "@utils";
 import Link from "next/link";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
@@ -225,11 +225,11 @@ export default function MonitoringForceSell() {
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="From 10x price decline until" />
-								<div>{formatDate(declineOnePriceTimestamp / 1000) || "---"}</div>
+								<div>{formatDateTime(declineOnePriceTimestamp / 1000) || "---"}</div>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Reaching zero at" />
-								{formatDate(zeroPriceTimestamp / 1000) || "---"}
+								{formatDateTime(zeroPriceTimestamp / 1000) || "---"}
 							</AppBox>
 						</div>
 						<div className="mx-auto mt-4 w-72 max-w-full flex-col">

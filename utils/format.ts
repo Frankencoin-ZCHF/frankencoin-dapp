@@ -121,6 +121,11 @@ export const formatDateLocale = (timestamp: number | bigint): string => {
 
 export const formatDate = (timestamp: number | bigint): string => {
 	const date = dayjs(Number(timestamp) * 1000);
+	return date.format("YYYY-MM-DD");
+};
+
+export const formatDateTime = (timestamp: number | bigint): string => {
+	const date = dayjs(Number(timestamp) * 1000);
 	return date.format("YYYY-MM-DD HH:mm");
 };
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
-import { formatDate, shortenAddress } from "@utils";
+import { formatDateTime, shortenAddress } from "@utils";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { useContractUrl } from "@hooks";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -136,11 +136,11 @@ export default function PositionDetail() {
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Start Date" />
-								<b>{formatDate(position.isOriginal ? position.start : position.created)}</b>
+								<b>{formatDateTime(position.isOriginal ? position.start : position.created)}</b>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Expiration Date" />
-								<b>{position.closed ? "Closed" : formatDate(position.expiration)}</b>
+								<b>{position.closed ? "Closed" : formatDateTime(position.expiration)}</b>
 							</AppBox>
 						</div>
 					</div>
@@ -150,7 +150,7 @@ export default function PositionDetail() {
 								<div className="text-lg font-bold text-center">Cooldown</div>
 								<AppBox className="flex-1 mt-4">
 									<p>
-										This position is subject to a cooldown period that ends on {formatDate(position.cooldown)} as its
+										This position is subject to a cooldown period that ends on {formatDateTime(position.cooldown)} as its
 										owner has recently increased the applicable liquidation price. The cooldown period gives other users
 										an opportunity to challenge the position before additional Frankencoins can be minted.
 									</p>
