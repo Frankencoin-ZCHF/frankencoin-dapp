@@ -12,7 +12,7 @@ import { formatUnits, parseEther, parseUnits } from "viem";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const Timeframes = ["All", "1Y", "1Q", "1M", "1W"];
-const TypeCharts = ["FPS Price", "FPS Supply", "ZCHF Supply", "Realized Earnings", "Annualized Earnings"];
+const TypeCharts = ["FPS Price", "FPS Supply", "ZCHF Supply"];
 
 export default function EquityFPSDetailsCard() {
 	const [timeframe, setTimeframe] = useState<string>(Timeframes[1]);
@@ -44,7 +44,7 @@ export default function EquityFPSDetailsCard() {
 	const oneYear = 365n * 24n * 60n * 60n * 1000n;
 
 	const totalEquity = BigInt(matchingLogs.at(-1)?.totalEquity || "0");
-	const annualReturn = totalEquity > 0n ? (((netIncome * parseEther("1")) / totalEquity) * oneYear) / timestampDiff : 0n;
+	const returnOnEquity = totalEquity > 0n ? (((netIncome * parseEther("1")) / totalEquity) * oneYear) / timestampDiff : 0n;
 
 	return (
 		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 grid grid-cols-1 gap-2">
@@ -204,15 +204,14 @@ export default function EquityFPSDetailsCard() {
 					/>
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Net Income" />
+					<DisplayLabel label={"Net Income (" + timeframe + ")"} />
 					<DisplayAmount className="mt-4" amount={netIncome} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Annual Return" />
+					<DisplayLabel label={(timeframe == "1Y" ? "Return on Equity" : "RoE (annualized from " + timeframe + ")")} />
 					<DisplayAmount
 						className="mt-4"
-						amount={annualReturn * 100n}
-						currency="ZCHF"
+						amount={returnOnEquity * 100n}
 						unit="%"
 						address={ADDRESS[chainId].frankenCoin}
 					/>
