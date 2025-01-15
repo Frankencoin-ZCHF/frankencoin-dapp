@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { formatUnits, maxUint256, erc20Abi, Address, parseEther } from "viem";
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
-import { abs, formatBigInt, formatCurrency, shortenAddress } from "@utils";
+import { abs, formatBigInt, formatCurrency, formatDate, shortenAddress } from "@utils";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -411,11 +411,15 @@ export default function PositionAdjust() {
 				</section>
 			</div>
 
-			<AppTitle title={`Renewal Possibilities`}>{/* <div className="text-text-secondary">description</div> */}</AppTitle>
-
-			<div className="md:mt-8">
-				<PositionRollerTable position={position} />
-			</div>
+			{position.version == 1 || position.minted == "1" ? (
+				<div></div>
+			) : (
+				<div>
+					<AppTitle title={`Renewal`}>{/* <div className="text-text-secondary">description</div> */}</AppTitle>
+					<div>This position expires on {formatDate(position.expiration)}. You can renew positions by rolling them into suitable new ones with the same collateral but a longer duration.</div>
+					<div className="md:mt-8"><PositionRollerTable position={position} /></div>
+				</div>
+			)}
 		</>
 	);
 }

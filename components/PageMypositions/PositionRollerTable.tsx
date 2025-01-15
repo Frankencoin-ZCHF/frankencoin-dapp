@@ -24,14 +24,11 @@ export default function PositionRollerTable(params: PositionRollerTableParams) {
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
 	const matchingPositions = positions.filter((p) => {
-		const toCheck: boolean[] = [];
-		toCheck.push(p.version == 2);
-		toCheck.push(p.collateral.toLowerCase() == position.collateral.toLowerCase());
-		toCheck.push(p.position.toLowerCase() != position.position.toLowerCase());
-		toCheck.push(p.expiration > position.expiration);
-		toCheck.push(!p.closed && !p.denied);
-		toCheck.push(BigInt(p.availableForClones) > 0n);
-		return !toCheck.includes(false);
+ 		return (p.version == 2)
+			&& (p.collateral.toLowerCase() == position.collateral.toLowerCase())
+			&& (p.expiration > position.expiration) // also excludes same position
+			&& (!p.closed && !p.denied)
+			&& (BigInt(p.availableForClones) > 0n);
 	});
 
 	const sorted: PositionQuery[] = sortPositions({
