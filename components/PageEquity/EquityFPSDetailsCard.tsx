@@ -12,7 +12,7 @@ import { formatUnits, parseEther, parseUnits } from "viem";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const Timeframes = ["All", "1Y", "1Q", "1M", "1W"];
-const TypeCharts = ["FPS Price", "FPS Supply", "Realized Earnings", "Annualized Earnings"];
+const TypeCharts = ["FPS Price", "FPS Supply", "ZCHF Supply", "Realized Earnings", "Annualized Earnings"];
 
 export default function EquityFPSDetailsCard() {
 	const [timeframe, setTimeframe] = useState<string>(Timeframes[1]);
@@ -130,16 +130,27 @@ export default function EquityFPSDetailsCard() {
 								name: typechart,
 								data: matchingLogs.map((entry) => {
 									if (typechart == TypeCharts[0]) {
-										return [parseFloat(entry.timestamp), Math.round(Number(entry.fpsPrice) / 10 ** 16) / 100];
+										return [parseFloat(entry.timestamp), Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100];
 									} else if (typechart == TypeCharts[1]) {
-										return [parseFloat(entry.timestamp), Math.round(Number(entry.fpsTotalSupply) / 10 ** 16) / 100];
+										return [
+											parseFloat(entry.timestamp),
+											Math.round(parseFloat(formatUnits(entry.fpsTotalSupply, 16))) / 100,
+										];
 									} else if (typechart == TypeCharts[2]) {
 										return [
 											parseFloat(entry.timestamp),
-											Math.round(Number(entry.realizedNetEarnings) / 10 ** 16) / 100,
+											Math.round(parseFloat(formatUnits(entry.totalSupply, 16))) / 100,
+										];
+									} else if (typechart == TypeCharts[3]) {
+										return [
+											parseFloat(entry.timestamp),
+											Math.round(parseFloat(formatUnits(entry.realizedNetEarnings, 16))) / 100,
 										];
 									} else {
-										return [parseFloat(entry.timestamp), Math.round(Number(entry.annualNetEarnings) / 10 ** 16) / 100];
+										return [
+											parseFloat(entry.timestamp),
+											Math.round(parseFloat(formatUnits(entry.annualNetEarnings, 16))) / 100,
+										];
 									}
 								}),
 							},

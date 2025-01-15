@@ -70,9 +70,10 @@ export default function MonitoringRow({ headers, tab, position }: Props) {
 					<span className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</span>
-					<span className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(balance)} ${
-						position.collateralSymbol
-					}`}</span>
+					<span className={`col-span-2 text-md text-text-primary`}>
+						{`${formatCurrency(balance)} ${position.collateralSymbol}`}
+						<span className="text-sm">{position.version == 2 ? " v2" : " v1"}</span>
+					</span>
 				</div>
 
 				{/* mobile view */}
