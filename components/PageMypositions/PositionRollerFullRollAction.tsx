@@ -3,12 +3,13 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
-import { renderErrorTxToast, TxToast } from "@components/TxToast";
+import { renderErrorTxToast, renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { ADDRESS, PositionRollerABI } from "@frankencoin/zchf";
+import { ADDRESS, ERC20ABI, PositionRollerABI, PositionV2ABI } from "@frankencoin/zchf";
 import { PositionQuery } from "@frankencoin/api";
+import { zeroAddress } from "viem";
 
 interface Props {
 	label?: string;
@@ -20,11 +21,14 @@ interface Props {
 export default function PositionRollerFullRollAction({ label = "Roll", source, target, disabled }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
-	const account = useAccount();
+	const { address } = useAccount();
+	const account = address || zeroAddress;
+
+	const isTargetOwned = target.owner.toLowerCase() === account.toLowerCase();
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
-		if (!account.address) return;
+		if (account == zeroAddress) return;
 
 		try {
 			setAction(true);
@@ -42,7 +46,7 @@ export default function PositionRollerFullRollAction({ label = "Roll", source, t
 					value: shortenAddress(source.position),
 				},
 				{
-					title: `Rolling to: `,
+					title: `${isTargetOwned ? "Merging" : "Rolling"} to: `,
 					value: shortenAddress(target.position),
 				},
 				{
@@ -53,16 +57,17 @@ export default function PositionRollerFullRollAction({ label = "Roll", source, t
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Rolling position...`} rows={toastContent} />,
+					render: <TxToast title={`${isTargetOwned ? "Merging" : "Rolling"} position...`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully rolled position" rows={toastContent} />,
+					render: <TxToast title={`Successfully ${isTargetOwned ? "merged" : "rolled"} position`} rows={toastContent} />,
 				},
 			});
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			// toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToastDecode(error, PositionV2ABI));
 		} finally {
 			setAction(false);
 		}

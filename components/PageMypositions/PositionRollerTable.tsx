@@ -60,9 +60,7 @@ export default function PositionRollerTable(params: PositionRollerTableParams) {
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"No open positions available for rolling."}</TableRowEmpty>
 				) : (
-					sorted.map((pos) => (
-						<PositionRollerRow headers={headers} tab={tab} positionToRoll={position} position={pos} key={pos.position} />
-					))
+					sorted.map((pos) => <PositionRollerRow headers={headers} tab={tab} source={position} target={pos} key={pos.position} />)
 				)}
 			</TableBody>
 		</Table>

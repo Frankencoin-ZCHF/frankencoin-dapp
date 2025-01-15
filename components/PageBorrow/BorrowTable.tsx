@@ -26,11 +26,11 @@ export default function BorrowTable() {
 		const highestMaturityMap = new Map();
 		positions.forEach((pos) => {
 			const key = pos.original + "-" + pos.price;
-			if (!highestMaturityMap.has(key)){
+			if (!highestMaturityMap.has(key)) {
 				highestMaturityMap.set(key, pos);
 			} else {
 				const highest = highestMaturityMap.get(key);
-				if (pos.expiration > highest.expiration){
+				if (pos.expiration > highest.expiration) {
 					highestMaturityMap.set(key, pos);
 				}
 			}
@@ -38,22 +38,24 @@ export default function BorrowTable() {
 		return Array.from(highestMaturityMap.values());
 	};
 
-	const matchingPositions: PositionQueryV2[] = makeUnique(posV2.filter((position) => {
-		const pid: Address = position.position.toLowerCase() as Address;
-		if (POSITION_BLACKLISTED(pid)){
-			return false;
-		} else if (position.closed || position.denied){
-			return false;
-		} else if (position.cooldown * 1000 > Date.now()){
-			return false; // under cooldown 
-		} else if (BigInt(position.isOriginal ? position.availableForClones : position.availableForMinting) == 0n){
-			return false;
-		} else if ((challengesPosMap[pid] || []).filter((c) => c.status == "Active").length > 1){
-			return false; // active challenges
-		} else {
-			return true;
-		}
-	}));
+	const matchingPositions: PositionQueryV2[] = makeUnique(
+		posV2.filter((position) => {
+			const pid: Address = position.position.toLowerCase() as Address;
+			if (POSITION_BLACKLISTED(pid)) {
+				return false;
+			} else if (position.closed || position.denied) {
+				return false;
+			} else if (position.cooldown * 1000 > Date.now()) {
+				return false; // under cooldown
+			} else if (BigInt(position.isOriginal ? position.availableForClones : position.availableForMinting) == 0n) {
+				return false;
+			} else if ((challengesPosMap[pid] || []).filter((c) => c.status == "Active").length > 1) {
+				return false; // active challenges
+			} else {
+				return true;
+			}
+		})
+	);
 
 	const sorted: PositionQueryV2[] = sortPositions(matchingPositions, coingecko, headers, tab, reverse);
 
@@ -112,12 +114,8 @@ function sortPositions(
 			return calc(b) - calc(a);
 		});
 	} else if (tab === headers[3]) {
-		// sort for Available
-		list.sort(
-			(a, b) => 
-				parseInt(b.price) -
-				parseInt(a.price)
-		); // default: decrease
+		// sort for liq price
+		list.sort((a, b) => parseInt(b.price) - parseInt(a.price)); // default: decrease
 	} else if (tab === headers[4]) {
 		// sort for Maturity
 		list.sort((a, b) => b.expiration - a.expiration); // default: decrease
