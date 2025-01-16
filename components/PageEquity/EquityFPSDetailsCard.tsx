@@ -113,7 +113,22 @@ export default function EquityFPSDetailsCard() {
 								},
 							},
 							yaxis: {
-								show: false,
+								labels: {
+									show: true,
+									formatter: (value) => {
+										if (typechart == TypeCharts[2]) {
+											return `${Math.round(value / 100000) / 10} Mio`;
+										} else {
+											return value.toString();
+										}
+									},
+								},
+								axisBorder: {
+									show: true,
+								},
+								axisTicks: {
+									show: true,
+								},
 							},
 							fill: {
 								type: "gradient",
@@ -141,16 +156,8 @@ export default function EquityFPSDetailsCard() {
 											parseFloat(entry.timestamp),
 											Math.round(parseFloat(formatUnits(entry.totalSupply, 16))) / 100,
 										];
-									} else if (typechart == TypeCharts[3]) {
-										return [
-											parseFloat(entry.timestamp),
-											Math.round(parseFloat(formatUnits(entry.realizedNetEarnings, 16))) / 100,
-										];
 									} else {
-										return [
-											parseFloat(entry.timestamp),
-											Math.round(parseFloat(formatUnits(entry.annualNetEarnings, 16))) / 100,
-										];
+										return [parseFloat(entry.timestamp), Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100];
 									}
 								}),
 							},
@@ -208,13 +215,8 @@ export default function EquityFPSDetailsCard() {
 					<DisplayAmount className="mt-4" amount={netIncome} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label={(timeframe == "1Y" ? "Return on Equity" : "RoE (annualized from " + timeframe + ")")} />
-					<DisplayAmount
-						className="mt-4"
-						amount={returnOnEquity * 100n}
-						unit="%"
-						address={ADDRESS[chainId].frankenCoin}
-					/>
+					<DisplayLabel label={timeframe == "1Y" ? "Return on Equity" : "RoE (annualized from " + timeframe + ")"} />
+					<DisplayAmount className="mt-4" amount={returnOnEquity * 100n} unit="%" address={ADDRESS[chainId].frankenCoin} />
 				</AppBox>
 			</div>
 		</div>
