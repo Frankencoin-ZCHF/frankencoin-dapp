@@ -11,6 +11,7 @@ import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import { fetchChallengesList } from "../../redux/slices/challenges.slice";
 import { fetchBidsList } from "../../redux/slices/bids.slice";
 import AppTitle from "@components/AppTitle";
+import MyPositionsTotalsCard from "@components/PageMypositions/MyPositionsTotalsCard";
 
 export default function Positions() {
 	const router = useRouter();
@@ -32,6 +33,8 @@ export default function Positions() {
 			<AppTitle title="Owned Positions">
 				<DisplayWarningMessage overwrite={overwrite} />
 			</AppTitle>
+
+			<MyPositionsTotalsCard />
 
 			<MypositionsTable />
 
