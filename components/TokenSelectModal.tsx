@@ -66,7 +66,9 @@ export function TokenSelectModal<T extends TokenOption>({ isOpen, setIsOpen, opt
 							</div>
 							<div className="flex flex-col justify-end items-end max-h-10">
 								<span className="text-base leading-tight font-extrabold">$16,579.12</span>
-								<span className="text-base leading-tight text-text-muted">{formatUnits(option.balanceOf, option.decimals)}</span>
+								<span className="text-base leading-tight text-text-muted">
+									{formatUnits(option.balanceOf ?? 0n, option.decimals)}
+								</span>
 							</div>
 						</button>
 					))}

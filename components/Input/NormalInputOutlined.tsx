@@ -1,6 +1,5 @@
 import TokenLogo from "@components/TokenLogo";
 import { BigNumberInput } from "./BigNumberInput";
-import { useState } from "react";
 
 interface NormalInputOutlinedProps {
 	value: string;

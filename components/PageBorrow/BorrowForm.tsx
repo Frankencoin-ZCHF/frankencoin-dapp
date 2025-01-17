@@ -19,6 +19,7 @@ import { RootState } from "../../redux/redux.store";
 
 // TODO: remove fake data
 import { LIST, TOKEN_OPTIONS, PRICES, MAX_LIQUIDATION_PRICE_DECREASE } from "./LIST";
+import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 
 type LoanDetails = {
 	loanAmount: bigint;
@@ -58,7 +59,7 @@ const calculateLoanDetailsByCollateral = (position: PositionQuery, collateralAmo
 		fees,
 		borrowersReserveContribution,
 		requiredCollateral: collateralAmount,
-		amountToSendToWallet,
+		amountToSendToWallet: amountToSendToWallet < 0n ? 0n : amountToSendToWallet,
 		originalPosition: original,
 		effectiveInterest,
 		effectiveLTV,
@@ -133,7 +134,7 @@ const calculateLoanDetailsByLiquidationPrice = (
 		fees,
 		borrowersReserveContribution,
 		requiredCollateral: collateralAmount,
-		amountToSendToWallet,
+		amountToSendToWallet: amountToSendToWallet < 0n ? 0n : amountToSendToWallet,
 		originalPosition: original,
 		effectiveInterest,
 		effectiveLTV,
@@ -152,8 +153,8 @@ export default function PositionCreate({}) {
 	const [isOpenBorrowingDEUROModal, setIsOpenBorrowingDEUROModal] = useState(false);
 	const [loanDetails, setLoanDetails] = useState<LoanDetails | undefined>(undefined);
 	const positions = useSelector((state: RootState) => (LIST as PositionQuery[]) || state.positions.list.list); // TODO: remove fake data
-	const { balances } = useWalletERC20Balances(TOKEN_OPTIONS);
-
+	const { balances } = useWalletERC20Balances();
+	
 	const prices = useSelector((state: RootState) => (PRICES as ApiPriceMapping) || state.prices.coingecko); // TODO: remove fake data
 	const collateralPriceDeuro = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0; // TODO: change to eur
 	const collateralPriceUsd = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0;
@@ -282,15 +283,17 @@ export default function PositionCreate({}) {
 					</div>
 					<DetailsExpandablePanel loanDetails={loanDetails} />
 				</div>
-				<Button
-					className="!p-4 text-lg font-extrabold leading-none"
-					onClick={() => setIsOpenBorrowingDEUROModal(true)}
-					disabled={!selectedPosition || !selectedCollateral || isLiquidationPriceTooHigh}
-				>
-					{isLiquidationPriceTooHigh
-						? "Your liquidation price is too high!"
-						: `Receive ${formatCurrency(formatUnits(BigInt(borrowedAmount), 18))} dEURO`}
-				</Button>
+				<GuardToAllowedChainBtn label="Borrow dEURO">
+					<Button
+						className="!p-4 text-lg font-extrabold leading-none"
+						onClick={() => setIsOpenBorrowingDEUROModal(true)}
+						disabled={!selectedPosition || !selectedCollateral || isLiquidationPriceTooHigh}
+					>
+						{isLiquidationPriceTooHigh
+							? "Your liquidation price is too high!"
+							: `Receive ${formatCurrency(formatUnits(BigInt(borrowedAmount), 18))} dEURO`}
+					</Button>
+				</GuardToAllowedChainBtn>
 				<BorrowingDEUROModal
 					isOpen={isOpenBorrowingDEUROModal}
 					setIsOpen={setIsOpenBorrowingDEUROModal}
