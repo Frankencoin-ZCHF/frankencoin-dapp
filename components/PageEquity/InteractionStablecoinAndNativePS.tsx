@@ -9,7 +9,7 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import Button from "@components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
+import { faArrowDown, faArrowDownLong } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
@@ -198,18 +198,9 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 		}
 	};
 
-	const conversionNote = () => {
-		if (amount != 0n && result != 0n) {
-			const ratio = (result * BigInt(1e18)) / amount;
-			return `1 ${fromSymbol} = ${formatUnits(ratio, 18)} ${toSymbol}`;
-		} else {
-			return `${toSymbol} price is calculated dynamically.\n`;
-		}
-	};
-
 	return (
 		<>
-			<div className="mt-8">
+			<div className="">
 				<TokenInputSelect
 					max={fromBalance}
 					symbol={fromSymbol}
@@ -221,9 +212,9 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 					placeholder={fromSymbol + " Amount"}
 				/>
 
-				<div className="py-4 text-center z-0">
-					<Button className={`h-10 rounded-full`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
-						<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
+				<div className="py-1 text-center z-0">
+					<Button className={`h-10 rounded-full mt-4`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
+						<FontAwesomeIcon icon={faArrowDownLong} className="w-5 h-5" />
 					</Button>
 				</div>
 
@@ -235,8 +226,6 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 					output={Math.round(parseFloat(formatUnits(result, 18)) * 10000) / 10000}
 					label="Receive"
 				/>
-
-				<div className={`mt-2 px-1 transition-opacity ${(shareLoading || proceedLoading) && "opacity-50"}`}>{conversionNote()}</div>
 
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 					<GuardToAllowedChainBtn label={direction ? "Mint" : "Redeem"}>
@@ -266,12 +255,13 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 			<div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
 					<DisplayLabel label="Your Balance" />
-					<DisplayAmount className="mt-4" amount={poolStats.equityBalance} currency={NATIVE_POOL_SHARE_TOKEN_SYMBOL} address={ADDRESS[chainId].equity} />
+					<DisplayAmount bold className="mt-2" amount={poolStats.equityBalance} currency={NATIVE_POOL_SHARE_TOKEN_SYMBOL} address={ADDRESS[chainId].equity} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Value at Current Price" />
 					<DisplayAmount
-						className="mt-4"
+						bold
+						className="mt-2"
 						amount={(poolStats.equityPrice * poolStats.equityBalance) / BigInt(1e18)}
 						currency={TOKEN_SYMBOL}
 						address={ADDRESS[chainId].decentralizedEURO}
@@ -279,13 +269,13 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Holding Duration" />
-					<span className={!unlocked ? "text-text-warning font-bold" : ""}>
-						{poolStats.equityBalance > 0 ? formatDuration(poolStats.equityHoldingDuration) : "-"}
-					</span>
+					<div className={!unlocked ? "text-text-warning font-bold mt-2" : ""}>
+						{poolStats.equityBalance > 0 ? formatDuration(poolStats.equityHoldingDuration) : "--"}
+					</div>
 				</AppBox>
 				<AppBox className="flex-1">
 					<DisplayLabel label="Can redeem after" />
-					<span className={!unlocked ? "text-text-warning font-bold" : ""}>{formatDuration(redeemLeft)}</span>
+					<div className={!unlocked ? "text-text-warning font-bold mt-2" : ""}>{formatDuration(redeemLeft)}</div>
 				</AppBox>
 			</div>
 		</>

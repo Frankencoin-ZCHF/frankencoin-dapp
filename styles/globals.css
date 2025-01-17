@@ -114,7 +114,7 @@ div.react-datepicker-wrapper {
 }
 
 /* Date Picker Style */
-div.react-datepicker__input-container input {
+div.date-input div.react-datepicker__input-container input {
 	background: transparent;
 	font-size: 1.125rem;
 	line-height: 1.75rem;
@@ -124,6 +124,7 @@ div.react-datepicker__input-container input {
 	padding-right: 0.5rem;
 	width: 100%;
 }
+
 
 /* Wallet connect web3modal theme */
 button[data-testid="component-big-button"] {
@@ -141,4 +142,14 @@ button[data-testid="component-big-button"] {
 }
 .Toastify__toast-body .Toastify__toast-icon {
 	margin-top: 2px;
+}
+
+@layer components {
+	input[type='range']::-webkit-slider-thumb {
+		@apply appearance-none w-[14px] h-[14px] bg-white outline outline-1 outline-[#5c637b] border-2 border-[#000000] rounded-full;
+	}
+
+	input[type=range] {
+		@apply appearance-none w-full h-[4px] dark:border-y-[#3d89f4] border-slate-200 border-y-2 bg-[#3d89f4] rounded-full;
+	}
 }

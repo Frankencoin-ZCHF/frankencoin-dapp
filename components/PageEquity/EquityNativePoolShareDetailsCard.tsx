@@ -20,11 +20,11 @@ export default function EquityNativePoolShareDetailsCard() {
 				<div className="flex justify-between">
 					<div>
 						<DisplayLabel label={`${POOL_SHARE_TOKEN_SYMBOL} Price`} />
-						<DisplayAmount className="mt-4" amount={poolStats.equityPrice} currency={TOKEN_SYMBOL} />
+						<DisplayAmount className="mt-4" bold amount={poolStats.equityPrice} currency={TOKEN_SYMBOL} />
 					</div>
 					<div className="text-right">
 						<DisplayLabel label="Supply" />
-						<DisplayAmount className="mt-4" amount={poolStats.equitySupply} currency={POOL_SHARE_TOKEN_SYMBOL} />
+						<DisplayAmount className="mt-4" bold amount={poolStats.equitySupply} currency={POOL_SHARE_TOKEN_SYMBOL} />
 					</div>
 				</div>
 				<ApexChart
@@ -98,15 +98,17 @@ export default function EquityNativePoolShareDetailsCard() {
 				<AppBox>
 					<DisplayLabel label="Market Cap" />
 					<DisplayAmount
-						className="mt-4"
+						className="mt-2"
+						bold
 						amount={(poolStats.equitySupply * poolStats.equityPrice) / BigInt(1e18)}
-						currency={TOKEN_SYMBOL}
+						currency={TOKEN_SYMBOL}	
 					/>
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Total Reserve" />
 					<DisplayAmount
-						className="mt-4"
+						className="mt-2"
+						bold
 						amount={poolStats.deuroTotalReserve}
 						currency={TOKEN_SYMBOL}
 						address={ADDRESS[chainId].decentralizedEURO}
@@ -115,7 +117,8 @@ export default function EquityNativePoolShareDetailsCard() {
 				<AppBox>
 					<DisplayLabel label="Equity Capital" />
 					<DisplayAmount
-						className="mt-4"
+						className="mt-2"
+						bold
 						amount={poolStats.deuroEquity}
 						currency={TOKEN_SYMBOL}
 						address={ADDRESS[chainId].decentralizedEURO}
@@ -124,7 +127,8 @@ export default function EquityNativePoolShareDetailsCard() {
 				<AppBox>
 					<DisplayLabel label="Minter Reserve" />
 					<DisplayAmount
-						className="mt-4"
+						className="mt-2"
+						bold
 						amount={poolStats.deuroMinterReserve}
 						currency={TOKEN_SYMBOL}
 						address={ADDRESS[chainId].decentralizedEURO}
@@ -133,7 +137,8 @@ export default function EquityNativePoolShareDetailsCard() {
 				<AppBox>
 					<DisplayLabel label="Total Income" />
 					<DisplayAmount
-						className="mt-4 text-text-success"
+						className="mt-2 text-text-success"
+						bold
 						amount={profit}
 						currency={TOKEN_SYMBOL}
 						address={ADDRESS[chainId].decentralizedEURO}
@@ -142,7 +147,8 @@ export default function EquityNativePoolShareDetailsCard() {
 				<AppBox>
 					<DisplayLabel label="Total Losses" />
 					<DisplayAmount
-						className="mt-4 text-text-warning"
+						className="mt-2 text-text-warning"
+						bold
 						amount={loss}
 						currency={TOKEN_SYMBOL}
 						address={ADDRESS[chainId].decentralizedEURO}

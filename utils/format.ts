@@ -10,6 +10,11 @@ export const toTimestamp = (value: Date) => {
 	return Math.floor(value.getTime() / 1000);
 };
 
+export function toDate(time: bigint | number | string) {
+	const v: bigint = BigInt(time);
+	return new Date(Number(v) * 1000);	
+}
+
 export enum FormatType {
 	"us",
 	"tiny",

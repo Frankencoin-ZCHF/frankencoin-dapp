@@ -8,7 +8,7 @@ import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/ac
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import Button from "@components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
+import { faArrowDown, faArrowDown19, faArrowDownLong, faArrowDownUpLock } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
@@ -231,7 +231,7 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 
 	return (
 		<>
-			<div className="mt-8">
+			<div className="">
 				<TokenInputSelect
 					max={fromBalance}
 					symbol={fromSymbol}
@@ -243,9 +243,9 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 					placeholder={fromSymbol + " Amount"}
 				/>
 
-				<div className="py-4 text-center z-0">
-					<Button className={`h-10 rounded-full`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
-						<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
+				<div className="py-1 text-center z-0">
+					<Button className={`h-10 rounded-full mt-4`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
+						<FontAwesomeIcon icon={faArrowDownLong} className="w-5 h-5" />
 					</Button>
 				</div>
 
@@ -257,9 +257,6 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 					output={Math.round(parseFloat(formatUnits(amount, 18)) * 10000) / 10000}
 					label="Receive"
 				/>
-				<div className={`mt-2 px-1 transition-opacity`}>
-					1 {fromSymbol} = 1 {toSymbol}
-				</div>
 
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 					<GuardToAllowedChainBtn label={direction ? "Wrap" : "Unwrap"}>
@@ -285,19 +282,31 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 			<div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
 					<DisplayLabel label="Your Balance" />
-					<DisplayAmount className="mt-4" amount={nativePSBalance} currency={NATIVE_POOL_SHARE_TOKEN_SYMBOL} address={ADDRESS[chainId].equity} />
+					<DisplayAmount
+						bold
+						className="mt-2"
+						amount={nativePSBalance}
+						currency={NATIVE_POOL_SHARE_TOKEN_SYMBOL}
+						address={ADDRESS[chainId].equity}
+					/>
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label={`Holding Duration ${NATIVE_POOL_SHARE_TOKEN_SYMBOL}`} />
-					{nativePSHolding > 0 && nativePSHolding < 86_400 * 365 * 10 ? formatDuration(nativePSHolding) : "-"}
+					<div className="mt-2 font-bold">{nativePSHolding > 0 && nativePSHolding < 86_400 * 365 * 10 ? formatDuration(nativePSHolding) : "--"}</div>
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Your Balance" />
-					<DisplayAmount className="mt-4" amount={psTokenBalance} currency={POOL_SHARE_TOKEN_SYMBOL} address={ADDRESS[chainId].DEPSwrapper} />
+					<DisplayAmount
+						bold
+						className="mt-2"
+						amount={psTokenBalance}
+						currency={POOL_SHARE_TOKEN_SYMBOL}
+						address={ADDRESS[chainId].DEPSwrapper}
+					/>
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label={`Holding Duration ${POOL_SHARE_TOKEN_SYMBOL}`} />
-					{psTokenHolding > 0 && psTokenHolding < 86_400 * 365 * 10 ? formatDuration(psTokenHolding) : "-"}
+					<div className="mt-2 font-bold">{psTokenHolding > 0 && psTokenHolding < 86_400 * 365 * 10 ? formatDuration(psTokenHolding) : "--"}</div>
 				</AppBox>
 			</div>
 		</>

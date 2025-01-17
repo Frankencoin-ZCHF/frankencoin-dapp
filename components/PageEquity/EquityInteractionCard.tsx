@@ -28,22 +28,18 @@ export default function EquityInteractionCard() {
 		const adjustedSelection = {
 			from: newSelection.from,
 			to: isToTokenAvailable ? newSelection.to : toTokenOptions[0],
-		}		
+		};
 		setTokenFromTo(adjustedSelection);
 	};
 
 	const chainId = useChainId();
-	const equityUrl = useContractUrl(ADDRESS[chainId].equity);
 	const wrappedPoolShareUrl = useContractUrl(ADDRESS[chainId].DEPSwrapper);
 
 	return (
 		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
-			<Link href={equityUrl} target="_blank">
-				<div className="mt-4 text-lg font-bold underline text-center">
-					Decentralized Euro Pool Shares ({NATIVE_POOL_SHARE_TOKEN_SYMBOL})
-					<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
-				</div>
-			</Link>
+			<div className="mb-4 pb-2 justify-center items-center gap-1.5 inline-flex">
+				<div className="text-text-title text-xl font-black font-['Avenir']">dEURO Pool Shares</div>
+			</div>
 
 			{/* Load modules dynamically */}
 			{(tokenFromTo.from === TOKEN_SYMBOL && tokenFromTo.to === NATIVE_POOL_SHARE_TOKEN_SYMBOL) ||
@@ -74,11 +70,7 @@ export default function EquityInteractionCard() {
 
 			<div className="mt-4">
 				Also available as{" "}
-				<Link
-					href={wrappedPoolShareUrl}
-					target="_blank"
-					className="underline"
-				>
+				<Link href={wrappedPoolShareUrl} target="_blank" className="underline">
 					{POOL_SHARE_TOKEN_SYMBOL}
 				</Link>
 			</div>

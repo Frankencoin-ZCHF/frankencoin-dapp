@@ -22,19 +22,19 @@ export default function GovernanceTelegramBot() {
 					<div className="grid grid-cols-1 w-full my-4 ml-6">
 						<ul className="flex flex-col gap-4">
 							<li className="flex justify-left items-center">
-								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8" />
+								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-button-primary-default-bg" />
 								<span className="ml-5 text-center">New Minter Proposal and Vetoed</span>
 							</li>
 							<li className="flex justify-left items-center">
-								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8" />
+								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-button-primary-default-bg" />
 								<span className="ml-5 text-center">New Leadrate Proposal and Changed</span>
 							</li>
 							<li className="flex justify-left items-center">
-								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8" />
+								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-button-primary-default-bg" />
 								<span className="ml-5 text-center">New Position Proposal</span>
 							</li>
 							<li className="flex justify-left items-center">
-								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8" />
+								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-button-primary-default-bg" />
 								<span className="ml-5 text-center">Challenge Started and Bid Taken</span>
 							</li>
 						</ul>

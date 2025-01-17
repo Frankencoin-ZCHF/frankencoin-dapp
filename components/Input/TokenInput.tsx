@@ -43,7 +43,7 @@ export default function TokenInput({
 	return (
 		<div>
 			<div className="mb-1 flex gap-2 px-1">
-				<div className="flex-1">{label}</div>
+				<div className="flex-1 text-text-muted">{label}</div>
 				{symbol && (
 					<div
 						className={`flex gap-2 items-center cursor-pointer ${hideMaxLabel && "hidden"}`}
@@ -66,7 +66,7 @@ export default function TokenInput({
 						<div className="px-3 py-2 font-bold transition-opacity">{output}</div>
 					) : (
 						<div
-							className={`flex gap-1 rounded-lg p-1 bg-card-content-secondary border-2 ${
+							className={`flex gap-1 rounded-lg p-1 bg-white border-2 ${
 								error ? "border-text-warning" : "border-card-content-secondary"
 							} ${disabled ? "bg-card-body-primary text-text-header" : ""}`}
 						>

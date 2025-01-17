@@ -53,7 +53,7 @@ export default function DisplayAmount({
 					<span className={`${bold && "font-bold"} ${big && "text-3xl"}`}>
 						{amount ? formatCurrency(typeof amount === "number" ? amount : formatUnits(amount, Number(digits))) : "0.00"}
 					</span>
-					<span>
+					<span className={`${bold && "font-bold"} ${big && "text-3xl"}`}>
 						{currency == "%" ? "" : " "}
 						{address ? (
 							<a href={url} target="_blank" rel="noreferrer" onClick={openExplorer}>

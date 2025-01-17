@@ -16,15 +16,16 @@ export default function NavButton({ to, name, external }: Props) {
 		query: router.query
 	};
 
+	const activeClass = active ? "bg-menu-active-bg menu-active-text" : "bg-menu-default-bg menu-default-text";
+	const hoverClass = "hover:bg-menu-hover-bg hover:menu-hover-text";
+
 	return (
 		<Link
-			className={`btn btn-nav max-md:bg-card-body-primary max-md:w-full max-md:rounded-2xl py-3 hover:text-menu-hover ${
-				active ? "text-menu-active font-semibold" : "text-menu-text"
-			}`}
+			className={`h-9 px-3 py-2.5 rounded-lg justify-center items-center gap-1.5 inline-flex overflow-hidden ${activeClass} ${hoverClass}`}
 			href={external ? to : href}
 			target={external ? "_blank" : "_self"}
 		>
-			{name}
+			<span className="text-base font-medium leading-normal whitespace-nowrap">{name}</span>
 		</Link>
 	);
 }

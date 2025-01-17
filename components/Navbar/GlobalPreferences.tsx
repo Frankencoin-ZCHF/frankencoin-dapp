@@ -20,7 +20,7 @@ export const GlobalPreferences = () => {
 				type="button"
 				className="hover:bg-table-row-hover !outline-none font-medium rounded-full p-2.5 text-center inline-flex items-center mr-2"
 			>
-				<FontAwesomeIcon icon={faGlobe} className="w-6 h-6" />
+				<FontAwesomeIcon icon={faGlobe} className="w-5 h-5" />
 			</button>
 		</Popover>
 	);

@@ -55,10 +55,10 @@ export default function TokenInputSelect({
 	return (
 		<div>
 			<div className="mb-1 flex gap-2 px-1">
-				<div className="flex-1">{label}</div>
+				<div className="flex-1 text-text-muted text-base font-medium leading-tight">{label}</div>
 				{symbol && (
 					<div
-						className={`flex gap-2 items-center cursor-pointer ${hideMaxLabel && "hidden"}`}
+						className={`flex gap-2 items-center text-text-muted text-base font-medium leading-tight cursor-pointer ${hideMaxLabel && "hidden"}`}
 						onClick={() => onChange?.(max.toString())}
 					>
 						{balanceLabel}
@@ -69,17 +69,17 @@ export default function TokenInputSelect({
 				)}
 			</div>
 
-			<div className="flex items-center rounded-lg bg-card-content-primary p-2">
-				<div className="mr-4">
-					<TokenLogo currency={symbol} size={10} />
+			<div className="flex items-center rounded-lg bg-input-bg py-2 pl-4 pr-2 gap-3">
+				<div className="flex items-center justify-center">
+					<TokenLogo currency={symbol} size={8} />
 				</div>
 				<div className="flex-1">
 					{output != undefined ? (
 						<div className="px-3 py-2 font-bold transition-opacity">{output}</div>
 					) : (
 						<div
-							className={`flex gap-1 rounded-lg p-1 bg-card-content-secondary border-2 ${
-								error ? "border-text-warning" : "border-card-content-secondary"
+							className={`flex gap-1 rounded-lg py-1 bg-white border ${
+								error ? "border-text-warning" : "border-input-border"
 							}`}
 						>
 							<BigNumberInput
@@ -88,15 +88,15 @@ export default function TokenInputSelect({
 								placeholder={placeholder}
 								value={value || ""}
 								onChange={(e) => onChange?.(e)}
-								className={`w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg`}
+								className={`w-full flex-1 rounded-lg bg-transparent px-3 py-1 text-lg placeholder:text-left text-right leading-tight font-medium text-input-primary`}
 								disabled={disabled}
 							/>
 						</div>
 					)}
 				</div>
-				<div className="px-4">
+				<div className="flex items-center h-full">
 					<Select
-						className="-mr-3"
+						className="flex-1  text-base font-medium leading-tight"
 						options={options}
 						defaultValue={options[symbolIdx]}
 						value={options[symbolIdx]}
@@ -108,19 +108,27 @@ export default function TokenInputSelect({
 							dropdownIndicator: (baseStyles) => ({
 								...baseStyles,
 								color: "#e2e8f0",
+								"&:hover": {
+									color: "#e2e8f0",
+									cursor: "pointer",
+								},
 							}),
 							control: (baseStyles, state) => ({
 								...baseStyles,
-								backgroundColor: "#092f62",
+								backgroundColor: state.isFocused ? "#136fd2" : "#092f62",
 								color: "#e2e8f0",
 								borderRadius: "0.5rem", // This makes the main control rounder
 								borderWidth: "0",
 								boxShadow: "none", // Remove the focus shadow
+								minWidth: "7rem",
 							}),
 							option: (baseStyles, state) => ({
 								...baseStyles,
-								backgroundColor: state.isFocused ? "#092f62" : "transparent",
-								color: state.isFocused ? "#e2e8f0" : "#092f62", // text color from option menu
+								backgroundColor: state.isFocused ? "#e9ebf0" : "transparent",
+								color: "#272b37", // text color from option menu
+								borderRadius: "0.5rem",
+								fontWeight: "500",
+								fontSize: "16px",
 							}),
 							singleValue: (baseStyles) => ({
 								...baseStyles,
@@ -128,9 +136,15 @@ export default function TokenInputSelect({
 							}),
 							menu: (baseStyles) => ({
 								...baseStyles,
-								backgroundColor: "#e7e7ea",
+								backgroundColor: "#ffffff",
 								borderRadius: "0.5rem", // This rounds the dropdown menu
 								overflow: "hidden", // This ensures the content doesn't overflow the rounded corners
+								padding: "0.2rem",
+							}),
+							input: (baseStyles) => ({
+								...baseStyles,
+								color: "#ffffff",
+								fontSize: "0",
 							}),
 						}}
 					/>

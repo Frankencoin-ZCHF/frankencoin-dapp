@@ -45,7 +45,7 @@ export default function NormalInput({
 						<div className="px-3 py-2 font-bold transition-opacity">{output}</div>
 					) : (
 						<div
-							className={`flex gap-1 rounded-lg text-text-primary p-1 bg-card-content-secondary border-2 ${
+							className={`flex gap-1 rounded-lg text-text-primary p-1 bg-white border-2 ${
 								error ? "border-text-warning" : "border-card-content-secondary"
 							}`}
 						>
@@ -55,7 +55,7 @@ export default function NormalInput({
 								placeholder={placeholder}
 								value={value || ""}
 								onChange={(e) => onChange?.(e)}
-								className={`w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg`}
+								className={`w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg font-bold text-input-primary`}
 								disabled={disabled}
 							/>
 						</div>
