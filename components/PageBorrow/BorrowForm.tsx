@@ -154,7 +154,7 @@ export default function PositionCreate({}) {
 	const [loanDetails, setLoanDetails] = useState<LoanDetails | undefined>(undefined);
 	const positions = useSelector((state: RootState) => (LIST as PositionQuery[]) || state.positions.list.list); // TODO: remove fake data
 	const { balances } = useWalletERC20Balances();
-	
+
 	const prices = useSelector((state: RootState) => (PRICES as ApiPriceMapping) || state.prices.coingecko); // TODO: remove fake data
 	const collateralPriceDeuro = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0; // TODO: change to eur
 	const collateralPriceUsd = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0;
@@ -233,8 +233,9 @@ export default function PositionCreate({}) {
 		<div className="md:mt-8 flex justify-center">
 			<AppCard className="max-w-lg p-4 flex-col justify-start items-center gap-8 inline-flex overflow-hidden">
 				<div className="self-stretch justify-center items-center gap-1.5 inline-flex">
-					<div className="text-primary text-xl font-black">Borrow dEURO</div>
+					<div className="text-text-title text-xl font-black ">Borrow dEURO</div>
 				</div>
+
 				<div className="self-stretch flex-col justify-start items-center gap-1 flex">
 					<InputTitle icon={faCircleQuestion}>Select your collateral asset</InputTitle>
 					<TokenInputSelectOutlined

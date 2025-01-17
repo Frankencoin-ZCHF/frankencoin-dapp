@@ -31,7 +31,7 @@ const noTokenMeta = {
 };
 
 const rebaseDecimals = (amount: bigint, fromDecimals: bigint, toDecimals: bigint) => {
-	return amount * 10n ** toDecimals / 10n ** fromDecimals;
+	return (amount * 10n ** toDecimals) / 10n ** fromDecimals;
 };
 
 const getAmountWithLeastPrecision = (amount: bigint, fromDecimals: bigint, toDecimals: bigint) => {
@@ -316,9 +316,11 @@ export default function Swap() {
 				<title>dEURO - Swap</title>
 			</Head>
 
-			<div className="md:mt-8">
-				<AppCard>
-					<div className="mt-4 text-lg font-bold underline text-center">Swap {TOKEN_SYMBOL} for other stablecoins</div>
+			<div className="md:mt-8 flex justify-center">
+				<AppCard className="max-w-lg p-4 gap-8 overflow-hidden">
+					<div className="mb-4 pb-2 w-full self-stretch justify-center items-center gap-1.5 inline-flex">
+						<div className="text-text-title text-xl font-black ">Swap {TOKEN_SYMBOL} for other stablecoins</div>
+					</div>
 
 					<div className="mt-8">
 						<TokenInputSelect
@@ -334,10 +336,11 @@ export default function Swap() {
 							onChange={onChangeAmount}
 							value={amount.toString()}
 							error={error}
+							hideLimitIcon
 						/>
 					</div>
 
-					<div className="py-4 text-center z-0">
+					<div className="py-4 mt-1 text-center z-0">
 						<Button className={`h-10 rounded-full`} width="w-10" onClick={onChangeDirection}>
 							<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
 						</Button>

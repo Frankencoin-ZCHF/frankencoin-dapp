@@ -19,6 +19,7 @@ interface Props {
 	limit?: bigint;
 	limitLabel?: string;
 	limitDigits?: bigint | number;
+	hideLimitIcon?: boolean;
 	output?: string | number;
 	note?: string;
 	value?: string;
@@ -40,6 +41,7 @@ export default function TokenInputSelect({
 	limit = 0n,
 	limitLabel,
 	limitDigits = 18n,
+	hideLimitIcon = false,
 	output,
 	note,
 	value,
@@ -155,7 +157,7 @@ export default function TokenInputSelect({
 				{limit >= 0n && limitLabel && (
 					<>
 						<span>{limitLabel} :&nbsp;</span>
-						<DisplayAmount amount={limit} currency={symbol} digits={limitDigits} />
+						<DisplayAmount amount={limit} currency={symbol} digits={limitDigits} logoSize={6} hideLogo={hideLimitIcon} />
 					</>
 				)}
 				{note && <span>{note}</span>}

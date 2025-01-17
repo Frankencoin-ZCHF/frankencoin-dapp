@@ -30,29 +30,33 @@ export type TokenBalance = {
 	allowance?: Record<string, bigint>;
 };
 
-const getMappedResponseByAddress = (query: QueryItem[], response: any[]) => {
+const getMappedResponseByAddress = (query: QueryItem[], tokenList: TokenDescriptor[], response: any[]) => {
 	const mappedResponse: Record<string, TokenBalance> = {};
 
-	query.forEach((queryItem, i) => {
-		const { address, functionName, args } = queryItem;
-		const valueResponse = response[i]?.result;
+	tokenList.forEach((token) => {
+		mappedResponse[token.address] = { address: token.address, symbol: token.symbol, name: token.name, decimals: 0, balanceOf: BigInt(0), allowance: {} };
+		
+		const tokenQuery = query.filter((queryItem) => queryItem.address === token.address);
+		tokenQuery.forEach((queryItem, i) => {
+			const { functionName, args } = queryItem;
+			const valueResponse = response[i]?.result;
+			if (!valueResponse) return;
+			
+			if (functionName === "allowance") {
+				const contractAddress = args?.[1];
+				if (contractAddress) {
+					// @ts-ignore
+					mappedResponse[token.address].allowance[contractAddress] = valueResponse;
+				}
+			}
 
-		if (mappedResponse[address] === undefined)
-			mappedResponse[address] = { address, symbol: "", name: "", decimals: 0, balanceOf: BigInt(0) };
-
-		if (functionName === "allowance") {
-			mappedResponse[address].allowance = mappedResponse[address].allowance ?? {};
-			const contractAddress = args?.[1]; // as per ABI
-			mappedResponse[address].allowance[contractAddress] = valueResponse;
-			return;
-		}
-
-		// @ts-ignore
-		mappedResponse[address][functionName as keyof TokenBalance] = valueResponse;
+			// @ts-ignore
+			mappedResponse[token.address][functionName as keyof TokenBalance] = valueResponse;
+		});
 	});
 
 	return mappedResponse;
-};
+}; 
 
 const intialTokenList: TokenDescriptor[] = TOKEN_OPTIONS;
 
@@ -108,7 +112,7 @@ export function useWalletERC20Balances() {
 
 	const responseMappedByAddress = useMemo(() => {
 		if (isLoading) return {};
-		return getMappedResponseByAddress(query, data as any[]);
+		return getMappedResponseByAddress(query, tokenList, data as any[]);
 	}, [query, data, isLoading]);
 
 	return { balances: Object.values(responseMappedByAddress), balancesByAddress: responseMappedByAddress, isLoading };

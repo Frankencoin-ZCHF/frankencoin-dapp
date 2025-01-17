@@ -38,7 +38,7 @@ export default function EquityInteractionCard() {
 	return (
 		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
 			<div className="mb-4 pb-2 justify-center items-center gap-1.5 inline-flex">
-				<div className="text-text-title text-xl font-black font-['Avenir']">dEURO Pool Shares</div>
+				<div className="text-text-title text-xl font-black ">dEURO Pool Shares</div>
 			</div>
 
 			{/* Load modules dynamically */}

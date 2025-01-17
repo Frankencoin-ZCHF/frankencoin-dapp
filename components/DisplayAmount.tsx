@@ -18,6 +18,7 @@ interface Props {
 	className?: string;
 	address?: string;
 	usdPrice?: number;
+	logoSize?: number;
 }
 
 export default function DisplayAmount({
@@ -33,6 +34,7 @@ export default function DisplayAmount({
 	className,
 	address,
 	usdPrice,
+	logoSize = 8,
 }: Props) {
 	const url = useContractUrl(address || zeroAddress);
 
@@ -45,7 +47,7 @@ export default function DisplayAmount({
 		<div className={`flex items-center ${className}`}>
 			{!hideLogo && currency && (
 				<div className="mr-4">
-					<TokenLogo currency={currency} />
+					<TokenLogo currency={currency} size={logoSize} />
 				</div>
 			)}
 			<div>
