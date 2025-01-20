@@ -34,9 +34,9 @@ export default function Positions() {
 				<DisplayWarningMessage overwrite={overwrite} />
 			</AppTitle>
 
-			<MyPositionsTotalsCard />
-
 			<MypositionsTable />
+
+			<MyPositionsTotalsCard />
 
 			{/* Section Challenges */}
 			<AppTitle title="Initiated Challenges">
