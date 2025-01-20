@@ -35,6 +35,7 @@ export default function MyPositionsDisplayCollateral({ position, collateralPrice
 			<div className="flex flex-col">
 				<span className={`text-left text-text-primary font-bold`}>
 					{formatCurrency(collateralSize, 2, 2) + " " + position.collateralSymbol}
+					<span className="text-sm font-normal">{position.version == 2 ? " v2" : " v1"}</span>
 				</span>
 				<span className="text-left text-text-subheader text-sm">{formatCurrency(collateralValue, 2, 2)} ZCHF</span>
 			</div>

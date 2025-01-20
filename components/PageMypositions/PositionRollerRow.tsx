@@ -48,6 +48,9 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 
 	const isTargetOwned = target.owner.toLowerCase() === account.toLowerCase();
 
+	const dateArr: string[] = new Date(target.expiration * 1000).toDateString().split(" ");
+	const dateStr: string = `${dateArr[2]} ${dateArr[1]} ${dateArr[3]}`;
+
 	return (
 		<TableRow
 			headers={headers}
@@ -79,7 +82,7 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 			<div className="flex flex-col">{formatCurrency(target.annualInterestPPM / 10_000, 2, 2)}%</div>
 
 			{/* Maturity */}
-			<div className="flex flex-col">{new Date(target.expiration * 1000).toLocaleDateString()}</div>
+			<div className="flex flex-col">{dateStr}</div>
 		</TableRow>
 	);
 }
