@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { formatDate } from "../../utils/format";
+import { formatDateTime } from "../../utils/format";
 import { faCalendarDays, faHourglassStart } from "@fortawesome/free-solid-svg-icons";
 import ReactDatePicker from "react-datepicker";
 
@@ -20,7 +20,7 @@ export default function DateInput({ label, max, value, error, onChange }: Props)
 				<div>
 					Limit:{" "}
 					<span className="text-link cursor-pointer" onClick={() => onChange && onChange(new Date(Number(max) * 1000))}>
-						{formatDate(max)}
+						{formatDateTime(max)}
 					</span>
 				</div>
 			</div>

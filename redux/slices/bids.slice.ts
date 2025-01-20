@@ -1,5 +1,5 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
-import { FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
 import {
 	BidsState,
 	DispatchBoolean,
@@ -90,7 +90,7 @@ export const fetchBidsList =
 		>
 	) => {
 		// ---------------------------------------------------------------
-		console.log("Loading [REDUX]: BidsList");
+		CONFIG.verbose && console.log("Loading [REDUX]: BidsList");
 
 		// ---------------------------------------------------------------
 		// Query raw data from backend api

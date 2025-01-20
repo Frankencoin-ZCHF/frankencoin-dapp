@@ -42,6 +42,7 @@ export default function MypositionsRow({ headers, tab, subHeaders, position }: P
 	const balanceZCHF: number = (balance * collTokenPrice) / zchfPrice;
 
 	const loanZCHF: number = parseInt(position.minted) / 10 ** position.zchfDecimals;
+	const loanAvailableV1: number = parseFloat(formatUnits(position.version == 1 ? BigInt(position.availableForClones) : 0n, 18));
 	const loanAvailableV2: number = parseFloat(formatUnits(position.version == 2 ? BigInt(position.availableForMinting) : 0n, 18));
 
 	const liquidationZCHF: number = parseInt(position.price) / 10 ** (36 - position.collateralDecimals);
@@ -171,7 +172,7 @@ export default function MypositionsRow({ headers, tab, subHeaders, position }: P
 			<div className="flex flex-col">
 				<span className="text-md">{formatCurrency(loanZCHF, 2, 2)} ZCHF</span>
 				<span className="text-sm text-text-subheader font-normal">
-					{formatCurrency(position.version == 2 ? loanAvailableV2 : balance * liquidationZCHF - loanZCHF, 2, 2)} ZCHF
+					{formatCurrency(position.version == 2 ? loanAvailableV2 : loanAvailableV1, 2, 2)} ZCHF
 				</span>
 			</div>
 

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { formatUnits, maxUint256, erc20Abi, Address, parseEther } from "viem";
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
-import { abs, formatBigInt, formatCurrency, shortenAddress } from "@utils";
+import { abs, formatBigInt, formatCurrency, formatDateTime, shortenAddress } from "@utils";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -17,6 +17,7 @@ import { PositionQuery } from "@frankencoin/api";
 import { ADDRESS, PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
 import AppTitle from "@components/AppTitle";
 import Link from "next/link";
+import PositionRollerTable from "@components/PageMypositions/PositionRollerTable";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -271,9 +272,9 @@ export default function PositionAdjust() {
 			</Head>
 
 			<AppTitle title={`Manage Position `}>
-			<Link className="underline" href={`/monitoring/${position.position}`}>
-				(overview)
-			</Link>
+				<Link className="underline" href={`/monitoring/${position.position}`}>
+					({shortenAddress(position.position)})
+				</Link>
 			</AppTitle>
 
 			<div className="md:mt-8">
@@ -409,6 +410,23 @@ export default function PositionAdjust() {
 					</div>
 				</section>
 			</div>
+
+			{position.version == 1 || position.minted == "0" ? (
+				<></>
+			) : (
+				<>
+					<AppTitle title={`Renewal`}>
+						<div className="text-text-secondary">
+							This position expires on {formatDateTime(position.expiration)}. You can renew positions by rolling them into
+							suitable new ones with the same collateral but a longer duration.
+						</div>
+					</AppTitle>
+
+					<div className="mt-8">
+						<PositionRollerTable position={position} />
+					</div>
+				</>
+			)}
 		</>
 	);
 }

@@ -6,7 +6,7 @@ import {
 	ApiChallengesPositions,
 	ApiChallengesPrices,
 } from "@frankencoin/api";
-import { FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
 import {
 	ChallengesState,
 	DispatchApiChallengesChallengers,
@@ -94,7 +94,7 @@ export const fetchChallengesList =
 		>
 	) => {
 		// ---------------------------------------------------------------
-		console.log("Loading [REDUX]: ChallengesList");
+		CONFIG.verbose && console.log("Loading [REDUX]: ChallengesList");
 
 		// ---------------------------------------------------------------
 		// Query raw data from backend api

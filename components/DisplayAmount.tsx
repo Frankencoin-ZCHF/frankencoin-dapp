@@ -6,6 +6,7 @@ const TokenLogo = dynamic(() => import("./TokenLogo"), { ssr: false });
 
 interface Props {
 	amount?: bigint | number;
+	unit?: string;
 	subAmount?: number;
 	subCurrency?: string;
 	subColor?: string;
@@ -22,6 +23,7 @@ interface Props {
 
 export default function DisplayAmount({
 	amount,
+	unit,
 	subAmount,
 	subCurrency,
 	subColor,
@@ -57,7 +59,7 @@ export default function DisplayAmount({
 						{currency == "%" ? "" : " "}
 						{address ? (
 							<a href={url} target="_blank" rel="noreferrer" onClick={openExplorer}>
-								{currency}
+								{unit || currency}
 							</a>
 						) : (
 							currency

@@ -7,7 +7,16 @@ import { mainnet, polygon, Chain } from "@wagmi/core/chains";
 import axios from "axios";
 import { Address } from "viem";
 
-export type ConfigEnv = { landing: string; app: string; api: string; ponder: string; rpc: string; wagmiId: string; chain: Chain };
+export type ConfigEnv = {
+	verbose: boolean;
+	landing: string;
+	app: string;
+	api: string;
+	ponder: string;
+	rpc: string;
+	wagmiId: string;
+	chain: Chain;
+};
 
 // DEV: Loaded with defaults, not needed for now.
 // if (!process.env.NEXT_PUBLIC_WAGMI_ID) throw new Error("Project ID is not defined");
@@ -17,6 +26,8 @@ export type ConfigEnv = { landing: string; app: string; api: string; ponder: str
 
 // Config
 export const CONFIG: ConfigEnv = {
+	verbose: false,
+
 	landing: process.env.NEXT_PUBLIC_LANDINGPAGE_URL || "https://frankencoin.com",
 	app: process.env.NEXT_PUBLIC_APP_URL || "https://app.frankencoin.com",
 	api: process.env.NEXT_PUBLIC_API_URL || "https://api.frankencoin.com",
@@ -77,7 +88,10 @@ export const WAGMI_CONFIG = createConfig({
 });
 
 // MINT POSITION BLACKLIST
-export const MINT_POSITION_BLACKLIST: Address[] = ["0x98725eE62833096C1c9bE26001F3cDA9a6241EF3", "0x7FF29064edc935571f89266607eAA0b5a51b795d"];
+export const MINT_POSITION_BLACKLIST: Address[] = [
+	"0x98725eE62833096C1c9bE26001F3cDA9a6241EF3",
+	"0x7FF29064edc935571f89266607eAA0b5a51b795d",
+];
 export const POSITION_BLACKLISTED = (addr: Address): boolean => {
 	const r = MINT_POSITION_BLACKLIST.filter((p) => {
 		return p.toLowerCase() === addr.toLowerCase();

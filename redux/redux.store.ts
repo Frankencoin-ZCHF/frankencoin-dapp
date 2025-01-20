@@ -3,6 +3,7 @@ import { combineReducers } from "redux";
 
 // splices
 import { reducer as accountReducer } from "./slices/account.slice";
+import { reducer as dashboardReducer } from "./slices/dashboard.slice";
 import { reducer as ecosystemReducer } from "./slices/ecosystem.slice";
 import { reducer as positionReducer } from "./slices/positions.slice";
 import { reducer as pricesReducer } from "./slices/prices.slice";
@@ -14,6 +15,7 @@ import { reducer as savingsReducer } from "./slices/savings.slice";
 export const store = configureStore({
 	reducer: combineReducers({
 		account: accountReducer,
+		dashboard: dashboardReducer,
 		ecosystem: ecosystemReducer,
 		positions: positionReducer,
 		prices: pricesReducer,

@@ -70,9 +70,10 @@ export default function MonitoringRow({ headers, tab, position }: Props) {
 					<span className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</span>
-					<span className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(balance)} ${
-						position.collateralSymbol
-					}`}</span>
+					<span className={`col-span-2 text-md text-text-primary`}>
+						{`${formatCurrency(balance)} ${position.collateralSymbol}`}
+						<span className="text-sm">{position.version == 2 ? " v2" : " v1"}</span>
+					</span>
 				</div>
 
 				{/* mobile view */}
@@ -80,9 +81,10 @@ export default function MonitoringRow({ headers, tab, position }: Props) {
 					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</div>
-					<div className={`col-span-2 text-md text-text-primary font-semibold`}>{`${formatCurrency(balance)} ${
-						position.collateralSymbol
-					}`}</div>
+					<div className={`col-span-2 text-md text-text-primary font-semibold`}>
+						{`${formatCurrency(balance)} ${position.collateralSymbol}`}
+						<span className="text-sm font-normal">{position.version == 2 ? " v2" : " v1"}</span>
+					</div>
 				</AppBox>
 			</div>
 

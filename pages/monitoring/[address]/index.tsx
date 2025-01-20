@@ -4,11 +4,11 @@ import Link from "next/link";
 import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
-import { formatDate, shortenAddress } from "@utils";
+import { formatDateTime, shortenAddress } from "@utils";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { useContractUrl } from "@hooks";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { faArrowUpRightFromSquare, faEye } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import { CONFIG, WAGMI_CONFIG } from "../../../app.config";
@@ -34,6 +34,7 @@ export default function PositionDetail() {
 
 	const explorerUrl = useContractUrl(String(address));
 	const ownerLink = useContractUrl(position?.owner || zeroAddress);
+	const myPosLink = `/mypositions?address=${position?.owner || zeroAddress}`;
 
 	useEffect(() => {
 		if (!position) return;
@@ -123,6 +124,9 @@ export default function PositionDetail() {
 									<Link href={ownerLink} className="flex items-center underline" target="_blank">
 										{shortenAddress(position.owner)}
 										<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
+										<Link href={myPosLink} className="flex items-center underline">
+											<FontAwesomeIcon icon={faEye} className="w-3 ml-2" />
+										</Link>
 									</Link>
 								</div>
 							</AppBox>
@@ -136,11 +140,11 @@ export default function PositionDetail() {
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Start Date" />
-								<b>{formatDate(position.isOriginal ? position.start : position.created)}</b>
+								<b>{formatDateTime(position.isOriginal ? position.start : position.created)}</b>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Expiration Date" />
-								<b>{position.closed ? "Closed" : formatDate(position.expiration)}</b>
+								<b>{position.closed ? "Closed" : formatDateTime(position.expiration)}</b>
 							</AppBox>
 						</div>
 					</div>
@@ -150,9 +154,9 @@ export default function PositionDetail() {
 								<div className="text-lg font-bold text-center">Cooldown</div>
 								<AppBox className="flex-1 mt-4">
 									<p>
-										This position is subject to a cooldown period that ends on {formatDate(position.cooldown)} as its
-										owner has recently increased the applicable liquidation price. The cooldown period gives other users
-										an opportunity to challenge the position before additional Frankencoins can be minted.
+										This position is subject to a cooldown period that ends on {formatDateTime(position.cooldown)} as
+										its owner has recently increased the applicable liquidation price. The cooldown period gives other
+										users an opportunity to challenge the position before additional Frankencoins can be minted.
 									</p>
 								</AppBox>
 							</div>
