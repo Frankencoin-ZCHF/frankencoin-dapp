@@ -2,7 +2,7 @@
 
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { cookieStorage, createConfig, createStorage, http } from "@wagmi/core";
-import { injected, coinbaseWallet, walletConnect } from "@wagmi/connectors";
+import { injected, coinbaseWallet, walletConnect, safe } from "@wagmi/connectors";
 import { mainnet, polygon, Chain } from "@wagmi/core/chains";
 import axios from "axios";
 import { Address } from "viem";
@@ -60,7 +60,7 @@ export const WAGMI_CHAIN = CONFIG.chain;
 export const WAGMI_METADATA = {
 	name: "Frankencoin",
 	description: "Frankencoin Frontend Application",
-	url: CONFIG.landing,
+	url: CONFIG.app,
 	icons: ["https://avatars.githubusercontent.com/u/37784886"],
 };
 export const WAGMI_CONFIG = createConfig({
@@ -74,6 +74,9 @@ export const WAGMI_CONFIG = createConfig({
 		},
 	},
 	connectors: [
+		safe({
+			allowedDomains: [/gnosis-safe.io$/, /app.safe.global$/, /dhedge.org$/],
+		}),
 		walletConnect({ projectId: CONFIG.wagmiId, metadata: WAGMI_METADATA, showQrModal: false }),
 		injected({ shimDisconnect: true }),
 		coinbaseWallet({

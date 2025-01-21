@@ -1,0 +1,16 @@
+{
+	"short_name": "ZCHF",
+	"name": "Frankencoin App",
+	"description": "Collateralized, oracle-free stablecoin that tracks the value of the Swiss franc.",
+	"icons": [
+		{
+			"src": "icon.ico",
+			"sizes": "any",
+			"type": "image/ico"
+		}
+	],
+	"start_url": ".",
+	"display": "standalone",
+	"theme_color": "#000000",
+	"background_color": "#ffffff"
+}
