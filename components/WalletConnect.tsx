@@ -3,9 +3,9 @@ import { useAccount } from "wagmi";
 
 export default function WalletConnect() {
 	const AppKit = useAppKit();
-	const { isDisconnected } = useAccount();
+	const { isConnected } = useAccount();
 
-	if (isDisconnected) {
+	if (!isConnected) {
 		return (
 			<div className="flex items-center gap-4 py-1">
 				<div
