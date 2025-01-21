@@ -42,6 +42,11 @@ module.exports = {
 					},
 					separator: "#e9ebf0",
 					back: "#FFFFFF",
+					wallet: {
+						bg: "#e4e6eb",
+						border: "#ced0da",
+						addressborder: "#8b91a7",
+					},
 				},
 				card: {
 					body: {
@@ -68,6 +73,14 @@ module.exports = {
 					error: "#e02523",
 					label: "#5c637b",
 					title: "#43495c",
+				},
+				borders: {
+					primary: '#e9ebf0',
+					secondary: '#ced0da',
+					tertiary: '#8b91a7',
+					input: '#adb2c1',
+					inputFocus: '#3d89f4',
+					divider: '#1e293b',
 				},
 				input: {
 					border: "#adb2c1",
