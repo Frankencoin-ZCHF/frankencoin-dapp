@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
-import { useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/react";
+import { useAppKit, useAppKitState } from "@reown/appkit/react";
 import Button from "@components/Button";
 import { useIsConnectedToCorrectChain } from "../../hooks/useWalletConnectStats";
 
@@ -14,8 +14,8 @@ export default function GuardToAllowedChainBtn(props: Props) {
 	const [requestedChange, setRequestedChange] = useState(false);
 
 	const { isDisconnected } = useAccount();
-	const Web3Modal = useWeb3Modal();
-	const Web3ModalState = useWeb3ModalState();
+	const Web3Modal = useAppKit();
+	const Web3ModalState = useAppKitState();
 	const isCorrectChain = useIsConnectedToCorrectChain();
 
 	// to close modal after successful connection or change of chain

@@ -1,16 +1,16 @@
-import { useWeb3Modal } from "@web3modal/wagmi/react";
+import { useAppKit } from "@reown/appkit/react";
 import { useAccount } from "wagmi";
 
 export default function WalletConnect() {
-	const Web3Modal = useWeb3Modal();
+	const AppKit = useAppKit();
 	const { isDisconnected } = useAccount();
 
 	if (isDisconnected) {
 		return (
 			<div className="flex items-center gap-4 py-1">
 				<div
-					className="bg-card-body-secondary text-menu-back h-8 md:h-10 flex justify-center items-center rounded-3xl px-4 font-semibold"
-					onClick={() => Web3Modal.open()}
+					className="bg-card-body-secondary text-menu-back h-8 md:h-10 flex justify-center cursor-pointer items-center rounded-3xl px-4 font-semibold"
+					onClick={() => AppKit.open()}
 				>
 					Connect Wallet
 				</div>
@@ -19,9 +19,7 @@ export default function WalletConnect() {
 	} else {
 		return (
 			<div className="flex items-center gap-4">
-				<div className="flex items-center gap-2 font-bold">
-					<w3m-button balance="hide" />
-				</div>
+				<div className="flex items-center gap-2 font-bold">{<appkit-button balance="hide" />}</div>
 			</div>
 		);
 	}

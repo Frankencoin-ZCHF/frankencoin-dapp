@@ -1,9 +1,10 @@
 "use client";
 
 import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { cookieStorage, createConfig, createStorage, http } from "@wagmi/core";
+import { cookieStorage, createStorage, http } from "@wagmi/core";
 import { injected, coinbaseWallet, walletConnect, safe } from "@wagmi/connectors";
-import { mainnet, polygon, Chain } from "@wagmi/core/chains";
+import { mainnet, polygon, Chain } from "@reown/appkit/networks";
+import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import axios from "axios";
 import { Address } from "viem";
 
@@ -63,8 +64,8 @@ export const WAGMI_METADATA = {
 	url: CONFIG.app,
 	icons: ["https://avatars.githubusercontent.com/u/37784886"],
 };
-export const WAGMI_CONFIG = createConfig({
-	chains: [WAGMI_CHAIN],
+export const WAGMI_ADAPTER = new WagmiAdapter({
+	networks: [WAGMI_CHAIN],
 	transports: {
 		[CONFIG.chain.id]: http(CONFIG.rpc),
 	},
@@ -88,7 +89,10 @@ export const WAGMI_CONFIG = createConfig({
 	storage: createStorage({
 		storage: cookieStorage,
 	}),
+	projectId: CONFIG.wagmiId,
 });
+
+export const WAGMI_CONFIG = WAGMI_ADAPTER.wagmiConfig;
 
 // MINT POSITION BLACKLIST
 export const MINT_POSITION_BLACKLIST: Address[] = [
