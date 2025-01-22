@@ -4,7 +4,7 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ApiLeadrateInfo, LeadrateProposed } from "@frankencoin/api";
 import GovernanceLeadrateRow from "./GovernanceLeadrateRow";
 
@@ -12,14 +12,19 @@ export default function GovernanceLeadrateTable() {
 	const headers: string[] = ["Date", "Proposer", "Rate", "State"];
 	const [tab, setTab] = useState<string>(headers[3]);
 	const [reverse, setReverse] = useState<boolean>(false);
+	const [list, setList] = useState<LeadrateProposed[]>([]);
 
 	const info = useSelector((state: RootState) => state.savings.leadrateInfo);
 	const proposals = useSelector((state: RootState) => state.savings.leadrateProposed);
-	const rates = useSelector((state: RootState) => state.savings.leadrateRate);
-	if (!info || !proposals || !rates) return null;
 
 	const currentProposal = proposals.list.length > 0 ? proposals.list[0] : undefined;
 	const sorted: LeadrateProposed[] = sortFunction({ list: proposals.list.slice(0, 5), info, currentProposal, headers, tab, reverse });
+
+	useEffect(() => {
+		const idList = list.map((l) => `${l.id}-${l.blockheight}`).join("_");
+		const idSorted = sorted.map((l) => `${l.id}-${l.blockheight}`).join("_");
+		if (idList != idSorted) setList(sorted);
+	}, [list, sorted]);
 
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
@@ -34,10 +39,10 @@ export default function GovernanceLeadrateTable() {
 		<Table>
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
-				{sorted.length == 0 ? (
+				{list.length == 0 ? (
 					<TableRowEmpty>{"There are no proposals yet."}</TableRowEmpty>
 				) : (
-					sorted.map((p, idx) => (
+					list.map((p, idx) => (
 						<GovernanceLeadrateRow
 							headers={headers}
 							tab={tab}

@@ -24,6 +24,7 @@ export default function GovernanceVotersTable() {
 	const [tab, setTab] = useState<string>(headers[2]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [accountVotes, setAccountVotes] = useState<VoteData>({ fps: 0n, holder: zeroAddress, votingPower: 0n, votingPowerRatio: 0 });
+	const [list, setList] = useState<VoteData[]>([]);
 
 	const account = useAccount();
 	const fpsHolders = useFPSHolders();
@@ -75,6 +76,12 @@ export default function GovernanceVotersTable() {
 		tab,
 	});
 
+	useEffect(() => {
+		const idList = list.map((l) => l.holder).join("_");
+		const idSorted = votesDataSorted.map((l) => l.holder).join("_");
+		if (idList != idSorted) setList(votesDataSorted);
+	}, [list, votesDataSorted]);
+
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
 			setReverse(!reverse);
@@ -99,10 +106,10 @@ export default function GovernanceVotersTable() {
 							connectedWallet
 						/>
 					) : null}
-					{votesDataSorted.length == 0 ? (
+					{list.length == 0 ? (
 						<TableRowEmpty>{"There are no voters yet"}</TableRowEmpty>
 					) : (
-						votesDataSorted.map((vote) => (
+						list.map((vote) => (
 							<GovernanceVotersRow key={vote.holder} headers={headers} tab={tab} voter={vote} votesTotal={votesTotal} />
 						))
 					)}

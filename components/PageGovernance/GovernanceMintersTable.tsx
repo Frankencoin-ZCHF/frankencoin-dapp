@@ -5,16 +5,16 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { MinterQuery } from "@frankencoin/api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GovernanceMintersRow from "./GovernanceMintersRow";
 
 export default function GovernanceMintersTable() {
 	const headers: string[] = ["Date", "Minter", "Comment", "State"];
 	const [tab, setTab] = useState<string>(headers[3]);
 	const [reverse, setReverse] = useState<boolean>(false);
+	const [list, setList] = useState<MinterQuery[]>([]);
 
 	const minters = useSelector((state: RootState) => state.ecosystem.frankencoinMinters.list);
-	if (!minters) return null;
 
 	const sorted: MinterQuery[] = sortMinters({
 		// @dev: somehow it does not transfer a "true array" and causes issues in sorting function
@@ -23,6 +23,12 @@ export default function GovernanceMintersTable() {
 		tab,
 		reverse,
 	});
+
+	useEffect(() => {
+		const idList = list.map((l) => l.id).join("_");
+		const idSorted = sorted.map((l) => l.id).join("_");
+		if (idList != idSorted) setList(sorted);
+	}, [list, sorted]);
 
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
@@ -37,10 +43,10 @@ export default function GovernanceMintersTable() {
 		<Table>
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
-				{sorted.length == 0 ? (
+				{list.length == 0 ? (
 					<TableRowEmpty>{"There are no proposals yet."}</TableRowEmpty>
 				) : (
-					sorted.map((m) => <GovernanceMintersRow key={m.id} headers={headers} tab={tab} minter={m} />)
+					list.map((m) => <GovernanceMintersRow key={m.id} headers={headers} tab={tab} minter={m} />)
 				)}
 			</TableBody>
 		</Table>

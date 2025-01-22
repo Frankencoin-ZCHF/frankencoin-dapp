@@ -7,18 +7,25 @@ import { RootState } from "../../redux/redux.store";
 import { ApiChallengesPositions, ChallengesQueryItem, PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import { Address, formatUnits } from "viem";
 import MonitoringRow from "./MonitoringRow";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function MonitoringTable() {
 	const headers: string[] = ["Collateral", "Collateralization", "Expiration", "Challenged"];
 	const [tab, setTab] = useState<string>(headers[1]);
 	const [reverse, setReverse] = useState<boolean>(true);
+	const [list, setList] = useState<PositionQuery[]>([]);
 
 	const { openPositions } = useSelector((state: RootState) => state.positions);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 
 	const sorted: PositionQuery[] = sortPositions(openPositions, coingecko, challenges, headers, tab, reverse);
+
+	useEffect(() => {
+		const idList = list.map((l) => l.position).join("_");
+		const idSorted = sorted.map((l) => l.position).join("_");
+		if (idList != idSorted) setList(sorted);
+	}, [list, sorted]);
 
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {

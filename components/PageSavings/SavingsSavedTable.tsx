@@ -4,7 +4,7 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SavingsSavedQuery } from "@frankencoin/api";
 import SavingsSavedRow from "./SavingsSavedRow";
 
@@ -12,11 +12,17 @@ export default function GovernanceLeadrateTable() {
 	const headers: string[] = ["Date", "Saver", "Amount", "Balance"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
+	const [list, setList] = useState<SavingsSavedQuery[]>([]);
 
 	const { save } = useSelector((state: RootState) => state.savings.savingsAllUserTable);
-	if (!save) return null;
 
 	const sorted: SavingsSavedQuery[] = sortFunction({ list: save, headers, tab, reverse });
+
+	useEffect(() => {
+		const idList = list.map((l) => l.id).join("_");
+		const idSorted = sorted.map((l) => l.id).join("_");
+		if (idList != idSorted) setList(sorted);
+	}, [list, sorted]);
 
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
@@ -31,10 +37,10 @@ export default function GovernanceLeadrateTable() {
 		<Table>
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} />
 			<TableBody>
-				{sorted.length == 0 ? (
+				{list.length == 0 ? (
 					<TableRowEmpty>{"There are no savings yet."}</TableRowEmpty>
 				) : (
-					sorted.map((r, idx) => <SavingsSavedRow headers={headers} tab={tab} key={r.id} item={r} />)
+					list.map((r, idx) => <SavingsSavedRow headers={headers} tab={tab} key={r.id} item={r} />)
 				)}
 			</TableBody>
 		</Table>
