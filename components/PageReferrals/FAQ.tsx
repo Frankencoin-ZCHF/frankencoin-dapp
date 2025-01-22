@@ -33,7 +33,7 @@ const ExpandableFAQ = ({ question, answer, separator = true }: { question: strin
 export const FAQ = () => {
 	return (
 		<div className="flex flex-col gap-4">
-			<div className="text-text-primary text-xl font-black leading-7">Q&A</div>
+			<div className="text-text-primary text-2xl font-black leading-7">Q&A</div>
 			<div className="px-12 py-4 bg-white rounded-xl border border-borders-primary flex-col justify-start items-start inline-flex">
 				<ExpandableFAQ
 					question="Who is entitled to participate in the referral system?"
