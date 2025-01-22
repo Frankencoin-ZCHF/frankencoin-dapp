@@ -314,7 +314,7 @@ export default function PositionBorrow({}) {
 							<div className="text-lg font-bold text-center mt-3">Outcome</div>
 							<div className="flex-1 mt-4">
 								<div className="flex">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										<span>Sent to your wallet</span>
 									</div>
 									<div className="text-right">
@@ -324,7 +324,7 @@ export default function PositionBorrow({}) {
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										<span>Retained Reserve</span>
 									</div>
 									<div className="text-right">
@@ -334,7 +334,7 @@ export default function PositionBorrow({}) {
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										<span>Upfront interest</span>
 										<div className="text-xs">({position.annualInterestPPM / 10000}% per year)</div>
 									</div>
@@ -347,7 +347,7 @@ export default function PositionBorrow({}) {
 								<hr className="mt-4 border-slate-700 border-dashed" />
 
 								<div className="mt-2 flex font-bold">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										<span>Total</span>
 									</div>
 									<div className="text-right">
@@ -361,30 +361,30 @@ export default function PositionBorrow({}) {
 							<div className="text-lg font-bold text-center mt-3">Notes</div>
 							<div className="flex-1 mt-4">
 								<div className="mt-2 flex">
-									<div className="flex-1">Effective Annual Interest</div>
+									<div className="flex-1 text-text-secondary">Effective Annual Interest</div>
 									<div className="">{formatCurrency(effectiveInterest * 100)}%</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">Liquidation Price</div>
+									<div className="flex-1 text-text-secondary">Liquidation Price</div>
 									<div className="">
 										{formatCurrency(formatUnits(BigInt(position.price), 36 - position.collateralDecimals))} ZCHF
 									</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">Market Price</div>
+									<div className="flex-1 text-text-secondary">Market Price</div>
 									<div className="">{formatCurrency(collateralPriceZchf)} ZCHF</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">Loan-To-Value</div>
+									<div className="flex-1 text-text-secondary">Loan-To-Value</div>
 									<div className="">{formatCurrency(effectiveLTV * 100)}%</div>
 								</div>
 
 								{position.isClone && (
 									<div className="mt-2 flex">
-										<div className="flex-1">Parent Position</div>
+										<div className="flex-1 text-text-secondary">Parent Position</div>
 										<Link
 											className="underline"
 											href={`/monitoring/${position.version == 2 ? position.parent : position.original}`}
@@ -396,14 +396,14 @@ export default function PositionBorrow({}) {
 
 								{position.version == 2 && (
 									<div className="mt-2 flex">
-										<div className="flex-1">Original Position</div>
+										<div className="flex-1 text-text-secondary">Original Position</div>
 										<Link className="underline" href={`/monitoring/${position.original}`}>
 											{shortenAddress(position.original)}
 										</Link>
 									</div>
 								)}
 
-								<p className="mt-4">
+								<p className="mt-4 text-text-secondary">
 									While the maturity is fixed, you can adjust the liquidation price and the collateral amount later as
 									long as it covers the minted amount. No interest will be refunded when repaying earlier.
 								</p>

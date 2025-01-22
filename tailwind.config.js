@@ -42,7 +42,7 @@ module.exports = {
 						seperator: "#1e293b",
 					},
 					content: {
-						primary: "#F0F1F5",
+						primary: "#F5F6F9",
 						secondary: "#FFFFFF",
 						highlight: "#ff293b",
 					},

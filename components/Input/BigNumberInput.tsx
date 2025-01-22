@@ -29,12 +29,12 @@ export function BigNumberInput({
 }: BigNumberInputProps) {
 	const inputRef = React.useRef<any>(null);
 
-	const [inputValue, setInputvalue] = React.useState("");
+	const [inputValue, setInputvalue] = React.useState("0");
 
 	// update current value
 	React.useEffect(() => {
-		if (!value) {
-			setInputvalue("");
+		if (value.length == 0) {
+			setInputvalue("0");
 		} else {
 			let parseInputValue;
 
