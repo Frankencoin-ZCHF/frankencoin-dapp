@@ -79,7 +79,7 @@ module.exports = {
 					secondary: '#ced0da',
 					tertiary: '#8b91a7',
 					input: '#adb2c1',
-					inputFocus: '#3d89f4',
+					focus: '#3d89f4',
 					divider: '#1e293b',
 				},
 				input: {
