@@ -25,9 +25,9 @@ export default function TableRow({
 		<div
 			className={`${
 				className ?? "bg-table-row-primary hover:bg-table-row-hover"
-			} cursor-default px-8  xl:px-12 py-4 first:border-t-0 sm:first:border-t border-t border-table-row-hover first:rounded-t-lg sm:first:rounded-t-none last:rounded-b-lg duration-300`}
+			} cursor-default px-8  xl:px-8 py-4 first:border-t-0 sm:first:border-t border-t border-table-row-hover first:rounded-t-lg sm:first:rounded-t-none last:rounded-b-lg duration-300`}
 		>
-			<div className="flex sm:pl-8 flex-col justify-between gap-y-5 md:flex-row">
+			<div className="flex flex-col justify-between gap-y-5 md:flex-row">
 				{/* @dev: this is desktop view */}
 				<div className={`max-md:hidden text-right grid flex-grow grid-cols-${colSpan || children.length} items-center`}>
 					{children}

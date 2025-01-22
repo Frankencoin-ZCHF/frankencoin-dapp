@@ -20,17 +20,30 @@ interface Props {
 	data: BonusData[];
 }
 
+const headers = ["Payout", "Source", "Date", "TX-ID"];
+const subHeaders = ["dEURO", "", "", ""];
+
 export default function BonusHistoryTable({ data }: Props) {
 	const [isShowMore, setIsShowMore] = useState(false);
+	const [tab, setTab] = useState<string>(headers[0]);
+	const [reverse, setReverse] = useState<boolean>(false);
 
-	const headers = ["Payout", "Source", "Date", "TX-ID"];
-	const subHeaders = ["dEURO", "", "", ""];
+	const handleTabOnChange = function (e: string) {
+		if (tab === e) {
+			setReverse(!reverse);
+		} else {
+			if (e === headers[1]) setReverse(true);
+			else setReverse(false);
+
+			setTab(e);
+		}
+	};
 
 	return (
 		<div className="flex flex-col gap-4">
 			<div className="text-2xl font-black leading-relaxed">Bonus History</div>
 			<Table>
-				<TableHeader headers={headers} subHeaders={subHeaders} />
+				<TableHeader headers={headers} subHeaders={subHeaders} tab={tab} tabOnChange={handleTabOnChange} reverse={reverse} />
 				<TableBody isShowMoreAvailable={data.length > 3 && !isShowMore} onShowMoreClick={() => setIsShowMore(!isShowMore)}>
 					{data.length === 0 ? (
 						<TableRowEmpty>You do not have any bonus history yet.</TableRowEmpty>
