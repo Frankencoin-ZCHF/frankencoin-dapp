@@ -24,6 +24,7 @@ import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 export default function PositionChallenge() {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
+	const [isInit, setInit] = useState(false);
 	const [isApproving, setApproving] = useState(false);
 	const [isChallenging, setChallenging] = useState(false);
 	const [isNavigating, setNavigating] = useState(false);
@@ -41,7 +42,6 @@ export default function PositionChallenge() {
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const position = positions.find((p) => p.position == addressQuery);
-	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
 	// ---------------------------------------------------------------------------
 	useEffect(() => {
@@ -76,6 +76,12 @@ export default function PositionChallenge() {
 			navigate.push(`/monitoring/${position.position}`);
 		}
 	}, [isNavigating, navigate, position]);
+
+	useEffect(() => {
+		if (isInit || position == undefined) return;
+		setAmount(BigInt(position.minimumCollateral));
+		setInit(true);
+	}, [isInit, position]);
 
 	// ---------------------------------------------------------------------------
 	if (!position) return null;
@@ -201,6 +207,7 @@ export default function PositionChallenge() {
 						<div className="text-lg font-bold text-center mt-3">Launch A Challenge</div>
 						<TokenInput
 							symbol={position.collateralSymbol}
+							min={BigInt(position.minimumCollateral)}
 							max={userBalance}
 							balanceLabel="Your balance:"
 							digit={position.collateralDecimals}

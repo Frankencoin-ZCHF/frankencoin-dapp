@@ -20,7 +20,7 @@ import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useRouter as useNavigation } from "next/navigation";
-import { ADDRESS, FrankencoinABI, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
+import { ADDRESS, FrankencoinABI, MintingHubV2ABI } from "@frankencoin/zchf";
 
 export default function MonitoringForceSell() {
 	const [isInit, setInit] = useState(false);
@@ -73,7 +73,6 @@ export default function MonitoringForceSell() {
 		if (isInit) return;
 		if (position === undefined) return;
 		setAmount(BigInt(position.collateralBalance));
-
 		setInit(true);
 	}, [isInit, position]);
 
@@ -165,6 +164,7 @@ export default function MonitoringForceSell() {
 						<div className="">
 							<TokenInput
 								label=""
+								min={BigInt(position.minimumCollateral)}
 								max={BigInt(position.collateralBalance)}
 								value={amount.toString()}
 								onChange={onChangeAmount}

@@ -179,6 +179,7 @@ export default function ChallengePlaceBid() {
 						<div className="">
 							<TokenInput
 								label=""
+								min={BigInt(position.minimumCollateral)}
 								max={remainingSize}
 								value={amount.toString()}
 								onChange={onChangeAmount}
