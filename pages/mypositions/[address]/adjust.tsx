@@ -265,6 +265,12 @@ export default function PositionAdjust() {
 		}
 	};
 
+	const isMinted = BigInt(position.minted) > 0n;
+	const walletRatio = (paidOutAmount() * parseEther("1")) / (isMinted ? BigInt(position.minted) : amount);
+	const reserveRatio = (returnFromReserve() * parseEther("1")) / (isMinted ? BigInt(position.minted) : amount);
+	const feeRatio = (fees * parseEther("1")) / (isMinted ? BigInt(position.minted) : amount);
+	const futureRatio = (amount * parseEther("1")) / (isMinted ? BigInt(position.minted) : amount);
+
 	return (
 		<>
 			<Head>
@@ -354,42 +360,42 @@ export default function PositionAdjust() {
 								</div>
 
 								<div className="flex">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										<span>Current minted amount</span>
 									</div>
 									<div className="text-right">
-										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
+										<span className="text-xs mr-3">{isMinted ? "100%" : ""}</span>
 										{formatCurrency(formatUnits(BigInt(position.minted), 18))} ZCHF
 									</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										{amount >= BigInt(position.minted) ? "Sent to your wallet" : "To be added from your wallet"}
 									</div>
 									<div className="text-right">
-										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
+										<span className="text-xs mr-3">{formatCurrency(formatUnits(walletRatio, 16))}%</span>
 										{formatCurrency(formatUnits(paidOutAmount(), 18))} ZCHF
 									</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										{amount >= BigInt(position.minted) ? "Added to reserve on your behalf" : "Returned from reserve"}
 									</div>
 									<div className="text-right">
-										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
+										<span className="text-xs mr-3">{formatCurrency(formatUnits(reserveRatio, 16))}%</span>
 										{formatCurrency(formatUnits(returnFromReserve(), 18))} ZCHF
 									</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										<span>Upfront interest</span>
 										<div className="text-xs">({position.annualInterestPPM / 10000}% per year)</div>
 									</div>
 									<div className="text-right">
-										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
+										<span className="text-xs mr-3">{formatCurrency(formatUnits(feeRatio, 16))}%</span>
 										{formatCurrency(formatUnits(fees, 18))} ZCHF
 									</div>
 								</div>
@@ -397,11 +403,13 @@ export default function PositionAdjust() {
 								<hr className="mt-4 border-slate-700 border-dashed" />
 
 								<div className="mt-2 flex font-bold">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										<span>Future minted amount</span>
 									</div>
 									<div className="text-right">
-										{/* <span className="text-xs mr-3">100%</span> */}
+										<span className="text-xs mr-3">
+											{isMinted ? formatCurrency(formatUnits(futureRatio, 16)) : "100"}%
+										</span>
 										<span>{formatCurrency(formatUnits(amount, 18))} ZCHF</span>
 									</div>
 								</div>

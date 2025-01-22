@@ -16,20 +16,22 @@ export default function SavingsDetailsCard({ balance, change, direction, interes
 			<div className="text-lg font-bold text-center">Outcome</div>
 			<div className="p-4 flex flex-col gap-2">
 				<div className="flex">
-					<div className="flex-1">Your current balance</div>
+					<div className="flex-1 text-text-secondary">Your current balance</div>
 					<div className="">{formatCurrency(formatUnits(balance, 18))} ZCHF</div>
 				</div>
 				<div className="flex">
-					<div className="flex-1">{direction ? "To be added from your wallet" : "Withdrawn to your wallet"}</div>
+					<div className="flex-1 text-text-secondary">
+						{direction ? "To be added from your wallet" : "Withdrawn to your wallet"}
+					</div>
 					<div className="">{formatCurrency(formatUnits(change, 18))} ZCHF</div>
 				</div>
 				<div className="flex">
-					<div className="flex-1">Interest to be collected</div>
+					<div className="flex-1 text-text-secondary">Interest to be collected</div>
 					<div className="">{formatCurrency(formatUnits(interest, 18))} ZCHF</div>
 				</div>
 				<hr className="border-slate-700 border-dashed" />
 				<div className="flex font-bold">
-					<div className="flex-1">Resulting balance</div>
+					<div className="flex-1 text-text-secondary">Resulting balance</div>
 					<div className="">{formatCurrency(formatUnits(balance + change + interest, 18))} ZCHF</div>
 				</div>
 

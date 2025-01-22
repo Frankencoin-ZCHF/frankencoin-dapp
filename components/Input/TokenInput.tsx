@@ -35,15 +35,15 @@ export default function TokenInput({
 	limitLabel,
 	output,
 	note,
-	value,
+	value = "0",
 	disabled,
 	onChange,
 	error,
 }: Props) {
 	return (
 		<div>
-			<div className="mb-1 flex gap-2 px-1">
-				<div className="flex-1">{label}</div>
+			<div className="mb-1 flex gap-2 px-1 text-text-secondary">
+				<div className="flex-1 ">{label}</div>
 				{symbol && (
 					<div
 						className={`flex gap-2 items-center cursor-pointer ${hideMaxLabel && "hidden"}`}
@@ -74,7 +74,7 @@ export default function TokenInput({
 								autofocus={true}
 								decimals={Number(digit)}
 								placeholder={placeholder}
-								value={value || ""}
+								value={value}
 								onChange={(e) => onChange?.(e)}
 								className={`w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg`}
 								disabled={disabled}

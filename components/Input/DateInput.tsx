@@ -15,7 +15,7 @@ interface Props {
 export default function DateInput({ label, max, value, error, onChange }: Props) {
 	return (
 		<div>
-			<div className="mb-1 flex gap-2 px-1">
+			<div className="mb-1 flex gap-2 px-1 text-text-secondary">
 				<div className="flex-1">{label}</div>
 				<div>
 					Limit:{" "}
