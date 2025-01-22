@@ -36,6 +36,13 @@ module.exports = {
 					separator: "#EAEBF0",
 				},
 				card: {
+					input: {
+						focus: "#3E96F4",
+						error: "#E02523",
+						min: "#E4F0FC",
+						max: "#E4F0FC",
+						reset: "#fee2e2", // alt: #fecaca
+					},
 					body: {
 						primary: "#FFFFFF",
 						secondary: "#092f62",

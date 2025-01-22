@@ -13,7 +13,7 @@ export default function AddressInput({ label, placeholder, value, error, onChang
 			<div className="flex gap-2 items-center rounded-lg bg-card-content-primary p-2">
 				<div
 					className={`flex-1 gap-1 rounded-lg text-text-primary p-1 bg-card-content-secondary border-2 ${
-						error ? "border-text-warning" : "bg-card-content-secondary"
+						error ? "border-text-warning" : "focus-within:border-card-input-focus"
 					}`}
 				>
 					<input
