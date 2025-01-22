@@ -5,7 +5,7 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GovernancePositionsRow from "./GovernancePositionsRow";
 
 export default function GovernancePositionsTable() {
@@ -13,6 +13,7 @@ export default function GovernancePositionsTable() {
 	const subHeaders: string[] = ["", "Owner", "Reserve", "Maturity", "Auction duration"];
 	const [tab, setTab] = useState<string>(headers[4]);
 	const [reverse, setReverse] = useState<boolean>(true);
+	const [list, setList] = useState<PositionQuery[]>([]);
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
@@ -27,6 +28,12 @@ export default function GovernancePositionsTable() {
 		reverse,
 	});
 
+	useEffect(() => {
+		const idList = list.map((l) => l.position).join("_");
+		const idSorted = sorted.map((l) => l.position).join("_");
+		if (idList != idSorted) setList(sorted);
+	}, [list, sorted]);
+
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
 			setReverse(!reverse);
@@ -40,13 +47,13 @@ export default function GovernancePositionsTable() {
 		<Table>
 			<TableHeader headers={headers} subHeaders={subHeaders} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
-				{sorted.length == 0 ? (
+				{list.length == 0 ? (
 					<TableRowEmpty>
 						If there are new positions with new parameters or a new type of collateral, they are shown here until they have
 						passed the governance process.
 					</TableRowEmpty>
 				) : (
-					sorted.map((pos) => (
+					list.map((pos) => (
 						<GovernancePositionsRow
 							key={pos.position}
 							headers={headers}

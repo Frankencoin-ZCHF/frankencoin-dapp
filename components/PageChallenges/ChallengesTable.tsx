@@ -5,7 +5,7 @@ import TableHeader from "@components/Table/TableHead";
 import TableBody from "@components/Table/TableBody";
 import TableRowEmpty from "@components/Table/TableRowEmpty";
 import ChallengesRow from "./ChallengesRow";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
 	ChallengesId,
 	ChallengesPricesMapping,
@@ -20,6 +20,7 @@ export default function ChallengesTable() {
 	const headers: string[] = ["Available", "Price", "Phase", "Ends in"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
+	const [list, setList] = useState<ChallengesQueryItem[]>([]);
 
 	const challenges = useSelector((state: RootState) => state.challenges.list.list);
 	const positions = useSelector((state: RootState) => state.positions.mapping.map);
@@ -43,6 +44,12 @@ export default function ChallengesTable() {
 		reverse,
 	});
 
+	useEffect(() => {
+		const idList = list.map((l) => l.id).join("_");
+		const idSorted = sorted.map((l) => l.id).join("_");
+		if (idList != idSorted) setList(sorted);
+	}, [list, sorted]);
+
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
 			setReverse(!reverse);
@@ -58,10 +65,10 @@ export default function ChallengesTable() {
 		<Table>
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
-				{sorted.length == 0 ? (
+				{list.length == 0 ? (
 					<TableRowEmpty>{"There are no active challenges."}</TableRowEmpty>
 				) : (
-					sorted.map((c) => <ChallengesRow key={c.id} headers={headers} tab={tab} challenge={c} />)
+					list.map((c) => <ChallengesRow key={c.id} headers={headers} tab={tab} challenge={c} />)
 				)}
 			</TableBody>
 		</Table>

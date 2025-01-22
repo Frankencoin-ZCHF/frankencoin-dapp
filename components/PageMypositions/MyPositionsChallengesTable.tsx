@@ -15,13 +15,14 @@ import {
 	PositionsQueryObjectArray,
 	PriceQueryObjectArray,
 } from "@frankencoin/api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 export default function MyPositionsChallengesTable() {
 	const headers: string[] = ["Remaining Size", "Current Price", "State", "Time Left"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
+	const [list, setList] = useState<ChallengesQueryItem[]>([]);
 
 	const challenges = useSelector((state: RootState) => state.challenges.list.list);
 	const positions = useSelector((state: RootState) => state.positions.mapping.map);
@@ -46,6 +47,12 @@ export default function MyPositionsChallengesTable() {
 		reverse,
 	});
 
+	useEffect(() => {
+		const idList = list.map((l) => l.position).join("_");
+		const idSorted = sorted.map((l) => l.position).join("_");
+		if (idList != idSorted) setList(sorted);
+	}, [list, sorted]);
+
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
 			setReverse(!reverse);
@@ -59,10 +66,10 @@ export default function MyPositionsChallengesTable() {
 		<Table>
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
-				{sorted.length == 0 ? (
+				{list.length == 0 ? (
 					<TableRowEmpty>{"You do not have any challenges yet."}</TableRowEmpty>
 				) : (
-					sorted.map((c) => <MyPositionsChallengesRow headers={headers} tab={tab} key={c.id} challenge={c} />)
+					list.map((c) => <MyPositionsChallengesRow headers={headers} tab={tab} key={c.id} challenge={c} />)
 				)}
 			</TableBody>
 		</Table>

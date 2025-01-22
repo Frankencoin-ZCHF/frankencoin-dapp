@@ -8,7 +8,7 @@ import { ChallengesPositionsMapping, PositionQuery, PriceQueryObjectArray } from
 import { Address, formatUnits, zeroAddress } from "viem";
 import { useAccount } from "wagmi";
 import MypositionsRow from "./MypositionsRow";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 export default function MypositionsTable() {
@@ -16,6 +16,7 @@ export default function MypositionsTable() {
 	const subHeaders: string[] = ["Value", "Market Price", "Available", "Time Left"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
+	const [list, setList] = useState<PositionQuery[]>([]);
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const challenges = useSelector((state: RootState) => state.challenges.positions.map);
@@ -35,6 +36,7 @@ export default function MypositionsTable() {
 		if (p.owner !== account) continue;
 
 		if (p.closed || p.denied) {
+			if (BigInt(p.collateralBalance) == 0n) continue;
 			if (closedPositions[k] == undefined) closedPositions[k] = [];
 			closedPositions[k].push(p);
 			continue;
@@ -56,6 +58,12 @@ export default function MypositionsTable() {
 		reverse,
 	});
 
+	useEffect(() => {
+		const idList = list.map((l) => l.position).join("_");
+		const idSorted = sorted.map((l) => l.position).join("_");
+		if (idList != idSorted) setList(sorted);
+	}, [list, sorted]);
+
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
 			setReverse(!reverse);
@@ -71,10 +79,10 @@ export default function MypositionsTable() {
 		<Table>
 			<TableHeader headers={headers} subHeaders={subHeaders} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
-				{sorted.length == 0 ? (
+				{list.length == 0 ? (
 					<TableRowEmpty>{"You do not have any positions yet."}</TableRowEmpty>
 				) : (
-					sorted.map((pos) => (
+					list.map((pos) => (
 						<MypositionsRow headers={headers} subHeaders={subHeaders} tab={tab} position={pos} key={pos.position} />
 					))
 				)}
@@ -97,9 +105,9 @@ enum PositionState {
 	Open,
 	Cooldown,
 	New,
-	Expired,
 	Expiring,
 	Challenged,
+	Expired,
 }
 
 function sortPositions(params: SortPositions): PositionQuery[] {
@@ -132,13 +140,16 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 			return parseInt(b.minted) - parseInt(a.minted);
 		});
 	} else if (tab === headers[3]) {
+		// sort first for time left
+		sortingList.sort((a, b) => b.expiration - a.expiration);
+
 		// sort for state
 		sortingList.sort((a, b) => {
 			const calc = function (p: PositionQuery): number {
 				const pid: Address = p.position.toLowerCase() as Address;
 				const cPos = challenges[pid] ?? [];
 				const cPosActive = cPos.filter((c) => c.status == "Active") ?? [];
-				const maturity: number = Math.round((p.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24);
+				const maturity: number = (p.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
 
 				if (p.closed || p.denied) {
 					return PositionState.Closed;

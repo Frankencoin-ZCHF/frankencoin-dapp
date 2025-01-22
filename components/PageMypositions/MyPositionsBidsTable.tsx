@@ -7,7 +7,7 @@ import TableRowEmpty from "@components/Table/TableRowEmpty";
 import { useAccount } from "wagmi";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { BidsQueryItem, ChallengesQueryItemMapping, PositionQuery, PositionsQueryObjectArray } from "@frankencoin/api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import MyPositionsBidsRow from "./MyPositionsBidsRow";
 
@@ -15,12 +15,11 @@ export default function MyPositionsBidsTable() {
 	const headers: string[] = ["Filled Size", "Price", "Bid Amount", "State"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
+	const [list, setList] = useState<BidsQueryItem[]>([]);
 
 	const bids = useSelector((state: RootState) => state.bids.list.list);
 	const challenges = useSelector((state: RootState) => state.challenges.mapping.map);
 	const positions = useSelector((state: RootState) => state.positions.mapping.map);
-	const prices = useSelector((state: RootState) => state.prices.coingecko);
-	const auction = useSelector((state: RootState) => state.challenges.challengesPrices.map);
 
 	const router = useRouter();
 	const overwrite = router.query.address as Address;
@@ -39,6 +38,12 @@ export default function MyPositionsBidsTable() {
 		reverse,
 	});
 
+	useEffect(() => {
+		const idList = list.map((l) => l.position).join("_");
+		const idSorted = sorted.map((l) => l.position).join("_");
+		if (idList != idSorted) setList(sorted);
+	}, [list, sorted]);
+
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
 			setReverse(!reverse);
@@ -52,10 +57,10 @@ export default function MyPositionsBidsTable() {
 		<Table>
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
-				{sorted.length == 0 ? (
+				{list.length == 0 ? (
 					<TableRowEmpty>{"You do not have any bids yet."}</TableRowEmpty>
 				) : (
-					sorted.map((b) => <MyPositionsBidsRow key={b.id} headers={headers} tab={tab} bid={b} />)
+					list.map((b) => <MyPositionsBidsRow key={b.id} headers={headers} tab={tab} bid={b} />)
 				)}
 			</TableBody>
 		</Table>

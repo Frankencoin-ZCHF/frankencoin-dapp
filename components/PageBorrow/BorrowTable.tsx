@@ -5,15 +5,16 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { ChallengesQueryItem, PositionQuery, PositionQueryV2, PriceQueryObjectArray } from "@frankencoin/api";
+import { PositionQuery, PositionQueryV2, PriceQueryObjectArray } from "@frankencoin/api";
 import { Address, formatUnits } from "viem";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { POSITION_BLACKLISTED } from "../../app.config";
 
 export default function BorrowTable() {
 	const headers: string[] = ["Collateral", "Loan-to-Value", "Effective Interest", "Liquidation Price", "Maturity"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
+	const [list, setList] = useState<PositionQueryV2[]>([]);
 
 	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const challengesPosMap = useSelector((state: RootState) => state.challenges.positions.map);
@@ -59,6 +60,12 @@ export default function BorrowTable() {
 
 	const sorted: PositionQueryV2[] = sortPositions(matchingPositions, coingecko, headers, tab, reverse);
 
+	useEffect(() => {
+		const idList = list.map((l) => l.position).join("_");
+		const idSorted = sorted.map((l) => l.position).join("_");
+		if (idList != idSorted) setList(sorted);
+	}, [list, sorted]);
+
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
 			setReverse(!reverse);
@@ -72,10 +79,10 @@ export default function BorrowTable() {
 		<Table>
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
-				{sorted.length == 0 ? (
+				{list.length == 0 ? (
 					<TableRowEmpty>{"There are no other positions yet."}</TableRowEmpty>
 				) : (
-					sorted.map((pos) => <BorrowRow headers={headers} tab={tab} position={pos} key={pos.position} />)
+					list.map((pos) => <BorrowRow headers={headers} tab={tab} position={pos} key={pos.position} />)
 				)}
 			</TableBody>
 		</Table>

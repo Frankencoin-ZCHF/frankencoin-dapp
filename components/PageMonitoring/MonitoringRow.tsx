@@ -21,11 +21,9 @@ export default function MonitoringRow({ headers, tab, position }: Props) {
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
-	const bids = useSelector((state: RootState) => state.bids.positions);
 	const url = useContractUrl(position.collateral || zeroAddress);
-	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
-	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
-	if (!collTokenPrice || !zchfPrice) return null;
+	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 1;
+	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd || 1;
 
 	const maturity: number = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
 
@@ -98,11 +96,7 @@ export default function MonitoringRow({ headers, tab, position }: Props) {
 			{/* Expiration */}
 			<div className="flex flex-col gap-2">
 				<div className={`col-span-2 text-md ${maturity < 7 ? "text-text-warning font-bold" : ""}`}>
-					{maturity < 3
-						? maturity > 0
-							? `${formatCurrency(maturity * 24)} hours`
-							: "Expired"
-						: `${formatCurrency(Math.round(maturity))} days`}
+					{maturity < 3 ? (maturity > 0 ? `${formatCurrency(maturity * 24)} hours` : "Expired") : `${Math.round(maturity)} days`}
 				</div>
 			</div>
 
