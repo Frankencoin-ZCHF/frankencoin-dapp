@@ -1,8 +1,9 @@
+import { useState } from "react";
+import Image from "next/image";
 import Button from "@components/Button";
 import { TextInputOutlined } from "@components/Input/TextInputOutlined";
 import { faCheck, faCopy } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
 
 const ExplanationItem = ({ icon, title, description }: { icon: string; title: string; description: string }) => (
 	<div className="max-w-[28rem] h-14 justify-start items-start gap-3 flex">
@@ -139,7 +140,7 @@ export const ReferralCenterSection = () => {
 						</div>
 					</div>
 					<div className="pl-0.5 justify-end items-center inline-flex overflow-hidden">
-						<img src="/assets/Ref_teaser_image@2x.webp" />
+						<Image src="/assets/Ref_teaser_image@2x.webp" alt="Referral Center Teaser" width={3.8 * 319} height={319} />
 					</div>
 				</div>
 				<div className="self-stretch justify-start items-start inline-flex">
