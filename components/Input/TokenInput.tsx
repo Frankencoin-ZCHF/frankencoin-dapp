@@ -1,8 +1,6 @@
 import DisplayAmount from "../DisplayAmount";
-import { formatCurrency } from "@utils";
 import { BigNumberInput } from "./BigNumberInput";
 import dynamic from "next/dynamic";
-import { formatUnits } from "viem";
 const TokenLogo = dynamic(() => import("../TokenLogo"), { ssr: false });
 
 interface Props {
@@ -10,7 +8,9 @@ interface Props {
 	symbol: string;
 	placeholder?: string;
 	balanceLabel?: string;
+	min?: bigint;
 	max?: bigint;
+	reset?: bigint;
 	digit?: bigint | number;
 	hideMaxLabel?: boolean;
 	limit?: bigint;
@@ -27,34 +27,49 @@ export default function TokenInput({
 	label = "Send",
 	placeholder = "Input Amount",
 	symbol,
-	max = 0n,
+	min,
+	max,
+	reset,
 	digit = 18n,
-	balanceLabel = "Balance: ",
-	hideMaxLabel,
 	limit = 0n,
 	limitLabel,
 	output,
 	note,
 	value = "0",
 	disabled,
-	onChange,
+	onChange = () => {},
 	error,
 }: Props) {
 	return (
 		<div>
 			<div className="mb-1 flex gap-2 px-1 text-text-secondary">
 				<div className="flex-1 ">{label}</div>
-				{symbol && (
-					<div
-						className={`flex gap-2 items-center cursor-pointer ${hideMaxLabel && "hidden"}`}
-						onClick={() => onChange?.(max.toString())}
-					>
-						{balanceLabel}
-						<span className="font-bold text-link">
-							{formatCurrency(formatUnits(max, Number(digit)))} {symbol}
-						</span>
-					</div>
-				)}
+
+				<div className="flex flex-row gap-2 font-semibold text-sm text-text-primary cursor-pointer">
+					{max != undefined && (
+						<div
+							className="p-1 px-2 rounded-lg bg-card-input-max"
+							onClick={() => max !== undefined && onChange(max.toString())}
+						>
+							MAX
+						</div>
+					)}
+
+					{min != undefined && (
+						<div className="p-1 px-2 rounded-lg bg-card-input-min" onClick={() => min != undefined && onChange(min.toString())}>
+							MIN
+						</div>
+					)}
+
+					{reset != undefined && (
+						<div
+							className="p-1 px-2 rounded-lg bg-card-input-reset"
+							onClick={() => reset != undefined && onChange(reset.toString())}
+						>
+							RESET
+						</div>
+					)}
+				</div>
 			</div>
 
 			<div className="flex items-center rounded-lg bg-card-content-primary p-2">
@@ -67,7 +82,7 @@ export default function TokenInput({
 					) : (
 						<div
 							className={`flex gap-1 rounded-lg p-1 bg-card-content-secondary border-2 ${
-								error ? "border-text-warning" : "border-card-content-secondary"
+								error ? "border-text-warning" : "focus-within:border-card-input-focus"
 							} ${disabled ? "bg-card-body-primary text-text-header" : ""}`}
 						>
 							<BigNumberInput

@@ -46,7 +46,7 @@ export default function NormalInput({
 					) : (
 						<div
 							className={`flex gap-1 rounded-lg text-text-primary p-1 bg-card-content-secondary border-2 ${
-								error ? "border-text-warning" : "border-card-content-secondary"
+								error ? "border-text-warning" : "focus-within:border-card-input-focus"
 							}`}
 						>
 							<BigNumberInput
