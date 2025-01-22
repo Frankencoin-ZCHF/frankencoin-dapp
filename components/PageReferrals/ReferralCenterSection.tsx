@@ -27,17 +27,17 @@ export const CopyLinkButton = ({ text, contentOnCopy }: { text: string; contentO
 	};
 
 	return (
-		<div
+		<Button
 			onClick={copyReferralLink}
-			className="px-4 py-2.5 bg-layout-secondary rounded-lg justify-between items-center inline-flex overflow-hidden"
+			className={`!px-4 !py-2.5 ${isCopied ? "bg-[#0d3e7c]" : "bg-borders-primary"} rounded-lg justify-between items-center inline-flex overflow-hidden`}
 		>
-			<div className="w-80 grow shrink basis-0 text-white text-base font-extrabold leading-normal">
+			<span className="w-80 shrink basis-0 text-white text-base font-extrabold leading-normal">
 				{isCopied ? contentOnCopy : text}
-			</div>
-			<div>
+			</span>
+			<span>
 				<FontAwesomeIcon icon={isCopied ? faCheck : faCopy} className="w-5 h-5 relative text-white overflow-hidden" />
-			</div>
-		</div>
+			</span>
+		</Button>
 	);
 };
 
@@ -54,7 +54,7 @@ export const ReferralCenterSection = () => {
 	};
 
 	return (
-		<div className="flex-col justify-start items-center gap-12 inline-flex">
+		<div className="flex-col justify-start items-center gap-12 inline-flex shadow-[0px_0px_16px_0px_rgba(0,0,0,0.08)] shadow-[0px_1px_4px_0px_rgba(0,0,0,0.03)]">
 			<div className="bg-white rounded-xl flex-col justify-start items-start flex overflow-hidden">
 				<div className="self-stretch p-8 border-b border-borders-primary inline-flex">
 					<div className="self-stretch w-1/2 flex-col justify-center items-start gap-5 inline-flex">
@@ -64,11 +64,11 @@ export const ReferralCenterSection = () => {
 									<img src="/icons/chest_dark.svg" width={26} height={26} />
 								</div>
 							</div>
-							<div className="text-text-primary text-3xl font-black leading-9 tracking-tight">Referral Center</div>
+							<div className="text-text-primary text-4xl font-black leading-none">Referral Center</div>
 						</div>
-						<div className="flex-col justify-start items-start gap-2 flex">
+						<div className="flex-col justify-start items-start flex">
 							{hasInvested ? (
-								<div className="flex-col justify-start items-start flex gap-2">
+								<div className="flex-col justify-start items-start flex gap-1.5">
 									<div className="text-text-label text-sm font-normal leading-tight tracking-wide">
 										Set up your unique referral link
 									</div>
