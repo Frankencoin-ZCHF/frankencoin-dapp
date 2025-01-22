@@ -140,6 +140,9 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 			return parseInt(b.minted) - parseInt(a.minted);
 		});
 	} else if (tab === headers[3]) {
+		// sort first for time left
+		sortingList.sort((a, b) => b.expiration - a.expiration);
+
 		// sort for state
 		sortingList.sort((a, b) => {
 			const calc = function (p: PositionQuery): number {
