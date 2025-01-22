@@ -106,11 +106,6 @@ export default function PositionAdjust() {
 	// const maxTotalLimit: bigint = bigIntMin(maxMintableForCollateralAmount, maxMintableInclClones);
 	const maxTotalLimit: bigint = maxMintableInclClones;
 
-	const calcDirection = amount > BigInt(position.minted);
-	const feeDuration = BigInt(Math.floor(position.expiration * 1000 - Date.now())) / 1000n;
-	const feePercent = (feeDuration * BigInt(position.annualInterestPPM)) / BigInt(60 * 60 * 24 * 365);
-	const fees = calcDirection ? (feePercent * amount) / 1_000_000n : 0n;
-
 	// ---------------------------------------------------------------------------
 	const paidOutAmount = () => {
 		if (amount > BigInt(position.minted)) {
@@ -265,11 +260,25 @@ export default function PositionAdjust() {
 		}
 	};
 
+	const calcDirection = amount > BigInt(position.minted);
+	const feeDuration = BigInt(Math.floor(position.expiration * 1000 - Date.now())) / 1000n;
+	const feePercent = (feeDuration * BigInt(position.annualInterestPPM)) / BigInt(60 * 60 * 24 * 365);
+	const fees = calcDirection ? amount - BigInt(position.minted) - returnFromReserve() - paidOutAmount() : 0n;
+
 	const isMinted = BigInt(position.minted) > 0n;
-	const walletRatio = (paidOutAmount() * parseEther("1")) / (isMinted ? BigInt(position.minted) : amount);
-	const reserveRatio = (returnFromReserve() * parseEther("1")) / (isMinted ? BigInt(position.minted) : amount);
-	const feeRatio = (fees * parseEther("1")) / (isMinted ? BigInt(position.minted) : amount);
-	const futureRatio = (amount * parseEther("1")) / (isMinted ? BigInt(position.minted) : amount);
+
+	const walletRatio = isMinted
+		? (paidOutAmount() * parseEther("1")) / BigInt(position.minted)
+		: amount > 0n
+		? (paidOutAmount() * parseEther("1")) / amount
+		: 0n;
+	const reserveRatio = isMinted
+		? (returnFromReserve() * parseEther("1")) / BigInt(position.minted)
+		: amount > 0n
+		? (returnFromReserve() * parseEther("1")) / amount
+		: 0n;
+	const feeRatio = isMinted ? (fees * parseEther("1")) / BigInt(position.minted) : amount > 0n ? (fees * parseEther("1")) / amount : 0n;
+	const futureRatio = isMinted ? (amount * parseEther("1")) / BigInt(position.minted) : amount > 0n ? parseEther("1") : parseEther("0");
 
 	return (
 		<>
@@ -364,7 +373,7 @@ export default function PositionAdjust() {
 										<span>Current minted amount</span>
 									</div>
 									<div className="text-right">
-										<span className="text-xs mr-3">{isMinted ? "100%" : ""}</span>
+										<span className="text-xs mr-3">{isMinted ? "100.00%" : "0.00%"}</span>
 										{formatCurrency(formatUnits(BigInt(position.minted), 18))} ZCHF
 									</div>
 								</div>
@@ -407,9 +416,7 @@ export default function PositionAdjust() {
 										<span>Future minted amount</span>
 									</div>
 									<div className="text-right">
-										<span className="text-xs mr-3">
-											{isMinted ? formatCurrency(formatUnits(futureRatio, 16)) : "100"}%
-										</span>
+										<span className="text-xs mr-3">{formatCurrency(formatUnits(futureRatio, 16))}%</span>
 										<span>{formatCurrency(formatUnits(amount, 18))} ZCHF</span>
 									</div>
 								</div>
