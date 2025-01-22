@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { formatUnits, maxUint256, erc20Abi, Hash, zeroHash } from "viem";
+import { formatUnits, maxUint256, erc20Abi, Hash, zeroHash, parseEther } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useState } from "react";
 import Button from "@components/Button";
@@ -10,7 +10,7 @@ import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/ac
 import { Address } from "viem";
 import { formatBigInt, formatCurrency, min, shortenAddress, toTimestamp } from "@utils";
 import { toast } from "react-toastify";
-import { TxToast, renderErrorToast, renderErrorTxStackToast, renderErrorTxToast } from "@components/TxToast";
+import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import DateInput from "@components/Input/DateInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
@@ -269,6 +269,7 @@ export default function PositionBorrow({}) {
 								label="Mint Amount"
 								balanceLabel="Limit:"
 								symbol="ZCHF"
+								min={(BigInt(position.minimumCollateral) * BigInt(position.price)) / parseEther("1")}
 								max={availableAmount}
 								value={amount.toString()}
 								onChange={onChangeAmount}
@@ -278,12 +279,19 @@ export default function PositionBorrow({}) {
 								label="Required Collateral"
 								balanceLabel="Your balance:"
 								max={userBalance}
+								min={BigInt(position.minimumCollateral)}
 								digit={position.collateralDecimals}
 								onChange={onChangeCollateral}
 								output={formatUnits(requiredColl, position.collateralDecimals)}
 								symbol={position.collateralSymbol}
 							/>
-							<DateInput label="Expiration" max={position.expiration} value={expirationDate} onChange={onChangeExpiration} />
+							<DateInput
+								label="Expiration"
+								min={Date.now() / 1000 + 60 * 60 * 24 * 7}
+								max={position.expiration}
+								value={expirationDate}
+								onChange={onChangeExpiration}
+							/>
 						</div>
 						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 							<GuardToAllowedChainBtn label={amount > userAllowance ? "Approve" : "Mint"}>

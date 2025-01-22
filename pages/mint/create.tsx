@@ -1,7 +1,7 @@
 "use client";
 import Head from "next/head";
 import { useEffect } from "react";
-import { Address, isAddress, maxUint256 } from "viem";
+import { Address, isAddress, maxUint256, parseEther } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useTokenData, useUserBalance } from "@hooks";
 import { useState } from "react";
@@ -388,6 +388,7 @@ export default function PositionCreate({}) {
 							label="Initial Collateral"
 							symbol={collTokenData.symbol}
 							error={initialCollAmountError}
+							min={minCollAmount}
 							max={collTokenData.balance}
 							value={initialCollAmount.toString()}
 							onChange={onChangeInitialCollAmount}
@@ -402,6 +403,8 @@ export default function PositionCreate({}) {
 							hideMaxLabel
 							symbol="ZCHF"
 							error={limitAmountError}
+							min={parseEther("1000000")}
+							max={parseEther("20000000")}
 							value={limitAmount.toString()}
 							onChange={onChangeLimitAmount}
 							placeholder="Global Limit Amount"
@@ -437,7 +440,8 @@ export default function PositionCreate({}) {
 							error={liqPriceError}
 							digit={36n - collTokenData.decimals}
 							hideMaxLabel={minCollAmount == 0n}
-							max={minCollAmount == 0n ? 0n : (5000n * 10n ** 36n + minCollAmount - 1n) / minCollAmount}
+							min={minCollAmount == 0n ? 0n : (5000n * 10n ** 36n + minCollAmount - 1n) / minCollAmount}
+							max={minCollAmount == 0n ? 0n : (5000n * 15n * 10n ** 36n + minCollAmount - 1n) / minCollAmount / 10n}
 							value={liqPrice.toString()}
 							onChange={onChangeLiqPrice}
 							placeholder="Price"

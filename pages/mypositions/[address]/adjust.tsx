@@ -303,6 +303,8 @@ export default function PositionAdjust() {
 								output={position.closed ? "0" : ""}
 								balanceLabel="Max:"
 								max={maxTotalLimit}
+								min={BigInt("0")}
+								reset={BigInt(position.minted)}
 								digit={18}
 								value={amount.toString()}
 								onChange={onChangeAmount}
@@ -313,7 +315,9 @@ export default function PositionAdjust() {
 								label="Collateral"
 								balanceLabel="Max:"
 								symbol={position.collateralSymbol}
+								min={BigInt("0")}
 								max={userCollBalance + BigInt(position.collateralBalance)}
+								reset={BigInt(position.collateralBalance)}
 								value={collateralAmount.toString()}
 								onChange={onChangeCollAmount}
 								digit={position.collateralDecimals}
@@ -325,7 +329,9 @@ export default function PositionAdjust() {
 								label="Liquidation Price"
 								balanceLabel="Current Value"
 								symbol={"ZCHF"}
-								max={BigInt(position.price)}
+								min={BigInt(position.price) / 2n}
+								max={(BigInt(position.price) * 15n) / 10n}
+								reset={BigInt(position.price)}
 								value={liqPrice.toString()}
 								digit={36 - position.collateralDecimals}
 								onChange={onChangeLiqAmount}

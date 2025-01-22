@@ -48,7 +48,7 @@ export default function TokenInput({
 				<div className="flex flex-row gap-2 font-semibold text-sm text-text-primary cursor-pointer">
 					{max != undefined && (
 						<div
-							className="p-1 px-2 rounded-lg bg-card-input-max"
+							className="p-1 px-2 rounded-lg bg-card-input-max hover:bg-card-input-hover"
 							onClick={() => max !== undefined && onChange(max.toString())}
 						>
 							MAX
@@ -56,14 +56,17 @@ export default function TokenInput({
 					)}
 
 					{min != undefined && (
-						<div className="p-1 px-2 rounded-lg bg-card-input-min" onClick={() => min != undefined && onChange(min.toString())}>
+						<div
+							className="p-1 px-2 rounded-lg bg-card-input-min hover:bg-card-input-hover"
+							onClick={() => min != undefined && onChange(min.toString())}
+						>
 							MIN
 						</div>
 					)}
 
 					{reset != undefined && (
 						<div
-							className="p-1 px-2 rounded-lg bg-card-input-reset"
+							className="p-1 px-2 rounded-lg bg-card-input-reset hover:bg-card-input-hover"
 							onClick={() => reset != undefined && onChange(reset.toString())}
 						>
 							RESET

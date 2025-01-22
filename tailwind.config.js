@@ -39,9 +39,10 @@ module.exports = {
 					input: {
 						focus: "#3E96F4",
 						error: "#E02523",
+						hover: "#0F80F0",
 						min: "#E4F0FC",
 						max: "#E4F0FC",
-						reset: "#fee2e2", // alt: #fecaca
+						reset: "#E4F0FC", // alt: #fee2e2
 					},
 					body: {
 						primary: "#FFFFFF",
