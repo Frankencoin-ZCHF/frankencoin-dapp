@@ -315,10 +315,13 @@ export default function PositionAdjust() {
 
 	// Collateral Min
 	const collateralMinCallback = () => {
-		const correctedCollateral = mintedMinCallback();
-		const calcMint = (correctedCollateral * liqPrice) / parseEther("1");
-		setAmount(calcMint);
-		return calcMint;
+		const p = liqPrice;
+		const calcCollateral = (amount * parseEther("1")) / p;
+		const verifyMint = (calcCollateral * p) / parseEther("1");
+		const isRoundingError = verifyMint < amount;
+		const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
+		setCollateralAmount(correctedCollateral);
+		return correctedCollateral;
 	};
 
 	// LiqPrice
@@ -332,7 +335,7 @@ export default function PositionAdjust() {
 	};
 
 	const liqPriceMaxCallback = () => {
-		const calcPrice = (maxTotalLimit * parseEther("1")) / (BigInt(position.collateralBalance) + userCollBalance);
+		const calcPrice = (amount * parseEther("1")) / (BigInt(position.collateralBalance) + userCollBalance);
 		const verifyMint = (calcPrice * collateralAmount) / parseEther("1");
 		const isRoundingError = verifyMint < amount;
 		const corrected = isRoundingError ? calcPrice + 1n : calcPrice;
