@@ -19,6 +19,9 @@ interface Props {
 	note?: string;
 	value?: string;
 	onChange?: (value: string) => void;
+	onMin?: () => void;
+	onMax?: () => void;
+	onReset?: () => void;
 	disabled?: boolean;
 	error?: string;
 }
@@ -38,6 +41,9 @@ export default function TokenInput({
 	value = "0",
 	disabled,
 	onChange = () => {},
+	onMin = () => {},
+	onMax = () => {},
+	onReset = () => {},
 	error,
 }: Props) {
 	return (
@@ -49,7 +55,12 @@ export default function TokenInput({
 					{max != undefined && (
 						<div
 							className="p-1 px-2 rounded-lg bg-card-input-max hover:bg-card-input-hover"
-							onClick={() => max !== undefined && onChange(max.toString())}
+							onClick={() => {
+								if (max !== undefined) {
+									onChange(max.toString());
+									onMax();
+								}
+							}}
 						>
 							MAX
 						</div>
@@ -58,16 +69,26 @@ export default function TokenInput({
 					{min != undefined && (
 						<div
 							className="p-1 px-2 rounded-lg bg-card-input-min hover:bg-card-input-hover"
-							onClick={() => min != undefined && onChange(min.toString())}
+							onClick={() => {
+								if (min !== undefined) {
+									onChange(min.toString());
+									onMin();
+								}
+							}}
 						>
 							MIN
 						</div>
 					)}
 
-					{reset != undefined && (
+					{reset != undefined && reset != BigInt(value) && (
 						<div
 							className="p-1 px-2 rounded-lg bg-card-input-reset hover:bg-card-input-hover"
-							onClick={() => reset != undefined && onChange(reset.toString())}
+							onClick={() => {
+								if (reset !== undefined) {
+									onChange(reset.toString());
+									onReset();
+								}
+							}}
 						>
 							RESET
 						</div>
