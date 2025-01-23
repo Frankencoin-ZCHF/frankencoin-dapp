@@ -18,6 +18,7 @@ import { ADDRESS, PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
 import AppTitle from "@components/AppTitle";
 import Link from "next/link";
 import PositionRollerTable from "@components/PageMypositions/PositionRollerTable";
+import AppCard from "@components/AppCard";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -280,6 +281,9 @@ export default function PositionAdjust() {
 	const feeRatio = isMinted ? (fees * parseEther("1")) / BigInt(position.minted) : amount > 0n ? (fees * parseEther("1")) / amount : 0n;
 	const futureRatio = isMinted ? (amount * parseEther("1")) / BigInt(position.minted) : amount > 0n ? parseEther("1") : parseEther("0");
 
+	const expirationDateArr: string[] = new Date(position.expiration * 1000).toDateString().split(" ");
+	const expirationDateStr: string = `${expirationDateArr[2]} ${expirationDateArr[1]} ${expirationDateArr[3]}`;
+
 	return (
 		<>
 			<Head>
@@ -337,6 +341,26 @@ export default function PositionAdjust() {
 								onChange={onChangeLiqAmount}
 								placeholder="Liquidation Price"
 							/>
+
+							<div className="flex-1 mt-4">
+								<div className="flex">
+									<div className="flex-1 text-text-secondary">
+										<span>Maturity</span>
+									</div>
+									<div className="text-right">{expirationDateStr}</div>
+								</div>
+								<div className="flex mt-2">
+									<div className="flex-1 text-text-secondary">
+										<span>Address</span>
+									</div>
+									<div className="text-right">
+										<Link className="underline" href={`/monitoring/${position.position}`}>
+											{shortenAddress(position.position)}
+										</Link>
+									</div>
+								</div>
+							</div>
+
 							<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 								<GuardToAllowedChainBtn>
 									{collateralAmount - BigInt(position.collateralBalance) > userCollAllowance ? (
@@ -363,17 +387,31 @@ export default function PositionAdjust() {
 							</div>
 						</div>
 					</div>
-					<div>
-						<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
-							<div className="text-lg font-bold text-center mt-3">Outcome</div>
+
+					<div className="flex flex-col gap-4">
+						<AppCard>
+							<div className="text-lg font-bold text-center mt-3">Connected Wallet</div>
 							<div className="flex-1 mt-4">
 								<div className="flex">
-									<div className="flex-1"></div>
+									<div className="flex-1 text-text-secondary">
+										<span>Frankencoin Balance</span>
+									</div>
+									<div className="text-right">{formatCurrency(formatUnits(userFrancBalance, 18))} ZCHF</div>
+								</div>
+								<div className="flex mt-2">
+									<div className="flex-1 text-text-secondary">
+										<span>Collateral Balance</span>
+									</div>
 									<div className="text-right">
-										<span className="text-xs mr-3"></span>
+										{formatCurrency(formatUnits(userCollBalance, 18))} {position.collateralSymbol}
 									</div>
 								</div>
+							</div>
+						</AppCard>
 
+						<AppCard>
+							<div className="text-lg font-bold text-center mt-3">Adjustment Outcome</div>
+							<div className="flex-1 mt-4">
 								<div className="flex">
 									<div className="flex-1 text-text-secondary">
 										<span>Current minted amount</span>
@@ -427,7 +465,7 @@ export default function PositionAdjust() {
 									</div>
 								</div>
 							</div>
-						</div>
+						</AppCard>
 					</div>
 				</section>
 			</div>
@@ -438,8 +476,8 @@ export default function PositionAdjust() {
 				<>
 					<AppTitle title={`Renewal`}>
 						<div className="text-text-secondary">
-							This position expires on {formatDateTime(position.expiration)}. You can renew positions by rolling them into
-							suitable new ones with the same collateral but a longer duration.
+							You can renew positions by rolling them into suitable new ones with the same collateral but a longer duration.
+							Or merge them into an existing position you own that has the same collateral but a longer duration.
 						</div>
 					</AppTitle>
 
