@@ -1,9 +1,9 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { formatUnits, maxUint256, erc20Abi, Address, parseEther } from "viem";
+import { formatUnits, maxUint256, erc20Abi, Address, parseEther, parseUnits } from "viem";
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
-import { abs, formatBigInt, formatCurrency, formatDateTime, shortenAddress } from "@utils";
+import { abs, bigIntMax, bigIntMin, formatBigInt, formatCurrency, formatDateTime, shortenAddress } from "@utils";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -284,6 +284,53 @@ export default function PositionAdjust() {
 	const expirationDateArr: string[] = new Date(position.expiration * 1000).toDateString().split(" ");
 	const expirationDateStr: string = `${expirationDateArr[2]} ${expirationDateArr[1]} ${expirationDateArr[3]}`;
 
+	// Minted Max
+	const mintedMax = bigIntMin(maxTotalLimit, (liqPrice * (BigInt(position.collateralBalance) + userCollBalance)) / parseEther("1"));
+
+	const mintedMaxCallback = () => {
+		const p = liqPrice;
+		const calcCollateral = (mintedMax * parseEther("1")) / p;
+		const verifyMint = (calcCollateral * p) / parseEther("1");
+		const isRoundingError = verifyMint < mintedMax;
+		const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
+		setCollateralAmount(correctedCollateral);
+		return correctedCollateral;
+	};
+
+	// Minted Min
+	const mintedMin = bigIntMax(
+		0n,
+		BigInt(position.minted) - (userFrancBalance * 1000000n) / (1000000n - BigInt(position.reserveContribution))
+	);
+
+	const mintedMinCallback = () => {
+		const p = liqPrice;
+		const calcCollateral = (mintedMin * parseEther("1")) / p;
+		const verifyMint = (calcCollateral * p) / parseEther("1");
+		const isRoundingError = verifyMint < mintedMin;
+		const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
+		setCollateralAmount(correctedCollateral);
+		return correctedCollateral;
+	};
+
+	// Collateral Min
+	const collateralMinCallback = () => {
+		const correctedCollateral = mintedMinCallback();
+		const calcMint = (correctedCollateral * liqPrice) / parseEther("1");
+		setAmount(calcMint);
+		return calcMint;
+	};
+
+	// LiqPrice
+	const liqPriceMinCallback = () => {
+		setLiqPrice((amount * parseEther("1")) / collateralAmount);
+	};
+
+	const liqPriceMaxCallback = () => {
+		setLiqPrice((maxTotalLimit * parseEther("1")) / (BigInt(position.collateralBalance) + userCollBalance));
+		setCollateralAmount(BigInt(position.collateralBalance) + userCollBalance);
+	};
+
 	return (
 		<>
 			<Head>
@@ -305,25 +352,26 @@ export default function PositionAdjust() {
 								label="Amount"
 								symbol="ZCHF"
 								output={position.closed ? "0" : ""}
-								balanceLabel="Max:"
-								max={maxTotalLimit}
-								min={BigInt("0")}
+								min={mintedMin}
+								max={mintedMax}
 								reset={BigInt(position.minted)}
 								digit={18}
 								value={amount.toString()}
 								onChange={onChangeAmount}
+								onMin={mintedMinCallback}
+								onMax={mintedMaxCallback}
 								error={getAmountError()}
 								placeholder="Loan Amount"
 							/>
 							<TokenInput
 								label="Collateral"
-								balanceLabel="Max:"
 								symbol={position.collateralSymbol}
 								min={BigInt("0")}
 								max={userCollBalance + BigInt(position.collateralBalance)}
 								reset={BigInt(position.collateralBalance)}
 								value={collateralAmount.toString()}
 								onChange={onChangeCollAmount}
+								onMin={collateralMinCallback}
 								digit={position.collateralDecimals}
 								note={collateralNote}
 								error={getCollateralError()}
@@ -331,7 +379,6 @@ export default function PositionAdjust() {
 							/>
 							<TokenInput
 								label="Liquidation Price"
-								balanceLabel="Current Value"
 								symbol={"ZCHF"}
 								min={BigInt(position.price) / 2n}
 								max={(BigInt(position.price) * 15n) / 10n}
@@ -339,6 +386,8 @@ export default function PositionAdjust() {
 								value={liqPrice.toString()}
 								digit={36 - position.collateralDecimals}
 								onChange={onChangeLiqAmount}
+								onMin={liqPriceMinCallback}
+								onMax={liqPriceMaxCallback}
 								placeholder="Liquidation Price"
 							/>
 
@@ -403,7 +452,8 @@ export default function PositionAdjust() {
 										<span>Collateral Balance</span>
 									</div>
 									<div className="text-right">
-										{formatCurrency(formatUnits(userCollBalance, 18))} {position.collateralSymbol}
+										{formatCurrency(formatUnits(userCollBalance, position.collateralDecimals))}{" "}
+										{position.collateralSymbol}
 									</div>
 								</div>
 							</div>
