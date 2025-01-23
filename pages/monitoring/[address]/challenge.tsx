@@ -6,12 +6,12 @@ import DisplayAmount from "@components/DisplayAmount";
 import TokenInput from "@components/Input/TokenInput";
 import { erc20Abi, zeroAddress } from "viem";
 import { useEffect, useState } from "react";
-import { ContractUrl, formatBigInt, formatDuration, shortenAddress } from "@utils";
+import { formatBigInt, formatDuration, shortenAddress } from "@utils";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { Address } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
-import { TxToast, renderErrorToast, renderErrorTxStackToast, renderErrorTxToast } from "@components/TxToast";
+import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import DisplayLabel from "@components/DisplayLabel";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
@@ -79,7 +79,7 @@ export default function PositionChallenge() {
 
 	useEffect(() => {
 		if (isInit || position == undefined) return;
-		setAmount(BigInt(position.minimumCollateral));
+		setAmount(BigInt(position.collateralBalance));
 		setInit(true);
 	}, [isInit, position]);
 
@@ -208,7 +208,7 @@ export default function PositionChallenge() {
 						<TokenInput
 							symbol={position.collateralSymbol}
 							min={BigInt(position.minimumCollateral)}
-							max={userBalance}
+							max={userBalance > BigInt(position.collateralBalance) ? BigInt(position.collateralBalance) : userBalance}
 							balanceLabel="Your balance:"
 							digit={position.collateralDecimals}
 							value={amount.toString()}

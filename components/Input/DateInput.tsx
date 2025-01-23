@@ -12,9 +12,23 @@ interface Props {
 	value: Date;
 	error?: string;
 	onChange?: (date: Date | null) => void;
+	onMin?: () => void;
+	onMax?: () => void;
+	onReset?: () => void;
 }
 
-export default function DateInput({ label, min, max, reset, value, error, onChange = () => {} }: Props) {
+export default function DateInput({
+	label,
+	min,
+	max,
+	reset,
+	value,
+	error,
+	onChange = () => {},
+	onMin = () => {},
+	onMax = () => {},
+	onReset = () => {},
+}: Props) {
 	return (
 		<div>
 			<div className="mb-1 flex gap-2 px-1 text-text-secondary">
@@ -24,7 +38,12 @@ export default function DateInput({ label, min, max, reset, value, error, onChan
 					{max != undefined && (
 						<div
 							className="p-1 px-2 rounded-lg bg-card-input-max"
-							onClick={() => max !== undefined && onChange(new Date(Number(max) * 1000))}
+							onClick={() => {
+								if (max !== undefined) {
+									onChange(new Date(Number(max) * 1000));
+									onMax();
+								}
+							}}
 						>
 							MAX
 						</div>
@@ -33,16 +52,26 @@ export default function DateInput({ label, min, max, reset, value, error, onChan
 					{min != undefined && (
 						<div
 							className="p-1 px-2 rounded-lg bg-card-input-min"
-							onClick={() => min != undefined && onChange(new Date(Number(min) * 1000))}
+							onClick={() => {
+								if (min !== undefined) {
+									onChange(new Date(Number(min) * 1000));
+									onMin();
+								}
+							}}
 						>
 							MIN
 						</div>
 					)}
 
-					{reset != undefined && (
+					{reset != undefined && new Date(Number(reset) * 1000) != value && (
 						<div
 							className="p-1 px-2 rounded-lg bg-card-input-reset"
-							onClick={() => reset != undefined && onChange(new Date(Number(reset) * 1000))}
+							onClick={() => {
+								if (reset !== undefined) {
+									onChange(new Date(Number(reset) * 1000));
+									onReset();
+								}
+							}}
 						>
 							RESET
 						</div>
