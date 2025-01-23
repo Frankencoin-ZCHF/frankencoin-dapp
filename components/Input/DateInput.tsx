@@ -37,7 +37,7 @@ export default function DateInput({
 				<div className="flex flex-row gap-2 font-semibold text-sm text-text-primary cursor-pointer">
 					{max != undefined && (
 						<div
-							className="p-1 px-2 rounded-lg bg-card-input-max"
+							className="p-1 px-2 rounded-lg bg-card-input-max hover:bg-card-input-hover"
 							onClick={() => {
 								if (max !== undefined) {
 									onChange(new Date(Number(max) * 1000));
@@ -51,7 +51,7 @@ export default function DateInput({
 
 					{min != undefined && (
 						<div
-							className="p-1 px-2 rounded-lg bg-card-input-min"
+							className="p-1 px-2 rounded-lg bg-card-input-min hover:bg-card-input-hover"
 							onClick={() => {
 								if (min !== undefined) {
 									onChange(new Date(Number(min) * 1000));
@@ -65,7 +65,7 @@ export default function DateInput({
 
 					{reset != undefined && new Date(Number(reset) * 1000) != value && (
 						<div
-							className="p-1 px-2 rounded-lg bg-card-input-reset"
+							className="p-1 px-2 rounded-lg bg-card-input-reset hover:bg-card-input-hover"
 							onClick={() => {
 								if (reset !== undefined) {
 									onChange(new Date(Number(reset) * 1000));
