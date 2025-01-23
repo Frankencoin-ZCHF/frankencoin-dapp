@@ -55,7 +55,7 @@ export default function Navbar() {
 				This website is not yet live. This is just a test system
 			</div>
 			<div>
-				<header className="w-full h-16 px-10 bg-white border-b border-menu-separator bg-menu-back backdrop-blur justify-between items-center inline-flex">
+				<header className="w-full h-16 px-5 md:px-10 bg-white border-b border-menu-separator bg-menu-back backdrop-blur justify-between items-center inline-flex">
 					<div className="h-9 justify-start items-center gap-6 inline-flex">
 						<Link className="w-8 h-8 justify-center items-center inline-flex" href={CONFIG.landing}>
 							<div className="w-8 h-8 relative flex-col justify-start items-start flex overflow-hidden">

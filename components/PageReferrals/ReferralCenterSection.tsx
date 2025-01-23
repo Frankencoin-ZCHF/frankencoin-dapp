@@ -54,7 +54,7 @@ export const ReferralCenterSection = () => {
 	};
 
 	return (
-		<div className="flex-col justify-start items-center gap-12 inline-flex shadow-[0px_0px_16px_0px_rgba(0,0,0,0.08)] shadow-[0px_1px_4px_0px_rgba(0,0,0,0.03)]">
+		<div className="flex-col rounded-xl justify-start items-center gap-12 inline-flex shadow-card">
 			<div className="bg-white rounded-xl flex-col justify-start items-start flex overflow-hidden">
 				<div className="self-stretch p-8 border-b border-borders-primary inline-flex">
 					<div className="self-stretch w-1/2 flex-col justify-center items-start gap-5 inline-flex">
@@ -135,12 +135,19 @@ export const ReferralCenterSection = () => {
 				</div>
 				<div className="relative bg-text-primary overflow-hidden">
 					<div className="absolute h-full w-[50%] px-16 flex-col justify-center items-start gap-4 inline-flex">
-						<div className="self-stretch text-text-muted text-5xl font-black leading-tight">
+						<div className="self-stretch text-text-muted text-5xl font-black leading-tight text-transparent bg-clip-text bg-gradient-to-b from-[#8B92A8] to-[#5D647B]">
 							Earn 1% on investments, loans and savings!
 						</div>
 					</div>
 					<div className="pl-0.5 justify-end items-center inline-flex overflow-hidden">
-						<Image src="/assets/Ref_teaser_image@2x.webp" alt="Referral Center Teaser" width={3.8 * 319} height={319} />
+						<Image 
+							src="/assets/Ref_teaser_image@2x.png" 
+							alt="Referral Center Teaser" 
+							width={1212}
+							height={319}
+							quality={100}
+							priority
+						/>
 					</div>
 				</div>
 				<div className="self-stretch justify-start items-start inline-flex">
