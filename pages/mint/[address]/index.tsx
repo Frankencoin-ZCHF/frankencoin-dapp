@@ -319,7 +319,7 @@ export default function PositionBorrow({}) {
 					</div>
 					<div>
 						<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
-							<div className="text-lg font-bold text-center mt-3">Outcome</div>
+							<div className="text-lg font-bold text-center mt-3">Mint Outcome</div>
 							<div className="flex-1 mt-4">
 								<div className="flex">
 									<div className="flex-1 text-text-secondary">
@@ -388,6 +388,11 @@ export default function PositionBorrow({}) {
 								<div className="mt-2 flex">
 									<div className="flex-1 text-text-secondary">Loan-To-Value</div>
 									<div className="">{formatCurrency(effectiveLTV * 100)}%</div>
+								</div>
+
+								<div className="mt-2 flex">
+									<div className="flex-1 text-text-secondary">Available to Mint</div>
+									<div className="">{formatCurrency(formatUnits(availableAmount, 18))} ZCHF</div>
 								</div>
 
 								{position.isClone && (

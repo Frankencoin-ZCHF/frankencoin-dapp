@@ -284,19 +284,6 @@ export default function PositionAdjust() {
 	const expirationDateArr: string[] = new Date(position.expiration * 1000).toDateString().split(" ");
 	const expirationDateStr: string = `${expirationDateArr[2]} ${expirationDateArr[1]} ${expirationDateArr[3]}`;
 
-	// Minted Max
-	const mintedMax = bigIntMin(maxTotalLimit, (liqPrice * (BigInt(position.collateralBalance) + userCollBalance)) / parseEther("1"));
-
-	const mintedMaxCallback = () => {
-		const p = liqPrice;
-		const calcCollateral = (mintedMax * parseEther("1")) / p;
-		const verifyMint = (calcCollateral * p) / parseEther("1");
-		const isRoundingError = verifyMint < mintedMax;
-		const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
-		setCollateralAmount(correctedCollateral);
-		return correctedCollateral;
-	};
-
 	// Minted Min
 	const mintedMin = bigIntMax(
 		0n,
@@ -313,6 +300,19 @@ export default function PositionAdjust() {
 		return correctedCollateral;
 	};
 
+	// Minted Max
+	const mintedMax = bigIntMin(maxTotalLimit, (liqPrice * (BigInt(position.collateralBalance) + userCollBalance)) / parseEther("1"));
+
+	const mintedMaxCallback = () => {
+		const p = liqPrice;
+		const calcCollateral = (mintedMax * parseEther("1")) / p;
+		const verifyMint = (calcCollateral * p) / parseEther("1");
+		const isRoundingError = verifyMint < mintedMax;
+		const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
+		setCollateralAmount(correctedCollateral);
+		return correctedCollateral;
+	};
+
 	// Collateral Min
 	const collateralMinCallback = () => {
 		const correctedCollateral = mintedMinCallback();
@@ -323,12 +323,22 @@ export default function PositionAdjust() {
 
 	// LiqPrice
 	const liqPriceMinCallback = () => {
-		setLiqPrice((amount * parseEther("1")) / collateralAmount);
+		const calcPrice = (amount * parseEther("1")) / collateralAmount;
+		const verifyMint = (calcPrice * collateralAmount) / parseEther("1");
+		const isRoundingError = verifyMint < amount;
+		const corrected = isRoundingError ? calcPrice + 1n : calcPrice;
+		setLiqPrice(corrected);
+		return corrected;
 	};
 
 	const liqPriceMaxCallback = () => {
-		setLiqPrice((maxTotalLimit * parseEther("1")) / (BigInt(position.collateralBalance) + userCollBalance));
+		const calcPrice = (maxTotalLimit * parseEther("1")) / (BigInt(position.collateralBalance) + userCollBalance);
+		const verifyMint = (calcPrice * collateralAmount) / parseEther("1");
+		const isRoundingError = verifyMint < amount;
+		const corrected = isRoundingError ? calcPrice + 1n : calcPrice;
+		setLiqPrice(corrected);
 		setCollateralAmount(BigInt(position.collateralBalance) + userCollBalance);
+		return corrected;
 	};
 
 	return (
