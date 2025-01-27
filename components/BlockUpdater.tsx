@@ -85,8 +85,8 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		store.dispatch(fetchPositionsList());
 		store.dispatch(fetchChallengesList());
 		store.dispatch(fetchBidsList());
-		store.dispatch(fetchAccount(latestAddress));
-		store.dispatch(fetchSavings(latestAddress));
+		// store.dispatch(fetchAccount(latestAddress)); // @dev: unused for now
+		// store.dispatch(fetchSavings(latestAddress)); // @dev: auto-updates deactivated, switched to page-updates
 		store.dispatch(fetchPricesList());
 		store.dispatch(fetchEcosystem());
 
