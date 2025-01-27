@@ -374,6 +374,11 @@ export default function PositionBorrow({}) {
 								</div>
 
 								<div className="mt-2 flex">
+									<div className="flex-1 text-text-secondary">Available to Mint</div>
+									<div className="">{formatCurrency(formatUnits(availableAmount, 18))} ZCHF</div>
+								</div>
+
+								<div className="mt-2 flex">
 									<div className="flex-1 text-text-secondary">Liquidation Price</div>
 									<div className="">
 										{formatCurrency(formatUnits(BigInt(position.price), 36 - position.collateralDecimals))} ZCHF
@@ -388,11 +393,6 @@ export default function PositionBorrow({}) {
 								<div className="mt-2 flex">
 									<div className="flex-1 text-text-secondary">Loan-To-Value</div>
 									<div className="">{formatCurrency(effectiveLTV * 100)}%</div>
-								</div>
-
-								<div className="mt-2 flex">
-									<div className="flex-1 text-text-secondary">Available to Mint</div>
-									<div className="">{formatCurrency(formatUnits(availableAmount, 18))} ZCHF</div>
 								</div>
 
 								{position.isClone && (
