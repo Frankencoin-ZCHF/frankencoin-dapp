@@ -40,8 +40,8 @@ export default function YourReferralsTable({ data }: Props) {
 	};
 
 	return (
-		<div className="flex flex-col gap-4">
-			<div className="text-2xl font-black leading-relaxed">Your referrals</div>
+		<div className="flex flex-col gap-2 sm:gap-6">
+			<div className="text-xl sm:text-2xl font-black leading-relaxed">Your referrals</div>
 			<Table>
 				<TableHeader headers={headers} subHeaders={subHeaders} tab={tab} tabOnChange={handleTabOnChange} reverse={reverse} />
 				<TableBody>

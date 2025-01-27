@@ -8,23 +8,23 @@ const ExpandableFAQ = ({ question, answer, separator = true }: { question: strin
 	return (
 		<div
 			onClick={() => setIsExpanded((p) => !p)}
-			className={`self-stretch py-6 ${
+			className={`self-stretch py-3 sm:py-6 ${
 				separator ? "border-b border-borders-secondary" : ""
 			} flex-col justify-center items-start gap-2 flex`}
 		>
 			<div className="self-stretch justify-start items-center gap-14 inline-flex">
-				<div className="grow shrink basis-0 text-text-primary text-xl font-black leading-7">{question}</div>
+				<div className="grow shrink basis-0 text-text-primary text-base sm:text-xl font-black leading-tight sm:leading-7">{question}</div>
 				<FontAwesomeIcon
 					icon={faChevronDown}
 					className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
 				/>
 			</div>
 			<div
-				className={`self-stretch pl-8 pr-32 justify-start items-center gap-14 inline-flex overflow-hidden transition-all duration-300 ${
+				className={`self-stretch pl-4 sm:pl-8 pr-4 sm:pr-32 justify-start items-center gap-14 inline-flex overflow-hidden transition-all duration-300 ${
 					isExpanded ? "max-h-96 opacity-100 mt-2" : "max-h-0 opacity-0"
 				}`}
 			>
-				<div className="grow shrink basis-0 text-text-label text-xl leading-7">{answer}</div>
+				<div className="grow shrink basis-0 text-text-label text-base sm:text-xl leading-normal sm:leading-7">{answer}</div>
 			</div>
 		</div>
 	);
@@ -32,9 +32,9 @@ const ExpandableFAQ = ({ question, answer, separator = true }: { question: strin
 
 export const FAQ = () => {
 	return (
-		<div className="flex flex-col gap-4">
-			<div className="text-text-primary text-2xl font-black leading-7">Q&A</div>
-			<div className="px-12 py-4 bg-white rounded-xl shadow-card flex-col justify-start items-start inline-flex">
+		<div className="flex flex-col gap-2 sm:gap-6">
+			<div className="text-text-primary text-xl sm:text-2xl font-black leading-7">Q&A</div>
+			<div className="px-4 sm:px-12 py-2 sm:py-4 bg-white rounded-xl shadow-card flex-col justify-start items-start inline-flex">
 				<ExpandableFAQ
 					question="Who is entitled to participate in the referral system?"
 					answer="Everyone who has interacted with the dEuro Protocol once is authorized and receives their referral code."

@@ -16,6 +16,9 @@ export function NavItems() {
 	return (
 		<>
 			<li>
+				<NavButton to="/referrals" name="My Referrals" />
+			</li>
+			<li>
 				<NavButton to="/swap" name="Swap" />
 			</li>
 			<li>
