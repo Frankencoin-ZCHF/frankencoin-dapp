@@ -12,12 +12,12 @@ export const TextInputOutlined = ({ className, placeholder, value, onChange }: T
 
 	return (
 		<div
-			className={`p-3 rounded-lg border-2 border-transparent relative flex-col justify-center items-start gap-2 flex before:absolute before:inset-0 before:rounded-xl before:border before:pointer-events-none ${
+			className={`p-2 px-3 sm:p-3 rounded-lg border-2 border-transparent relative flex-col justify-center items-start gap-2 flex before:absolute before:inset-0 before:rounded-xl before:border before:pointer-events-none ${
 				isFocused ? "before:border-2 before:border-input-borderFocus" : "before:border-input-border"
 			} ${className}`}
 		>
 			<input
-				className="p-0 m-0 self-stretch grow text-input-primary placeholder:text-text-icon text-lg font-medium leading-tight"
+				className="p-0 m-0 self-stretch grow text-input-primary placeholder:text-text-icon text-base sm:text-lg font-medium leading-tight"
 				placeholder={placeholder}
 				value={value}
 				onChange={(e) => onChange(e.target.value)}

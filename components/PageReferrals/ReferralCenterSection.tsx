@@ -34,11 +34,11 @@ export const CopyLinkButton = ({ text, contentOnCopy }: { text: string; contentO
 					isCopied ? "bg-[#0d3e7c]" : "bg-borders-primary"
 				} rounded-lg justify-between items-center inline-flex overflow-hidden`}
 			>
-				<span className="basis-0 text-white text-base font-extrabold leading-normal">
+				<span className="basis-0 text-white text-sm sm:text-base font-extrabold leading-normal">
 					{isCopied ? contentOnCopy : text}
 				</span>
 				<span>
-					<FontAwesomeIcon icon={isCopied ? faCheck : faCopy} className="w-5 h-5 relative text-white overflow-hidden" />
+					<FontAwesomeIcon icon={isCopied ? faCheck : faCopy} className="w-4 h-4 sm:w-5 sm:h-5 relative text-white overflow-hidden" />
 				</span>
 			</Button>
 		</div>
@@ -71,7 +71,7 @@ export const ReferralCenterSection = () => {
 							<div className="text-text-label text-sm font-normal leading-tight tracking-wide">
 								Set up your unique referral link
 							</div>
-							<div className="min-h-14 self-stretch flex-row items-center flex gap-2">
+							<div className="min-h-10 sm:min-h-14 self-stretch flex-row items-center flex gap-2">
 								{referralLink ? (
 									<CopyLinkButton text={referralLink} contentOnCopy="... copied! Let´s go." />
 								) : (
@@ -82,7 +82,7 @@ export const ReferralCenterSection = () => {
 											value={referralName}
 											onChange={(value) => setReferralName(value)}
 										/>
-										<Button onClick={createReferralLink} disabled={!referralName} className="h-12 !w-fit">
+										<Button onClick={createReferralLink} disabled={!referralName} className="h-10 sm:h-12 !w-fit text-sm sm:text-base">
 											Create
 										</Button>
 									</>

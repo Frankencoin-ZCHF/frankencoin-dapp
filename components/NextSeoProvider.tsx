@@ -15,7 +15,7 @@ export default function NextSeoProvider() {
 				site: "@dEURO_com",
 				cardType: "summary_large_image",
 			}}
-			themeColor="#d35384"
+			themeColor="#f3f4f7"
 			additionalLinkTags={[
 				{
 					rel: "icon",

@@ -15,7 +15,7 @@ export function NavItems() {
 
 	return (
 		<>
-			<li>
+			<li className="inline-block sm:hidden">
 				<NavButton to="/referrals" name="My Referrals" />
 			</li>
 			<li>
