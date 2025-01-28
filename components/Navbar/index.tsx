@@ -114,7 +114,7 @@ export default function Navbar() {
 									isNavBarOpen ? "translate-x-0" : "translate-x-full"
 								}`}
 							>
-								<div className="min-h-full w-full bg-layout-primary rounded-l-[2rem] backdrop-blur px-6 pt-12 shadow-xl relative">
+								<div className="min-h-full w-full bg-white rounded-l-xl border border-borders-primary backdrop-blur px-6 pt-12 shadow-xl relative">
 									<button className="absolute top-4 right-4" onClick={() => setIsNavBarOpen(false)}>
 										<svg
 											xmlns="http://www.w3.org/2000/svg"
@@ -127,7 +127,7 @@ export default function Navbar() {
 										</svg>
 									</button>
 									<menu
-										className="grid grid-cols-1 gap-6 mt-12 place-content-stretch"
+										className="grid grid-cols-1 gap-3 mt-1 place-content-stretch"
 										onClick={() => setIsNavBarOpen(false)}
 									>
 										<NavItems />

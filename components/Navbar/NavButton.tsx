@@ -21,7 +21,7 @@ export default function NavButton({ to, name, external }: Props) {
 
 	return (
 		<Link
-			className={`h-9 px-3 py-2.5 rounded-lg justify-center items-center gap-1.5 inline-flex overflow-hidden ${activeClass} ${hoverClass}`}
+			className={`w-[80%] sm:w-fit h-9 px-4 sm:px-3 py-2.5 rounded-lg justify-start sm:justify-center items-center gap-1.5 inline-flex overflow-hidden ${activeClass} ${hoverClass}`}
 			href={external ? to : href}
 			target={external ? "_blank" : "_self"}
 		>
