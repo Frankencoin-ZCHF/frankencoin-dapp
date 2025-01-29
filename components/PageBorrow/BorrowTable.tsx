@@ -49,7 +49,7 @@ export default function BorrowTable() {
 				return false; // under cooldown
 			} else if (BigInt(position.isOriginal ? position.availableForClones : position.availableForMinting) == 0n) {
 				return false;
-			} else if ((challengesPosMap[pid] || []).filter((c) => c.status == "Active").length > 1) {
+			} else if ((challengesPosMap[pid] || []).filter((c) => c.status == "Active").length > 0) {
 				return false; // active challenges
 			} else {
 				return true;
