@@ -317,9 +317,9 @@ export default function Swap() {
 			</Head>
 
 			<div className="md:mt-8 flex justify-center">
-				<AppCard className="max-w-lg p-4 gap-8 overflow-hidden">
-					<div className="mb-4 pb-2 w-full self-stretch justify-center items-center gap-1.5 inline-flex">
-						<div className="text-text-title text-xl font-black ">Swap {TOKEN_SYMBOL} for other stablecoins</div>
+				<AppCard className="max-w-lg p-4 gap-8">
+					<div className="mb-2 sm:mb-4 pb-2 w-full self-stretch justify-center items-center gap-1.5 inline-flex">
+						<div className="text-text-title text-center text-lg sm:text-xl font-black ">Swap {TOKEN_SYMBOL} for other stablecoins</div>
 					</div>
 
 					<div className="mt-8">

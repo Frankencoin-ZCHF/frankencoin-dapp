@@ -15,9 +15,10 @@ import { TOKEN_SYMBOL } from "@utils";
 interface Props {
 	headers: string[];
 	bid: BidsQueryItem;
+	tab: string;
 }
 
-export default function MyPositionsBidsRow({ headers, bid }: Props) {
+export default function MyPositionsBidsRow({ headers, bid, tab }: Props) {
 	const positions = useSelector((state: RootState) => state.positions.mapping);
 	const challenges = useSelector((state: RootState) => state.challenges.mapping);
 
@@ -48,6 +49,7 @@ export default function MyPositionsBidsRow({ headers, bid }: Props) {
 					</Button>
 				</div>
 			}
+			tab={tab}
 		>
 			{/* Collateral */}
 			<div className="flex flex-col max-md:mb-5">

@@ -74,7 +74,7 @@ export default function MypositionsTable() {
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"You do not have any positions yet."}</TableRowEmpty>
 				) : (
-					sorted.map((pos) => <MypositionsRow headers={headers} subHeaders={subHeaders} position={pos} key={pos.position} />)
+					sorted.map((pos) => <MypositionsRow headers={headers} subHeaders={subHeaders} position={pos} key={pos.position} tab={tab} />)
 				)}
 			</TableBody>
 		</Table>

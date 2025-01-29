@@ -1,4 +1,4 @@
-import { shortenAddress, shortenHash, TxUrl } from "@utils";
+import { shortenHash, TxUrl } from "@utils";
 import Table from "../Table";
 import TableBody from "../Table/TableBody";
 import TableHeader from "../Table/TableHead";
@@ -51,12 +51,12 @@ export default function BonusHistoryTable({ data }: Props) {
 							<TableRowEmpty>You do not have any bonus history yet.</TableRowEmpty>
 						) : (
 							data.slice(0, isShowMore ? data.length : 3).map((row, i) => (
-								<TableRow key={i} headers={headers}>
-									<div className="text-base font-medium leading-tight text-left">{row.payout}</div>
-									<div className="text-base font-medium leading-tight">{row.source}</div>
-									<div className="text-base font-medium leading-tight">{row.date}</div>
+								<TableRow key={i} headers={headers} tab={tab}>
+									<div className="text-base sm:font-medium leading-tight text-left">{row.payout}</div>
+									<div className="text-base sm:font-medium leading-tight">{row.source}</div>
+									<div className="text-base sm:font-medium leading-tight">{row.date}</div>
 									<div>
-										<Link href={TxUrl(row.txId as `0x${string}`)} className="text-base font-medium leading-tight">
+										<Link href={TxUrl(row.txId as `0x${string}`)} className="text-base sm:font-medium leading-tight">
 											<span className="underline">{shortenHash(row.txId as `0x${string}`)}</span>
 											<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
 										</Link>

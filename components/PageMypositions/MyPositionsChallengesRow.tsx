@@ -12,10 +12,11 @@ import { TOKEN_SYMBOL } from "@utils";
 
 interface Props {
 	headers: string[];
-	challenge: ChallengesQueryItem;
+	challenge: ChallengesQueryItem;	
+	tab: string;
 }
 
-export default function MyPositionsChallengesRow({ headers, challenge }: Props) {
+export default function MyPositionsChallengesRow({ headers, challenge, tab }: Props) {
 	const positions = useSelector((state: RootState) => state.positions.mapping);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challengesPrices = useSelector((state: RootState) => state.challenges.challengesPrices);
@@ -70,7 +71,7 @@ export default function MyPositionsChallengesRow({ headers, challenge }: Props) 
 	};
 
 	return (
-		<TableRow headers={headers} actionCol={<MyPositionsChallengesCancel challenge={challenge} hidden={stateIdx == 1} />}>
+		<TableRow headers={headers} actionCol={<MyPositionsChallengesCancel challenge={challenge} hidden={stateIdx == 1}/>} tab={tab}>
 			{/* Collateral */}
 			<div className="flex flex-col max-md:mb-5">
 				{/* desktop view */}

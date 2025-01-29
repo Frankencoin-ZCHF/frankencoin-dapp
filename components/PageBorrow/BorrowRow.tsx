@@ -13,9 +13,10 @@ import { TOKEN_SYMBOL } from "@utils";
 interface Props {
 	headers: string[];
 	position: PositionQuery;
+	tab: string;
 }
 
-export default function BorrowRow({ headers, position }: Props) {
+export default function BorrowRow({ headers, position, tab }: Props) {
 	const navigate = useNavigation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
@@ -43,17 +44,11 @@ export default function BorrowRow({ headers, position }: Props) {
 					Mint
 				</Button>
 			}
+			tab={tab}
+			showFirstHeader={true}
 		>
 			<div className="flex flex-col max-md:mb-5">
-				<AppBox className="md:hidden">
-					<DisplayCollateralBorrowTable
-						symbol={position.collateralSymbol}
-						symbolTiny={`v${position.version}`}
-						name={position.collateralName}
-						address={position.collateral}
-					/>
-				</AppBox>
-				<div className="max-md:hidden">
+				<div>
 					<DisplayCollateralBorrowTable
 						symbol={position.collateralSymbol}
 						symbolTiny={`v${position.version}`}
@@ -63,19 +58,21 @@ export default function BorrowRow({ headers, position }: Props) {
 				</div>
 			</div>
 
-			<div className="flex flex-col gap-2 text-text-header">
+			<div className="flex flex-col gap-2 text-base sm:font-medium leading-tight">
 				<div className="col-span-2 text-md">{formatCurrency(effectiveLTV, 2, 2)}%</div>
 			</div>
 
-			<div className="flex flex-col gap-2 text-text-header">
+			<div className="flex flex-col gap-2 text-base sm:font-medium leading-tight">
 				<div className="col-span-2 text-md">{formatCurrency(effectiveInterest, 2, 2)}%</div>
 			</div>
 
-			<div className="flex flex-col gap-2 text-text-header">
-				<div className="col-span-2 text-md">{formatCurrency(available, 2, 2)} {TOKEN_SYMBOL}</div>
+			<div className="flex flex-col gap-2 text-base sm:font-medium leading-tight">
+				<div className="col-span-2 text-md">
+					{formatCurrency(available, 2, 2)} {TOKEN_SYMBOL}
+				</div>
 			</div>
 
-			<div className="flex flex-col gap-2 text-text-header">
+			<div className="flex flex-col gap-2 text-base sm:font-medium leading-tight">
 				<div className="col-span-2 text-md">{expirationString}</div>
 			</div>
 		</TableRow>

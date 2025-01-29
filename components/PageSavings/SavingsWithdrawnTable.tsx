@@ -35,7 +35,7 @@ export default function SavingsWithdrawnTable() {
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"There are no withdrawals yet."}</TableRowEmpty>
 				) : (
-					sorted.map((r, idx) => <SavingsWithdrawnRow headers={headers} key={r.id} item={r} />)
+					sorted.map((r, idx) => <SavingsWithdrawnRow headers={headers} key={r.id} item={r} tab={tab} />)
 				)}
 			</TableBody>
 		</Table>

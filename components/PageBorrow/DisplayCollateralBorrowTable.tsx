@@ -26,18 +26,18 @@ export default function DisplayCollateralBorrowTable({ bold = true, symbol, symb
 
 	return (
 		<Link href={url} onClick={openExplorer}>
-			<div className={`md:-ml-12 flex items-center ${className}`}>
-				<div className="mr-4">
+			<div className={`flex items-center ${className}`}>
+				<div className="mr-3">
 					<TokenLogo currency={symbol} />
 				</div>
 
 				<div className="flex flex-col">
-					<span className={`text-left ${bold && "font-bold"}`}>
+					<span className={`text-left text-base text-text-primary leading-tight ${bold && "font-bold"}`}>
 						{symbol}
 						<span className="text-xs font-normal">{` ${symbolTiny}`}</span>
 						<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2 cursor-pointer" />
 					</span>
-					<span className="text-text-subheader text-left max-lg:w-[4rem] lg:w-[7rem] max-sm:w-[9rem] text-sm truncate">
+					<span className="text-text-subheader text-left max-lg:w-[4rem] lg:w-[7rem] max-sm:w-[9rem] text-base leading-tight truncate">
 						{name}
 					</span>
 				</div>

@@ -50,13 +50,13 @@ export default function YourReferralsTable({ data }: Props) {
 							<TableRowEmpty>You do not have any referrals yet.</TableRowEmpty>
 						) : (
 							data.slice(0, isShowMore ? data.length : 3).map((row, i) => (
-								<TableRow key={i} headers={headers}>
-									<div className="text-base font-medium leading-tight text-left">{row.volume}</div>
-									<div className="text-base font-medium leading-tight">{row.date}</div>
+								<TableRow key={i} headers={headers} tab={tab}>
+									<div className="text-base sm:font-medium leading-tight text-left">{row.volume}</div>
+									<div className="text-base sm:font-medium leading-tight">{row.date}</div>
 									<div>
 										<Link
 											href={ContractUrl(row.address as `0x${string}`)}
-											className="text-base font-medium leading-tight"
+											className="text-base sm:font-medium leading-tight"
 										>
 											<span className="underline">{shortenAddress(row.address as `0x${string}`)}</span>
 											<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />

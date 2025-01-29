@@ -53,6 +53,7 @@ export default function GovernancePositionsTable() {
 							subHeaders={subHeaders}
 							position={pos}
 							prices={prices}
+							tab={tab}
 						/>
 					))
 				)}

@@ -17,9 +17,10 @@ interface Props {
 	voter: VoteData;
 	votesTotal: bigint;
 	connectedWallet?: boolean;
+	tab: string;	
 }
 
-export default function GovernanceVotersRow({ headers, voter, votesTotal, connectedWallet }: Props) {
+export default function GovernanceVotersRow({ headers, voter, votesTotal, connectedWallet, tab }: Props) {
 	const [isDelegateeVotes, setDelegateeVotes] = useState<VoteData | undefined>(undefined);
 	const delegationData = useDelegationQuery();
 	const account = useAccount();
@@ -75,6 +76,7 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 						/>
 					)
 				}
+				tab={tab}
 			>
 				{/* Owner */}
 				<div className="flex items-center">
@@ -109,6 +111,7 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 							disabled={connectedWallet && (!isDelegated || (isDelegated && isRevoked))}
 						/>
 					}
+					tab={tab}
 				>
 					<AddressLabelSimple className="text-left" address={delegatee} label="Delegate address" showLink />
 					<div className="flex flex-col">{formatCurrency(formatUnits(isDelegateeVotes?.nativePS || 0n, 18))} {NATIVE_POOL_SHARE_TOKEN_SYMBOL}</div>

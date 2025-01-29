@@ -55,7 +55,7 @@ export default function MyPositionsBidsTable() {
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"You do not have any bids yet."}</TableRowEmpty>
 				) : (
-					sorted.map((b) => <MyPositionsBidsRow key={b.id} headers={headers} bid={b} />)
+					sorted.map((b) => <MyPositionsBidsRow key={b.id} headers={headers} bid={b} tab={tab} />)
 				)}
 			</TableBody>
 		</Table>

@@ -44,6 +44,7 @@ export default function GovernanceLeadrateTable() {
 							info={info}
 							proposal={p}
 							currentProposal={currentProposal?.id == p.id}
+							tab={tab}
 						/>
 					))
 				)}

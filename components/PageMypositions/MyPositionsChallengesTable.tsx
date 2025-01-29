@@ -62,7 +62,7 @@ export default function MyPositionsChallengesTable() {
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"You do not have any challenges yet."}</TableRowEmpty>
 				) : (
-					sorted.map((c) => <MyPositionsChallengesRow headers={headers} key={c.id} challenge={c} />)
+					sorted.map((c) => <MyPositionsChallengesRow headers={headers} key={c.id} challenge={c} tab={tab} />)
 				)}
 			</TableBody>
 		</Table>

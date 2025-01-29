@@ -9,6 +9,8 @@ interface Props {
 	classNameMobile?: string;
 	headers?: string[];
 	subHeaders?: string[];
+	tab: string;
+	showFirstHeader?: boolean;
 }
 
 export default function TableRow({
@@ -20,21 +22,23 @@ export default function TableRow({
 	subHeaders = [],
 	className,
 	classNameMobile = "",
+	tab,
+	showFirstHeader = false,
 }: Props) {
 	return (
 		<div
 			className={`${
 				className ?? "bg-table-row-primary"
-			} cursor-default px-4 sm:px-8 xl:px-8 py-4 first:border-t-0 sm:first:border-t border-t border-table-row-hover first:rounded-t-lg sm:first:rounded-t-none last:rounded-b-lg duration-300`}
+			} cursor-default px-5 py-5 ${actionCol ? "sm:pr-12" : ""} sm:px-8 sm:py-4 border-t border-table-row-hover sm:first:rounded-t-none last:rounded-b-lg duration-300`}
 		>
 			<div className="flex flex-col justify-between gap-y-5 md:flex-row">
 				{/* @dev: this is desktop view */}
-				<div className={`max-md:hidden text-right grid flex-grow grid-cols-${colSpan || children.length} items-center`}>
+				<div className={`max-md:hidden text-right grid font-medium flex-grow grid-cols-${colSpan || children.length} items-center`}>
 					{children}
 				</div>
 
 				{/* @dev: this is mobile view */}
-				<TableRowMobile headers={headers} subHeaders={subHeaders} className={classNameMobile}>
+				<TableRowMobile headers={headers} subHeaders={subHeaders} className={classNameMobile} tab={tab} showFirstHeader={showFirstHeader}>
 					{children}
 				</TableRowMobile>
 
@@ -50,29 +54,42 @@ interface TableRowMobileProps {
 	headers: string[];
 	subHeaders: string[];
 	className: string;
+	tab: string;
+	showFirstHeader?: boolean;
 }
 
-function TableRowMobile({ children, headers, subHeaders, className }: TableRowMobileProps) {
+function TableRowMobile({ children, headers, subHeaders, className, tab, showFirstHeader = false }: TableRowMobileProps) {
 	if (headers.length === 0) {
 		return <div className={`${className} md:hidden justify-items-center text-center gap-6 grid flex-grow grid-cols-1`}>{children}</div>;
 	} else {
 		return (
-			<div className={`${className} md:hidden gap-6 grid-cols-1 flex-1`}>
+			<div className={`${className} md:hidden grid-cols-1 flex-1`}>
 				{children.map((c, idx) => (
-					<div className="mt-2 flex" key={c.key}>
+					<div className="mt-1.5 flex" key={c.key}>
 						<div className="flex-1 text-left">
 							{idx === 0 ? (
-								c
+								<>
+									{showFirstHeader && <div className={`mb-2 ${headers[idx] == tab ? "text-text-primary font-bold" : "text-text-muted"}`}>{headers[idx]}</div>}
+									<div className={`${headers[idx] == tab ? "text-text-primary font-bold" : "text-text-muted"}`}>{c}</div>
+								</>
 							) : subHeaders.length === 0 ? (
-								headers[idx]
+								<div className={`${headers[idx] == tab ? "text-text-primary font-bold" : "text-text-muted"}`}>
+									{headers[idx]}
+								</div>
 							) : (
 								<div>
-									<div>{headers[idx]}</div>
-									<div className="text-sm text-text-subheader">{subHeaders[idx]}</div>
+									<div className={`${headers[idx] == tab ? "text-text-primary font-bold" : "text-text-muted"}`}>
+										{headers[idx]}
+									</div>
+									<div className={`${headers[idx] == tab ? "text-text-primary font-bold" : "text-text-muted"}`}>
+										{subHeaders[idx]}
+									</div>
 								</div>
 							)}
 						</div>
-						<div className="text-right">{idx === 0 ? "" : c}</div>
+						<div className={`${headers[idx] == tab ? "!text-text-primary !font-bold" : "!text-text-muted"} text-right`}>
+							{idx === 0 ? "" : c}
+						</div>
 					</div>
 				))}
 			</div>

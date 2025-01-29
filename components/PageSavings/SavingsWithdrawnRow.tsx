@@ -7,15 +7,16 @@ import { formatUnits, Hash } from "viem";
 interface Props {
 	headers: string[];
 	item: SavingsWithdrawQuery;
+	tab: string;
 }
 
-export default function SavingsWithdrawnRow({ headers, item }: Props) {
+export default function SavingsWithdrawnRow({ headers, item, tab }: Props) {
 	const dateArr: string[] = new Date(item.created * 1000).toDateString().split(" ");
 	const dateStr: string = `${dateArr[2]} ${dateArr[1]} ${dateArr[3]}`;
 
 	return (
 		<>
-			<TableRow headers={headers}>
+			<TableRow headers={headers} tab={tab}>
 				<div className="flex flex-col md:text-left max-md:text-right">
 					<TxLabelSimple label={dateStr} tx={item.txHash as Hash} showLink />
 				</div>

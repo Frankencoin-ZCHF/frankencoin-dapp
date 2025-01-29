@@ -61,7 +61,7 @@ export default function ChallengesTable() {
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"There are no active challenges."}</TableRowEmpty>
 				) : (
-					sorted.map((c) => <ChallengesRow key={c.id} headers={headers} challenge={c} />)
+					sorted.map((c) => <ChallengesRow key={c.id} headers={headers} challenge={c} tab={tab} />)
 				)}
 			</TableBody>
 		</Table>

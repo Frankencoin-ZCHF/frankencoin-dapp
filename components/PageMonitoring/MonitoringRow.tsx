@@ -8,14 +8,14 @@ import { formatCurrency } from "../../utils/format";
 import { useRouter as useNavigation } from "next/navigation";
 import { useContractUrl } from "@hooks";
 import Button from "@components/Button";
-import AppBox from "@components/AppBox";
 
 interface Props {
 	headers: string[];
 	position: PositionQuery;
+	tab: string;
 }
 
-export default function MonitoringRow({ headers, position }: Props) {
+export default function MonitoringRow({ headers, position, tab }: Props) {
 	const navigate = useNavigation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
@@ -60,28 +60,30 @@ export default function MonitoringRow({ headers, position }: Props) {
 					{maturity <= 0 ? "Force Sell" : "Challenge"}
 				</Button>
 			}
+			tab={tab}
+			showFirstHeader={true}
 		>
 			{/* Collateral */}
-			<div className="flex flex-col max-md:mb-5">
+			<div className="flex flex-col">
 				{/* desktop view */}
-				<div className="max-md:hidden flex flex-row items-center -ml-12">
-					<span className="mr-4 cursor-pointer" onClick={openExplorer}>
+				<div className="max-md:hidden flex flex-row items-center">
+					<span className="mr-3 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</span>
-					<span className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(balance)} ${
+					<span className={`col-span-2 text-md font-extrabold text-text-primary`}>{`${formatCurrency(balance)} ${
 						position.collateralSymbol
 					}`}</span>
 				</div>
 
 				{/* mobile view */}
-				<AppBox className="md:hidden flex flex-row items-center">
+				<div className="md:hidden flex flex-row items-center py-1 mb-3">
 					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</div>
 					<div className={`col-span-2 text-md text-text-primary font-semibold`}>{`${formatCurrency(balance)} ${
 						position.collateralSymbol
 					}`}</div>
-				</AppBox>
+				</div>
 			</div>
 
 			{/* Coll. */}

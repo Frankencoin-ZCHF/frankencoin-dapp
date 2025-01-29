@@ -14,6 +14,7 @@ interface Props {
 	headers: string[];
 	subHeaders: string[];
 	position: PositionQuery;
+	tab: string;
 }
 
 type ChallengeInfos = {
@@ -26,7 +27,7 @@ type ChallengeInfos = {
 	challenge: ChallengesQueryItem;
 };
 
-export default function MypositionsRow({ headers, subHeaders, position }: Props) {
+export default function MypositionsRow({ headers, subHeaders, position, tab }: Props) {
 	const navigate = useNavigate();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
@@ -139,6 +140,7 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 					Manage
 				</Button>
 			}
+			tab={tab}
 		>
 			{/* Collateral */}
 			<div className="flex flex-col max-md:mb-5">

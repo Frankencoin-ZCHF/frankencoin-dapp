@@ -40,7 +40,7 @@ export default function GovernanceMintersTable() {
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"There are no proposals yet."}</TableRowEmpty>
 				) : (
-					sorted.map((m) => <GovernanceMintersRow key={m.id} headers={headers} minter={m} />)
+					sorted.map((m) => <GovernanceMintersRow key={m.id} headers={headers} minter={m} tab={tab} />)
 				)}
 			</TableBody>
 		</Table>

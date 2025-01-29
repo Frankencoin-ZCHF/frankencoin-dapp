@@ -35,12 +35,12 @@ export default function MonitoringTable() {
 
 	return (
 		<Table>
-			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
+			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol headerClassNames={["text-center"]} />
 			<TableBody>
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"There are no active positions."}</TableRowEmpty>
 				) : (
-					sorted.map((pos) => <MonitoringRow headers={headers} position={pos} key={pos.position} />)
+					sorted.map((pos) => <MonitoringRow headers={headers} position={pos} key={pos.position} tab={tab} />)
 				)}
 			</TableBody>
 		</Table>

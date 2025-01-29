@@ -16,6 +16,7 @@ export default function Positions() {
 			</Head>
 
 			<div className="md:mt-8">
+				<h1 className="sm:hidden text-3xl font-black leading-9 tracking-tight mb-2 mt-4">Monitoring</h1>
 				<MonitoringTable />
 			</div>
 		</>

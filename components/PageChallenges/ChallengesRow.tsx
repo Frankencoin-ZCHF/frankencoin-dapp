@@ -14,9 +14,10 @@ import { TOKEN_SYMBOL } from "@utils";
 interface Props {
 	headers: string[];
 	challenge: ChallengesQueryItem;
+	tab: string;
 }
 
-export default function ChallengesRow({ headers, challenge }: Props) {
+export default function ChallengesRow({ headers, challenge, tab }: Props) {
 	const navigate = useNavigation();
 
 	const positions = useSelector((state: RootState) => state.positions.mapping);
@@ -81,6 +82,7 @@ export default function ChallengesRow({ headers, challenge }: Props) {
 					Buy
 				</Button>
 			}
+			tab={tab}
 		>
 			{/* Collateral */}
 			<div className="flex flex-col max-md:mb-5">

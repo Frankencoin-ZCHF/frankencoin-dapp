@@ -97,13 +97,14 @@ export default function GovernanceVotersTable() {
 							voter={accountVotes}
 							votesTotal={votesTotal}
 							connectedWallet
+							tab={tab}
 						/>
 					) : null}
 					{votesDataSorted.length == 0 ? (
 						<TableRowEmpty>{"There are no voters yet"}</TableRowEmpty>
 					) : (
 						votesDataSorted.map((vote) => (
-							<GovernanceVotersRow key={vote.holder} headers={headers} voter={vote} votesTotal={votesTotal} />
+							<GovernanceVotersRow key={vote.holder} headers={headers} voter={vote} votesTotal={votesTotal} tab={tab} />
 						))
 					)}
 				</>

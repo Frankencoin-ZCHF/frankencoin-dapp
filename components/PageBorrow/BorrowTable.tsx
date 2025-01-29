@@ -49,12 +49,12 @@ export default function BorrowTable() {
 
 	return (
 		<Table>
-			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
+			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol headerClassNames={["text-center"]} />
 			<TableBody>
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"There are no other positions yet."}</TableRowEmpty>
 				) : (
-					sorted.map((pos) => <PositionRow headers={headers} position={pos} key={pos.position} />)
+					sorted.map((pos) => <PositionRow headers={headers} position={pos} key={pos.position} tab={tab} />)
 				)}
 			</TableBody>
 		</Table>

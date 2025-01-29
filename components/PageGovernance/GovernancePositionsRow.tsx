@@ -15,9 +15,10 @@ interface Props {
 	subHeaders: string[];
 	position: PositionQuery;
 	prices: PriceQueryObjectArray;
+	tab: string;
 }
 
-export default function GovernancePositionsRow({ headers, subHeaders, position, prices }: Props) {
+export default function GovernancePositionsRow({ headers, subHeaders, position, prices, tab }: Props) {
 	const price = prices[position.collateral.toLowerCase() as Address];
 	if (!position || !price) return null;
 
@@ -34,6 +35,7 @@ export default function GovernancePositionsRow({ headers, subHeaders, position, 
 					<GovernancePositionsAction key={position.position} position={position} />
 				</div>
 			}
+			tab={tab}
 		>
 			<div className="flex flex-col max-md:mb-5">
 				{/* desktop view */}
