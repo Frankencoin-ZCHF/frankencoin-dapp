@@ -54,7 +54,7 @@ export default function TokenInput({
 				<div className="flex flex-row gap-2 font-semibold text-sm text-text-primary cursor-pointer">
 					{max != undefined && (
 						<div
-							className="p-1 px-2 rounded-lg bg-card-input-max hover:bg-card-input-hover"
+							className="p-1 rounded-xl bg-card-input-max hover:bg-card-input-hover"
 							onClick={() => {
 								if (max !== undefined) {
 									onChange(max.toString());
@@ -62,13 +62,13 @@ export default function TokenInput({
 								}
 							}}
 						>
-							MAX
+							max
 						</div>
 					)}
 
 					{min != undefined && (
 						<div
-							className="p-1 px-2 rounded-lg bg-card-input-min hover:bg-card-input-hover"
+							className="p-1 rounded-xl bg-card-input-min hover:bg-card-input-hover"
 							onClick={() => {
 								if (min !== undefined) {
 									onChange(min.toString());
@@ -76,13 +76,13 @@ export default function TokenInput({
 								}
 							}}
 						>
-							MIN
+							min
 						</div>
 					)}
 
 					{reset != undefined && reset != BigInt(value) && (
 						<div
-							className="p-1 px-2 rounded-lg bg-card-input-reset hover:bg-card-input-hover"
+							className="p-1 rounded-xl bg-card-input-reset hover:bg-card-input-hover"
 							onClick={() => {
 								if (reset !== undefined) {
 									onChange(reset.toString());
@@ -90,7 +90,7 @@ export default function TokenInput({
 								}
 							}}
 						>
-							RESET
+							reset
 						</div>
 					)}
 				</div>
