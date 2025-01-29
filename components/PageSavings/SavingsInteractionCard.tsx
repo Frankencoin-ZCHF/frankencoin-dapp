@@ -112,7 +112,9 @@ export default function SavingsInteractionCard() {
 				<div className="mt-8">
 					<TokenInput
 						label="Your savings"
+						min={BigInt("0")}
 						max={userBalance + userSavingsBalance + userSavingsInterest}
+						reset={userSavingsBalance}
 						balanceLabel="Max:"
 						symbol={fromSymbol}
 						placeholder={fromSymbol + " Amount"}

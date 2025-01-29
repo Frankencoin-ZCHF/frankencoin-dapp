@@ -1,7 +1,7 @@
 "use client";
 import Head from "next/head";
 import { useEffect } from "react";
-import { Address, isAddress, maxUint256 } from "viem";
+import { Address, isAddress, maxUint256, parseEther } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useTokenData, useUserBalance } from "@hooks";
 import { useState } from "react";
@@ -11,7 +11,7 @@ import { erc20Abi } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { formatBigInt, shortenAddress } from "@utils";
 import { toast } from "react-toastify";
-import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
+import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import Link from "next/link";
 import NormalInput from "@components/Input/NormalInput";
 import AddressInput from "@components/Input/AddressInput";
@@ -87,6 +87,10 @@ export default function PositionCreate({}) {
 			setCollTokenAddrError("");
 		}
 	}, [collateralAddress, collTokenData]);
+
+	useEffect(() => {
+		setLiqPrice(minCollAmount == 0n ? 0n : (5000n * 10n ** 36n + minCollAmount - 1n) / minCollAmount);
+	}, [minCollAmount]);
 
 	const onChangeProposalFee = (value: string) => {
 		const valueBigInt = BigInt(value);
@@ -388,6 +392,7 @@ export default function PositionCreate({}) {
 							label="Initial Collateral"
 							symbol={collTokenData.symbol}
 							error={initialCollAmountError}
+							min={minCollAmount}
 							max={collTokenData.balance}
 							value={initialCollAmount.toString()}
 							onChange={onChangeInitialCollAmount}
@@ -402,6 +407,9 @@ export default function PositionCreate({}) {
 							hideMaxLabel
 							symbol="ZCHF"
 							error={limitAmountError}
+							min={parseEther("200000")}
+							max={parseEther("10000000")}
+							reset={parseEther("1000000")}
 							value={limitAmount.toString()}
 							onChange={onChangeLimitAmount}
 							placeholder="Global Limit Amount"
@@ -437,7 +445,9 @@ export default function PositionCreate({}) {
 							error={liqPriceError}
 							digit={36n - collTokenData.decimals}
 							hideMaxLabel={minCollAmount == 0n}
-							max={minCollAmount == 0n ? 0n : (5000n * 10n ** 36n + minCollAmount - 1n) / minCollAmount}
+							min={minCollAmount == 0n ? 0n : (5000n * 10n ** 36n + minCollAmount - 1n) / minCollAmount / 2n}
+							max={minCollAmount == 0n ? 0n : (5000n * 15n * 10n ** 36n + minCollAmount - 1n) / minCollAmount / 10n}
+							reset={minCollAmount == 0n ? 0n : (5000n * 10n ** 36n + minCollAmount - 1n) / minCollAmount}
 							value={liqPrice.toString()}
 							onChange={onChangeLiqPrice}
 							placeholder="Price"

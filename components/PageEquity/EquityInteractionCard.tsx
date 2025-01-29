@@ -56,7 +56,7 @@ export default function EquityInteractionCard() {
 				/>
 			) : null}
 
-			<div className="mt-4">
+			<div className="mt-4 text-text-secondary">
 				Also available as{" "}
 				<Link
 					href={"https://etherscan.io/address/0x5052d3cc819f53116641e89b96ff4cd1ee80b182"}

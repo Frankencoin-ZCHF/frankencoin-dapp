@@ -6,22 +6,76 @@ import ReactDatePicker from "react-datepicker";
 interface Props {
 	label: string;
 	hideMax?: boolean;
-	max: number | bigint;
+	min?: number | bigint;
+	max?: number | bigint;
+	reset?: number | bigint;
 	value: Date;
 	error?: string;
 	onChange?: (date: Date | null) => void;
+	onMin?: () => void;
+	onMax?: () => void;
+	onReset?: () => void;
 }
 
-export default function DateInput({ label, max, value, error, onChange }: Props) {
+export default function DateInput({
+	label,
+	min,
+	max,
+	reset,
+	value,
+	error,
+	onChange = () => {},
+	onMin = () => {},
+	onMax = () => {},
+	onReset = () => {},
+}: Props) {
 	return (
 		<div>
-			<div className="mb-1 flex gap-2 px-1">
+			<div className="mb-1 flex gap-2 px-1 text-text-secondary">
 				<div className="flex-1">{label}</div>
-				<div>
-					Limit:{" "}
-					<span className="text-link cursor-pointer" onClick={() => onChange && onChange(new Date(Number(max) * 1000))}>
-						{formatDateTime(max)}
-					</span>
+
+				<div className="flex flex-row gap-2 font-semibold text-sm text-text-primary cursor-pointer">
+					{max != undefined && (
+						<div
+							className="p-1 px-2 rounded-lg bg-card-input-max hover:bg-card-input-hover"
+							onClick={() => {
+								if (max !== undefined) {
+									onChange(new Date(Number(max) * 1000));
+									onMax();
+								}
+							}}
+						>
+							MAX
+						</div>
+					)}
+
+					{min != undefined && (
+						<div
+							className="p-1 px-2 rounded-lg bg-card-input-min hover:bg-card-input-hover"
+							onClick={() => {
+								if (min !== undefined) {
+									onChange(new Date(Number(min) * 1000));
+									onMin();
+								}
+							}}
+						>
+							MIN
+						</div>
+					)}
+
+					{reset != undefined && new Date(Number(reset) * 1000) != value && (
+						<div
+							className="p-1 px-2 rounded-lg bg-card-input-reset hover:bg-card-input-hover"
+							onClick={() => {
+								if (reset !== undefined) {
+									onChange(new Date(Number(reset) * 1000));
+									onReset();
+								}
+							}}
+						>
+							RESET
+						</div>
+					)}
 				</div>
 			</div>
 			<div className="flex items-center rounded-lg bg-card-content-primary p-2">
@@ -29,7 +83,7 @@ export default function DateInput({ label, max, value, error, onChange }: Props)
 				<div className="flex-1">
 					<div
 						className={`flex gap-1 rounded-lg p-1 bg-card-content-secondary border-2 ${
-							error ? "border-text-warning" : " border-card-content-secondary"
+							error ? "border-text-warning" : " focus-within:border-card-input-focus"
 						}`}
 					>
 						<ReactDatePicker
