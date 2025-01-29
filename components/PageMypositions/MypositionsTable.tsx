@@ -69,7 +69,7 @@ export default function MypositionsTable() {
 
 	return (
 		<Table>
-			<TableHeader headers={headers} subHeaders={subHeaders} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
+			<TableHeader headers={headers} subHeaders={subHeaders} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol headerClassNames={["pl-10"]} />
 			<TableBody>
 				{sorted.length == 0 ? (
 					<TableRowEmpty>{"You do not have any positions yet."}</TableRowEmpty>

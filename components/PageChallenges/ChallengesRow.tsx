@@ -83,45 +83,46 @@ export default function ChallengesRow({ headers, challenge, tab }: Props) {
 				</Button>
 			}
 			tab={tab}
+			showFirstHeader
 		>
 			{/* Collateral */}
-			<div className="flex flex-col max-md:mb-5">
+			<div className="flex flex-col">
 				{/* desktop view */}
-				<div className="max-md:hidden flex flex-row items-center -ml-12">
-					<span className="mr-4 cursor-pointer" onClick={openExplorer}>
+				<div className="max-md:hidden flex flex-row items-center">
+					<span className="mr-3 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</span>
-					<span className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(challengeRemainingSize)} ${
+					<span className={`col-span-2 text-md font-extrabold text-text-primary`}>{`${formatCurrency(challengeRemainingSize)} ${
 						position.collateralSymbol
 					}`}</span>
 				</div>
 
 				{/* mobile view */}
-				<AppBox className="md:hidden flex flex-row items-center">
-					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
+				<div className="md:hidden flex flex-row items-center py-1 mb-3">
+					<div className="mr-3 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</div>
 					<div className={`col-span-2 text-md text-text-primary font-semibold`}>{`${formatCurrency(challengeRemainingSize)} ${
 						position.collateralSymbol
 					}`}</div>
-				</AppBox>
+				</div>
 			</div>
 
 			{/* Current Price */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-primary">
+				<div className="text-md">
 					{challengePriceSearch ? formatCurrency(challengePrice, 2, 2) : "(pending)"} {TOKEN_SYMBOL}
 				</div>
 			</div>
 
 			{/* State */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-primary">{states[stateIdx]}</div>
+				<div className="text-md">{states[stateIdx]}</div>
 			</div>
 
 			{/* Time Left */}
 			<div className="flex flex-col">
-				<div className={`text-md text-text-primary`}>{stateTimeLeft}</div>
+				<div className={`text-md`}>{stateTimeLeft}</div>
 			</div>
 		</TableRow>
 	);

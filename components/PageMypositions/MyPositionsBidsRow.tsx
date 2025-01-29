@@ -50,45 +50,46 @@ export default function MyPositionsBidsRow({ headers, bid, tab }: Props) {
 				</div>
 			}
 			tab={tab}
+			showFirstHeader
 		>
 			{/* Collateral */}
 			<div className="flex flex-col max-md:mb-5">
 				{/* desktop view */}
-				<div className="max-md:hidden flex flex-row items-center -ml-12">
-					<span className="mr-4 cursor-pointer" onClick={openExplorer}>
+				<div className="max-md:hidden flex flex-row items-center">
+					<span className="mr-3 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</span>
-					<span className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(
+					<span className={`col-span-2 text-md font-extrabold`}>{`${formatCurrency(
 						formatUnits(bid.filledSize, position.collateralDecimals)
 					)} ${position.collateralSymbol}`}</span>
 				</div>
 
 				{/* mobile view */}
-				<AppBox className="md:hidden flex flex-row items-center">
-					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
+				<div className="md:hidden flex flex-row items-center">
+					<div className="mr-3 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</div>
-					<div className={`col-span-2 text-md text-text-primary font-semibold`}>{`${formatCurrency(
+					<div className={`col-span-2 text-md  font-semibold`}>{`${formatCurrency(
 						formatUnits(bid.filledSize, position.collateralDecimals)
 					)} ${position.collateralSymbol}`}</div>
-				</AppBox>
+				</div>
 			</div>
 
 			{/* Price */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-primary">
+				<div className="text-md ">
 					{formatCurrency(formatUnits(bid.price, 36 - position.collateralDecimals), 2, 2)} {TOKEN_SYMBOL}
 				</div>
 			</div>
 
 			{/* Bid */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-primary">{`${formatCurrency(formatUnits(bid.bid, 18), 2, 2)} ${TOKEN_SYMBOL}`}</div>
+				<div className="text-md ">{`${formatCurrency(formatUnits(bid.bid, 18), 2, 2)} ${TOKEN_SYMBOL}`}</div>
 			</div>
 
 			{/* State */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-primary">{bid.bidType}</div>
+				<div className="text-md ">{bid.bidType}</div>
 			</div>
 		</TableRow>
 	);

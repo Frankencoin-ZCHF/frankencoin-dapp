@@ -12,7 +12,7 @@ import { TOKEN_SYMBOL } from "@utils";
 
 interface Props {
 	headers: string[];
-	challenge: ChallengesQueryItem;	
+	challenge: ChallengesQueryItem;
 	tab: string;
 }
 
@@ -71,45 +71,50 @@ export default function MyPositionsChallengesRow({ headers, challenge, tab }: Pr
 	};
 
 	return (
-		<TableRow headers={headers} actionCol={<MyPositionsChallengesCancel challenge={challenge} hidden={stateIdx == 1}/>} tab={tab}>
+		<TableRow
+			headers={headers}
+			actionCol={<MyPositionsChallengesCancel challenge={challenge} hidden={stateIdx == 1} />}
+			tab={tab}
+			showFirstHeader
+		>
 			{/* Collateral */}
 			<div className="flex flex-col max-md:mb-5">
 				{/* desktop view */}
-				<div className="max-md:hidden flex flex-row items-center -ml-12">
-					<span className="mr-4 cursor-pointer" onClick={openExplorer}>
+				<div className="max-md:hidden flex flex-row items-center">
+					<span className="mr-3 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</span>
-					<span className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(challengeRemainingSize, 2, 2)} ${
+					<span className={`col-span-2 text-md font-extrabold`}>{`${formatCurrency(challengeRemainingSize, 2, 2)} ${
 						position.collateralSymbol
 					}`}</span>
 				</div>
 
 				{/* mobile view */}
-				<AppBox className="md:hidden flex flex-row items-center">
-					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
+				<div className="md:hidden flex flex-row items-center">
+					<div className="mr-3 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</div>
-					<div className={`col-span-2 text-md text-text-primary font-semibold`}>{`${formatCurrency(challengeRemainingSize)} ${
+					<div className={`col-span-2 text-md  font-semibold`}>{`${formatCurrency(challengeRemainingSize)} ${
 						position.collateralSymbol
 					}`}</div>
-				</AppBox>
+				</div>
 			</div>
 
 			{/* Current Price */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-primary">
+				<div className="text-md ">
 					{formatCurrency(formatUnits(challengePrice, 36 - position.collateralDecimals), 2, 2)} {TOKEN_SYMBOL}
 				</div>
 			</div>
 
 			{/* State */}
 			<div className="flex flex-col">
-				<div className="text-md text-text-primary">{states[stateIdx]}</div>
+				<div className="text-md ">{states[stateIdx]}</div>
 			</div>
 
 			{/* Time Left */}
 			<div className="flex flex-col">
-				<div className={`text-md text-text-primary`}>{stateTimeLeft}</div>
+				<div className={`text-md `}>{stateTimeLeft}</div>
 			</div>
 		</TableRow>
 	);

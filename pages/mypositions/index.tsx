@@ -29,32 +29,33 @@ export default function Positions() {
 
 			{/* Section Positions */}
 			<div className="md:mt-8">
-				<span className="font-bold text-xl">Owned Positions </span>
-				<DisplayWarningMessage overwrite={overwrite} />
-			</div>
+				<div>
+					<div className="text-3xl font-black leading-9 tracking-tight mb-2 mt-4">Owned Positions</div>
+					<DisplayWarningMessage overwrite={overwrite} />
+				</div>
 
-			<div className="md:mt-8">
-				<MypositionsTable />
-			</div>
+				<div className="">
+					<MypositionsTable />
+				</div>
 
-			{/* Section Challenges */}
-			<div className="md:mt-10">
-				<span className="font-bold text-xl">Initiated Challenges</span>
-				<DisplayWarningMessage overwrite={overwrite} />
-			</div>
+				<div className="mt-10">
+					<div className="text-3xl font-black leading-9 tracking-tight mb-2 mt-4">Initiated Challenges</div>
+					<DisplayWarningMessage overwrite={overwrite} />
+				</div>
 
-			<div className="md:mt-8">
-				<MyPositionsChallengesTable />
-			</div>
+				<div className="">
+					<MyPositionsChallengesTable />
+				</div>
 
-			{/* Section Bids */}
-			<div className="md:mt-10">
-				<span className="font-bold text-xl">Bought through Bids</span>
-				<DisplayWarningMessage overwrite={overwrite} />
-			</div>
+				{/* Section Bids */}
+				<div className="mt-10">
+					<div className="text-3xl font-black leading-9 tracking-tight mb-2 mt-4">Initiated Bids</div>
+					<DisplayWarningMessage overwrite={overwrite} />
+				</div>
 
-			<div className="md:mt-8">
-				<MyPositionsBidsTable />
+				<div className="">
+					<MyPositionsBidsTable />
+				</div>
 			</div>
 		</>
 	);

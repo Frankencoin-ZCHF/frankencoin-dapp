@@ -81,7 +81,7 @@ function TableRowMobile({ children, headers, subHeaders, className, tab, showFir
 									<div className={`${headers[idx] == tab ? "text-text-primary font-bold" : "text-text-muted"}`}>
 										{headers[idx]}
 									</div>
-									<div className={`${headers[idx] == tab ? "text-text-primary font-bold" : "text-text-muted"}`}>
+									<div className={`${headers[idx] == tab ? "text-text-subheader font-bold" : "text-text-muted"}`}>
 										{subHeaders[idx]}
 									</div>
 								</div>

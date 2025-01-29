@@ -25,18 +25,18 @@ export default function MyPositionsDisplayCollateral({ position, collateralPrice
 	const collateralValue: number = (collateralSize * collateralPrice) / deuroPrice;
 
 	return (
-		<div className={`md:-ml-12 flex items-center ${className}`}>
+		<div className={`flex items-center ${className}`}>
 			<Link href={url} onClick={openExplorer}>
-				<div className="mr-4 cursor-pointer">
+				<div className="mr-3 cursor-pointer">
 					<TokenLogo currency={position.collateralSymbol} />
 				</div>
 			</Link>
 
 			<div className="flex flex-col">
-				<span className={`text-left text-text-primary font-bold`}>
+				<span className={`text-left text-text-primary font-bold leading-tight`}>
 					{formatCurrency(collateralSize, 2, 2) + " " + position.collateralSymbol}
 				</span>
-				<span className="text-left text-text-subheader text-sm">{formatCurrency(collateralValue, 2, 2)} {TOKEN_SYMBOL}</span>
+				<span className="text-left text-text-subheader text-sm leading-tight">{formatCurrency(collateralValue, 2, 2)} {TOKEN_SYMBOL}</span>
 			</div>
 		</div>
 	);

@@ -37,7 +37,7 @@ export default function DisplayCollateralChallenge({
 	return (
 		<div className={`flex items-center ${className}`}>
 			<Link href={url} onClick={openExplorer}>
-				<div className="-ml-12 mr-4">
+				<div className="mr-4">
 					<TokenLogo currency={position.collateralSymbol} />
 				</div>
 			</Link>

@@ -45,7 +45,7 @@ export default function TableHeader({ headers, subHeaders, actionCol, colSpan, t
 				))}
 				{subHeaders
 					? subHeaders.map((header, i) => (
-							<div className={`${i > 0 ? "text-right" : ""}`} key={`table-header-${i}`}>
+							<div className={`${i > 0 ? "text-right" : ""} ${headerClassNames?.[i] ?? ""}`} key={`table-header-${i}`}>
 								<span className="text-text-subheader">{header}</span>
 							</div>
 					  ))
