@@ -119,16 +119,27 @@ export default function PositionDetail() {
 								/>
 							</AppBox>
 							<AppBox>
+								<DisplayLabel label="Available for Clones" />
+								<DisplayAmount
+									amount={BigInt(position.availableForClones)}
+									currency={"ZCHF"}
+									address={ADDRESS[chainId].frankenCoin}
+									className="mt-2"
+								/>
+							</AppBox>
+							<AppBox>
+								<DisplayLabel label="Auction Duration" />
+								<DisplayAmount amount={position.challengePeriod / 60 / 60} currency={"hours"} hideLogo className="mt-2" />
+							</AppBox>
+							<AppBox>
 								<DisplayLabel label="Owner" />
-								<div className="mt-2">
-									<Link href={ownerLink} className="flex items-center underline" target="_blank">
-										{shortenAddress(position.owner)}
-										<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
-										<Link href={myPosLink} className="flex items-center underline">
-											<FontAwesomeIcon icon={faEye} className="w-3 ml-2" />
-										</Link>
+								<Link href={ownerLink} className="flex items-center underline" target="_blank">
+									{shortenAddress(position.owner)}
+									<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2 mr-4" />
+									<Link href={myPosLink} className="flex items-center underline">
+										<FontAwesomeIcon icon={faEye} className="w-3 m-3" />
 									</Link>
-								</div>
+								</Link>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Reserve Requirement" />
