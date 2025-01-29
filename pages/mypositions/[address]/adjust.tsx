@@ -545,7 +545,7 @@ export default function PositionAdjust() {
 					</AppTitle>
 
 					<div className="mt-8">
-						<PositionRollerTable position={position} />
+						<PositionRollerTable position={position} challengeSize={challengeSize} />
 					</div>
 				</>
 			)}

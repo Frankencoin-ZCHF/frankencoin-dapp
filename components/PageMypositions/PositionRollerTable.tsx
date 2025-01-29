@@ -5,12 +5,13 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
-import { formatUnits } from "viem";
+import { Address, formatUnits } from "viem";
 import { useEffect, useState } from "react";
 import PositionRollerRow from "./PositionRollerRow";
 
 type PositionRollerTableParams = {
 	position: PositionQuery;
+	challengeSize: bigint;
 };
 
 export default function PositionRollerTable(params: PositionRollerTableParams) {
@@ -22,16 +23,20 @@ export default function PositionRollerTable(params: PositionRollerTableParams) {
 	const [list, setList] = useState<PositionQuery[]>([]);
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
+	const challengesPosMap = useSelector((state: RootState) => state.challenges.positions.map);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
 	const matchingPositions = positions.filter((p) => {
+		const pid: Address = p.position.toLowerCase() as Address;
+		const isChallenged: boolean = (challengesPosMap[pid] || []).filter((c) => c.status == "Active").length > 0;
 		return (
 			p.version == 2 &&
 			p.collateral.toLowerCase() == position.collateral.toLowerCase() &&
 			p.expiration > position.expiration && // also excludes same position
 			!p.closed &&
 			!p.denied &&
-			BigInt(p.availableForClones) > 0n
+			BigInt(p.availableForClones) > BigInt(position.minted) &&
+			!isChallenged
 		);
 	});
 
