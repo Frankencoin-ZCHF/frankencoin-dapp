@@ -146,7 +146,12 @@ button[data-testid="component-big-button"] {
 
 @layer components {
 	input[type='range']::-webkit-slider-thumb {
-		@apply appearance-none w-[14px] h-[14px] bg-white outline outline-1 outline-[#5c637b] border-2 border-[#000000] rounded-full;
+		@apply appearance-none w-[14px] h-[14px] bg-white outline outline-1 outline-[#5c637b];
+	}
+
+	input[type='range']:focus::-webkit-slider-thumb {
+		@apply appearance-none w-[14px] h-[14px] bg-white outline outline-1 outline-[#5c637b];
+		outline-offset: 0px;
 	}
 
 	input[type=range] {
