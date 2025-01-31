@@ -10,6 +10,7 @@ import { store } from "../../redux/redux.store";
 import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import { fetchChallengesList } from "../../redux/slices/challenges.slice";
 import { fetchBidsList } from "../../redux/slices/bids.slice";
+import { SectionTitle } from "@components/SectionTitle";
 
 export default function Positions() {
 	const router = useRouter();
@@ -30,7 +31,7 @@ export default function Positions() {
 			{/* Section Positions */}
 			<div className="md:mt-8">
 				<div>
-					<div className="text-3xl font-black leading-9 tracking-tight mb-2 mt-4">Owned Positions</div>
+					<SectionTitle>Owned Positions</SectionTitle>
 					<DisplayWarningMessage overwrite={overwrite} />
 				</div>
 
@@ -38,8 +39,8 @@ export default function Positions() {
 					<MypositionsTable />
 				</div>
 
-				<div className="mt-10">
-					<div className="text-3xl font-black leading-9 tracking-tight mb-2 mt-4">Initiated Challenges</div>
+				<div className="mt-8 sm:mt-16">
+					<SectionTitle>Initiated Challenges</SectionTitle>
 					<DisplayWarningMessage overwrite={overwrite} />
 				</div>
 
@@ -48,8 +49,8 @@ export default function Positions() {
 				</div>
 
 				{/* Section Bids */}
-				<div className="mt-10">
-					<div className="text-3xl font-black leading-9 tracking-tight mb-2 mt-4">Initiated Bids</div>
+				<div className="mt-8 sm:mt-16">
+					<SectionTitle>Initiated Bids</SectionTitle>
 					<DisplayWarningMessage overwrite={overwrite} />
 				</div>
 

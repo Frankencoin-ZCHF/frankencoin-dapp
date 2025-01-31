@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare, faChevronDown, faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { TableShowMoreRow } from "@components/Table/TableShowMoreRow";
+import { SectionTitle } from "@components/SectionTitle";
 
 interface ReferralData {
 	volume: string;
@@ -40,8 +41,8 @@ export default function YourReferralsTable({ data }: Props) {
 	};
 
 	return (
-		<div className="flex flex-col gap-2 sm:gap-6">
-			<div className="text-xl sm:text-2xl font-black leading-relaxed">Your referrals</div>
+		<div className="flex flex-col gap-2 sm:gap-0">
+			<SectionTitle>Your referrals</SectionTitle>
 			<Table>
 				<TableHeader headers={headers} subHeaders={subHeaders} tab={tab} tabOnChange={handleTabOnChange} reverse={reverse} />
 				<TableBody>

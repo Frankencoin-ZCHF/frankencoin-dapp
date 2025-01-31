@@ -1,6 +1,7 @@
 import { useState, ReactNode } from "react";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { SectionTitle } from "@components/SectionTitle";
 
 const ExpandableFAQ = ({ question, answer, separator = true }: { question: string; answer: string | ReactNode; separator?: boolean }) => {
 	const [isExpanded, setIsExpanded] = useState(false);
@@ -32,8 +33,8 @@ const ExpandableFAQ = ({ question, answer, separator = true }: { question: strin
 
 export const FAQ = () => {
 	return (
-		<div className="flex flex-col gap-2 sm:gap-6">
-			<div className="text-text-primary text-xl sm:text-2xl font-black leading-7">Q&A</div>
+		<div className="flex flex-col gap-2 sm:gap-0">
+			<SectionTitle>Q&A</SectionTitle>
 			<div className="px-4 sm:px-12 py-2 sm:py-4 bg-white rounded-xl shadow-card flex-col justify-start items-start inline-flex">
 				<ExpandableFAQ
 					question="Who is entitled to participate in the referral system?"
