@@ -1,6 +1,6 @@
 {
 	"name": "frankencoin-dapp",
-	"version": "0.2.6",
+	"version": "0.2.7",
 	"private": false,
 	"license": "MIT",
 	"scripts": {
@@ -26,12 +26,13 @@
 		"@frankencoin/api": "^0.2.10",
 		"@frankencoin/zchf": "^0.2.17",
 		"@reduxjs/toolkit": "^2.2.5",
-		"@tanstack/react-query": "^5.40.0",
+		"@reown/appkit": "^1.6.4",
+		"@reown/appkit-adapter-wagmi": "^1.6.4",
+		"@tanstack/react-query": "^5.64.2",
 		"@types/node": "18.11.11",
 		"@types/react": "^18.3.3",
 		"@types/react-dom": "^18.3.0",
 		"@vercel/analytics": "^1.1.1",
-		"@web3modal/wagmi": "^4.2.3",
 		"abitype": "^0.9.6",
 		"apexcharts": "^3.44.0",
 		"axios": "^1.6.2",
@@ -50,8 +51,8 @@
 		"react-select": "^5.8.0",
 		"react-toastify": "^9.1.3",
 		"typechain": "^8.1.1",
-		"viem": "^2.13.3",
-		"wagmi": "^2.9.8"
+		"viem": "^2.22.10",
+		"wagmi": "^2.14.8"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.20.5",
