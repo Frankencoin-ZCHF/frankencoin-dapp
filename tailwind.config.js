@@ -73,6 +73,7 @@ module.exports = {
 					error: "#e02523",
 					label: "#5c637b",
 					title: "#43495c",
+					disabled: "#5d647b",
 				},
 				borders: {
 					primary: '#e9ebf0',

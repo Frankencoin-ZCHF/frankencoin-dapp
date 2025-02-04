@@ -66,7 +66,7 @@ export default function PositionDetail() {
 			</Head>
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
 						<Link href={explorerUrl} target="_blank">
 							<div className="text-lg font-bold underline text-center">
 								Position {shortenAddress(position.position)}
@@ -146,7 +146,7 @@ export default function PositionDetail() {
 					</div>
 					<div>
 						{isSubjectToCooldown() && (
-							<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col mb-4">
+							<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col mb-4">
 								<div className="text-lg font-bold text-center">Cooldown</div>
 								<AppBox className="flex-1 mt-4">
 									<p>
@@ -158,7 +158,7 @@ export default function PositionDetail() {
 							</div>
 						)}
 
-						<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col mb-4">
+						<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col mb-4">
 							<div className="text-lg font-bold text-center">Active Challenges ({challengesActive.length})</div>
 
 							{challengesActive.map((c) => ActiveAuctionsRow({ position, challenge: c }))}

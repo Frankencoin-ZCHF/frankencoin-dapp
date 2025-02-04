@@ -355,6 +355,7 @@ export default function Swap() {
 						output={outputAmount}
 						note={`1 ${fromSymbol} = 1 ${toSymbol}`}
 						label="Receive"
+						showMaxButton={false}
 					/>
 
 					<div className="mx-auto mt-8 w-72 max-w-full flex-col">

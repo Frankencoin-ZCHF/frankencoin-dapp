@@ -253,7 +253,7 @@ export default function PositionBorrow({}) {
 
 			<div className="mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold text-center mt-3">Mint Decentralized Euros For Yourself</div>
 						<div className="space-y-8">
 							<TokenInput
@@ -301,7 +301,7 @@ export default function PositionBorrow({}) {
 						</div>
 					</div>
 					<div>
-						<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
+						<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col">
 							<div className="text-lg font-bold text-center mt-3">Outcome</div>
 							<div className="flex-1 mt-4">
 								<div className="flex">
@@ -348,7 +348,7 @@ export default function PositionBorrow({}) {
 								</div>
 							</div>
 						</div>
-						<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col mt-4">
+						<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col mt-4">
 							<div className="text-lg font-bold text-center mt-3">Notes</div>
 							<div className="flex-1 mt-4">
 								<div className="mt-2 flex">

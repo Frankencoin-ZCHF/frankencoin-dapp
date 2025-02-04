@@ -3,7 +3,8 @@ import { formatCurrency } from "@utils";
 import { BigNumberInput } from "./BigNumberInput";
 import dynamic from "next/dynamic";
 import { formatUnits } from "viem";
-import Select from "react-select";
+import Select, { components } from "react-select";
+import { MaxButton } from "./MaxButton";
 const TokenLogo = dynamic(() => import("../TokenLogo"), { ssr: false });
 
 interface Props {
@@ -26,6 +27,7 @@ interface Props {
 	onChange?: (value: string) => void;
 	disabled?: boolean;
 	error?: string;
+	showMaxButton?: boolean;
 }
 
 export default function TokenInputSelect({
@@ -48,6 +50,7 @@ export default function TokenInputSelect({
 	disabled,
 	onChange,
 	error,
+	showMaxButton = true,
 }: Props) {
 	const options = symbolOptions.map((o) => {
 		return { value: o, label: o };
@@ -61,23 +64,23 @@ export default function TokenInputSelect({
 				{symbol && (
 					<div
 						className={`flex gap-2 items-center text-text-muted text-base font-medium leading-tight cursor-pointer ${hideMaxLabel && "hidden"}`}
-						onClick={() => onChange?.(max.toString())}
 					>
 						{balanceLabel}
-						<span className="font-bold text-link">
+						<span>
 							{formatCurrency(formatUnits(max, Number(digit)))} {symbol}
 						</span>
+						{showMaxButton && <MaxButton onClick={() => onChange?.(max.toString())} className="text-xs !py-0 font-extrabold" />}
 					</div>
 				)}
 			</div>
 
-			<div className="flex items-center rounded-lg bg-input-bg py-2 pl-4 pr-2 gap-3">
+			<div className="flex items-center rounded-xl bg-input-bg py-2 pl-4 pr-2 gap-3">
 				<div className="flex items-center justify-center">
 					<TokenLogo currency={symbol} size={8} />
 				</div>
 				<div className="flex-1">
 					{output != undefined ? (
-						<div className="px-3 py-2 font-bold transition-opacity">{output}</div>
+						<div className="px-3 py-2 text-text-disabled font-bold transition-opacity">{output}</div>
 					) : (
 						<div
 							className={`flex gap-1 rounded-lg py-1 bg-white border ${
@@ -90,7 +93,7 @@ export default function TokenInputSelect({
 								placeholder={placeholder}
 								value={value || ""}
 								onChange={(e) => onChange?.(e)}
-								className={`w-full flex-1 rounded-lg bg-transparent px-3 py-1 text-lg placeholder:text-left text-right leading-tight font-medium text-input-primary`}
+								className={`w-full flex-1 rounded-lg bg-transparent px-3 py-1 text-lg placeholder:text-left text-right leading-none font-medium text-input-primary`}
 								disabled={disabled}
 							/>
 						</div>
@@ -122,15 +125,21 @@ export default function TokenInputSelect({
 								borderRadius: "0.5rem", // This makes the main control rounder
 								borderWidth: "0",
 								boxShadow: "none", // Remove the focus shadow
-								minWidth: "7rem",
+								minWidth: "7.5rem",
+								height: "2.688rem",
 							}),
 							option: (baseStyles, state) => ({
 								...baseStyles,
-								backgroundColor: state.isFocused ? "#e9ebf0" : "transparent",
+								backgroundColor: state.isFocused || state.isSelected ? "#e9ebf0" : "transparent",
 								color: "#272b37", // text color from option menu
 								borderRadius: "0.5rem",
-								fontWeight: "500",
+								fontWeight: "400",
 								fontSize: "16px",
+								marginTop: "2px",
+								padding: "0.5625rem 0.5rem",
+								"&:active": {
+									backgroundColor: "#e9ebf0",
+								},
 							}),
 							singleValue: (baseStyles) => ({
 								...baseStyles,
@@ -141,13 +150,30 @@ export default function TokenInputSelect({
 								backgroundColor: "#ffffff",
 								borderRadius: "0.5rem", // This rounds the dropdown menu
 								overflow: "hidden", // This ensures the content doesn't overflow the rounded corners
-								padding: "0.2rem",
+								boxShadow: "0px 10px 22px 0px rgba(45,77,108,0.15)",
+								marginTop: "0",
 							}),
 							input: (baseStyles) => ({
 								...baseStyles,
 								color: "#ffffff",
 								fontSize: "0",
 							}),
+							menuList: (base, props) => ({
+								...base,
+								padding: "0",
+							}),
+						}}
+						components={{
+							Menu: ({ children, ...props }) => (
+								<components.Menu {...props}>
+									<div className="p-1">
+										<div className="py-2 text-text-muted pointer-events-none text-slate-400 text-center text-base font-normal leading-tight">
+											Choose value
+										</div>
+										{children}
+									</div>
+								</components.Menu>
+							),
 						}}
 					/>
 				</div>

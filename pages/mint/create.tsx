@@ -308,7 +308,7 @@ export default function PositionCreate({}) {
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold justify-center mt-3 flex">Proposal Process</div>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							<TokenInput
@@ -344,7 +344,7 @@ export default function PositionCreate({}) {
 					</div>
 
 					{/* Collateral */}
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold justify-center mt-3 flex">Collateral</div>
 
 						<AddressInput
@@ -388,7 +388,7 @@ export default function PositionCreate({}) {
 							placeholder="Initial Collateral Amount"
 						/>
 					</div>
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold text-center mt-3">Financial Terms</div>
 						<TokenInput
 							label="Global Minting Limit"
@@ -421,7 +421,7 @@ export default function PositionCreate({}) {
 							/>
 						</div>
 					</div>
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold text-center mt-3">Liquidation</div>
 						<TokenInput
 							label="Liquidation Price"

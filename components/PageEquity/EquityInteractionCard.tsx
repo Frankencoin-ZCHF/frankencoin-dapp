@@ -36,7 +36,7 @@ export default function EquityInteractionCard() {
 	const wrappedPoolShareUrl = useContractUrl(ADDRESS[chainId].DEPSwrapper);
 
 	return (
-		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
+		<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col">
 			<div className="mb-4 pb-2 justify-center items-center gap-1.5 inline-flex">
 				<div className="text-text-title text-xl font-black ">dEURO Pool Shares</div>
 			</div>

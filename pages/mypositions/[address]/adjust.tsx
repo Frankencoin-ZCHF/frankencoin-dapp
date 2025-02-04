@@ -260,7 +260,7 @@ export default function PositionAdjust() {
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
 						<div className="text-lg font-bold text-center">Adjustment</div>
 						<div className="space-y-8">
 							<TokenInput
@@ -325,7 +325,7 @@ export default function PositionAdjust() {
 						</div>
 					</div>
 					<div>
-						<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
+						<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col">
 							<div className="text-lg font-bold text-center mt-3">Outcome</div>
 							<div className="flex-1 mt-4">
 								<div className="flex">

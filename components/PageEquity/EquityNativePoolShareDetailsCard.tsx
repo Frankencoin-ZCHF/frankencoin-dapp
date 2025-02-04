@@ -15,7 +15,7 @@ export default function EquityNativePoolShareDetailsCard() {
 	const { trades } = useTradeQuery();
 
 	return (
-		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 grid grid-cols-1 gap-2">
+		<div className="bg-card-body-primary shadow-card rounded-xl p-4 grid grid-cols-1 gap-2">
 			<div id="chart-timeline">
 				<div className="flex justify-between">
 					<div>
