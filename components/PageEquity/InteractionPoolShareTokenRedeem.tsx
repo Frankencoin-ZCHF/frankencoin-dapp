@@ -192,7 +192,7 @@ export default function InteractionPoolShareTokenRedeem({ tokenFromTo, setTokenF
 
 	return (
 		<>
-			<div className="">
+			<div className="mb-4">
 				<TokenInputSelect
 					max={psTokenBalance}
 					symbol={fromSymbol}
@@ -204,9 +204,11 @@ export default function InteractionPoolShareTokenRedeem({ tokenFromTo, setTokenF
 					placeholder={fromSymbol + " Amount"}
 				/>
 
-				<div className="py-1 text-center z-0">
-					<Button className={`h-10 rounded-full mt-4`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
-						<FontAwesomeIcon icon={faArrowDownLong} className="w-5 h-5" />
+				<div className="py-2 text-center z-0">
+					<Button className={`h-10 rounded-full mt-4 !p-2.5`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
+						<span className="flex items-center justify-center flex-1">
+							<FontAwesomeIcon icon={faArrowDownLong} className="w-5 h-5" />
+						</span>
 					</Button>
 				</div>
 
@@ -234,7 +236,7 @@ export default function InteractionPoolShareTokenRedeem({ tokenFromTo, setTokenF
 				</div>
 			</div>
 
-			<div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-2">
+			<div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
 					<DisplayLabel label="Your Balance" />
 					<DisplayAmount className="mt-2" bold amount={psTokenBalance} currency={POOL_SHARE_TOKEN_SYMBOL} address={ADDRESS[chainId].DEPSwrapper} />

@@ -46,16 +46,16 @@ export default function DisplayAmount({
 	return (
 		<div className={`flex items-center ${className}`}>
 			{!hideLogo && currency && (
-				<div className="mr-4">
+				<div className="mr-3">
 					<TokenLogo currency={currency} size={logoSize} />
 				</div>
 			)}
 			<div>
 				<div>
-					<span className={`${bold && "font-bold"} ${big && "text-3xl"}`}>
+					<span className={`${bold && "font-bold"} ${big ? "text-3xl" : "text-base leading-5"}`}>
 						{amount ? formatCurrency(typeof amount === "number" ? amount : formatUnits(amount, Number(digits))) : "0.00"}
 					</span>
-					<span className={`${bold && "font-bold"} ${big && "text-3xl"}`}>
+					<span className={`${bold && "font-bold"} ${big ? "text-3xl" : "text-base leading-5"}`}>
 						{currency == "%" ? "" : " "}
 						{address ? (
 							<a href={url} target="_blank" rel="noreferrer" onClick={openExplorer}>

@@ -56,6 +56,7 @@ export default function TokenInputSelect({
 		return { value: o, label: o };
 	});
 	const symbolIdx = symbolOptions.findIndex((o) => o === symbol);
+	const showFootnote = limit >= 0n && limitLabel || note;
 
 	return (
 		<div>
@@ -83,7 +84,7 @@ export default function TokenInputSelect({
 						<div className="px-3 py-2 text-text-disabled font-bold transition-opacity">{output}</div>
 					) : (
 						<div
-							className={`flex gap-1 rounded-lg py-1 bg-white border ${
+							className={`flex h-11 rounded-lg bg-white border ${
 								error ? "border-text-warning" : "border-input-border"
 							}`}
 						>
@@ -93,7 +94,7 @@ export default function TokenInputSelect({
 								placeholder={placeholder}
 								value={value || ""}
 								onChange={(e) => onChange?.(e)}
-								className={`w-full flex-1 rounded-lg bg-transparent px-3 py-1 text-lg placeholder:text-left text-right leading-none font-medium text-input-primary`}
+								className={`w-full flex-1 p-3 bg-transparent text-lg placeholder:text-left text-right leading-tight font-medium text-input-primary`}
 								disabled={disabled}
 							/>
 						</div>
@@ -126,7 +127,7 @@ export default function TokenInputSelect({
 								borderWidth: "0",
 								boxShadow: "none", // Remove the focus shadow
 								minWidth: "7.5rem",
-								height: "2.688rem",
+								height: "2.75rem",
 							}),
 							option: (baseStyles, state) => ({
 								...baseStyles,
@@ -179,15 +180,18 @@ export default function TokenInputSelect({
 				</div>
 			</div>
 			{error && <div className="mt-2 px-1 text-text-warning">{error}</div>}
-			<div className="mt-2 px-1 flex items-center">
-				{limit >= 0n && limitLabel && (
-					<>
-						<span>{limitLabel} :&nbsp;</span>
+			{showFootnote && (
+				<div className="mt-2 px-1 flex items-center">
+					{limit >= 0n && limitLabel && (
+						<>
+							<span>{limitLabel} :&nbsp;</span>
 						<DisplayAmount amount={limit} currency={symbol} digits={limitDigits} logoSize={6} hideLogo={hideLimitIcon} />
 					</>
 				)}
-				{note && <span>{note}</span>}
-			</div>
+					{note && <span>{note}</span>}
+				</div>
+			)}
 		</div>
 	);
 }
+
