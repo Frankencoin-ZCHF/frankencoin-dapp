@@ -39,7 +39,7 @@ export default function Positions() {
 					<MypositionsTable />
 				</div>
 
-				<div className="mt-8 sm:mt-16">
+				<div className="mt-8 sm:mt-12">
 					<SectionTitle>Initiated Challenges</SectionTitle>
 					<DisplayWarningMessage overwrite={overwrite} />
 				</div>
@@ -49,7 +49,7 @@ export default function Positions() {
 				</div>
 
 				{/* Section Bids */}
-				<div className="mt-8 sm:mt-16">
+				<div className="mt-8 sm:mt-12">
 					<SectionTitle>Initiated Bids</SectionTitle>
 					<DisplayWarningMessage overwrite={overwrite} />
 				</div>
