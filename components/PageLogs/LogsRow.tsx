@@ -1,4 +1,4 @@
-import { Address, formatUnits, parseEther, parseUnits } from "viem";
+import { Address, formatUnits, Hash, parseEther, parseUnits } from "viem";
 import TableRow from "../Table/TableRow";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
@@ -7,6 +7,9 @@ import { formatCurrency } from "../../utils/format";
 import { AnalyticsTransactionLog, PositionQueryV2 } from "@frankencoin/api";
 import Button from "@components/Button";
 import AppBox from "@components/AppBox";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { useTxUrl } from "@hooks";
 
 interface Props {
 	headers: string[];
@@ -15,16 +18,25 @@ interface Props {
 }
 
 export default function LogsRow({ headers, tab, log }: Props) {
+	const link = useTxUrl(log.txHash as Hash);
 	const dateArr = new Date(parseInt(log.timestamp) * 1000).toLocaleString().split(", ");
 	const kindArr = log.kind.split(":");
 
 	const equityRatio = (BigInt(log.totalEquity) * parseEther("1")) / BigInt(log.totalSupply);
 	const savingsRatio = (BigInt(log.totalSavings) * parseEther("1")) / BigInt(log.totalSupply);
 
+	const openExplorer = (e: any) => {
+		e.preventDefault();
+		window.open(link, "_blank");
+	};
+
 	return (
 		<TableRow headers={headers} tab={tab}>
-			<div className="md:text-left max-md:text-right">
-				<div>{dateArr[0]}</div>
+			<div className="cursor-pointer underline md:text-left max-md:text-right" onClick={openExplorer}>
+				<div>
+					{dateArr[0]}
+					<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2 cursor-pointer" />
+				</div>
 				<div>{dateArr[1]}</div>
 			</div>
 			<div>
