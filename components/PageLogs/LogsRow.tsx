@@ -55,6 +55,7 @@ export default function LogsRow({ headers, tab, log }: Props) {
 			<div>{formatCurrency(formatUnits(log.fpsTotalSupply, 18 + 3))}k</div>
 
 			{/* analytics */}
+			<div>{formatCurrency(formatUnits(log.realizedNetEarnings, 18 + 6))}M</div>
 			<div>{formatCurrency(formatUnits(log.annualNetEarnings, 18 + 6))}M</div>
 			<div>{formatCurrency(formatUnits(log.earningsPerFPS, 18))}</div>
 		</TableRow>

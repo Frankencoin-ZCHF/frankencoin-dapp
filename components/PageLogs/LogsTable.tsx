@@ -18,7 +18,8 @@ export default function LogsTable() {
 		"FPS Price",
 		"FPS Supply",
 		"Earnings 365days",
-		"Per FPS (accum.)",
+		"Earnings Annual",
+		"Earn. FPS (accum.)",
 	];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
