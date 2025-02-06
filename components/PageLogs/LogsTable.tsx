@@ -38,11 +38,13 @@ export default function LogsTable() {
 		<Table>
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} />
 			<TableBody>
-				{logs.length == 0 ? (
-					<TableRowEmpty>{"There are no logs yet."}</TableRowEmpty>
-				) : (
-					logs.map((l, idx) => <LogsRow headers={headers} tab={tab} log={l} key={`${l.id}-${l.amount}-logs_row_${idx}`} />)
-				)}
+				<div className="text-text-active">
+					{logs.length == 0 ? (
+						<TableRowEmpty>{"There are no logs yet."}</TableRowEmpty>
+					) : (
+						logs.map((l, idx) => <LogsRow headers={headers} tab={tab} log={l} key={`${l.id}-${l.amount}-logs_row_${idx}`} />)
+					)}
+				</div>
 			</TableBody>
 		</Table>
 	);
