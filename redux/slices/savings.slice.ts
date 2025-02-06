@@ -4,12 +4,20 @@ import {
 	DispatchApiLeadrateInfo,
 	DispatchApiLeadrateProposed,
 	DispatchApiLeadrateRate,
+	DispatchApiSavingsBalance,
 	DispatchApiSavingsInfo,
 	DispatchApiSavingsUserTable,
 	DispatchBoolean,
 	SavingsState,
 } from "./savings.types";
-import { ApiLeadrateInfo, ApiLeadrateProposed, ApiLeadrateRate, ApiSavingsInfo, ApiSavingsUserTable } from "@frankencoin/api";
+import {
+	ApiLeadrateInfo,
+	ApiLeadrateProposed,
+	ApiLeadrateRate,
+	ApiSavingsBalance,
+	ApiSavingsInfo,
+	ApiSavingsUserTable,
+} from "@frankencoin/api";
 import { Address, zeroAddress } from "viem";
 
 // --------------------------------------------------------------------------------
@@ -48,6 +56,10 @@ export const initialState: SavingsState = {
 		totalInterest: 0,
 		rate: 0,
 		ratioOfSupply: 0,
+	},
+
+	savingsBalance: {
+		ranked: [],
 	},
 
 	savingsUserTable: {
@@ -91,6 +103,10 @@ export const slice = createSlice({
 
 		setSavingsInfo: (state, action: { payload: ApiSavingsInfo }) => {
 			state.savingsInfo = action.payload;
+		},
+
+		setSavingsBalance: (state, action: { payload: ApiSavingsBalance }) => {
+			state.savingsBalance = action.payload;
 		},
 
 		setSavingsUserTable: (state, action: { payload: ApiSavingsUserTable }) => {
@@ -150,3 +166,14 @@ export const fetchSavings =
 		// Finalizing, loaded set to ture
 		dispatch(slice.actions.setLoaded(true));
 	};
+
+// --------------------------------------------------------------------------------
+export const fetchBalance = () => async (dispatch: Dispatch<DispatchApiSavingsBalance>) => {
+	// ---------------------------------------------------------------
+	CONFIG.verbose && console.log("Loading [REDUX]: Savings/balance");
+
+	// ---------------------------------------------------------------
+	// Query raw data from backend api
+	const response1 = await FRANKENCOIN_API_CLIENT.get("/savings/core/balances");
+	dispatch(slice.actions.setSavingsBalance(response1.data as ApiSavingsBalance));
+};

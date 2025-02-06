@@ -1,4 +1,11 @@
-import { ApiLeadrateInfo, ApiLeadrateProposed, ApiLeadrateRate, ApiSavingsInfo, ApiSavingsUserTable } from "@frankencoin/api";
+import {
+	ApiLeadrateInfo,
+	ApiLeadrateProposed,
+	ApiLeadrateRate,
+	ApiSavingsBalance,
+	ApiSavingsInfo,
+	ApiSavingsUserTable,
+} from "@frankencoin/api";
 
 // --------------------------------------------------------------------------------
 export type SavingsState = {
@@ -11,6 +18,7 @@ export type SavingsState = {
 
 	savingsInfo: ApiSavingsInfo;
 
+	savingsBalance: ApiSavingsBalance;
 	savingsUserTable: ApiSavingsUserTable;
 	savingsAllUserTable: ApiSavingsUserTable;
 };
@@ -44,4 +52,9 @@ export type DispatchApiSavingsInfo = {
 export type DispatchApiSavingsUserTable = {
 	type: string;
 	payload: ApiSavingsUserTable;
+};
+
+export type DispatchApiSavingsBalance = {
+	type: string;
+	payload: ApiSavingsBalance;
 };
