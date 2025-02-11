@@ -15,7 +15,7 @@ import AppCard from "@components/AppCard";
 import { StablecoinBridgeABI } from "@deuro/eurocoin";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
 
-const STABLECOIN_SYMBOLS = ["EURT", "EURC", "VEUR", "EURS"];
+const STABLECOIN_SYMBOLS = ["EURC", "EURT", "VEUR", "EURS"];
 
 const noTokenMeta = {
 	symbol: "",
@@ -40,10 +40,10 @@ const getAmountWithLeastPrecision = (amount: bigint, fromDecimals: bigint, toDec
 };
 
 export default function Swap() {
-	const [fromSymbol, setFromSymbol] = useState(TOKEN_SYMBOL);
-	const [fromOptions, setFromOptions] = useState([TOKEN_SYMBOL]);
-	const [toSymbol, setToSymbol] = useState(STABLECOIN_SYMBOLS[0]);
-	const [toOptions, setToOptions] = useState(STABLECOIN_SYMBOLS);
+	const [fromSymbol, setFromSymbol] = useState(STABLECOIN_SYMBOLS[0]);
+	const [fromOptions, setFromOptions] = useState(STABLECOIN_SYMBOLS);
+	const [toSymbol, setToSymbol] = useState(TOKEN_SYMBOL);
+	const [toOptions, setToOptions] = useState([TOKEN_SYMBOL]);
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [isTxOnGoing, setTxOnGoing] = useState(false);
