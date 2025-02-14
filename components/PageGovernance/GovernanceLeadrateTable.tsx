@@ -7,9 +7,11 @@ import { RootState } from "../../redux/redux.store";
 import { useState } from "react";
 import { LeadrateProposed } from "@deuro/api";
 import GovernanceLeadrateRow from "./GovernanceLeadrateRow";
+import { useTranslation } from "next-i18next";
 
 export default function GovernanceLeadrateTable() {
-	const headers: string[] = ["Date", "Proposer", "Rate", "State"];
+	const { t } = useTranslation();
+	const headers: string[] = [t("governance.date"), t("governance.proposer"), t("governance.rate"), t("governance.state")];
 	const [tab, setTab] = useState<string>(headers[3]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
@@ -35,7 +37,7 @@ export default function GovernanceLeadrateTable() {
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
 				{sorted.length == 0 ? (
-					<TableRowEmpty>{"There are no proposals yet."}</TableRowEmpty>
+					<TableRowEmpty>{t("governance.proposals_table_empty")}</TableRowEmpty>
 				) : (
 					sorted.map((p, idx) => (
 						<GovernanceLeadrateRow

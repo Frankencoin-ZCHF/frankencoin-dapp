@@ -18,6 +18,8 @@ import { ChallengesQueryItem, PositionQuery } from "@deuro/api";
 import { useRouter as useNavigation } from "next/navigation";
 import Button from "@components/Button";
 import { ADDRESS, DecentralizedEUROABI } from "@deuro/eurocoin";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
 export default function PositionDetail() {
 	const [reserve, setReserve] = useState<bigint>(0n);
@@ -34,6 +36,8 @@ export default function PositionDetail() {
 
 	const explorerUrl = useContractUrl(String(address));
 	const ownerLink = useContractUrl(position?.owner || zeroAddress);
+
+	const { t } = useTranslation();
 
 	useEffect(() => {
 		if (!position) return;
@@ -62,21 +66,21 @@ export default function PositionDetail() {
 	return (
 		<>
 			<Head>
-				<title>dEURO - Position Overview</title>
+				<title>dEURO - {t("monitoring.position_overview")}</title>
 			</Head>
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
 						<Link href={explorerUrl} target="_blank">
 							<div className="text-lg font-bold underline text-center">
-								Position {shortenAddress(position.position)}
+								{t("monitoring.position")} {shortenAddress(position.position)}
 								<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
 							</div>
 						</Link>
 
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:col-span-2">
 							<AppBox>
-								<DisplayLabel label="Minted Total" />
+								<DisplayLabel label={t("monitoring.minted_total")} />
 								<DisplayAmount
 									amount={BigInt(position.minted)}
 									currency={TOKEN_SYMBOL}
@@ -85,7 +89,7 @@ export default function PositionDetail() {
 								/>
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Collateral" />
+								<DisplayLabel label={t("monitoring.collateral")} />
 								<DisplayAmount
 									amount={BigInt(position.collateralBalance)}
 									currency={position.collateralSymbol}
@@ -95,7 +99,7 @@ export default function PositionDetail() {
 								/>
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Liquidation Price" />
+								<DisplayLabel label={t("common.liquidation_price")} />
 								<DisplayAmount
 									amount={BigInt(position.price)}
 									currency={TOKEN_SYMBOL}
@@ -105,11 +109,11 @@ export default function PositionDetail() {
 								/>
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Retained Reserve" />
+								<DisplayLabel label={t("monitoring.retained_reserve")} />
 								<DisplayAmount amount={reserve} currency={TOKEN_SYMBOL} address={ADDRESS[chainId].decentralizedEURO} className="mt-2" />
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Limit" />
+								<DisplayLabel label={t("common.limit")} />
 								<DisplayAmount
 									amount={BigInt(position.limitForClones)}
 									currency={TOKEN_SYMBOL}
@@ -118,7 +122,7 @@ export default function PositionDetail() {
 								/>
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Owner" />
+								<DisplayLabel label={t("common.owner")} />
 								<div className="mt-2">
 									<Link href={ownerLink} className="flex items-center underline" target="_blank">
 										{shortenAddress(position.owner)}
@@ -127,39 +131,35 @@ export default function PositionDetail() {
 								</div>
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Reserve Requirement" />
+								<DisplayLabel label={t("monitoring.reserve_requirement")} />
 								<DisplayAmount amount={BigInt(position.reserveContribution / 100)} digits={2} currency={"%"} hideLogo />
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Annual Interest" />
+								<DisplayLabel label={t("monitoring.annual_interest")} />
 								<DisplayAmount amount={BigInt(position.annualInterestPPM / 100)} digits={2} currency={"%"} hideLogo />
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Start Date" />
+								<DisplayLabel label={t("monitoring.start_date")} />
 								<b>{formatDate(position.isOriginal ? position.start : position.created)}</b>
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Expiration Date" />
-								<b>{position.closed ? "Closed" : formatDate(position.expiration)}</b>
+								<DisplayLabel label={t("monitoring.expiration_date")} />
+								<b>{position.closed ? t("common.closed") : formatDate(position.expiration)}</b>
 							</AppBox>
 						</div>
 					</div>
 					<div>
 						{isSubjectToCooldown() && (
 							<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col mb-4">
-								<div className="text-lg font-bold text-center">Cooldown</div>
+								<div className="text-lg font-bold text-center">{t("monitoring.cooldown")}</div>
 								<AppBox className="flex-1 mt-4">
-									<p>
-										This position is subject to a cooldown period that ends on {formatDate(position.cooldown)} as its
-										owner has recently increased the applicable liquidation price. The cooldown period gives other users
-										an opportunity to challenge the position before additional dEuros can be minted.
-									</p>
+									<p>{t("monitoring.cooldown_message", { formatDate: formatDate })}</p>
 								</AppBox>
 							</div>
 						)}
 
 						<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col mb-4">
-							<div className="text-lg font-bold text-center">Active Challenges ({challengesActive.length})</div>
+							<div className="text-lg font-bold text-center">{t("monitoring.active_challenges")} ({challengesActive.length})</div>
 
 							{challengesActive.map((c) => ActiveAuctionsRow({ position, challenge: c }))}
 							{challengesActive.length === 0 ? <ActiveAuctionsRowEmpty /> : null}
@@ -178,6 +178,7 @@ interface Props {
 
 function ActiveAuctionsRow({ position, challenge }: Props) {
 	const navigate = useNavigation();
+	const { t } = useTranslation();
 
 	const beginning: number = parseFloat(formatUnits(challenge.size, position.collateralDecimals));
 	const remaining: number = parseFloat(formatUnits(challenge.size - challenge.filledSize, position.collateralDecimals));
@@ -185,7 +186,7 @@ function ActiveAuctionsRow({ position, challenge }: Props) {
 		<AppBox className="flex-1 mt-4">
 			<div className={`relative flex flex-row gap-2`}>
 				<AppBox className="col-span-3">
-					<DisplayLabel label="Remaining Size" />
+					<DisplayLabel label={t("monitoring.remaining_size")} />
 					<DisplayAmount
 						amount={BigInt(challenge.size - challenge.filledSize)}
 						digits={position.collateralDecimals}
@@ -197,7 +198,7 @@ function ActiveAuctionsRow({ position, challenge }: Props) {
 
 				<div className="absolute right-4 bottom-6 w-20">
 					<Button className="h-10" onClick={() => navigate.push(`/challenges/${challenge.id}/bid`)}>
-						Bid
+						{t("monitoring.bid")}
 					</Button>
 				</div>
 			</div>
@@ -206,9 +207,18 @@ function ActiveAuctionsRow({ position, challenge }: Props) {
 }
 
 function ActiveAuctionsRowEmpty() {
+	const { t } = useTranslation();	
 	return (
 		<AppBox className="flex-1 mt-4">
-			<p>This position is currently not being challenged.</p>
+			<p>{t("monitoring.no_active_challenges")}</p>
 		</AppBox>
 	);
+}
+
+export async function getServerSideProps({ locale }: { locale: string }) {
+	return {
+		props: {
+			...(await serverSideTranslations(locale, ["common"])),
+		},
+	};
 }

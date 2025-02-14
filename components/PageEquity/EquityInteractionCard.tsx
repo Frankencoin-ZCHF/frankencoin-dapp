@@ -9,6 +9,7 @@ import InteractionStablecoinAndNativePS from "./InteractionStablecoinAndNativePS
 import InteractionNativePSAndPoolShareToken from "./InteractionNativePSAndPoolShareToken";
 import InteractionPoolShareTokenRedeem from "./InteractionPoolShareTokenRedeem";
 import { ADDRESS } from "@deuro/eurocoin";
+import { useTranslation } from "next-i18next";
 
 export const EquityTokenSelectorMapping: { [key: string]: string[] } = {
 	[TOKEN_SYMBOL]: [NATIVE_POOL_SHARE_TOKEN_SYMBOL],
@@ -34,11 +35,12 @@ export default function EquityInteractionCard() {
 
 	const chainId = useChainId();
 	const wrappedPoolShareUrl = useContractUrl(ADDRESS[chainId].DEPSwrapper);
+	const { t } = useTranslation();
 
 	return (
 		<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col">
 			<div className="mb-4 pb-2 justify-center items-center gap-1.5 inline-flex">
-				<div className="text-text-title text-xl font-black ">dEURO Pool Shares</div>
+				<div className="text-text-title text-xl font-black ">{t("equity.pool_shares_title", { symbol: TOKEN_SYMBOL })}</div>
 			</div>
 
 			{/* Load modules dynamically */}
@@ -69,7 +71,7 @@ export default function EquityInteractionCard() {
 			) : null}
 
 			<div className="mt-4">
-				Also available as{" "}
+				{t("equity.also_available_as")}{" "}
 				<Link href={wrappedPoolShareUrl} target="_blank" className="underline">
 					{POOL_SHARE_TOKEN_SYMBOL}
 				</Link>

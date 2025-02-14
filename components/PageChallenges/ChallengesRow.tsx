@@ -10,6 +10,7 @@ import Button from "@components/Button";
 import { useContractUrl } from "@hooks";
 import AppBox from "@components/AppBox";
 import { TOKEN_SYMBOL } from "@utils";
+import { useTranslation } from "next-i18next";
 
 interface Props {
 	headers: string[];
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export default function ChallengesRow({ headers, challenge, tab }: Props) {
+	const { t } = useTranslation();
 	const navigate = useNavigation();
 
 	const positions = useSelector((state: RootState) => state.positions.mapping);
@@ -43,7 +45,7 @@ export default function ChallengesRow({ headers, challenge, tab }: Props) {
 	const declineStartTimestamp = start + phase1;
 	const zeroPriceTimestamp = start + phase1 + duration;
 
-	const states: string[] = ["Fixed Price", "Declining Price", "Zero Price"];
+	const states: string[] = [t("challenges.fixed_price"), t("challenges.declining_price"), t("challenges.zero_price")];
 	let stateIdx: number = 0;
 	let stateTimeLeft: string = "";
 
@@ -79,7 +81,7 @@ export default function ChallengesRow({ headers, challenge, tab }: Props) {
 			headers={headers}
 			actionCol={
 				<Button className="h-10" onClick={() => navigate.push(`/challenges/${challenge.id}/bid`)}>
-					Buy
+					{t("common.buy")}
 				</Button>
 			}
 			tab={tab}

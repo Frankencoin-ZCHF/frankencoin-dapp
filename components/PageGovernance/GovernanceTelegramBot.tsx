@@ -3,8 +3,10 @@ import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { SOCIAL } from "@utils";
 import Image from "next/image";
+import { useTranslation } from "next-i18next";
 
 export default function GovernanceTelegramBot() {
+	const { t } = useTranslation();
 	const openExplorer = (e: any) => {
 		e.preventDefault();
 		window.open(SOCIAL.TelegramApiBot, "_blank");
@@ -15,32 +17,31 @@ export default function GovernanceTelegramBot() {
 			<div className="grid max-md:grid-cols-1 md:grid-cols-2">
 				<div className="flex flex-col gap-4 p-2 md:px-4 justify-center items-left">
 					<div>
-						The dEURO API Bot is a Telegram communication tool designed to keep users informed about various activities
-						and updates within the dEURO ecosystem.
+						{t("governance.d_euro_api_bot_description")}
 					</div>
 
 					<div className="grid grid-cols-1 w-full my-4 ml-6">
 						<ul className="flex flex-col gap-4">
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-button-primary-default-bg" />
-								<span className="ml-5 text-center">New Minter Proposal and Vetoed</span>
+								<span className="ml-5 text-center">{t("governance.new_minter_proposal_and_vetoed")}</span>
 							</li>
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-button-primary-default-bg" />
-								<span className="ml-5 text-center">New Leadrate Proposal and Changed</span>
+								<span className="ml-5 text-center">{t("governance.new_leadrate_proposal_and_changed")}</span>
 							</li>
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-button-primary-default-bg" />
-								<span className="ml-5 text-center">New Position Proposal</span>
+								<span className="ml-5 text-center">{t("governance.new_position_proposal")}</span>
 							</li>
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-button-primary-default-bg" />
-								<span className="ml-5 text-center">Challenge Started and Bid Taken</span>
+								<span className="ml-5 text-center">{t("governance.challenge_started_and_bid_taken")}</span>
 							</li>
 						</ul>
 					</div>
 
-					<div>Users can subscribe to different types of updates using specific handles.</div>
+					<div>{t("governance.d_euro_api_bot_description_2")}</div>
 
 					<div className="grid grid-cols-1 w-full my-4 ml-6">
 						<ul className="flex flex-col gap-4">
@@ -50,7 +51,7 @@ export default function GovernanceTelegramBot() {
 									className="w-8 h-8 bg-layout-secondary rounded-full border-layout-secondary border-2"
 									inverse
 								/>
-								<span className="ml-5 text-center">New Minting Updates</span>
+								<span className="ml-5 text-center">{t("governance.new_minting_updates")}</span>
 							</li>
 						</ul>
 					</div>

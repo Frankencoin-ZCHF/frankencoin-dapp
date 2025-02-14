@@ -13,13 +13,14 @@ import { ApiPriceMapping, PositionQuery } from "@deuro/api";
 import { TokenSelectModal } from "@components/TokenSelectModal";
 import { BorrowingDEUROModal } from "@components/PageBorrow/BorrowingDEUROModal";
 import { InputTitle } from "@components/Input/InputTitle";
-import { formatCurrency, toDate } from "@utils";
+import { formatCurrency, toDate, TOKEN_SYMBOL } from "@utils";
 import { TokenBalance, useWalletERC20Balances } from "../../hooks/useWalletBalances";
 import { RootState } from "../../redux/redux.store";
 
 // TODO: remove fake data
 import { LIST, TOKEN_OPTIONS, PRICES, MAX_LIQUIDATION_PRICE_DECREASE } from "./LIST";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
+import { useTranslation } from "next-i18next";
 
 type LoanDetails = {
 	loanAmount: bigint;
@@ -154,6 +155,7 @@ export default function PositionCreate({}) {
 	const [loanDetails, setLoanDetails] = useState<LoanDetails | undefined>(undefined);
 	const positions = useSelector((state: RootState) => (LIST as PositionQuery[]) || state.positions.list.list); // TODO: remove fake data
 	const { balances } = useWalletERC20Balances();
+	const { t } = useTranslation();
 
 	const prices = useSelector((state: RootState) => (PRICES as ApiPriceMapping) || state.prices.coingecko); // TODO: remove fake data
 	const collateralPriceDeuro = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0; // TODO: change to eur
@@ -233,11 +235,11 @@ export default function PositionCreate({}) {
 		<div className="md:mt-8 flex justify-center">
 			<AppCard className="max-w-lg p-4 flex-col justify-start items-center gap-8 inline-flex overflow-hidden">
 				<div className="self-stretch justify-center items-center gap-1.5 inline-flex">
-					<div className="text-text-title text-xl font-black ">Borrow dEURO</div>
+					<div className="text-text-title text-xl font-black ">{t('mint.borrow')} {TOKEN_SYMBOL}</div>
 				</div>
 
 				<div className="self-stretch flex-col justify-start items-center gap-1 flex">
-					<InputTitle icon={faCircleQuestion}>Select your collateral asset</InputTitle>
+					<InputTitle icon={faCircleQuestion}>{t('mint.select_collateral')}</InputTitle>
 					<TokenInputSelectOutlined
 						selectedToken={selectedCollateral}
 						onSelectTokenClick={() => setIsOpenTokenSelector(true)}
@@ -247,6 +249,7 @@ export default function PositionCreate({}) {
 						eurValue={collateralEurValue}
 					/>
 					<TokenSelectModal
+						title={t('mint.token_select_modal_title')}
 						isOpen={isOpenTokenSelector}
 						setIsOpen={setIsOpenTokenSelector}
 						options={balances}
@@ -254,7 +257,7 @@ export default function PositionCreate({}) {
 					/>
 				</div>
 				<div className="self-stretch flex-col justify-start items-center gap-1 flex">
-					<InputTitle icon={faCircleQuestion}>Select your liquidation price</InputTitle>
+					<InputTitle icon={faCircleQuestion}>{t('mint.select_liquidation_price')}</InputTitle>
 					<SliderInputOutlined
 						value={liquidationPrice}
 						onChange={onLiquidationPriceChange}
@@ -262,11 +265,11 @@ export default function PositionCreate({}) {
 						max={maxLiquidationPrice}
 						decimals={36 - (selectedPosition?.collateralDecimals || 0)}
 						isError={isLiquidationPriceTooHigh}
-						errorMessage="Your liquidation price is too high! Change the liquidation price or the amount received."
+						errorMessage={t('mint.liquidation_price_too_high')}
 					/>
 				</div>
 				<div className="self-stretch flex-col justify-start items-center gap-1.5 flex">
-					<InputTitle>Set expiration date</InputTitle>
+					<InputTitle>{t('mint.set_expiration_date')}</InputTitle>
 					<DateInputOutlined
 						value={expirationDate}
 						maxDate={expirationDate}
@@ -274,25 +277,25 @@ export default function PositionCreate({}) {
 						onMaxClick={expirationDate ? handleMaxExpirationDate : undefined}
 					/>
 					<div className="self-stretch text-xs font-medium leading-normal">
-						The position must either be repaid or extended before the expiry date. Extensions can be found under “My Positions”.
+						{t('mint.expiration_date_description')}
 					</div>
 				</div>
 				<div className="self-stretch flex-col justify-start items-start gap-4 flex">
 					<div className="self-stretch flex-col justify-start items-center gap-1.5 flex">
-						<InputTitle>You get</InputTitle>
+						<InputTitle>{t('mint.you_get')}</InputTitle>
 						<NormalInputOutlined value={borrowedAmount} onChange={onYouGetChange} decimals={18} />
 					</div>
 					<DetailsExpandablePanel loanDetails={loanDetails} />
 				</div>
-				<GuardToAllowedChainBtn label="Borrow dEURO">
+				<GuardToAllowedChainBtn label={t('mint.borrow') + " " + TOKEN_SYMBOL}>
 					<Button
 						className="!p-4 text-lg font-extrabold leading-none"
 						onClick={() => setIsOpenBorrowingDEUROModal(true)}
 						disabled={!selectedPosition || !selectedCollateral || isLiquidationPriceTooHigh}
 					>
 						{isLiquidationPriceTooHigh
-							? "Your liquidation price is too high!"
-							: `Receive ${formatCurrency(formatUnits(BigInt(borrowedAmount), 18))} dEURO`}
+							? t('mint.liquidation_price_too_high')
+							: t('common.receive') + " " + formatCurrency(formatUnits(BigInt(borrowedAmount), 18), 2)}
 					</Button>
 				</GuardToAllowedChainBtn>
 				<BorrowingDEUROModal

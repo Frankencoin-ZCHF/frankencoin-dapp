@@ -18,6 +18,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import Link from "next/link";
 import { ADDRESS, MintingHubV2ABI } from "@deuro/eurocoin";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
@@ -42,6 +44,8 @@ export default function PositionBorrow({}) {
 	const position = positions.find((p) => p.position == addressQuery);
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
+
+	const { t } = useTranslation();
 
 	// ---------------------------------------------------------------------------
 	useEffect(() => {
@@ -124,9 +128,9 @@ export default function PositionBorrow({}) {
 		setAmount(valueBigInt);
 		if (valueBigInt > borrowingLimit) {
 			if (availableAmount < valueBigInt) {
-				setError("Can not mint more than " + formatCurrency(parseInt(borrowingLimit.toString()) / 1e18, 2, 2) + ` ${TOKEN_SYMBOL}`);
+				setError(t('mint.minting_limit_exceeded', { amount: formatCurrency(parseInt(borrowingLimit.toString()) / 1e18, 2, 2), symbol: TOKEN_SYMBOL }));
 			} else if (availableAmount > userValue) {
-				setError(`Not enough ${position.collateralSymbol} in your wallet.`);
+				setError(t('common.error.insufficient_balance', { symbol: position.collateralSymbol }));
 			}
 		} else {
 			setError("");
@@ -136,7 +140,7 @@ export default function PositionBorrow({}) {
 	const onChangeCollateral = (value: string) => {
 		const valueBigInt = (BigInt(value) * BigInt(position.price)) / BigInt(1e18);
 		if (valueBigInt > borrowingLimit) {
-			setError("Can not mint more than " + formatCurrency(parseInt(borrowingLimit.toString()) / 1e18, 2, 2) + ` ${TOKEN_SYMBOL}`);
+			setError(t('mint.minting_limit_exceeded', { amount: formatCurrency(parseInt(borrowingLimit.toString()) / 1e18, 2, 2), symbol: TOKEN_SYMBOL }));
 		} else {
 			setError("");
 		}
@@ -150,7 +154,7 @@ export default function PositionBorrow({}) {
 		const uppperLimit = position.expiration;
 
 		if (newTimestamp < bottomLimit || newTimestamp > uppperLimit) {
-			setErrorDate("Expiration Date should be between Now and Limit");
+			setErrorDate(t('mint.expiration_date_out_of_range'));
 		} else {
 			setErrorDate("");
 		}
@@ -174,29 +178,29 @@ export default function PositionBorrow({}) {
 
 			const toastContent = [
 				{
-					title: "Amount:",
+					title: t('common.txs.amount'),
 					value: "infinite " + position.collateralSymbol,
 				},
 				{
-					title: "Spender: ",
+					title: t('common.txs.spender'),
 					value: shortenAddress(ADDRESS[chainId].mintingHubV2),
 				},
 				{
-					title: "Transaction:",
+					title: t('common.txs.transaction'),
 					hash: approveWriteHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Approving ${position.collateralSymbol}`} rows={toastContent} />,
+					render: <TxToast title={t('common.txs.title', { symbol: position.collateralSymbol })} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`Successfully Approved ${position.collateralSymbol}`} rows={toastContent} />,
+					render: <TxToast title={t('common.txs.success', { symbol: position.collateralSymbol })} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {
 			setApproving(false);
 		}
@@ -217,29 +221,29 @@ export default function PositionBorrow({}) {
 
 			const toastContent = [
 				{
-					title: `Amount: `,
+					title: t('common.txs.amount'),
 					value: formatBigInt(amount) + ` ${TOKEN_SYMBOL}`,
 				},
 				{
-					title: `Collateral: `,
+					title: t('common.txs.collateral'),
 					value: formatBigInt(requiredColl, position.collateralDecimals) + " " + position.collateralSymbol,
 				},
 				{
-					title: "Transaction:",
+					title: t('common.txs.transaction'),
 					hash: cloneWriteHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: cloneWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Minting ${TOKEN_SYMBOL}`} rows={toastContent} />,
+					render: <TxToast title={t('mint.txs.minting', { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`Successfully Minted ${TOKEN_SYMBOL}`} rows={toastContent} />,
+					render: <TxToast title={t('mint.txs.minting_success', { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {
 			setCloning(false);
 		}
@@ -248,43 +252,43 @@ export default function PositionBorrow({}) {
 	return (
 		<>
 			<Head>
-				<title>dEURO - Mint</title>
+				<title>dEURO - {t('mint.mint')}</title>
 			</Head>
 
 			<div className="mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center mt-3">Mint Decentralized Euros For Yourself</div>
+						<div className="text-lg font-bold text-center mt-3">{t('mint.mint_title')}</div>
 						<div className="space-y-8">
 							<TokenInput
-								label="Mint Amount"
-								balanceLabel="Limit:"
+								label={t('mint.mint_amount')}
+								balanceLabel={t('common.limit_label')}
 								symbol={TOKEN_SYMBOL}
 								max={availableAmount}
 								value={amount.toString()}
 								onChange={onChangeAmount}
-								placeholder="Total Amount to be Minted"
+								placeholder={t('mint.input_placeholder')}
 							/>
 							<TokenInput
-								label="Required Collateral"
-								balanceLabel="Your balance:"
+								label={t('mint.required_collateral')}
+								balanceLabel={t('common.your_balance')}
 								max={userBalance}
 								digit={position.collateralDecimals}
 								onChange={onChangeCollateral}
 								output={formatUnits(requiredColl, position.collateralDecimals)}
 								symbol={position.collateralSymbol}
 							/>
-							<DateInput label="Expiration" max={position.expiration} value={expirationDate} onChange={onChangeExpiration} />
+							<DateInput label={t('mint.expiration')} max={position.expiration} value={expirationDate} onChange={onChangeExpiration} />
 						</div>
 						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-							<GuardToAllowedChainBtn label={amount > userAllowance ? "Approve" : "Mint"}>
+							<GuardToAllowedChainBtn label={amount > userAllowance ? t('common.approve') : t('mint.mint')}>
 								{requiredColl > userAllowance ? (
 									<Button
 										disabled={amount == 0n || requiredColl > userBalance || !!error}
 										isLoading={isApproving}
 										onClick={() => handleApprove()}
 									>
-										Approve
+										{t('common.approve')}
 									</Button>
 								) : (
 									<Button
@@ -292,7 +296,7 @@ export default function PositionBorrow({}) {
 										isLoading={isCloning}
 										onClick={() => handleClone()}
 									>
-										Mint
+										{t('mint.mint')}
 									</Button>
 								)}
 								<p className="text-text-warning">{errorDate}</p>
@@ -302,11 +306,11 @@ export default function PositionBorrow({}) {
 					</div>
 					<div>
 						<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col">
-							<div className="text-lg font-bold text-center mt-3">Outcome</div>
+							<div className="text-lg font-bold text-center mt-3">{t('mint.outcome')}</div>
 							<div className="flex-1 mt-4">
 								<div className="flex">
 									<div className="flex-1">
-										<span>Sent to your wallet</span>
+										<span>{t('mint.sent_to_your_wallet')}</span>
 									</div>
 									<div className="text-right">
 										<span className="text-xs mr-3">{formatCurrency(paidOutToWalletPct)}%</span>
@@ -316,7 +320,7 @@ export default function PositionBorrow({}) {
 
 								<div className="mt-2 flex">
 									<div className="flex-1">
-										<span>Retained Reserve</span>
+										<span>{t('mint.retained_reserve')}</span>
 									</div>
 									<div className="text-right">
 										<span className="text-xs mr-3">{formatCurrency(position.reserveContribution / 10000, 2, 2)}%</span>
@@ -326,8 +330,8 @@ export default function PositionBorrow({}) {
 
 								<div className="mt-2 flex">
 									<div className="flex-1">
-										<span>Upfront interest</span>
-										<div className="text-xs">({position.annualInterestPPM / 10000}% per year)</div>
+										<span>{t('mint.upfront_interest')}</span>
+										<div className="text-xs">({position.annualInterestPPM / 10000}% {t('mint.per_year')})</div>
 									</div>
 									<div className="text-right">
 										<span className="text-xs mr-3">{formatBigInt(feePercent, 4)}%</span>
@@ -339,7 +343,7 @@ export default function PositionBorrow({}) {
 
 								<div className="mt-2 flex font-bold">
 									<div className="flex-1">
-										<span>Total</span>
+										<span>{t('mint.total')}</span>
 									</div>
 									<div className="text-right">
 										<span className="text-xs mr-3">100%</span>
@@ -352,37 +356,36 @@ export default function PositionBorrow({}) {
 							<div className="text-lg font-bold text-center mt-3">Notes</div>
 							<div className="flex-1 mt-4">
 								<div className="mt-2 flex">
-									<div className="flex-1">Effective Annual Interest</div>
+									<div className="flex-1">{t('mint.effective_annual_interest')}</div>
 									<div className="">{formatCurrency(effectiveInterest * 100)}%</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">Liquidation Price</div>
+									<div className="flex-1">{t('mint.liquidation_price')}</div>
 									<div className="">
 										{formatCurrency(formatUnits(BigInt(position.price), 36 - position.collateralDecimals))} {TOKEN_SYMBOL}
 									</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">Market Price</div>
+									<div className="flex-1">{t('mint.market_price')}</div>
 									<div className="">{formatCurrency(collateralPriceDeuro)} {TOKEN_SYMBOL}</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">Loan-To-Value</div>
+									<div className="flex-1">{t('mint.loan_to_value')}</div>
 									<div className="">{formatCurrency(effectiveLTV * 100)}%</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">Parent Position</div>
+									<div className="flex-1">{t('mint.parent_position')}</div>
 									<Link className="underline" href={`/monitoring/${position.original}`}>
 										{shortenAddress(position.original)}
 									</Link>
 								</div>
 
 								<p className="mt-4">
-									While the maturity is fixed, you can adjust the liquidation price and the collateral amount later as
-									long as it covers the minted amount. No interest will be refunded when repaying earlier.
+									{t('mint.while_the_maturity_is_fixed')}
 								</p>
 							</div>
 						</div>
@@ -391,4 +394,12 @@ export default function PositionBorrow({}) {
 			</div>
 		</>
 	);
+}
+
+export async function getServerSideProps({ locale }: { locale: string }) {
+	return {
+		props: {
+			...(await serverSideTranslations(locale, ["common"])),
+		},
+	};
 }

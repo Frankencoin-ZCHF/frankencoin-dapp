@@ -20,6 +20,9 @@ import { RootState } from "../../../redux/redux.store";
 import Link from "next/link";
 import { useRouter as useNavigation } from "next/navigation";
 import { ADDRESS, MintingHubV2ABI } from "@deuro/eurocoin";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
+
 
 export default function PositionChallenge() {
 	const [amount, setAmount] = useState(0n);
@@ -42,6 +45,8 @@ export default function PositionChallenge() {
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const position = positions.find((p) => p.position == addressQuery);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
+
+	const { t } = useTranslation();
 
 	// ---------------------------------------------------------------------------
 	useEffect(() => {
@@ -91,11 +96,11 @@ export default function PositionChallenge() {
 		}
 		setAmount(valueBigInt);
 		if (valueBigInt > userBalance) {
-			setError(`Not enough ${position.collateralSymbol} in your wallet.`);
+			setError(t("common.error.insufficient_balance", { symbol: position.collateralSymbol }));
 		} else if (valueBigInt > BigInt(position.collateralBalance) && !belowMinBalance) {
-			setError("Amount cannot be larger than the underlying position");
+			setError(t("monitoring.error.amount_cannot_be_larger_than_position"));
 		} else if (valueBigInt < BigInt(position.minimumCollateral) && !belowMinBalance) {
-			setError("Amount must be at least the minimum");
+			setError(t("monitoring.error.amount_must_be_at_least_the_minimum"));
 		} else {
 			setError("");
 		}
@@ -114,29 +119,29 @@ export default function PositionChallenge() {
 
 			const toastContent = [
 				{
-					title: "Amount:",
+					title: t("common.txs.amount"),
 					value: formatBigInt(amount, position.collateralDecimals) + " " + position.collateralSymbol,
 				},
 				{
-					title: "Spender: ",
+					title: t("common.txs.spender"),
 					value: shortenAddress(ADDRESS[chainId].mintingHubV2),
 				},
 				{
-					title: "Transaction:",
+					title: t("common.txs.transaction"),
 					hash: approveWriteHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Approving ${position.collateralSymbol}`} rows={toastContent} />,
+					render: <TxToast title={t("common.txs.approving", { symbol: position.collateralSymbol })} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`Successfully Approved ${position.collateralSymbol}`} rows={toastContent} />,
+					render: <TxToast title={t("common.txs.title")} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {
 			setApproving(false);
 		}
@@ -155,31 +160,31 @@ export default function PositionChallenge() {
 
 			const toastContent = [
 				{
-					title: "Size:",
+					title: t("monitoring.txs.size"),
 					value: formatBigInt(amount, position.collateralDecimals) + " " + position.collateralSymbol,
 				},
 				{
-					title: "Price: ",
+					title: t("common.txs.price"),
 					value: formatBigInt(BigInt(position.price), 36 - position.collateralDecimals) + ` ${TOKEN_SYMBOL}`,
 				},
 				{
-					title: "Transaction:",
+					title: t("common.txs.transaction"),
 					hash: challengeWriteHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: challengeWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Launching a challenge`} rows={toastContent} />,
+					render: <TxToast title={t("monitoring.txs.launching_challenge")} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`Successfully Launched challenge`} rows={toastContent} />,
+					render: <TxToast title={t("monitoring.txs.successfully_launched_challenge")} rows={toastContent} />,
 				},
 			});
 
 			setNavigating(true);
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {
 			setChallenging(false);
 		}
@@ -188,7 +193,7 @@ export default function PositionChallenge() {
 	return (
 		<>
 			<Head>
-				<title>dEURO - Challenge</title>
+				<title>dEURO - {t("monitoring.challenge_title")}</title>
 			</Head>
 
 			{/* <div>
@@ -198,34 +203,31 @@ export default function PositionChallenge() {
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center mt-3">Launch A Challenge</div>
+						<div className="text-lg font-bold text-center mt-3">{t("monitoring.challenge_title")}</div>
 						<TokenInput
 							symbol={position.collateralSymbol}
 							max={userBalance}
-							balanceLabel="Your balance:"
+							balanceLabel={t("common.your_balance")}
 							digit={position.collateralDecimals}
 							value={amount.toString()}
 							onChange={onChangeAmount}
 							error={error}
-							label="Amount"
-							placeholder="Collateral Amount"
+							label={t("common.amount")}
+							placeholder={t("common.collateral_amount")}
 						/>
 						<div className="grid grid-cols-6 gap-2 lg:col-span-2">
 							<AppBox className="col-span-6 sm:col-span-3">
-								<DisplayLabel label="Starting Price" />
+								<DisplayLabel label={t("monitoring.starting_price")} />
 								<DisplayAmount
 									amount={BigInt(position.price)}
 									currency={TOKEN_SYMBOL}
 									digits={36 - position.collateralDecimals}
 									address={ADDRESS[chainId].decentralizedEURO}
-									/* subAmount={maxProceeds}
-									subCurrency={"% (Coingecko)"}
-									subColor={maxProceeds > 0 ? "text-green-300" : "text-red-500"} */
 									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
-								<DisplayLabel label="Potential Reward" />
+								<DisplayLabel label={t("monitoring.potential_reward")} />
 								<DisplayAmount
 									amount={(BigInt(position.price) * amount * 2n) / 100n}
 									currency={TOKEN_SYMBOL}
@@ -235,7 +237,7 @@ export default function PositionChallenge() {
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
-								<DisplayLabel label="Collateral in Position" />
+								<DisplayLabel label={t("monitoring.collateral_in_position")} />
 								<DisplayAmount
 									amount={BigInt(position.collateralBalance)}
 									currency={position.collateralSymbol}
@@ -245,7 +247,7 @@ export default function PositionChallenge() {
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
-								<DisplayLabel label="Minimum Amount" />
+								<DisplayLabel label={t("monitoring.minimum_amount")} />
 								<DisplayAmount
 									amount={BigInt(position.minimumCollateral)}
 									currency={position.collateralSymbol}
@@ -255,44 +257,48 @@ export default function PositionChallenge() {
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
-								<DisplayLabel label="Phase duration" />
+								<DisplayLabel label={t("monitoring.phase_duration")} />
 								{formatDuration(position.challengePeriod)}
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
-								<DisplayLabel label="Target Position" />
+								<DisplayLabel label={t("monitoring.target_position")} />
 								<Link className="text-link" href={`/monitoring/${position.position}`}>
 									{shortenAddress(position.position || zeroAddress)}
 								</Link>
 							</AppBox>
 						</div>
 						<div className="mx-auto mt-4 w-72 max-w-full flex-col">
-							<GuardToAllowedChainBtn label={amount > userAllowance ? "Approve" : "Challenge"}>
+							<GuardToAllowedChainBtn label={amount > userAllowance ? t("common.approve") : t("monitoring.challenge")}>
 								{amount > userAllowance ? (
 									<Button isLoading={isApproving} disabled={!!error} onClick={() => handleApprove()}>
-										Approve
+										{t("common.approve")}
 									</Button>
 								) : (
 									<Button isLoading={isChallenging} disabled={!!error || amount == 0n} onClick={() => handleChallenge()}>
-										Challenge
+										{t("monitoring.challenge")}
 									</Button>
 								)}
 							</GuardToAllowedChainBtn>
 						</div>
 					</div>
 					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col">
-						<div className="text-lg font-bold text-center mt-3">How does it work?</div>
+						<div className="text-lg font-bold text-center mt-3">{t('monitoring.how_it_works')}</div>
 						<div className="flex-1 mt-4">
-							<p>A challenge is divided into two phases:</p>
+							<p>{t("monitoring.challenge_description_how_it_works")}</p>
 							<ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
 								<li>
-									During the fixed price phase, anyone can buy the {position.collateralSymbol} you provided at the
-									liquidation price of {formatBigInt(BigInt(position.price), 36 - position.collateralDecimals)} {TOKEN_SYMBOL} each.
+									{t("monitoring.challenge_description_how_it_works_phase_1", {
+										symbol: position.collateralSymbol,
+										price: formatBigInt(BigInt(position.price), 36 - position.collateralDecimals),
+										token: TOKEN_SYMBOL,
+									})}
 								</li>
 								<li>
-									If there are any {position.collateralSymbol} left after the fixed price phase ends, you get the
-									remaining {position.collateralSymbol} back and the price starts to decline towards zero. In this phase,
-									the bidders are not buying from the challenger any more, but from the position owner. You will get 2% of
-									the sales proceeds as a reward.
+									{t("monitoring.challenge_description_how_it_works_phase_2", {
+										symbol: position.collateralSymbol,
+										price: formatBigInt(BigInt(position.price), 36 - position.collateralDecimals),
+										token: TOKEN_SYMBOL,
+									})}
 								</li>
 							</ol>
 						</div>
@@ -301,4 +307,12 @@ export default function PositionChallenge() {
 			</div>
 		</>
 	);
+}
+
+export async function getServerSideProps({ locale }: { locale: string }) {
+	return {
+		props: {
+			...(await serverSideTranslations(locale, ["common"])),
+		},
+	};
 }

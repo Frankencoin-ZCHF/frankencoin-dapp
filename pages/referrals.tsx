@@ -3,12 +3,16 @@ import { ReferralCenterSection } from "@components/PageReferrals/ReferralCenterS
 import { FAQ } from "@components/PageReferrals/FAQ";
 import YourReferralsTable from "@components/PageReferrals/YourReferralsTable";
 import BonusHistoryTable from "@components/PageReferrals/BonusHistoryTable";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 export default function Referrals() {
+	const { t } = useTranslation();
+
 	return (
 		<>
 			<Head>
-				<title>dEURO - Referrals</title>
+				<title>dEURO - {t("referrals.referrals")}</title>
 			</Head>
 
 			<div className="md:mt-8 flex flex-col gap-6 sm:gap-12">
@@ -32,4 +36,12 @@ export default function Referrals() {
 			</div>
 		</>
 	);
+}
+
+export async function getStaticProps({ locale }: { locale: string }) {
+	return {
+		props: {
+			...(await serverSideTranslations(locale, ["common"])),
+		},
+	};
 }

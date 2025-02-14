@@ -11,6 +11,7 @@ import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { useAccount } from "wagmi";
 import { ADDRESS, EquityABI } from "@deuro/eurocoin";
 import { NATIVE_POOL_SHARE_TOKEN_SYMBOL } from "../../utils/constant";
+import { useTranslation } from "next-i18next";
 
 interface Props {
 	headers: string[];
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export default function GovernanceVotersRow({ headers, voter, votesTotal, connectedWallet, tab }: Props) {
+	const { t } = useTranslation();
 	const [isDelegateeVotes, setDelegateeVotes] = useState<VoteData | undefined>(undefined);
 	const delegationData = useDelegationQuery();
 	const account = useAccount();
@@ -82,7 +84,7 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 				<div className="flex items-center">
 					<div className="flex flex-col md:text-left max-md:text-right max-md:w-full">
 						{connectedWallet ? (
-							<AddressLabelSimple address={voter.holder} label="Connected wallet" showLink />
+							<AddressLabelSimple address={voter.holder} label={t("governance.connected_wallet")} showLink />
 						) : (
 							<AddressLabelSimple address={voter.holder} showLink />
 						)}

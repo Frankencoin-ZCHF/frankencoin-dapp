@@ -8,30 +8,32 @@ import { CONFIG } from "../../app.config";
 import { GlobalPreferences } from "./GlobalPreferences";
 import { RootState } from "../../redux/redux.store";
 import { ExpertModeToogle } from "./ExpertModeToogle";
+import { useTranslation } from "next-i18next";
 
 export function NavItems() {
 	const isMainet = useIsMainnet();
 	const expertMode = useSelector((state: RootState) => state.globalPreferences.expertMode);
+	const { t } = useTranslation();
 
 	return (
 		<>
 			<li className="inline-block sm:hidden">
-				<NavButton to="/referrals" name="My Referrals" />
+				<NavButton to="/referrals" name={t("common.navbar.my_referrals")} />
 			</li>
 			<li>
-				<NavButton to="/swap" name="Swap" />
+				<NavButton to="/swap" name={t("common.navbar.swap")} />
 			</li>
 			<li>
-				<NavButton to="/mint" name="Borrow" />
+				<NavButton to="/mint" name={t("common.navbar.borrow")} />
 			</li>
 			<li>
-				<NavButton to="/mypositions" name="My Positions" />
+				<NavButton to="/mypositions" name={t("common.navbar.my_positions")} />
 			</li>
 			<li>
-				<NavButton to="/monitoring" name="Monitoring" />
+				<NavButton to="/monitoring" name={t("common.navbar.monitoring")} />
 			</li>
 			<li>
-				<NavButton to="/challenges" name="Auctions" />
+				<NavButton to="/challenges" name={t("common.navbar.auctions")} />
 			</li>
 			{/* TODO: Reactivate when API is ready
 				<li>
@@ -39,11 +41,11 @@ export function NavItems() {
 				</li>
 				*/}
 			<li>
-				<NavButton to="/equity" name="Equity" />
+				<NavButton to="/equity" name={t("common.navbar.equity")} />
 			</li>
 			{expertMode && (
 				<li>
-					<NavButton to="/governance" name="Governance" />
+					<NavButton to="/governance" name={t("common.navbar.governance")} />
 				</li>
 			)}
 		</>
@@ -52,10 +54,12 @@ export function NavItems() {
 
 export default function Navbar() {
 	const [isNavBarOpen, setIsNavBarOpen] = useState(false);
+	const { t } = useTranslation();
+
 	return (
 		<div className="fixed top-0 left-0 right-0 z-20">
 			<div className="bg-yellow-500 text-black text-center font-bold text-sm md:text-base">
-				This website is not yet live. This is just a test system
+				{t("common.navbar.not_live")}
 			</div>
 			<div>
 				<header className="w-full h-16 px-5 md:px-10 bg-white border-b border-menu-separator bg-menu-back backdrop-blur justify-between items-center inline-flex">

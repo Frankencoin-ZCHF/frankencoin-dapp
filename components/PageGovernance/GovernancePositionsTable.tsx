@@ -7,15 +7,19 @@ import { RootState } from "../../redux/redux.store";
 import { PositionQuery, PriceQueryObjectArray } from "@deuro/api";
 import { useState } from "react";
 import GovernancePositionsRow from "./GovernancePositionsRow";
+import { useTranslation } from "next-i18next";
 
 export default function GovernancePositionsTable() {
-	const headers: string[] = ["Collateral", "Position", "Limit", "Interest", "Time Left"];
-	const subHeaders: string[] = ["", "Owner", "Reserve", "Maturity", "Auction duration"];
+	const { t } = useTranslation();
+	
+	const headers: string[] = [t("governance.collateral"), t("governance.position"), t("governance.limit"), t("governance.interest"), t("governance.time_left")];
+	const subHeaders: string[] = ["", t("governance.owner"), t("governance.reserve"), t("governance.maturity"), t("governance.auction_duration")];
 	const [tab, setTab] = useState<string>(headers[4]);
 	const [reverse, setReverse] = useState<boolean>(true);
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
+
 
 	const matchingPositions: PositionQuery[] = positions.filter((p) => !p.closed && !p.denied && p.start * 1000 > Date.now());
 
@@ -42,8 +46,7 @@ export default function GovernancePositionsTable() {
 			<TableBody>
 				{sorted.length == 0 ? (
 					<TableRowEmpty>
-						If there are new positions with new parameters or a new type of collateral, they are shown here until they have
-						passed the governance process.
+						{t("governance.positions_table_empty")}
 					</TableRowEmpty>
 				) : (
 					sorted.map((pos) => (

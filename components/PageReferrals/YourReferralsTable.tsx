@@ -10,6 +10,7 @@ import { faArrowUpRightFromSquare, faChevronDown, faMinus, faPlus } from "@forta
 import { useState } from "react";
 import { TableShowMoreRow } from "@components/Table/TableShowMoreRow";
 import { SectionTitle } from "@components/SectionTitle";
+import { useTranslation } from "next-i18next";
 
 interface ReferralData {
 	volume: string;
@@ -21,10 +22,11 @@ interface Props {
 	data: ReferralData[];
 }
 
-const headers = ["Referral volumen", "Date", "Address"];
 const subHeaders = ["dEURO", "", ""];
 
 export default function YourReferralsTable({ data }: Props) {
+	const { t } = useTranslation();
+	const headers = [t("referrals.referral_volume"), t("referrals.date"), t("referrals.address")];
 	const [isShowMore, setIsShowMore] = useState(false);
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
@@ -42,13 +44,13 @@ export default function YourReferralsTable({ data }: Props) {
 
 	return (
 		<div className="flex flex-col gap-2 sm:gap-0">
-			<SectionTitle>Your referrals</SectionTitle>
+			<SectionTitle>{t("referrals.your_referrals")}</SectionTitle>
 			<Table>
 				<TableHeader headers={headers} subHeaders={subHeaders} tab={tab} tabOnChange={handleTabOnChange} reverse={reverse} />
 				<TableBody>
 					<>
 						{data.length === 0 ? (
-							<TableRowEmpty>You do not have any referrals yet.</TableRowEmpty>
+							<TableRowEmpty>{t("referrals.no_referrals_yet")}</TableRowEmpty>
 						) : (
 							data.slice(0, isShowMore ? data.length : 3).map((row, i) => (
 								<TableRow key={i} headers={headers} tab={tab}>
@@ -69,7 +71,7 @@ export default function YourReferralsTable({ data }: Props) {
 						{data.length > 3 && (
 							<TableShowMoreRow onShowMoreClick={() => setIsShowMore(!isShowMore)}>
 								<div className="text-table-header-active text-base font-black leading-normal tracking-tight">
-									{isShowMore ? "show less" : "show more"}
+									{isShowMore ? t("referrals.show_less") : t("referrals.show_more")}
 								</div>
 								<div className="justify-start items-center gap-2.5 flex">
 									<FontAwesomeIcon icon={isShowMore ? faMinus : faPlus} className="w-4 h-4 text-table-header-active" />

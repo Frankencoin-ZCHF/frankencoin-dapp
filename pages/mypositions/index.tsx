@@ -11,10 +11,13 @@ import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import { fetchChallengesList } from "../../redux/slices/challenges.slice";
 import { fetchBidsList } from "../../redux/slices/bids.slice";
 import { SectionTitle } from "@components/SectionTitle";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
 export default function Positions() {
 	const router = useRouter();
 	const overwrite: Address = router.query.address as Address;
+	const { t } = useTranslation();
 
 	useEffect(() => {
 		store.dispatch(fetchPositionsList());
@@ -25,13 +28,13 @@ export default function Positions() {
 	return (
 		<>
 			<Head>
-				<title>dEURO - Positions</title>
+				<title>dEURO - {t("my_positions.positions")}</title>
 			</Head>
 
 			{/* Section Positions */}
 			<div className="md:mt-8">
 				<div>
-					<SectionTitle>Owned Positions</SectionTitle>
+					<SectionTitle>{t("my_positions.owned_positions")}</SectionTitle>
 					<DisplayWarningMessage overwrite={overwrite} />
 				</div>
 
@@ -40,7 +43,7 @@ export default function Positions() {
 				</div>
 
 				<div className="mt-8 sm:mt-12">
-					<SectionTitle>Initiated Challenges</SectionTitle>
+					<SectionTitle>{t("my_positions.initiated_challenges")}</SectionTitle>
 					<DisplayWarningMessage overwrite={overwrite} />
 				</div>
 
@@ -50,7 +53,7 @@ export default function Positions() {
 
 				{/* Section Bids */}
 				<div className="mt-8 sm:mt-12">
-					<SectionTitle>Initiated Bids</SectionTitle>
+					<SectionTitle>{t("my_positions.initiated_bids")}</SectionTitle>
 					<DisplayWarningMessage overwrite={overwrite} />
 				</div>
 
@@ -63,9 +66,18 @@ export default function Positions() {
 }
 
 function DisplayWarningMessage(props: { overwrite: Address }) {
+	const { t } = useTranslation();
 	return (
 		<div>
-			<span className="font-bold text-sm">{props.overwrite ? `(Public View for: ${shortenAddress(props.overwrite)})` : ""}</span>
+			<span className="font-bold text-sm">{props.overwrite ? `(${t("my_positions.public_view_for")}: ${shortenAddress(props.overwrite)})` : ""}</span>
 		</div>
 	);
+}
+
+export async function getStaticProps({ locale }: { locale: string }) {
+	return {
+		props: {
+			...(await serverSideTranslations(locale, ["common"])),
+		},
+	};
 }

@@ -21,6 +21,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useRouter as useNavigation } from "next/navigation";
 import { ADDRESS, DecentralizedEUROABI, MintingHubV2ABI } from "@deuro/eurocoin";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
 export default function MonitoringForceSell() {
 	const [isInit, setInit] = useState(false);
@@ -35,6 +37,7 @@ export default function MonitoringForceSell() {
 	const account = useAccount();
 	const router = useRouter();
 	const navigate = useNavigation();
+	const { t } = useTranslation();
 
 	const chainId = useChainId();
 	const queryAddress: Address = (String(router.query.address) as Address) || zeroAddress;
@@ -101,9 +104,9 @@ export default function MonitoringForceSell() {
 		setAmount(valueBigInt);
 
 		if (expectedEURO() > userBalance) {
-			setError(`Not enough ${TOKEN_SYMBOL} in your wallet to cover the expected costs.`);
+			setError(t("monitoring.error.not_enough_collateral", { symbol: TOKEN_SYMBOL }));
 		} else if (valueBigInt > BigInt(position.collateralBalance)) {
-			setError("Expected buying collateral should be lower than remaining collateral.");
+			setError(t("monitoring.error.expected_buying_collateral"));
 		} else {
 			setError("");
 		}
@@ -122,30 +125,30 @@ export default function MonitoringForceSell() {
 
 			const toastContent = [
 				{
-					title: `ForceSell Amount: `,
+					title: t("monitoring.txs.force_sell"),
 					value: formatBigInt(amount, position.collateralDecimals) + " " + position.collateralSymbol,
 				},
 				{
-					title: `Expected ${TOKEN_SYMBOL}: `,
+					title: t("monitoring.txs.expected_euro", { symbol: TOKEN_SYMBOL }),
 					value: formatCurrency(formatUnits(expectedEURO(), 18)) + " " + TOKEN_SYMBOL,
 				},
 				{
-					title: "Transaction:",
+					title: t("common.txs.transaction"),
 					hash: bidWriteHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: bidWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Force to Sell ${position.collateralSymbol}`} rows={toastContent} />,
+					render: <TxToast title={t("monitoring.txs.force_sell_pending", { symbol: position.collateralSymbol })} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully Forced to Sell" rows={toastContent} />,
+					render: <TxToast title={t("monitoring.txs.force_sell_success")} rows={toastContent} />,
 				},
 			});
 			setNavigating(true);
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {
 			setBidding(false);
 		}
@@ -154,13 +157,13 @@ export default function MonitoringForceSell() {
 	return (
 		<>
 			<Head>
-				<title>dEURO - Force Sell</title>
+				<title>dEURO - {t("monitoring.force_sell_title")}</title>
 			</Head>
 
 			<div className="md:mt-8">
 				<section className="mx-auto max-w-2xl sm:px-8">
 					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center mt-3">Force to Sell and Buy {position.collateralSymbol}</div>
+						<div className="text-lg font-bold text-center mt-3">{t("monitoring.force_sell_description", { symbol: position.collateralSymbol })}</div>
 
 						<div className="">
 							<TokenInput
@@ -171,20 +174,20 @@ export default function MonitoringForceSell() {
 								digit={position.collateralDecimals}
 								symbol={position.collateralSymbol}
 								error={error}
-								placeholder="Collateral Amount"
-								balanceLabel="Available:"
+								placeholder={t("common.input_placeholder")}
+								balanceLabel={t("common.available_label")}
 							/>
 							<div className="flex flex-col">
-								<span>Your balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} {TOKEN_SYMBOL}</span>
+								<span>{t("common.your_balance")} {formatCurrency(formatUnits(userBalance, 18), 2, 2)} {TOKEN_SYMBOL}</span>
 							</div>
 							<div className="flex flex-col">
-								<span>Estimated cost: {formatCurrency(formatUnits(expectedEURO(), 18), 2, 2)} {TOKEN_SYMBOL}</span>
+								<span>{t("common.estimated_cost")} {formatCurrency(formatUnits(expectedEURO(), 18), 2, 2)} {TOKEN_SYMBOL}</span>
 							</div>
 						</div>
 
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:col-span-2">
 							<AppBox>
-								<DisplayLabel label="Available" />
+								<DisplayLabel label={t("common.available")} />
 								<DisplayAmount
 									amount={BigInt(position.collateralBalance)}
 									currency={position.collateralSymbol}
@@ -194,7 +197,7 @@ export default function MonitoringForceSell() {
 								/>
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Price per Unit" />
+								<DisplayLabel label={t("common.price_per_unit")} />
 								<DisplayAmount
 									amount={auctionPrice}
 									digits={36 - position.collateralDecimals}
@@ -204,7 +207,7 @@ export default function MonitoringForceSell() {
 								/>
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Owner" />
+								<DisplayLabel label={t("common.owner")} />
 								<Link
 									className="text-link"
 									href={ContractUrl(position.owner, WAGMI_CHAIN)}
@@ -218,29 +221,29 @@ export default function MonitoringForceSell() {
 								</Link>
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Position" />
+								<DisplayLabel label={t("common.position")} />
 								<Link className="text-link" href={`/monitoring/${position.position}`}>
 									<div className="">{shortenAddress(position.position)}</div>
 								</Link>
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="From 10x price decline until" />
+								<DisplayLabel label={t("monitoring.from_10x_price_decline_until")} />
 								<div>{formatDate(declineOnePriceTimestamp / 1000) || "---"}</div>
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Reaching zero at" />
+								<DisplayLabel label={t("monitoring.reaching_zero_at")} />
 								{formatDate(zeroPriceTimestamp / 1000) || "---"}
 							</AppBox>
 						</div>
 						<div className="mx-auto mt-4 w-72 max-w-full flex-col">
 							{/* Override lable here */}
-							<GuardToAllowedChainBtn label="Force Sell">
+							<GuardToAllowedChainBtn label={t("monitoring.force_sell_title")}>
 								<Button
 									disabled={amount == 0n || expectedEURO() > userBalance || error != ""}
 									isLoading={isBidding}
 									onClick={() => handleBid()}
 								>
-									Force Sell
+									{t("monitoring.force_sell_title")}
 								</Button>
 							</GuardToAllowedChainBtn>
 						</div>
@@ -249,4 +252,12 @@ export default function MonitoringForceSell() {
 			</div>
 		</>
 	);
+}
+
+export async function getServerSideProps({ locale }: { locale: string }) {
+	return {
+		props: {
+			...(await serverSideTranslations(locale, ["common"])),
+		},
+	};
 }

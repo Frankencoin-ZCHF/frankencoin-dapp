@@ -8,6 +8,7 @@ import { formatCurrency } from "../../utils/format";
 import { useRouter as useNavigation } from "next/navigation";
 import { useContractUrl } from "@hooks";
 import Button from "@components/Button";
+import { useTranslation } from "next-i18next";
 
 interface Props {
 	headers: string[];
@@ -17,6 +18,7 @@ interface Props {
 
 export default function MonitoringRow({ headers, position, tab }: Props) {
 	const navigate = useNavigation();
+	const { t } = useTranslation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
@@ -57,7 +59,7 @@ export default function MonitoringRow({ headers, position, tab }: Props) {
 					className="h-10"
 					onClick={() => navigate.push(`/monitoring/${position.position}/${maturity <= 0 ? "forceSell" : "challenge"}`)}
 				>
-					{maturity <= 0 ? "Force Sell" : "Challenge"}
+					{maturity <= 0 ? t("monitoring.force_sell") : t("monitoring.challenge")}
 				</Button>
 			}
 			tab={tab}

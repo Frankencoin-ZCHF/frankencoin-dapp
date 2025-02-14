@@ -1,6 +1,7 @@
 import SortBySelect from "@components/Input/SortBySelect";
 import { faArrowDownWideShort, faArrowUpShortWide } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useTranslation } from "next-i18next";
 
 interface Props {
 	headers: string[];
@@ -14,6 +15,8 @@ interface Props {
 }
 
 export default function TableHeader({ headers, subHeaders, actionCol, colSpan, tab = "", reverse = false, tabOnChange, headerClassNames }: Props) {
+	const { t } = useTranslation();
+
 	const handleOnClick = function (active: string) {
 		if (typeof tabOnChange === "function") tabOnChange(active);
 	};
@@ -58,7 +61,7 @@ export default function TableHeader({ headers, subHeaders, actionCol, colSpan, t
 							subHeaders ? "items-center" : ""
 						}`}
 					>
-						Action
+						{t('common.action')}
 					</div>
 					{subHeaders ? <span> </span> : null}
 				</div>

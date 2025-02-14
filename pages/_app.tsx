@@ -15,8 +15,9 @@ import { PONDER_CLIENT } from "../app.config";
 import BlockUpdater from "@components/BlockUpdater";
 import USGovSanctionList from "@components/USGovSanctionList";
 import { FrontendCodeProvider } from "@components/FrontendCodeProvider";
+import { appWithTranslation } from 'next-i18next';
 
-export default function App({ Component, pageProps }: AppProps) {
+function App({ Component, pageProps }: AppProps) {
 	return (
 		<ReduxProvider store={store}>
 			<FrontendCodeProvider>
@@ -43,3 +44,5 @@ export default function App({ Component, pageProps }: AppProps) {
 		</ReduxProvider>
 	);
 }
+
+export default appWithTranslation(App);

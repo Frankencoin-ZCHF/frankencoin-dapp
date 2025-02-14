@@ -18,6 +18,7 @@ import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { ADDRESS, EquityABI, FrontendGatewayABI } from "@deuro/eurocoin";
 import { useFrontendCode } from "../../hooks/useFrontendCode";
 import { useFrontendGatewayStats } from "../../hooks/useFrontendGatewayStats";
+import { useTranslation } from "next-i18next";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -31,7 +32,7 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 	const [isApproving, setApproving] = useState(false);
 	const [isInversting, setInversting] = useState(false);
 	const [isRedeeming, setRedeeming] = useState(false);
-
+	const { t } = useTranslation();
 	const { frontendGatewayAllowance } = useFrontendGatewayStats();
 	const { frontendCode } = useFrontendCode();
 	const { address } = useAccount();
@@ -58,25 +59,25 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 
 			const toastContent = [
 				{
-					title: "Amount:",
+					title: t("common.txs.amount"),
 					value: formatBigInt(amount) + " " + TOKEN_SYMBOL,
 				},
 				{
-					title: "Spender: ",
+					title: t("common.txs.spender"),
 					value: shortenAddress(ADDRESS[chainId].equity),
 				},
 				{
-					title: "Transaction:",
+					title: t("common.txs.transaction"),
 					hash: approveWriteHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Approving ${TOKEN_SYMBOL}`} rows={toastContent} />,
+					render: <TxToast title={t("common.txs.title", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`Successfully Approved ${TOKEN_SYMBOL}`} rows={toastContent} />,
+					render: <TxToast title={t("common.txs.success", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
@@ -96,25 +97,25 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 
 			const toastContent = [
 				{
-					title: "Amount:",
+					title: t("common.txs.amount"),
 					value: formatBigInt(amount, 18) + " " + TOKEN_SYMBOL,
 				},
 				{
-					title: "Shares: ",
+					title: t("common.txs.shares"),
 					value: formatBigInt(result) + " " + NATIVE_POOL_SHARE_TOKEN_SYMBOL,
 				},
 				{
-					title: "Transaction: ",
+					title: t("common.txs.transaction"),
 					hash: investWriteHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: investWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Investing ${TOKEN_SYMBOL}`} rows={toastContent} />,
+					render: <TxToast title={t("equity.txs.investing", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully Invested" rows={toastContent} />,
+					render: <TxToast title={t("equity.txs.successfully_invested", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
@@ -137,29 +138,29 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 
 			const toastContent = [
 				{
-					title: "Amount:",
+					title: t("common.txs.amount"),
 					value: formatBigInt(amount) + " " + NATIVE_POOL_SHARE_TOKEN_SYMBOL,
 				},
 				{
-					title: "Receive: ",
+					title: t("common.txs.receive"),
 					value: formatBigInt(result) + " " + TOKEN_SYMBOL,
 				},
 				{
-					title: "Transaction: ",
+					title: t("common.txs.transaction"),
 					hash: redeemWriteHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: redeemWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Redeeming ${NATIVE_POOL_SHARE_TOKEN_SYMBOL}`} rows={toastContent} />,
+					render: <TxToast title={t("equity.txs.redeeming", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully Redeemed" rows={toastContent} />,
+					render: <TxToast title={t("equity.txs.successfully_redeemed", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {
 			setAmount(0n);
 			setRedeeming(false);
@@ -192,7 +193,7 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
 		if (valueBigInt > fromBalance) {
-			setError(`Not enough ${fromSymbol} in your wallet.`);
+			setError(t("common.error.insufficient_balance", { symbol: fromSymbol }));
 		} else {
 			setError("");
 		}
@@ -209,7 +210,7 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 					onChange={onChangeAmount}
 					value={amount.toString()}
 					error={error}
-					placeholder={fromSymbol + " Amount"}
+					placeholder={t("common.symbol_amount", { symbol: fromSymbol })}
 				/>
 
 				<div className="py-2 text-center z-0">
@@ -226,19 +227,19 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 					symbolOnChange={(o) => setTokenFromTo({ from: tokenFromTo.from, to: o.label })}
 					hideMaxLabel
 					output={Math.round(parseFloat(formatUnits(result, 18)) * 10000) / 10000}
-					label="Receive"
+					label={t("common.receive")}
 				/>
 
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-					<GuardToAllowedChainBtn label={direction ? "Mint" : "Redeem"}>
+					<GuardToAllowedChainBtn label={direction ? t("equity.mint") : t("equity.redeem")}>
 						{direction ? (
 							amount > frontendGatewayAllowance ? (
 								<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>
-									Approve
+									{t("common.approve")}
 								</Button>
 							) : (
 								<Button disabled={amount == 0n || !!error} isLoading={isInversting} onClick={() => handleInvest()}>
-									Mint
+									{t("equity.mint")}
 								</Button>
 							)
 						) : (
@@ -247,7 +248,7 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 								disabled={amount == 0n || !!error || !poolStats.equityCanRedeem}
 								onClick={() => handleRedeem()}
 							>
-								Redeem
+								{t("equity.redeem")}
 							</Button>
 						)}
 					</GuardToAllowedChainBtn>
@@ -256,11 +257,11 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 
 			<div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
-					<DisplayLabel label="Your Balance" />
+					<DisplayLabel label={t("equity.your_balance")} />
 					<DisplayAmount bold className="mt-2" amount={poolStats.equityBalance} currency={NATIVE_POOL_SHARE_TOKEN_SYMBOL} address={ADDRESS[chainId].equity} />
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Value at Current Price" />
+					<DisplayLabel label={t("equity.value_at_current_price")} />
 					<DisplayAmount
 						bold
 						className="mt-2"
@@ -270,13 +271,13 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 					/>
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Holding Duration" />
+					<DisplayLabel label={t("equity.holding_duration")} />
 					<div className={!unlocked ? "text-text-warning font-bold mt-2" : ""}>
 						{poolStats.equityBalance > 0 ? formatDuration(poolStats.equityHoldingDuration) : "--"}
 					</div>
 				</AppBox>
 				<AppBox className="flex-1">
-					<DisplayLabel label="Can redeem after" />
+					<DisplayLabel label={t("equity.can_redeem_after_symbol")} />
 					<div className={!unlocked ? "text-text-warning font-bold mt-2" : ""}>{formatDuration(redeemLeft)}</div>
 				</AppBox>
 			</div>

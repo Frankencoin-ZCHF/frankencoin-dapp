@@ -10,9 +10,11 @@ import { BidsQueryItem, ChallengesQueryItemMapping, PositionQuery, PositionsQuer
 import { useState } from "react";
 import { useRouter } from "next/router";
 import MyPositionsBidsRow from "./MyPositionsBidsRow";
+import { useTranslation } from "next-i18next";
 
 export default function MyPositionsBidsTable() {
-	const headers: string[] = ["Filled Size", "Price", "Bid Amount", "State"];
+	const { t } = useTranslation();
+	const headers: string[] = [t("my_positions.filled_size"), t("my_positions.price"), t("my_positions.bid_amount"), t("my_positions.state")];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
@@ -53,7 +55,7 @@ export default function MyPositionsBidsTable() {
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol headerClassNames={["text-center"]} />
 			<TableBody>
 				{sorted.length == 0 ? (
-					<TableRowEmpty>{"You do not have any bids yet."}</TableRowEmpty>
+					<TableRowEmpty>{t("my_positions.no_bids")}</TableRowEmpty>
 				) : (
 					sorted.map((b) => <MyPositionsBidsRow key={b.id} headers={headers} bid={b} tab={tab} />)
 				)}

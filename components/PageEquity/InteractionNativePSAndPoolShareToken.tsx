@@ -15,6 +15,7 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { ADDRESS, EquityABI, DEPSWrapperABI } from "@deuro/eurocoin";
+import { useTranslation } from "next-i18next";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -33,7 +34,7 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 	const [nativePSHolding, setNativePSHolding] = useState<bigint>(0n);
 	const [psTokenBalance, setPsTokenBalance] = useState<bigint>(0n);
 	const [psTokenHolding, setPsTokenHolding] = useState<bigint>(0n);
-
+	const { t } = useTranslation();
 	const { data } = useBlockNumber({ watch: true });
 	const { address } = useAccount();
 	const chainId = useChainId();
@@ -105,29 +106,29 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 
 			const toastContent = [
 				{
-					title: "Amount:",
+					title: t("common.txs.amount"),
 					value: formatBigInt(amount) + " " + NATIVE_POOL_SHARE_TOKEN_SYMBOL,
 				},
 				{
-					title: "Spender: ",
+					title: t("common.txs.spender"),
 					value: shortenAddress(ADDRESS[chainId].DEPSwrapper),
 				},
 				{
-					title: "Transaction:",
+					title: t("common.txs.transaction"),
 					hash: writeHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Approving ${NATIVE_POOL_SHARE_TOKEN_SYMBOL}`} rows={toastContent} />,
+					render: <TxToast title={t("common.txs.title", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`Successfully Approved ${NATIVE_POOL_SHARE_TOKEN_SYMBOL}`} rows={toastContent} />,
+					render: <TxToast title={t("common.txs.success", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {
 			setApproving(false);
 		}
@@ -145,29 +146,29 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 
 			const toastContent = [
 				{
-					title: "Amount:",
+					title: t("common.txs.amount"),
 					value: formatBigInt(amount) + " " + NATIVE_POOL_SHARE_TOKEN_SYMBOL,
 				},
 				{
-					title: "Receive: ",
+					title: t("common.txs.receive"),
 					value: formatBigInt(amount) + " " + POOL_SHARE_TOKEN_SYMBOL,
 				},
 				{
-					title: "Transaction: ",
+					title: t("common.txs.transaction"),
 					hash: writeHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Wrapping ${NATIVE_POOL_SHARE_TOKEN_SYMBOL}`} rows={toastContent} />,
+					render: <TxToast title={t("equity.txs.wrapping", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`Successfully Wrapped ${NATIVE_POOL_SHARE_TOKEN_SYMBOL}`} rows={toastContent} />,
+					render: <TxToast title={t("equity.txs.success_wrapping", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {
 			setAmount(0n);
 			setWrapping(false);
@@ -186,29 +187,29 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 
 			const toastContent = [
 				{
-					title: "Amount:",
+					title: t("common.txs.amount"),
 					value: formatBigInt(amount) + " " + POOL_SHARE_TOKEN_SYMBOL,
 				},
 				{
-					title: "Receive: ",
+					title: t("common.txs.receive"),
 					value: formatBigInt(amount) + " " + NATIVE_POOL_SHARE_TOKEN_SYMBOL,
 				},
 				{
-					title: "Transaction: ",
+					title: t("common.txs.transaction"),
 					hash: writeHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Unwrapping ${POOL_SHARE_TOKEN_SYMBOL}`} rows={toastContent} />,
+					render: <TxToast title={t("equity.txs.unwrapping", { symbol: POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`Successfully Unwrapped ${POOL_SHARE_TOKEN_SYMBOL}`} rows={toastContent} />,
+					render: <TxToast title={t("equity.txs.success_unwrapping", { symbol: POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {
 			setAmount(0n);
 			setUnwrapping(false);
@@ -223,7 +224,7 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
 		if (valueBigInt > fromBalance) {
-			setError(`Not enough ${fromSymbol} in your wallet.`);
+			setError(t("common.error.insufficient_balance", { symbol: fromSymbol }));
 		} else {
 			setError("");
 		}
@@ -240,7 +241,7 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 					onChange={onChangeAmount}
 					value={amount.toString()}
 					error={error}
-					placeholder={fromSymbol + " Amount"}
+					placeholder={t("common.symbol_amount", { symbol: fromSymbol })}
 				/>
 
 				<div className="py-2 text-center z-0">
@@ -257,24 +258,24 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 					symbolOnChange={(o) => setTokenFromTo({ from: tokenFromTo.from, to: o.label })}
 					hideMaxLabel
 					output={Math.round(parseFloat(formatUnits(amount, 18)) * 10000) / 10000}
-					label="Receive"
+					label={t("common.receive")}
 				/>
 
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-					<GuardToAllowedChainBtn label={direction ? "Wrap" : "Unwrap"}>
+					<GuardToAllowedChainBtn label={direction ? t("equity.wrap") : t("equity.unwrap")}>
 						{direction ? (
 							amount > nativePSAllowance ? (
 								<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>
-									Approve
+									{t("common.approve")}
 								</Button>
 							) : (
 								<Button disabled={amount == 0n || !!error} isLoading={isWrapping} onClick={() => handleWrapping()}>
-									Wrap
+									{t("equity.wrap")}
 								</Button>
 							)
 						) : (
 							<Button isLoading={isUnwrapping} disabled={amount == 0n || !!error} onClick={() => handleUnwrapping()}>
-								Unwrap
+								{t("equity.unwrap")}
 							</Button>
 						)}
 					</GuardToAllowedChainBtn>
@@ -283,7 +284,7 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 
 			<div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
-					<DisplayLabel label="Your Balance" />
+					<DisplayLabel label={t("equity.your_balance")} />
 					<DisplayAmount
 						bold
 						className="mt-2"
@@ -293,11 +294,11 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 					/>
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label={`Holding Duration ${NATIVE_POOL_SHARE_TOKEN_SYMBOL}`} />
+					<DisplayLabel label={t("equity.holding_duration_symbol", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} />
 					<div className="mt-2 font-bold">{nativePSHolding > 0 && nativePSHolding < 86_400 * 365 * 10 ? formatDuration(nativePSHolding) : "--"}</div>
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Your Balance" />
+					<DisplayLabel label={t("equity.your_balance")} />
 					<DisplayAmount
 						bold
 						className="mt-2"
@@ -307,7 +308,7 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 					/>
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label={`Holding Duration ${POOL_SHARE_TOKEN_SYMBOL}`} />
+					<DisplayLabel label={t("equity.holding_duration_symbol", { symbol: POOL_SHARE_TOKEN_SYMBOL })} />
 					<div className="mt-2 font-bold">{psTokenHolding > 0 && psTokenHolding < 86_400 * 365 * 10 ? formatDuration(psTokenHolding) : "--"}</div>
 				</AppBox>
 			</div>

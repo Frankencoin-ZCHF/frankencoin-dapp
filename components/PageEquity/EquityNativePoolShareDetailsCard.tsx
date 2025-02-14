@@ -7,23 +7,25 @@ import dynamic from "next/dynamic";
 import { ADDRESS } from "@deuro/eurocoin";
 import { POOL_SHARE_TOKEN_SYMBOL, TOKEN_SYMBOL } from "@utils";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
+import { useTranslation } from "next-i18next";
 
 export default function EquityNativePoolShareDetailsCard() {
 	const chainId = useChainId();
 	const poolStats = usePoolStats();
 	const { profit, loss } = useNativePSQuery(ADDRESS[chainId].decentralizedEURO);
 	const { trades } = useTradeQuery();
+	const { t } = useTranslation();
 
 	return (
 		<div className="bg-card-body-primary shadow-card rounded-xl p-4 grid grid-cols-1 gap-2">
 			<div id="chart-timeline">
 				<div className="flex justify-between">
 					<div>
-						<DisplayLabel label={`${POOL_SHARE_TOKEN_SYMBOL} Price`} />
+						<DisplayLabel label={t("equity.symbol_price", { symbol: POOL_SHARE_TOKEN_SYMBOL })} />
 						<DisplayAmount className="mt-4" bold amount={poolStats.equityPrice} currency={TOKEN_SYMBOL} />
 					</div>
 					<div className="text-right">
-						<DisplayLabel label="Supply" />
+						<DisplayLabel label={t("equity.supply")} />
 						<DisplayAmount className="mt-4" bold amount={poolStats.equitySupply} currency={POOL_SHARE_TOKEN_SYMBOL} />
 					</div>
 				</div>
@@ -96,7 +98,7 @@ export default function EquityNativePoolShareDetailsCard() {
 			</div>
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
-					<DisplayLabel label="Market Cap" />
+					<DisplayLabel label={t("equity.market_cap")} />
 					<DisplayAmount
 						className="mt-2"
 						bold
@@ -105,7 +107,7 @@ export default function EquityNativePoolShareDetailsCard() {
 					/>
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Total Reserve" />
+					<DisplayLabel label={t("equity.total_reserve")} />
 					<DisplayAmount
 						className="mt-2"
 						bold
@@ -115,7 +117,7 @@ export default function EquityNativePoolShareDetailsCard() {
 					/>
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Equity Capital" />
+					<DisplayLabel label={t("equity.equity_capital")} />
 					<DisplayAmount
 						className="mt-2"
 						bold
@@ -125,7 +127,7 @@ export default function EquityNativePoolShareDetailsCard() {
 					/>
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Minter Reserve" />
+					<DisplayLabel label={t("equity.minter_reserve")} />
 					<DisplayAmount
 						className="mt-2"
 						bold
@@ -135,7 +137,7 @@ export default function EquityNativePoolShareDetailsCard() {
 					/>
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Total Income" />
+					<DisplayLabel label={t("equity.total_income")} />
 					<DisplayAmount
 						className="mt-2 text-text-success"
 						bold
@@ -145,7 +147,7 @@ export default function EquityNativePoolShareDetailsCard() {
 					/>
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Total Losses" />
+					<DisplayLabel label={t("equity.total_losses")} />
 					<DisplayAmount
 						className="mt-2 text-text-warning"
 						bold

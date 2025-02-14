@@ -15,9 +15,11 @@ import {
 	PriceQueryObjectArray,
 } from "@deuro/api";
 import { Address, formatUnits } from "viem";
+import { useTranslation } from "next-i18next";
 
 export default function ChallengesTable() {
-	const headers: string[] = ["Available", "Price", "Phase", "Ends in"];
+	const { t } = useTranslation();
+	const headers: string[] = [t("challenges.available"), t("challenges.price"), t("challenges.phase"), t("challenges.ends_in")];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
@@ -59,7 +61,7 @@ export default function ChallengesTable() {
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol headerClassNames={["text-center"]} />
 			<TableBody>
 				{sorted.length == 0 ? (
-					<TableRowEmpty>{"There are no active challenges."}</TableRowEmpty>
+					<TableRowEmpty>{t("challenges.no_active_challenges")}</TableRowEmpty>
 				) : (
 					sorted.map((c) => <ChallengesRow key={c.id} headers={headers} challenge={c} tab={tab} />)
 				)}

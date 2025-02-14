@@ -10,6 +10,7 @@ import { faArrowUpRightFromSquare, faMinus, faPlus } from "@fortawesome/free-sol
 import { useState } from "react";
 import { TableShowMoreRow } from "@components/Table/TableShowMoreRow";
 import { SectionTitle } from "@components/SectionTitle";
+import { useTranslation } from "next-i18next";
 
 interface BonusData {
 	payout: string;
@@ -22,10 +23,11 @@ interface Props {
 	data: BonusData[];
 }
 
-const headers = ["Payout", "Source", "Date", "TX-ID"];
 const subHeaders = ["dEURO", "", "", ""];
 
 export default function BonusHistoryTable({ data }: Props) {
+	const { t } = useTranslation();
+	const headers = [t("referrals.payout"), t("referrals.source"), t("referrals.date"), t("referrals.tx_id")];
 	const [isShowMore, setIsShowMore] = useState(false);
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
@@ -43,13 +45,13 @@ export default function BonusHistoryTable({ data }: Props) {
 
 	return (
 		<div className="flex flex-col gap-2 sm:gap-0">
-			<SectionTitle>Bonus History</SectionTitle>
+			<SectionTitle>{t("referrals.bonus_history")}</SectionTitle>
 			<Table>
 				<TableHeader headers={headers} subHeaders={subHeaders} tab={tab} tabOnChange={handleTabOnChange} reverse={reverse} />
 				<TableBody>
 					<>
 						{data.length === 0 ? (
-							<TableRowEmpty>You do not have any bonus history yet.</TableRowEmpty>
+							<TableRowEmpty>{t("referrals.no_bonus_history_yet")}</TableRowEmpty>
 						) : (
 							data.slice(0, isShowMore ? data.length : 3).map((row, i) => (
 								<TableRow key={i} headers={headers} tab={tab}>
@@ -68,7 +70,7 @@ export default function BonusHistoryTable({ data }: Props) {
 						{data.length > 3 && (
 							<TableShowMoreRow onShowMoreClick={() => setIsShowMore(!isShowMore)}>
 								<div className="text-table-header-active text-base font-black leading-normal tracking-tight">
-									{isShowMore ? "show less" : "show more"}
+									{isShowMore ? t("referrals.show_less") : t("referrals.show_more")}
 								</div>
 								<div className="justify-start items-center gap-2.5 flex">
 									<FontAwesomeIcon icon={isShowMore ? faMinus : faPlus} className="w-4 h-4 text-table-header-active" />

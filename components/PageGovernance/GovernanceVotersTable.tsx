@@ -12,6 +12,7 @@ import { useAccount } from "wagmi";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, EquityABI } from "@deuro/eurocoin";
+import { useTranslation } from "next-i18next";
 
 export type VoteData = {
 	holder: Address;
@@ -21,7 +22,8 @@ export type VoteData = {
 };
 
 export default function GovernanceVotersTable() {
-	const headers: string[] = ["Address", "Balance", "Voting Power"];
+	const { t } = useTranslation();
+	const headers: string[] = [t("governance.address"), t("governance.balance"), t("governance.voting_power")];
 	const [tab, setTab] = useState<string>(headers[2]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [accountVotes, setAccountVotes] = useState<VoteData>({ nativePS: 0n, holder: zeroAddress, votingPower: 0n, votingPowerRatio: 0 });
@@ -101,7 +103,7 @@ export default function GovernanceVotersTable() {
 						/>
 					) : null}
 					{votesDataSorted.length == 0 ? (
-						<TableRowEmpty>{"There are no voters yet"}</TableRowEmpty>
+						<TableRowEmpty>{t("governance.voters_table_empty")}</TableRowEmpty>
 					) : (
 						votesDataSorted.map((vote) => (
 							<GovernanceVotersRow key={vote.holder} headers={headers} voter={vote} votesTotal={votesTotal} tab={tab} />

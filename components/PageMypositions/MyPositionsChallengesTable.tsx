@@ -17,9 +17,11 @@ import {
 } from "@deuro/api";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 
 export default function MyPositionsChallengesTable() {
-	const headers: string[] = ["Remaining Size", "Current Price", "State", "Time Left"];
+	const { t } = useTranslation();
+	const headers: string[] = [t("my_positions.remaining_size"), t("my_positions.current_price"), t("my_positions.state"), t("my_positions.time_left")];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
@@ -60,7 +62,7 @@ export default function MyPositionsChallengesTable() {
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol headerClassNames={["text-center"]} />
 			<TableBody>
 				{sorted.length == 0 ? (
-					<TableRowEmpty>{"You do not have any challenges yet."}</TableRowEmpty>
+					<TableRowEmpty>{t("my_positions.no_challenges")}</TableRowEmpty>
 				) : (
 					sorted.map((c) => <MyPositionsChallengesRow headers={headers} key={c.id} challenge={c} tab={tab} />)
 				)}

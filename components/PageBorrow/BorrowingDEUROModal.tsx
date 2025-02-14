@@ -2,6 +2,7 @@ import Button from "@components/Button";
 import TokenLogo from "@components/TokenLogo";
 import { formatDate, toTimestamp } from "@utils";
 import { Modal } from "flowbite-react";
+import { useTranslation } from "next-i18next";
 
 type BorrowingDEUROModalProps = {
 	isOpen: boolean;
@@ -13,6 +14,8 @@ type BorrowingDEUROModalProps = {
 };
 
 export function BorrowingDEUROModal({ isOpen, setIsOpen, youGet, formmatedCollateral, expiration, liquidationPrice }: BorrowingDEUROModalProps) {
+	const { t } = useTranslation();
+
 	return (
 		<Modal show={isOpen} onClose={() => setIsOpen(false)} size="md">
 			<Modal.Header
@@ -25,7 +28,7 @@ export function BorrowingDEUROModal({ isOpen, setIsOpen, youGet, formmatedCollat
 					},
 				}}
 			>
-				<div className="text-lg font-extrabold leading-tight align-middle">You are borrowing dEURO</div>
+				<div className="text-lg font-extrabold leading-tight align-middle">{t('mint.borrowing_deuro')}</div>
 			</Modal.Header>
 			<Modal.Body theme={{ base: "flex flex-col px-3 py-2" }}>
 				<div className="h-full flex flex-col gap-2">
@@ -40,7 +43,7 @@ export function BorrowingDEUROModal({ isOpen, setIsOpen, youGet, formmatedCollat
 					<div className="p-3 bg-white rounded-lg border border-[#dee0e6] flex-col justify-start items-center gap-3 inline-flex overflow-hidden">
 						<div className="self-stretch justify-start items-start gap-2.5 inline-flex">
 							<div className="grow shrink basis-0 h-5 justify-start items-center gap-2 flex">
-								<div className="text-base leading-tight">Your collateral</div>
+								<div className="text-base leading-tight">{t('mint.your_collateral')}</div>
 							</div>
 							<div className="flex-col justify-center items-end inline-flex">
 								<div className="h-5 text-right text-sm font-extrabold leading-none tracking-tight">
@@ -51,7 +54,7 @@ export function BorrowingDEUROModal({ isOpen, setIsOpen, youGet, formmatedCollat
 						</div>
 						<div className="self-stretch justify-start items-start inline-flex">
 							<div className="grow shrink basis-0 h-5 justify-start items-center gap-2 flex">
-								<div className="text-base leading-tight">Liquidation price</div>
+								<div className="text-base leading-tight">{t('mint.liquidation_price')}</div>
 							</div>
 							<div className="flex-col justify-center items-end inline-flex">
 								<div className="h-5 text-right text-sm font-extrabold leading-none tracking-tight">
@@ -62,7 +65,7 @@ export function BorrowingDEUROModal({ isOpen, setIsOpen, youGet, formmatedCollat
 						</div>
 						<div className="self-stretch justify-start items-center gap-2.5 inline-flex">
 							<div className="grow shrink basis-0 h-5 justify-start items-start gap-2 flex">
-								<div className="text-base leading-tight">Expiration date</div>
+								<div className="text-base leading-tight">{t('mint.expiration_date')}</div>
 							</div>
 							<div className="h-5 text-right text-sm font-extrabold leading-none tracking-tight">
 								{expiration ? formatDate(toTimestamp(expiration)) : "N/A"}
@@ -70,7 +73,7 @@ export function BorrowingDEUROModal({ isOpen, setIsOpen, youGet, formmatedCollat
 						</div>
 					</div>
 					<Button isLoading={true} className="p-4 text-lg leading-none">
-						Confirm in wallet
+						{t('mint.confirm_in_wallet')}
 					</Button>
 				</div>
 			</Modal.Body>

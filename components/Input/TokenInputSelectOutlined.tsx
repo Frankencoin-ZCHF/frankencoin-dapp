@@ -5,6 +5,7 @@ import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { MaxButton } from "./MaxButton";
 import TokenLogo from "@components/TokenLogo";
 import { formatUnits } from "viem";
+import { useTranslation } from "next-i18next";
 
 interface TokenDescriptor {
 	symbol: string;
@@ -34,6 +35,7 @@ export function TokenInputSelectOutlined({
 	eurValue,
 }: TokenInputSelectOutlinedProps) {
 	const [isFocused, setIsFocused] = useState(false);
+	const { t } = useTranslation();
 
 	const handleOnFocus = () => {
 		setIsFocused(true);
@@ -76,7 +78,7 @@ export function TokenInputSelectOutlined({
 							</span>
 						</div>
 					) : (
-						<div className="text-input-label text-lg font-medium leading-normal">Select token</div>
+						<div className="text-input-label text-lg font-medium leading-normal">{t('common.select_token')}</div>
 					)}
 					<FontAwesomeIcon icon={faChevronDown} className="w-4.5 h-4.5 relative overflow-hidden" />
 				</button>

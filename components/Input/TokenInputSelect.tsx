@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { formatUnits } from "viem";
 import Select, { components } from "react-select";
 import { MaxButton } from "./MaxButton";
+import { useTranslation } from "next-i18next";
 const TokenLogo = dynamic(() => import("../TokenLogo"), { ssr: false });
 
 interface Props {
@@ -31,14 +32,14 @@ interface Props {
 }
 
 export default function TokenInputSelect({
-	label = "Send",
-	placeholder = "Input Amount",
+	label,
+	placeholder,
 	symbol,
 	symbolOptions,
 	symbolOnChange,
 	max = 0n,
 	digit = 18n,
-	balanceLabel = "Balance: ",
+	balanceLabel,
 	hideMaxLabel,
 	limit = 0n,
 	limitLabel,
@@ -52,6 +53,8 @@ export default function TokenInputSelect({
 	error,
 	showMaxButton = true,
 }: Props) {
+	const { t } = useTranslation();
+
 	const options = symbolOptions.map((o) => {
 		return { value: o, label: o };
 	});
@@ -61,12 +64,12 @@ export default function TokenInputSelect({
 	return (
 		<div>
 			<div className="mb-1 flex gap-2 px-1">
-				<div className="flex-1 text-text-muted text-base font-medium leading-tight">{label}</div>
+				<div className="flex-1 text-text-muted text-base font-medium leading-tight">{label || t('common.send')}</div>
 				{symbol && (
 					<div
 						className={`flex gap-2 items-center text-text-muted text-base font-medium leading-tight cursor-pointer ${hideMaxLabel && "hidden"}`}
 					>
-						{balanceLabel}
+						{balanceLabel || t('common.balance_label')}
 						<span>
 							{formatCurrency(formatUnits(max, Number(digit)))} {symbol}
 						</span>
@@ -91,7 +94,7 @@ export default function TokenInputSelect({
 							<BigNumberInput
 								autofocus={true}
 								decimals={Number(digit)}
-								placeholder={placeholder}
+								placeholder={placeholder || t('common.input_placeholder')}
 								value={value || ""}
 								onChange={(e) => onChange?.(e)}
 								className={`w-full flex-1 p-3 bg-transparent text-lg placeholder:text-left text-right leading-tight font-medium text-input-primary`}
@@ -169,7 +172,7 @@ export default function TokenInputSelect({
 								<components.Menu {...props}>
 									<div className="p-1">
 										<div className="py-2 text-text-muted pointer-events-none text-slate-400 text-center text-base font-normal leading-tight">
-											Choose value
+											{t('common.choose_value')}
 										</div>
 										{children}
 									</div>

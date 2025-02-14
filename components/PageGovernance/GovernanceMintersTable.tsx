@@ -7,9 +7,11 @@ import { RootState } from "../../redux/redux.store";
 import { MinterQuery } from "@deuro/api";
 import { useState } from "react";
 import GovernanceMintersRow from "./GovernanceMintersRow";
+import { useTranslation } from "next-i18next";
 
 export default function GovernanceMintersTable() {
-	const headers: string[] = ["Date", "Minter", "Comment", "State"];
+	const { t } = useTranslation();
+	const headers: string[] = [t("governance.date"), t("governance.minter"), t("governance.comment"), t("governance.state")];
 	const [tab, setTab] = useState<string>(headers[3]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
@@ -38,7 +40,7 @@ export default function GovernanceMintersTable() {
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
 				{sorted.length == 0 ? (
-					<TableRowEmpty>{"There are no proposals yet."}</TableRowEmpty>
+					<TableRowEmpty>{t("governance.minters_table_empty")}</TableRowEmpty>
 				) : (
 					sorted.map((m) => <GovernanceMintersRow key={m.id} headers={headers} minter={m} tab={tab} />)
 				)}

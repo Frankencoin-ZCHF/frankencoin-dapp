@@ -15,8 +15,10 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import { PositionQuery } from "@deuro/api";
 import { ADDRESS, PositionV2ABI } from "@deuro/eurocoin";
+import { useTranslation } from "next-i18next";
 
 export default function PositionAdjust() {
+	const { t } = useTranslation();
 	const [isApproving, setApproving] = useState(false);
 	const [isAdjusting, setAdjusting] = useState(false);
 
@@ -119,11 +121,11 @@ export default function PositionAdjust() {
 		collateralAmount < BigInt(position.collateralBalance)
 			? `${formatUnits(abs(collateralAmount - BigInt(position.collateralBalance)), position.collateralDecimals)} ${
 					position.collateralSymbol
-			  } sent back to your wallet`
+			  } ${t("my_positions.sent_back_to_your_wallet")}`
 			: collateralAmount > BigInt(position.collateralBalance)
 			? `${formatUnits(abs(collateralAmount - BigInt(position.collateralBalance)), position.collateralDecimals)} ${
 					position.collateralSymbol
-			  } taken from your wallet`
+			  } ${t("my_positions.taken_from_your_wallet")}`
 			: "";
 
 	const onChangeAmount = (value: string) => {
@@ -136,23 +138,23 @@ export default function PositionAdjust() {
 
 	function getCollateralError() {
 		if (collateralAmount - BigInt(position.collateralBalance) > userCollBalance) {
-			return `Insufficient ${position.collateralSymbol} in your wallet.`;
+			return `${t("common.error.insufficient_balance", { symbol: position.collateralSymbol })}`;
 		} else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
-			return "Not enough collateral for the given price and mint amount.";
+			return `${t("my_positions.not_enough_collateral")}`;
 		}
 	}
 
 	function getAmountError() {
 		if (isCooldown) {
-			return `This position is ${position.cooldown > 1e30 ? "closed" : "in cooldown, please wait"}`;
+			return position.cooldown > 1e30 ? t("my_positions.is_closed") : t("my_positions.is_in_cooldown");
 		} else if (amount - BigInt(position.minted) > maxTotalLimit) {
-			return `This position is limited to ${formatCurrency(formatUnits(maxTotalLimit, 18), 2, 2)} ${TOKEN_SYMBOL}`;
+			return `${t("my_positions.position_limited", { amount: formatCurrency(formatUnits(maxTotalLimit, 18), 2, 2), symbol: TOKEN_SYMBOL })}`;
 		} else if (-paidOutAmount() > userFrankBalance) {
-			return `Insufficient ${TOKEN_SYMBOL} in wallet`;
+			return `${t("common.error.insufficient_balance", { symbol: TOKEN_SYMBOL })}`;
 		} else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
-			return `Can mint at most ${formatUnits((collateralAmount * liqPrice) / 10n ** 36n, 0)} ${TOKEN_SYMBOL} given price and collateral.`;
+			return `${t("my_positions.can_mint_at_most", { amount: formatUnits((collateralAmount * liqPrice) / 10n ** 36n, 0), symbol: TOKEN_SYMBOL })}`;
 		} else if (BigInt(position.price) * collateralAmount < amount * 10n ** 18n) {
-			return "Amount can only be increased after new price has gone through cooldown.";
+			return `${t("my_positions.only_after_cooldown")}`;
 		} else {
 			return "";
 		}
@@ -176,29 +178,29 @@ export default function PositionAdjust() {
 
 			const toastContent = [
 				{
-					title: "Amount:",
+					title: t("common.txs.amount"),
 					value: "infinite " + position.collateralSymbol,
 				},
 				{
-					title: "Spender: ",
+					title: t("common.txs.spender"),
 					value: shortenAddress(position.position),
 				},
 				{
-					title: "Transaction:",
+					title: t("common.txs.transaction"),
 					hash: approveWriteHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Approving ${position.collateralSymbol}`} rows={toastContent} />,
+					render: <TxToast title={`${t("common.txs.title", { symbol: position.collateralSymbol })}`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`Successfully Approved ${position.collateralSymbol}`} rows={toastContent} />,
+					render: <TxToast title={`${t("common.txs.success", { symbol: position.collateralSymbol })}`} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: needs to be translated
 		} finally {
 			setApproving(false);
 		}
@@ -216,33 +218,33 @@ export default function PositionAdjust() {
 
 			const toastContent = [
 				{
-					title: "Amount:",
+					title: t("common.txs.amount"),
 					value: formatBigInt(amount),
 				},
 				{
-					title: "Collateral Amount:",
+					title: t("common.txs.collateral_amount"),
 					value: formatBigInt(collateralAmount, position.collateralDecimals),
 				},
 				{
-					title: "Liquidation Price:",
+					title: t("common.txs.liquidation_price"),
 					value: formatBigInt(liqPrice, 36 - position.collateralDecimals),
 				},
 				{
-					title: "Transaction:",
+					title: t("common.txs.transaction"),
 					hash: adjustWriteHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: adjustWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Adjusting Position`} rows={toastContent} />,
+					render: <TxToast title={`${t("common.txs.adjusting_position")}`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully Adjusted Position" rows={toastContent} />,
+					render: <TxToast title={`${t("common.txs.successfully_adjusted_position")}`} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: needs to be translated
 		} finally {
 			setAdjusting(false);
 		}
@@ -251,20 +253,24 @@ export default function PositionAdjust() {
 	return (
 		<>
 			<Head>
-				<title>dEURO - Manage Position</title>
+				<title>dEURO - {t("my_positions.manage_position")}</title>
 			</Head>
 
 			<div className="md:mt-8">
-				<span className="font-bold text-xl">Manage Position at {shortenAddress(position.position)}</span>
+				<span className="font-bold text-xl">
+					{t("my_positions.manage_position_at", { address: shortenAddress(position.position) })}
+				</span>
 			</div>
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center">Adjustment</div>
+						<div className="text-lg font-bold text-center">
+							{t("my_positions.adjustment")}
+						</div>
 						<div className="space-y-8">
 							<TokenInput
-								label="Amount"
+								label={t("common.amount")}
 								symbol={TOKEN_SYMBOL}
 								output={position.closed ? "0" : ""}
 								balanceLabel="Max:"
@@ -273,10 +279,10 @@ export default function PositionAdjust() {
 								value={amount.toString()}
 								onChange={onChangeAmount}
 								error={getAmountError()}
-								placeholder="Loan Amount"
+								placeholder={t("my_positions.loan_amount")}
 							/>
 							<TokenInput
-								label="Collateral"
+								label={t("common.collateral")}
 								balanceLabel="Max:"
 								symbol={position.collateralSymbol}
 								max={userCollBalance + BigInt(position.collateralBalance)}
@@ -285,23 +291,23 @@ export default function PositionAdjust() {
 								digit={position.collateralDecimals}
 								note={collateralNote}
 								error={getCollateralError()}
-								placeholder="Collateral Amount"
+								placeholder={t("common.collateral_amount")}
 							/>
 							<TokenInput
-								label="Liquidation Price"
-								balanceLabel="Current Value"
+								label={t("common.liquidation_price")}
+								balanceLabel={t("common.current_value")}
 								symbol={TOKEN_SYMBOL}
 								max={BigInt(position.price)}
 								value={liqPrice.toString()}
 								digit={36 - position.collateralDecimals}
 								onChange={onChangeLiqAmount}
-								placeholder="Liquidation Price"
+								placeholder={t("common.liquidation_price")}
 							/>
 							<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 								<GuardToAllowedChainBtn>
 									{collateralAmount - BigInt(position.collateralBalance) > userCollAllowance ? (
 										<Button isLoading={isApproving} onClick={() => handleApprove()}>
-											Approve Collateral
+											{t("my_positions.txs.approving_collateral")}
 										</Button>
 									) : (
 										<Button
@@ -313,11 +319,11 @@ export default function PositionAdjust() {
 													((isCooldown && amount > 0n) || !!getAmountError() || !!getCollateralError())) ||
 												(challengeSize > 0n && collateralAmount < BigInt(position.collateralBalance))
 											}
-											error={position.owner != account.address ? "You can only adjust your own position" : ""}
+											error={position.owner != account.address ? t("my_positions.only_adjust_your_own_position") : ""}
 											isLoading={isAdjusting}
 											onClick={() => handleAdjust()}
 										>
-											Adjust Position
+											{t("my_positions.txs.adjusting_position")}
 										</Button>
 									)}
 								</GuardToAllowedChainBtn>
@@ -326,7 +332,9 @@ export default function PositionAdjust() {
 					</div>
 					<div>
 						<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col">
-							<div className="text-lg font-bold text-center mt-3">Outcome</div>
+							<div className="text-lg font-bold text-center mt-3">
+								{t("my_positions.outcome")}
+							</div>
 							<div className="flex-1 mt-4">
 								<div className="flex">
 									<div className="flex-1"></div>
@@ -337,7 +345,7 @@ export default function PositionAdjust() {
 
 								<div className="flex">
 									<div className="flex-1">
-										<span>Current minted amount</span>
+										<span>{t("my_positions.current_minted_amount")}</span>
 									</div>
 									<div className="text-right">
 										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
@@ -347,7 +355,7 @@ export default function PositionAdjust() {
 
 								<div className="mt-2 flex">
 									<div className="flex-1">
-										{amount >= BigInt(position.minted) ? "Sent to your wallet" : "To be added from your wallet"}
+										{amount >= BigInt(position.minted) ? t("my_positions.sent_to_your_wallet") : t("my_positions.to_be_added_from_your_wallet")}
 									</div>
 									<div className="text-right">
 										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
@@ -357,7 +365,7 @@ export default function PositionAdjust() {
 
 								<div className="mt-2 flex">
 									<div className="flex-1">
-										{amount >= BigInt(position.minted) ? "Added to reserve on your behalf" : "Returned from reserve"}
+										{amount >= BigInt(position.minted) ? t("my_positions.added_to_reserve_on_your_behalf") : t("my_positions.returned_from_reserve")}
 									</div>
 									<div className="text-right">
 										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
@@ -367,7 +375,7 @@ export default function PositionAdjust() {
 
 								<div className="mt-2 flex">
 									<div className="flex-1">
-										<span>Upfront interest</span>
+										<span>{t("my_positions.upfront_interest")}</span>
 										<div className="text-xs">({position.annualInterestPPM / 10000}% per year)</div>
 									</div>
 									<div className="text-right">
@@ -380,7 +388,7 @@ export default function PositionAdjust() {
 
 								<div className="mt-2 flex font-bold">
 									<div className="flex-1">
-										<span>Future minted amount</span>
+										<span>{t("my_positions.future_minted_amount")}</span>
 									</div>
 									<div className="text-right">
 										{/* <span className="text-xs mr-3">100%</span> */}

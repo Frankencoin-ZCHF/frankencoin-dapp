@@ -10,10 +10,12 @@ import { useAccount } from "wagmi";
 import MypositionsRow from "./MypositionsRow";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 
 export default function MypositionsTable() {
-	const headers: string[] = ["Collateral", "Liquidation Price", "Minted", "State"];
-	const subHeaders: string[] = ["Value", "Market Price", "Available", "Time Left"];
+	const { t } = useTranslation();
+	const headers: string[] = [t("my_positions.collateral"), t("my_positions.liquidation_price"), t("my_positions.minted"), t("my_positions.state")];
+	const subHeaders: string[] = [t("my_positions.value"), t("my_positions.market_price"), t("my_positions.available"), t("my_positions.time_left")];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
@@ -72,7 +74,7 @@ export default function MypositionsTable() {
 			<TableHeader headers={headers} subHeaders={subHeaders} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol headerClassNames={["pl-10"]} />
 			<TableBody>
 				{sorted.length == 0 ? (
-					<TableRowEmpty>{"You do not have any positions yet."}</TableRowEmpty>
+					<TableRowEmpty>{t("my_positions.no_positions")}</TableRowEmpty>
 				) : (
 					sorted.map((pos) => <MypositionsRow headers={headers} subHeaders={subHeaders} position={pos} key={pos.position} tab={tab} />)
 				)}

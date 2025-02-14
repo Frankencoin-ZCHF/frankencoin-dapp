@@ -17,6 +17,7 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ADDRESS, SavingsABI } from "@deuro/eurocoin";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
+import { useTranslation } from "next-i18next";
 
 interface Props {}
 
@@ -28,6 +29,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 	const [newRate, setNewRate] = useState<number>(info.rate || 0);
 	const [isHidden, setHidden] = useState<boolean>(false);
 	const [isDisabled, setDisabled] = useState<boolean>(true);
+	const { t } = useTranslation();
 
 	useEffect(() => {
 		if (newRate != info.rate) setDisabled(false);
@@ -59,31 +61,31 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 
 			const toastContent = [
 				{
-					title: `From: `,
+					title: t("governance.txs.from"),
 					value: `${formatCurrency(info.rate / 10000)}%`,
 				},
 				{
-					title: `Proposing to: `,
+					title: t("governance.txs.proposing_to"),
 					value: `${formatCurrency(newRate / 10000)}%`,
 				},
 				{
-					title: "Transaction: ",
+					title: t("governance.txs.transaction"),
 					hash: writeHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Proposing rate change...`} rows={toastContent} />,
+					render: <TxToast title={t("governance.txs.proposing_rate_change")} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully proposed" rows={toastContent} />,
+					render: <TxToast title={t("governance.txs.successfully_proposed")} rows={toastContent} />,
 				},
 			});
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: add error toast
 		} finally {
 			setHandling(false);
 		}
@@ -95,8 +97,8 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 				<div className="flex flex-col gap-4">
 					<NormalInput
 						symbol="%"
-						label="Current value"
-						placeholder={`Current Leadrate: %`}
+						label={t("governance.current_value")}
+						placeholder={`${t("governance.current_leadrate")}: %`}
 						value={newRate.toString()}
 						digit={4}
 						onChange={(v) => changeNewRate(v)}
@@ -104,14 +106,14 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 				</div>
 
 				<div className="md:mt-8 md:px-16">
-					<GuardToAllowedChainBtn label="Propose" disabled={isDisabled || isHidden}>
+					<GuardToAllowedChainBtn label={t("governance.propose_change")} disabled={isDisabled || isHidden}>
 						<Button
 							className="max-md:h-10 md:h-12"
 							disabled={isDisabled || isHidden}
 							isLoading={isHandling}
 							onClick={(e) => handleOnClick(e)}
 						>
-							Propose Change
+							{t("governance.propose_change")}
 						</Button>
 					</GuardToAllowedChainBtn>
 				</div>

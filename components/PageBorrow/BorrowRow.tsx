@@ -9,6 +9,7 @@ import DisplayCollateralBorrowTable from "./DisplayCollateralBorrowTable";
 import Button from "@components/Button";
 import AppBox from "@components/AppBox";
 import { TOKEN_SYMBOL } from "@utils";
+import { useTranslation } from "next-i18next";
 
 interface Props {
 	headers: string[];
@@ -18,6 +19,7 @@ interface Props {
 
 export default function BorrowRow({ headers, position, tab }: Props) {
 	const navigate = useNavigation();
+	const { t } = useTranslation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
@@ -41,7 +43,7 @@ export default function BorrowRow({ headers, position, tab }: Props) {
 			headers={headers}
 			actionCol={
 				<Button className="h-10" onClick={() => navigate.push(`/mint/${position.position}`)}>
-					Mint
+					{t('mint.mint')}
 				</Button>
 			}
 			tab={tab}

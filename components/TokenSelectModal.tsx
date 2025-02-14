@@ -10,13 +10,15 @@ interface TokenOption {
 }
 
 type TokenSelectModalProps<T extends TokenOption> = {
+	title: string;
 	isOpen: boolean;
 	setIsOpen: (isOpen: boolean) => void;
 	options: T[];
 	onTokenSelect: (option: T, index: number, options: T[]) => void;
 };
 
-export function TokenSelectModal<T extends TokenOption>({ isOpen, setIsOpen, options, onTokenSelect }: TokenSelectModalProps<T>) {
+export function TokenSelectModal<T extends TokenOption>({ title, isOpen, setIsOpen, options, onTokenSelect }: TokenSelectModalProps<T>) {
+
 	const handleTokenSelect = (option: T, index: number, options: T[]) => {
 		onTokenSelect(option, index, options);
 		setIsOpen(false);
@@ -47,7 +49,7 @@ export function TokenSelectModal<T extends TokenOption>({ isOpen, setIsOpen, opt
 					},
 				}}
 			>
-				<div className="text-lg font-extrabold leading-tight align-middle">Select Collateral Asset</div>
+				<div className="text-lg font-extrabold leading-tight align-middle">{title}</div>
 			</Modal.Header>
 			<Modal.Body theme={{ base: "flex flex-col px-3 py-2 overflow-y-auto no-scrollbar" }}>
 				<div className="h-full">

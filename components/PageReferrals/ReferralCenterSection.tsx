@@ -4,6 +4,7 @@ import Button from "@components/Button";
 import { TextInputOutlined } from "@components/Input/TextInputOutlined";
 import { faCheck, faCopy } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useTranslation } from "next-i18next";
 
 const ExplanationItem = ({ icon, title, description }: { icon: string; title: string; description: string }) => (
 	<div className="max-w-[28rem] justify-start items-start gap-3 flex">
@@ -48,6 +49,7 @@ export const CopyLinkButton = ({ text, contentOnCopy }: { text: string; contentO
 export const ReferralCenterSection = () => {
 	const [referralName, setReferralName] = useState("");
 	const [referralLink, setReferralLink] = useState("");
+	const { t } = useTranslation();
 
 	const createReferralLink = () => {
 		const refLink = `https://deuro.com/referral/${referralName}`;
@@ -65,25 +67,25 @@ export const ReferralCenterSection = () => {
 							<div className="w-8 h-8 sm:w-11 sm:h-11 bg-borders-primary rounded-full flex justify-center items-center">
 								<Image src="/icons/chest_dark.svg" width={28} height={28} alt="Chest" className="w-5 h-5 sm:w-6 sm:h-6" />
 							</div>
-							<div className="text-text-primary text-2xl sm:text-4xl font-black leading-none">Referral Center</div>
+							<div className="text-text-primary text-2xl sm:text-4xl font-black leading-none">{t("referrals.referral_center")}</div>
 						</div>
 						<div className="flex-col self-stretch justify-start items-start flex gap-1.5">
 							<div className="text-text-label text-sm font-normal leading-tight tracking-wide">
-								Set up your unique referral link
+								{t("referrals.set_up_your_unique_referral_link")}
 							</div>
 							<div className="min-h-10 sm:min-h-14 self-stretch flex-row items-center flex gap-2">
 								{referralLink ? (
-									<CopyLinkButton text={referralLink} contentOnCopy="... copied! Let´s go." />
+									<CopyLinkButton text={referralLink} contentOnCopy={t("referrals.copied_let_s_go")} />
 								) : (
 									<>
 										<TextInputOutlined
 											className="grow max-w-80"
-											placeholder="Type your desired ref. name"
+											placeholder={t("referrals.type_your_desired_ref_name")}
 											value={referralName}
 											onChange={(value) => setReferralName(value)}
 										/>
 										<Button onClick={createReferralLink} disabled={!referralName} className="h-10 sm:h-12 !w-fit text-sm sm:text-base">
-											Create
+											{t("referrals.create")}
 										</Button>
 									</>
 								)}
@@ -93,18 +95,18 @@ export const ReferralCenterSection = () => {
 					<div className="my-6 sm:my-0 self-stretch flex-col justify-start items-start gap-6 flex sm:w-1/2">
 						<ExplanationItem
 							icon="/icons/solar_link-bold.svg"
-							title="Share your referral link"
-							description="Invite your friends so that they can benefit from the dEURO system too."
+							title={t("referrals.share_your_referral_link")}
+							description={t("referrals.invite_friends")}
 						/>
 						<ExplanationItem
 							icon="/icons/union.svg"
-							title="Your friend joins"
-							description="When your friend follows the link and connects their wallet, you will be registered as their referrer."
+							title={t("referrals.your_friend_joins")}
+							description={t("referrals.your_friend_joins_description")}
 						/>
 						<ExplanationItem
 							icon="/icons/ph_hand-coins-light.svg"
-							title="Get rewarded"
-							description="You receive 1% of the revenues and fees they generate. The rewards are paid out in dEURO."
+							title={t("referrals.get_reward")}
+							description={t("referrals.get_reward_description")}
 						/>
 					</div>
 				</div>
@@ -112,7 +114,7 @@ export const ReferralCenterSection = () => {
 				<div className="hidden sm:block relative bg-text-primary overflow-hidden">
 					<div className="absolute h-full w-[50%] px-16 flex-col justify-center items-start gap-4 inline-flex">
 						<div className="self-stretch text-text-muted text-5xl font-black leading-tight text-transparent bg-clip-text bg-gradient-to-b from-[#8B92A8] to-[#5D647B]">
-							Earn 1% on investments, loans and savings!
+							{t("referrals.earn_1_on_investments_loans_and_savings")}
 						</div>
 					</div>
 					<div className="pl-0.5 justify-end items-center inline-flex overflow-hidden">
@@ -130,7 +132,7 @@ export const ReferralCenterSection = () => {
 				<div className="self-stretch flex">
 					<div className="flex-1 p-4 sm:p-8 border-r border-borders-primary flex-col justify-between items-center gap-4 inline-flex">
 						<div className="text-text-primary text-sm sm:text-base text-center font-medium leading-tight">
-							Total Bonus Volume
+							{t("referrals.total_bonus_volume")}
 						</div>
 						<div className="justify-center items-center gap-2.5 inline-flex">
 							<div className="grow shrink basis-0 text-menu-wallet-bg text-xl sm:text-2xl font-extrabold leading-normal">
@@ -140,7 +142,7 @@ export const ReferralCenterSection = () => {
 					</div>
 					<div className="flex-1 p-4 sm:p-8 border-r border-borders-primary flex-col justify-between items-center gap-4 inline-flex">
 						<div className="text-text-primary text-sm sm:text-base text-center font-medium leading-tight">
-							Available to claim
+							{t("referrals.available_to_claim")}
 						</div>
 						<div className="justify-center items-center gap-2.5 inline-flex">
 							<div className="grow shrink basis-0 text-menu-wallet-bg text-xl sm:text-2xl font-extrabold leading-normal">
@@ -149,7 +151,9 @@ export const ReferralCenterSection = () => {
 						</div>
 					</div>
 					<div className="flex-1 p-4 sm:p-8 flex-col justify-between items-center gap-4 inline-flex">
-						<div className="text-text-primary text-sm sm:text-base text-center font-medium leading-tight">Total referred</div>
+						<div className="text-text-primary text-sm sm:text-base text-center font-medium leading-tight">
+							{t("referrals.total_referred")}
+						</div>
 						<div className="flex-col justify-center items-center gap-2.5 flex">
 							<div className="text-menu-wallet-bg text-xl sm:text-2xl font-extrabold leading-normal">0</div>
 						</div>
