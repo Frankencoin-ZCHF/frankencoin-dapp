@@ -8,7 +8,7 @@ const LanguageSelector = () => {
 
 	const handleLanguageChange = (locale: string) => {
 		const { pathname, asPath, query } = router;
-		router.push({ pathname, query }, asPath, { locale });
+		router.push({ pathname, query }, asPath, { locale, scroll: false });
 		i18n.changeLanguage(locale);
 	};
 
