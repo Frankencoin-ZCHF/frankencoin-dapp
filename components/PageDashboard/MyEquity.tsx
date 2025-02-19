@@ -9,7 +9,7 @@ export const MyEquity = () => {
 	const { t } = useTranslation();
 
 	return (
-		<div className="w-full h-full p-8 flex flex-col items-start">
+		<div className="w-full h-full p-4 sm:p-8 flex flex-col items-start">
 			<Link href={'/equity'} className="pb-7 items-center justify-start flex gap-2">
 				<span className="text-text-primary text-2xl font-black">{t("dashboard.my_equity")}</span>
 				<FontAwesomeIcon icon={faArrowUpRightFromSquare} width={16} height={16} className="text-text-label" />

@@ -94,7 +94,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 
 	return (
 		<AppCard className="p-0">
-			<div className="grid md:pl-8 md:pr-12 md:py-4 grid-cols-2 auto-rows-auto gap-y-3 gap-x-6">
+			<div className="grid p-4 md:pl-8 md:pr-12 md:py-4 sm:grid-cols-2 sm:auto-rows-auto gap-2 sm:gap-y-3 sm:gap-x-6">
 				<span className="text-base font-[350] leading-tight text-text-muted2">{t("governance.current_value")}</span>
 				<div></div>
 				<div className="p-2 pr-4 flex items-center gap-3 bg-layout-primary rounded-xl">
@@ -113,12 +113,12 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 				</div>
 
 				<GuardToAllowedChainBtn
-					buttonClassName="h-full max-w-48 p-4"
+					buttonClassName="h-full w-full sm:max-w-48 p-4"
 					label={t("dashboard.propose")}
 					disabled={isDisabled || isHidden}
 				>
 					<Button
-						className="h-full max-w-40 p-4"
+						className="h-full full sm:max-w-48 p-4"
 						disabled={isDisabled || isHidden}
 						isLoading={isHandling}
 						onClick={(e) => handleOnClick(e)}

@@ -51,7 +51,7 @@ export default function Dashboard() {
 								<MyEquity />
 							</div>
 						</div>
-						<div className="w-full flex justify-between items-center border-t border-borders-dividerLight">
+						<div className="w-full flex justify-between items-center sm:border-t sm:border-borders-dividerLight">
 							<MyBorrow />
 						</div>
 					</div>
