@@ -1,4 +1,4 @@
-import Button from "@components/Button";
+import Button, { SecondaryButton } from "@components/Button";
 import TokenLogo from "@components/TokenLogo";
 import { faArrowUpRightFromSquare, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -31,9 +31,9 @@ export const MySavings = () => {
 				</div>
 			</div>
             <div className="w-full flex-1 pt-10 flex items-end">
-                <Button className="w-full !py-2 leading-[1.5rem] !text-base text-text-tertiary !bg-[#F5F6F9]" size="sm">
+				<SecondaryButton className="w-full py-2.5 px-4">
                     {t("dashboard.collect_interest")}
-                </Button>
+				</SecondaryButton>
             </div>
 		</div>
 	);

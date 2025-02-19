@@ -33,19 +33,20 @@
         "symbol_amount": "Cantidad {{symbol}}",
         "navbar": {
             "my_referrals": "Mis Referidos",
-            "swap": "Swap",
-            "borrow": "Préstamo",
+            "swap": "Intercambiar",
+            "borrow": "Pedir prestado",
             "my_positions": "Mis Posiciones",
-            "monitoring": "Monitorización",
+            "monitoring": "Monitoreo",
             "challenges": "Subastas",
             "savings": "Ahorros",
-            "equity": "Capital",
+            "equity": "Capital Accionario",
             "auctions": "Subastas",
             "governance": "Gobernanza",
-            "not_live": "Esta página web aún no está activa. Este es solo un sistema de prueba.",
+            "not_live": "Esta página web aún no está activa. Esto es solo un sistema de prueba.",
             "expert_mode": "Modo Experto",
             "global_preferences": "Preferencias Globales",
-            "language": "Idioma"
+            "language": "Idioma",
+            "dashboard": "Panel"
         },
         "txs": {
             "amount": "Cantidad:",

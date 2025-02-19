@@ -33,7 +33,7 @@
         "symbol_amount": "{{symbol}} Betrag",
         "navbar": {
             "my_referrals": "Meine Empfehlungen",
-            "swap": "Swap",
+            "swap": "Tauschen",
             "borrow": "Ausleihen",
             "my_positions": "Meine Positionen",
             "monitoring": "Überwachung",
@@ -45,7 +45,8 @@
             "not_live": "Diese Website ist noch nicht live. Dies ist nur ein Testsystem.",
             "expert_mode": "Expertenmodus",
             "global_preferences": "Globale Einstellungen",
-            "language": "Sprache"
+            "language": "Sprache",
+            "dashboard": "Dashboard"
         },
         "txs": {
             "amount": "Betrag:",

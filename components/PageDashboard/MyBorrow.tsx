@@ -1,3 +1,4 @@
+import { SecondaryButton } from "@components/Button";
 import TokenLogo from "@components/TokenLogo";
 import { Button } from "flowbite-react";
 import { useTranslation } from "next-i18next";
@@ -41,20 +42,17 @@ export const MyBorrow = () => {
 					{/** Rows */}
 					{mockData.map((item) => (
 						<Fragment key={item.collateral}>
-							<div className="flex py-3 pr-3 items-center justify-center">
+							<div className="flex pr-3 items-center justify-center">
 								<TokenLogo currency={item.collateral} size={8} />
 							</div>
-							<div className="py-3 font-medium text-base leading-tight">{item.collateralAmount} {item.collateral}</div>
-							<div className="py-3 font-medium text-base leading-tight">{item.collateralization}</div>
-							<div className="py-3 font-medium text-base leading-tight">{item.loanDueIn}</div>
-							<div className="py-3 font-extrabold text-base leading-tight">{item.amountBorrowed}</div>
+							<div className="font-medium text-base leading-tight">{item.collateralAmount} {item.collateral}</div>
+							<div className="font-medium text-base leading-tight">{item.collateralization}</div>
+							<div className="font-medium text-base leading-tight">{item.loanDueIn}</div>
+							<div className="font-extrabold text-base leading-tight">{item.amountBorrowed}</div>
 							<div className="py-3 flex items-center justify-end">
-								<Button
-									className="min-w-32 w-full !py-1 !px-4 border-none leading-[1.5rem] !text-base font-extrabold text-text-tertiary !bg-[#F5F6F9] focus:ring-0"
-									size="sm"
-								>
+								<SecondaryButton className="flex min-w-32 w-full py-2.5 px-4">
 									{t("dashboard.manage")}
-								</Button>
+								</SecondaryButton>
 							</div>
 						</Fragment>
 					))}

@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 const LanguageSelector = () => {
 	const { t, i18n } = useTranslation();
 	const router = useRouter();
-	const options = [{ value: "en" }, { value: "de" }, { value: "es" }, { value: "fr", disabled: true }, { value: "it", disabled: true }];
+	const options = [{ value: "en" }, { value: "de" }, { value: "es" }, { value: "fr" }, { value: "it", disabled: true }];
 
 	const handleLanguageChange = (locale: string) => {
 		const { pathname, asPath, query } = router;

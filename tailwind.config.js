@@ -109,6 +109,20 @@ module.exports = {
 							bg: "#092f62",
 						},
 					},
+					secondary: {
+						disabled: {
+							text: "#ADB2C2",
+							bg: "##F5F6F9",
+						},
+						default: {
+							text: "#272B38",
+							bg: "#F5F6F9",
+						},
+						hover: {
+							text: "#272B38",
+							bg: "#EAEBF0",
+						},
+					},
 				},
 				table: {
 					header: {
