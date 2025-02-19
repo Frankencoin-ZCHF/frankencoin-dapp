@@ -12,9 +12,10 @@ interface Props {
 	reverse?: boolean;
 	tabOnChange?: Function;
 	headerClassNames?: string[];
+	className?: string;
 }
 
-export default function TableHeader({ headers, subHeaders, actionCol, colSpan, tab = "", reverse = false, tabOnChange, headerClassNames }: Props) {
+export default function TableHeader({ headers, subHeaders, actionCol, colSpan, tab = "", reverse = false, tabOnChange, headerClassNames, className }: Props) {
 	const { t } = useTranslation();
 
 	const handleOnClick = function (active: string) {
@@ -22,7 +23,7 @@ export default function TableHeader({ headers, subHeaders, actionCol, colSpan, t
 	};
 
 	return (
-		<div className={`items-center justify-between rounded-t-xl bg-table-header-primary ${actionCol ? "sm:pr-12" : ""} py-3 px-5 pr-3 sm:py-5 sm:px-8 md:flex`}>
+		<div className={`${className} items-center justify-between rounded-t-xl bg-table-header-primary ${actionCol ? "sm:pr-12" : ""} py-3 px-5 pr-3 sm:py-5 sm:px-8 md:flex`}>
 			<div className={`max-md:hidden flex-grow grid-cols-2 md:grid md:grid-cols-${colSpan || headers.length}`}>
 				{headers.map((header, i) => (
 					<div

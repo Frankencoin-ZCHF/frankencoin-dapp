@@ -437,5 +437,36 @@
         "how_do_i_receive_my_referral_bonus_answer": "Los bonos que el sistema te paga se acumulan y están disponibles en cualquier momento. Para ello, debes reclamar activamente el bono.",
         "if_my_friend_forgets_to_use_the_referral_link_or_code_can_i_still_receive_the_bonus": "Si mi amigo olvida usar el enlace o código de referido, ¿puedo seguir recibiendo el bono?",
         "if_my_friend_forgets_to_use_the_referral_link_or_code_can_i_still_receive_the_bonus_answer": "Lamentablemente, sin el uso de un código o enlace de referido, no podemos añadir ningún bono de referido a tu cuenta."
-    }
+    },
+    "dashboard": {
+        "title": "Panel de control",
+        "dashboard": "Panel de control",
+        "my_investments": "Mis inversiones",
+        "take_loans": "Solicitar préstamos",
+        "take_loans_description": "Obtén préstamos dEURO a tasas competitivas utilizando Bitcoin, Ethereum u otras criptomonedas como garantía — ¡desbloquea liquidez manteniendo tus activos!",
+        "earn_interest": "Gana intereses",
+        "earn_interest_description": "Obtén retornos seguros y sin complicaciones depositando tus dEURO en el módulo de Ahorros — ¡haz que tu dinero trabaje para ti!",
+        "benefit_from_protocol": "Benefíciate del protocolo dEURO",
+        "benefit_from_protocol_description": "Las Acciones del Protocolo dEURO (nDEPS & DEPS) otorgan poder de gobernanza, ganancias por comisiones y beneficios de liquidación — junto con el riesgo residual. Los titulares impulsan el crecimiento y la estabilidad. La gobernanza se basa en el veto: el 2% del poder de voto puede bloquear las propuestas.",
+        "my_savings": "Mis ahorros",
+        "my_borrow": "Mis préstamos",
+        "my_equity": "Mi patrimonio",
+        "current_investment": "Inversión actual",
+        "total_earned": "Total ganado",
+        "interest_to_be_collected": "Intereses por cobrar",
+        "collect_interest": "Cobrar intereses",
+        "symbol_amount": "Importe {{symbol}}",
+        "total_invested": "Total invertido",
+        "manage": "Gestionar",
+        "collateral": "Garantía",
+        "collateralization": "Colateralización",
+        "loan_due_in": "Vencimiento del préstamo",
+        "amount_borrowed": "Monto prestado",
+        "total_owed": "Total adeudado",
+        "governance_description": "Aquí tiene la oportunidad de participar en la gobernanza del protocolo dEURO mediante el seguimiento de nuevas posiciones, el tipo base u otros parámetros relevantes del sistema. Active el modo experto para obtener información detallada.",
+        "governance_description_2": "Los participantes deben revisar cuidadosamente los nuevos tipos de posiciones propuestas y rechazarlas si consideran que representan un riesgo para la estabilidad de dEURO. También hay un <0>foro de github</0> para discutir los colaterales elegibles y sus parámetros.",
+        "propose": "Proponer",
+        "dEURO_Protocol_Share_Holders_nDEPS_and_DEPS": "Accionistas del Protocolo dEURO (nDEPS y DEPS)",
+        "bought_through_bids": "Comprado mediante ofertas"
+      }
 }

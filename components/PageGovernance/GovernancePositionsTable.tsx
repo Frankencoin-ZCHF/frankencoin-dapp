@@ -42,7 +42,7 @@ export default function GovernancePositionsTable() {
 
 	return (
 		<Table>
-			<TableHeader headers={headers} subHeaders={subHeaders} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
+			<TableHeader headers={headers} subHeaders={subHeaders} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol headerClassNames={['text-center']} />
 			<TableBody>
 				{sorted.length == 0 ? (
 					<TableRowEmpty>

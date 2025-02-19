@@ -1,18 +1,14 @@
 import { useState } from "react";
 import Link from "next/link";
-import { useSelector } from "react-redux";
 import WalletConnect from "./WalletConnect";
 import NavButton from "./NavButton";
 import { useIsMainnet } from "@hooks";
 import { CONFIG } from "../../app.config";
 import { GlobalPreferences } from "./GlobalPreferences";
-import { RootState } from "../../redux/redux.store";
-import { ExpertModeToogle } from "./ExpertModeToogle";
 import { useTranslation } from "next-i18next";
 
 export function NavItems() {
 	const isMainet = useIsMainnet();
-	const expertMode = useSelector((state: RootState) => state.globalPreferences.expertMode);
 	const { t } = useTranslation();
 
 	return (
@@ -21,33 +17,20 @@ export function NavItems() {
 				<NavButton to="/referrals" name={t("common.navbar.my_referrals")} />
 			</li>
 			<li>
+				<NavButton to="/dashboard" name={t("common.navbar.dashboard")} />
+			</li>
+			<li>
 				<NavButton to="/swap" name={t("common.navbar.swap")} />
 			</li>
 			<li>
 				<NavButton to="/mint" name={t("common.navbar.borrow")} />
 			</li>
 			<li>
-				<NavButton to="/mypositions" name={t("common.navbar.my_positions")} />
+				<NavButton to="/savings" name={t("common.navbar.savings")} />
 			</li>
-			<li>
-				<NavButton to="/monitoring" name={t("common.navbar.monitoring")} />
-			</li>
-			<li>
-				<NavButton to="/challenges" name={t("common.navbar.auctions")} />
-			</li>
-			{/* TODO: Reactivate when API is ready
-				<li>
-					<NavButton to="/savings" name="Savings" />
-				</li>
-				*/}
 			<li>
 				<NavButton to="/equity" name={t("common.navbar.equity")} />
 			</li>
-			{expertMode && (
-				<li>
-					<NavButton to="/governance" name={t("common.navbar.governance")} />
-				</li>
-			)}
 		</>
 	);
 }
@@ -58,9 +41,7 @@ export default function Navbar() {
 
 	return (
 		<div className="fixed top-0 left-0 right-0 z-20">
-			<div className="bg-yellow-500 text-black text-center font-bold text-sm md:text-base">
-				{t("common.navbar.not_live")}
-			</div>
+			<div className="bg-yellow-500 text-black text-center font-bold text-sm md:text-base">{t("common.navbar.not_live")}</div>
 			<div>
 				<header className="w-full h-16 px-5 md:px-10 bg-white border-b border-menu-separator bg-menu-back backdrop-blur justify-between items-center inline-flex">
 					<div className="h-9 justify-start items-center gap-6 inline-flex">
@@ -76,11 +57,11 @@ export default function Navbar() {
 							<NavItems />
 						</ul>
 					</div>
-					<div className="flex flex-1 justify-end items-center max-md:pr-4">
-						<div className=" hidden md:block">
+					<div className="flex flex-1 justify-end items-center max-md:pr-4 sm:gap-4">
+						<WalletConnect />
+						<div className="hidden md:block flex items-center">
 							<GlobalPreferences />
 						</div>
-						<WalletConnect />
 					</div>
 					<div className="md:hidden">
 						<button onClick={() => setIsNavBarOpen(!isNavBarOpen)} className="cursor-pointer flex items-center">
@@ -136,9 +117,6 @@ export default function Navbar() {
 									>
 										<NavItems />
 									</menu>
-									<div className="absolute bottom-8 left-6 w-4/5 p-4 border-t border-menu-separator">
-										<ExpertModeToogle />
-									</div>
 								</div>
 							</div>
 						</label>

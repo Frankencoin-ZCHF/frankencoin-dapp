@@ -89,7 +89,7 @@ export default function GovernanceVotersTable() {
 
 	return (
 		<Table>
-			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
+			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol headerClassNames={['text-center']} />
 			<TableBody>
 				<>
 					{account.address ? (

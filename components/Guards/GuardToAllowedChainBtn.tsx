@@ -8,6 +8,7 @@ interface Props {
 	children?: React.ReactNode;
 	label?: string;
 	disabled?: boolean;
+	buttonClassName?: string;
 }
 
 export default function GuardToAllowedChainBtn(props: Props) {
@@ -30,7 +31,7 @@ export default function GuardToAllowedChainBtn(props: Props) {
 	if (isDisconnected)
 		return (
 			<Button
-				className="h-10"
+				className={`h-10 ${props.buttonClassName}`}
 				disabled={props.disabled}
 				onClick={() => {
 					Web3Modal.open();
@@ -45,7 +46,7 @@ export default function GuardToAllowedChainBtn(props: Props) {
 	if (!isCorrectChain)
 		return (
 			<Button
-				className="h-10"
+				className={`h-10 ${props.buttonClassName}`}
 				disabled={props.disabled}
 				onClick={() => {
 					Web3Modal.open({ view: "Networks" });

@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { store } from "../redux/redux.store";
 import { fetchSavings, fetchSavingsCoreInfo } from "../redux/slices/savings.slice";
 import { useAccount } from "wagmi";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 export default function SavingsPage() {
 	const { address } = useAccount();
@@ -52,4 +53,12 @@ export default function SavingsPage() {
 			<div className="mt-8">{<SavingsWithdrawnTable />}</div>
 		</main>
 	);
+}
+
+export async function getStaticProps({ locale }: { locale: string }) {
+	return {
+		props: {
+			...(await serverSideTranslations(locale, ["common"])),
+		},
+	};
 }

@@ -18,6 +18,7 @@ import { ADDRESS, SavingsABI } from "@deuro/eurocoin";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import { useTranslation } from "next-i18next";
+import { BigNumberInput } from "@components/Input/BigNumberInput";
 
 interface Props {}
 
@@ -92,31 +93,39 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 	};
 
 	return (
-		<AppCard>
-			<div className="grid gap-8 md:grid-cols-2 md:px-12 md:py-4 max-md:grid-cols-1 max-md:p-4">
-				<div className="flex flex-col gap-4">
-					<NormalInput
-						symbol="%"
-						label={t("governance.current_value")}
-						placeholder={`${t("governance.current_leadrate")}: %`}
-						value={newRate.toString()}
-						digit={4}
-						onChange={(v) => changeNewRate(v)}
-					/>
+		<AppCard className="p-0">
+			<div className="grid md:pl-8 md:pr-12 md:py-4 grid-cols-2 auto-rows-auto gap-y-3 gap-x-6">
+				<span className="text-base font-[350] leading-tight text-text-muted2">{t("governance.current_value")}</span>
+				<div></div>
+				<div className="p-2 pr-4 flex items-center gap-3 bg-layout-primary rounded-xl">
+					<div className="flex flex-1 p-2.5 border border-input-border rounded-lg bg-white">
+						<BigNumberInput
+							placeholder={`${t("governance.current_leadrate")}: %`}
+							value={newRate.toString()}
+							decimals={4}
+							onChange={(v) => changeNewRate(v)}
+							className="flex flex-1 text-right p-0 text-lg leading-[1.4375rem]"
+						/>
+					</div>
+					<div className="px-5 flex items-center justify-center">
+						<span className="text-text-disabled font-medium text-lg leading-[1.4375rem]">%</span>
+					</div>
 				</div>
 
-				<div className="md:mt-8 md:px-16">
-					<GuardToAllowedChainBtn label={t("governance.propose_change")} disabled={isDisabled || isHidden}>
-						<Button
-							className="max-md:h-10 md:h-12"
-							disabled={isDisabled || isHidden}
-							isLoading={isHandling}
-							onClick={(e) => handleOnClick(e)}
-						>
-							{t("governance.propose_change")}
-						</Button>
-					</GuardToAllowedChainBtn>
-				</div>
+				<GuardToAllowedChainBtn
+					buttonClassName="h-full max-w-48 p-4"
+					label={t("dashboard.propose")}
+					disabled={isDisabled || isHidden}
+				>
+					<Button
+						className="h-full max-w-40 p-4"
+						disabled={isDisabled || isHidden}
+						isLoading={isHandling}
+						onClick={(e) => handleOnClick(e)}
+					>
+						{t("dashboard.propose")}
+					</Button>
+				</GuardToAllowedChainBtn>
 			</div>
 		</AppCard>
 	);

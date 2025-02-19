@@ -45,7 +45,8 @@
             "not_live": "This website is not yet live. This is just a test system",
             "expert_mode": "Expert Mode",
             "global_preferences": "Global Preferences",
-            "language": "Language"
+            "language": "Language",
+            "dashboard": "Dashboard"
         },
         "txs": {
             "amount": "Amount:",
@@ -437,5 +438,36 @@
         "how_do_i_receive_my_referral_bonus_answer": "Your bonuses paid out by the system are collected and are available to you at any time. To do this, you must actively claim the bonus.",
         "if_my_friend_forgets_to_use_the_referral_link_or_code_can_i_still_receive_the_bonus": "If my friend forgets to use the referral link or code, can I still receive the bonus?",
         "if_my_friend_forgets_to_use_the_referral_link_or_code_can_i_still_receive_the_bonus_answer": "Regrettably, without the use of a referral code or link, we are unable to add any referral bonus to your account."
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "dashboard": "Dashboard",
+        "my_investments": "My Investments",
+        "take_loans": "Take Loans",
+        "take_loans_description": "Borrow dEURO at competitive rates by using Bitcoin, Ethereum, or other cryptocurrencies as collateral — unlock liquidity while keeping your assets!",
+        "earn_interest": "Earn Interest",
+        "earn_interest_description": "Earn secure, hassle-free returns by depositing your dEURO into the Savings module — let your money work for you!",
+        "benefit_from_protocol": "Benefit from the dEURO protocol",
+        "benefit_from_protocol_description": "dEURO Protocol Shares (nDEPS & DEPS) grant governance power, fee earnings, and liquidation profits — along with residual risk. Holders drive growth and stability. Governance is veto-based: 2% voting power can block proposals.",
+        "my_savings": "My Savings",
+        "my_borrow": "My Borrow",
+        "my_equity": "My Equity",
+        "current_investment": "Current Invest",
+        "total_earned": "Total Earned",
+        "interest_to_be_collected": "Interest to be collected",
+        "collect_interest": "Collect Interest",
+        "symbol_amount": "{{symbol}} amount",
+        "total_invested": "Total invested",
+        "manage": "Manage",
+        "collateral": "Collateral",
+        "collateralization": "Collateralization",
+        "loan_due_in": "Loan due in",
+        "amount_borrowed": "Amount borrowed",
+        "total_owed": "Total owed",
+        "governance_description": "Here you have the opportunity to participate in the governance of the dEURO protocol by monitoring new positions, the base rate or other system-relevant parameters. Activate the expert mode to gain insight.",
+        "governance_description_2": "Participants should carefully review newly proposed position types and deny them if they think they pose a risk to the stability of dEURO. There also is a <0>github forum</0> to discuss eligible collaterals and their parameters.",
+        "propose": "Propose",
+        "dEURO_Protocol_Share_Holders_nDEPS_and_DEPS": "dEURO Protocol Share Holders (nDEPS and DEPS)",
+        "bought_through_bids": "Bought through Bids"
     }
 }
