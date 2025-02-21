@@ -30,7 +30,7 @@ export default function SavingsActionSave({ amount, interest, disabled, setLoade
 			setAction(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].savings,
+				address: ADDRESS[chainId].savingsGateway,
 				abi: SavingsABI,
 				functionName: "adjust",
 				args: [amount],

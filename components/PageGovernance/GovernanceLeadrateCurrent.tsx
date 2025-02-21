@@ -54,7 +54,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 			setHandling(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].savings,
+				address: ADDRESS[chainId].savingsGateway,
 				abi: SavingsABI,
 				functionName: "proposeChange",
 				args: [newRate, []],

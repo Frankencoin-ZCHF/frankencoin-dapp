@@ -43,7 +43,7 @@ export default function GovernanceLeadrateRow({ headers, info, proposal, current
 			setApplying(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].savings,
+				address: ADDRESS[chainId].savingsGateway,
 				abi: SavingsABI,
 				functionName: "applyChange",
 				args: [],
@@ -88,7 +88,7 @@ export default function GovernanceLeadrateRow({ headers, info, proposal, current
 			setDenying(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].savings,
+				address: ADDRESS[chainId].savingsGateway,
 				abi: SavingsABI,
 				functionName: "proposeChange",
 				args: [info.rate, []],

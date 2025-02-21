@@ -18,7 +18,7 @@ export default function SavingsGlobalCard() {
 		(state: RootState) => state.savings.savingsInfo
 	);
 
-	const moduleAddress = ADDRESS[useChainId()].savings;
+	const moduleAddress = ADDRESS[useChainId()].savingsGateway;
 	const url = useContractUrl(moduleAddress);
 
 	return (

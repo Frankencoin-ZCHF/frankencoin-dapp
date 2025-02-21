@@ -61,7 +61,7 @@ export default function MonitoringForceSell() {
 			}
 
 			const _price = await readContract(WAGMI_CONFIG, {
-				address: ADDR.mintingHubV2,
+				address: ADDR.mintingHubGateway,
 				abi: MintingHubV2ABI,
 				functionName: "expiredPurchasePrice",
 				args: [position.position],
@@ -117,7 +117,7 @@ export default function MonitoringForceSell() {
 			setBidding(true);
 
 			const bidWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHubV2,
+				address: ADDRESS[chainId].mintingHubGateway,
 				abi: MintingHubV2ABI,
 				functionName: "buyExpiredCollateral",
 				args: [position.position, amount],

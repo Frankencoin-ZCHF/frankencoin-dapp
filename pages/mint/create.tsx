@@ -65,7 +65,7 @@ export default function PositionCreate({}) {
 				address: collateralAddress as Address,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHubV2],
+				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHubGateway],
 			});
 			setUserAllowance(_allowance);
 		};
@@ -216,7 +216,7 @@ export default function PositionCreate({}) {
 				address: collTokenData.address,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [ADDRESS[chainId].mintingHubV2, maxUint256],
+				args: [ADDRESS[chainId].mintingHubGateway, maxUint256],
 			});
 
 			const toastContent = [
@@ -226,7 +226,7 @@ export default function PositionCreate({}) {
 				},
 				{
 					title: t('common.txs.spender'),
-					value: shortenAddress(ADDRESS[chainId].mintingHubV2),
+					value: shortenAddress(ADDRESS[chainId].mintingHubGateway),
 				},
 				{
 					title: t('common.txs.transaction'),
@@ -253,7 +253,7 @@ export default function PositionCreate({}) {
 		try {
 			setIsConfirming("open");
 			const openWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHubV2,
+				address: ADDRESS[chainId].mintingHubGateway,
 				abi: MintingHubV2ABI,
 				functionName: "openPosition",
 				args: [

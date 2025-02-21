@@ -68,7 +68,7 @@ export default function PositionChallenge() {
 				address: position.collateral,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHubV2],
+				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHubGateway],
 			});
 			setUserAllowance(_allowanceColl);
 		};
@@ -114,7 +114,7 @@ export default function PositionChallenge() {
 				address: position.collateral as Address,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [ADDRESS[chainId].mintingHubV2, amount],
+				args: [ADDRESS[chainId].mintingHubGateway, amount],
 			});
 
 			const toastContent = [
@@ -124,7 +124,7 @@ export default function PositionChallenge() {
 				},
 				{
 					title: t("common.txs.spender"),
-					value: shortenAddress(ADDRESS[chainId].mintingHubV2),
+					value: shortenAddress(ADDRESS[chainId].mintingHubGateway),
 				},
 				{
 					title: t("common.txs.transaction"),
@@ -152,7 +152,7 @@ export default function PositionChallenge() {
 			setChallenging(true);
 
 			const challengeWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHubV2,
+				address: ADDRESS[chainId].mintingHubGateway,
 				abi: MintingHubV2ABI,
 				functionName: "challenge",
 				args: [position.position, amount, BigInt(position.price)],

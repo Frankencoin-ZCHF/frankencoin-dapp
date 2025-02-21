@@ -68,7 +68,7 @@ export default function ChallengePlaceBid() {
 			}
 
 			const _price = await readContract(WAGMI_CONFIG, {
-				address: ADDR.mintingHubV2,
+				address: ADDR.mintingHubGateway,
 				abi: MintingHubV2ABI,
 				functionName: "price",
 				args: [parseInt(challenge.number.toString())],
@@ -132,7 +132,7 @@ export default function ChallengePlaceBid() {
 			setBidding(true);
 
 			const bidWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHubV2,
+				address: ADDRESS[chainId].mintingHubGateway,
 				abi: MintingHubV2ABI,
 				functionName: "bid",
 				args: [parseInt(challenge.number.toString()), amount, false],
