@@ -268,10 +268,10 @@
     rxjs "^7.8.1"
     viem "^2.19.1"
 
-"@deuro/eurocoin@1.0.7":
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/@deuro/eurocoin/-/eurocoin-1.0.7.tgz#0c8b9f113d90dd0e2a274602efb7c60e73b0e4db"
-  integrity sha512-SaecZkY/TAaSQ8Nvx7ZptwaUvyvVv3sJDWkXjzelA6Ze5cOHrDYS3JHZO/AxjSLK5lSX81SvYEMEoT4xDSvePQ==
+"@deuro/eurocoin@1.0.9":
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/@deuro/eurocoin/-/eurocoin-1.0.9.tgz#9275de1cac69e1d9a6a489514eada74eb888385b"
+  integrity sha512-bP1oscV2ihnxeIp1dffRfKNz5qiaMEa8O6pLzYWbMRcGeo5F+8xxhO9ip+k7LHGagA29noDknATQjdS2w2izEg==
   dependencies:
     hardhat-abi-exporter "^2.10.0"
     hardhat-contract-sizer "^2.5.1"
