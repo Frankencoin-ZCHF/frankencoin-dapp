@@ -7,7 +7,6 @@ import { formatCurrency } from "../../utils/format";
 import MyPositionsDisplayCollateral from "./MyPositionsDisplayCollateral";
 import { useRouter as useNavigate } from "next/navigation";
 import Button from "@components/Button";
-import AppBox from "@components/AppBox";
 import { TOKEN_SYMBOL } from "@utils";
 
 interface Props {
@@ -32,10 +31,8 @@ export default function MypositionsRow({ headers, subHeaders, position, tab }: P
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
-	const bids = useSelector((state: RootState) => state.bids.positions);
-	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
-	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd;
-	if (!collTokenPrice || !deuroPrice) return null;
+	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
+	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd || 1; // TODO: remove when api is ready
 
 	const maturity: number = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
 

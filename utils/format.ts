@@ -20,7 +20,7 @@ export enum FormatType {
 	"tiny",
 }
 
-export const formatCurrency = (value: string | number, minimumFractionDigits = 0, maximumFractionDigits = 2, format = FormatType.tiny) => {
+export const formatCurrency = (value: string | number, minimumFractionDigits = 0, maximumFractionDigits = 2, format = FormatType.us) => {
 	const amount = typeof value === "string" ? parseFloat(value) : value;
 
 	// exceptions

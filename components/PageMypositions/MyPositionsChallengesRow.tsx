@@ -7,7 +7,6 @@ import TokenLogo from "@components/TokenLogo";
 import { formatCurrency } from "../../utils/format";
 import { useContractUrl } from "@hooks";
 import MyPositionsChallengesCancel from "./MyPositionsChallengesCancel";
-import AppBox from "@components/AppBox";
 import { TOKEN_SYMBOL } from "@utils";
 
 interface Props {
@@ -18,16 +17,11 @@ interface Props {
 
 export default function MyPositionsChallengesRow({ headers, challenge, tab }: Props) {
 	const positions = useSelector((state: RootState) => state.positions.mapping);
-	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challengesPrices = useSelector((state: RootState) => state.challenges.challengesPrices);
 
 	const position = positions.map[challenge.position.toLowerCase() as Address];
 	const url = useContractUrl(position.collateral || zeroAddress);
 	if (!position) return null;
-
-	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
-	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd;
-	if (!collTokenPrice || !deuroPrice) return null;
 
 	const challengePrice: bigint = BigInt(challengesPrices.map[challenge.id as ChallengesId] ?? parseEther("0"));
 	const start: number = parseInt(challenge.start.toString()) * 1000; // timestap

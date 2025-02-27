@@ -31,6 +31,7 @@
         "closed": "Geschlossen",
         "price_per_unit": "Preis pro Einheit",
         "symbol_amount": "{{symbol}} Betrag",
+        "done": "Fertig",
         "navbar": {
             "my_referrals": "Meine Empfehlungen",
             "swap": "Tauschen",
@@ -468,6 +469,9 @@
         "governance_description_2": "Teilnehmer sollten neu vorgeschlagene Positionstypen sorgfältig prüfen und diese ablehnen, wenn sie ihrer Meinung nach ein Risiko für die Stabilität von dEURO darstellen. Es gibt auch ein <0>Github-Forum</0> zur Diskussion über zulässige Sicherheiten und deren Parameter.",
         "propose": "Vorschlagen",
         "dEURO_Protocol_Share_Holders_nDEPS_and_DEPS": "dEURO-Protokoll-Aktionäre (nDEPS und DEPS)",
-        "bought_through_bids": "Über Gebote erworben"
+        "bought_through_bids": "Über Gebote erworben",
+        "no_borrowings_yet": "Sie haben noch keine Kredite.",
+        "no_investments_yet": "Sie haben noch keine Investitionen.",
+        "no_savings_yet": "Sie haben noch keine Ersparnisse."
       }
 }

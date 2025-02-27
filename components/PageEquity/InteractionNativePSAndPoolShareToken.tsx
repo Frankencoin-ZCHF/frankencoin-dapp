@@ -91,7 +91,7 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 		};
 
 		fetchAsync();
-	}, [data, account, chainId]);
+	}, [data, account, chainId, isApproving]);
 
 	const handleApprove = async () => {
 		try {
@@ -127,6 +127,7 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 					render: <TxToast title={t("common.txs.success", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 			});
+
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {

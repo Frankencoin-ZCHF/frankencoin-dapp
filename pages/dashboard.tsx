@@ -17,7 +17,6 @@ import GovernanceLeadrateCurrent from "@components/PageGovernance/GovernanceLead
 import GovernanceLeadrateTable from "@components/PageSavings/SavingsSavedTable";
 import GovernanceMintersTable from "@components/PageGovernance/GovernanceMintersTable";
 import GovernanceVotersTable from "@components/PageGovernance/GovernanceVotersTable";
-import GovernanceTelegramBot from "@components/PageGovernance/GovernanceTelegramBot";
 import { SectionTitle } from "@components/SectionTitle";
 import { ExpertModeToogle } from "@components/ExpertModeToogle";
 import { useSelector } from "react-redux";

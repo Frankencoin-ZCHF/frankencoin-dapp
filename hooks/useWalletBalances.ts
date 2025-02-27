@@ -1,10 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Abi, Address, erc20Abi } from "viem";
 import { useAccount, useReadContracts } from "wagmi";
 import { WAGMI_CHAIN } from "../app.config";
 
-// TODO: remove fake data
-import { TOKEN_OPTIONS } from "@components/PageBorrow/LIST";
 
 type QueryItem = {
 	chainId: number;
@@ -35,11 +33,13 @@ const getMappedResponseByAddress = (query: QueryItem[], tokenList: TokenDescript
 
 	tokenList.forEach((token) => {
 		mappedResponse[token.address] = { address: token.address, symbol: token.symbol, name: token.name, decimals: 0, balanceOf: BigInt(0), allowance: {} };
-		
+
 		const tokenQuery = query.filter((queryItem) => queryItem.address === token.address);
+		const startIndex = query.findIndex(q => q.address === token.address);
+		
 		tokenQuery.forEach((queryItem, i) => {
 			const { functionName, args } = queryItem;
-			const valueResponse = response[i]?.result;
+			const valueResponse = response[startIndex + i]?.result;
 			if (!valueResponse) return;
 			
 			if (functionName === "allowance") {
@@ -47,6 +47,7 @@ const getMappedResponseByAddress = (query: QueryItem[], tokenList: TokenDescript
 				if (contractAddress) {
 					// @ts-ignore
 					mappedResponse[token.address].allowance[contractAddress] = valueResponse;
+					return;
 				}
 			}
 
@@ -58,10 +59,7 @@ const getMappedResponseByAddress = (query: QueryItem[], tokenList: TokenDescript
 	return mappedResponse;
 }; 
 
-const intialTokenList: TokenDescriptor[] = TOKEN_OPTIONS;
-
-export function useWalletERC20Balances() {
-	const [tokenList] = useState<TokenDescriptor[]>(intialTokenList);
+export function useWalletERC20Balances(tokenList: TokenDescriptor[] = []) {
 	const { address } = useAccount();
 	const chainId = WAGMI_CHAIN.id as number;
 
@@ -106,7 +104,7 @@ export function useWalletERC20Balances() {
 		[tokenList, address, chainId]
 	);
 
-	const { data, isLoading } = useReadContracts({
+	const { data, isLoading, refetch } = useReadContracts({
 		contracts: query,
 	}) ?? { data: [], isLoading: true };
 
@@ -115,5 +113,5 @@ export function useWalletERC20Balances() {
 		return getMappedResponseByAddress(query, tokenList, data as any[]);
 	}, [query, data, isLoading]);
 
-	return { balances: Object.values(responseMappedByAddress), balancesByAddress: responseMappedByAddress, isLoading };
+	return { balances: Object.values(responseMappedByAddress), balancesByAddress: responseMappedByAddress, isLoading, refetchBalances: refetch };
 }

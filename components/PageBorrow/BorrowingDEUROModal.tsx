@@ -11,9 +11,11 @@ type BorrowingDEUROModalProps = {
 	liquidationPrice?: string | null;
 	formmatedCollateral: string;
 	youGet: string | null | undefined;
+	isSuccess: boolean;
+	isLoading: boolean;
 };
 
-export function BorrowingDEUROModal({ isOpen, setIsOpen, youGet, formmatedCollateral, expiration, liquidationPrice }: BorrowingDEUROModalProps) {
+export function BorrowingDEUROModal({ isOpen, setIsOpen, youGet, formmatedCollateral, expiration, liquidationPrice, isSuccess, isLoading }: BorrowingDEUROModalProps) {
 	const { t } = useTranslation();
 
 	return (
@@ -72,8 +74,8 @@ export function BorrowingDEUROModal({ isOpen, setIsOpen, youGet, formmatedCollat
 							</div>
 						</div>
 					</div>
-					<Button isLoading={true} className="p-4 text-lg leading-none">
-						{t('mint.confirm_in_wallet')}
+					<Button isLoading={isLoading} onClick={() => setIsOpen(false)} className="p-4 text-lg leading-none">
+						{isSuccess ? t('common.done') : t('mint.confirm_in_wallet')}
 					</Button>
 				</div>
 			</Modal.Body>

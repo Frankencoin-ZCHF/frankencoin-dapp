@@ -65,7 +65,7 @@ export function TokenInputSelectOutlined({
 					/>
 				</div>
 				<button
-					className="min-w-40 h-11 px-3 py-2.5 bg-input-bg rounded-lg justify-between items-center flex shrink-0"
+					className="min-w-40 h-11 px-3 py-2.5 bg-input-bg rounded-lg justify-between items-center flex shrink-0 gap-1"
 					onClick={onSelectTokenClick}
 				>
 					{selectedToken ? (
@@ -74,7 +74,7 @@ export function TokenInputSelectOutlined({
 								<TokenLogo currency={selectedToken.symbol} size={5} />
 							</span>
 							<span className="text-lg font-medium leading-tight flex items-center">
-								{selectedToken.symbol.toUpperCase()}
+								{selectedToken.symbol}
 							</span>
 						</div>
 					) : (

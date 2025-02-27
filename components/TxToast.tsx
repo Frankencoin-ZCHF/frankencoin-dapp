@@ -49,7 +49,7 @@ export const TxToast = (props: {
 			{rows.map((row, i) => {
 				if (row.value?.toString().includes("with the following reason")) reasonLine = i + 1;
 				return (
-					<div className="flex items-center gap-1 justify-between text-sm" style={{ minHeight: 8 }} key={row.title}>
+					<div className="flex items-center gap-1 justify-between text-sm" style={{ minHeight: 8 }} key={row.title + i}>
 						{row.title && <div>{row.title}</div>}
 						{row.hash ? (
 							<Link

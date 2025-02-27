@@ -20,25 +20,10 @@ export default function Borrow() {
 	return (
 		<>
 			<Head>
-				<title>dEURO - {t('mint.title')}</title>
+				<title>dEURO - {t("mint.title")}</title>
 			</Head>
 
-			{expertMode ? (
-				<>
-					<div className="md:mt-8">
-						<h1 className="sm:hidden text-3xl font-black leading-9 tracking-tight mb-2 mt-4">{t('mint.title')}</h1>
-						<BorrowTable />
-					</div>
-
-					<div className="flex">
-						<Link href={"mint/create"} className="btn bg-layout-secondary font-bold text-layout-primary m-auto">
-							{t('mint.propose_new_position')}
-						</Link>
-					</div>
-				</>
-			) : (
-				<BorrowForm />
-			)}
+			<BorrowForm />
 		</>
 	);
 }

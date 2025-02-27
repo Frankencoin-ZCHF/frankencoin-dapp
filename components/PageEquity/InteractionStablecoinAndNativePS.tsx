@@ -80,6 +80,8 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 					render: <TxToast title={t("common.txs.success", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 			});
+
+			poolStats.refetchPoolStats();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
@@ -118,6 +120,8 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 					render: <TxToast title={t("equity.txs.successfully_invested", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 			});
+
+			poolStats.refetchPoolStats();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
@@ -159,6 +163,8 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 					render: <TxToast title={t("equity.txs.successfully_redeemed", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 			});
+
+			poolStats.refetchPoolStats();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {

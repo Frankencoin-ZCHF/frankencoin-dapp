@@ -31,6 +31,7 @@
         "closed": "Cerrado",
         "price_per_unit": "Precio por Unidad",
         "symbol_amount": "Cantidad {{symbol}}",
+        "done": "Listo",
         "navbar": {
             "my_referrals": "Mis Referidos",
             "swap": "Intercambiar",
@@ -468,6 +469,9 @@
         "governance_description_2": "Los participantes deben revisar cuidadosamente los nuevos tipos de posiciones propuestas y rechazarlas si consideran que representan un riesgo para la estabilidad de dEURO. También hay un <0>foro de github</0> para discutir los colaterales elegibles y sus parámetros.",
         "propose": "Proponer",
         "dEURO_Protocol_Share_Holders_nDEPS_and_DEPS": "Accionistas del Protocolo dEURO (nDEPS y DEPS)",
-        "bought_through_bids": "Comprado mediante ofertas"
+        "bought_through_bids": "Comprado mediante ofertas",
+        "no_borrowings_yet": "Aún no tienes ningún préstamo.",
+        "no_investments_yet": "Aún no tienes ninguna inversión.",
+        "no_savings_yet": "Aún no tienes ningún ahorro."
       }
 }

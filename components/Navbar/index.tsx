@@ -31,6 +31,9 @@ export function NavItems() {
 			<li>
 				<NavButton to="/equity" name={t("common.navbar.equity")} />
 			</li>
+			<li className={`${localStorage.getItem('dev-deuro') ? 'block' : 'hidden'} border border-red-500`}>
+				<NavButton to="/dev" name="dev" />
+			</li>
 		</>
 	);
 }

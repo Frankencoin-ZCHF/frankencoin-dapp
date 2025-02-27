@@ -55,7 +55,6 @@ export default function GovernancePositionsTable() {
 							headers={headers}
 							subHeaders={subHeaders}
 							position={pos}
-							prices={prices}
 							tab={tab}
 						/>
 					))

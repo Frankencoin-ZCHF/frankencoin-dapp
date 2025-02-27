@@ -72,7 +72,7 @@ export const useSwapStats = () => {
 	const { address } = useAccount();
 	const account = address || "0x0";
 
-	const { data, isError, isLoading } = useReadContracts({
+	const { data, isError, isLoading, refetch } = useReadContracts({
 		contracts: [
 			// Stablecoin Calls
 			...getTokenContractBasics(chainId, ADDRESS[chainId].eurt, account, ADDRESS[chainId].bridgeEURT),
@@ -176,5 +176,6 @@ export const useSwapStats = () => {
 		veur,
 		eurs,
 		dEuro,
+		refetch,
 	};
 };

@@ -31,6 +31,7 @@
         "closed": "Closed",
         "price_per_unit": "Price per Unit",
         "symbol_amount": "{{symbol}} Amount",
+        "done": "Done",
         "navbar": {
             "my_referrals": "My Referrals",
             "swap": "Swap",
@@ -468,6 +469,9 @@
         "governance_description_2": "Participants should carefully review newly proposed position types and deny them if they think they pose a risk to the stability of dEURO. There also is a <0>github forum</0> to discuss eligible collaterals and their parameters.",
         "propose": "Propose",
         "dEURO_Protocol_Share_Holders_nDEPS_and_DEPS": "dEURO Protocol Share Holders (nDEPS and DEPS)",
-        "bought_through_bids": "Bought through Bids"
+        "bought_through_bids": "Bought through Bids",
+        "no_borrowings_yet": "You do not have any loans yet.",
+        "no_investments_yet": "You do not have any investments yet.",
+        "no_savings_yet": "You do not have any savings yet."
     }
 }

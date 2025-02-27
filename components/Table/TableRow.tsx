@@ -65,7 +65,7 @@ function TableRowMobile({ children, headers, subHeaders, className, tab, showFir
 		return (
 			<div className={`${className} md:hidden grid-cols-1 flex-1`}>
 				{children.map((c, idx) => (
-					<div className="mt-1.5 flex" key={c.key}>
+					<div className="mt-1.5 flex" key={headers[idx] + idx}>
 						<div className="flex-1 text-left">
 							{idx === 0 ? (
 								<>

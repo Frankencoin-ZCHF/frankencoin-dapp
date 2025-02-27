@@ -27,22 +27,19 @@ export const GlobalPreferences = () => {
 							svg:hover .st0-globe {
 								stroke: #0F80F0;
 							}
+							.st0-globe-clip {
+								clip-path: url(#clip0_2920_18870);
+							}
 						`}
 					</style>
-					<g clip-path="url(#clip0_2920_18870)">
+					<g className="st0-globe-clip">
 						<path
 							d="M2.83594 12.0352C2.83594 17.5582 7.31294 22.0352 12.8359 22.0352C18.3589 22.0352 22.8359 17.5582 22.8359 12.0352C22.8359 6.51216 18.3589 2.03516 12.8359 2.03516C7.31294 2.03516 2.83594 6.51216 2.83594 12.0352Z"
 							className="st0-globe"
-							stroke-width="1.5"
-							stroke-linecap="round"
-							stroke-linejoin="round"
 						/>
 						<path
 							d="M13.8348 2.08594C13.8348 2.08594 16.8348 6.03594 16.8348 12.0359C16.8348 18.0359 13.8348 21.9859 13.8348 21.9859M11.8348 21.9859C11.8348 21.9859 8.83484 18.0359 8.83484 12.0359C8.83484 6.03594 11.8348 2.08594 11.8348 2.08594M3.46484 15.5359H22.2048M3.46484 8.53594H22.2048"
 							className="st0-globe"
-							stroke-width="1.5"
-							stroke-linecap="round"
-							stroke-linejoin="round"
 						/>
 					</g>
 					<defs>

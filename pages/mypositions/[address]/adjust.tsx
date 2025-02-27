@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { formatUnits, maxUint256, erc20Abi, Address, parseUnits } from "viem";
+import { formatUnits, maxUint256, erc20Abi, Address } from "viem";
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
 import { abs, formatBigInt, formatCurrency, shortenAddress, TOKEN_SYMBOL } from "@utils";
@@ -8,7 +8,7 @@ import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
-import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
+import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
@@ -16,6 +16,7 @@ import { RootState } from "../../../redux/redux.store";
 import { PositionQuery } from "@deuro/api";
 import { ADDRESS, PositionV2ABI } from "@deuro/eurocoin";
 import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 export default function PositionAdjust() {
 	const { t } = useTranslation();
@@ -402,4 +403,13 @@ export default function PositionAdjust() {
 			</div>
 		</>
 	);
+}
+
+
+export async function getServerSideProps({ locale }: { locale: string }) {
+	return {
+		props: {
+			...(await serverSideTranslations(locale, ["common"])),
+		},
+	};
 }

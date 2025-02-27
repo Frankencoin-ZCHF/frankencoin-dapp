@@ -22,11 +22,9 @@ export default function MonitoringRow({ headers, position, tab }: Props) {
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
-	const bids = useSelector((state: RootState) => state.bids.positions);
 	const url = useContractUrl(position.collateral || zeroAddress);
-	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
-	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd;
-	if (!collTokenPrice || !deuroPrice) return null;
+	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
+	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd || 1;
 
 	const maturity: number = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
 

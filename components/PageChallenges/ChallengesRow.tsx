@@ -30,9 +30,8 @@ export default function ChallengesRow({ headers, challenge, tab }: Props) {
 	const url = useContractUrl(position.collateral || zeroAddress);
 	if (!position) return null;
 
-	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
-	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd;
-	if (!collTokenPrice || !deuroPrice) return null;
+	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
+	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd || 1; // TODO: remove when api is ready
 
 	const challengePriceSearch: string | undefined = challengesPrices.map[challenge.id as ChallengesId];
 	const challengePrice: string = formatUnits(BigInt(challengePriceSearch ?? "0"), 36 - position.collateralDecimals);

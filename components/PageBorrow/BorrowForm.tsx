@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { Address, formatUnits } from "viem";
+import { Address, erc20Abi, formatUnits, maxUint256 } from "viem";
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 import AppCard from "@components/AppCard";
 import Button from "@components/Button";
@@ -9,139 +9,29 @@ import { DateInputOutlined } from "@components/Input/DateInputOutlined";
 import { SliderInputOutlined } from "@components/Input/SliderInputOutlined";
 import { DetailsExpandablePanel } from "@components/PageBorrow/DetailsExpandablePanel";
 import { NormalInputOutlined } from "@components/Input/NormalInputOutlined";
-import { ApiPriceMapping, PositionQuery } from "@deuro/api";
+import { PositionQuery } from "@deuro/api";
 import { TokenSelectModal } from "@components/TokenSelectModal";
 import { BorrowingDEUROModal } from "@components/PageBorrow/BorrowingDEUROModal";
 import { InputTitle } from "@components/Input/InputTitle";
-import { formatCurrency, toDate, TOKEN_SYMBOL } from "@utils";
+import { formatBigInt, formatCurrency, shortenAddress, toDate, TOKEN_SYMBOL, toTimestamp } from "@utils";
 import { TokenBalance, useWalletERC20Balances } from "../../hooks/useWalletBalances";
-import { RootState } from "../../redux/redux.store";
-
-// TODO: remove fake data
-import { LIST, TOKEN_OPTIONS, PRICES, MAX_LIQUIDATION_PRICE_DECREASE } from "./LIST";
+import { RootState, store } from "../../redux/redux.store";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { useTranslation } from "next-i18next";
-
-type LoanDetails = {
-	loanAmount: bigint;
-	feePercent: bigint;
-	fees: bigint;
-	borrowersReserveContribution: bigint;
-	amountToSendToWallet: bigint;
-	requiredCollateral: bigint;
-	originalPosition: `0x${string}`;
-	effectiveInterest: number;
-	effectiveLTV: number;
-	collateralPriceDeuro: number;
-};
-
-const calculateLoanDetailsByCollateral = (position: PositionQuery, collateralAmount: bigint, collateralPriceDeuro: number): LoanDetails => {
-	const { price, annualInterestPPM, reserveContribution, expiration, collateralDecimals, original } = position;
-
-	const feePercent =
-		(BigInt(Math.max(60 * 60 * 24 * 30, Math.floor((toDate(expiration).getTime() - Date.now()) / 1000))) * BigInt(annualInterestPPM)) /
-		BigInt(60 * 60 * 24 * 365);
-
-	const decimalsAdjustment = collateralDecimals === 0 ? BigInt(1e36) : BigInt(1e18);
-	const loanAmount = (BigInt(collateralAmount) * BigInt(price) - BigInt(price) + 1n) / decimalsAdjustment;
-	const fees = (feePercent * loanAmount) / 1_000_000n;
-	const borrowersReserveContribution = (BigInt(reserveContribution) * loanAmount) / 1_000_000n;
-	const amountToSendToWallet = loanAmount - fees - borrowersReserveContribution;
-
-	const interest: number = position.annualInterestPPM / 10 ** 6;
-	const reserve: number = position.reserveContribution / 10 ** 6;
-	const effectiveInterest: number = interest / (1 - reserve);
-	const parsedPrice: number = parseFloat(formatUnits(BigInt(price), 36 - collateralDecimals));
-	const effectiveLTV: number = (parsedPrice * (1 - reserve)) / collateralPriceDeuro;
-
-	return {
-		loanAmount,
-		feePercent,
-		fees,
-		borrowersReserveContribution,
-		requiredCollateral: collateralAmount,
-		amountToSendToWallet: amountToSendToWallet < 0n ? 0n : amountToSendToWallet,
-		originalPosition: original,
-		effectiveInterest,
-		effectiveLTV,
-		collateralPriceDeuro,
-	};
-};
-
-const calculateLoanDetailsByBorrowedAmount = (
-	position: PositionQuery,
-	amountToSendToWallet: bigint,
-	collateralPriceDeuro: number
-): LoanDetails => {
-	const { price, annualInterestPPM, reserveContribution, expiration, collateralDecimals, original } = position;
-
-	const feePercent =
-		(BigInt(Math.max(60 * 60 * 24 * 30, Math.floor((toDate(expiration).getTime() - Date.now()) / 1000))) * BigInt(annualInterestPPM)) /
-		BigInt(60 * 60 * 24 * 365);
-
-	const loanAmount = (amountToSendToWallet * 1_000_000n) / (1_000_000n - feePercent - BigInt(reserveContribution));
-	const decimalsAdjustment = collateralDecimals === 0 ? BigInt(1e36) : BigInt(1e18);
-	const requiredCollateral = (loanAmount * decimalsAdjustment + BigInt(price) - 1n) / BigInt(price);
-	const fees = (feePercent * loanAmount) / 1_000_000n;
-	const borrowersReserveContribution = (BigInt(reserveContribution) * loanAmount) / 1_000_000n;
-
-	const parsedPrice: number = parseFloat(formatUnits(BigInt(price), 36 - collateralDecimals));
-	const interest: number = position.annualInterestPPM / 10 ** 6;
-	const reserve: number = position.reserveContribution / 10 ** 6;
-	const effectiveInterest: number = interest / (1 - reserve);
-	const effectiveLTV: number = (parsedPrice * (1 - reserve)) / collateralPriceDeuro;
-
-	return {
-		loanAmount,
-		feePercent,
-		fees,
-		borrowersReserveContribution,
-		requiredCollateral,
-		amountToSendToWallet,
-		originalPosition: original,
-		effectiveInterest,
-		effectiveLTV,
-		collateralPriceDeuro,
-	};
-};
-
-const calculateLoanDetailsByLiquidationPrice = (
-	position: PositionQuery,
-	liquidationPrice: bigint,
-	collateralAmount: bigint,
-	collateralPriceDeuro: number
-): LoanDetails => {
-	const { price, annualInterestPPM, reserveContribution, expiration, collateralDecimals, original } = position;
-
-	const feePercent =
-		(BigInt(Math.max(60 * 60 * 24 * 30, Math.floor((toDate(expiration).getTime() - Date.now()) / 1000))) * BigInt(annualInterestPPM)) /
-		BigInt(60 * 60 * 24 * 365);
-
-	const decimalsAdjustment = collateralDecimals === 0 ? BigInt(1e36) : BigInt(1e18);
-	const loanAmount = (BigInt(collateralAmount) * BigInt(liquidationPrice) - BigInt(liquidationPrice) + 1n) / decimalsAdjustment;
-	const fees = (feePercent * loanAmount) / 1_000_000n;
-	const borrowersReserveContribution = (BigInt(reserveContribution) * loanAmount) / 1_000_000n;
-	const amountToSendToWallet = loanAmount - fees - borrowersReserveContribution;
-
-	const interest: number = position.annualInterestPPM / 10 ** 6;
-	const reserve: number = position.reserveContribution / 10 ** 6;
-	const effectiveInterest: number = interest / (1 - reserve);
-	const parsedPrice: number = parseFloat(formatUnits(BigInt(price), 36 - collateralDecimals));
-	const effectiveLTV: number = (parsedPrice * (1 - reserve)) / collateralPriceDeuro;
-
-	return {
-		loanAmount,
-		feePercent,
-		fees,
-		borrowersReserveContribution,
-		requiredCollateral: collateralAmount,
-		amountToSendToWallet: amountToSendToWallet < 0n ? 0n : amountToSendToWallet,
-		originalPosition: original,
-		effectiveInterest,
-		effectiveLTV,
-		collateralPriceDeuro,
-	};
-};
+import { ADDRESS, MintingHubGatewayABI } from "@deuro/eurocoin";
+import { useBlock, useChainId } from "wagmi";
+import { WAGMI_CONFIG } from "../../app.config";
+import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { TxToast } from "@components/TxToast";
+import { toast } from "react-toastify";
+import { renderErrorTxToast } from "@components/TxToast";
+import { fetchPositionsList } from "../../redux/slices/positions.slice";
+import {
+	LoanDetails,
+	calculateLoanDetailsByCollateral,
+	calculateLoanDetailsByBorrowedAmount,
+	calculateLoanDetailsByLiquidationPrice,
+} from "../../utils/loanCalculations";
 
 export default function PositionCreate({}) {
 	const [selectedCollateral, setSelectedCollateral] = useState<TokenBalance | null | undefined>(null);
@@ -153,13 +43,42 @@ export default function PositionCreate({}) {
 	const [isOpenTokenSelector, setIsOpenTokenSelector] = useState(false);
 	const [isOpenBorrowingDEUROModal, setIsOpenBorrowingDEUROModal] = useState(false);
 	const [loanDetails, setLoanDetails] = useState<LoanDetails | undefined>(undefined);
-	const positions = useSelector((state: RootState) => (LIST as PositionQuery[]) || state.positions.list.list); // TODO: remove fake data
-	const { balances } = useWalletERC20Balances();
+	const [isApproving, setIsApproving] = useState(false);
+	const [isCloneSuccess, setIsCloneSuccess] = useState(false);
+	const [isCloneLoading, setIsCloneLoading] = useState(false);
+
+	const positions = useSelector((state: RootState) => state.positions.list.list);
+	const { data: latestBlock } = useBlock();
+	const chainId = useChainId();
+
+	const elegiblePositions = useMemo(() => {
+		const blockTimestamp = latestBlock?.timestamp || new Date().getTime()/1000;
+		return positions
+			.filter((p) => BigInt(p.availableForClones) > 0n)
+			.filter((p) => blockTimestamp > toTimestamp(toDate(p.cooldown)));
+	}, [positions, latestBlock]);
+
+	const collateralTokenList = useMemo(() => {
+		const uniqueTokens = new Map();
+		elegiblePositions
+			.forEach((p) => {
+				uniqueTokens.set(p.collateral.toLowerCase(), {
+					symbol: p.collateralSymbol,
+					address: p.collateral,
+					name: p.collateralName,
+					allowance: [ADDRESS[chainId].mintingHubGateway],
+				});
+			});
+		return Array.from(uniqueTokens.values());
+	}, [elegiblePositions, isApproving]);
+
+	const { balances, refetchBalances } = useWalletERC20Balances(collateralTokenList);
 	const { t } = useTranslation();
 
-	const prices = useSelector((state: RootState) => (PRICES as ApiPriceMapping) || state.prices.coingecko); // TODO: remove fake data
-	const collateralPriceDeuro = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0; // TODO: change to eur
-	const collateralPriceUsd = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0;
+	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const collateralPriceDeuro = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0; // TODO: change to eur?
+
+	const collateralPriceUsd = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0;	
 	const decimalsAdjustment = selectedPosition?.collateralDecimals === 0 ? 18 : (selectedPosition?.collateralDecimals as number);
 	const collateralEurValue = selectedPosition
 		? collateralPriceDeuro * parseFloat(formatUnits(BigInt(collateralAmount), decimalsAdjustment))
@@ -167,14 +86,18 @@ export default function PositionCreate({}) {
 	const collateralUsdValue = selectedPosition
 		? collateralPriceUsd * parseFloat(formatUnits(BigInt(collateralAmount), decimalsAdjustment))
 		: 0;
-	const maxLiquidationPrice = BigInt(Math.floor(MAX_LIQUIDATION_PRICE_DECREASE[0].price.eur * 1e18)); // TODO: remove fake data
+	const maxLiquidationPrice = selectedPosition ? BigInt(collateralPriceUsd * 1e18) : 0n;
 	const isLiquidationPriceTooHigh = selectedPosition ? BigInt(liquidationPrice) >= maxLiquidationPrice : false;
+	const userAllowance =
+		balances.find((b) => b.address == selectedCollateral?.address)?.allowance?.[ADDRESS[chainId].mintingHubGateway] || 0n;
 
 	const handleOnSelectedToken = (token: TokenBalance) => {
 		if (!token) return;
 		setSelectedCollateral(token);
 
-		const selectedPosition = positions.find((p) => p.collateral.toLowerCase() == token.address.toLowerCase());
+		const selectedPosition = positions
+			.filter((p) => BigInt(p.availableForClones) > 0n)
+			.find((p) => p.collateral.toLowerCase() == token.address.toLowerCase());
 		if (!selectedPosition) return;
 
 		setSelectedPosition(selectedPosition);
@@ -231,15 +154,112 @@ export default function PositionCreate({}) {
 		}
 	};
 
+	const handleOnClonePosition = async () => {
+		try {
+			if (!selectedPosition || !loanDetails || !expirationDate) return;
+
+			setIsOpenBorrowingDEUROModal(true);
+			setIsCloneLoading(true);
+			setIsCloneSuccess(false);
+
+			const cloneWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].mintingHubGateway,
+				abi: MintingHubGatewayABI,
+				functionName: "clone",
+				args: [selectedPosition.original, BigInt(collateralAmount), loanDetails.loanAmount, toTimestamp(expirationDate)],
+			});
+
+			const toastContent = [
+				{
+					title: t("common.txs.amount"),
+					value: formatBigInt(loanDetails.loanAmount) + ` ${TOKEN_SYMBOL}`,
+				},
+				{
+					title: t("common.txs.collateral"),
+					value:
+						formatBigInt(BigInt(collateralAmount), selectedPosition.collateralDecimals) +
+						" " +
+						selectedPosition.collateralSymbol,
+				},
+				{
+					title: t("common.txs.transaction"),
+					hash: cloneWriteHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: cloneWriteHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={t("mint.txs.minting", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title={t("mint.txs.minting_success", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
+				},
+			});
+
+			store.dispatch(fetchPositionsList());
+			setIsCloneSuccess(true);
+		} catch (error) {
+			toast.error(renderErrorTxToast(error)); // TODO: add error translation
+			setIsOpenBorrowingDEUROModal(false);
+		} finally {
+			setIsCloneLoading(false);
+			refetchBalances();
+		}
+	};
+
+	const handleApprove = async () => {
+		try {
+			setIsApproving(true);
+
+			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: selectedCollateral?.address as Address,
+				abi: erc20Abi,
+				functionName: "approve",
+				args: [ADDRESS[chainId].mintingHubGateway, maxUint256],
+			});
+
+			const toastContent = [
+				{
+					title: t("common.txs.amount"),
+					value: "infinite " + selectedCollateral?.symbol,
+				},
+				{
+					title: t("common.txs.spender"),
+					value: shortenAddress(ADDRESS[chainId].mintingHubGateway),
+				},
+				{
+					title: t("common.txs.transaction"),
+					hash: approveWriteHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={t("mint.txs.minting", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title={t("mint.txs.minting_success", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
+				},
+			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error)); // TODO: add error translation
+		} finally {
+			setIsApproving(false);
+			refetchBalances();
+		}
+	};
+
 	return (
 		<div className="md:mt-8 flex justify-center">
 			<AppCard className="max-w-lg p-4 flex-col justify-start items-center gap-8 inline-flex overflow-hidden">
 				<div className="self-stretch justify-center items-center gap-1.5 inline-flex">
-					<div className="text-text-title text-xl font-black ">{t('mint.borrow')} {TOKEN_SYMBOL}</div>
+					<div className="text-text-title text-xl font-black ">
+						{t("mint.borrow")} {TOKEN_SYMBOL}
+					</div>
 				</div>
 
 				<div className="self-stretch flex-col justify-start items-center gap-1 flex">
-					<InputTitle icon={faCircleQuestion}>{t('mint.select_collateral')}</InputTitle>
+					<InputTitle icon={faCircleQuestion}>{t("mint.select_collateral")}</InputTitle>
 					<TokenInputSelectOutlined
 						selectedToken={selectedCollateral}
 						onSelectTokenClick={() => setIsOpenTokenSelector(true)}
@@ -249,7 +269,7 @@ export default function PositionCreate({}) {
 						eurValue={collateralEurValue}
 					/>
 					<TokenSelectModal
-						title={t('mint.token_select_modal_title')}
+						title={t("mint.token_select_modal_title")}
 						isOpen={isOpenTokenSelector}
 						setIsOpen={setIsOpenTokenSelector}
 						options={balances}
@@ -257,7 +277,7 @@ export default function PositionCreate({}) {
 					/>
 				</div>
 				<div className="self-stretch flex-col justify-start items-center gap-1 flex">
-					<InputTitle icon={faCircleQuestion}>{t('mint.select_liquidation_price')}</InputTitle>
+					<InputTitle icon={faCircleQuestion}>{t("mint.select_liquidation_price")}</InputTitle>
 					<SliderInputOutlined
 						value={liquidationPrice}
 						onChange={onLiquidationPriceChange}
@@ -265,38 +285,52 @@ export default function PositionCreate({}) {
 						max={maxLiquidationPrice}
 						decimals={36 - (selectedPosition?.collateralDecimals || 0)}
 						isError={isLiquidationPriceTooHigh}
-						errorMessage={t('mint.liquidation_price_too_high')}
+						errorMessage={t("mint.liquidation_price_too_high")}
 					/>
 				</div>
 				<div className="self-stretch flex-col justify-start items-center gap-1.5 flex">
-					<InputTitle>{t('mint.set_expiration_date')}</InputTitle>
+					<InputTitle>{t("mint.set_expiration_date")}</InputTitle>
 					<DateInputOutlined
 						value={expirationDate}
 						maxDate={expirationDate}
 						onChange={setExpirationDate}
 						onMaxClick={expirationDate ? handleMaxExpirationDate : undefined}
 					/>
-					<div className="self-stretch text-xs font-medium leading-normal">
-						{t('mint.expiration_date_description')}
-					</div>
+					<div className="self-stretch text-xs font-medium leading-normal">{t("mint.expiration_date_description")}</div>
 				</div>
 				<div className="self-stretch flex-col justify-start items-start gap-4 flex">
 					<div className="self-stretch flex-col justify-start items-center gap-1.5 flex">
-						<InputTitle>{t('mint.you_get')}</InputTitle>
+						<InputTitle>{t("mint.you_get")}</InputTitle>
 						<NormalInputOutlined value={borrowedAmount} onChange={onYouGetChange} decimals={18} />
 					</div>
 					<DetailsExpandablePanel loanDetails={loanDetails} />
 				</div>
-				<GuardToAllowedChainBtn label={t('mint.borrow') + " " + TOKEN_SYMBOL}>
-					<Button
-						className="!p-4 text-lg font-extrabold leading-none"
-						onClick={() => setIsOpenBorrowingDEUROModal(true)}
-						disabled={!selectedPosition || !selectedCollateral || isLiquidationPriceTooHigh}
+				<GuardToAllowedChainBtn label={t("mint.borrow") + " " + TOKEN_SYMBOL}>
+					{  !selectedCollateral ? (
+						<Button
+							className="!p-4 text-lg font-extrabold leading-none"
+							onClick={handleOnClonePosition}
+							disabled={!selectedPosition || !selectedCollateral || isLiquidationPriceTooHigh}
 					>
-						{isLiquidationPriceTooHigh
-							? t('mint.liquidation_price_too_high')
-							: t('common.receive') + " " + formatCurrency(formatUnits(BigInt(borrowedAmount), 18), 2)}
-					</Button>
+						
+							
+								{ t("common.receive") + " 0.00 " + TOKEN_SYMBOL}
+						</Button>
+					) : userAllowance > BigInt(collateralAmount) ? (
+						<Button
+							className="!p-4 text-lg font-extrabold leading-none"
+							onClick={handleOnClonePosition}
+							disabled={!selectedPosition || !selectedCollateral || isLiquidationPriceTooHigh}
+						>
+							{isLiquidationPriceTooHigh
+								? t("mint.your_liquidation_price_is_too_high")
+								: t("common.receive") + " " + formatCurrency(formatUnits(BigInt(borrowedAmount), 18), 2)}
+						</Button>
+					) : (
+						<Button className="!p-4 text-lg font-extrabold leading-none" onClick={handleApprove} isLoading={isApproving}>
+							{t("common.approve")}
+						</Button>
+					)}
 				</GuardToAllowedChainBtn>
 				<BorrowingDEUROModal
 					isOpen={isOpenBorrowingDEUROModal}
@@ -310,6 +344,8 @@ export default function PositionCreate({}) {
 					formmatedCollateral={`${formatUnits(BigInt(collateralAmount), 36 - (selectedPosition?.collateralDecimals || 0))} ${
 						selectedPosition?.collateralSymbol
 					}`}
+					isSuccess={isCloneSuccess}
+					isLoading={isCloneLoading}
 				/>
 			</AppCard>
 		</div>

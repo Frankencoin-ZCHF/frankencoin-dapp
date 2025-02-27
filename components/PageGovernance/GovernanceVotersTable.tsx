@@ -33,7 +33,7 @@ export default function GovernanceVotersTable() {
 	const votingPowersHook = useVotingPowers(nativePoolShareHolders.holders);
 	const votesTotal = votingPowersHook.totalVotes;
 	const votesData: VoteData[] = votingPowersHook.votesData.map((vp) => {
-		const ratio: number = parseInt(vp.votingPower.toString()) / parseInt(votesTotal.toString());
+		const ratio: number = vp.votingPower ? parseInt(vp.votingPower.toString()) / parseInt(votesTotal.toString()) : 0;
 		return {
 			holder: vp.holder as Address,
 			nativePS: BigInt(vp.nativePS),

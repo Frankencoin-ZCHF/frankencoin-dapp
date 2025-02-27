@@ -204,6 +204,7 @@ export default function Swap() {
 					render: <TxToast title={t('common.txs.success', {symbol: fromSymbol})} rows={toastContent} />,
 				},
 			});
+			swapStats.refetch();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: need to translate
 		} finally {
@@ -237,7 +238,7 @@ export default function Swap() {
 					value: formatBigInt(amount, Number(fromDecimals)) + " " + toSymbol,
 				},
 				{
-					title: t('swap.swap_tx.transaction'),
+					title: t('common.txs.transaction'),
 					hash: mintWriteHash,
 				},
 			];
@@ -250,6 +251,7 @@ export default function Swap() {
 					render: <TxToast title={t('swap.swap_tx.success', {fromSymbol, toSymbol})} rows={toastContent} />,
 				},
 			});
+			swapStats.refetch();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: need to translate
 		} finally {
@@ -284,7 +286,7 @@ export default function Swap() {
 					value: formatBigInt(amount, Number(fromDecimals)) + " " + toSymbol,
 				},
 				{
-					title: t('common.swap_tx.transaction'),
+					title: t('common.txs.transaction'),
 					hash: burnWriteHash,
 				},
 			];
@@ -297,6 +299,7 @@ export default function Swap() {
 					render: <TxToast title={t('swap.swap_tx.success', {fromSymbol, toSymbol})} rows={toastContent} />,
 				},
 			});
+			swapStats.refetch();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: need to translate
 		} finally {

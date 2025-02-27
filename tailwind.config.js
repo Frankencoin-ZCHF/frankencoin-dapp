@@ -123,6 +123,17 @@ module.exports = {
 							bg: "#EAEBF0",
 						},
 					},
+					text:{
+						default: {
+							text: "#272B38",
+						},
+						hover: {
+							text: "#0F80F0",
+						},
+						disabled: {
+							text: "#ADB2C2",
+						},
+					}
 				},
 				table: {
 					header: {

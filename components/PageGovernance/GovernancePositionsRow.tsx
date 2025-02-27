@@ -1,8 +1,7 @@
-import { Address, formatUnits, zeroAddress } from "viem";
+import { formatUnits } from "viem";
 import TableRow from "../Table/TableRow";
-import { PositionQuery, PriceQueryObjectArray } from "@deuro/api";
+import { PositionQuery } from "@deuro/api";
 import { formatCurrency, FormatType, shortenAddress } from "../../utils/format";
-import { useContractUrl } from "@hooks";
 import GovernancePositionsAction from "./GovernancePositionsAction";
 import DisplayCollateralBorrowTable from "@components/PageBorrow/DisplayCollateralBorrowTable";
 import { AddressLabelSimple } from "@components/AddressLabel";
@@ -14,13 +13,11 @@ interface Props {
 	headers: string[];
 	subHeaders: string[];
 	position: PositionQuery;
-	prices: PriceQueryObjectArray;
 	tab: string;
 }
 
-export default function GovernancePositionsRow({ headers, subHeaders, position, prices, tab }: Props) {
-	const price = prices[position.collateral.toLowerCase() as Address];
-	if (!position || !price) return null;
+export default function GovernancePositionsRow({ headers, subHeaders, position, tab }: Props) {
+	if (!position) return null;
 
 	const limit = formatUnits(BigInt(position.limitForClones), 18);
 	const maturity = (position.expiration - position.start) / 60 / 60 / 24 / 30;

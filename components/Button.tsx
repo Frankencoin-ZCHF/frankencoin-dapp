@@ -1,5 +1,5 @@
 import LoadingSpin from "./LoadingSpin";
-
+import Link from "next/link";
 interface Props {
 	size?: "sm" | "md";
 	className?: string;
@@ -47,5 +47,22 @@ export const SecondaryButton = ({ children, className, onClick, disabled, isLoad
 			{isLoading && <LoadingSpin />}
 			{children}
 		</button>
+	);
+};
+
+interface SecondaryLinkButtonProps extends Props {
+	href: string;
+}
+
+export const SecondaryLinkButton = ({ children, className, onClick, disabled, isLoading, href }: SecondaryLinkButtonProps) => {
+	return (
+		<Link
+			href={href}
+			className={`btn text-base font-extrabold bg-button-secondary-default-bg text-button-secondary-default-text hover:bg-button-secondary-hover-bg hover:text-button-secondary-hover-text ${className}`}
+			onClick={(e) => !disabled && !isLoading && onClick?.(e)}
+		>
+			{isLoading && <LoadingSpin />}
+			{children}
+		</Link>
 	);
 };

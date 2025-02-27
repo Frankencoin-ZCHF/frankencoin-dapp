@@ -18,7 +18,7 @@ export const usePoolStats = () => {
 		abi: DecentralizedEUROABI,
 	};
 
-	const { data } = useReadContracts({
+	const { data, refetch } = useReadContracts({
 		contracts: [
 			// Equity Calls
 			{
@@ -102,5 +102,6 @@ export const usePoolStats = () => {
 		deuroEquity,
 		deuroBalance,
 		deuroAllowance,
+		refetchPoolStats: refetch,
 	};
 };
