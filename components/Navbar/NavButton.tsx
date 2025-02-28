@@ -1,5 +1,7 @@
+import { MARKETING_PARAM_NAME } from "@utils";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { getCarryOnQueryParams } from "../../utils/url";
 
 interface Props {
 	to: string;
@@ -10,10 +12,13 @@ interface Props {
 export default function NavButton({ to, name, external }: Props) {
 	const router = useRouter();
 	const active = router.pathname.includes(to);
+	const carryOnQueryParams = getCarryOnQueryParams(router);
 	
 	const href = {
 		pathname: to,
-		query: router.query
+		query: {
+			...carryOnQueryParams,
+		},
 	};
 
 	const activeClass = active ? "bg-menu-active-bg menu-active-text" : "bg-menu-default-bg menu-default-text";

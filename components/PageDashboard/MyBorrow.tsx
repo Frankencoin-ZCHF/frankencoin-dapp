@@ -6,8 +6,10 @@ import { HeaderCell, NoDataRow } from "./SectionTable";
 import { useAccount } from "wagmi";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
-import { formatUnits } from "viem";
+import { Address, formatUnits, zeroAddress } from "viem";
 import { formatCurrency, TOKEN_SYMBOL } from "@utils";
+import { useRouter } from "next/router";
+import { getPublicViewAddress } from "../../utils/url";
 interface BorrowData {
 	position: `0x${string}`;
 	symbol: string;
@@ -109,9 +111,13 @@ const MobileTable = ({ borrowData }: { borrowData: BorrowData[] }) => {
 export const MyBorrow = () => {
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const { address } = useAccount();
+	const router = useRouter();
 	const { t } = useTranslation();
 
-	const borrowData = positions.filter((position) => position.owner === address).map((position) => ({
+	const overwrite = getPublicViewAddress(router);
+	const account = overwrite || address || zeroAddress;
+
+	const borrowData = positions.filter((position) => position.owner === account).map((position) => ({
 		position: position.position as `0x${string}`,
 		symbol: position.collateralSymbol,
 		collateralAmount: formatUnits(BigInt(position.collateralBalance), position.collateralDecimals) as string,

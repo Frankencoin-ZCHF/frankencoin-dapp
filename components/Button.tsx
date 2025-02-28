@@ -1,3 +1,5 @@
+import { useRouter } from "next/router";
+import { getCarryOnQueryParams } from "../utils/url";
 import LoadingSpin from "./LoadingSpin";
 import Link from "next/link";
 interface Props {
@@ -55,9 +57,15 @@ interface SecondaryLinkButtonProps extends Props {
 }
 
 export const SecondaryLinkButton = ({ children, className, onClick, disabled, isLoading, href }: SecondaryLinkButtonProps) => {
+	const router = useRouter();
+	const carryOnQueryParams = getCarryOnQueryParams(router);
+
 	return (
 		<Link
-			href={href}
+			href={{
+				pathname: href,
+				query: carryOnQueryParams,
+			}}
 			className={`btn text-base font-extrabold bg-button-secondary-default-bg text-button-secondary-default-text hover:bg-button-secondary-hover-bg hover:text-button-secondary-hover-text ${className}`}
 			onClick={(e) => !disabled && !isLoading && onClick?.(e)}
 		>
