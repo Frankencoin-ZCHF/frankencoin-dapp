@@ -1,5 +1,6 @@
 import { formatUnits } from "viem";
 import { BigNumberInput } from "./BigNumberInput";
+import { useState } from "react";
 
 interface SliderInputOutlinedProps {
 	value: string;
@@ -13,10 +14,13 @@ interface SliderInputOutlinedProps {
 
 export function SliderInputOutlined({ value, onChange, min, max, decimals, isError, errorMessage }: SliderInputOutlinedProps) {
 	const isOnError = isError || (value && max && BigInt(value) >= max);
+	const [isFocused, setIsFocused] = useState(false);
 
 	return (
 		<div className="self-stretch relative pb-1.5">
-			<div className="self-stretch p-2 rounded-xl border border-input-border flex-col justify-center items-start gap-2 flex">
+			<div className={`self-stretch p-2 rounded-xl border-2 border-transparent relative flex-col justify-center items-start gap-2 flex before:absolute before:inset-0 before:rounded-xl before:border before:pointer-events-none ${
+				isFocused ? "before:border-2 before:border-input-borderFocus" : "before:border-input-border"
+			}`}>
 				<div className="h-18 self-stretch justify-between inline-flex flex-col sm:flex-row">
 					<div className="flex-col justify-center items-start inline-flex">
 						<div className="self-stretch px-2 bg-white rounded-xl flex-col justify-center items-start flex">
@@ -30,6 +34,8 @@ export function SliderInputOutlined({ value, onChange, min, max, decimals, isErr
 									value={value}
 									onChange={(e) => onChange(e)}
 									decimals={decimals}
+									onFocus={() => setIsFocused(true)}
+									onBlur={() => setIsFocused(false)}
 								/>
 							</div>
 						</div>
@@ -55,10 +61,12 @@ export function SliderInputOutlined({ value, onChange, min, max, decimals, isErr
 									{...props}
 									type="range"
 									className={`w-full min-w-[220px] ${isOnError ? "!bg-text-warning" : ""}`}
+									onFocus={() => setIsFocused(true)}
+									onBlur={() => setIsFocused(false)}
 									{...(min || max
 										? {
 												min: formatUnits(min, decimals),
-												max: formatUnits(max + BigInt(1e18), decimals), // to allow go a bit over max
+												max: formatUnits(max + BigInt(1), decimals), // to allow go a bit over max
 												step: formatUnits(BigInt(1), decimals),
 										  }
 										: {})}

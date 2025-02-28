@@ -86,10 +86,11 @@ export default function PositionCreate({}) {
 	const collateralUsdValue = selectedPosition
 		? collateralPriceUsd * parseFloat(formatUnits(BigInt(collateralAmount), decimalsAdjustment))
 		: 0;
-	const maxLiquidationPrice = selectedPosition ? BigInt(collateralPriceUsd * 1e18) : 0n;
+	const maxLiquidationPrice = selectedPosition ? BigInt(selectedPosition.price) : 0n;
 	const isLiquidationPriceTooHigh = selectedPosition ? BigInt(liquidationPrice) >= maxLiquidationPrice : false;
 	const userAllowance =
 		balances.find((b) => b.address == selectedCollateral?.address)?.allowance?.[ADDRESS[chainId].mintingHubGateway] || 0n;
+	const isCollateralError = collateralAmount !== "0" && collateralAmount !== "" && BigInt(collateralAmount) < BigInt(selectedPosition?.minimumCollateral || 0n);
 
 	const handleOnSelectedToken = (token: TokenBalance) => {
 		if (!token) return;
@@ -103,7 +104,7 @@ export default function PositionCreate({}) {
 		setSelectedPosition(selectedPosition);
 		setCollateralAmount(selectedPosition.minimumCollateral);
 		setExpirationDate(toDate(selectedPosition.expiration));
-		setLiquidationPrice(selectedPosition.price);
+		setLiquidationPrice((BigInt(selectedPosition.price) / 2n).toString());
 
 		const loanDetails = calculateLoanDetailsByCollateral(
 			selectedPosition,
@@ -267,6 +268,8 @@ export default function PositionCreate({}) {
 						onChange={onCollateralChange}
 						usdValue={collateralUsdValue}
 						eurValue={collateralEurValue}
+						isError={isCollateralError}
+						errorMessage={`${t("mint.error.must_be_at_least_the_minimum_amount")} (${formatBigInt(BigInt(selectedPosition?.minimumCollateral || 0n))} ${selectedPosition?.collateralSymbol})`}
 					/>
 					<TokenSelectModal
 						title={t("mint.token_select_modal_title")}
@@ -283,7 +286,7 @@ export default function PositionCreate({}) {
 						onChange={onLiquidationPriceChange}
 						min={BigInt(0)}
 						max={maxLiquidationPrice}
-						decimals={36 - (selectedPosition?.collateralDecimals || 0)}
+						decimals={selectedCollateral?.decimals || 0}
 						isError={isLiquidationPriceTooHigh}
 						errorMessage={t("mint.liquidation_price_too_high")}
 					/>
@@ -320,7 +323,7 @@ export default function PositionCreate({}) {
 						<Button
 							className="!p-4 text-lg font-extrabold leading-none"
 							onClick={handleOnClonePosition}
-							disabled={!selectedPosition || !selectedCollateral || isLiquidationPriceTooHigh}
+							disabled={!selectedPosition || !selectedCollateral || isLiquidationPriceTooHigh || isCollateralError}
 						>
 							{isLiquidationPriceTooHigh
 								? t("mint.your_liquidation_price_is_too_high")
