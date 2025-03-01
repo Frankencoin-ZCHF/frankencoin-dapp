@@ -28,9 +28,8 @@ import { renderErrorTxToast } from "@components/TxToast";
 import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import {
 	LoanDetails,
-	calculateLoanDetailsByCollateral,
-	calculateLoanDetailsByBorrowedAmount,
-	calculateLoanDetailsByLiquidationPrice,
+	calculateLiquidationPriceLoanDetails,
+	calculateYouGetAmountLoanDetails,
 } from "../../utils/loanCalculations";
 
 export default function PositionCreate({}) {
@@ -101,25 +100,28 @@ export default function PositionCreate({}) {
 			.find((p) => p.collateral.toLowerCase() == token.address.toLowerCase());
 		if (!selectedPosition) return;
 
+		const liqPrice = BigInt(selectedPosition.price) / 2n;
+
 		setSelectedPosition(selectedPosition);
 		setCollateralAmount(selectedPosition.minimumCollateral);
 		setExpirationDate(toDate(selectedPosition.expiration));
-		setLiquidationPrice((BigInt(selectedPosition.price) / 2n).toString());
+		setLiquidationPrice(liqPrice.toString());
 
-		const loanDetails = calculateLoanDetailsByCollateral(
+		const loanDetails = calculateYouGetAmountLoanDetails(
 			selectedPosition,
 			BigInt(selectedPosition.minimumCollateral),
-			collateralPriceDeuro
+			liqPrice,
 		);
+
 		setLoanDetails(loanDetails);
 		setBorrowedAmount(loanDetails.amountToSendToWallet.toString());
 	};
 
-	const onCollateralChange = (value: string) => {
+	const onAmountCollateralChange = (value: string) => {
 		setCollateralAmount(value);
 		if (!selectedPosition) return;
 
-		const loanDetails = calculateLoanDetailsByCollateral(selectedPosition, BigInt(value), collateralPriceDeuro);
+		const loanDetails = calculateYouGetAmountLoanDetails(selectedPosition, BigInt(value), BigInt(liquidationPrice));
 		setLoanDetails(loanDetails);
 		setBorrowedAmount(loanDetails.amountToSendToWallet.toString());
 	};
@@ -129,11 +131,10 @@ export default function PositionCreate({}) {
 
 		if (!selectedPosition) return;
 
-		const loanDetails = calculateLoanDetailsByLiquidationPrice(
+		const loanDetails = calculateYouGetAmountLoanDetails(
 			selectedPosition,
-			BigInt(value),
 			BigInt(collateralAmount),
-			collateralPriceDeuro
+			BigInt(value),
 		);
 		setLoanDetails(loanDetails);
 		setBorrowedAmount(loanDetails.amountToSendToWallet.toString());
@@ -144,9 +145,9 @@ export default function PositionCreate({}) {
 
 		if (!selectedPosition) return;
 
-		const loanDetails = calculateLoanDetailsByBorrowedAmount(selectedPosition, BigInt(value), collateralPriceDeuro);
+		const loanDetails = calculateLiquidationPriceLoanDetails(selectedPosition, BigInt(collateralAmount), BigInt(value));
 		setLoanDetails(loanDetails);
-		setCollateralAmount(loanDetails.requiredCollateral.toString());
+		setLiquidationPrice(loanDetails.liquidationPrice.toString());
 	};
 
 	const handleMaxExpirationDate = () => {
@@ -265,7 +266,7 @@ export default function PositionCreate({}) {
 						selectedToken={selectedCollateral}
 						onSelectTokenClick={() => setIsOpenTokenSelector(true)}
 						value={collateralAmount}
-						onChange={onCollateralChange}
+						onChange={onAmountCollateralChange}
 						usdValue={collateralUsdValue}
 						eurValue={collateralEurValue}
 						isError={isCollateralError}
@@ -306,7 +307,7 @@ export default function PositionCreate({}) {
 						<InputTitle>{t("mint.you_get")}</InputTitle>
 						<NormalInputOutlined value={borrowedAmount} onChange={onYouGetChange} decimals={18} />
 					</div>
-					<DetailsExpandablePanel loanDetails={loanDetails} />
+					<DetailsExpandablePanel loanDetails={loanDetails} collateralPriceDeuro={collateralPriceDeuro} />
 				</div>
 				<GuardToAllowedChainBtn label={t("mint.borrow") + " " + TOKEN_SYMBOL}>
 					{  !selectedCollateral ? (

@@ -1,5 +1,4 @@
 import { PositionQuery } from "@deuro/api";
-import { formatUnits } from "viem";
 import { toDate } from "./format";
 
 export type LoanDetails = {
@@ -12,114 +11,74 @@ export type LoanDetails = {
 	originalPosition: `0x${string}`;
 	effectiveInterest: number;
 	effectiveLTV: number;
-	collateralPriceDeuro: number;
+	liquidationPrice: bigint;
 };
 
-
-export const calculateLoanDetailsByCollateral = (position: PositionQuery, collateralAmount: bigint, collateralPriceDeuro: number): LoanDetails => {
-	const { price, annualInterestPPM, reserveContribution, expiration, collateralDecimals, original } = position;
-
-	const feePercent =
-		(BigInt(Math.max(60 * 60 * 24 * 30, Math.floor((toDate(expiration).getTime() - Date.now()) / 1000))) * BigInt(annualInterestPPM)) /
-		BigInt(60 * 60 * 24 * 365);
-
+export const calculateYouGetAmountLoanDetails = (position: PositionQuery, collateralAmount: bigint, liquidationPrice: bigint): LoanDetails => {
+	const { annualInterestPPM, reserveContribution, expiration, collateralDecimals, original } = position;
+	
+	const requiredCollateral = collateralAmount;
 	const decimalsAdjustment = collateralDecimals === 0 ? BigInt(1e36) : BigInt(1e18);
-	const loanAmount = (BigInt(collateralAmount) * BigInt(price) - BigInt(price) + 1n) / decimalsAdjustment;
-	const fees = (feePercent * loanAmount) / 1_000_000n;
+	const loanAmount = (BigInt(collateralAmount) * BigInt(liquidationPrice)) / decimalsAdjustment;
 	const borrowersReserveContribution = (BigInt(reserveContribution) * loanAmount) / 1_000_000n;
-	const amountToSendToWallet = loanAmount - fees - borrowersReserveContribution;
+	const amountToSendToWallet = loanAmount - borrowersReserveContribution;
 
-	const interest: number = position.annualInterestPPM / 10 ** 6;
-	const reserve: number = position.reserveContribution / 10 ** 6;
-	const effectiveInterest: number = interest / (1 - reserve);
-	const parsedPrice: number = parseFloat(formatUnits(BigInt(price), 36 - collateralDecimals));
-	const effectiveLTV: number = (parsedPrice * (1 - reserve)) / collateralPriceDeuro;
+	// TODO: Check if this is correct
+	const feePercent = 0;
+	const fees = 0;
+	const interest: number = 0;
+	const reserve: number = 0;
+	const effectiveInterest: number = 0;
+	const effectiveLTV: number = 0;
 
 	return {
 		loanAmount,
-		feePercent,
-		fees,
+		feePercent: BigInt(0),
+		fees: BigInt(0),
 		borrowersReserveContribution,
-		requiredCollateral: collateralAmount,
+		requiredCollateral,
 		amountToSendToWallet: amountToSendToWallet < 0n ? 0n : amountToSendToWallet,
 		originalPosition: original,
 		effectiveInterest,
 		effectiveLTV,
-		collateralPriceDeuro,
+		liquidationPrice,
 	};
 };
 
-export const calculateLoanDetailsByBorrowedAmount = (
+export const calculateLiquidationPriceLoanDetails = (
 	position: PositionQuery,
-	amountToSendToWallet: bigint,
-	collateralPriceDeuro: number
+	collateralAmount: bigint,
+	youGet: bigint,
 ): LoanDetails => {
-	const { price, annualInterestPPM, reserveContribution, expiration, collateralDecimals, original } = position;
+	const { annualInterestPPM, reserveContribution, expiration, collateralDecimals, original } = position;
 
+	const requiredCollateral = collateralAmount;
+	const amountToSendToWallet = youGet;
+	const decimalsAdjustment = collateralDecimals === 0 ? BigInt(1e36) : BigInt(1e18);
+	const loanAmount = (amountToSendToWallet * 1_000_000n) / (1_000_000n - BigInt(reserveContribution));
+	const borrowersReserveContribution = (BigInt(reserveContribution) * loanAmount) / 1_000_000n;
+	const liquidationPrice = (loanAmount * decimalsAdjustment) / collateralAmount;
+
+	// TODO: Check if this is correct
 	const feePercent =
 		(BigInt(Math.max(60 * 60 * 24 * 30, Math.floor((toDate(expiration).getTime() - Date.now()) / 1000))) * BigInt(annualInterestPPM)) /
 		BigInt(60 * 60 * 24 * 365);
-
-	const loanAmount = (amountToSendToWallet * 1_000_000n) / (1_000_000n - feePercent - BigInt(reserveContribution));
-	const decimalsAdjustment = collateralDecimals === 0 ? BigInt(1e36) : BigInt(1e18);
-	const requiredCollateral = (loanAmount * decimalsAdjustment + BigInt(price) - 1n) / BigInt(price);
-	const fees = (feePercent * loanAmount) / 1_000_000n;
-	const borrowersReserveContribution = (BigInt(reserveContribution) * loanAmount) / 1_000_000n;
-
-	const parsedPrice: number = parseFloat(formatUnits(BigInt(price), 36 - collateralDecimals));
-	const interest: number = position.annualInterestPPM / 10 ** 6;
-	const reserve: number = position.reserveContribution / 10 ** 6;
-	const effectiveInterest: number = interest / (1 - reserve);
-	const effectiveLTV: number = (parsedPrice * (1 - reserve)) / collateralPriceDeuro;
+	const fees = 0;
+	const interest: number = 0;
+	const reserve: number = 0;
+	const effectiveInterest: number = 0;
+	const effectiveLTV: number = 0;
 
 	return {
 		loanAmount,
-		feePercent,
-		fees,
+		feePercent: BigInt(0),
+		fees: BigInt(0),
 		borrowersReserveContribution,
 		requiredCollateral,
 		amountToSendToWallet,
 		originalPosition: original,
 		effectiveInterest,
 		effectiveLTV,
-		collateralPriceDeuro,
-	};
-};
-
-export const calculateLoanDetailsByLiquidationPrice = (
-	position: PositionQuery,
-	liquidationPrice: bigint,
-	collateralAmount: bigint,
-	collateralPriceDeuro: number
-): LoanDetails => {
-	const { price, annualInterestPPM, reserveContribution, expiration, collateralDecimals, original } = position;
-
-	const feePercent =
-		(BigInt(Math.max(60 * 60 * 24 * 30, Math.floor((toDate(expiration).getTime() - Date.now()) / 1000))) * BigInt(annualInterestPPM)) /
-		BigInt(60 * 60 * 24 * 365);
-
-	const decimalsAdjustment = collateralDecimals === 0 ? BigInt(1e36) : BigInt(1e18);
-	const loanAmount = (BigInt(collateralAmount) * BigInt(liquidationPrice) - BigInt(liquidationPrice) + 1n) / decimalsAdjustment;
-	const fees = (feePercent * loanAmount) / 1_000_000n;
-	const borrowersReserveContribution = (BigInt(reserveContribution) * loanAmount) / 1_000_000n;
-	const amountToSendToWallet = loanAmount - fees - borrowersReserveContribution;
-
-	const interest: number = position.annualInterestPPM / 10 ** 6;
-	const reserve: number = position.reserveContribution / 10 ** 6;
-	const effectiveInterest: number = interest / (1 - reserve);
-	const parsedPrice: number = parseFloat(formatUnits(BigInt(price), 36 - collateralDecimals));
-	const effectiveLTV: number = (parsedPrice * (1 - reserve)) / collateralPriceDeuro;
-
-	return {
-		loanAmount,
-		feePercent,
-		fees,
-		borrowersReserveContribution,
-		requiredCollateral: collateralAmount,
-		amountToSendToWallet: amountToSendToWallet < 0n ? 0n : amountToSendToWallet,
-		originalPosition: original,
-		effectiveInterest,
-		effectiveLTV,
-		collateralPriceDeuro,
+		liquidationPrice,
 	};
 };

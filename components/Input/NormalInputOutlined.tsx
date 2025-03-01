@@ -14,7 +14,7 @@ export function NormalInputOutlined({ value, onChange, decimals }: NormalInputOu
 		<div className={`self-stretch p-2 rounded-xl border-2 border-transparent relative flex-row justify-between items-start gap-2 flex before:absolute before:inset-0 before:rounded-xl before:border before:pointer-events-none ${
 			isFocused ? "before:border-2 before:border-input-borderFocus" : "before:border-input-border"
 		}`}>
-			<div className="self-stretch p-1.5 justify-start items-center gap-1.5 inline-flex overflow-hidden">
+			<div className="w-full max-w-full self-stretch p-1.5 justify-start items-center gap-1.5 inline-flex overflow-hidden">
 				<TokenLogo currency="deuro" size={6} />
 				<BigNumberInput
 					className="p-0 grow text-input-primary placeholder:text-input-placeholder text-2xl font-medium leading-tight"
