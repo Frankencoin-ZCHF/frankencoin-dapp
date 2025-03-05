@@ -1,4 +1,5 @@
 import { formatUnits } from "viem";
+import { BigNumberInput } from "./BigNumberInput";
 
 interface Props {
 	label?: string;
@@ -12,7 +13,7 @@ interface Props {
 	output?: string; // overwrite with string output
 	note?: string;
 
-	autofocus?: boolean;
+	autoFocus?: boolean;
 	disabled?: boolean;
 }
 
@@ -26,13 +27,9 @@ export default function NormalInput({
 	digit = 18,
 	output,
 	note,
-	autofocus = false,
+	autoFocus = false,
 	disabled = false,
 }: Props) {
-	const isNumber = (value: string): boolean => {
-		return !isNaN(Number(value)) && value.trim() !== "";
-	};
-	value = isNumber(value) ? formatUnits(BigInt(value), Number(digit)).toString() : value;
 	return (
 		<div className="">
 			<div
@@ -44,20 +41,21 @@ export default function NormalInput({
 
 				<div className="flex items-center">
 					<div
-						className={`flex-1 my-2 text-lg bg-transparent ${
+						className={`flex-1 my-2 text-xl bg-transparent ${
 							error ? "text-card-input-error" : !!value ? "text-text-primary" : "placeholder:text-card-input-empty"
 						}`}
 					>
 						{output ? (
 							<div className={``}>{output}</div>
 						) : (
-							<input
+							<BigNumberInput
 								className={`w-full`}
+								decimals={Number(digit)}
 								placeholder={placeholder}
 								value={value}
-								onChange={(e) => onChange?.(e.target.value)}
+								onChange={onChange}
+								autoFocus={autoFocus}
 								disabled={disabled}
-								autoFocus={autofocus}
 							/>
 						)}
 					</div>

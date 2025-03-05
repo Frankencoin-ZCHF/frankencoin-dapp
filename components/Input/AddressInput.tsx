@@ -4,11 +4,11 @@ interface Props {
 	value?: string;
 	onChange?: (value: string) => void;
 	error?: string;
-	autofocus?: boolean;
+	autoFocus?: boolean;
 	disabled?: boolean;
 }
 
-export default function AddressInput({ label, placeholder, value, error, onChange, autofocus, disabled }: Props) {
+export default function AddressInput({ label, placeholder, value, error, onChange, autoFocus, disabled }: Props) {
 	return (
 		<div className="">
 			<div
@@ -25,7 +25,7 @@ export default function AddressInput({ label, placeholder, value, error, onChang
 					value={value}
 					onChange={(e) => onChange?.(e.target.value)}
 					disabled={disabled}
-					autoFocus={autofocus}
+					autoFocus={autoFocus}
 				/>
 			</div>
 

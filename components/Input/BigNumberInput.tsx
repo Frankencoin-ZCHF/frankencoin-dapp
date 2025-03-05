@@ -3,11 +3,10 @@ import { formatUnits, parseUnits } from "@ethersproject/units";
 import { BigNumber } from "@ethersproject/bignumber";
 
 export type BigNumberInputProps = {
-	decimals: number;
+	decimals?: number;
 	value: string;
-	onChange: (value: string) => void;
-	renderInput?: (props: React.HTMLProps<HTMLInputElement>) => React.ReactElement;
-	autofocus?: boolean;
+	onChange?: (value: string) => void;
+	autoFocus?: boolean;
 	placeholder?: string;
 	max?: string;
 	min?: string;
@@ -16,11 +15,10 @@ export type BigNumberInputProps = {
 };
 
 export function BigNumberInput({
-	decimals,
+	decimals = 18,
 	value,
 	onChange,
-	renderInput,
-	autofocus,
+	autoFocus,
 	placeholder = "0.00",
 	max,
 	min,
@@ -51,17 +49,17 @@ export function BigNumberInput({
 	}, [value, decimals, inputValue]);
 
 	React.useEffect(() => {
-		if (!renderInput && autofocus && inputRef) {
+		if (autoFocus && inputRef) {
 			const node = inputRef.current as HTMLInputElement;
 			node.focus();
 		}
-	}, [autofocus, inputRef, renderInput]);
+	}, [autoFocus, inputRef]);
 
 	const updateValue = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { value } = event.currentTarget;
 
 		if (value === "") {
-			onChange(value);
+			onChange?.(value);
 			setInputvalue(value);
 			return;
 		}
@@ -80,7 +78,7 @@ export function BigNumberInput({
 		}
 
 		setInputvalue(value);
-		onChange(newValue.toString());
+		onChange?.(newValue.toString());
 	};
 
 	const inputProps = {
@@ -88,8 +86,10 @@ export function BigNumberInput({
 		onChange: updateValue,
 		type: "text",
 		value: inputValue,
-		className: `${className} ${disabled ? "text-slate-400" : ""}`,
+		className,
+		disabled,
+		autoFocus,
 	};
 
-	return renderInput ? renderInput({ ...inputProps }) : <input {...inputProps} ref={inputRef} disabled={disabled} />;
+	return <input {...inputProps} ref={inputRef} disabled={disabled} />;
 }
