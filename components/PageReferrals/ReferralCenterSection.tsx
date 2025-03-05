@@ -1,10 +1,18 @@
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import Button from "@components/Button";
 import { TextInputOutlined } from "@components/Input/TextInputOutlined";
 import { faCheck, faCopy } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useTranslation } from "next-i18next";
+import { stringToHex, pad, zeroAddress } from "viem";
+import { ADDRESS, FrontendGatewayABI } from "@deuro/eurocoin";
+import { useChainId } from "wagmi";
+import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { WAGMI_CONFIG } from "../../app.config";
+import { toast } from "react-toastify";
+import { TxToast } from "@components/TxToast";
+import { MARKETING_PARAM_NAME } from "@utils";
 
 const ExplanationItem = ({ icon, title, description }: { icon: string; title: string; description: string }) => (
 	<div className="max-w-[28rem] justify-start items-start gap-3 flex">
@@ -39,7 +47,10 @@ export const CopyLinkButton = ({ text, contentOnCopy }: { text: string; contentO
 					{isCopied ? contentOnCopy : text}
 				</span>
 				<span>
-					<FontAwesomeIcon icon={isCopied ? faCheck : faCopy} className="w-4 h-4 sm:w-5 sm:h-5 relative text-white overflow-hidden" />
+					<FontAwesomeIcon
+						icon={isCopied ? faCheck : faCopy}
+						className="w-4 h-4 sm:w-5 sm:h-5 relative text-white overflow-hidden"
+					/>
 				</span>
 			</Button>
 		</div>
@@ -49,42 +60,123 @@ export const CopyLinkButton = ({ text, contentOnCopy }: { text: string; contentO
 export const ReferralCenterSection = () => {
 	const [referralName, setReferralName] = useState("");
 	const [referralLink, setReferralLink] = useState("");
+	const [isReferralNameAvailable, setIsReferralNameAvailable] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const chainId = useChainId();
 	const { t } = useTranslation();
+	const timer = useRef<NodeJS.Timeout | null>(null);
 
-	const createReferralLink = () => {
-		const refLink = `https://deuro.com/referral/${referralName}`;
-		navigator.clipboard.writeText(refLink);
-		setReferralLink(refLink);
-		setReferralName("");
+	const handleReferralNameChange = useCallback(async (value: string) => {
+		setReferralName(value);
+
+		if (timer.current) clearTimeout(timer.current);
+		if (!value) return;
+
+		timer.current = setTimeout(async () => {
+			try {
+				const frontendCode = pad(stringToHex(value), { size: 32 });
+				const [, owner] = await readContract(WAGMI_CONFIG, {
+					address: ADDRESS[chainId].frontendGateway,
+					abi: FrontendGatewayABI,
+					functionName: "frontendCodes",
+					args: [frontendCode],
+				});
+
+				setIsReferralNameAvailable(owner === zeroAddress);
+			} catch (error) {
+				console.error(error);
+			}
+		}, 500);
+	}, [chainId]);
+
+	const createReferralLink = async () => {
+		try {
+			setIsLoading(true);
+
+			const frontendCode = pad(stringToHex(referralName), { size: 32 });
+			const [, owner] = await readContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].frontendGateway,
+				abi: FrontendGatewayABI,
+				functionName: "frontendCodes",
+				args: [frontendCode],
+			});
+
+			if (owner !== zeroAddress) {
+				setIsReferralNameAvailable(false);
+				throw new Error("Referral name already taken");
+			}
+
+			const registerWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].frontendGateway,
+				abi: FrontendGatewayABI,
+				functionName: "registerFrontendCode",
+				args: [frontendCode],
+			});
+
+			const toastContent = [
+				{
+					title: t("referrals.txs.referral_code"),
+					value: referralName,
+				},
+				{
+					title: t("common.txs.transaction"),
+					hash: registerWriteHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: registerWriteHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={t("referrals.txs.registering_referral_code")} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title={t("referrals.txs.referral_code_registered")} rows={toastContent} />,
+				},
+			});
+			
+			const refLink = `${window.location.origin}?${MARKETING_PARAM_NAME}=${referralName}`;
+			setReferralLink(refLink);
+			setReferralName("");
+		} catch (error) {
+			console.error(error);
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	return (
 		<div className="w-full self-stretch flex-col rounded-xl justify-start items-center gap-12 inline-flex shadow-card">
 			<div className="w-full bg-white rounded-xl flex-col justify-start items-start flex overflow-hidden">
 				<div className="self-stretch p-4 sm:p-8 border-b border-borders-primary flex justify-between flex-col sm:flex-row">
-					<div className="self-stretch flex-col justify-center items-start gap-5 inline-flex sm:w-1/2">
+					<div className="self-stretch flex-col justify-start items-start gap-5 inline-flex sm:w-1/2">
 						<div className="flex-col justify-start items-start gap-3 flex">
 							<div className="w-8 h-8 sm:w-11 sm:h-11 bg-borders-primary rounded-full flex justify-center items-center">
 								<Image src="/icons/chest_dark.svg" width={28} height={28} alt="Chest" className="w-5 h-5 sm:w-6 sm:h-6" />
 							</div>
-							<div className="text-text-primary text-2xl sm:text-4xl font-black !leading-none">{t("referrals.referral_center")}</div>
+							<div className="text-text-primary text-2xl sm:text-4xl font-black !leading-none">
+								{t("referrals.referral_center")}
+							</div>
 						</div>
-						<div className="flex-col self-stretch justify-start items-start flex gap-1.5">
+						<div className="flex-col self-stretch justify-start items-start flex gap-2">
 							<div className="text-text-label text-sm font-normal leading-tight tracking-wide">
 								{t("referrals.set_up_your_unique_referral_link")}
 							</div>
-							<div className="min-h-10 sm:min-h-14 self-stretch flex-row items-center flex gap-2">
+							<div className="self-stretch flex-row items-center flex gap-2">
 								{referralLink ? (
 									<CopyLinkButton text={referralLink} contentOnCopy={t("referrals.copied_let_s_go")} />
 								) : (
 									<>
 										<TextInputOutlined
-											className="grow max-w-80"
+											className="h-11 grow max-w-80"
 											placeholder={t("referrals.type_your_desired_ref_name")}
 											value={referralName}
-											onChange={(value) => setReferralName(value)}
+											onChange={handleReferralNameChange}
 										/>
-										<Button onClick={createReferralLink} disabled={!referralName} className="h-10 sm:h-12 !w-fit text-sm sm:text-base">
+										<Button
+											onClick={createReferralLink}
+											disabled={!referralName || !isReferralNameAvailable}
+											className="h-10 sm:h-11 !w-fit text-sm sm:text-base"
+											isLoading={isLoading}
+										>
 											{t("referrals.create")}
 										</Button>
 									</>

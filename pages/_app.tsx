@@ -15,15 +15,15 @@ import { PONDER_CLIENT } from "../app.config";
 import BlockUpdater from "@components/BlockUpdater";
 import USGovSanctionList from "@components/USGovSanctionList";
 import { FrontendCodeProvider } from "@components/FrontendCodeProvider";
-import { appWithTranslation } from 'next-i18next';
+import { appWithTranslation } from "next-i18next";
 
 function App({ Component, pageProps }: AppProps) {
 	return (
 		<ReduxProvider store={store}>
-			<FrontendCodeProvider>
-				<Web3ModalProvider>
-					<ApolloProvider client={PONDER_CLIENT}>
-						<BlockUpdater>
+			<Web3ModalProvider>
+				<ApolloProvider client={PONDER_CLIENT}>
+					<BlockUpdater>
+						<FrontendCodeProvider>
 							<NextSeoProvider />
 							<ToastContainer
 								className="border-card-content-primary border-2 bg-card-body-primary rounded-xl"
@@ -37,10 +37,10 @@ function App({ Component, pageProps }: AppProps) {
 							<Layout>
 								<Component {...pageProps} />
 							</Layout>
-						</BlockUpdater>
-					</ApolloProvider>
-				</Web3ModalProvider>
-			</FrontendCodeProvider>
+						</FrontendCodeProvider>
+					</BlockUpdater>
+				</ApolloProvider>
+			</Web3ModalProvider>
 		</ReduxProvider>
 	);
 }

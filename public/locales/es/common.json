@@ -442,7 +442,12 @@
         "how_do_i_receive_my_referral_bonus": "¿Cómo recibo mi bono de referido?",
         "how_do_i_receive_my_referral_bonus_answer": "Los bonos que el sistema te paga se acumulan y están disponibles en cualquier momento. Para ello, debes reclamar activamente el bono.",
         "if_my_friend_forgets_to_use_the_referral_link_or_code_can_i_still_receive_the_bonus": "Si mi amigo olvida usar el enlace o código de referido, ¿puedo seguir recibiendo el bono?",
-        "if_my_friend_forgets_to_use_the_referral_link_or_code_can_i_still_receive_the_bonus_answer": "Lamentablemente, sin el uso de un código o enlace de referido, no podemos añadir ningún bono de referido a tu cuenta."
+        "if_my_friend_forgets_to_use_the_referral_link_or_code_can_i_still_receive_the_bonus_answer": "Lamentablemente, sin el uso de un código o enlace de referido, no podemos añadir ningún bono de referido a tu cuenta.",
+        "txs": {
+            "referral_code": "Códigos de referido:",
+            "registering_referral_code": "Registrando códigos de referido",
+            "referral_code_registered": "Códigos de referido registrados"
+        }
     },
     "dashboard": {
         "title": "Panel de control",

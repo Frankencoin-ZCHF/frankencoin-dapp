@@ -442,7 +442,12 @@
         "how_do_i_receive_my_referral_bonus": "Wie erhalte ich meinen Empfehlungsbonus?",
         "how_do_i_receive_my_referral_bonus_answer": "Ihre vom System ausgezahlten Boni werden gesammelt und stehen Ihnen jederzeit zur Verfügung. Dazu müssen Sie den Bonus aktiv beanspruchen.",
         "if_my_friend_forgets_to_use_the_referral_link_or_code_can_i_still_receive_the_bonus": "Kann ich den Bonus trotzdem erhalten, wenn mein Freund den Empfehlungslink oder -code vergisst?",
-        "if_my_friend_forgets_to_use_the_referral_link_or_code_can_i_still_receive_the_bonus_answer": "Leider können wir Ihrem Konto ohne Verwendung eines Empfehlungscodes oder -links keinen Empfehlungsbonus gutschreiben."
+        "if_my_friend_forgets_to_use_the_referral_link_or_code_can_i_still_receive_the_bonus_answer": "Leider können wir Ihrem Konto ohne Verwendung eines Empfehlungscodes oder -links keinen Empfehlungsbonus gutschreiben.",
+        "txs": {
+            "referral_code": "Empfehlungscodes:",
+            "registering_referral_code": "Empfehlungscodes registrieren",
+            "referral_code_registered": "Empfehlungscodes erfolgreich registriert"
+        }
     },
     "dashboard": {
         "title": "Dashboard",

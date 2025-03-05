@@ -442,7 +442,12 @@
         "how_do_i_receive_my_referral_bonus": "How do I receive my referral bonus?",
         "how_do_i_receive_my_referral_bonus_answer": "Your bonuses paid out by the system are collected and are available to you at any time. To do this, you must actively claim the bonus.",
         "if_my_friend_forgets_to_use_the_referral_link_or_code_can_i_still_receive_the_bonus": "If my friend forgets to use the referral link or code, can I still receive the bonus?",
-        "if_my_friend_forgets_to_use_the_referral_link_or_code_can_i_still_receive_the_bonus_answer": "Regrettably, without the use of a referral code or link, we are unable to add any referral bonus to your account."
+        "if_my_friend_forgets_to_use_the_referral_link_or_code_can_i_still_receive_the_bonus_answer": "Regrettably, without the use of a referral code or link, we are unable to add any referral bonus to your account.",
+        "txs": {
+            "referral_code": "Referral Code:",
+            "registering_referral_code": "Registering Referral Code",
+            "referral_code_registered": "Referral Code Registered"
+        }
     },
     "dashboard": {
         "title": "Dashboard",
