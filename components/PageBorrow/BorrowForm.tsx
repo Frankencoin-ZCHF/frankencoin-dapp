@@ -31,6 +31,7 @@ import {
 	calculateLiquidationPriceLoanDetails,
 	calculateYouGetAmountLoanDetails,
 } from "../../utils/loanCalculations";
+import { useFrontendCode } from "../../hooks/useFrontendCode";
 
 export default function PositionCreate({}) {
 	const [selectedCollateral, setSelectedCollateral] = useState<TokenBalance | null | undefined>(null);
@@ -54,7 +55,8 @@ export default function PositionCreate({}) {
 		const blockTimestamp = latestBlock?.timestamp || new Date().getTime()/1000;
 		return positions
 			.filter((p) => BigInt(p.availableForClones) > 0n)
-			.filter((p) => blockTimestamp > toTimestamp(toDate(p.cooldown)));
+			.filter((p) => blockTimestamp > toTimestamp(toDate(p.cooldown)))
+			.filter((p) => blockTimestamp < toTimestamp(toDate(p.expiration)));
 	}, [positions, latestBlock]);
 
 	const collateralTokenList = useMemo(() => {
@@ -72,6 +74,7 @@ export default function PositionCreate({}) {
 	}, [elegiblePositions, isApproving]);
 
 	const { balances, refetchBalances } = useWalletERC20Balances(collateralTokenList);
+	const { frontendCode } = useFrontendCode();
 	const { t } = useTranslation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
@@ -168,7 +171,7 @@ export default function PositionCreate({}) {
 				address: ADDRESS[chainId].mintingHubGateway,
 				abi: MintingHubGatewayABI,
 				functionName: "clone",
-				args: [selectedPosition.original, BigInt(collateralAmount), loanDetails.loanAmount, toTimestamp(expirationDate)],
+				args: [selectedPosition.original, BigInt(collateralAmount), loanDetails.loanAmount, toTimestamp(expirationDate), frontendCode],
 			});
 
 			const toastContent = [
@@ -237,10 +240,10 @@ export default function PositionCreate({}) {
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={t("mint.txs.minting", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
+					render: <TxToast title={t("common.txs.title", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={t("mint.txs.minting_success", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
+					render: <TxToast title={t("common.txs.success", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 			});
 		} catch (error) {

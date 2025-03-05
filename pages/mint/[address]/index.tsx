@@ -17,9 +17,10 @@ import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import Link from "next/link";
-import { ADDRESS, MintingHubV2ABI } from "@deuro/eurocoin";
+import { ADDRESS, MintingHubGatewayABI, MintingHubV2ABI } from "@deuro/eurocoin";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
+import { useFrontendCode } from "../../../hooks/useFrontendCode";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
@@ -45,6 +46,7 @@ export default function PositionBorrow({}) {
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
+	const { frontendCode } = useFrontendCode();
 	const { t } = useTranslation();
 
 	// ---------------------------------------------------------------------------
@@ -214,9 +216,9 @@ export default function PositionBorrow({}) {
 
 			cloneWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].mintingHubGateway,
-				abi: MintingHubV2ABI,
+				abi: MintingHubGatewayABI,
 				functionName: "clone",
-				args: [position.position, requiredColl, amount, expirationTime],
+				args: [position.position, requiredColl, amount, expirationTime, frontendCode],
 			});
 
 			const toastContent = [

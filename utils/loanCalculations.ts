@@ -3,54 +3,77 @@ import { toDate } from "./format";
 
 export type LoanDetails = {
 	loanAmount: bigint;
-	feePercent: bigint;
-	fees: bigint;
+	apr: number;
+	interestUntilExpiration: bigint;
 	borrowersReserveContribution: bigint;
 	amountToSendToWallet: bigint;
 	requiredCollateral: bigint;
 	originalPosition: `0x${string}`;
 	effectiveInterest: number;
-	effectiveLTV: number;
 	liquidationPrice: bigint;
+	liquidationPriceAtEnd: bigint;
 };
 
-export const calculateYouGetAmountLoanDetails = (position: PositionQuery, collateralAmount: bigint, liquidationPrice: bigint): LoanDetails => {
-	const { annualInterestPPM, reserveContribution, expiration, collateralDecimals, original } = position;
-	
+const ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
+
+const getLoanDuration = (position: PositionQuery) => {
+	return Math.max(60 * 60 * 24 * 30, Math.floor((toDate(position.expiration).getTime() - toDate(position.start).getTime()) / 1000));
+};
+
+const getMiscelaneousLoanDetails = (position: PositionQuery, loanAmount: bigint, collateralAmount: bigint) => {
+	const { fixedAnnualRatePPM, annualInterestPPM, collateralDecimals } = position;
+
+	const decimalsAdjustment = collateralDecimals === 0 ? BigInt(1e36) : BigInt(1e18);
+	const effectiveInterest = Number((BigInt(fixedAnnualRatePPM) * 100n) / 1_000_000n);
+	const selectedPeriod = getLoanDuration(position);
+	const interestUntilExpiration =
+		(BigInt(selectedPeriod) * BigInt(annualInterestPPM) * BigInt(loanAmount)) / BigInt(ONE_YEAR_IN_SECONDS * 1_000_000);
+	const apr = (((Number(interestUntilExpiration) / Number(loanAmount)) * ONE_YEAR_IN_SECONDS) / selectedPeriod) * 100;
+	const liquidationPriceAtEnd = (loanAmount + interestUntilExpiration) * decimalsAdjustment / collateralAmount;
+
+	return {
+		effectiveInterest,
+		apr,
+		interestUntilExpiration,
+		liquidationPriceAtEnd,
+	};
+};
+
+export const calculateYouGetAmountLoanDetails = (
+	position: PositionQuery,
+	collateralAmount: bigint,
+	liquidationPrice: bigint
+): LoanDetails => {
+	const { reserveContribution, collateralDecimals, original } = position;
+
 	const requiredCollateral = collateralAmount;
 	const decimalsAdjustment = collateralDecimals === 0 ? BigInt(1e36) : BigInt(1e18);
 	const loanAmount = (BigInt(collateralAmount) * BigInt(liquidationPrice)) / decimalsAdjustment;
 	const borrowersReserveContribution = (BigInt(reserveContribution) * loanAmount) / 1_000_000n;
 	const amountToSendToWallet = loanAmount - borrowersReserveContribution;
 
-	// TODO: Check if this is correct
-	const feePercent = 0;
-	const fees = 0;
-	const interest: number = 0;
-	const reserve: number = 0;
-	const effectiveInterest: number = 0;
-	const effectiveLTV: number = 0;
+	const { effectiveInterest, apr, interestUntilExpiration, liquidationPriceAtEnd } = getMiscelaneousLoanDetails(
+		position,
+		loanAmount,
+		collateralAmount
+	);
 
 	return {
 		loanAmount,
-		feePercent: BigInt(0),
-		fees: BigInt(0),
+		apr,
+		interestUntilExpiration,
 		borrowersReserveContribution,
 		requiredCollateral,
 		amountToSendToWallet: amountToSendToWallet < 0n ? 0n : amountToSendToWallet,
 		originalPosition: original,
 		effectiveInterest,
-		effectiveLTV,
 		liquidationPrice,
+		liquidationPriceAtEnd,
 	};
 };
 
-export const calculateLiquidationPriceLoanDetails = (
-	position: PositionQuery,
-	collateralAmount: bigint,
-	youGet: bigint,
-): LoanDetails => {
-	const { annualInterestPPM, reserveContribution, expiration, collateralDecimals, original } = position;
+export const calculateLiquidationPriceLoanDetails = (position: PositionQuery, collateralAmount: bigint, youGet: bigint): LoanDetails => {
+	const { reserveContribution, collateralDecimals, original } = position;
 
 	const requiredCollateral = collateralAmount;
 	const amountToSendToWallet = youGet;
@@ -59,26 +82,22 @@ export const calculateLiquidationPriceLoanDetails = (
 	const borrowersReserveContribution = (BigInt(reserveContribution) * loanAmount) / 1_000_000n;
 	const liquidationPrice = (loanAmount * decimalsAdjustment) / collateralAmount;
 
-	// TODO: Check if this is correct
-	const feePercent =
-		(BigInt(Math.max(60 * 60 * 24 * 30, Math.floor((toDate(expiration).getTime() - Date.now()) / 1000))) * BigInt(annualInterestPPM)) /
-		BigInt(60 * 60 * 24 * 365);
-	const fees = 0;
-	const interest: number = 0;
-	const reserve: number = 0;
-	const effectiveInterest: number = 0;
-	const effectiveLTV: number = 0;
+	const { effectiveInterest, apr, interestUntilExpiration, liquidationPriceAtEnd } = getMiscelaneousLoanDetails(
+		position,
+		loanAmount,
+		collateralAmount
+	);
 
 	return {
 		loanAmount,
-		feePercent: BigInt(0),
-		fees: BigInt(0),
+		apr,
+		interestUntilExpiration,
 		borrowersReserveContribution,
 		requiredCollateral,
 		amountToSendToWallet,
 		originalPosition: original,
 		effectiveInterest,
-		effectiveLTV,
 		liquidationPrice,
+		liquidationPriceAtEnd,
 	};
 };

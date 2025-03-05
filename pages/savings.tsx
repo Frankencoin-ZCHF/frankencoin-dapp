@@ -15,7 +15,7 @@ export default function SavingsPage() {
 
 	useEffect(() => {
 		store.dispatch(fetchSavings(address));
-		store.dispatch(fetchSavingsCoreInfo());
+		// store.dispatch(fetchSavingsCoreInfo()); // TODO: Reactivate when API is ready
 	}, [address]);
 
 	return (

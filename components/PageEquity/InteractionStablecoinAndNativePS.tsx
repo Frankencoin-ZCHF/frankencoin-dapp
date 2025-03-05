@@ -33,7 +33,7 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 	const [isInversting, setInversting] = useState(false);
 	const [isRedeeming, setRedeeming] = useState(false);
 	const { t } = useTranslation();
-	const { frontendGatewayAllowance } = useFrontendGatewayStats();
+	const { frontendGatewayAllowance, refetchFrontendGatewayStats } = useFrontendGatewayStats();
 	const { frontendCode } = useFrontendCode();
 	const { address } = useAccount();
 	const chainId = useChainId();
@@ -81,7 +81,8 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 				},
 			});
 
-			poolStats.refetchPoolStats();
+			await poolStats.refetchPoolStats();
+			await refetchFrontendGatewayStats();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
@@ -121,7 +122,7 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 				},
 			});
 
-			poolStats.refetchPoolStats();
+			await poolStats.refetchPoolStats();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
@@ -164,7 +165,7 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 				},
 			});
 
-			poolStats.refetchPoolStats();
+			await poolStats.refetchPoolStats();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {

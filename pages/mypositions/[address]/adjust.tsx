@@ -40,7 +40,7 @@ export default function PositionAdjust() {
 	const position = positions.find((p) => p.position == addressQuery) as PositionQuery;
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
-	const [amount, setAmount] = useState<bigint>(BigInt(position.minted || 0n));
+	const [amount, setAmount] = useState<bigint>(BigInt(position.principal || 0n));
 	const [collateralAmount, setCollateralAmount] = useState<bigint>(BigInt(position.collateralBalance));
 	const [liqPrice, setLiqPrice] = useState<bigint>(BigInt(position?.price ?? 0n));
 
@@ -94,28 +94,28 @@ export default function PositionAdjust() {
 	const isCooldown: boolean = position.cooldown * 1000 - Date.now() > 0;
 
 	const maxMintableForCollateralAmount: bigint = BigInt(formatUnits(BigInt(position.price) * collateralAmount, 36 - 18).split(".")[0]);
-	const maxMintableInclClones: bigint = BigInt(position.availableForClones) + BigInt(position.minted);
+	const maxMintableInclClones: bigint = BigInt(position.availableForClones) + BigInt(position.principal);
 	const maxTotalLimit: bigint =
 		maxMintableForCollateralAmount <= maxMintableInclClones ? maxMintableForCollateralAmount : maxMintableInclClones;
 
-	const calcDirection = amount > BigInt(position.minted);
+	const calcDirection = amount > BigInt(position.principal);
 	const feeDuration = BigInt(Math.floor(position.expiration * 1000 - Date.now())) / 1000n;
 	const feePercent = (feeDuration * BigInt(position.annualInterestPPM)) / BigInt(60 * 60 * 24 * 365);
 	const fees = calcDirection ? (feePercent * amount) / 1_000_000n : 0n;
 
 	// ---------------------------------------------------------------------------
 	const paidOutAmount = () => {
-		if (amount > BigInt(position.minted)) {
+		if (amount > BigInt(position.principal)) {
 			return (
-				((amount - BigInt(position.minted)) * (1_000_000n - BigInt(position.reserveContribution) - BigInt(feePercent))) / 1_000_000n
+				((amount - BigInt(position.principal)) * (1_000_000n - BigInt(position.reserveContribution) - BigInt(feePercent))) / 1_000_000n
 			);
 		} else {
-			return amount - BigInt(position.minted) - returnFromReserve();
+			return amount - BigInt(position.principal) - returnFromReserve();
 		}
 	};
 
 	const returnFromReserve = () => {
-		return (BigInt(position.reserveContribution) * (amount - BigInt(position.minted))) / 1_000_000n;
+		return (BigInt(position.reserveContribution) * (amount - BigInt(position.principal))) / 1_000_000n;
 	};
 
 	const collateralNote =
@@ -148,7 +148,7 @@ export default function PositionAdjust() {
 	function getAmountError() {
 		if (isCooldown) {
 			return position.cooldown > 1e30 ? t("my_positions.is_closed") : t("my_positions.is_in_cooldown");
-		} else if (amount - BigInt(position.minted) > maxTotalLimit) {
+		} else if (amount - BigInt(position.principal) > maxTotalLimit) {
 			return `${t("my_positions.position_limited", { amount: formatCurrency(formatUnits(maxTotalLimit, 18), 2, 2), symbol: TOKEN_SYMBOL })}`;
 		} else if (-paidOutAmount() > userFrankBalance) {
 			return `${t("common.error.insufficient_balance", { symbol: TOKEN_SYMBOL })}`;
@@ -223,11 +223,11 @@ export default function PositionAdjust() {
 					value: formatBigInt(amount),
 				},
 				{
-					title: t("common.txs.collateral_amount"),
+					title: t("my_positions.txs.collateral_amount"),
 					value: formatBigInt(collateralAmount, position.collateralDecimals),
 				},
 				{
-					title: t("common.txs.liquidation_price"),
+					title: t("my_positions.txs.liquidation_price"),
 					value: formatBigInt(liqPrice, 36 - position.collateralDecimals),
 				},
 				{
@@ -238,10 +238,10 @@ export default function PositionAdjust() {
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: adjustWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`${t("common.txs.adjusting_position")}`} rows={toastContent} />,
+					render: <TxToast title={`${t("my_positions.txs.adjusting_position")}`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`${t("common.txs.successfully_adjusted_position")}`} rows={toastContent} />,
+					render: <TxToast title={`${t("my_positions.txs.successfully_adjusted_position")}`} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
@@ -313,7 +313,7 @@ export default function PositionAdjust() {
 									) : (
 										<Button
 											disabled={
-												(amount == BigInt(position.minted) &&
+												(amount == BigInt(position.principal) &&
 													collateralAmount == BigInt(position.collateralBalance) &&
 													liqPrice == BigInt(position.price)) ||
 												(!position.denied &&
@@ -350,13 +350,13 @@ export default function PositionAdjust() {
 									</div>
 									<div className="text-right">
 										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
-										{formatCurrency(formatUnits(BigInt(position.minted), 18))} {TOKEN_SYMBOL}
+										{formatCurrency(formatUnits(BigInt(position.principal), 18))} {TOKEN_SYMBOL}
 									</div>
 								</div>
 
 								<div className="mt-2 flex">
 									<div className="flex-1">
-										{amount >= BigInt(position.minted) ? t("my_positions.sent_to_your_wallet") : t("my_positions.to_be_added_from_your_wallet")}
+										{amount >= BigInt(position.principal) ? t("my_positions.sent_to_your_wallet") : t("my_positions.to_be_added_from_your_wallet")}
 									</div>
 									<div className="text-right">
 										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
@@ -366,7 +366,7 @@ export default function PositionAdjust() {
 
 								<div className="mt-2 flex">
 									<div className="flex-1">
-										{amount >= BigInt(position.minted) ? t("my_positions.added_to_reserve_on_your_behalf") : t("my_positions.returned_from_reserve")}
+										{amount >= BigInt(position.principal) ? t("my_positions.added_to_reserve_on_your_behalf") : t("my_positions.returned_from_reserve")}
 									</div>
 									<div className="text-right">
 										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
@@ -380,7 +380,6 @@ export default function PositionAdjust() {
 										<div className="text-xs">({position.annualInterestPPM / 10000}% per year)</div>
 									</div>
 									<div className="text-right">
-										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
 										{formatCurrency(formatUnits(fees, 18))} {TOKEN_SYMBOL}
 									</div>
 								</div>

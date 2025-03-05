@@ -1,31 +1,86 @@
 import TokenLogo from "@components/TokenLogo";
 import { useTranslation } from "next-i18next";
 import { HeaderCell, LinkTitle, NoDataRow } from "./SectionTable";
+import { useWalletERC20Balances } from "../../hooks/useWalletBalances";
+import { formatCurrency, NATIVE_POOL_SHARE_TOKEN_SYMBOL, POOL_SHARE_TOKEN_SYMBOL } from "@utils";
+import { ADDRESS, EquityABI } from "@deuro/eurocoin";
+import { useChainId, useReadContract } from "wagmi";
+import { formatUnits, zeroAddress } from "viem";
+import { useRouter } from "next/router";
+import { getPublicViewAddress } from "../../utils/url";
 
-const EquityRow = ({ symbol, currentInvestment, amount }: { symbol: string; currentInvestment: string; amount: string }) => {
+const EquityRow = ({
+	symbol,
+	currentInvestment = "0.00",
+	amount = "0.00",
+}: {
+	symbol: string;
+	currentInvestment: string;
+	amount: string;
+}) => {
 	return (
 		<>
-			<div className="flex items-center py-2">
-				<span className="flex items-center pr-2">
+			<div className="flex items-center py-1.5">
+				<span className="flex items-center pr-3">
 					<TokenLogo currency={symbol} size={8} />
 				</span>
-				<span className="w-16 text-text-primary text-base font-extrabold">{symbol}</span>
 			</div>
-			<span className="flex items-center text-text-primary text-base font-medium">{currentInvestment}</span>
-			<span className="flex items-center justify-end text-text-primary text-base font-medium">{amount}</span>
+			<span className="flex items-center text-text-primary text-base font-medium leading-[1.25rem]">
+				{currentInvestment} {symbol}
+			</span>
+			<span className="flex items-center justify-end text-text-primary text-base font-extrabold leading-[1.25rem]">{amount}</span>
 		</>
 	);
 };
 
 export const MyEquity = () => {
 	const { t } = useTranslation();
+	const chainId = useChainId();
+	const router = useRouter();
+	const overwrite = getPublicViewAddress(router);
+
+	const { balancesByAddress } = useWalletERC20Balances([
+		{
+			name: NATIVE_POOL_SHARE_TOKEN_SYMBOL,
+			symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL,
+			address: ADDRESS[chainId].equity,
+		},
+		{
+			name: POOL_SHARE_TOKEN_SYMBOL,
+			symbol: POOL_SHARE_TOKEN_SYMBOL,
+			address: ADDRESS[chainId].DEPSwrapper,
+		},
+	], { accountAddress: overwrite as `0x${string}` });
+
+	const { data: deuroNative = 0n } = useReadContract({
+		address: ADDRESS[chainId].equity,
+		abi: EquityABI,
+		functionName: "calculateProceeds",
+		args: [balancesByAddress[ADDRESS[chainId].equity]?.balanceOf || 0n],
+	});
+
+	const { data: deuroWrapped = 0n } = useReadContract({
+		address: ADDRESS[chainId].equity,
+		abi: EquityABI,
+		functionName: "calculateProceeds",
+		args: [balancesByAddress[ADDRESS[chainId].DEPSwrapper]?.balanceOf || 0n],
+	});
 
 	const equityData = [
-		{ symbol: "DEPS", currentInvestment: "12,300.00", amount: "1,854.00" },
-		{ symbol: "nDEPS", currentInvestment: "12,300.00", amount: "1,854.00" },
+		{
+			symbol: "nDEPS",
+			currentInvestment: formatCurrency(formatUnits(balancesByAddress[ADDRESS[chainId].equity]?.balanceOf || 0n, 18)) as string,
+			amount: formatCurrency(formatUnits(deuroNative, 18)) as string,
+		},
+		{
+			symbol: "DEPS",
+			currentInvestment: formatCurrency(formatUnits(balancesByAddress[ADDRESS[chainId].DEPSwrapper]?.balanceOf || 0n, 18)) as string,
+			amount: formatCurrency(formatUnits(deuroWrapped, 18)) as string,
+		},
 	];
 
-	const isEquityData = false && equityData.length > 0;
+	const totalInvested = deuroNative + deuroWrapped;
+	const isEquityData = totalInvested > 0;
 
 	return (
 		<div className="w-full h-full p-4 sm:p-8 flex flex-col items-start">
@@ -49,7 +104,9 @@ export const MyEquity = () => {
 						<span className="text-text-primary text-base font-extrabold leading-[1.25rem]">
 							{t("dashboard.total_invested")}
 						</span>
-						<span className="text-text-primary text-base font-extrabold leading-[1.25rem]">12,300.00</span>
+						<span className="text-text-primary text-base font-extrabold leading-[1.25rem]">
+							{formatCurrency(formatUnits(totalInvested, 18)) as string}
+						</span>
 					</div>
 				</div>
 			)}

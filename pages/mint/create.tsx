@@ -17,7 +17,7 @@ import NormalInput from "@components/Input/NormalInput";
 import AddressInput from "@components/Input/AddressInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
-import { ADDRESS, MintingHubV2ABI } from "@deuro/eurocoin";
+import { ADDRESS, MintingHubGatewayABI } from "@deuro/eurocoin";
 import { useTranslation, Trans } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
@@ -254,7 +254,7 @@ export default function PositionCreate({}) {
 			setIsConfirming("open");
 			const openWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].mintingHubGateway,
-				abi: MintingHubV2ABI,
+				abi: MintingHubGatewayABI,
 				functionName: "openPosition",
 				args: [
 					collTokenData.address,

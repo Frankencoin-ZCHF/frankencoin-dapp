@@ -19,9 +19,9 @@ interface BorrowData {
 	amountBorrowed: string;
 }
 
-const DesktopTable = ({ borrowData }: { borrowData: BorrowData[] }) => {	
+const DesktopTable = ({ borrowData }: { borrowData: BorrowData[] }) => {
 	const { t } = useTranslation();
-	
+
 	const isBorrowData = borrowData.length > 0;
 
 	return (
@@ -44,11 +44,19 @@ const DesktopTable = ({ borrowData }: { borrowData: BorrowData[] }) => {
 						<div className="font-medium text-base leading-tight">
 							{item.collateralAmount} {item.symbol}
 						</div>
-						<div className="font-medium text-base leading-tight">{item.collateralization} %</div>
-						<div className="font-medium text-base leading-tight">{item.loanDueIn} {t("common.days")}</div>
-						<div className="font-extrabold text-base leading-tight">{item.amountBorrowed} {TOKEN_SYMBOL}</div>
+						<div className="font-medium text-base leading-tight">
+							{item.collateralization === "Infinity" ? "∞" : item.collateralization} %
+						</div>
+						<div className="font-medium text-base leading-tight">
+							{item.loanDueIn} {t("common.days")}
+						</div>
+						<div className="font-extrabold text-base leading-tight">
+							{item.amountBorrowed} {TOKEN_SYMBOL}
+						</div>
 						<div className="py-3 flex items-center justify-end">
-							<SecondaryLinkButton className="flex min-w-32 w-full py-2.5 px-4" href={`/mypositions/${item.position}/adjust`}>{t("dashboard.manage")}</SecondaryLinkButton>
+							<SecondaryLinkButton className="flex min-w-32 w-full py-2.5 px-4" href={`/mypositions/${item.position}/adjust`}>
+								{t("dashboard.manage")}
+							</SecondaryLinkButton>
 						</div>
 					</Fragment>
 				))
@@ -89,12 +97,16 @@ const MobileTable = ({ borrowData }: { borrowData: BorrowData[] }) => {
 
 							<div className="w-full flex flex-row justify-between items-center">
 								<div className="text-text-muted2 text-xs font-medium leading-[1.125rem]">Loan due in</div>
-								<div className="font-medium text-base leading-tight">{item.loanDueIn} {t("common.days")}</div>
+								<div className="font-medium text-base leading-tight">
+									{item.loanDueIn} {t("common.days")}
+								</div>
 							</div>
 
 							<div className="w-full flex flex-row justify-between items-center">
 								<div className="text-text-muted2 text-xs font-medium leading-[1.125rem]">Amount borrowed</div>
-								<div className="font-extrabold text-base leading-tight">{item.amountBorrowed} {TOKEN_SYMBOL}</div>
+								<div className="font-extrabold text-base leading-tight">
+									{item.amountBorrowed} {TOKEN_SYMBOL}
+								</div>
 							</div>
 
 							<SecondaryButton className="flex w-full mt-2 mb-4 py-1 px-3">{t("dashboard.manage")}</SecondaryButton>
@@ -110,6 +122,7 @@ const MobileTable = ({ borrowData }: { borrowData: BorrowData[] }) => {
 
 export const MyBorrow = () => {
 	const positions = useSelector((state: RootState) => state.positions.list.list);
+	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const { address } = useAccount();
 	const router = useRouter();
 	const { t } = useTranslation();
@@ -117,14 +130,32 @@ export const MyBorrow = () => {
 	const overwrite = getPublicViewAddress(router);
 	const account = overwrite || address || zeroAddress;
 
-	const borrowData = positions.filter((position) => position.owner === account).map((position) => ({
-		position: position.position as `0x${string}`,
-		symbol: position.collateralSymbol,
-		collateralAmount: formatUnits(BigInt(position.collateralBalance), position.collateralDecimals) as string,
-		collateralization: '0',
-		loanDueIn: formatCurrency(Math.round((position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24)) as string,
-		amountBorrowed: '0',
-	}));
+	const borrowData = positions
+		.filter((position) => position.owner === account)
+		.map((position) => {
+			const { principal, reserveContribution, collateralBalance, collateralDecimals, collateralSymbol } = position;
+			const amountBorrowed = formatCurrency(
+				formatUnits(BigInt(principal) - (BigInt(principal) * BigInt(reserveContribution)) / 1_000_000n, position.deuroDecimals)
+			) as string;
+
+			const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
+			const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd || 1;
+			const balance: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
+			const balanceDEURO: number = Math.round(((balance * collTokenPrice) / deuroPrice) * 100) / 100;
+			const liquidationDEURO: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
+			const liquidationPct: number = Math.round((balanceDEURO / (liquidationDEURO * balance)) * 10000) / 100;
+
+			return {
+				position: position.position as `0x${string}`,
+				symbol: collateralSymbol,
+				collateralAmount: formatUnits(BigInt(collateralBalance), collateralDecimals) as string,
+				collateralization: liquidationPct.toString(),
+				loanDueIn: formatCurrency(Math.round((position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24)) as string,
+				amountBorrowed,
+			};
+		});
+
+	const totalOwed = positions.reduce((acc, curr) => (acc + BigInt(curr.principal) - (BigInt(curr.principal) * BigInt(curr.reserveContribution)) / 1_000_000n), 0n);
 
 	return (
 		<div className="w-full h-full p-4 sm:p-8 flex flex-col items-start">
@@ -138,7 +169,7 @@ export const MyBorrow = () => {
 			<div className="w-full pt-5 flex-1 flex items-end">
 				<div className="flex flex-row items-center w-full">
 					<span className="text-text-primary pr-4 text-base font-extrabold leading-[1.25rem]">{t("dashboard.total_owed")}</span>
-					<span className="text-text-primary text-base font-medium leading-[1.25rem]">0.00 dEURO</span>
+					<span className="text-text-primary text-base font-medium leading-[1.25rem]">{formatCurrency(formatUnits(totalOwed, 18)) as string} {TOKEN_SYMBOL}</span>
 				</div>
 			</div>
 		</div>

@@ -5,37 +5,32 @@ import { formatCurrency, shortenAddress } from "@utils";
 import { formatUnits } from "viem";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
+import { LoanDetails } from "../../utils/loanCalculations";
 
 interface DetailsExpandablePanelProps {
-	loanDetails?: {
-		loanAmount: bigint;
-		feePercent: bigint;
-		fees: bigint;
-		borrowersReserveContribution: bigint;
-		amountToSendToWallet: bigint;
-		requiredCollateral: bigint;
-		originalPosition: `0x${string}`;
-		effectiveInterest: number;
-		effectiveLTV: number;
-	};
+	loanDetails?: LoanDetails;
 	collateralPriceDeuro: number;
 }
 
 const defaultLoanDetails = {
 	loanAmount: BigInt(0),
-	feePercent: BigInt(0),
-	fees: BigInt(0),
+	apr: 0,
 	borrowersReserveContribution: BigInt(0),
 	amountToSendToWallet: BigInt(0),
 	requiredCollateral: BigInt(0),
 	originalPosition: "0x0000000000000000000000000000000000000000" as `0x${string}`,
 	effectiveInterest: 0,
-	effectiveLTV: 0,
+	interestUntilExpiration: BigInt(0),
+	liquidationPrice: BigInt(0),
+	liquidationPriceAtEnd: BigInt(0),
 };
 
 export function DetailsExpandablePanel({ loanDetails = defaultLoanDetails, collateralPriceDeuro = 0 }: DetailsExpandablePanelProps) {
 	const [isExpanded, setIsExpanded] = useState(false);
 	const { t } = useTranslation();
+
+	const effectiveLTV = Number(loanDetails.loanAmount) / (Number(loanDetails.requiredCollateral) * collateralPriceDeuro) || 0;
+
 	return (
 		<div className="self-stretch px-4 flex flex-col bg-layout-primary rounded-xl">
 			<button onClick={() => setIsExpanded(!isExpanded)} className="w-full py-3 flex justify-between items-center">
@@ -63,18 +58,30 @@ export function DetailsExpandablePanel({ loanDetails = defaultLoanDetails, colla
 					<div className="py-1.5 flex justify-between">
 						<span className="text-base leading-tight">{t("mint.expected_interest")}</span>
 						<span className="text-right text-sm font-extrabold leading-none tracking-tight">
-							{formatCurrency(formatUnits(loanDetails.fees, 18))} dEURO
+							{formatCurrency(formatUnits(loanDetails.interestUntilExpiration, 18))} dEURO
+						</span>
+					</div>
+					<div className="py-1.5 flex justify-between">
+						<span className="text-base leading-tight">{t("mint.starting_liquidation_price")}</span>
+						<span className="text-right text-sm font-extrabold leading-none tracking-tight">
+							{formatCurrency(formatUnits(loanDetails.liquidationPrice, 18))} €
+						</span>
+					</div>
+					<div className="py-1.5 flex justify-between">
+						<span className="text-base leading-tight">{t("mint.liquidation_price_at_expiration")}</span>
+						<span className="text-right text-sm font-extrabold leading-none tracking-tight">
+							{formatCurrency(formatUnits(loanDetails.liquidationPriceAtEnd, 18))} €
 						</span>
 					</div>
 					<div className="py-1.5 flex justify-between">
 						<span className="text-base leading-tight">{t("mint.effective_annual_interest")}</span>
 						<span className="text-right text-sm font-extrabold leading-none tracking-tight">
-							{formatCurrency(loanDetails.effectiveInterest * 100)}%
+							{formatCurrency(loanDetails.effectiveInterest)}%
 						</span>
 					</div>
 					<div className="py-1.5 flex justify-between">
 						<span className="text-base leading-tight">{t("mint.apr")}</span>
-						<span className="text-right text-sm font-extrabold leading-none tracking-tight">0%</span>
+						<span className="text-right text-sm font-extrabold leading-none tracking-tight">{formatCurrency(loanDetails.apr)}%</span>
 					</div>
 					<div className="py-1.5 flex justify-between">
 						<span className="text-base leading-tight">{t("mint.market_price")}</span>
@@ -85,7 +92,7 @@ export function DetailsExpandablePanel({ loanDetails = defaultLoanDetails, colla
 					<div className="py-1.5 flex justify-between">
 						<span className="text-base leading-tight">{t("mint.loan_to_value")}</span>
 						<span className="text-right text-sm font-extrabold leading-none tracking-tight">
-							{formatCurrency(loanDetails.effectiveLTV * 100)}%
+							{formatCurrency(effectiveLTV * 100)}%
 						</span>
 					</div>
 					<div className="py-1.5 flex justify-between">
@@ -94,7 +101,7 @@ export function DetailsExpandablePanel({ loanDetails = defaultLoanDetails, colla
 							className="underline text-right text-sm font-extrabold leading-none tracking-tight"
 							href={`/monitoring/${loanDetails.originalPosition}`}
 						>
-							{shortenAddress(loanDetails.originalPosition)}
+							{ shortenAddress(loanDetails.originalPosition)}
 						</Link>
 					</div>
 				</div>

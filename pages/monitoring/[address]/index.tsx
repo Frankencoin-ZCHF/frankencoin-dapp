@@ -47,7 +47,7 @@ export default function PositionDetail() {
 				address: position.deuro,
 				abi: DecentralizedEUROABI,
 				functionName: "calculateAssignedReserve",
-				args: [BigInt(position.minted), position.reserveContribution],
+				args: [BigInt(position.principal), position.reserveContribution],
 			});
 
 			setReserve(data);
@@ -82,7 +82,7 @@ export default function PositionDetail() {
 							<AppBox>
 								<DisplayLabel label={t("monitoring.minted_total")} />
 								<DisplayAmount
-									amount={BigInt(position.minted)}
+									amount={BigInt(position.principal)}
 									currency={TOKEN_SYMBOL}
 									address={ADDRESS[chainId].decentralizedEURO}
 									className="mt-2"
@@ -153,7 +153,7 @@ export default function PositionDetail() {
 							<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col mb-4">
 								<div className="text-lg font-bold text-center">{t("monitoring.cooldown")}</div>
 								<AppBox className="flex-1 mt-4">
-									<p>{t("monitoring.cooldown_message", { formatDate: formatDate })}</p>
+									<p>{t("monitoring.cooldown_message", { formatDate: formatDate(position.cooldown) })}</p>
 								</AppBox>
 							</div>
 						)}

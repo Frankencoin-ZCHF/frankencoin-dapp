@@ -8,7 +8,7 @@ import { formatCurrency } from "../utils/format";
 import Link from "next/link";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
+import { useTranslation } from "react-i18next";
 interface TokenOption {
 	symbol: string;
 	name: string;
@@ -27,6 +27,7 @@ type TokenSelectModalProps<T extends TokenOption> = {
 
 export function TokenSelectModal<T extends TokenOption>({ title, isOpen, setIsOpen, options, onTokenSelect }: TokenSelectModalProps<T>) {
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const { t } = useTranslation();
 
 	const handleTokenSelect = (option: T, index: number, options: T[]) => {
 		onTokenSelect(option, index, options);
@@ -102,7 +103,7 @@ export function TokenSelectModal<T extends TokenOption>({ title, isOpen, setIsOp
 							className="text-base leading-tight py-3 px-3 flex flex-row justify-center items-center w-full hover:bg-card-content-secondary rounded-lg"
 						>
 							<FontAwesomeIcon icon={faPlus} className="mr-2" />
-							<span className="text-base leading-tight">Add new token</span>
+							<span className="text-base leading-tight">{t("mint.add_new_token")}</span>
 						</Link>
 					</div>
 				</div>

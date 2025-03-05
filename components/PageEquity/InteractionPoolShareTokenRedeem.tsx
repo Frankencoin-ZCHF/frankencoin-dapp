@@ -126,6 +126,8 @@ export default function InteractionPoolShareTokenRedeem({ tokenFromTo, setTokenF
 					render: <TxToast title={t("common.txs.success", { symbol: POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 			});
+			await poolStats.refetchPoolStats();
+			setPsTokenAllowance(amount);
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {
@@ -167,6 +169,7 @@ export default function InteractionPoolShareTokenRedeem({ tokenFromTo, setTokenF
 					render: <TxToast title={t("equity.txs.success_redeem", { symbol: POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 			});
+			await poolStats.refetchPoolStats();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {

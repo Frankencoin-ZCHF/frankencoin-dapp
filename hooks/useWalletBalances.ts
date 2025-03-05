@@ -28,6 +28,10 @@ export type TokenBalance = {
 	allowance?: Record<string, bigint>;
 };
 
+type Options = {
+	accountAddress?: `0x${string}`;
+};
+
 const getMappedResponseByAddress = (query: QueryItem[], tokenList: TokenDescriptor[], response: any[]) => {
 	const mappedResponse: Record<string, TokenBalance> = {};
 
@@ -59,8 +63,10 @@ const getMappedResponseByAddress = (query: QueryItem[], tokenList: TokenDescript
 	return mappedResponse;
 }; 
 
-export function useWalletERC20Balances(tokenList: TokenDescriptor[] = []) {
+export function useWalletERC20Balances(tokenList: TokenDescriptor[] = [], { accountAddress }: Options = {}) {
 	const { address } = useAccount();
+	const account = accountAddress || address;
+
 	const chainId = WAGMI_CHAIN.id as number;
 
 	const query = useMemo(
@@ -78,7 +84,7 @@ export function useWalletERC20Balances(tokenList: TokenDescriptor[] = []) {
 						address: token.address,
 						abi: erc20Abi,
 						functionName: "balanceOf",
-						args: [address as Address],
+						args: [account as Address],
 					},
 					{
 						chainId,
@@ -97,7 +103,7 @@ export function useWalletERC20Balances(tokenList: TokenDescriptor[] = []) {
 						address: token.address,
 						abi: erc20Abi,
 						functionName: "allowance",
-						args: [address as Address, contractAddress],
+						args: [account as Address, contractAddress],
 					})) || []),
 				])
 				.flat(),

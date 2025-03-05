@@ -8,6 +8,7 @@
         "balance_label": "Saldo:",
         "your_balance": "Tu saldo:",
         "limit_label": "Límite:",
+        "limit": "Límite",
         "available": "Disponible",
         "available_label": "Disponible:",
         "estimated_cost": "Costo estimado:",
@@ -145,6 +146,9 @@
         "total": "Total",
         "parent_position": "Posición Principal",
         "while_the_maturity_is_fixed": "Si bien el vencimiento es fijo, puedes ajustar el precio de liquidación y el monto del colateral más tarde, siempre que cubra el monto acuñado. No se reembolsará ningún interés al pagar anticipadamente.",
+        "starting_liquidation_price": "Precio de liquidación inicial",
+        "liquidation_price_at_expiration": "Precio de liquidación al vencimiento",
+        "add_new_token": "Agregar nuevo token",
         "error": {
             "could_not_obtain_token_data": "No se pudieron obtener los datos del token",
             "token_decimals_should_be_less_than_24": "Los decimales del token deben ser inferiores a 24.",

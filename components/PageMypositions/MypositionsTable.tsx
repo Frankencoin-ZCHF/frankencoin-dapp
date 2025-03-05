@@ -128,7 +128,7 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 	} else if (tab === headers[2]) {
 		// sort for minted
 		positions.sort((a, b) => {
-			return parseInt(b.minted) - parseInt(a.minted);
+			return parseInt(b.principal) - parseInt(a.principal);
 		});
 	} else if (tab === headers[3]) {
 		// sort for state

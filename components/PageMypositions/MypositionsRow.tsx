@@ -39,7 +39,7 @@ export default function MypositionsRow({ headers, subHeaders, position, tab }: P
 	const balance: number = parseInt(position.collateralBalance) / 10 ** position.collateralDecimals;
 	const balanceDEURO: number = (balance * collTokenPrice) / deuroPrice;
 
-	const loanDEURO: number = parseInt(position.minted) / 10 ** position.deuroDecimals;
+	const loanDEURO: number = parseInt(position.principal) / 10 ** position.deuroDecimals;
 
 	const liquidationDEURO: number = parseInt(position.price) / 10 ** (36 - position.collateralDecimals);
 	const liquidationPct: number = (balanceDEURO / (liquidationDEURO * balance)) * 100;

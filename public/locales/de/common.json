@@ -8,6 +8,7 @@
         "balance_label": "Guthaben:",
         "your_balance": "Ihr Guthaben:",
         "limit_label": "Limit:",
+        "limit": "Limit",
         "available": "Verfügbar",
         "available_label": "Verfügbar:",
         "estimated_cost": "Geschätzter Preis:",
@@ -145,6 +146,9 @@
         "total": "Gesamt",
         "parent_position": "Übergeordnete Position",
         "while_the_maturity_is_fixed": "Obwohl die Laufzeit festgelegt ist, können Sie den Liquidationskurs und den Sicherheitenbetrag später anpassen, solange dieser den geprägten Betrag deckt. Bei vorzeitiger Rückzahlung wird kein Zins erstattet.",
+        "starting_liquidation_price": "Startliquidationskurs",
+        "liquidation_price_at_expiration": "Liquidationskurs bei Ablauf",
+        "add_new_token": "Neues Token hinzufügen",
         "error": {
             "could_not_obtain_token_data": "Tokendaten konnten nicht abgerufen werden.",
             "token_decimals_should_be_less_than_24": "Die Dezimalstellen des Tokens sollten kleiner als 24 sein.",

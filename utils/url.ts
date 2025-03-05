@@ -8,8 +8,8 @@ const carryOnQueryParams = [
 	PUBLIC_VIEW_ADDRESS_PARAM_NAME,
 ];
 
-export const getPublicViewAddress = (router: NextRouter) => {
-	return router.query[PUBLIC_VIEW_ADDRESS_PARAM_NAME] || '';
+export const getPublicViewAddress = (router: NextRouter): string => {
+	return router.query[PUBLIC_VIEW_ADDRESS_PARAM_NAME] as string || '';
 };
 
 export const getCarryOnQueryParams = (router: NextRouter) => {

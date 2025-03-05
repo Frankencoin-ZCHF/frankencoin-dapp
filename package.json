@@ -19,7 +19,7 @@
 	},
 	"dependencies": {
 		"@apollo/client": "^3.8.0",
-		"@deuro/api": "^0.2.5",
+		"@deuro/api": "0.2.6",
 		"@deuro/eurocoin": "1.0.9",
 		"@ethersproject/units": "^5.7.0",
 		"@fortawesome/fontawesome-svg-core": "^6.4.2",

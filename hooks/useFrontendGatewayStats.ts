@@ -13,7 +13,7 @@ export const useFrontendGatewayStats = () => {
 		abi: DecentralizedEUROABI,
 	};
 
-	const { data } = useReadContracts({
+	const { data, refetch } = useReadContracts({
 		contracts: [
 			{
 				...dEuroContract,
@@ -25,5 +25,5 @@ export const useFrontendGatewayStats = () => {
 
 	const frontendGatewayAllowance: bigint = data ? decodeBigIntCall(data[0]) : 0n;
 
-	return { frontendGatewayAllowance };
+	return { frontendGatewayAllowance, refetchFrontendGatewayStats: refetch };
 };

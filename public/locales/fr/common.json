@@ -8,6 +8,7 @@
         "balance_label": "Solde :",
         "your_balance": "Votre solde :",
         "limit_label": "Limite :",
+        "limit": "Limite",
         "available": "Disponible",
         "available_label": "Disponible :",
         "estimated_cost": "Coût estimé :",
@@ -145,6 +146,9 @@
         "total": "Total",
         "parent_position": "Position parent",
         "while_the_maturity_is_fixed": "Bien que la maturité soit fixe, vous pouvez ajuster le prix de liquidation et le montant de la garantie ultérieurement, du moment que cela couvre le montant émis. Aucun intérêt ne sera remboursé en cas de remboursement anticipé.",
+        "starting_liquidation_price": "Prix de liquidation initial",
+        "liquidation_price_at_expiration": "Prix de liquidation à l'expiration",
+        "add_new_token": "Ajouter un nouveau token",
         "error": {
             "could_not_obtain_token_data": "Impossible d'obtenir les données du token",
             "token_decimals_should_be_less_than_24": "Les décimales du token doivent être inférieures à 24.",

@@ -7,7 +7,8 @@ import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount, useChainId } from "wagmi";
 import Button from "@components/Button";
 import { formatUnits } from "viem";
-import { ADDRESS, SavingsABI } from "@deuro/eurocoin";
+import { ADDRESS, SavingsGatewayABI } from "@deuro/eurocoin";
+import { useFrontendCode } from "../../hooks/useFrontendCode";
 
 interface Props {
 	balance: bigint;
@@ -19,6 +20,7 @@ interface Props {
 export default function SavingsActionInterest({ balance, interest, disabled, setLoaded }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
+	const { frontendCode } = useFrontendCode();
 	const account = useAccount();
 	const chainId = useChainId();
 
@@ -34,9 +36,9 @@ export default function SavingsActionInterest({ balance, interest, disabled, set
 			 */
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].savingsGateway,
-				abi: SavingsABI,
+				abi: SavingsGatewayABI,
 				functionName: "adjust",
-				args: [balance],
+				args: [balance, frontendCode],
 			});
 
 			const toastContent = [

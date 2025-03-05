@@ -153,7 +153,6 @@ export const fetchSavings =
 		dispatch(slice.actions.setLoaded(true));
 	};
 
-// TODO: Deactivate when API is ready, and add this call to fetchSavings
 export const fetchSavingsCoreInfo = () => async (dispatch: Dispatch<DispatchApiSavingsInfo>) => {
 	const response = await DEURO_API_CLIENT.get("/savings/core/info");
 	dispatch(slice.actions.setSavingsInfo(response.data as ApiSavingsInfo));
