@@ -285,19 +285,23 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 			<div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
 					<DisplayLabel label="Your Balance" />
-					<DisplayAmount className="mt-4" amount={fpsBalance} currency="FPS" address={ADDRESS[chainId].equity} />
+					<DisplayAmount amount={fpsBalance} currency="FPS" address={ADDRESS[chainId].equity} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Holding Duration FPS" />
-					{fpsHolding > 0 && fpsHolding < 86_400 * 365 * 10 ? formatDuration(fpsHolding) : "-"}
+					<div className="py-2 text-lg">
+						{fpsHolding > 0 && fpsHolding < 86_400 * 365 * 10 ? formatDuration(fpsHolding) : "-"}
+					</div>
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Your Balance" />
-					<DisplayAmount className="mt-4" amount={wfpsBalance} currency="WFPS" address={ADDRESS[chainId].wFPS} />
+					<DisplayAmount amount={wfpsBalance} currency="WFPS" address={ADDRESS[chainId].wFPS} />
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Holding Duration WFPS Contract" />
-					{wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 10 ? formatDuration(wfpsHolding) : "-"}
+					<DisplayLabel label="Holding Duration WFPS" />
+					<div className="py-2 text-lg">
+						{wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 10 ? formatDuration(wfpsHolding) : "-"}
+					</div>
 				</AppBox>
 			</div>
 		</>

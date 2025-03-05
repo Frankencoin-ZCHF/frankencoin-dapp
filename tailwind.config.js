@@ -44,9 +44,9 @@ module.exports = {
 						error: "#E02523",
 						border: "#F0F1F5",
 						hover: "#CED1DA",
-						min: "#E4F0FC",
+						min: "#065DC1",
 						max: "#065DC1",
-						reset: "#E4F0FC", // alt: #fee2e2
+						reset: "#065DC1", // alt: #fee2e2
 					},
 					body: {
 						primary: "#FFFFFF",

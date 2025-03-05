@@ -81,7 +81,7 @@ export default function TokenInputSelect({
 							}`}
 						>
 							<BigNumberInput
-								autofocus={true}
+								autoFocus={true}
 								decimals={Number(digit)}
 								placeholder={placeholder}
 								value={value || ""}

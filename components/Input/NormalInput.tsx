@@ -37,11 +37,11 @@ export default function NormalInput({
 					error ? "!border-card-input-error" : ""
 				} text-text-secondary border-2 rounded-lg px-3 ${disabled ? "bg-card-input-disabled" : ""}`}
 			>
-				<div className="flex text-card-input-label my-1">{label}</div>
+				<div className="flex text-card-input-label py-1">{label}</div>
 
 				<div className="flex items-center">
 					<div
-						className={`flex-1 my-2 ${
+						className={`flex-1 py-2 ${
 							error ? "text-card-input-error" : !!value ? "text-text-primary" : "placeholder:text-card-input-empty"
 						}`}
 					>

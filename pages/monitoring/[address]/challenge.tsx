@@ -225,10 +225,6 @@ export default function PositionChallenge() {
 									currency={"ZCHF"}
 									digits={36 - position.collateralDecimals}
 									address={ADDRESS[chainId].frankenCoin}
-									/* subAmount={maxProceeds}
-									subCurrency={"% (Coingecko)"}
-									subColor={maxProceeds > 0 ? "text-green-300" : "text-red-500"} */
-									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
@@ -238,7 +234,6 @@ export default function PositionChallenge() {
 									currency={"ZCHF"}
 									digits={36}
 									address={ADDRESS[chainId].frankenCoin}
-									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
@@ -248,7 +243,6 @@ export default function PositionChallenge() {
 									currency={position.collateralSymbol}
 									digits={position.collateralDecimals}
 									address={position.collateral}
-									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
@@ -258,17 +252,16 @@ export default function PositionChallenge() {
 									currency={position.collateralSymbol}
 									digits={position.collateralDecimals}
 									address={position.collateral}
-									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Phase duration" />
-								{formatDuration(position.challengePeriod)}
+								<div className="py-2 text-lg">{formatDuration(position.challengePeriod)}</div>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Target Position" />
 								<Link className="text-link" href={`/monitoring/${position.position}`}>
-									{shortenAddress(position.position || zeroAddress)}
+									<div className="py-2 text-lg">{shortenAddress(position.position || zeroAddress)}</div>
 								</Link>
 							</AppBox>
 						</div>

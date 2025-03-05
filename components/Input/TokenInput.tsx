@@ -1,8 +1,6 @@
-import { formatUnits, parseEther } from "viem";
-import DisplayAmount from "../DisplayAmount";
+import { formatUnits } from "viem";
 import { BigNumberInput } from "./BigNumberInput";
 import dynamic from "next/dynamic";
-import { formatCurrency } from "@utils";
 const TokenLogo = dynamic(() => import("../TokenLogo"), { ssr: false });
 
 interface Props {
@@ -63,7 +61,7 @@ export default function TokenInput({
 
 				<div className="flex items-center">
 					<div
-						className={`flex-1 my-2 ${
+						className={`flex-1 py-2 ${
 							error ? "text-card-input-error" : !!value ? "text-text-primary" : "placeholder:text-card-input-empty"
 						}`}
 					>
@@ -89,11 +87,51 @@ export default function TokenInput({
 					<div className="text-card-input-label text-left">{symbol}</div>
 				</div>
 
-				{limitLabel ? (
+				{limitLabel || max || min || reset ? (
 					<div className="flex flex-row gap-2 my-1">
-						<div className="text-text-secondary">{limitLabel}</div>
-						<div className="text-text-primary truncate">{formatUnits(limit, Number(limitDigit))}</div>
-						<div className="text-card-input-max cursor-pointer hover:underline">Max</div>
+						{limitLabel != undefined && <div className="text-text-secondary">{limitLabel}</div>}
+						{limitLabel != undefined && (
+							<div className="text-text-primary truncate">{formatUnits(limit, Number(limitDigit))}</div>
+						)}
+						{max != undefined && (
+							<div
+								className="text-card-input-max cursor-pointer hover:text-card-input-focus"
+								onClick={() => {
+									if (max !== undefined) {
+										onChange(max.toString());
+										onMax();
+									}
+								}}
+							>
+								Max
+							</div>
+						)}
+						{min != undefined && (
+							<div
+								className="text-card-input-min cursor-pointer hover:text-card-input-focus"
+								onClick={() => {
+									if (min !== undefined) {
+										onChange(min.toString());
+										onMin();
+									}
+								}}
+							>
+								Min
+							</div>
+						)}
+						{reset != undefined && reset != BigInt(value) && (
+							<div
+								className="text-card-input-max cursor-pointer hover:text-card-input-focus"
+								onClick={() => {
+									if (reset !== undefined) {
+										onChange(reset.toString());
+										onReset();
+									}
+								}}
+							>
+								Reset
+							</div>
+						)}
 					</div>
 				) : null}
 			</div>

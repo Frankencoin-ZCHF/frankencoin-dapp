@@ -16,9 +16,9 @@ export default function AddressInput({ label, placeholder, value, error, onChang
 					error ? "!border-card-input-error" : ""
 				} text-text-secondary border-2 rounded-lg px-3`}
 			>
-				<div className="flex text-card-input-label my-1">{label}</div>
+				<div className="flex text-card-input-label py-1">{label}</div>
 				<input
-					className={`w-full my-2 text-lg bg-transparent ${
+					className={`w-full py-2 text-lg bg-transparent ${
 						error ? "text-card-input-error" : !!value ? "text-text-primary" : "placeholder:text-card-input-empty"
 					}`}
 					placeholder={placeholder}
