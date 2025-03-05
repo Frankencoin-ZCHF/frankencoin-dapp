@@ -37,9 +37,13 @@ module.exports = {
 				},
 				card: {
 					input: {
+						label: "#5D647B",
+						disabled: "#F5F6F9",
+						empty: "#ADB2C2",
 						focus: "#3E96F4",
 						error: "#E02523",
-						hover: "#0F80F0",
+						border: "#F0F1F5",
+						hover: "#CED1DA",
 						min: "#E4F0FC",
 						max: "#E4F0FC",
 						reset: "#E4F0FC", // alt: #fee2e2

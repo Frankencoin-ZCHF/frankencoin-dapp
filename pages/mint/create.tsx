@@ -321,7 +321,6 @@ export default function PositionCreate({}) {
 							<TokenInput
 								label="Proposal Fee"
 								symbol="ZCHF"
-								hideMaxLabel
 								value={proposalFee.toString()}
 								onChange={onChangeProposalFee}
 								digit={0}
@@ -333,7 +332,6 @@ export default function PositionCreate({}) {
 								symbol="days"
 								error={initError}
 								digit={0}
-								hideMaxLabel
 								value={initPeriod.toString()}
 								onChange={onChangeInitPeriod}
 								placeholder="Initialization Period"
@@ -359,9 +357,9 @@ export default function PositionCreate({}) {
 						<div className="text-lg font-bold justify-center mt-3 flex">Collateral</div>
 
 						<AddressInput
-							label="Collateral Token"
+							label="Collateral Token Address"
 							error={collTokenAddrError}
-							placeholder="Token contract address"
+							placeholder="0x..."
 							value={collateralAddress}
 							onChange={onChangeCollateralAddress}
 						/>
@@ -420,7 +418,6 @@ export default function PositionCreate({}) {
 								symbol="%"
 								error={interestError}
 								digit={4}
-								hideMaxLabel
 								value={interest.toString()}
 								onChange={onChangeInterest}
 								placeholder="Risk Premium Percent"
@@ -428,7 +425,6 @@ export default function PositionCreate({}) {
 							<NormalInput
 								label="Maturity"
 								symbol="months"
-								hideMaxLabel
 								digit={0}
 								value={maturity.toString()}
 								onChange={onChangeMaturity}
@@ -458,7 +454,6 @@ export default function PositionCreate({}) {
 								symbol="%"
 								error={bufferError}
 								digit={4}
-								hideMaxLabel
 								value={buffer.toString()}
 								onChange={onChangeBuffer}
 								placeholder="Percent"
@@ -467,7 +462,6 @@ export default function PositionCreate({}) {
 								label="Auction Duration"
 								symbol="hours"
 								error={durationError}
-								hideMaxLabel
 								digit={0}
 								value={auctionDuration.toString()}
 								onChange={onChangeAuctionDuration}

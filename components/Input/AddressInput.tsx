@@ -4,27 +4,32 @@ interface Props {
 	value?: string;
 	onChange?: (value: string) => void;
 	error?: string;
+	autofocus?: boolean;
+	disabled?: boolean;
 }
 
-export default function AddressInput({ label, placeholder, value, error, onChange }: Props) {
+export default function AddressInput({ label, placeholder, value, error, onChange, autofocus, disabled }: Props) {
 	return (
-		<div>
-			<div className="mb-1 flex gap-2 px-1">{label}</div>
-			<div className="flex gap-2 items-center rounded-lg bg-card-content-primary p-2">
-				<div
-					className={`flex-1 gap-1 rounded-lg text-text-primary p-1 bg-card-content-secondary border-2 ${
-						error ? "border-text-warning" : "focus-within:border-card-input-focus"
+		<div className="">
+			<div
+				className={`group border-card-input-border hover:border-card-input-hover focus-within:!border-card-input-focus ${
+					error ? "!border-card-input-error" : ""
+				} text-text-secondary border-2 rounded-lg px-3`}
+			>
+				<div className="flex text-card-input-label my-1">{label}</div>
+				<input
+					className={`w-full my-2 text-lg bg-transparent ${
+						error ? "text-card-input-error" : !!value ? "text-text-primary" : "placeholder:text-card-input-empty"
 					}`}
-				>
-					<input
-						className="w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg"
-						placeholder={placeholder}
-						value={value}
-						onChange={(e) => onChange?.(e.target.value)}
-					/>
-				</div>
+					placeholder={placeholder}
+					value={value}
+					onChange={(e) => onChange?.(e.target.value)}
+					disabled={disabled}
+					autoFocus={autofocus}
+				/>
 			</div>
-			<div className="mt-2 px-1 text-text-warning">{error}</div>
+
+			<div className="flex my-2 px-3.5 text-text-warning">{error}</div>
 		</div>
 	);
 }

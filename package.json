@@ -5,6 +5,7 @@
 	"license": "MIT",
 	"scripts": {
 		"dev": "yarn install && next dev",
+		"dev3000": "yarn install && next dev -p 3000",
 		"build": "next build",
 		"export": "next export",
 		"start": "next start",

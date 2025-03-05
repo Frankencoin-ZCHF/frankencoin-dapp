@@ -1,20 +1,17 @@
-import { BigNumberInput } from "./BigNumberInput";
+import { formatUnits } from "viem";
 
 interface Props {
 	label?: string;
-	symbol: string;
 	placeholder?: string;
-	balanceLabel?: string;
-	max?: bigint;
-	digit?: bigint | number;
-	hideMaxLabel?: boolean;
-	limit?: bigint;
-	limitLabel?: string;
-	output?: string;
-	note?: string;
 	value?: string;
 	onChange?: (value: string) => void;
 	error?: string;
+
+	symbol: string;
+	digit?: bigint | number;
+	output?: string; // overwrite with string output
+	note?: string;
+
 	autofocus?: boolean;
 	disabled?: boolean;
 }
@@ -22,49 +19,54 @@ interface Props {
 export default function NormalInput({
 	label = "Send",
 	placeholder = "Input Amount",
-	symbol,
-	max = 0n,
-	digit = 18n,
-	output,
-	note,
-	value,
+	value = "",
 	onChange,
 	error,
+	symbol,
+	digit = 18,
+	output,
+	note,
 	autofocus = false,
 	disabled = false,
 }: Props) {
+	const isNumber = (value: string): boolean => {
+		return !isNaN(Number(value)) && value.trim() !== "";
+	};
+	value = isNumber(value) ? formatUnits(BigInt(value), Number(digit)).toString() : value;
 	return (
-		<div>
-			<div className="mb-1 flex gap-2 px-1">
-				<div className="flex-1">{label}</div>
-			</div>
+		<div className="">
+			<div
+				className={`group border-card-input-border hover:border-card-input-hover focus-within:!border-card-input-focus ${
+					error ? "!border-card-input-error" : ""
+				} text-text-secondary border-2 rounded-lg px-3 ${disabled ? "bg-card-input-disabled" : ""}`}
+			>
+				<div className="flex text-card-input-label my-1">{label}</div>
 
-			<div className="flex items-center rounded-lg bg-card-content-primary p-2">
-				<div className="flex-1">
-					{output ? (
-						<div className="px-3 py-2 font-bold transition-opacity">{output}</div>
-					) : (
-						<div
-							className={`flex gap-1 rounded-lg text-text-primary p-1 bg-card-content-secondary border-2 ${
-								error ? "border-text-warning" : "focus-within:border-card-input-focus"
-							}`}
-						>
-							<BigNumberInput
-								autofocus={autofocus}
-								decimals={Number(digit)}
+				<div className="flex items-center">
+					<div
+						className={`flex-1 my-2 text-lg bg-transparent ${
+							error ? "text-card-input-error" : !!value ? "text-text-primary" : "placeholder:text-card-input-empty"
+						}`}
+					>
+						{output ? (
+							<div className={``}>{output}</div>
+						) : (
+							<input
+								className={`w-full`}
 								placeholder={placeholder}
-								value={value || ""}
-								onChange={(e) => onChange?.(e)}
-								className={`w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg`}
+								value={value}
+								onChange={(e) => onChange?.(e.target.value)}
 								disabled={disabled}
+								autoFocus={autofocus}
 							/>
-						</div>
-					)}
-				</div>
+						)}
+					</div>
 
-				<div className="hidden w-16 text-center font-bold sm:block">{symbol}</div>
+					<div className="w-16 text-card-input-label text-center">{symbol}</div>
+				</div>
 			</div>
-			{error && <div className="mt-2 px-1 text-red-500">{error}</div>}
+
+			<div className="flex my-2 px-3.5 text-text-warning">{error}</div>
 		</div>
 	);
 }
