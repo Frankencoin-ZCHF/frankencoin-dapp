@@ -45,7 +45,7 @@ module.exports = {
 						border: "#F0F1F5",
 						hover: "#CED1DA",
 						min: "#E4F0FC",
-						max: "#E4F0FC",
+						max: "#065DC1",
 						reset: "#E4F0FC", // alt: #fee2e2
 					},
 					body: {

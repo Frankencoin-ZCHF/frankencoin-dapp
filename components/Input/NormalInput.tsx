@@ -41,15 +41,15 @@ export default function NormalInput({
 
 				<div className="flex items-center">
 					<div
-						className={`flex-1 my-2 text-xl bg-transparent ${
+						className={`flex-1 my-2 ${
 							error ? "text-card-input-error" : !!value ? "text-text-primary" : "placeholder:text-card-input-empty"
 						}`}
 					>
 						{output ? (
-							<div className={``}>{output}</div>
+							<div className={`text-xl py-0 bg-transparent`}>{output}</div>
 						) : (
 							<BigNumberInput
-								className={`w-full`}
+								className={`w-full px-0 py-0 text-xl bg-transparent`}
 								decimals={Number(digit)}
 								placeholder={placeholder}
 								value={value}

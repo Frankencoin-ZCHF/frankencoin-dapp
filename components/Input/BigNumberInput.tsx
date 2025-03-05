@@ -87,9 +87,13 @@ export function BigNumberInput({
 		type: "text",
 		value: inputValue,
 		className,
-		disabled,
 		autoFocus,
+		disabled,
 	};
 
-	return <input {...inputProps} ref={inputRef} disabled={disabled} />;
+	return (
+		<div className="">
+			<input {...inputProps} ref={inputRef} />
+		</div>
+	);
 }

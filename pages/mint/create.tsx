@@ -1,7 +1,7 @@
 "use client";
 import Head from "next/head";
 import { useEffect } from "react";
-import { Address, isAddress, maxUint256, parseEther } from "viem";
+import { Address, isAddress, maxUint256, parseEther, parseUnits } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useTokenData, useUserBalance } from "@hooks";
 import { useState } from "react";
@@ -89,7 +89,11 @@ export default function PositionCreate({}) {
 	}, [collateralAddress, collTokenData]);
 
 	useEffect(() => {
-		setLiqPrice(minCollAmount == 0n ? 0n : (5000n * 10n ** 36n + minCollAmount - 1n) / minCollAmount);
+		if (minCollAmount > 0n) {
+			const valueBigInt = parseUnits("5000", 36) / minCollAmount;
+			setLiqPrice(valueBigInt);
+			checkCollateralAmount(minCollAmount, valueBigInt);
+		}
 	}, [minCollAmount]);
 
 	const onChangeProposalFee = (value: string) => {
@@ -164,7 +168,7 @@ export default function PositionCreate({}) {
 	};
 
 	function checkCollateralAmount(coll: bigint, price: bigint) {
-		if (coll * price < 10n ** 36n) {
+		if (coll * price < parseUnits("5000", 36)) {
 			setLiqPriceError("The liquidation value of the collateral must be at least 5000 ZCHF");
 			setMinCollAmountError("The collateral must be worth at least 5000 ZCHF");
 		} else {
@@ -188,8 +192,8 @@ export default function PositionCreate({}) {
 	const onChangeAuctionDuration = (value: string) => {
 		const valueBigInt = BigInt(value);
 		setAuctionDuration(valueBigInt);
-		if (valueBigInt < 1n) {
-			setDurationError("Duration must be at least 1h");
+		if (valueBigInt < 12n) {
+			setDurationError("Duration must be at least 12h");
 		} else {
 			setDurationError("");
 		}
@@ -326,6 +330,7 @@ export default function PositionCreate({}) {
 								digit={0}
 								error={userBalance.frankenBalance < BigInt(1000 * 1e18) ? "Not enough ZCHF" : ""}
 								disabled={true}
+								placeholder="Amount"
 							/>
 							<NormalInput
 								label="Initialization Period"
@@ -334,7 +339,7 @@ export default function PositionCreate({}) {
 								digit={0}
 								value={initPeriod.toString()}
 								onChange={onChangeInitPeriod}
-								placeholder="Initialization Period"
+								placeholder="Number"
 							/>
 						</div>
 						<div className="text-text-secondary">
@@ -357,11 +362,12 @@ export default function PositionCreate({}) {
 						<div className="text-lg font-bold justify-center mt-3 flex">Collateral</div>
 
 						<AddressInput
-							label="Collateral Token Address"
+							label="Contract Address"
 							error={collTokenAddrError}
 							placeholder="0x..."
 							value={collateralAddress}
 							onChange={onChangeCollateralAddress}
+							autoFocus={true}
 						/>
 						{collTokenData.symbol != "NaN" && initialCollAmount > userAllowance ? (
 							<Button
@@ -384,7 +390,7 @@ export default function PositionCreate({}) {
 							value={minCollAmount.toString()}
 							onChange={onChangeMinCollAmount}
 							digit={collTokenData.decimals}
-							placeholder="Minimum Collateral Amount"
+							placeholder="Amount"
 						/>
 						<TokenInput
 							label="Initial Collateral"
@@ -395,7 +401,7 @@ export default function PositionCreate({}) {
 							value={initialCollAmount.toString()}
 							onChange={onChangeInitialCollAmount}
 							digit={collTokenData.decimals}
-							placeholder="Initial Collateral Amount"
+							placeholder="Amount"
 						/>
 					</div>
 					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
@@ -410,7 +416,7 @@ export default function PositionCreate({}) {
 							reset={parseEther("1000000")}
 							value={limitAmount.toString()}
 							onChange={onChangeLimitAmount}
-							placeholder="Global Limit Amount"
+							placeholder="Amount"
 						/>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							<NormalInput
@@ -420,7 +426,7 @@ export default function PositionCreate({}) {
 								digit={4}
 								value={interest.toString()}
 								onChange={onChangeInterest}
-								placeholder="Risk Premium Percent"
+								placeholder="Percent"
 							/>
 							<NormalInput
 								label="Maturity"
@@ -428,7 +434,7 @@ export default function PositionCreate({}) {
 								digit={0}
 								value={maturity.toString()}
 								onChange={onChangeMaturity}
-								placeholder="Maturity"
+								placeholder="Number"
 							/>
 						</div>
 					</div>
@@ -465,7 +471,7 @@ export default function PositionCreate({}) {
 								digit={0}
 								value={auctionDuration.toString()}
 								onChange={onChangeAuctionDuration}
-								placeholder="Auction Duration"
+								placeholder="Number"
 							/>
 						</div>
 					</div>

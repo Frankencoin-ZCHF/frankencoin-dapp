@@ -1,6 +1,8 @@
+import { formatUnits, parseEther } from "viem";
 import DisplayAmount from "../DisplayAmount";
 import { BigNumberInput } from "./BigNumberInput";
 import dynamic from "next/dynamic";
+import { formatCurrency } from "@utils";
 const TokenLogo = dynamic(() => import("../TokenLogo"), { ssr: false });
 
 interface Props {
@@ -14,6 +16,7 @@ interface Props {
 	digit?: bigint | number;
 	hideMaxLabel?: boolean;
 	limit?: bigint;
+	limitDigit?: bigint | number;
 	limitLabel?: string;
 	output?: string;
 	note?: string;
@@ -22,6 +25,7 @@ interface Props {
 	onMin?: () => void;
 	onMax?: () => void;
 	onReset?: () => void;
+	autoFocus?: boolean;
 	disabled?: boolean;
 	error?: string;
 }
@@ -35,10 +39,12 @@ export default function TokenInput({
 	reset,
 	digit = 18n,
 	limit = 0n,
+	limitDigit = 18n,
 	limitLabel,
 	output,
 	note,
 	value = "0",
+	autoFocus,
 	disabled,
 	onChange = () => {},
 	onMin = () => {},
@@ -47,93 +53,52 @@ export default function TokenInput({
 	error,
 }: Props) {
 	return (
-		<div>
-			<div className="mb-1 flex gap-2 px-1 text-text-secondary">
-				<div className="flex-1 ">{label}</div>
+		<div className="">
+			<div
+				className={`group border-card-input-border hover:border-card-input-hover focus-within:!border-card-input-focus ${
+					error ? "!border-card-input-error" : ""
+				} text-text-secondary border-2 rounded-lg px-3 ${disabled ? "bg-card-input-disabled" : ""}`}
+			>
+				<div className="flex text-card-input-label my-1">{label}</div>
 
-				<div className="flex flex-row gap-2 font-semibold text-sm text-text-primary cursor-pointer">
-					{max != undefined && (
-						<div
-							className="p-1 rounded-xl bg-card-input-max hover:bg-card-input-hover"
-							onClick={() => {
-								if (max !== undefined) {
-									onChange(max.toString());
-									onMax();
-								}
-							}}
-						>
-							max
-						</div>
-					)}
-
-					{min != undefined && (
-						<div
-							className="p-1 rounded-xl bg-card-input-min hover:bg-card-input-hover"
-							onClick={() => {
-								if (min !== undefined) {
-									onChange(min.toString());
-									onMin();
-								}
-							}}
-						>
-							min
-						</div>
-					)}
-
-					{reset != undefined && reset != BigInt(value) && (
-						<div
-							className="p-1 rounded-xl bg-card-input-reset hover:bg-card-input-hover"
-							onClick={() => {
-								if (reset !== undefined) {
-									onChange(reset.toString());
-									onReset();
-								}
-							}}
-						>
-							reset
-						</div>
-					)}
-				</div>
-			</div>
-
-			<div className="flex items-center rounded-lg bg-card-content-primary p-2">
-				<div className="mr-4">
-					<TokenLogo currency={symbol} size={10} />
-				</div>
-				<div className="flex-1">
-					{output ? (
-						<div className="px-3 py-2 font-bold transition-opacity">{output}</div>
-					) : (
-						<div
-							className={`flex gap-1 rounded-lg p-1 bg-card-content-secondary border-2 ${
-								error ? "border-text-warning" : "focus-within:border-card-input-focus"
-							} ${disabled ? "bg-card-body-primary text-text-header" : ""}`}
-						>
+				<div className="flex items-center">
+					<div
+						className={`flex-1 my-2 ${
+							error ? "text-card-input-error" : !!value ? "text-text-primary" : "placeholder:text-card-input-empty"
+						}`}
+					>
+						{output ? (
+							<div className={`text-xl py-0 bg-transparent`}>{output}</div>
+						) : (
 							<BigNumberInput
-								autofocus={true}
+								className={`w-full px-0 py-0 text-xl bg-transparent`}
 								decimals={Number(digit)}
 								placeholder={placeholder}
 								value={value}
-								onChange={(e) => onChange?.(e)}
-								className={`w-full flex-1 rounded-lg bg-transparent px-2 py-1 text-lg`}
+								onChange={onChange}
+								autoFocus={autoFocus}
 								disabled={disabled}
 							/>
-						</div>
-					)}
+						)}
+					</div>
+
+					<div className="mr-2">
+						<TokenLogo currency={symbol} size={6} />
+					</div>
+
+					<div className="text-card-input-label text-left">{symbol}</div>
 				</div>
 
-				<div className="hidden w-20 px-4 text-end font-bold sm:block">{symbol}</div>
+				{limitLabel ? (
+					<div className="flex flex-row gap-2 my-1">
+						<div className="text-text-secondary">{limitLabel}</div>
+						<div className="text-text-primary truncate">{formatUnits(limit, Number(limitDigit))}</div>
+						<div className="text-card-input-max cursor-pointer hover:underline">Max</div>
+					</div>
+				) : null}
 			</div>
-			{error && <div className="mt-2 px-1 text-text-warning">{error}</div>}
-			<div className="mt-2 px-1 flex items-center">
-				{limit >= 0n && limitLabel && (
-					<>
-						<span>{limitLabel} :&nbsp;</span>
-						<DisplayAmount amount={limit} currency={symbol} />
-					</>
-				)}
-				{note && <span>{note}</span>}
-			</div>
+
+			<div className="flex my-2 px-3.5 text-text-warning">{error}</div>
 		</div>
 	);
 }
