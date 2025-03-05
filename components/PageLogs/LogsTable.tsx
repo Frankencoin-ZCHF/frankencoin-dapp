@@ -28,9 +28,9 @@ export default function LogsTable() {
 
 	// @dev: sequence needs correction due to event triggering sequence from SCs
 	const correctedLogs = logs.map((log, idx, all) => {
-		if (log.kind == "Equity:Profit" && log.timestamp == all[idx - 1].timestamp) {
+		if (idx > 0 && log.kind == "Equity:Profit" && log.timestamp == all[idx - 1].timestamp) {
 			return all[idx - 1];
-		} else if (log.kind == "Frankencoin:Mint" && log.timestamp == all[idx + 1].timestamp) {
+		} else if (idx < all.length - 1 && log.kind == "Frankencoin:Mint" && log.timestamp == all[idx + 1].timestamp) {
 			return all[idx + 1];
 		} else return log;
 	});
