@@ -6,11 +6,13 @@ import SavingsWithdrawnTable from "@components/PageSavings/SavingsWithdrawnTable
 import Head from "next/head";
 import { useEffect } from "react";
 import { store } from "../redux/redux.store";
-import { fetchSavings, fetchSavingsCoreInfo } from "../redux/slices/savings.slice";
+import { fetchSavings } from "../redux/slices/savings.slice";
 import { useAccount } from "wagmi";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
 export default function SavingsPage() {
+	const { t } = useTranslation();
 	const { address } = useAccount();
 
 	useEffect(() => {
@@ -21,11 +23,11 @@ export default function SavingsPage() {
 	return (
 		<main className="section">
 			<Head>
-				<title>dEURO - Savings</title>
+				<title>dEURO - {t("savings.title")}</title>
 			</Head>
 
 			<div className="mt-10">
-				<span className="font-bold text-xl">Savings</span>
+				<span className="font-bold text-xl">{t("savings.title")}</span>
 			</div>
 
 			<div className="mt-8">{<SavingsGlobalCard />}</div>
@@ -35,19 +37,19 @@ export default function SavingsPage() {
 			</div>
 
 			<div className="mt-10">
-				<span className="font-bold text-xl">Recent Deposits</span>
+				<span className="font-bold text-xl">{t("savings.recent_deposits")}</span>
 			</div>
 
 			<div className="mt-8">{<SavingsSavedTable />}</div>
 
 			<div className="mt-10">
-				<span className="font-bold text-xl">Recent Interest Claims</span>
+				<span className="font-bold text-xl">{t("savings.recent_interest_claims")}</span>
 			</div>
 
 			<div className="mt-8">{<SavingsInterestTable />}</div>
 
 			<div className="mt-10">
-				<span className="font-bold text-xl">Recent Withdrawals</span>
+				<span className="font-bold text-xl">{t("savings.recent_withdrawals")}</span>
 			</div>
 
 			<div className="mt-8">{<SavingsWithdrawnTable />}</div>

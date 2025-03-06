@@ -8,7 +8,7 @@ import { formatCurrency } from "../utils/format";
 import Link from "next/link";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 interface TokenOption {
 	symbol: string;
 	name: string;

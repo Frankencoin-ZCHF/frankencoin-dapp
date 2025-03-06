@@ -7,9 +7,11 @@ import { RootState } from "../../redux/redux.store";
 import { useState } from "react";
 import { SavingsSavedQuery } from "@deuro/api";
 import SavingsSavedRow from "./SavingsSavedRow";
+import { useTranslation } from "next-i18next";
 
 export default function GovernanceLeadrateTable() {
-	const headers: string[] = ["Date", "Saver", "Amount", "Rate", "Balance"];
+	const { t } = useTranslation();
+	const headers: string[] = [t("savings.date"), t("savings.saver"), t("savings.amount"), t("savings.rate"), t("savings.balance")];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
@@ -32,7 +34,7 @@ export default function GovernanceLeadrateTable() {
 			<TableHeader className={sorted.length == 0 ? "!hidden" : ""} headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} headerClassNames={['text-center']} />
 			<TableBody>
 				{sorted.length == 0 ? (
-					<TableRowEmpty className={sorted.length == 0 ? "!rounded-t-lg" : ""}>{"There are no savings yet."}</TableRowEmpty>
+					<TableRowEmpty className={sorted.length == 0 ? "!rounded-t-lg" : ""}>{t("savings.no_savings_yet")}</TableRowEmpty>
 				) : (
 					sorted.map((r, idx) => <SavingsSavedRow headers={headers} key={r.id} item={r} tab={tab} />)
 				)}

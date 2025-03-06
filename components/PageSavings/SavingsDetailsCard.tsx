@@ -1,7 +1,7 @@
 import AppCard from "@components/AppCard";
 import { formatCurrency, TOKEN_SYMBOL } from "@utils";
 import { formatUnits } from "viem";
-
+import { useTranslation } from "next-i18next";
 interface Props {
 	balance: bigint;
 	change: bigint;
@@ -11,36 +11,38 @@ interface Props {
 }
 
 export default function SavingsDetailsCard({ balance, change, direction, interest, locktime }: Props) {
+	const { t } = useTranslation();
+
 	return (
 		<AppCard>
-			<div className="text-lg font-bold text-center">Outcome</div>
+			<div className="text-lg font-bold text-center">{t("savings.outcome")}</div>
 			<div className="p-4 flex flex-col gap-2">
 				<div className="flex">
-					<div className="flex-1">Your current balance</div>
+					<div className="flex-1">{t("savings.current_balance")}</div>
 					<div className="">{formatCurrency(formatUnits(balance, 18))} {TOKEN_SYMBOL}</div>
 				</div>
 				<div className="flex">
-					<div className="flex-1">{direction ? "To be added from your wallet" : "Withdrawn to your wallet"}</div>
+					<div className="flex-1">{direction ? t("savings.to_be_added_from_your_wallet") : t("savings.withdrawn_to_your_wallet")}</div>
 					<div className="">{formatCurrency(formatUnits(change, 18))} {TOKEN_SYMBOL}</div>
 				</div>
 				<div className="flex">
-					<div className="flex-1">Interest to be collected</div>
+					<div className="flex-1">{t("savings.interest_to_be_collected")}</div>
 					<div className="">{formatCurrency(formatUnits(interest, 18))} {TOKEN_SYMBOL}</div>
 				</div>
 				<hr className="border-slate-700 border-dashed" />
 				<div className="flex font-bold">
-					<div className="flex-1">Resulting balance</div>
+					<div className="flex-1">{t("savings.resulting_balance")}</div>
 					<div className="">{formatCurrency(formatUnits(balance + change + interest, 18))} {TOKEN_SYMBOL}</div>
 				</div>
 
 				<div className="flex mt-8">
 					<div className={`flex-1`}>
-						When saving additional funds, your balance will be locked until interest starts accruing, which can take up to three days. This rules serves to disincentivize the saving of funds held for transactional purposes. {" "}
+						{t("savings.when_saving_additional_funds_your_balance_will_be_locked")}
 						<span className="font-semibold">
 							{locktime > 0
-								? `Your funds are still locked for ${formatCurrency(
+								? `${t("savings.your_funds_are_still_locked_for", { hours: formatCurrency(
 										(parseFloat(locktime.toString()) / 60 / 60).toString()
-								  )} hours.`
+								  )})}`
 								: ""}
 						</span>
 					</div>

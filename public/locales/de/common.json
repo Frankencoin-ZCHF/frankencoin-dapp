@@ -33,6 +33,7 @@
         "price_per_unit": "Preis pro Einheit",
         "symbol_amount": "{{symbol}} Betrag",
         "done": "Fertig",
+        "max": "Max",
         "navbar": {
             "my_referrals": "Meine Empfehlungen",
             "swap": "Tauschen",
@@ -482,5 +483,49 @@
         "no_borrowings_yet": "Sie haben noch keine Kredite.",
         "no_investments_yet": "Sie haben noch keine Investitionen.",
         "no_savings_yet": "Sie haben noch keine Ersparnisse."
-      }
+    },
+    "savings": {
+        "title": "Sparguthaben",
+        "recent_deposits": "Letzte Einzahlungen",
+        "recent_interest_claims": "Letzte Zinsgutschriften",
+        "recent_withdrawals": "Letzte Abhebungen",
+        "current_interest_rate": "Aktueller Zinssatz",
+        "total_savings": "Gesamtsparguthaben",
+        "module_contract": "Modulvertrag",
+        "savings_balance": "Sparguthabenstand",
+        "adjustment": "Anpassung",
+        "save": "Einzahlen",
+        "withdraw": "Abheben",
+        "claim_interest": "Zinsen einfordern",
+        "outcome": "Ergebnis",
+        "current_balance": "Aktueller Kontostand",
+        "to_be_added_from_your_wallet": "Von Ihrem Wallet hinzuzufügen",
+        "withdrawn_to_your_wallet": "Auf Ihr Wallet ausgezahlt",
+        "interest_to_be_collected": "Einzuziehende Zinsen",
+        "resulting_balance": "Resultierender Kontostand",
+        "when_saving_additional_funds_your_balance_will_be_locked": "Beim Einzahlen weiterer Gelder wird Ihr Guthaben gesperrt, bis die Zinsen anfallen, was bis zu drei Tage dauern kann. Diese Regelung dient dazu, das Einzahlen von Geldern, die für Transaktionen vorgesehen sind, zu vermeiden.",
+        "your_funds_are_still_locked_for": "Ihr Guthaben ist noch für {{hours}} Stunden gesperrt.",
+        "date": "Datum",
+        "saver": "Sparer",
+        "amount": "Betrag",
+        "rate": "Zinssatz",
+        "balance": "Guthaben",
+        "interest": "Zinsen",
+        "no_savings_yet": "Es gibt noch keine Ersparnisse.",
+        "no_interest_claims_yet": "Es gibt noch keine Zinsansprüche.",
+        "no_withdrawals_yet": "Es gibt noch keine Abhebungen.",
+        "txs": {
+            "saved_amount": "Gesparter Betrag:",
+            "claim_interest": "Zinsen einfordern:",
+            "claiming_interest": "Zinsen werden eingefordert...",
+            "successfully_claimed": "Erfolgreich eingefordert",
+            "saving_amount": "Sparbetrag:",
+            "accured_interest": "Angefallene Zinsen:",
+            "increasing_savings": "Ersparnisse werden erhöht...",
+            "successfully_increased_savings": "Ersparnisse erfolgreich erhöht",
+            "withdraw": "Auszahlen:",
+            "withdrawing": "Auszahlung von Ersparnissen wird durchgeführt...",
+            "successfully_withdrawn": "Erfolgreich ausgezahlt"
+        }
+    }
 }

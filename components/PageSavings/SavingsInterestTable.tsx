@@ -7,9 +7,11 @@ import { RootState } from "../../redux/redux.store";
 import { useState } from "react";
 import { SavingsInterestQuery } from "@deuro/api";
 import SavingsInterestRow from "./SavingsInterestRow";
+import { useTranslation } from "next-i18next";
 
 export default function SavingsInterestTable() {
-	const headers: string[] = ["Date", "Saver", "Interest", "Rate", "Balance"];
+	const { t } = useTranslation();
+	const headers: string[] = [t("savings.date"), t("savings.saver"), t("savings.interest"), t("savings.rate"), t("savings.balance")];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
@@ -32,7 +34,7 @@ export default function SavingsInterestTable() {
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} />
 			<TableBody>
 				{sorted.length == 0 ? (
-					<TableRowEmpty>{"There are no interest claims yet."}</TableRowEmpty>
+					<TableRowEmpty>{t("savings.no_interest_claims_yet")}</TableRowEmpty>
 				) : (
 					sorted.map((r, idx) => <SavingsInterestRow headers={headers} key={r.id} item={r} tab={tab} />)
 				)}

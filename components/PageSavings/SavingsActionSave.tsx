@@ -9,6 +9,7 @@ import Button from "@components/Button";
 import { formatUnits } from "viem";
 import { ADDRESS, SavingsGatewayABI } from "@deuro/eurocoin";
 import { useFrontendCode } from "../../hooks/useFrontendCode";
+import { useTranslation } from "next-i18next";
 interface Props {
 	amount: bigint;
 	interest: bigint;
@@ -22,6 +23,7 @@ export default function SavingsActionSave({ amount, interest, disabled, setLoade
 	const { frontendCode } = useFrontendCode();
 	const account = useAccount();
 	const chainId = useChainId();
+	const { t } = useTranslation();
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
@@ -39,25 +41,25 @@ export default function SavingsActionSave({ amount, interest, disabled, setLoade
 
 			const toastContent = [
 				{
-					title: `Saving: `,
+					title: `${t("savings.txs.saving_amount")}`,
 					value: `${formatCurrency(formatUnits(amount, 18))} ${TOKEN_SYMBOL}`,
 				},
 				{
-					title: `Accured Interest: `,
+					title: `${t("savings.txs.accured_interest")}`,
 					value: `${formatCurrency(formatUnits(interest, 18))} ${TOKEN_SYMBOL}`,
 				},
 				{
-					title: "Transaction: ",
+					title: `${t("common.txs.transaction")}`,
 					hash: writeHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Increasing savings...`} rows={toastContent} />,
+					render: <TxToast title={t("savings.txs.increasing_savings")} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Savings increased" rows={toastContent} />,
+					render: <TxToast title={t("savings.txs.successfully_increased_savings")} rows={toastContent} />,
 				},
 			});
 
@@ -72,7 +74,7 @@ export default function SavingsActionSave({ amount, interest, disabled, setLoade
 
 	return (
 		<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
-			Save
+			{t("savings.save")}
 		</Button>
 	);
 }

@@ -33,6 +33,7 @@
         "price_per_unit": "Precio por Unidad",
         "symbol_amount": "Cantidad {{symbol}}",
         "done": "Listo",
+        "max": "Max",
         "navbar": {
             "my_referrals": "Mis Referidos",
             "swap": "Intercambiar",
@@ -482,5 +483,49 @@
         "no_borrowings_yet": "Aún no tienes ningún préstamo.",
         "no_investments_yet": "Aún no tienes ninguna inversión.",
         "no_savings_yet": "Aún no tienes ningún ahorro."
-      }
+    },
+    "savings": {
+        "title": "Ahorros",
+        "recent_deposits": "Depósitos recientes",
+        "recent_interest_claims": "Intereses cobrados recientemente",
+        "recent_withdrawals": "Retiros recientes",
+        "current_interest_rate": "Tasa de interés actual",
+        "total_savings": "Ahorros totales",
+        "module_contract": "Contrato del módulo",
+        "savings_balance": "Saldo de ahorros",
+        "adjustment": "Ajuste",
+        "save": "Guardar",
+        "withdraw": "Retirar",
+        "claim_interest": "Cobrar intereses",
+        "outcome": "Resultado",
+        "current_balance": "Saldo actual",
+        "to_be_added_from_your_wallet": "Se añadirá desde su monedero",
+        "withdrawn_to_your_wallet": "Retirado a su monedero",
+        "interest_to_be_collected": "Intereses pendientes de cobro",
+        "resulting_balance": "Saldo resultante",
+        "when_saving_additional_funds_your_balance_will_be_locked": "Al guardar fondos adicionales, su saldo quedará bloqueado hasta que comiencen a generarse intereses, lo que puede tardar hasta tres días. Esta norma sirve para desincentivar el ahorro de fondos destinados a transacciones.",
+        "your_funds_are_still_locked_for": "Sus fondos aún están bloqueados durante {{hours}} horas.",
+        "date": "Fecha",
+        "saver": "Ahorro",
+        "amount": "Monto",
+        "rate": "Tasa",
+        "balance": "Saldo",
+        "interest": "Intereses",
+        "no_savings_yet": "Aún no hay ahorros.",
+        "no_interest_claims_yet": "Aún no hay intereses por reclamar.",
+        "no_withdrawals_yet": "Aún no hay retiros.",
+        "txs": {
+            "saved_amount": "Monto ahorrado:",
+            "claim_interest": "Reclamar Intereses:",
+            "claiming_interest": "Reclamando intereses...",
+            "successfully_claimed": "Reclamación exitosa",
+            "saving_amount": "Monto de ahorro:",
+            "accured_interest": "Intereses acumulados:",
+            "increasing_savings": "Aumentando ahorros...",
+            "successfully_increased_savings": "Ahorros aumentados con éxito",
+            "withdraw": "Retirar:",
+            "withdrawing": "Retirando de ahorros...",
+            "successfully_withdrawn": "Retiro exitoso"
+        }
+    }
 }

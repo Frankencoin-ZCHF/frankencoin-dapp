@@ -9,7 +9,7 @@ import Button from "@components/Button";
 import { formatUnits } from "viem";
 import { ADDRESS, SavingsGatewayABI } from "@deuro/eurocoin";
 import { useFrontendCode } from "../../hooks/useFrontendCode";
-
+import { useTranslation } from "next-i18next";
 interface Props {
 	balance: bigint;
 	interest: bigint;
@@ -23,6 +23,7 @@ export default function SavingsActionInterest({ balance, interest, disabled, set
 	const { frontendCode } = useFrontendCode();
 	const account = useAccount();
 	const chainId = useChainId();
+	const { t } = useTranslation();
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
@@ -43,25 +44,25 @@ export default function SavingsActionInterest({ balance, interest, disabled, set
 
 			const toastContent = [
 				{
-					title: `Saved amount: `,
+					title: `${t("savings.txs.saved_amount")}`,
 					value: `${formatCurrency(formatUnits(balance, 18))} ${TOKEN_SYMBOL}`,
 				},
 				{
-					title: `Claim Interest: `,
+					title: `${t("savings.txs.claim_interest")}`,
 					value: `${formatCurrency(formatUnits(interest, 18))} ${TOKEN_SYMBOL}`,
 				},
 				{
-					title: "Transaction: ",
+					title: `${t("common.txs.transaction")}`,
 					hash: writeHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Claiming Interest...`} rows={toastContent} />,
+					render: <TxToast title={t("savings.txs.claiming_interest")} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully claimed" rows={toastContent} />,
+					render: <TxToast title={t("savings.txs.successfully_claimed")} rows={toastContent} />,
 				},
 			});
 
@@ -76,7 +77,7 @@ export default function SavingsActionInterest({ balance, interest, disabled, set
 
 	return (
 		<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
-			Claim Interest
+			{t("savings.claim_interest")}
 		</Button>
 	);
 }

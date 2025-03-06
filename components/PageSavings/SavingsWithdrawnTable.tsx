@@ -7,10 +7,11 @@ import { RootState } from "../../redux/redux.store";
 import { useState } from "react";
 import { SavingsWithdrawQuery } from "@deuro/api";
 import SavingsWithdrawnRow from "./SavingsWithdrawnRow";
-import { Address, parseEther } from "viem";
+import { useTranslation } from "next-i18next";
 
 export default function SavingsWithdrawnTable() {
-	const headers: string[] = ["Date", "Saver", "Amount", "Rate", "Balance"];
+	const { t } = useTranslation();
+	const headers: string[] = [t("savings.date"), t("savings.saver"), t("savings.amount"), t("savings.rate"), t("savings.balance")];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
@@ -33,7 +34,7 @@ export default function SavingsWithdrawnTable() {
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} />
 			<TableBody>
 				{sorted.length == 0 ? (
-					<TableRowEmpty>{"There are no withdrawals yet."}</TableRowEmpty>
+					<TableRowEmpty>{t("savings.no_withdrawals_yet")}</TableRowEmpty>
 				) : (
 					sorted.map((r, idx) => <SavingsWithdrawnRow headers={headers} key={r.id} item={r} tab={tab} />)
 				)}

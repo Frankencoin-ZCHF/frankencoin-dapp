@@ -17,7 +17,7 @@ import SavingsActionWithdraw from "./SavingsActionWithdraw";
 import { TOKEN_SYMBOL } from "@utils";
 import { useWalletERC20Balances } from "../../hooks/useWalletBalances";
 import Button from "@components/Button";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { shortenAddress } from "@utils";
 import { toast } from "react-toastify";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
@@ -118,7 +118,7 @@ export default function SavingsInteractionCard() {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
 		if (valueBigInt > userBalance + userSavingsBalance + userSavingsInterest) {
-			setError(`Not enough ${fromSymbol} in your wallet.`);
+			setError(t('common.error.insufficient_balance', { symbol: fromSymbol }));
 		} else {
 			setError("");
 		}
@@ -170,15 +170,15 @@ export default function SavingsInteractionCard() {
 	return (
 		<section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">
 			<AppCard>
-				<div className="text-lg font-bold text-center">Adjustment</div>
+				<div className="text-lg font-bold text-center">{t("savings.adjustment")}</div>
 
 				<div className="mt-8">
 					<TokenInput
-						label="Your savings"
+						label={t("savings.savings_balance")}
 						max={userBalance + userSavingsBalance + userSavingsInterest}
-						balanceLabel="Max:"
+						balanceLabel={t("common.max")}
 						symbol={fromSymbol}
-						placeholder={fromSymbol + " Amount"}
+						placeholder={t("common.symbol_amount", { symbol: fromSymbol })}
 						value={amount.toString()}
 						onChange={onChangeAmount}
 						error={error}
@@ -186,7 +186,7 @@ export default function SavingsInteractionCard() {
 				</div>
 
 				<div className="mx-auto my-4 w-72 max-w-full flex-col flex gap-4">
-					<GuardToAllowedChainBtn label={direction ? "Save" : "Withdraw"}>
+					<GuardToAllowedChainBtn label={direction ? t("savings.save") : t("savings.withdraw")}>
 						{allowance <= 0n ? (
 							<Button className="h-10" onClick={handleApprove} disabled={isApproving} isLoading={isApproving}>
 								{t("common.approve")}
