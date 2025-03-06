@@ -22,7 +22,7 @@ const defaultLoanDetails = {
 	effectiveInterest: 0,
 	interestUntilExpiration: BigInt(0),
 	liquidationPrice: BigInt(0),
-	liquidationPriceAtEnd: BigInt(0),
+	startingLiquidationPrice: BigInt(0),
 };
 
 export function DetailsExpandablePanel({ loanDetails = defaultLoanDetails, collateralPriceDeuro = 0 }: DetailsExpandablePanelProps) {
@@ -64,13 +64,13 @@ export function DetailsExpandablePanel({ loanDetails = defaultLoanDetails, colla
 					<div className="py-1.5 flex justify-between">
 						<span className="text-base leading-tight">{t("mint.starting_liquidation_price")}</span>
 						<span className="text-right text-sm font-extrabold leading-none tracking-tight">
-							{formatCurrency(formatUnits(loanDetails.liquidationPrice, 18))} €
+							{formatCurrency(formatUnits(loanDetails.startingLiquidationPrice, 18))} €
 						</span>
 					</div>
 					<div className="py-1.5 flex justify-between">
 						<span className="text-base leading-tight">{t("mint.liquidation_price_at_expiration")}</span>
 						<span className="text-right text-sm font-extrabold leading-none tracking-tight">
-							{formatCurrency(formatUnits(loanDetails.liquidationPriceAtEnd, 18))} €
+							{formatCurrency(formatUnits(loanDetails.liquidationPrice, 18))} €
 						</span>
 					</div>
 					<div className="py-1.5 flex justify-between">

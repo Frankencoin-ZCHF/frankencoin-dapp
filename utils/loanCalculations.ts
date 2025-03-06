@@ -11,7 +11,7 @@ export type LoanDetails = {
 	originalPosition: `0x${string}`;
 	effectiveInterest: number;
 	liquidationPrice: bigint;
-	liquidationPriceAtEnd: bigint;
+	startingLiquidationPrice: bigint;
 };
 
 const ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
@@ -42,24 +42,32 @@ const getMiscelaneousLoanDetails = (position: PositionQuery, loanAmount: bigint,
 export const calculateYouGetAmountLoanDetails = (
 	position: PositionQuery,
 	collateralAmount: bigint,
-	liquidationPrice: bigint
+	liquidationPriceAtEndOfPeriod: bigint
 ): LoanDetails => {
-	const { reserveContribution, collateralDecimals, original } = position;
+	const { reserveContribution, collateralDecimals, original, annualInterestPPM } = position;
 
 	const requiredCollateral = collateralAmount;
 	const decimalsAdjustment = collateralDecimals === 0 ? BigInt(1e36) : BigInt(1e18);
-	const loanAmount = (BigInt(collateralAmount) * BigInt(liquidationPrice)) / decimalsAdjustment;
-	const borrowersReserveContribution = (BigInt(reserveContribution) * loanAmount) / 1_000_000n;
-	const amountToSendToWallet = loanAmount - borrowersReserveContribution;
+	const loanAmountEndOfPeriod = (BigInt(collateralAmount) * BigInt(liquidationPriceAtEndOfPeriod)) / decimalsAdjustment;
 
-	const { effectiveInterest, apr, interestUntilExpiration, liquidationPriceAtEnd } = getMiscelaneousLoanDetails(
+	const selectedPeriod = getLoanDuration(position);
+	const loanAmountAtStartOfPeriod = (loanAmountEndOfPeriod * BigInt(ONE_YEAR_IN_SECONDS * 1_000_000)) / (BigInt(ONE_YEAR_IN_SECONDS * 1_000_000) + (BigInt(selectedPeriod) * BigInt(annualInterestPPM)));
+	const interestUntilExpiration = loanAmountEndOfPeriod - loanAmountAtStartOfPeriod;
+
+	const borrowersReserveContribution = (BigInt(reserveContribution) * loanAmountAtStartOfPeriod) / 1_000_000n;
+	const amountToSendToWallet = loanAmountAtStartOfPeriod - borrowersReserveContribution;
+
+
+	const { effectiveInterest, apr } = getMiscelaneousLoanDetails(
 		position,
-		loanAmount,
+		loanAmountEndOfPeriod,
 		collateralAmount
 	);
 
+	const startingLiquidationPrice = (loanAmountAtStartOfPeriod * decimalsAdjustment) / collateralAmount;
+
 	return {
-		loanAmount,
+		loanAmount: loanAmountAtStartOfPeriod,
 		apr,
 		interestUntilExpiration,
 		borrowersReserveContribution,
@@ -67,37 +75,42 @@ export const calculateYouGetAmountLoanDetails = (
 		amountToSendToWallet: amountToSendToWallet < 0n ? 0n : amountToSendToWallet,
 		originalPosition: original,
 		effectiveInterest,
-		liquidationPrice,
-		liquidationPriceAtEnd,
+		liquidationPrice: liquidationPriceAtEndOfPeriod,
+		startingLiquidationPrice,
 	};
 };
 
 export const calculateLiquidationPriceLoanDetails = (position: PositionQuery, collateralAmount: bigint, youGet: bigint): LoanDetails => {
-	const { reserveContribution, collateralDecimals, original } = position;
+	const { reserveContribution, collateralDecimals, original, annualInterestPPM } = position;
 
 	const requiredCollateral = collateralAmount;
 	const amountToSendToWallet = youGet;
 	const decimalsAdjustment = collateralDecimals === 0 ? BigInt(1e36) : BigInt(1e18);
-	const loanAmount = (amountToSendToWallet * 1_000_000n) / (1_000_000n - BigInt(reserveContribution));
-	const borrowersReserveContribution = (BigInt(reserveContribution) * loanAmount) / 1_000_000n;
-	const liquidationPrice = (loanAmount * decimalsAdjustment) / collateralAmount;
+	const loanAmountStartOfPeriod = (amountToSendToWallet * 1_000_000n) / (1_000_000n - BigInt(reserveContribution));
+
+	const startingLiquidationPrice = (loanAmountStartOfPeriod * decimalsAdjustment) / collateralAmount;
+	const borrowersReserveContribution = (BigInt(reserveContribution) * loanAmountStartOfPeriod) / 1_000_000n;
+
+	const selectedPeriod = getLoanDuration(position);
+	const interestCoefficient = (BigInt(selectedPeriod) * BigInt(annualInterestPPM)) / BigInt(ONE_YEAR_IN_SECONDS * 1_000_000);
+	const loanAmountEndOfPeriod = loanAmountStartOfPeriod + interestCoefficient;
 
 	const { effectiveInterest, apr, interestUntilExpiration, liquidationPriceAtEnd } = getMiscelaneousLoanDetails(
 		position,
-		loanAmount,
+		loanAmountEndOfPeriod,
 		collateralAmount
 	);
 
 	return {
-		loanAmount,
+		loanAmount: loanAmountStartOfPeriod,
 		apr,
 		interestUntilExpiration,
 		borrowersReserveContribution,
 		requiredCollateral,
-		amountToSendToWallet,
+		amountToSendToWallet: amountToSendToWallet < 0n ? 0n : amountToSendToWallet,
 		originalPosition: original,
 		effectiveInterest,
-		liquidationPrice,
-		liquidationPriceAtEnd,
+		liquidationPrice: liquidationPriceAtEnd,
+		startingLiquidationPrice,
 	};
 };
