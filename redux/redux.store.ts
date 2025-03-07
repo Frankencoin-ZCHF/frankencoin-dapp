@@ -10,7 +10,7 @@ import { reducer as challengesReducer } from "./slices/challenges.slice";
 import { reducer as bidsReducer } from "./slices/bids.slice";
 import { reducer as savingsReducer } from "./slices/savings.slice";
 import { reducer as globalPreferencesReducer } from "./slices/globalPreferences.slice";
-
+import { reducer as myReferralsReducer } from "./slices/myReferrals.slice";
 // store with combined reducers
 export const store = configureStore({
 	reducer: combineReducers({
@@ -22,6 +22,7 @@ export const store = configureStore({
 		bids: bidsReducer,
 		savings: savingsReducer,
 		globalPreferences: globalPreferencesReducer,
+		myReferrals: myReferralsReducer,
 	}),
 });
 

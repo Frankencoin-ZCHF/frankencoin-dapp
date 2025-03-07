@@ -20,3 +20,8 @@ export const getCarryOnQueryParams = (router: NextRouter) => {
 		return acc;
 	}, {} as Record<string, string>);
 };
+
+export const toQueryString = (params: Record<string, string>) => {
+	if (Object.keys(params).length === 0) return '';
+	return '?' + Object.entries(params).map(([key, value]) => `${key}=${value}`).join('&');
+};

@@ -414,6 +414,7 @@
         "available_to_claim": "Einlösbar",
         "referral_volume": "Empfehlvolumen",
         "total_referred": "Gesamt geworben",
+        "claim": "Einfordern",
         "date": "Datum",
         "address": "Adresse",
         "show_less": "weniger anzeigen",
@@ -447,7 +448,10 @@
         "txs": {
             "referral_code": "Empfehlungscodes:",
             "registering_referral_code": "Empfehlungscodes registrieren",
-            "referral_code_registered": "Empfehlungscodes erfolgreich registriert"
+            "referral_code_registered": "Empfehlungscodes erfolgreich registriert",
+            "claiming_referral_bonus": "Empfehlungsbonus einfordern",
+            "successfully_claimed_referral_bonus": "Empfehlungsbonus erfolgreich einfordert",
+            "referral_bonus": "Empfehlungsbonus"
         }
     },
     "dashboard": {

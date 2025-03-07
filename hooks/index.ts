@@ -13,3 +13,4 @@ export * from "./useVotingPowers";
 export * from "./useTokenData";
 export * from "./useUserBalance";
 export * from "./useWalletConnectStats";
+export * from "./useMyReferrals";

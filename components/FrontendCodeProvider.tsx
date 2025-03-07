@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from 'react';
-import { DEFAULT_FRONTEND_CODE, FRONTEND_CODES, MARKETING_PARAM_NAME } from '@utils';
+import { DEFAULT_FRONTEND_CODE, FRONTEND_CODES, getFrontendCodeFromReferralName, MARKETING_PARAM_NAME } from '@utils';
 import { useRouter } from 'next/router';
 import { FrontendGatewayABI } from '@deuro/eurocoin';
 import { stringToHex, zeroAddress } from 'viem';
@@ -21,27 +21,27 @@ export const FrontendCodeProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const [frontendCode, setFrontendCode] = useState<`0x${string}`>(DEFAULT_FRONTEND_CODE);
     const router = useRouter();
     const chainId = useChainId();
-
+    
     useEffect(() => {
         const fetchReferralCode = async () => {            
             const { [MARKETING_PARAM_NAME]: marketingParam } = router.query;
-    
+            
             if (FRONTEND_CODES[marketingParam as string ?? '']) {
                 setMarketingCode(marketingParam as string ?? '');
                 setFrontendCode(FRONTEND_CODES[marketingParam as string] ?? DEFAULT_FRONTEND_CODE);
 
             } else if (marketingParam) {
-                const frontendCode = pad(stringToHex(marketingParam as string), { size: 32 });
+                const code = getFrontendCodeFromReferralName(marketingParam as string);
                 const [, owner] = await readContract(WAGMI_CONFIG, {
                     address: ADDRESS[chainId].frontendGateway,
                     abi: FrontendGatewayABI,
                     functionName: "frontendCodes",
-                    args: [frontendCode],
+                    args: [code],
                 });
 
                 const hasOwner = owner !== zeroAddress;
                 setMarketingCode(hasOwner ? marketingParam as string : '');
-                setFrontendCode(hasOwner ? frontendCode : DEFAULT_FRONTEND_CODE);
+                setFrontendCode(hasOwner ? code : DEFAULT_FRONTEND_CODE);
             }
         }
 

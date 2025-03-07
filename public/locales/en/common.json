@@ -414,6 +414,7 @@
         "available_to_claim": "Available to claim",
         "referral_volume": "Referral Volume",
         "total_referred": "Total Referred",
+        "claim": "Claim",
         "date": "Date",
         "address": "Address",
         "show_less": "show less",
@@ -447,7 +448,10 @@
         "txs": {
             "referral_code": "Referral Code:",
             "registering_referral_code": "Registering Referral Code",
-            "referral_code_registered": "Referral Code Registered"
+            "referral_code_registered": "Referral Code Registered",
+            "claiming_referral_bonus": "Claiming Referral Bonus",
+            "successfully_claimed_referral_bonus": "Successfully claimed referral bonus",
+            "referral_bonus": "Referral Bonus"
         }
     },
     "dashboard": {

@@ -414,6 +414,7 @@
         "available_to_claim": "Disponible para reclamar",
         "referral_volume": "Volumen de Referidos",
         "total_referred": "Total de Referidos",
+        "claim": "Reclamar",
         "date": "Fecha",
         "address": "Dirección",
         "show_less": "Mostrar menos",
@@ -447,7 +448,10 @@
         "txs": {
             "referral_code": "Códigos de referido:",
             "registering_referral_code": "Registrando códigos de referido",
-            "referral_code_registered": "Códigos de referido registrados"
+            "referral_code_registered": "Códigos de referido registrados",
+            "claiming_referral_bonus": "Reclamando bono de referido",
+            "successfully_claimed_referral_bonus": "Bono de referido reclamado con éxito",
+            "referral_bonus": "Bono de referido"
         }
     },
     "dashboard": {

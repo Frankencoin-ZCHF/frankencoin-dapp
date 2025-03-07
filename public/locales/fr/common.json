@@ -414,6 +414,7 @@
         "available_to_claim": "Disponible pour réclamation",
         "referral_volume": "Volume de parrainage",
         "total_referred": "Total des parrainés",
+        "claim": "Réclamer",
         "date": "Date",
         "address": "Adresse",
         "show_less": "afficher moins",
@@ -447,7 +448,10 @@
         "txs": {
             "referral_code": "Codes de parrainage:",
             "registering_referral_code": "Enregistrement des codes de parrainage",
-            "referral_code_registered": "Codes de parrainage enregistrés"
+            "referral_code_registered": "Codes de parrainage enregistrés",
+            "claiming_referral_bonus": "Réclamation du bonus de parrainage",
+            "successfully_claimed_referral_bonus": "Bonus de parrainage réclamé avec succès",
+            "referral_bonus": "Bonus de parrainage"
         }
     },
     "dashboard": {

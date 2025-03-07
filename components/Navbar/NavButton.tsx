@@ -13,10 +13,11 @@ export default function NavButton({ to, name, external }: Props) {
 	const router = useRouter();
 	const active = router.pathname.includes(to);
 	const carryOnQueryParams = getCarryOnQueryParams(router);
-	
+
 	const href = {
 		pathname: to,
 		query: {
+			...router.query,
 			...carryOnQueryParams,
 		},
 	};
