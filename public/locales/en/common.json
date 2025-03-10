@@ -34,6 +34,8 @@
         "symbol_amount": "{{symbol}} Amount",
         "done": "Done",
         "max": "Max",
+        "add": "Add",
+        "remove": "Remove",
         "navbar": {
             "my_referrals": "My Referrals",
             "swap": "Swap",
@@ -150,6 +152,21 @@
         "starting_liquidation_price": "Starting liquidation price",
         "liquidation_price_at_expiration": "Liquidation price at expiration",
         "add_new_token": "Add new token",
+        "borrowed": "Borrowed",
+        "expiration": "Expiration",
+        "adjust_your_borrowing_position": "Adjust your Borrowing Position",
+        "available_to_add": "Available to add",
+        "available_to_remove": "Available to remove",
+        "collateralization": "Collateralization",
+        "add_collateral": "Add Collateral",
+        "remove_collateral": "Remove Collateral",
+        "borrow_more": "Borrow more",
+        "pay_back": "Pay back",
+        "available_to_borrow": "Available to borrow",
+        "pay_back_amount": "Pay back amount",
+        "current_expiration_date": "Current expiration date",
+        "extend_roll_borrowing": "Extend/roll borrowing",
+        "extend_roll_borrowing_description": "The position must either be repaid or extended before the expiry date.",
         "error": {
             "could_not_obtain_token_data": "Could not obtain token data",
             "token_decimals_should_be_less_than_24": "Token decimals should be less than 24.",
@@ -162,13 +179,19 @@
             "buffer_too_low": "Buffer should be at least {{amount}}%",
             "duration_too_short": "Duration should be at least {{hours}} hours.",
             "minting_limit_exceeded": "Can not mint more than {{amount}} {{symbol}}.",
-            "expiration_date_out_of_range": "Expiration Date should be between Now and Limit"
+            "expiration_date_out_of_range": "Expiration Date should be between Now and Limit",
+            "amount_greater_than_position_balance": "Amount is greater than the position's balance",
+            "amount_greater_than_max_to_remove": "Amount is greater than the max allowed given the current debt"
         },
         "txs": {
             "creating_position": "Creating a new position",
             "position_created": "Successfully created a position",
             "minting": "Minting {{symbol}}",
-            "minting_success": "Successfully Minted {{symbol}}"
+            "minting_success": "Successfully Minted {{symbol}}",
+            "adding_collateral": "Adding collateral",
+            "adding_collateral_success": "Successfully added collateral",
+            "removing_collateral": "Removing collateral",
+            "removing_collateral_success": "Successfully removed collateral"
         }
     },
     "my_positions": {

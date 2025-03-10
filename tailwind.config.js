@@ -72,10 +72,12 @@ module.exports = {
 					icon: "#adb2c1",
 					muted:"#8b91a7",
 					muted2: "#8B92A8",
+					muted3: "#ADB2C2",
 					error: "#e02523",
 					label: "#5c637b",
 					title: "#43495c",
 					disabled: "#5d647b",
+					labelButton: "#065DC1",
 				},
 				borders: {
 					primary: '#e9ebf0',
@@ -133,7 +135,15 @@ module.exports = {
 						disabled: {
 							text: "#ADB2C2",
 						},
-					}
+					},
+					textGroup: {
+						primary: {
+							text: "#065DC1",
+						},
+						secondary: {
+							text: "#8B92A8",
+						},
+					},
 				},
 				table: {
 					header: {

@@ -94,7 +94,7 @@ export default function PositionBorrow({}) {
 	if (!position) return null;
 
 	const price: number = parseFloat(formatUnits(BigInt(position.price), 36 - position.collateralDecimals));
-	const collateralPriceDeuro: number = prices[position.collateral.toLowerCase() as Address].price.eur || 1;
+	const collateralPriceDeuro: number = prices[position.collateral.toLowerCase() as Address]?.price?.eur || 1;
 	const interest: number = position.annualInterestPPM / 10 ** 6;
 	const reserve: number = position.reserveContribution / 10 ** 6;
 	const effectiveLTV: number = (price * (1 - reserve)) / collateralPriceDeuro;

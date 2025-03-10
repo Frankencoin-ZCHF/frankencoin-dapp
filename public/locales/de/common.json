@@ -34,6 +34,8 @@
         "symbol_amount": "{{symbol}} Betrag",
         "done": "Fertig",
         "max": "Max",
+        "add": "Hinzufügen",
+        "remove": "Entfernen",
         "navbar": {
             "my_referrals": "Meine Empfehlungen",
             "swap": "Tausch",
@@ -150,6 +152,21 @@
         "starting_liquidation_price": "Startliquidationspreis",
         "liquidation_price_at_expiration": "Liquidationspreis bei Ablauf",
         "add_new_token": "Neuen Token hinzufügen",
+        "borrowed": "Ausgeliehen",
+        "expiration": "Ablauf",
+        "adjust_your_borrowing_position": "Deine Ausleihe anpassen",
+        "available_to_add": "Kann hinzugefügt werden",
+        "available_to_remove": "Kann entfernt werden",
+        "collateralization": "Besicherung",
+        "add_collateral": "Besicherung hinzufügen",
+        "remove_collateral": "Besicherung entfernen",
+        "borrow_more": "Mehr ausleihen",
+        "pay_back": "Zurückzahlen",
+        "available_to_borrow": "Kann ausgeliehen werden",
+        "pay_back_amount": "Rückzahlungsbetrag",
+        "current_expiration_date": "Aktuelles Ablaufdatum",
+        "extend_roll_borrowing": "Verlängern/Neuabschließen",
+        "extend_roll_borrowing_description": "Die Position muss vor dem Ablaufdatum zurückgezahlt oder verlängert werden.",
         "error": {
             "could_not_obtain_token_data": "Tokendaten konnten nicht abgerufen werden.",
             "token_decimals_should_be_less_than_24": "Die Nachkommastellen des Tokens sollten kleiner als 24 sein.",
@@ -162,13 +179,19 @@
             "buffer_too_low": "Der Puffer sollte mindestens {{amount}}% betragen.",
             "duration_too_short": "Die Dauer sollte mindestens {{hours}} Stunden betragen.",
             "minting_limit_exceeded": "Es können nicht mehr als {{amount}} {{symbol}} geprägt werden.",
-            "expiration_date_out_of_range": "Das Ablaufdatum sollte zwischen Jetzt und dem Limit liegen."
+            "expiration_date_out_of_range": "Das Ablaufdatum sollte zwischen Jetzt und dem Limit liegen.",
+            "amount_greater_than_position_balance": "Der Betrag ist größer als der Saldo der Position.",
+            "amount_greater_than_max_to_remove": "Der Betrag ist größer als der maximale Betrag, der unter Berücksichtigung der aktuellen Schuld abgezogen werden kann."
         },
         "txs": {
             "creating_position": "Erstellung einer neuen Position",
             "position_created": "Position erfolgreich erstellt.",
             "minting": "Prägung von {{symbol}}",
-            "minting_success": "{{symbol}} erfolgreich geprägt."
+            "minting_success": "{{symbol}} erfolgreich geprägt.",
+            "adding_collateral": "Besicherung hinzufügen",
+            "adding_collateral_success": "Besicherung erfolgreich hinzugefügt",
+            "removing_collateral": "Besicherung entfernen",
+            "removing_collateral_success": "Besicherung erfolgreich entfernt"
         }
     },
     "my_positions": {

@@ -32,6 +32,7 @@ import {
 	calculateYouGetAmountLoanDetails,
 } from "../../utils/loanCalculations";
 import { useFrontendCode } from "../../hooks/useFrontendCode";
+import { MaxButton } from "@components/Input/MaxButton";
 
 export default function PositionCreate({}) {
 	const [selectedCollateral, setSelectedCollateral] = useState<TokenBalance | null | undefined>(null);
@@ -301,7 +302,7 @@ export default function PositionCreate({}) {
 						value={expirationDate}
 						maxDate={expirationDate}
 						onChange={setExpirationDate}
-						onMaxClick={expirationDate ? handleMaxExpirationDate : undefined}
+						rightAdornment={expirationDate ? <MaxButton onClick={handleMaxExpirationDate} /> : null}
 					/>
 					<div className="self-stretch text-xs font-medium leading-normal">{t("mint.expiration_date_description")}</div>
 				</div>

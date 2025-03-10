@@ -34,6 +34,8 @@
         "symbol_amount": "Montant {{symbol}}",
         "done": "Terminé",
         "max": "Max",
+        "add": "Ajouter",
+        "remove": "Retirer",
         "navbar": {
             "my_referrals": "Mes filleuls",
             "swap": "Swap",
@@ -150,6 +152,21 @@
         "starting_liquidation_price": "Prix de liquidation initial",
         "liquidation_price_at_expiration": "Prix de liquidation à l'expiration",
         "add_new_token": "Ajouter un nouveau token",
+        "borrowed": "Emprunté",
+        "expiration": "Expiration",
+        "adjust_your_borrowing_position": "Ajuster votre position empruntée",
+        "available_to_add": "Disponible à ajouter",
+        "available_to_remove": "Disponible à retirer",
+        "collateralization": "Collatéralisation",
+        "add_collateral": "Ajouter Collatéral",
+        "remove_collateral": "Retirer Collatéral",
+        "borrow_more": "Emprunter plus",
+        "pay_back": "Rembourser",
+        "available_to_borrow": "Disponible à emprunter",
+        "pay_back_amount": "Montant à rembourser",
+        "current_expiration_date": "Date d'expiration actuelle",
+        "extend_roll_borrowing": "Prolonger/rouler l'emprunt",
+        "extend_roll_borrowing_description": "La position doit être remboursée ou prolongée avant la date d'expiration.",
         "error": {
             "could_not_obtain_token_data": "Impossible d'obtenir les données du token",
             "token_decimals_should_be_less_than_24": "Les décimales du token doivent être inférieures à 24.",
@@ -162,13 +179,19 @@
             "buffer_too_low": "La marge de sécurité doit être d'au moins {{amount}}%",
             "duration_too_short": "La durée doit être d'au moins {{hours}} heures.",
             "minting_limit_exceeded": "Impossible d'émettre plus de {{amount}} {{symbol}}.",
-            "expiration_date_out_of_range": "La date d'expiration doit être comprise entre maintenant et la limite."
+            "expiration_date_out_of_range": "La date d'expiration doit être comprise entre maintenant et la limite.",
+            "amount_greater_than_position_balance": "Le montant est supérieur au solde de la position.",
+            "amount_greater_than_max_to_remove": "Le montant est supérieur au montant maximum autorisé compte tenu de la dette actuelle"
         },
         "txs": {
             "creating_position": "Création d'une nouvelle position",
             "position_created": "Position créée avec succès",
             "minting": "Emission de {{symbol}}",
-            "minting_success": "Emission de {{symbol}} réussie"
+            "minting_success": "Emission de {{symbol}} réussie",
+            "adding_collateral": "Ajout de collatéral",
+            "adding_collateral_success": "Collatéral ajouté avec succès",
+            "removing_collateral": "Retrait de collatéral",
+            "removing_collateral_success": "Collatéral retiré avec succès"
         }
     },
     "my_positions": {

@@ -54,7 +54,7 @@ const DesktopTable = ({ borrowData }: { borrowData: BorrowData[] }) => {
 							{item.amountBorrowed} {TOKEN_SYMBOL}
 						</div>
 						<div className="py-3 flex items-center justify-end">
-							<SecondaryLinkButton className="flex min-w-32 w-full py-2.5 px-4" href={`/mypositions/${item.position}/adjust`}>
+							<SecondaryLinkButton className="flex min-w-32 w-full py-2.5 px-4" href={`/mint/${item.position}/manage`}>
 								{t("dashboard.manage")}
 							</SecondaryLinkButton>
 						</div>
@@ -109,7 +109,9 @@ const MobileTable = ({ borrowData }: { borrowData: BorrowData[] }) => {
 								</div>
 							</div>
 
-							<SecondaryButton className="flex w-full mt-2 mb-4 py-1 px-3">{t("dashboard.manage")}</SecondaryButton>
+							<SecondaryLinkButton className="flex w-full mt-2 mb-4 py-1 px-3" href={`/mint/${item.position}/manage`}>
+								{t("dashboard.manage")}
+							</SecondaryLinkButton>
 						</div>
 					))}
 				</>

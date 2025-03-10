@@ -34,6 +34,8 @@
         "symbol_amount": "Cantidad {{symbol}}",
         "done": "Listo",
         "max": "Max",
+        "add": "Agregar",
+        "remove": "Eliminar",
         "navbar": {
             "my_referrals": "Mis Referidos",
             "swap": "Intercambiar",
@@ -150,6 +152,21 @@
         "starting_liquidation_price": "Precio de liquidación inicial",
         "liquidation_price_at_expiration": "Precio de liquidación al vencimiento",
         "add_new_token": "Agregar nuevo token",
+        "borrowed": "Pedir prestado",
+        "expiration": "Vencimiento",
+        "adjust_your_borrowing_position": "Ajustar tu posición de préstamo",
+        "available_to_add": "Disponible para agregar",
+        "available_to_remove": "Disponible para eliminar",
+        "collateralization": "Colateralización",
+        "add_collateral": "Agregar Colateral",
+        "remove_collateral": "Eliminar Colateral",
+        "borrow_more": "Pedir más",
+        "pay_back": "Pagar",
+        "available_to_borrow": "Disponible para pedir prestado",
+        "pay_back_amount": "Cantidad a pagar",
+        "current_expiration_date": "Fecha de vencimiento actual",
+        "extend_roll_borrowing": "Extender préstamo",
+        "extend_roll_borrowing_description": "La posición debe ser reembolsada o extendida antes de la fecha de vencimiento.",
         "error": {
             "could_not_obtain_token_data": "No se pudieron obtener los datos del token",
             "token_decimals_should_be_less_than_24": "Los decimales del token deben ser inferiores a 24.",
@@ -162,13 +179,19 @@
             "buffer_too_low": "El margen de seguridad debe ser de al menos {{amount}}%",
             "duration_too_short": "La duración debe ser de al menos {{hours}} horas.",
             "minting_limit_exceeded": "No se pueden acuñar más de {{amount}} {{symbol}}.",
-            "expiration_date_out_of_range": "La fecha de vencimiento debe estar entre ahora y el límite."
+            "expiration_date_out_of_range": "La fecha de vencimiento debe estar entre ahora y el límite.",
+            "amount_greater_than_position_balance": "La cantidad es mayor que el saldo de la posición.",
+            "amount_greater_than_max_to_remove": "La cantidad es mayor que el máximo permitido dado el actual deuda"
         },
         "txs": {
             "creating_position": "Creando una nueva posición.",
             "position_created": "Posición creada correctamente.",
             "minting": "Acuñando {{symbol}}",
-            "minting_success": "{{symbol}} acuñado correctamente."
+            "minting_success": "{{symbol}} acuñado correctamente.",
+            "adding_collateral": "Agregando colateral",
+            "adding_collateral_success": "Colateral agregado correctamente",
+            "removing_collateral": "Eliminando colateral",
+            "removing_collateral_success": "Colateral eliminado correctamente"
         }
     },
     "my_positions": {

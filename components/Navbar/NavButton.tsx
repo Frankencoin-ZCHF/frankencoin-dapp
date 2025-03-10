@@ -1,7 +1,6 @@
-import { MARKETING_PARAM_NAME } from "@utils";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { getCarryOnQueryParams } from "../../utils/url";
+import { getCarryOnQueryParams, toQueryString } from "../../utils/url";
 
 interface Props {
 	to: string;
@@ -14,13 +13,7 @@ export default function NavButton({ to, name, external }: Props) {
 	const active = router.pathname.includes(to);
 	const carryOnQueryParams = getCarryOnQueryParams(router);
 
-	const href = {
-		pathname: to,
-		query: {
-			...router.query,
-			...carryOnQueryParams,
-		},
-	};
+	const href = `${to}${toQueryString(carryOnQueryParams)}`;
 
 	const activeClass = active ? "bg-menu-active-bg menu-active-text" : "bg-menu-default-bg menu-default-text";
 	const hoverClass = "hover:bg-menu-hover-bg hover:menu-hover-text";
