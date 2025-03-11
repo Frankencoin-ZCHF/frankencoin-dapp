@@ -39,7 +39,7 @@ const getMiscelaneousLoanDetails = (position: PositionQuery, loanAmount: bigint,
 	};
 };
 
-export const calculateYouGetAmountLoanDetails = (
+export const getLoanDetailsByCollateralAndLiqPrice = (
 	position: PositionQuery,
 	collateralAmount: bigint,
 	liquidationPriceAtEndOfPeriod: bigint
@@ -80,7 +80,7 @@ export const calculateYouGetAmountLoanDetails = (
 	};
 };
 
-export const calculateLiquidationPriceLoanDetails = (position: PositionQuery, collateralAmount: bigint, youGet: bigint): LoanDetails => {
+export const getLoanDetailsByCollateralAndYouGetAmount = (position: PositionQuery, collateralAmount: bigint, youGet: bigint): LoanDetails => {
 	const { reserveContribution, collateralDecimals, original, annualInterestPPM } = position;
 
 	const requiredCollateral = collateralAmount;

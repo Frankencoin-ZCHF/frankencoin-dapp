@@ -183,7 +183,8 @@
             "minting_limit_exceeded": "Impossible d'émettre plus de {{amount}} {{symbol}}.",
             "expiration_date_out_of_range": "La date d'expiration doit être comprise entre maintenant et la limite.",
             "amount_greater_than_position_balance": "Le montant est supérieur au solde de la position.",
-            "amount_greater_than_max_to_remove": "Le montant est supérieur au montant maximum autorisé compte tenu de la dette actuelle"
+            "amount_greater_than_max_to_remove": "Le montant est supérieur au montant maximum autorisé compte tenu de la dette actuelle",
+            "amount_greater_than_debt": "Le montant est supérieur à la dette"
         },
         "txs": {
             "creating_position": "Création d'une nouvelle position",
@@ -193,7 +194,9 @@
             "adding_collateral": "Ajout de collatéral",
             "adding_collateral_success": "Collatéral ajouté avec succès",
             "removing_collateral": "Retrait de collatéral",
-            "removing_collateral_success": "Collatéral retiré avec succès"
+            "removing_collateral_success": "Collatéral retiré avec succès",
+            "pay_back": "Remboursement de {{symbol}}",
+            "pay_back_success": "Remboursement de {{symbol}} réussi"
         }
     },
     "my_positions": {

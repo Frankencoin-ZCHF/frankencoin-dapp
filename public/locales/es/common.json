@@ -183,7 +183,8 @@
             "minting_limit_exceeded": "No se pueden acuñar más de {{amount}} {{symbol}}.",
             "expiration_date_out_of_range": "La fecha de vencimiento debe estar entre ahora y el límite.",
             "amount_greater_than_position_balance": "La cantidad es mayor que el saldo de la posición.",
-            "amount_greater_than_max_to_remove": "La cantidad es mayor que el máximo permitido dado el actual deuda"
+            "amount_greater_than_max_to_remove": "La cantidad es mayor que el máximo permitido dado el actual deuda",
+            "amount_greater_than_debt": "La cantidad es mayor que la deuda"
         },
         "txs": {
             "creating_position": "Creando una nueva posición.",
@@ -193,7 +194,9 @@
             "adding_collateral": "Agregando colateral",
             "adding_collateral_success": "Colateral agregado correctamente",
             "removing_collateral": "Eliminando colateral",
-            "removing_collateral_success": "Colateral eliminado correctamente"
+            "removing_collateral_success": "Colateral eliminado correctamente",
+            "pay_back": "Pagar {{symbol}}",
+            "pay_back_success": "{{symbol}} pagado correctamente"
         }
     },
     "my_positions": {

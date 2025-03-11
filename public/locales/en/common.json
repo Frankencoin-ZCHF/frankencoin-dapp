@@ -183,7 +183,8 @@
             "minting_limit_exceeded": "Can not mint more than {{amount}} {{symbol}}.",
             "expiration_date_out_of_range": "Expiration Date should be between Now and Limit",
             "amount_greater_than_position_balance": "Amount is greater than the position's balance",
-            "amount_greater_than_max_to_remove": "Amount is greater than the max allowed given the current debt"
+            "amount_greater_than_max_to_remove": "Amount is greater than the max allowed given the current debt",
+            "amount_greater_than_debt": "Amount is greater than the debt"
         },
         "txs": {
             "creating_position": "Creating a new position",
@@ -193,7 +194,9 @@
             "adding_collateral": "Adding collateral",
             "adding_collateral_success": "Successfully added collateral",
             "removing_collateral": "Removing collateral",
-            "removing_collateral_success": "Successfully removed collateral"
+            "removing_collateral_success": "Successfully removed collateral",
+            "pay_back": "Pay back {{symbol}}",
+            "pay_back_success": "Successfully payed back {{symbol}}"
         }
     },
     "my_positions": {

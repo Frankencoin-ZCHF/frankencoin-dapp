@@ -28,8 +28,8 @@ import { renderErrorTxToast } from "@components/TxToast";
 import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import {
 	LoanDetails,
-	calculateLiquidationPriceLoanDetails,
-	calculateYouGetAmountLoanDetails,
+	getLoanDetailsByCollateralAndYouGetAmount,
+	getLoanDetailsByCollateralAndLiqPrice,
 } from "../../utils/loanCalculations";
 import { useFrontendCode } from "../../hooks/useFrontendCode";
 import { MaxButton } from "@components/Input/MaxButton";
@@ -111,7 +111,7 @@ export default function PositionCreate({}) {
 		setExpirationDate(toDate(selectedPosition.expiration));
 		setLiquidationPrice(liqPrice.toString());
 
-		const loanDetails = calculateYouGetAmountLoanDetails(
+		const loanDetails = getLoanDetailsByCollateralAndLiqPrice(
 			selectedPosition,
 			BigInt(selectedPosition.minimumCollateral),
 			liqPrice,
@@ -125,7 +125,7 @@ export default function PositionCreate({}) {
 		setCollateralAmount(value);
 		if (!selectedPosition) return;
 
-		const loanDetails = calculateYouGetAmountLoanDetails(selectedPosition, BigInt(value), BigInt(liquidationPrice));
+		const loanDetails = getLoanDetailsByCollateralAndLiqPrice(selectedPosition, BigInt(value), BigInt(liquidationPrice));
 		setLoanDetails(loanDetails);
 		setBorrowedAmount(loanDetails.amountToSendToWallet.toString());
 	};
@@ -135,7 +135,7 @@ export default function PositionCreate({}) {
 
 		if (!selectedPosition) return;
 
-		const loanDetails = calculateYouGetAmountLoanDetails(
+		const loanDetails = getLoanDetailsByCollateralAndLiqPrice(
 			selectedPosition,
 			BigInt(collateralAmount),
 			BigInt(value),
@@ -149,7 +149,7 @@ export default function PositionCreate({}) {
 
 		if (!selectedPosition) return;
 
-		const loanDetails = calculateLiquidationPriceLoanDetails(selectedPosition, BigInt(collateralAmount), BigInt(value));
+		const loanDetails = getLoanDetailsByCollateralAndYouGetAmount(selectedPosition, BigInt(collateralAmount), BigInt(value));
 		setLoanDetails(loanDetails);
 		setLiquidationPrice(loanDetails.liquidationPrice.toString());
 	};

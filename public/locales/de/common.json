@@ -183,7 +183,8 @@
             "minting_limit_exceeded": "Es können nicht mehr als {{amount}} {{symbol}} geprägt werden.",
             "expiration_date_out_of_range": "Das Ablaufdatum sollte zwischen Jetzt und dem Limit liegen.",
             "amount_greater_than_position_balance": "Der Betrag ist größer als der Saldo der Position.",
-            "amount_greater_than_max_to_remove": "Der Betrag ist größer als der maximale Betrag, der unter Berücksichtigung der aktuellen Schuld abgezogen werden kann."
+            "amount_greater_than_max_to_remove": "Der Betrag ist größer als der maximale Betrag, der unter Berücksichtigung der aktuellen Schuld abgezogen werden kann.",
+            "amount_greater_than_debt": "Der Betrag ist größer als die Schuld."
         },
         "txs": {
             "creating_position": "Erstellung einer neuen Position",
@@ -193,7 +194,9 @@
             "adding_collateral": "Besicherung hinzufügen",
             "adding_collateral_success": "Besicherung erfolgreich hinzugefügt",
             "removing_collateral": "Besicherung entfernen",
-            "removing_collateral_success": "Besicherung erfolgreich entfernt"
+            "removing_collateral_success": "Besicherung erfolgreich entfernt",
+            "pay_back": "Zurückzahlen von {{symbol}}",
+            "pay_back_success": "{{symbol}} erfolgreich zurückgezahlt"
         }
     },
     "my_positions": {
