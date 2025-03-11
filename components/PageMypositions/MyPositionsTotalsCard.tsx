@@ -1,12 +1,10 @@
-import AppBox from "@components/AppBox";
 import AppCard from "@components/AppCard";
-import DisplayAmount from "@components/DisplayAmount";
-import DisplayLabel from "@components/DisplayLabel";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/router";
 import { Address, zeroAddress } from "viem";
+import TokenInput from "@components/Input/TokenInput";
 
 export default function MyPositionsTotalsCard() {
 	const positions = useSelector((state: RootState) => state.positions.openPositions);
@@ -33,19 +31,10 @@ export default function MyPositionsTotalsCard() {
 
 	return (
 		<AppCard>
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-				<AppBox>
-					<DisplayLabel label="Total Owed" />
-					<DisplayAmount className="mt-1" amount={totalOwed} currency="ZCHF" hideLogo />
-				</AppBox>
-				<AppBox>
-					<DisplayLabel label="Total Reserves" />
-					<DisplayAmount className="mt-1" amount={totalReserves} currency="ZCHF" hideLogo />
-				</AppBox>
-				<AppBox>
-					<DisplayLabel label="Total Minted" />
-					<DisplayAmount className="mt-1" amount={totalMinted} currency="ZCHF" hideLogo />
-				</AppBox>
+			<div className="grid grid-cols-1 md:grid-cols-3 gap-2 -mb-4">
+				<TokenInput label="Total Owed" symbol="ZCHF" disabled={true} value={totalOwed.toString()} />
+				<TokenInput label="Total Reserves" symbol="ZCHF" disabled={true} value={totalReserves.toString()} />
+				<TokenInput label="Total Minted" symbol="ZCHF" disabled={true} value={totalMinted.toString()} />
 			</div>
 		</AppCard>
 	);

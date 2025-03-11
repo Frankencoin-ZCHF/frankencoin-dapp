@@ -282,7 +282,7 @@ export default function PositionBorrow({}) {
 								min={BigInt(position.minimumCollateral)}
 								digit={position.collateralDecimals}
 								onChange={onChangeCollateral}
-								output={formatUnits(requiredColl, position.collateralDecimals)}
+								value={requiredColl.toString()}
 								symbol={position.collateralSymbol}
 							/>
 							<DateInput

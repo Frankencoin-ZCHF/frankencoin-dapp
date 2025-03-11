@@ -43,7 +43,7 @@ module.exports = {
 						focus: "#3E96F4",
 						error: "#E02523",
 						border: "#F0F1F5",
-						hover: "#CED1DA",
+						hover: "#0F80F0",
 						min: "#065DC1",
 						max: "#065DC1",
 						reset: "#065DC1", // alt: #fee2e2

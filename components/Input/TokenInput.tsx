@@ -53,9 +53,11 @@ export default function TokenInput({
 	return (
 		<div className="">
 			<div
-				className={`group border-card-input-border hover:border-card-input-hover focus-within:!border-card-input-focus ${
+				className={`group border-card-input-border ${
+					disabled ? "" : "hover:border-card-input-hover"
+				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
-				} text-text-secondary border-2 rounded-lg px-3 ${disabled ? "bg-card-input-disabled" : ""}`}
+				} text-text-secondary border-2 rounded-lg px-3 py-2 ${disabled ? "bg-card-input-disabled" : ""}`}
 			>
 				<div className="flex text-card-input-label my-1">{label}</div>
 
@@ -88,7 +90,7 @@ export default function TokenInput({
 				</div>
 
 				{limitLabel || max || min || reset ? (
-					<div className="flex flex-row gap-2 my-1">
+					<div className="flex flex-row gap-2 py-1">
 						{limitLabel != undefined && <div className="text-text-secondary">{limitLabel}</div>}
 						{limitLabel != undefined && (
 							<div className="text-text-primary truncate">{formatUnits(limit, Number(limitDigit))}</div>
