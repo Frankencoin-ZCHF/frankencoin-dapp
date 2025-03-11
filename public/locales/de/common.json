@@ -43,7 +43,7 @@
             "borrow": "Kredit",
             "my_positions": "Meine Positionen",
             "monitoring": "Überwachung",
-            "challenges": "Auktionen",
+            "challenges": "Anfechtungen",
             "savings": "Ersparnisse",
             "equity": "Anteile",
             "auctions": "Auktionen",
@@ -321,7 +321,7 @@
         "reaching_zero_at": "Nullpunkt erreicht um",
         "error": {
             "not_enough_deuro": "Nicht genügend {{symbol}} in deiner Wallet, um die erwarteten Kosten zu decken.",
-            "expected_winning_collateral": "Die erwartete Gewinnbürgschaft sollte geringer sein als die verbleibende Bürgschaft."
+            "expected_winning_collateral": "Die erwartete Gewinnbesicherung sollte geringer sein als die verbleibende Besicherung."
         },
         "txs": {
             "placing_bid": "Gebot abgeben",
@@ -445,7 +445,7 @@
         "total_bonus_volume": "Gesamtbonusvolumen",
         "available_to_claim": "Einlösbar",
         "referral_volume": "Empfehlvolumen",
-        "total_referred": "Gesamt geworben",
+        "total_referred": "Insgesamt geworben",
         "claim": "Einfordern",
         "date": "Datum",
         "address": "Adresse",
@@ -511,7 +511,7 @@
         "loan_due_in": "Kreditfälligkeit",
         "amount_borrowed": "Ausleihbetrag",
         "total_owed": "Gesamtbetrag",
-        "governance_description": "Hier hast du die Möglichkeit, an der Steuerung des dEURO-Protokolls teilzunehmen, indem du neue Positionen, den Basiszinssatz oder andere systemrelevante Parameter überwachen. Aktiviere den Expertenmodus, um Einblicke zu erhalten.",
+        "governance_description": "Hier hast du die Möglichkeit, an der Steuerung des dEURO-Protokolls teilzunehmen, indem du neue Positionen, den Basiszinssatz oder andere systemrelevante Parameter überwachst. Aktiviere den Expertenmodus, um Einblicke zu erhalten.",
         "governance_description_2": "Teilnehmer sollten neu vorgeschlagene Positionstypen sorgfältig prüfen und diese ablehnen, wenn sie ihrer Meinung nach ein Risiko für die Stabilität von dEURO darstellen. Es gibt auch ein <0>GitHub-Forum</0> zur Diskussion über zulässige Besicherungen und deren Parameter.",
         "propose": "Vorschlagen",
         "dEURO_Protocol_Share_Holders_nDEPS_and_DEPS": "dEURO-Protokoll-Aktionäre (nDEPS und DEPS)",
@@ -539,7 +539,7 @@
         "withdrawn_to_your_wallet": "Auf deine Wallet ausgezahlt",
         "interest_to_be_collected": "Einzuziehende Zinsen",
         "resulting_balance": "Resultierender Kontostand",
-        "when_saving_additional_funds_your_balance_will_be_locked": "Beim Einzahlen weiterer Gelder wird dein Guthaben gesperrt, bis die Zinsen anfallen, was bis zu drei Tage dauern kann. Diese Regelung dient dazu, das Einzahlen von Geldern, die für Transaktionen vorgesehen sind, zu vermeiden.",
+        "when_saving_additional_funds_your_balance_will_be_locked": "Beim Einzahlen weiterer Gelder wird dein Guthaben gesperrt, bis die Zinsen anfallen, was bis zu drei Tage dauern kann. Diese Regel soll verhindern, dass Gelder eingezahlt werden, die für Transaktionen gedacht sind.",
         "your_funds_are_still_locked_for": "Dein Guthaben ist noch für {{hours}} Stunden gesperrt.",
         "date": "Datum",
         "saver": "Sparer",
