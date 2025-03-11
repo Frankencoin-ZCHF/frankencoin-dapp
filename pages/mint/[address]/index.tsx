@@ -287,8 +287,8 @@ export default function PositionBorrow({}) {
 							/>
 							<DateInput
 								label="Expiration"
-								min={Date.now() / 1000 + 60 * 60 * 24 * 7}
-								max={position.expiration}
+								min={new Date(Date.now() + 1000 * 60 * 60 * 24 * 7)}
+								max={new Date(position.expiration * 1000)}
 								value={expirationDate}
 								onChange={onChangeExpiration}
 							/>
