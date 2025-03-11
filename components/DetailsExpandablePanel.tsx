@@ -5,7 +5,7 @@ import { formatCurrency, shortenAddress } from "@utils";
 import { formatUnits } from "viem";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
-import { LoanDetails } from "../../utils/loanCalculations";
+import { LoanDetails } from "../utils/loanCalculations";
 
 interface DetailsExpandablePanelProps {
 	loanDetails?: LoanDetails;

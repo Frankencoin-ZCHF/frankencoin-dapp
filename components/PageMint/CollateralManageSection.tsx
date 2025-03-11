@@ -4,7 +4,6 @@ import { NormalInputOutlined } from "@components/Input/NormalInputOutlined";
 import Button from "@components/Button";
 import { AddCircleOutlineIcon } from "@components/SvgComponents/add_circle_outline";
 import { RemoveCircleOutlineIcon } from "@components/SvgComponents/remove_circle_outline";
-import { Details } from "./Details";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import { RootState, store } from "../../redux/redux.store";
@@ -22,6 +21,7 @@ import { waitForTransactionReceipt } from "wagmi/actions";
 import { renderErrorTxToast } from "@components/TxToast";
 import { TxToast } from "@components/TxToast";
 import { fetchPositionsList } from "../../redux/slices/positions.slice";
+import { DetailsExpandablePanel } from "@components/DetailsExpandablePanel";
 
 export const CollateralManageSection = () => {
 	const router = useRouter();
@@ -332,7 +332,7 @@ export const CollateralManageSection = () => {
 					{t("common.approve")}
 				</Button>
 			)}
-			<Details />
+			<DetailsExpandablePanel loanDetails={undefined} collateralPriceDeuro={0} />
 		</div>
 	);
 };

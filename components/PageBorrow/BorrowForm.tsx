@@ -7,7 +7,7 @@ import Button from "@components/Button";
 import { TokenInputSelectOutlined } from "@components/Input/TokenInputSelectOutlined";
 import { DateInputOutlined } from "@components/Input/DateInputOutlined";
 import { SliderInputOutlined } from "@components/Input/SliderInputOutlined";
-import { DetailsExpandablePanel } from "@components/PageBorrow/DetailsExpandablePanel";
+import { DetailsExpandablePanel } from "@components/DetailsExpandablePanel";
 import { NormalInputOutlined } from "@components/Input/NormalInputOutlined";
 import { PositionQuery } from "@deuro/api";
 import { TokenSelectModal } from "@components/TokenSelectModal";

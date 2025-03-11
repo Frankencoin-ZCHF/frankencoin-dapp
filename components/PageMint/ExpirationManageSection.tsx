@@ -1,6 +1,6 @@
 import { DateInputOutlined } from "@components/Input/DateInputOutlined";
 import { MaxButton } from "@components/Input/MaxButton";
-import { Details } from "./Details";
+import { DetailsExpandablePanel } from "@components/DetailsExpandablePanel";
 import { useTranslation } from "next-i18next";
 
 export const ExpirationManageSection = () => {
@@ -18,7 +18,7 @@ export const ExpirationManageSection = () => {
 				/>
 				<span className="text-xs font-medium leading-[1rem]">{t("mint.extend_roll_borrowing_description")}</span>
 			</div>
-			<Details />
+			<DetailsExpandablePanel loanDetails={undefined} collateralPriceDeuro={0} />
 		</div>
 	);
 };

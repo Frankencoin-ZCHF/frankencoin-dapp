@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Details } from "./Details";
 import TokenLogo from "@components/TokenLogo";
 import { NormalInputOutlined } from "@components/Input/NormalInputOutlined";
 import Button from "@components/Button";
@@ -24,6 +23,7 @@ import { WAGMI_CONFIG } from "../../app.config";
 import { writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import { TxToast } from "@components/TxToast";
+import { DetailsExpandablePanel } from "@components/DetailsExpandablePanel";
 
 export const BorrowedManageSection = () => {
 	const [amount, setAmount] = useState("");
@@ -351,7 +351,7 @@ export const BorrowedManageSection = () => {
 					{t(isBorrowMore ? "mint.borrow_more" : "mint.pay_back")}
 				</Button>
 			)}
-			<Details />
+			<DetailsExpandablePanel loanDetails={undefined} collateralPriceDeuro={0} />
 		</div>
 	);
 };

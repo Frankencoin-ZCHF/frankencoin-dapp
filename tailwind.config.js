@@ -95,6 +95,7 @@ module.exports = {
 					label: "#adb2c1",
 					bg: "#f5f6f9",
 					borderFocus: "#3d89f4",
+					borderHover: "#5D647B",
 				},
 				button: {
 					max: {
