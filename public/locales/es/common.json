@@ -36,6 +36,7 @@
         "max": "Max",
         "add": "Agregar",
         "remove": "Eliminar",
+        "connect_wallet": "Conectar Wallet",
         "navbar": {
             "my_referrals": "Mis Referidos",
             "swap": "Intercambiar",
@@ -89,6 +90,7 @@
         "title": "Pedir prestado",
         "mint_title": "Crea tus propios Euros Descentralizados",
         "borrow": "Pedir prestado",
+        "symbol_borrow": "{{symbol}} pedir prestado",
         "propose_position": "Proponer Posición",
         "proposal_process": "Proceso de Propuesta",
         "proposal_fee": "Cuota de Propuesta",
@@ -410,12 +412,19 @@
         "new_leadrate_proposal_and_changed": "Propuesta de nuevo tipo de interés y cambiada",
         "d_euro_api_bot_description_2": "Los usuarios pueden suscribirse a diferentes tipos de actualizaciones utilizando identificadores específicos.",
         "new_minting_updates": "Nuevas actualizaciones de acuñación",
+        "delegate_to": "Delegar a",
+        "vetoed": "Veto",
+        "passed": "Aprobado",
         "txs": {
             "from": "De:",
             "proposing_to": "Propuesta a:",
             "transaction": "Transacción:",
             "proposing_rate_change": "Proponiendo cambio de tasa...",
-            "successfully_proposed": "Propuesta realizada con éxito"
+            "successfully_proposed": "Propuesta realizada con éxito",
+            "delegating_votes": "Delegando votos...",
+            "successfully_delegated_votes": "Votos delegados con éxito",
+            "revoke": "Revocar",
+            "delegate": "Delegar"
         }
     },
     "referrals": {

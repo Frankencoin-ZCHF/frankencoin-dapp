@@ -313,7 +313,7 @@ export default function PositionCreate({}) {
 					</div>
 					<DetailsExpandablePanel loanDetails={loanDetails} collateralPriceDeuro={collateralPriceDeuro} />
 				</div>
-				<GuardToAllowedChainBtn label={t("mint.borrow") + " " + TOKEN_SYMBOL}>
+				<GuardToAllowedChainBtn label={t("mint.symbol_borrow", { symbol: TOKEN_SYMBOL })}>
 					{  !selectedCollateral ? (
 						<Button
 							className="!p-4 text-lg font-extrabold leading-none"

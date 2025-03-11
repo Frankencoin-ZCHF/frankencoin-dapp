@@ -4,7 +4,7 @@ import { MinterQuery } from "@deuro/api";
 import { useContractUrl } from "@hooks";
 import GovernanceMintersAction from "./GovernanceMintersAction";
 import { AddressLabelSimple, TxLabelSimple } from "@components/AddressLabel";
-
+import { useTranslation } from "next-i18next";
 interface Props {
 	headers: string[];
 	minter: MinterQuery;
@@ -13,6 +13,7 @@ interface Props {
 
 export default function GovernanceMintersRow({ headers, minter, tab }: Props) {
 	const url = useContractUrl(minter.minter || zeroAddress);
+	const { t } = useTranslation();
 	if (!minter) return null;
 
 	const vetoUntil = (minter.applyDate + minter.applicationPeriod) * 1000;
@@ -49,7 +50,7 @@ export default function GovernanceMintersRow({ headers, minter, tab }: Props) {
 			<div className="flex flex-col">{minter.applyMessage}</div>
 
 			{/* State */}
-			<div className={`flex flex-col ${vetoed || passed ? "" : "font-bold"}`}>{vetoed ? "Vetoed" : passed ? "Passed" : stateStr}</div>
+			<div className={`flex flex-col ${vetoed || passed ? "" : "font-bold"}`}>{vetoed ? t("governance.vetoed") : passed ? t("governance.passed") : stateStr}</div>
 		</TableRow>
 	);
 }

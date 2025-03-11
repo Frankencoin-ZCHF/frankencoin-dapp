@@ -3,7 +3,7 @@ import { useAccount } from "wagmi";
 import { useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/react";
 import Button from "@components/Button";
 import { useIsConnectedToCorrectChain } from "../../hooks/useWalletConnectStats";
-
+import { useTranslation } from "next-i18next";
 interface Props {
 	children?: React.ReactNode;
 	label?: string;
@@ -18,6 +18,7 @@ export default function GuardToAllowedChainBtn(props: Props) {
 	const Web3Modal = useWeb3Modal();
 	const Web3ModalState = useWeb3ModalState();
 	const isCorrectChain = useIsConnectedToCorrectChain();
+	const { t } = useTranslation();
 
 	// to close modal after successful connection or change of chain
 	useEffect(() => {
@@ -38,7 +39,7 @@ export default function GuardToAllowedChainBtn(props: Props) {
 					setRequestedChange(true);
 				}}
 			>
-				{props?.label ?? "Connect Wallet"}
+				{props?.label ?? t("common.connect_wallet")}
 			</Button>
 		);
 

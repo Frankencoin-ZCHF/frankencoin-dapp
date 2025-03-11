@@ -2,10 +2,12 @@ import { shortenAddress } from "@utils";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
 import Link from "next/link";
 import { useAccount } from "wagmi";
+import { useTranslation } from "next-i18next";
 
 export default function WalletConnect() {
 	const Web3Modal = useWeb3Modal();
 	const { isDisconnected, address } = useAccount();
+	const { t } = useTranslation();
 
 	if (isDisconnected) {
 		return (
@@ -14,7 +16,7 @@ export default function WalletConnect() {
 					className="bg-layout-secondary text-text-secondary h-8 md:h-10 flex justify-center items-center rounded-3xl px-4 font-semibold"
 					onClick={() => Web3Modal.open()}
 				>
-					Connect Wallet
+					{t("common.connect_wallet")}
 				</div>
 			</div>
 		);

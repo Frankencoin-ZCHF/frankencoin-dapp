@@ -36,6 +36,7 @@
         "max": "Max",
         "add": "Ajouter",
         "remove": "Retirer",
+        "connect_wallet": "Connecter le portefeuille",
         "navbar": {
             "my_referrals": "Mes filleuls",
             "swap": "Swap",
@@ -89,6 +90,7 @@
         "title": "Emprunter",
         "mint_title": "Mettez en circulation vos propres Euros décentralisés",
         "borrow": "Emprunter",
+        "symbol_borrow": "{{symbol}} emprunter",
         "propose_position": "Proposer une position",
         "proposal_process": "Processus de proposition",
         "proposal_fee": "Frais de proposition",
@@ -410,12 +412,19 @@
         "new_leadrate_proposal_and_changed": "Proposition de nouveau taux directeur et modification",
         "d_euro_api_bot_description_2": "Les utilisateurs peuvent s'abonner à différents types de mises à jour en utilisant des identifiants spécifiques.",
         "new_minting_updates": "Mises à jour de nouveaux mintages",
+        "delegate_to": "Déléguer à",
+        "vetoed": "Veto",
+        "passed": "Approuvé",
         "txs": {
             "from": "De :",
             "proposing_to": "Proposition à :",
             "transaction": "Transaction :",
             "proposing_rate_change": "Proposition de changement de taux…",
-            "successfully_proposed": "Proposition réussie"
+            "successfully_proposed": "Proposition réussie",
+            "delegating_votes": "Délégation de votes...",
+            "successfully_delegated_votes": "Votes délégués avec succès",
+            "revoke": "Révoquer",
+            "delegate": "Déléguer"
         }
     },
     "referrals": {

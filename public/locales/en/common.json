@@ -36,6 +36,7 @@
         "max": "Max",
         "add": "Add",
         "remove": "Remove",
+        "connect_wallet": "Connect Wallet",
         "navbar": {
             "my_referrals": "My Referrals",
             "swap": "Swap",
@@ -89,6 +90,7 @@
         "title": "Borrow",
         "mint_title": "Mint Decentralized Euros For Yourself",
         "borrow": "Borrow",
+        "symbol_borrow": "{{symbol}} borrow",
         "propose_position": "Propose Position",
         "proposal_process": "Proposal Process",
         "proposal_fee": "Proposal Fee",
@@ -410,12 +412,19 @@
         "new_leadrate_proposal_and_changed": "New Leadrate Proposal and Changed",
         "d_euro_api_bot_description_2": "Users can subscribe to different types of updates using specific handles.",
         "new_minting_updates": "New Minting Updates",
+        "delegate_to": "Delegate to",
+        "vetoed": "Vetoed",
+        "passed": "Passed",
         "txs": {
             "from": "From:",
             "proposing_to": "Proposing to:",
             "transaction": "Transaction:",
             "proposing_rate_change": "Proposing rate change...",
-            "successfully_proposed": "Successfully proposed"
+            "successfully_proposed": "Successfully proposed",
+            "delegating_votes": "Delegating votes...",
+            "successfully_delegated_votes": "Successfully delegated votes",
+            "revoke": "Revoke",
+            "delegate": "Delegate"
         }
     },
     "referrals": {
