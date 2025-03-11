@@ -291,6 +291,7 @@ export default function PositionBorrow({}) {
 								max={new Date(position.expiration * 1000)}
 								value={expirationDate}
 								onChange={onChangeExpiration}
+								error={errorDate}
 							/>
 						</div>
 						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
@@ -312,7 +313,6 @@ export default function PositionBorrow({}) {
 										Mint
 									</Button>
 								)}
-								<p className="text-text-warning">{errorDate}</p>
 								<p className="text-text-warning">{error}</p>
 							</GuardToAllowedChainBtn>
 						</div>
@@ -369,13 +369,13 @@ export default function PositionBorrow({}) {
 							<div className="text-lg font-bold text-center mt-3">Notes</div>
 							<div className="flex-1 mt-4">
 								<div className="mt-2 flex">
-									<div className="flex-1 text-text-secondary">Effective Annual Interest</div>
-									<div className="">{formatCurrency(effectiveInterest * 100)}%</div>
+									<div className="flex-1 text-text-secondary">Available to Mint</div>
+									<div className="">{formatCurrency(formatUnits(availableAmount, 18))} ZCHF</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1 text-text-secondary">Available to Mint</div>
-									<div className="">{formatCurrency(formatUnits(availableAmount, 18))} ZCHF</div>
+									<div className="flex-1 text-text-secondary">Market Price</div>
+									<div className="">{formatCurrency(collateralPriceZchf)} ZCHF</div>
 								</div>
 
 								<div className="mt-2 flex">
@@ -386,13 +386,13 @@ export default function PositionBorrow({}) {
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1 text-text-secondary">Market Price</div>
-									<div className="">{formatCurrency(collateralPriceZchf)} ZCHF</div>
+									<div className="flex-1 text-text-secondary">Loan-To-Value</div>
+									<div className="">{formatCurrency(effectiveLTV * 100)}%</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1 text-text-secondary">Loan-To-Value</div>
-									<div className="">{formatCurrency(effectiveLTV * 100)}%</div>
+									<div className="flex-1 text-text-secondary">Effective Annual Interest</div>
+									<div className="">{formatCurrency(effectiveInterest * 100)}%</div>
 								</div>
 
 								{position.isClone && (

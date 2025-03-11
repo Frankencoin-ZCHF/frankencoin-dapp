@@ -11,6 +11,12 @@ import { useAccount } from "wagmi";
 import Link from "next/link";
 import AppTitle from "@components/AppTitle";
 import SavingsRankedBalancesTable from "@components/PageSavings/SavingsRankedBalancesTable";
+import { useContractUrl } from "@hooks";
+import { ADDRESS } from "@frankencoin/zchf";
+import { WAGMI_CHAIN } from "../app.config";
+import { shortenAddress } from "@utils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 export default function SavingsPage() {
 	const { address } = useAccount();
@@ -20,13 +26,21 @@ export default function SavingsPage() {
 		store.dispatch(fetchBalance());
 	}, [address]);
 
+	const savings = ADDRESS[WAGMI_CHAIN.id].savings;
+	const link = useContractUrl(savings);
+
 	return (
 		<>
 			<Head>
 				<title>Frankencoin - Savings</title>
 			</Head>
 
-			<AppTitle title="Savings"></AppTitle>
+			<AppTitle title={`Savings `}>
+				<Link className="underline" target="_blank" href={link}>
+					({shortenAddress(savings)})
+					<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
+				</Link>
+			</AppTitle>
 
 			<SavingsGlobalCard />
 
