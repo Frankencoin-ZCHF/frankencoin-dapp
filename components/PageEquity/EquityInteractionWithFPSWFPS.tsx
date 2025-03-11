@@ -256,6 +256,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 					hideMaxLabel
 					output={Math.round(parseFloat(formatUnits(amount, 18)) * 10000) / 10000}
 					label="Receive"
+					disabled={true}
 				/>
 				<div className={`mt-2 px-1 transition-opacity`}>
 					1 {fromSymbol} = 1 {toSymbol}

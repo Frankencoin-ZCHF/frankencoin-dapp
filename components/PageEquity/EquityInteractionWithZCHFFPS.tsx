@@ -230,6 +230,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 					hideMaxLabel
 					output={Math.round(parseFloat(formatUnits(result, 18)) * 10000) / 10000}
 					label="Receive"
+					disabled={true}
 				/>
 
 				<div className={`mt-2 px-1 transition-opacity ${(shareLoading || proceedLoading) && "opacity-50"}`}>{conversionNote()}</div>

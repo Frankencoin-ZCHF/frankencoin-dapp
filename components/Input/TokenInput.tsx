@@ -95,7 +95,7 @@ export default function TokenInput({
 						{limitLabel != undefined && (
 							<div className="text-text-primary truncate">{formatUnits(limit, Number(limitDigit))}</div>
 						)}
-						{max != undefined && (
+						{!disabled && max != undefined && (
 							<div
 								className="text-card-input-max cursor-pointer hover:text-card-input-focus"
 								onClick={() => {
@@ -108,7 +108,7 @@ export default function TokenInput({
 								Max
 							</div>
 						)}
-						{min != undefined && (
+						{!disabled && min != undefined && (
 							<div
 								className="text-card-input-min cursor-pointer hover:text-card-input-focus"
 								onClick={() => {
@@ -121,7 +121,7 @@ export default function TokenInput({
 								Min
 							</div>
 						)}
-						{reset != undefined && reset != BigInt(value) && (
+						{!disabled && reset != undefined && reset != BigInt(value) && (
 							<div
 								className="text-card-input-max cursor-pointer hover:text-card-input-focus"
 								onClick={() => {

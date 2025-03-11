@@ -133,7 +133,7 @@ export default function TokenInputSelect({
 								}),
 								control: (baseStyles, state) => ({
 									...baseStyles,
-									backgroundColor: "#F5F6F9", // background of container
+									backgroundColor: disabled ? "#FFFFFF" : "#F5F6F9", // background of container
 									borderRadius: "0.5rem", // This makes the main control round
 									borderColor: "#F0F1F5",
 									borderWidth: "0.1rem",
@@ -167,7 +167,7 @@ export default function TokenInputSelect({
 						{limitLabel != undefined && (
 							<div className="text-text-primary truncate">{formatUnits(limit, Number(limitDigit))}</div>
 						)}
-						{max != undefined && (
+						{!disabled && max != undefined && (
 							<div
 								className="text-card-input-max cursor-pointer hover:text-card-input-focus"
 								onClick={() => {
@@ -180,7 +180,7 @@ export default function TokenInputSelect({
 								Max
 							</div>
 						)}
-						{min != undefined && (
+						{!disabled && min != undefined && (
 							<div
 								className="text-card-input-min cursor-pointer hover:text-card-input-focus"
 								onClick={() => {
@@ -193,7 +193,7 @@ export default function TokenInputSelect({
 								Min
 							</div>
 						)}
-						{reset != undefined && reset != BigInt(value) && (
+						{!disabled && reset != undefined && reset != BigInt(value) && (
 							<div
 								className="text-card-input-max cursor-pointer hover:text-card-input-focus"
 								onClick={() => {

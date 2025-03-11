@@ -225,6 +225,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 					hideMaxLabel
 					output={Math.round(parseFloat(formatUnits(calculateProceeds, 18)) * 10000) / 10000}
 					label="Receive"
+					disabled={true}
 				/>
 				<div className={`mt-2 px-1 transition-opacity`}>{conversionNote()}</div>
 
