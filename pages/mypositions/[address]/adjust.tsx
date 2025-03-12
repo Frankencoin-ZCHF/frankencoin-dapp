@@ -375,6 +375,9 @@ export default function PositionAdjust() {
 								onMax={mintedMaxCallback}
 								error={getAmountError()}
 								placeholder="Loan Amount"
+								limit={userFrancBalance}
+								limitDigit={18}
+								limitLabel="Balance"
 							/>
 							<TokenInput
 								label="Collateral"
@@ -389,6 +392,9 @@ export default function PositionAdjust() {
 								note={collateralNote}
 								error={getCollateralError()}
 								placeholder="Collateral Amount"
+								limit={userCollBalance}
+								limitDigit={position.collateralDecimals}
+								limitLabel="Balance"
 							/>
 							<TokenInput
 								label="Liquidation Price"

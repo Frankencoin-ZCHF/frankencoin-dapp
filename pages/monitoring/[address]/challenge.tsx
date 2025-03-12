@@ -216,6 +216,9 @@ export default function PositionChallenge() {
 							error={error}
 							label="Amount"
 							placeholder="Collateral Amount"
+							limit={userBalance > BigInt(position.collateralBalance) ? BigInt(position.collateralBalance) : userBalance}
+							limitDigit={position.collateralDecimals}
+							limitLabel="Maximum"
 						/>
 						<div className="grid grid-cols-6 gap-2 lg:col-span-2">
 							<AppBox className="col-span-6 sm:col-span-3">

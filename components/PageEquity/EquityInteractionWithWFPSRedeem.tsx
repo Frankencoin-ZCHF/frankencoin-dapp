@@ -203,6 +203,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 			<div className="mt-8">
 				<TokenInputSelect
 					max={wfpsBalance}
+					min={0n}
 					symbol={fromSymbol}
 					symbolOptions={Object.keys(selectorMapping) || []}
 					symbolOnChange={(o) => setTokenFromTo({ from: o.label, to: selectorMapping[o.label][0] })}

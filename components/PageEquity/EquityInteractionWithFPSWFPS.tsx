@@ -234,6 +234,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 			<div className="mt-8">
 				<TokenInputSelect
 					max={fromBalance}
+					min={0n}
 					symbol={fromSymbol}
 					symbolOptions={Object.keys(selectorMapping) || []}
 					symbolOnChange={(o) => setTokenFromTo({ from: o.label, to: selectorMapping[o.label][0] })}

@@ -172,7 +172,9 @@ export default function MonitoringForceSell() {
 								symbol={position.collateralSymbol}
 								error={error}
 								placeholder="Collateral Amount"
-								balanceLabel="Available:"
+								limit={BigInt(position.collateralBalance)}
+								limitDigit={position.collateralDecimals}
+								limitLabel="Available"
 							/>
 							<div className="flex flex-col">
 								<span>Your balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} ZCHF</span>

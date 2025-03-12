@@ -1,7 +1,8 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
 import { DispatchBoolean, DispatchMarketArray, Market, MorphoState } from "./morpho.types";
-import { CONFIG, MORPHOGRAPH_CLIENT } from "../../app.config";
+import { CONFIG, MORPHOGRAPH_CLIENT, WAGMI_CHAIN } from "../../app.config";
 import { gql } from "@apollo/client";
+import { ADDRESS } from "@frankencoin/zchf";
 
 // --------------------------------------------------------------------------------
 
@@ -54,7 +55,7 @@ export const fetchMorphoMarkets = () => async (dispatch: Dispatch<DispatchBoolea
 	// ---------------------------------------------------------------
 	// Fetch data and dispatch
 
-	const fetcher = async (uniqueKey_in: string) => {
+	const fetcher = async (loanAssetAddress_in: string) => {
 		const { data } = await MORPHOGRAPH_CLIENT.query<{
 			markets: {
 				items: Market[];
@@ -62,7 +63,7 @@ export const fetchMorphoMarkets = () => async (dispatch: Dispatch<DispatchBoolea
 		}>({
 			query: gql`
 				query {
-					markets(where: { uniqueKey_in: "${uniqueKey_in}" }) {
+					markets ( where: { loanAssetAddress_in: ["${loanAssetAddress_in}"] }) {
 						items {
 							uniqueKey
 							lltv
@@ -103,17 +104,23 @@ export const fetchMorphoMarkets = () => async (dispatch: Dispatch<DispatchBoolea
 				}
 			`,
 		});
-		return data.markets.items.length > 0 ? data.markets.items[0] : null;
+		return data.markets.items;
 	};
 
 	try {
-		const fetchedMarkets: (Market | null)[] = [];
-		fetchedMarkets.push(await fetcher("0xe3a65a68d203a3e3cbd4a59e4604db431439ee6eeb3f88268d7f57e415df7e94"));
-		fetchedMarkets.push(await fetcher("0x091756a1ba71f388fd5a959150c255acc55ce1e3714010a069ecb96f51b74235"));
-		fetchedMarkets.push(await fetcher("0x554a7c19653b5b58b9e7e8349ae89f50f36298e02b44fb196816fc018fea4031"));
-		fetchedMarkets.push(await fetcher("0x1b1ee1ee5370849479edc8af35ba966353c030c7837de172d45f1e1689756a18"));
+		const frankencoin = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
+		const whiteListingMarketIds: string[] = [
+			"0xe3a65a68d203a3e3cbd4a59e4604db431439ee6eeb3f88268d7f57e415df7e94",
+			"0x091756a1ba71f388fd5a959150c255acc55ce1e3714010a069ecb96f51b74235",
+			"0x554a7c19653b5b58b9e7e8349ae89f50f36298e02b44fb196816fc018fea4031",
+			"0x1b1ee1ee5370849479edc8af35ba966353c030c7837de172d45f1e1689756a18",
+		];
+		const fetchedMarkets: Market[] = await fetcher(frankencoin);
+		const filteredMarkets: Market[] = fetchedMarkets.filter((m) => {
+			return m.collateralAsset != null && m.state.liquidityAssets != "0" && whiteListingMarketIds.includes(m.uniqueKey);
+		});
 
-		dispatch(slice.actions.setMarkets(fetchedMarkets.filter((m) => m != null)));
+		dispatch(slice.actions.setMarkets(filteredMarkets));
 	} catch (error) {
 		console.error(error);
 	}
