@@ -196,7 +196,9 @@
             "removing_collateral": "Besicherung entfernen",
             "removing_collateral_success": "Besicherung erfolgreich entfernt",
             "pay_back": "Zurückzahlen von {{symbol}}",
-            "pay_back_success": "{{symbol}} erfolgreich zurückgezahlt"
+            "pay_back_success": "{{symbol}} erfolgreich zurückgezahlt",
+            "extending": "Position verlängern",
+            "extending_success": "Position erfolgreich verlängert"
         }
     },
     "my_positions": {

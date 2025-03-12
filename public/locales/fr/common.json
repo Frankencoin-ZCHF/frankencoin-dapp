@@ -196,7 +196,9 @@
             "removing_collateral": "Retrait de collatéral",
             "removing_collateral_success": "Collatéral retiré avec succès",
             "pay_back": "Remboursement de {{symbol}}",
-            "pay_back_success": "Remboursement de {{symbol}} réussi"
+            "pay_back_success": "Remboursement de {{symbol}} réussi",
+            "extending": "Prolongation de la position",
+            "extending_success": "Position prolongée avec succès"
         }
     },
     "my_positions": {

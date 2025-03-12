@@ -196,7 +196,9 @@
             "removing_collateral": "Removing collateral",
             "removing_collateral_success": "Successfully removed collateral",
             "pay_back": "Pay back {{symbol}}",
-            "pay_back_success": "Successfully payed back {{symbol}}"
+            "pay_back_success": "Successfully payed back {{symbol}}",
+            "extending": "Extending position",
+            "extending_success": "Successfully extended position"
         }
     },
     "my_positions": {

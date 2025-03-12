@@ -196,7 +196,9 @@
             "removing_collateral": "Eliminando colateral",
             "removing_collateral_success": "Colateral eliminado correctamente",
             "pay_back": "Pagar {{symbol}}",
-            "pay_back_success": "{{symbol}} pagado correctamente"
+            "pay_back_success": "{{symbol}} pagado correctamente",
+            "extending": "Extendiendo posición",
+            "extending_success": "Posición extendida correctamente"
         }
     },
     "my_positions": {
