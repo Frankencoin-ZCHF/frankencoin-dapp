@@ -35,7 +35,7 @@ export default function NormalInput({
 			<div
 				className={`group border-card-input-border hover:border-card-input-hover focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
-				} text-text-secondary border-2 rounded-lg px-3 ${disabled ? "bg-card-input-disabled" : ""}`}
+				} text-text-secondary border-2 rounded-lg px-3 py-2 ${disabled ? "bg-card-input-disabled" : ""}`}
 			>
 				<div className="flex text-card-input-label py-1">{label}</div>
 

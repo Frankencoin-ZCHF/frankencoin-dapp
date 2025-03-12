@@ -284,6 +284,9 @@ export default function PositionBorrow({}) {
 								onChange={onChangeCollateral}
 								value={requiredColl.toString()}
 								symbol={position.collateralSymbol}
+								limit={userBalance}
+								limitDigit={position.collateralDecimals}
+								limitLabel="Balance"
 							/>
 							<DateInput
 								label="Expiration"
