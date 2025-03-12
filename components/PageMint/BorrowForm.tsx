@@ -11,7 +11,7 @@ import { DetailsExpandablePanel } from "@components/DetailsExpandablePanel";
 import { NormalInputOutlined } from "@components/Input/NormalInputOutlined";
 import { PositionQuery } from "@deuro/api";
 import { TokenSelectModal } from "@components/TokenSelectModal";
-import { BorrowingDEUROModal } from "@components/PageBorrow/BorrowingDEUROModal";
+import { BorrowingDEUROModal } from "@components/PageMint/BorrowingDEUROModal";
 import { InputTitle } from "@components/Input/InputTitle";
 import { formatBigInt, formatCurrency, shortenAddress, toDate, TOKEN_SYMBOL, toTimestamp } from "@utils";
 import { TokenBalance, useWalletERC20Balances } from "../../hooks/useWalletBalances";

@@ -3,7 +3,7 @@ import TableRow from "../Table/TableRow";
 import { PositionQuery } from "@deuro/api";
 import { formatCurrency, FormatType, shortenAddress } from "../../utils/format";
 import GovernancePositionsAction from "./GovernancePositionsAction";
-import DisplayCollateralBorrowTable from "@components/PageBorrow/DisplayCollateralBorrowTable";
+import DisplayCollateralBorrowTable from "@components/PageMint/DisplayCollateralBorrowTable";
 import { AddressLabelSimple } from "@components/AddressLabel";
 import Link from "next/link";
 import AppBox from "@components/AppBox";
