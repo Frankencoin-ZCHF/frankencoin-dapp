@@ -1,5 +1,4 @@
 import TableRow from "../Table/TableRow";
-import { useRouter as useNavigation } from "next/navigation";
 import { formatCurrency } from "../../utils/format";
 import DisplayCollateralBorrowTable from "./DisplayCollateralBorrowTable";
 import Button from "@components/Button";
@@ -7,6 +6,8 @@ import AppBox from "@components/AppBox";
 import { Market } from "../../redux/slices/morpho.types";
 import { MorphoMarketUrl } from "@utils";
 import { formatUnits } from "viem";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
 	headers: string[];
@@ -31,6 +32,7 @@ export default function BorrowMorphoRow({ headers, tab, market }: Props) {
 			actionCol={
 				<Button className="h-10" onClick={openExplorer}>
 					Borrow
+					<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2 my-auto cursor-pointer" />
 				</Button>
 			}
 		>

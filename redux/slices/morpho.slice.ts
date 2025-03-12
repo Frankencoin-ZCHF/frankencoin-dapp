@@ -110,6 +110,8 @@ export const fetchMorphoMarkets = () => async (dispatch: Dispatch<DispatchBoolea
 		const fetchedMarkets: (Market | null)[] = [];
 		fetchedMarkets.push(await fetcher("0xe3a65a68d203a3e3cbd4a59e4604db431439ee6eeb3f88268d7f57e415df7e94"));
 		fetchedMarkets.push(await fetcher("0x091756a1ba71f388fd5a959150c255acc55ce1e3714010a069ecb96f51b74235"));
+		fetchedMarkets.push(await fetcher("0x554a7c19653b5b58b9e7e8349ae89f50f36298e02b44fb196816fc018fea4031"));
+		fetchedMarkets.push(await fetcher("0x1b1ee1ee5370849479edc8af35ba966353c030c7837de172d45f1e1689756a18"));
 
 		dispatch(slice.actions.setMarkets(fetchedMarkets.filter((m) => m != null)));
 	} catch (error) {
