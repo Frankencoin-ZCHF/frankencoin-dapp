@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { Address, erc20Abi, formatUnits, maxUint256 } from "viem";
+import { Address, erc20Abi, formatUnits, maxUint256, TransactionReceipt, Log, decodeEventLog } from "viem";
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 import AppCard from "@components/AppCard";
 import Button from "@components/Button";
@@ -18,7 +18,7 @@ import { TokenBalance, useWalletERC20Balances } from "../../hooks/useWalletBalan
 import { RootState, store } from "../../redux/redux.store";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { useTranslation } from "next-i18next";
-import { ADDRESS, MintingHubGatewayABI } from "@deuro/eurocoin";
+import { ADDRESS, MintingHubGatewayABI, PositionV2ABI } from "@deuro/eurocoin";
 import { useBlock, useChainId } from "wagmi";
 import { WAGMI_CONFIG } from "../../app.config";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -193,7 +193,16 @@ export default function PositionCreate({}) {
 				},
 			];
 
-			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: cloneWriteHash, confirmations: 1 }), {
+			const receipt: TransactionReceipt = await waitForTransactionReceipt(WAGMI_CONFIG, { hash: cloneWriteHash, confirmations: 1 });
+			const newPositionAddress = parseCloneEventLogs(receipt.logs);
+			const adjustPriceHash = await writeContract(WAGMI_CONFIG, {
+				address: newPositionAddress as Address,
+				abi: PositionV2ABI,
+				functionName: "adjustPrice",
+				args: [BigInt(liquidationPrice)],
+			});
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: adjustPriceHash, confirmations: 1 }), {
 				pending: {
 					render: <TxToast title={t("mint.txs.minting", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
 				},
@@ -210,6 +219,30 @@ export default function PositionCreate({}) {
 		} finally {
 			setIsCloneLoading(false);
 			refetchBalances();
+		}
+	};
+
+	const parseCloneEventLogs = (logs: Log[]) => {
+		try {
+			const cloneEventLog = logs.find(log => 
+				log.address.toLowerCase() === ADDRESS[chainId].mintingHubGateway.toLowerCase()
+			);
+			
+			if (cloneEventLog) {
+				const decodedLog = decodeEventLog({
+					abi: MintingHubGatewayABI,
+					data: cloneEventLog.data,
+					topics: cloneEventLog.topics,
+				});
+				
+				if (decodedLog.eventName === 'PositionOpened') {
+					return decodedLog.args.position as Address;
+				}
+			}
+			
+			return null;
+		} catch (error) {
+			return null;
 		}
 	};
 
