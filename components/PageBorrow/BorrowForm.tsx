@@ -49,6 +49,9 @@ export default function PositionCreate({}) {
 	const [isCloneLoading, setIsCloneLoading] = useState(false);
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
+	const challenges = useSelector((state: RootState) => state.challenges.list.list);
+	const challengedPositions = challenges.filter((c) => c.status === "Active").map((c) => c.position);
+
 	const { data: latestBlock } = useBlock();
 	const chainId = useChainId();
 
@@ -57,8 +60,9 @@ export default function PositionCreate({}) {
 		return positions
 			.filter((p) => BigInt(p.availableForClones) > 0n)
 			.filter((p) => blockTimestamp > toTimestamp(toDate(p.cooldown)))
-			.filter((p) => blockTimestamp < toTimestamp(toDate(p.expiration)));
-	}, [positions, latestBlock]);
+			.filter((p) => blockTimestamp < toTimestamp(toDate(p.expiration)))
+			.filter((p) => !challengedPositions.includes(p.position));
+	}, [positions, latestBlock, challengedPositions]);
 
 	const collateralTokenList = useMemo(() => {
 		const uniqueTokens = new Map();
@@ -99,8 +103,7 @@ export default function PositionCreate({}) {
 		if (!token) return;
 		setSelectedCollateral(token);
 
-		const selectedPosition = positions
-			.filter((p) => BigInt(p.availableForClones) > 0n)
+		const selectedPosition = elegiblePositions
 			.find((p) => p.collateral.toLowerCase() == token.address.toLowerCase());
 		if (!selectedPosition) return;
 
@@ -172,7 +175,7 @@ export default function PositionCreate({}) {
 				address: ADDRESS[chainId].mintingHubGateway,
 				abi: MintingHubGatewayABI,
 				functionName: "clone",
-				args: [selectedPosition.original, BigInt(collateralAmount), loanDetails.loanAmount, toTimestamp(expirationDate), frontendCode],
+				args: [selectedPosition.position, BigInt(collateralAmount), loanDetails.loanAmount, toTimestamp(expirationDate), frontendCode],
 			});
 
 			const toastContent = [
