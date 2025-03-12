@@ -11,7 +11,7 @@ import { formatUnits } from "viem";
 
 export default function BorrowMorphoTable() {
 	const headers: string[] = ["Collateral", "LLTV", "Borrow Rate", "Liquidation Price", "Liquidity"];
-	const [tab, setTab] = useState<string>(headers[0]);
+	const [tab, setTab] = useState<string>(headers[4]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<Market[]>([]);
 
