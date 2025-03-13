@@ -20,10 +20,19 @@ export default function Borrow() {
 				<title>Frankencoin - Borrow</title>
 			</Head>
 
+			<AppTitle title="Borrow on Morpho">
+				<div className="text-text-secondary">
+					Borrow Frankencoins (ZCHF) at variable rates on the lending platform <a href="https://morpho.org/">Morpho</a>.
+				</div>
+			</AppTitle>
+
+			<div className="mt-8">
+				<BorrowMorphoTable />
+			</div>
+
 			<AppTitle title="Mint fresh Frankencoins">
 				<div className="text-text-secondary">
-					Mint Frankencoins (ZCHF) at fixed rates by providing your choice of collateral. Enjoy transparent, predictable borrowing
-					terms with no surprises.
+					Mint Frankencoins (ZCHF) at a fixed rate for your duration of choice.
 				</div>
 			</AppTitle>
 
@@ -40,16 +49,6 @@ export default function Borrow() {
 				</Link>
 			</div>
 
-			<AppTitle title="Borrow at Morpho Markets">
-				<div className="text-text-secondary">
-					Borrow Frankencoins (ZCHF) at flexible rates using various collaterals through Morpho Markets. Experience dynamic
-					lending rates optimized by market conditions.
-				</div>
-			</AppTitle>
-
-			<div className="mt-8">
-				<BorrowMorphoTable />
-			</div>
 		</>
 	);
 }

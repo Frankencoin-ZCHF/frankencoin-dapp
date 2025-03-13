@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { POSITION_BLACKLISTED } from "../../app.config";
 
 export default function BorrowTable() {
-	const headers: string[] = ["Collateral", "Loan-to-Value", "Effective Interest", "Liquidation Price", "Maturity"];
+	const headers: string[] = ["Collateral", "Loan-to-Value", "Effective Interest", "Liquidation Price", "Max. Maturity"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<PositionQueryV2[]>([]);

@@ -49,7 +49,7 @@ export default function TableHeader({ headers, subHeaders, actionCol, colSpan, t
 			</div>
 			{actionCol && (
 				<div className="max-md:hidden">
-					<div className={`text-text-header text-right w-40 flex-shrink-0 ${subHeaders ? "items-center" : ""}`}>Action</div>
+					<div className={`text-text-header text-right w-40 flex-shrink-0 ${subHeaders ? "items-center" : ""}`}></div>
 					{subHeaders ? <span> </span> : null}
 				</div>
 			)}

@@ -10,7 +10,7 @@ import { Market } from "../../redux/slices/morpho.types";
 import { formatUnits } from "viem";
 
 export default function BorrowMorphoTable() {
-	const headers: string[] = ["Collateral", "LLTV", "Borrow Rate", "Liquidation Price", "Liquidity"];
+	const headers: string[] = ["Collateral", "Loan-to-Value", "Current Interest", "Liquidation Price", "Liquidity"];
 	const [tab, setTab] = useState<string>(headers[4]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<Market[]>([]);
