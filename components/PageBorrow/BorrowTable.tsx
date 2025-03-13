@@ -99,7 +99,7 @@ function sortPositions(
 
 	if (tab === headers[0]) {
 		// sort for Collateral
-		sorting.sort((a, b) => a.collateralSymbol.localeCompare(b.collateralName)); // default: increase
+		sorting.sort((a, b) => a.collateralSymbol.localeCompare(b.collateralSymbol)); // default: increase
 	} else if (tab === headers[1]) {
 		// sort for LTV, LTV = liquidation price * (1 - reserve) / market price
 		sorting.sort((a, b) => {

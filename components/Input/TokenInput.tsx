@@ -89,7 +89,7 @@ export default function TokenInput({
 					<div className="text-card-input-label text-left">{symbol}</div>
 				</div>
 
-				{limitLabel || max || min || reset ? (
+				{limitLabel != undefined || max != undefined || min != undefined || reset != undefined ? (
 					<div className="flex flex-row gap-2 py-1">
 						{limitLabel != undefined && <div className="text-text-secondary">{limitLabel}</div>}
 						{limitLabel != undefined && (
