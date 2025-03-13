@@ -288,7 +288,7 @@ export const BorrowedManageSection = () => {
 							<span className="text-xs font-medium text-text-muted2 leading-[1rem]"></span>
 						</div>
 					</div>
-					<div className="flex flex-row justify-end items-center">
+					<div className="flex flex-col sm:flex-row justify-end items-start sm:items-center">
 						<button className="px-2 flex flex-row gap-x-1 items-center py-1" onClick={() => setIsBorrowMore(true)}>
 							<AddCircleOutlineIcon color={isBorrowMore ? "#065DC1" : "#8B92A8"} />
 							<span

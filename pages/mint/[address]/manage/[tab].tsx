@@ -10,6 +10,7 @@ import { BorrowedManageSection } from "@components/PageMint/BorrowedManageSectio
 import { ExpirationManageSection } from "@components/PageMint/ExpirationManageSection";
 import { toQueryString } from "@utils";
 import { getCarryOnQueryParams } from "@utils";
+import AppCard from "@components/AppCard";
 
 enum Tab {
 	Collateral = "collateral",
@@ -72,13 +73,13 @@ export default function PositionManage() {
 				<title>dEURO - {t("my_positions.manage_position")}</title>
 			</Head>
 			<div className="md:mt-8 flex justify-center">
-				<section className="min-w-[33.5rem] bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-8 ">
+				<AppCard className="max-w-lg sm:min-w-[33.5rem] p-4 flex flex-col gap-y-8">
 					<SectionTitle className="!mb-0 text-center !text-xl">{t("mint.adjust_your_borrowing_position")}</SectionTitle>
 					<div className="flex flex-col gap-y-7">
 						<GroupButtons buttons={tabs} setActiveButton={handleClick} activeButton={activeButton} />
 						<div className="w-full">{renderContent()}</div>
 					</div>
-				</section>
+				</AppCard>
 			</div>
 		</>
 	);

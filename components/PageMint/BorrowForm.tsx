@@ -337,6 +337,7 @@ export default function PositionCreate({}) {
 					<DateInputOutlined
 						value={expirationDate}
 						maxDate={expirationDate}
+						placeholderText="YYYY-MM-DD"
 						onChange={setExpirationDate}
 						rightAdornment={expirationDate ? <MaxButton onClick={handleMaxExpirationDate} /> : null}
 					/>

@@ -17,16 +17,16 @@ export function DateInputOutlined({ value, maxDate, onChange, rightAdornment, pl
 
 	return (
 		<div
-			className={`self-stretch p-2 rounded-xl border-2 border-transparent relative flex-row justify-between items-center gap-2 flex before:absolute before:inset-0 before:rounded-xl before:border before:pointer-events-none before:transition-colors before:duration-200 ${
+			className={`w-full overflow-hidden p-2 rounded-xl border-2 border-transparent relative flex-row justify-between items-center gap-2 flex before:absolute before:inset-0 before:rounded-xl before:border before:pointer-events-none before:transition-colors before:duration-200 ${
 				isFocused ? "before:border-2 before:border-input-borderFocus" : "before:border-input-border hover:before:border-input-borderHover"
 			}`}
 		>
-			<div className="flex">
+			<div className="flex min-w-0 flex-1 overflow-hidden">
 				<ReactDatePicker
 					showIcon
 					toggleCalendarOnIconClick
 					icon={<FontAwesomeIcon icon={faCalendarDays} className="!w-5 !h-5 !text-input-placeholder !mt-[0.1rem]" />}
-					className={`${className} grow shrink basis-0 !pl-8 text-[1.375rem] font-medium align-middle leading-none placeholder:text-input-placeholder !placeholder:text-[1.375rem]`}
+					className={`${className} w-full !pl-8 text-[1.375rem] font-medium align-middle leading-none placeholder:text-input-placeholder !placeholder:text-[1.375rem]`}
 					id="expiration-datepicker"
 					placeholderText={placeholderText}
 					dateFormat={"yyyy-MM-dd"}
@@ -38,7 +38,7 @@ export function DateInputOutlined({ value, maxDate, onChange, rightAdornment, pl
 					autoComplete="off"
 				/>
 			</div>
-			{rightAdornment && rightAdornment}
+			{rightAdornment && <div className="flex-shrink-0">{rightAdornment}</div>}
 		</div>
 	);
 }

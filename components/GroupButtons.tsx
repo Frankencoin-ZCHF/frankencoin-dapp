@@ -12,7 +12,7 @@ export const GroupButtons = ({ buttons, setActiveButton, activeButton }: GroupBu
 				<button
 					key={button.id}
 					onClick={() => setActiveButton(button.id)}
-					className={`w-1/3 text-lg rounded-[0.625rem] px-7 py-1.5 whitespace-nowrap transition-colors duration-200 ${
+					className={`text-sm sm:w-1/3 sm:text-lg rounded-[0.625rem] px-7 py-1.5 whitespace-nowrap transition-colors duration-200 ${
 						activeButton === button.id
 							? "font-bold bg-button-primary-default-bg text-white"
 							: "text-text-muted2 font-medium rounded"
