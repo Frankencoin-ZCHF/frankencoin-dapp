@@ -1,8 +1,7 @@
-import { Address, formatUnits, zeroAddress } from "viem";
+import { Address, formatUnits } from "viem";
 import TableRow from "../Table/TableRow";
 import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import { formatCurrency, FormatType, shortenAddress } from "../../utils/format";
-import { useContractUrl } from "@hooks";
 import GovernancePositionsAction from "./GovernancePositionsAction";
 import DisplayCollateralBorrowTable from "@components/PageBorrow/DisplayCollateralBorrowTable";
 import { AddressLabelSimple } from "@components/AddressLabel";
@@ -80,7 +79,9 @@ export default function GovernancePositionsRow({ headers, subHeaders, tab, posit
 			</div>
 
 			<div className="flex flex-col">
-				<span className={` ${denyUntil < 10 ? "text-red-500" : ""}`}>{Math.round(denyUntil)} hours</span>
+				<span className={` ${denyUntil < 10 ? "text-red-500" : ""}`}>
+					{denyUntil < 10 ? Math.round(denyUntil * 10) / 10 : Math.round(denyUntil)} hours
+				</span>
 				<span className="text-sm text-text-subheader font-normal">
 					{formatCurrency(position.challengePeriod / 60 / 60, 1, 1, FormatType.us)} hours
 				</span>

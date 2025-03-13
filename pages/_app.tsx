@@ -11,7 +11,7 @@ import { Provider as ReduxProvider } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import Web3ModalProvider from "@components/Web3Modal";
 import { store } from "../redux/redux.store";
-import { PONDER_CLIENT } from "../app.config";
+import { MORPHOGRAPH_CLIENT, PONDER_CLIENT } from "../app.config";
 import BlockUpdater from "@components/BlockUpdater";
 import USGovSanctionList from "@components/USGovSanctionList";
 
@@ -20,21 +20,23 @@ export default function App({ Component, pageProps }: AppProps) {
 		<ReduxProvider store={store}>
 			<Web3ModalProvider>
 				<ApolloProvider client={PONDER_CLIENT}>
-					<BlockUpdater>
-						<NextSeoProvider />
-						<ToastContainer
-							className="border-card-content-primary border-2 bg-card-body-primary rounded-xl"
-							toastClassName={(c) => "bg-card-body-primary text-text-primary rounded-xl"}
-							position="bottom-right"
-							hideProgressBar={false}
-							rtl={false}
-							closeButton={false}
-						/>
-						<USGovSanctionList />
-						<Layout>
-							<Component {...pageProps} />
-						</Layout>
-					</BlockUpdater>
+					<ApolloProvider client={MORPHOGRAPH_CLIENT}>
+						<BlockUpdater>
+							<NextSeoProvider />
+							<ToastContainer
+								className="border-card-content-primary border-2 bg-card-body-primary rounded-xl"
+								toastClassName={(c) => "bg-card-body-primary text-text-primary rounded-xl"}
+								position="bottom-right"
+								hideProgressBar={false}
+								rtl={false}
+								closeButton={false}
+							/>
+							<USGovSanctionList />
+							<Layout>
+								<Component {...pageProps} />
+							</Layout>
+						</BlockUpdater>
+					</ApolloProvider>
 				</ApolloProvider>
 			</Web3ModalProvider>
 		</ReduxProvider>

@@ -5,10 +5,13 @@ import { useEffect } from "react";
 import { store } from "../../redux/redux.store";
 import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import AppTitle from "@components/AppTitle";
+import { fetchMorphoMarkets } from "../../redux/slices/morpho.slice";
+import BorrowMorphoTable from "@components/PageBorrow/BorrowMorphoTable";
 
 export default function Borrow() {
 	useEffect(() => {
 		store.dispatch(fetchPositionsList());
+		store.dispatch(fetchMorphoMarkets());
 	}, []);
 
 	return (
@@ -17,7 +20,22 @@ export default function Borrow() {
 				<title>Frankencoin - Borrow</title>
 			</Head>
 
+			{/* <AppTitle title="Borrow on Morpho">
+				<div className="text-text-secondary">
+					Borrow Frankencoins (ZCHF) at variable rates on the lending platform{" "}
+					<a className="underline cursor-pointer font-semibold" href="https://morpho.org/">
+						Morpho
+					</a>
+					.
+				</div>
+			</AppTitle> */}
+
+			{/* <div className="mt-8">
+				<BorrowMorphoTable />
+			</div> */}
+
 			<AppTitle title="Mint fresh Frankencoins">
+				<div className="text-text-secondary">Mint Frankencoins (ZCHF) at a fixed rate for your duration of choice.</div>
 			</AppTitle>
 
 			<div className="mt-8">

@@ -27,11 +27,11 @@ export default function GovernanceTelegramBot() {
 							</li>
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-card-body-secondary" />
-								<span className="ml-5 text-center">New Leadrate Proposal</span>
+								<span className="ml-5 text-center">New Leadrate Proposal and Changes</span>
 							</li>
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-card-body-secondary" />
-								<span className="ml-5 text-center">New Position Proposal</span>
+								<span className="ml-5 text-center">New Position Proposal and Expiring</span>
 							</li>
 							<li className="flex justify-left items-center">
 								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-card-body-secondary" />

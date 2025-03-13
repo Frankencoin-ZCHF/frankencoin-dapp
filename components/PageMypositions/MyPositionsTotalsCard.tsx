@@ -7,6 +7,8 @@ import { RootState } from "../../redux/redux.store";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/router";
 import { Address, zeroAddress } from "viem";
+import { ADDRESS } from "@frankencoin/zchf";
+import { WAGMI_CHAIN } from "../../app.config";
 
 export default function MyPositionsTotalsCard() {
 	const positions = useSelector((state: RootState) => state.positions.openPositions);
@@ -31,20 +33,22 @@ export default function MyPositionsTotalsCard() {
 
 	const totalOwed: bigint = totalMinted - totalReserves;
 
+	const frankencoin = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
+
 	return (
 		<AppCard>
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
 				<AppBox>
 					<DisplayLabel label="Total Owed" />
-					<DisplayAmount className="mt-1" amount={totalOwed} currency="ZCHF" hideLogo />
+					<DisplayAmount className="mt-1" amount={totalOwed} currency="ZCHF" address={frankencoin} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Total Reserves" />
-					<DisplayAmount className="mt-1" amount={totalReserves} currency="ZCHF" hideLogo />
+					<DisplayAmount className="mt-1" amount={totalReserves} currency="ZCHF" address={frankencoin} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Total Minted" />
-					<DisplayAmount className="mt-1" amount={totalMinted} currency="ZCHF" hideLogo />
+					<DisplayAmount className="mt-1" amount={totalMinted} currency="ZCHF" address={frankencoin} />
 				</AppBox>
 			</div>
 		</AppCard>

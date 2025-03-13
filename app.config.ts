@@ -14,6 +14,7 @@ export type ConfigEnv = {
 	app: string;
 	api: string;
 	ponder: string;
+	morphoGraph: string;
 	rpc: string;
 	wagmiId: string;
 	chain: Chain;
@@ -33,6 +34,7 @@ export const CONFIG: ConfigEnv = {
 	app: process.env.NEXT_PUBLIC_APP_URL || "https://app.frankencoin.com",
 	api: process.env.NEXT_PUBLIC_API_URL || "https://api.frankencoin.com",
 	ponder: process.env.NEXT_PUBLIC_PONDER_URL || "https://ponder.frankencoin.com",
+	morphoGraph: process.env.NEXT_PUBLIC_MORPHOGRAPH_URL || "https://blue-api.morpho.org/graphql",
 	chain: process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon" ? polygon : mainnet,
 	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID || "3321ad5a4f22083fe6fe82208a4c9ddc",
 	rpc:
@@ -48,6 +50,11 @@ console.log(CONFIG);
 // PONDER CLIENT
 export const PONDER_CLIENT = new ApolloClient({
 	uri: CONFIG.ponder,
+	cache: new InMemoryCache(),
+});
+
+export const MORPHOGRAPH_CLIENT = new ApolloClient({
+	uri: CONFIG.morphoGraph,
 	cache: new InMemoryCache(),
 });
 

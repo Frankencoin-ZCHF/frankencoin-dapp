@@ -111,7 +111,7 @@ export default function MypositionsRow({ headers, tab, subHeaders, position }: P
 			if (maturity < 3) {
 				stateTimePrint = `${formatCurrency(maturity * 24)} hours`;
 			} else {
-				stateTimePrint = `${formatCurrency(Math.round(maturity))} days`;
+				stateTimePrint = `${formatCurrency(maturity)} days`;
 			}
 		} else {
 			stateIdx = 5;

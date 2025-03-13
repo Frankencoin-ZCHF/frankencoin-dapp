@@ -5,20 +5,19 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { PositionQuery, PositionQueryV2, PriceQueryObjectArray } from "@frankencoin/api";
+import { PositionQueryV2, PriceQueryObjectArray } from "@frankencoin/api";
 import { Address, formatUnits } from "viem";
 import { useEffect, useState } from "react";
 import { POSITION_BLACKLISTED } from "../../app.config";
 
 export default function BorrowTable() {
-	const headers: string[] = ["Collateral", "Loan-to-Value", "Effective Interest", "Liquidation Price", "Maturity"];
+	const headers: string[] = ["Collateral", "Loan-to-Value", "Effective Interest", "Liquidation Price", "Max. Maturity"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<PositionQueryV2[]>([]);
 
-	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
+	const { openPositions } = useSelector((state: RootState) => state.positions);
 	const challengesPosMap = useSelector((state: RootState) => state.challenges.positions.map);
-	const openPositions: PositionQuery[] = openPositionsByCollateral.flat(1);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 
 	const posV2: PositionQueryV2[] = openPositions.filter((p) => p.version == 2);
@@ -50,7 +49,7 @@ export default function BorrowTable() {
 				return false; // under cooldown
 			} else if (BigInt(position.isOriginal ? position.availableForClones : position.availableForMinting) == 0n) {
 				return false;
-			} else if ((challengesPosMap[pid] || []).filter((c) => c.status == "Active").length > 1) {
+			} else if ((challengesPosMap[pid] || []).filter((c) => c.status == "Active").length > 0) {
 				return false; // active challenges
 			} else {
 				return true;
@@ -96,12 +95,14 @@ function sortPositions(
 	tab: string,
 	reverse: boolean
 ): PositionQueryV2[] {
+	const sorting = [...list];
+
 	if (tab === headers[0]) {
 		// sort for Collateral
-		list.sort((a, b) => a.collateralSymbol.localeCompare(b.collateralName)); // default: increase
+		sorting.sort((a, b) => a.collateralSymbol.localeCompare(b.collateralSymbol)); // default: increase
 	} else if (tab === headers[1]) {
 		// sort for LTV, LTV = liquidation price * (1 - reserve) / market price
-		list.sort((a, b) => {
+		sorting.sort((a, b) => {
 			const calc = function (p: PositionQueryV2) {
 				const liqPrice: number = parseFloat(formatUnits(BigInt(p.price), 36 - p.collateralDecimals));
 				const reserve: number = p.reserveContribution / 1000000;
@@ -112,7 +113,7 @@ function sortPositions(
 		});
 	} else if (tab === headers[2]) {
 		// sort for Interest, effI = interest / (1 - reserve)
-		list.sort((a, b) => {
+		sorting.sort((a, b) => {
 			const calc = function (p: PositionQueryV2) {
 				const r: number = p.reserveContribution / 1000000;
 				const i: number = p.annualInterestPPM / 1000000;
@@ -122,11 +123,11 @@ function sortPositions(
 		});
 	} else if (tab === headers[3]) {
 		// sort for liq price
-		list.sort((a, b) => parseInt(b.price) - parseInt(a.price)); // default: decrease
+		sorting.sort((a, b) => parseInt(b.price) - parseInt(a.price)); // default: decrease
 	} else if (tab === headers[4]) {
 		// sort for Maturity
-		list.sort((a, b) => b.expiration - a.expiration); // default: decrease
+		sorting.sort((a, b) => b.expiration - a.expiration); // default: decrease
 	}
 
-	return reverse ? list.reverse() : list;
+	return reverse ? sorting.reverse() : sorting;
 }

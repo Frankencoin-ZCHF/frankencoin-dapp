@@ -36,13 +36,25 @@ module.exports = {
 					separator: "#EAEBF0",
 				},
 				card: {
+					input: {
+						label: "#5D647B",
+						disabled: "#F5F6F9",
+						empty: "#ADB2C2",
+						focus: "#3E96F4",
+						error: "#E02523",
+						border: "#F0F1F5",
+						hover: "#0F80F0",
+						min: "#065DC1",
+						max: "#065DC1",
+						reset: "#065DC1", // alt: #fee2e2
+					},
 					body: {
 						primary: "#FFFFFF",
 						secondary: "#092f62",
 						seperator: "#1e293b",
 					},
 					content: {
-						primary: "#F0F1F5",
+						primary: "#F5F6F9",
 						secondary: "#FFFFFF",
 						highlight: "#ff293b",
 					},

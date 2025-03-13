@@ -119,24 +119,35 @@ export default function PositionDetail() {
 								/>
 							</AppBox>
 							<AppBox>
+								<DisplayLabel label="Available for Clones" />
+								<DisplayAmount
+									amount={BigInt(position.availableForClones)}
+									currency={"ZCHF"}
+									address={ADDRESS[chainId].frankenCoin}
+									className="mt-2"
+								/>
+							</AppBox>
+							<AppBox>
+								<DisplayLabel label="Auction Duration" />
+								<DisplayAmount amount={position.challengePeriod / 60 / 60} unit={"hours"} className="mt-2" />
+							</AppBox>
+							<AppBox>
 								<DisplayLabel label="Owner" />
-								<div className="mt-2">
-									<Link href={ownerLink} className="flex items-center underline" target="_blank">
-										{shortenAddress(position.owner)}
-										<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
-										<Link href={myPosLink} className="flex items-center underline">
-											<FontAwesomeIcon icon={faEye} className="w-3 ml-2" />
-										</Link>
+								<Link href={ownerLink} className="flex items-center underline" target="_blank">
+									{shortenAddress(position.owner)}
+									<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
+									<Link href={myPosLink} className="flex items-center underline ml-2">
+										<FontAwesomeIcon icon={faEye} className="w-3 m-2" />
 									</Link>
-								</div>
+								</Link>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Reserve Requirement" />
-								<DisplayAmount amount={BigInt(position.reserveContribution / 100)} digits={2} currency={"%"} hideLogo />
+								<DisplayAmount amount={BigInt(position.reserveContribution / 100)} digits={2} unit={"%"} />
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Annual Interest" />
-								<DisplayAmount amount={BigInt(position.annualInterestPPM / 100)} digits={2} currency={"%"} hideLogo />
+								<DisplayAmount amount={BigInt(position.annualInterestPPM / 100)} digits={2} unit={"%"} />
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Start Date" />

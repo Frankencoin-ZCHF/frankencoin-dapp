@@ -1,9 +1,9 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { formatUnits, maxUint256, erc20Abi, Address, parseEther } from "viem";
+import { formatUnits, maxUint256, erc20Abi, Address, parseEther, parseUnits } from "viem";
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
-import { abs, formatBigInt, formatCurrency, formatDateTime, shortenAddress } from "@utils";
+import { abs, bigIntMax, bigIntMin, formatBigInt, formatCurrency, formatDateTime, shortenAddress } from "@utils";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -18,6 +18,7 @@ import { ADDRESS, PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
 import AppTitle from "@components/AppTitle";
 import Link from "next/link";
 import PositionRollerTable from "@components/PageMypositions/PositionRollerTable";
+import AppCard from "@components/AppCard";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -105,11 +106,6 @@ export default function PositionAdjust() {
 	//const maxMintableForCollateralAmount: bigint = BigInt(formatUnits(BigInt(position.price) * collateralAmount, 36 - 18).split(".")[0]);
 	// const maxTotalLimit: bigint = bigIntMin(maxMintableForCollateralAmount, maxMintableInclClones);
 	const maxTotalLimit: bigint = maxMintableInclClones;
-
-	const calcDirection = amount > BigInt(position.minted);
-	const feeDuration = BigInt(Math.floor(position.expiration * 1000 - Date.now())) / 1000n;
-	const feePercent = (feeDuration * BigInt(position.annualInterestPPM)) / BigInt(60 * 60 * 24 * 365);
-	const fees = calcDirection ? (feePercent * amount) / 1_000_000n : 0n;
 
 	// ---------------------------------------------------------------------------
 	const paidOutAmount = () => {
@@ -265,6 +261,89 @@ export default function PositionAdjust() {
 		}
 	};
 
+	const calcDirection = amount > BigInt(position.minted);
+	const feeDuration = BigInt(Math.floor(position.expiration * 1000 - Date.now())) / 1000n;
+	const feePercent = (feeDuration * BigInt(position.annualInterestPPM)) / BigInt(60 * 60 * 24 * 365);
+	const fees = calcDirection ? amount - BigInt(position.minted) - returnFromReserve() - paidOutAmount() : 0n;
+
+	const isMinted = BigInt(position.minted) > 0n;
+
+	const walletRatio = isMinted
+		? (paidOutAmount() * parseEther("1")) / BigInt(position.minted)
+		: amount > 0n
+		? (paidOutAmount() * parseEther("1")) / amount
+		: 0n;
+	const reserveRatio = isMinted
+		? (returnFromReserve() * parseEther("1")) / BigInt(position.minted)
+		: amount > 0n
+		? (returnFromReserve() * parseEther("1")) / amount
+		: 0n;
+	const feeRatio = isMinted ? (fees * parseEther("1")) / BigInt(position.minted) : amount > 0n ? (fees * parseEther("1")) / amount : 0n;
+	const futureRatio = isMinted ? (amount * parseEther("1")) / BigInt(position.minted) : amount > 0n ? parseEther("1") : parseEther("0");
+
+	const expirationDateArr: string[] = new Date(position.expiration * 1000).toDateString().split(" ");
+	const expirationDateStr: string = `${expirationDateArr[2]} ${expirationDateArr[1]} ${expirationDateArr[3]}`;
+
+	// Minted Min
+	const mintedMin = bigIntMax(
+		0n,
+		BigInt(position.minted) - (userFrancBalance * 1000000n) / (1000000n - BigInt(position.reserveContribution))
+	);
+
+	const mintedMinCallback = () => {
+		const p = liqPrice;
+		const calcCollateral = (mintedMin * parseEther("1")) / p;
+		const verifyMint = (calcCollateral * p) / parseEther("1");
+		const isRoundingError = verifyMint < mintedMin;
+		const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
+		setCollateralAmount(correctedCollateral);
+		return correctedCollateral;
+	};
+
+	// Minted Max
+	const mintedMax = bigIntMin(maxTotalLimit, (liqPrice * (BigInt(position.collateralBalance) + userCollBalance)) / parseEther("1"));
+
+	const mintedMaxCallback = () => {
+		const p = liqPrice;
+		const calcCollateral = (mintedMax * parseEther("1")) / p;
+		const verifyMint = (calcCollateral * p) / parseEther("1");
+		const isRoundingError = verifyMint < mintedMax;
+		const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
+		setCollateralAmount(correctedCollateral);
+		return correctedCollateral;
+	};
+
+	// Collateral Min
+	const collateralMinCallback = () => {
+		const p = liqPrice;
+		const calcCollateral = (amount * parseEther("1")) / p;
+		const verifyMint = (calcCollateral * p) / parseEther("1");
+		const isRoundingError = verifyMint < amount;
+		const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
+		setCollateralAmount(correctedCollateral);
+		return correctedCollateral;
+	};
+
+	// LiqPrice
+	const liqPriceMinCallback = () => {
+		const calcPrice = (amount * parseEther("1")) / collateralAmount;
+		const verifyMint = (calcPrice * collateralAmount) / parseEther("1");
+		const isRoundingError = verifyMint < amount;
+		const corrected = isRoundingError ? calcPrice + 1n : calcPrice;
+		setLiqPrice(corrected);
+		return corrected;
+	};
+
+	const liqPriceMaxCallback = () => {
+		const calcPrice = (amount * parseEther("1")) / (BigInt(position.collateralBalance) + userCollBalance);
+		const verifyMint = (calcPrice * collateralAmount) / parseEther("1");
+		const isRoundingError = verifyMint < amount;
+		const corrected = isRoundingError ? calcPrice + 1n : calcPrice;
+		setLiqPrice(corrected);
+		setCollateralAmount(BigInt(position.collateralBalance) + userCollBalance);
+		return corrected;
+	};
+
 	return (
 		<>
 			<Head>
@@ -286,36 +365,70 @@ export default function PositionAdjust() {
 								label="Amount"
 								symbol="ZCHF"
 								output={position.closed ? "0" : ""}
-								balanceLabel="Max:"
-								max={maxTotalLimit}
+								min={mintedMin}
+								max={mintedMax}
+								reset={BigInt(position.minted)}
 								digit={18}
 								value={amount.toString()}
 								onChange={onChangeAmount}
+								onMin={mintedMinCallback}
+								onMax={mintedMaxCallback}
 								error={getAmountError()}
 								placeholder="Loan Amount"
+								limit={userFrancBalance}
+								limitDigit={18}
+								limitLabel="Balance"
 							/>
 							<TokenInput
 								label="Collateral"
-								balanceLabel="Max:"
 								symbol={position.collateralSymbol}
+								min={BigInt("0")}
 								max={userCollBalance + BigInt(position.collateralBalance)}
+								reset={BigInt(position.collateralBalance)}
 								value={collateralAmount.toString()}
 								onChange={onChangeCollAmount}
+								onMin={collateralMinCallback}
 								digit={position.collateralDecimals}
 								note={collateralNote}
 								error={getCollateralError()}
 								placeholder="Collateral Amount"
+								limit={userCollBalance}
+								limitDigit={position.collateralDecimals}
+								limitLabel="Balance"
 							/>
 							<TokenInput
 								label="Liquidation Price"
-								balanceLabel="Current Value"
 								symbol={"ZCHF"}
-								max={BigInt(position.price)}
+								min={BigInt(position.price) / 2n}
+								max={(BigInt(position.price) * 15n) / 10n}
+								reset={BigInt(position.price)}
 								value={liqPrice.toString()}
 								digit={36 - position.collateralDecimals}
 								onChange={onChangeLiqAmount}
+								onMin={liqPriceMinCallback}
+								onMax={liqPriceMaxCallback}
 								placeholder="Liquidation Price"
 							/>
+
+							<div className="flex-1 mt-4">
+								<div className="flex">
+									<div className="flex-1 text-text-secondary">
+										<span>Maturity</span>
+									</div>
+									<div className="text-right">{expirationDateStr}</div>
+								</div>
+								<div className="flex mt-2">
+									<div className="flex-1 text-text-secondary">
+										<span>Address</span>
+									</div>
+									<div className="text-right">
+										<Link className="underline" href={`/monitoring/${position.position}`}>
+											{shortenAddress(position.position)}
+										</Link>
+									</div>
+								</div>
+							</div>
+
 							<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 								<GuardToAllowedChainBtn>
 									{collateralAmount - BigInt(position.collateralBalance) > userCollAllowance ? (
@@ -342,54 +455,69 @@ export default function PositionAdjust() {
 							</div>
 						</div>
 					</div>
-					<div>
-						<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
-							<div className="text-lg font-bold text-center mt-3">Outcome</div>
+
+					<div className="flex flex-col gap-4">
+						<AppCard>
+							<div className="text-lg font-bold text-center mt-3">Connected Wallet</div>
 							<div className="flex-1 mt-4">
 								<div className="flex">
-									<div className="flex-1"></div>
+									<div className="flex-1 text-text-secondary">
+										<span>Frankencoin Balance</span>
+									</div>
+									<div className="text-right">{formatCurrency(formatUnits(userFrancBalance, 18))} ZCHF</div>
+								</div>
+								<div className="flex mt-2">
+									<div className="flex-1 text-text-secondary">
+										<span>Collateral Balance</span>
+									</div>
 									<div className="text-right">
-										<span className="text-xs mr-3"></span>
+										{formatCurrency(formatUnits(userCollBalance, position.collateralDecimals))}{" "}
+										{position.collateralSymbol}
 									</div>
 								</div>
+							</div>
+						</AppCard>
 
+						<AppCard>
+							<div className="text-lg font-bold text-center mt-3">Adjustment Outcome</div>
+							<div className="flex-1 mt-4">
 								<div className="flex">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										<span>Current minted amount</span>
 									</div>
 									<div className="text-right">
-										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
+										<span className="text-xs mr-3">{isMinted ? "100.00%" : "0.00%"}</span>
 										{formatCurrency(formatUnits(BigInt(position.minted), 18))} ZCHF
 									</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										{amount >= BigInt(position.minted) ? "Sent to your wallet" : "To be added from your wallet"}
 									</div>
 									<div className="text-right">
-										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
+										<span className="text-xs mr-3">{formatCurrency(formatUnits(walletRatio, 16))}%</span>
 										{formatCurrency(formatUnits(paidOutAmount(), 18))} ZCHF
 									</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										{amount >= BigInt(position.minted) ? "Added to reserve on your behalf" : "Returned from reserve"}
 									</div>
 									<div className="text-right">
-										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
+										<span className="text-xs mr-3">{formatCurrency(formatUnits(reserveRatio, 16))}%</span>
 										{formatCurrency(formatUnits(returnFromReserve(), 18))} ZCHF
 									</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										<span>Upfront interest</span>
 										<div className="text-xs">({position.annualInterestPPM / 10000}% per year)</div>
 									</div>
 									<div className="text-right">
-										{/* <span className="text-xs mr-3">{formatCurrency(0)}%</span> */}
+										<span className="text-xs mr-3">{formatCurrency(formatUnits(feeRatio, 16))}%</span>
 										{formatCurrency(formatUnits(fees, 18))} ZCHF
 									</div>
 								</div>
@@ -397,16 +525,16 @@ export default function PositionAdjust() {
 								<hr className="mt-4 border-slate-700 border-dashed" />
 
 								<div className="mt-2 flex font-bold">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										<span>Future minted amount</span>
 									</div>
 									<div className="text-right">
-										{/* <span className="text-xs mr-3">100%</span> */}
+										<span className="text-xs mr-3">{formatCurrency(formatUnits(futureRatio, 16))}%</span>
 										<span>{formatCurrency(formatUnits(amount, 18))} ZCHF</span>
 									</div>
 								</div>
 							</div>
-						</div>
+						</AppCard>
 					</div>
 				</section>
 			</div>
@@ -417,13 +545,13 @@ export default function PositionAdjust() {
 				<>
 					<AppTitle title={`Renewal`}>
 						<div className="text-text-secondary">
-							This position expires on {formatDateTime(position.expiration)}. You can renew positions by rolling them into
-							suitable new ones with the same collateral but a longer duration.
+							You can renew positions by rolling them into suitable new ones with the same collateral but a longer duration.
+							Or merge them into an existing position you own that has the same collateral but a longer duration.
 						</div>
 					</AppTitle>
 
 					<div className="mt-8">
-						<PositionRollerTable position={position} />
+						<PositionRollerTable position={position} challengeSize={challengeSize} />
 					</div>
 				</>
 			)}

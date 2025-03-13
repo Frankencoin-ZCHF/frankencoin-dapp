@@ -24,22 +24,22 @@ export default function EquityFPSDetailsCard() {
 	// @dev: show trades since start
 	let startTrades = Date.now();
 
-	if (timeframe == Timeframes[1]) startTrades -= 365 * 24 * 60 * 60 * 1000; // 1Y
-	else if (timeframe == Timeframes[2]) startTrades -= 90 * 24 * 60 * 60 * 1000; // 1Q
-	else if (timeframe == Timeframes[3]) startTrades -= 30 * 24 * 60 * 60 * 1000; // 1M
-	else if (timeframe == Timeframes[4]) startTrades -= 7 * 24 * 60 * 60 * 1000; // 1W
+	if (timeframe == Timeframes[1]) startTrades -= (365 + 1) * 24 * 60 * 60 * 1000; // 1Y
+	else if (timeframe == Timeframes[2]) startTrades -= (90 + 1) * 24 * 60 * 60 * 1000; // 1Q
+	else if (timeframe == Timeframes[3]) startTrades -= (30 + 1) * 24 * 60 * 60 * 1000; // 1M
+	else if (timeframe == Timeframes[4]) startTrades -= (7 + 1) * 24 * 60 * 60 * 1000; // 1W
 	else startTrades = 0; // All
 
 	let matchingLogs = logs.filter((t) => {
 		return parseInt(t.timestamp) >= startTrades;
 	});
 
-	const realizedNetEarningsBegin = BigInt(matchingLogs.at(0)?.realizedNetEarnings || "0");
-	const realizedNetEarningsEnd = BigInt(matchingLogs.at(-1)?.realizedNetEarnings || "0");
-	const netIncome = realizedNetEarningsEnd - realizedNetEarningsBegin;
+	const adjustedInflow = BigInt(matchingLogs.at(-1)?.totalInflow || "0") - BigInt(matchingLogs.at(0)?.totalInflow || "0");
+	const adjustedOutflow = BigInt(matchingLogs.at(-1)?.totalOutflow || "0") - BigInt(matchingLogs.at(0)?.totalOutflow || "0");
+	const netIncome = adjustedInflow - adjustedOutflow;
 
 	const timestampBegin = BigInt(matchingLogs.at(0)?.timestamp || "0");
-	const timestampEnd = BigInt(matchingLogs.at(-1)?.timestamp || "0");
+	const timestampEnd = BigInt(Date.now());
 	const timestampDiff = timestampEnd - timestampBegin;
 	const oneYear = 365n * 24n * 60n * 60n * 1000n;
 
@@ -52,11 +52,11 @@ export default function EquityFPSDetailsCard() {
 				<div className="flex justify-between">
 					<div>
 						<DisplayLabel label="FPS Price" />
-						<DisplayAmount className="mt-4" amount={poolStats.equityPrice} currency="ZCHF" />
+						<DisplayAmount amount={poolStats.equityPrice} unit="ZCHF" />
 					</div>
 					<div className="text-right">
 						<DisplayLabel label="Supply" />
-						<DisplayAmount className="mt-4" amount={poolStats.equitySupply} currency="FPS" />
+						<DisplayAmount amount={poolStats.equitySupply} unit="FPS" />
 					</div>
 				</div>
 
@@ -178,45 +178,30 @@ export default function EquityFPSDetailsCard() {
 				<AppBox>
 					<DisplayLabel label="Market Cap" />
 					<DisplayAmount
-						className="mt-4"
 						amount={(poolStats.equitySupply * poolStats.equityPrice) / BigInt(1e18)}
 						currency="ZCHF"
+						address={ADDRESS[chainId].frankenCoin}
 					/>
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Total Reserve" />
-					<DisplayAmount
-						className="mt-4"
-						amount={poolStats.frankenTotalReserve}
-						currency="ZCHF"
-						address={ADDRESS[chainId].frankenCoin}
-					/>
+					<DisplayAmount amount={poolStats.frankenTotalReserve} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Equity Capital" />
-					<DisplayAmount
-						className="mt-4"
-						amount={poolStats.frankenEquity}
-						currency="ZCHF"
-						address={ADDRESS[chainId].frankenCoin}
-					/>
+					<DisplayAmount amount={poolStats.frankenEquity} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Minter Reserve" />
-					<DisplayAmount
-						className="mt-4"
-						amount={poolStats.frankenMinterReserve}
-						currency="ZCHF"
-						address={ADDRESS[chainId].frankenCoin}
-					/>
+					<DisplayAmount amount={poolStats.frankenMinterReserve} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label={"Net Income (" + timeframe + ")"} />
-					<DisplayAmount className="mt-4" amount={netIncome} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
+					<DisplayAmount amount={netIncome} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label={timeframe == "1Y" ? "Return on Equity" : "RoE (annualized from " + timeframe + ")"} />
-					<DisplayAmount className="mt-4" amount={returnOnEquity * 100n} unit="%" address={ADDRESS[chainId].frankenCoin} />
+					<DisplayAmount amount={returnOnEquity * 100n} unit="%" />
 				</AppBox>
 			</div>
 		</div>

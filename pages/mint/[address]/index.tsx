@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { formatUnits, maxUint256, erc20Abi, Hash, zeroHash } from "viem";
+import { formatUnits, maxUint256, erc20Abi, Hash, zeroHash, parseEther } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useState } from "react";
 import Button from "@components/Button";
@@ -10,7 +10,7 @@ import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/ac
 import { Address } from "viem";
 import { formatBigInt, formatCurrency, min, shortenAddress, toTimestamp } from "@utils";
 import { toast } from "react-toastify";
-import { TxToast, renderErrorToast, renderErrorTxStackToast, renderErrorTxToast } from "@components/TxToast";
+import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import DateInput from "@components/Input/DateInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
@@ -269,6 +269,7 @@ export default function PositionBorrow({}) {
 								label="Mint Amount"
 								balanceLabel="Limit:"
 								symbol="ZCHF"
+								min={(BigInt(position.minimumCollateral) * BigInt(position.price)) / parseEther("1")}
 								max={availableAmount}
 								value={amount.toString()}
 								onChange={onChangeAmount}
@@ -278,12 +279,23 @@ export default function PositionBorrow({}) {
 								label="Required Collateral"
 								balanceLabel="Your balance:"
 								max={userBalance}
+								min={BigInt(position.minimumCollateral)}
 								digit={position.collateralDecimals}
 								onChange={onChangeCollateral}
-								output={formatUnits(requiredColl, position.collateralDecimals)}
+								value={requiredColl.toString()}
 								symbol={position.collateralSymbol}
+								limit={userBalance}
+								limitDigit={position.collateralDecimals}
+								limitLabel="Balance"
 							/>
-							<DateInput label="Expiration" max={position.expiration} value={expirationDate} onChange={onChangeExpiration} />
+							<DateInput
+								label="Expiration"
+								min={new Date(Date.now() + 1000 * 60 * 60 * 24 * 7)}
+								max={new Date(position.expiration * 1000)}
+								value={expirationDate}
+								onChange={onChangeExpiration}
+								error={errorDate}
+							/>
 						</div>
 						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 							<GuardToAllowedChainBtn label={amount > userAllowance ? "Approve" : "Mint"}>
@@ -304,17 +316,16 @@ export default function PositionBorrow({}) {
 										Mint
 									</Button>
 								)}
-								<p className="text-text-warning">{errorDate}</p>
 								<p className="text-text-warning">{error}</p>
 							</GuardToAllowedChainBtn>
 						</div>
 					</div>
 					<div>
 						<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
-							<div className="text-lg font-bold text-center mt-3">Outcome</div>
+							<div className="text-lg font-bold text-center mt-3">Mint Outcome</div>
 							<div className="flex-1 mt-4">
 								<div className="flex">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										<span>Sent to your wallet</span>
 									</div>
 									<div className="text-right">
@@ -324,7 +335,7 @@ export default function PositionBorrow({}) {
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										<span>Retained Reserve</span>
 									</div>
 									<div className="text-right">
@@ -334,7 +345,7 @@ export default function PositionBorrow({}) {
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										<span>Upfront interest</span>
 										<div className="text-xs">({position.annualInterestPPM / 10000}% per year)</div>
 									</div>
@@ -347,7 +358,7 @@ export default function PositionBorrow({}) {
 								<hr className="mt-4 border-slate-700 border-dashed" />
 
 								<div className="mt-2 flex font-bold">
-									<div className="flex-1">
+									<div className="flex-1 text-text-secondary">
 										<span>Total</span>
 									</div>
 									<div className="text-right">
@@ -361,30 +372,35 @@ export default function PositionBorrow({}) {
 							<div className="text-lg font-bold text-center mt-3">Notes</div>
 							<div className="flex-1 mt-4">
 								<div className="mt-2 flex">
-									<div className="flex-1">Effective Annual Interest</div>
-									<div className="">{formatCurrency(effectiveInterest * 100)}%</div>
+									<div className="flex-1 text-text-secondary">Available to Mint</div>
+									<div className="">{formatCurrency(formatUnits(availableAmount, 18))} ZCHF</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">Liquidation Price</div>
+									<div className="flex-1 text-text-secondary">Market Price</div>
+									<div className="">{formatCurrency(collateralPriceZchf)} ZCHF</div>
+								</div>
+
+								<div className="mt-2 flex">
+									<div className="flex-1 text-text-secondary">Liquidation Price</div>
 									<div className="">
 										{formatCurrency(formatUnits(BigInt(position.price), 36 - position.collateralDecimals))} ZCHF
 									</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">Market Price</div>
-									<div className="">{formatCurrency(collateralPriceZchf)} ZCHF</div>
+									<div className="flex-1 text-text-secondary">Loan-To-Value</div>
+									<div className="">{formatCurrency(effectiveLTV * 100)}%</div>
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1">Loan-To-Value</div>
-									<div className="">{formatCurrency(effectiveLTV * 100)}%</div>
+									<div className="flex-1 text-text-secondary">Effective Annual Interest</div>
+									<div className="">{formatCurrency(effectiveInterest * 100)}%</div>
 								</div>
 
 								{position.isClone && (
 									<div className="mt-2 flex">
-										<div className="flex-1">Parent Position</div>
+										<div className="flex-1 text-text-secondary">Parent Position</div>
 										<Link
 											className="underline"
 											href={`/monitoring/${position.version == 2 ? position.parent : position.original}`}
@@ -396,14 +412,14 @@ export default function PositionBorrow({}) {
 
 								{position.version == 2 && (
 									<div className="mt-2 flex">
-										<div className="flex-1">Original Position</div>
+										<div className="flex-1 text-text-secondary">Original Position</div>
 										<Link className="underline" href={`/monitoring/${position.original}`}>
 											{shortenAddress(position.original)}
 										</Link>
 									</div>
 								)}
 
-								<p className="mt-4">
+								<p className="mt-4 text-text-secondary">
 									While the maturity is fixed, you can adjust the liquidation price and the collateral amount later as
 									long as it covers the minted amount. No interest will be refunded when repaying earlier.
 								</p>

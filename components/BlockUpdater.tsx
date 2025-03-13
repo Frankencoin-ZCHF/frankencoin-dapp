@@ -14,6 +14,7 @@ import { fetchBidsList } from "../redux/slices/bids.slice";
 import { fetchEcosystem } from "../redux/slices/ecosystem.slice";
 import { fetchSavings } from "../redux/slices/savings.slice";
 import { fetchDashboard } from "../redux/slices/dashboard.slice";
+import { fetchMorphoMarkets } from "../redux/slices/morpho.slice";
 
 let initializing: boolean = false;
 let initStart: number = 0;
@@ -53,6 +54,7 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		store.dispatch(fetchBidsList());
 		store.dispatch(fetchSavings(latestAddress));
 		store.dispatch(fetchDashboard());
+		store.dispatch(fetchMorphoMarkets());
 	}, [initialized, latestAddress]);
 
 	// --------------------------------------------------------------------------------
@@ -85,8 +87,8 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		store.dispatch(fetchPositionsList());
 		store.dispatch(fetchChallengesList());
 		store.dispatch(fetchBidsList());
-		store.dispatch(fetchAccount(latestAddress));
-		store.dispatch(fetchSavings(latestAddress));
+		// store.dispatch(fetchAccount(latestAddress)); // @dev: unused for now
+		// store.dispatch(fetchSavings(latestAddress)); // @dev: auto-updates deactivated, switched to page-updates
 		store.dispatch(fetchPricesList());
 		store.dispatch(fetchEcosystem());
 

@@ -1,8 +1,8 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
 import { Address } from "viem";
-import { DashboardState, DispatchApiDailyLog, DispatchBoolean } from "./dashboard.types";
+import { DashboardState, DispatchApiDailyLog, DispatchApiTransactionLog, DispatchBoolean } from "./dashboard.types";
 import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
-import { ApiDailyLog } from "@frankencoin/api";
+import { ApiDailyLog, ApiTransactionLog } from "@frankencoin/api";
 
 // --------------------------------------------------------------------------------
 
@@ -10,6 +10,15 @@ export const initialState: DashboardState = {
 	error: null,
 	loaded: false,
 	dailyLog: { num: 0, logs: [] },
+	txLog: {
+		num: 0,
+		logs: [],
+		pageInfo: {
+			startCursor: "",
+			endCursor: "",
+			hasNextPage: false,
+		},
+	},
 };
 
 // --------------------------------------------------------------------------------
@@ -33,6 +42,12 @@ export const slice = createSlice({
 		setDailyLog: (state, action: { payload: ApiDailyLog }) => {
 			state.dailyLog = action.payload;
 		},
+
+		// -------------------------------------
+		// SET TX LOG
+		setTxLog: (state, action: { payload: ApiTransactionLog }) => {
+			state.txLog = action.payload;
+		},
 	},
 });
 
@@ -52,4 +67,15 @@ export const fetchDashboard = () => async (dispatch: Dispatch<DispatchBoolean | 
 	// ---------------------------------------------------------------
 	// Finalizing, loaded set to true
 	dispatch(slice.actions.setLoaded(true));
+};
+
+// --------------------------------------------------------------------------------
+export const fetchTransactionLogs = () => async (dispatch: Dispatch<DispatchApiTransactionLog>) => {
+	// ---------------------------------------------------------------
+	CONFIG.verbose && console.log("Loading [REDUX]: Dashboard/TransactionLog");
+
+	// ---------------------------------------------------------------
+	// Query raw data from backend api;
+	const response1 = await FRANKENCOIN_API_CLIENT.get("/analytics/transactionLog/json?limit=200");
+	dispatch(slice.actions.setTxLog(response1.data as ApiTransactionLog));
 };

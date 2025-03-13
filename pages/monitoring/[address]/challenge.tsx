@@ -6,12 +6,12 @@ import DisplayAmount from "@components/DisplayAmount";
 import TokenInput from "@components/Input/TokenInput";
 import { erc20Abi, zeroAddress } from "viem";
 import { useEffect, useState } from "react";
-import { ContractUrl, formatBigInt, formatDuration, shortenAddress } from "@utils";
+import { formatBigInt, formatDuration, shortenAddress } from "@utils";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { Address } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
-import { TxToast, renderErrorToast, renderErrorTxStackToast, renderErrorTxToast } from "@components/TxToast";
+import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import DisplayLabel from "@components/DisplayLabel";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
@@ -24,6 +24,7 @@ import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 export default function PositionChallenge() {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
+	const [isInit, setInit] = useState(false);
 	const [isApproving, setApproving] = useState(false);
 	const [isChallenging, setChallenging] = useState(false);
 	const [isNavigating, setNavigating] = useState(false);
@@ -41,7 +42,6 @@ export default function PositionChallenge() {
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const position = positions.find((p) => p.position == addressQuery);
-	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
 	// ---------------------------------------------------------------------------
 	useEffect(() => {
@@ -76,6 +76,12 @@ export default function PositionChallenge() {
 			navigate.push(`/monitoring/${position.position}`);
 		}
 	}, [isNavigating, navigate, position]);
+
+	useEffect(() => {
+		if (isInit || position == undefined) return;
+		setAmount(BigInt(position.collateralBalance));
+		setInit(true);
+	}, [isInit, position]);
 
 	// ---------------------------------------------------------------------------
 	if (!position) return null;
@@ -201,7 +207,8 @@ export default function PositionChallenge() {
 						<div className="text-lg font-bold text-center mt-3">Launch A Challenge</div>
 						<TokenInput
 							symbol={position.collateralSymbol}
-							max={userBalance}
+							min={BigInt(position.minimumCollateral)}
+							max={userBalance > BigInt(position.collateralBalance) ? BigInt(position.collateralBalance) : userBalance}
 							balanceLabel="Your balance:"
 							digit={position.collateralDecimals}
 							value={amount.toString()}
@@ -209,6 +216,9 @@ export default function PositionChallenge() {
 							error={error}
 							label="Amount"
 							placeholder="Collateral Amount"
+							limit={userBalance > BigInt(position.collateralBalance) ? BigInt(position.collateralBalance) : userBalance}
+							limitDigit={position.collateralDecimals}
+							limitLabel="Maximum"
 						/>
 						<div className="grid grid-cols-6 gap-2 lg:col-span-2">
 							<AppBox className="col-span-6 sm:col-span-3">
@@ -218,10 +228,6 @@ export default function PositionChallenge() {
 									currency={"ZCHF"}
 									digits={36 - position.collateralDecimals}
 									address={ADDRESS[chainId].frankenCoin}
-									/* subAmount={maxProceeds}
-									subCurrency={"% (Coingecko)"}
-									subColor={maxProceeds > 0 ? "text-green-300" : "text-red-500"} */
-									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
@@ -231,7 +237,6 @@ export default function PositionChallenge() {
 									currency={"ZCHF"}
 									digits={36}
 									address={ADDRESS[chainId].frankenCoin}
-									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
@@ -241,7 +246,6 @@ export default function PositionChallenge() {
 									currency={position.collateralSymbol}
 									digits={position.collateralDecimals}
 									address={position.collateral}
-									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
@@ -251,17 +255,16 @@ export default function PositionChallenge() {
 									currency={position.collateralSymbol}
 									digits={position.collateralDecimals}
 									address={position.collateral}
-									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Phase duration" />
-								{formatDuration(position.challengePeriod)}
+								<div className="py-2 text-lg">{formatDuration(position.challengePeriod)}</div>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Target Position" />
 								<Link className="text-link" href={`/monitoring/${position.position}`}>
-									{shortenAddress(position.position || zeroAddress)}
+									<div className="py-2 text-lg">{shortenAddress(position.position || zeroAddress)}</div>
 								</Link>
 							</AppBox>
 						</div>

@@ -208,6 +208,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 			<div className="mt-8">
 				<TokenInputSelect
 					max={fromBalance}
+					min={0n}
 					symbol={fromSymbol}
 					symbolOptions={Object.keys(selectorMapping) || []}
 					symbolOnChange={(o) => setTokenFromTo({ from: o.label, to: selectorMapping[o.label][0] })}
@@ -230,6 +231,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 					hideMaxLabel
 					output={Math.round(parseFloat(formatUnits(result, 18)) * 10000) / 10000}
 					label="Receive"
+					disabled={true}
 				/>
 
 				<div className={`mt-2 px-1 transition-opacity ${(shareLoading || proceedLoading) && "opacity-50"}`}>{conversionNote()}</div>
@@ -262,12 +264,11 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 			<div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
 					<DisplayLabel label="Your Balance" />
-					<DisplayAmount className="mt-4" amount={poolStats.equityBalance} currency="FPS" address={ADDRESS[chainId].equity} />
+					<DisplayAmount amount={poolStats.equityBalance} currency="FPS" address={ADDRESS[chainId].equity} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Value at Current Price" />
 					<DisplayAmount
-						className="mt-4"
 						amount={(poolStats.equityPrice * poolStats.equityBalance) / BigInt(1e18)}
 						currency="ZCHF"
 						address={ADDRESS[chainId].frankenCoin}
@@ -275,13 +276,13 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Holding Duration" />
-					<span className={!unlocked ? "text-text-warning font-bold" : ""}>
+					<div className={`py-2 text-lg ${!unlocked ? "text-text-warning font-bold" : ""}`}>
 						{poolStats.equityBalance > 0 ? formatDuration(poolStats.equityHoldingDuration) : "-"}
-					</span>
+					</div>
 				</AppBox>
 				<AppBox className="flex-1">
 					<DisplayLabel label="Can redeem after" />
-					<span className={!unlocked ? "text-text-warning font-bold" : ""}>{formatDuration(redeemLeft)}</span>
+					<div className={`py-2 text-lg ${!unlocked ? "text-text-warning font-bold" : ""}`}>{formatDuration(redeemLeft)}</div>
 				</AppBox>
 			</div>
 		</>
