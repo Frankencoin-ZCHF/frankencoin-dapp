@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { Address, erc20Abi, formatUnits, maxUint256, TransactionReceipt, Log, decodeEventLog } from "viem";
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
@@ -33,6 +33,7 @@ import {
 } from "../../utils/loanCalculations";
 import { useFrontendCode } from "../../hooks/useFrontendCode";
 import { MaxButton } from "@components/Input/MaxButton";
+import { useRouter } from "next/router";
 
 export default function PositionCreate({}) {
 	const [selectedCollateral, setSelectedCollateral] = useState<TokenBalance | null | undefined>(null);
@@ -54,6 +55,7 @@ export default function PositionCreate({}) {
 
 	const { data: latestBlock } = useBlock();
 	const chainId = useChainId();
+	const { query } = useRouter();
 
 	const elegiblePositions = useMemo(() => {
 		const blockTimestamp = latestBlock?.timestamp || new Date().getTime()/1000;
@@ -81,6 +83,16 @@ export default function PositionCreate({}) {
 	const { balances, refetchBalances } = useWalletERC20Balances(collateralTokenList);
 	const { frontendCode } = useFrontendCode();
 	const { t } = useTranslation();
+
+	useEffect(() => {
+		if (query && query.collateral) {
+			const queryCollateral = Array.isArray(query.collateral) ? query.collateral[0] : query.collateral;
+			const collateralToken = collateralTokenList.find((b) => b.address.toLowerCase() === queryCollateral?.toLowerCase());
+			if (collateralToken) {
+				handleOnSelectedToken(collateralToken);
+			}
+		}
+	}, []);
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const collateralPriceDeuro = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0; // TODO: change to eur?
@@ -327,7 +339,7 @@ export default function PositionCreate({}) {
 						onChange={onLiquidationPriceChange}
 						min={BigInt(0)}
 						max={maxLiquidationPrice}
-						decimals={selectedCollateral?.decimals || 0}
+						decimals={selectedPosition?.collateralDecimals || 0}
 						isError={isLiquidationPriceTooHigh}
 						errorMessage={t("mint.liquidation_price_too_high")}
 					/>
