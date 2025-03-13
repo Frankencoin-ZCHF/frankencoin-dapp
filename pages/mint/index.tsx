@@ -20,20 +20,22 @@ export default function Borrow() {
 				<title>Frankencoin - Borrow</title>
 			</Head>
 
-			<AppTitle title="Borrow on Morpho">
+			{/* <AppTitle title="Borrow on Morpho">
 				<div className="text-text-secondary">
-					Borrow Frankencoins (ZCHF) at variable rates on the lending platform <a href="https://morpho.org/">Morpho</a>.
+					Borrow Frankencoins (ZCHF) at variable rates on the lending platform{" "}
+					<a className="underline cursor-pointer font-semibold" href="https://morpho.org/">
+						Morpho
+					</a>
+					.
 				</div>
-			</AppTitle>
+			</AppTitle> */}
 
-			<div className="mt-8">
+			{/* <div className="mt-8">
 				<BorrowMorphoTable />
-			</div>
+			</div> */}
 
 			<AppTitle title="Mint fresh Frankencoins">
-				<div className="text-text-secondary">
-					Mint Frankencoins (ZCHF) at a fixed rate for your duration of choice.
-				</div>
+				<div className="text-text-secondary">Mint Frankencoins (ZCHF) at a fixed rate for your duration of choice.</div>
 			</AppTitle>
 
 			<div className="mt-8">
@@ -48,7 +50,6 @@ export default function Borrow() {
 					Propose New Position or Collateral
 				</Link>
 			</div>
-
 		</>
 	);
 }
