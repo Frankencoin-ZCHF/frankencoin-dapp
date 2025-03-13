@@ -87,7 +87,7 @@ export default function PositionCreate({}) {
 	useEffect(() => {
 		if (query && query.collateral) {
 			const queryCollateral = Array.isArray(query.collateral) ? query.collateral[0] : query.collateral;
-			const collateralToken = collateralTokenList.find((b) => b.address.toLowerCase() === queryCollateral?.toLowerCase());
+			const collateralToken = collateralTokenList.find((b) => b.symbol.toLowerCase() === queryCollateral?.toLowerCase());
 			if (collateralToken) {
 				handleOnSelectedToken(collateralToken);
 			}
