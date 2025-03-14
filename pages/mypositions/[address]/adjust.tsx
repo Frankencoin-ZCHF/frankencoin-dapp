@@ -545,8 +545,9 @@ export default function PositionAdjust() {
 				<>
 					<AppTitle title={`Renewal`}>
 						<div className="text-text-secondary">
-							You can renew positions by rolling them into suitable new ones with the same collateral but a longer duration.
-							Or merge them into an existing position you own that has the same collateral but a longer duration.
+							You can renew positions by rolling them into suitable new ones with the same collateral. When rolling, the owed amount will be
+							increased by the up-front interest for the new position and any excess collateral paid out to your address. If you want to reduce
+							the outstanding amount, you should do that before rolling.
 						</div>
 					</AppTitle>
 
