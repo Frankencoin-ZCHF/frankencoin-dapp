@@ -19,8 +19,8 @@ export default function App({ Component, pageProps }: AppProps) {
 	return (
 		<ReduxProvider store={store}>
 			<Web3ModalProvider>
-				<ApolloProvider client={PONDER_CLIENT}>
-					<ApolloProvider client={MORPHOGRAPH_CLIENT}>
+				<ApolloProvider client={MORPHOGRAPH_CLIENT}>
+					<ApolloProvider client={PONDER_CLIENT}>
 						<BlockUpdater>
 							<NextSeoProvider />
 							<ToastContainer
