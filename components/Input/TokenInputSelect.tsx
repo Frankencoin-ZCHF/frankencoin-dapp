@@ -131,6 +131,10 @@ export default function TokenInputSelect({
 								boxShadow: "none", // Remove the focus shadow
 								minWidth: "7.5rem",
 								height: "2.75rem",
+								"&:hover": {
+									backgroundColor: "#0F80F0",
+									cursor: "pointer",
+								},
 							}),
 							option: (baseStyles, state) => ({
 								...baseStyles,

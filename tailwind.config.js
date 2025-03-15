@@ -101,6 +101,7 @@ module.exports = {
 					max: {
 						bg: "#e4f0fb",
 						text: "#092f62",
+						hover: "#CCE4FF",
 					},
 					primary: {
 						disabled: {
@@ -110,6 +111,10 @@ module.exports = {
 						default: {
 							text: "#ffffff",
 							bg: "#092f62",
+						},
+						hover: {
+							text: "#ffffff",
+							bg: "#0F80F0",
 						},
 					},
 					secondary: {

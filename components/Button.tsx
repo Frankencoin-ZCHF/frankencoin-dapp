@@ -20,11 +20,17 @@ export default function Button({ size = "md", width, className, onClick, isLoadi
 		<>
 			{error && <div className="mb-2 px-1 text-text-warning text-center">{error}</div>}
 			<button
-				className={`btn ${className} ${sizeClass} ${
-					disabled || isLoading
-						? "font-medium cursor-not-allowed bg-button-primary-disabled-bg text-button-primary-disabled-text"
-						: "font-extrabold bg-button-primary-default-bg text-button-primary-default-text"
-				} ${width ?? "w-full"}`}
+				className={`
+					btn
+					hover:bg-button-primary-hover-bg
+					hover:text-button-primary-hover-text
+					${className} ${sizeClass}
+				 	${
+						disabled || isLoading
+							? "font-medium cursor-not-allowed bg-button-primary-disabled-bg text-button-primary-disabled-text"
+							: "font-extrabold bg-button-primary-default-bg text-button-primary-default-text"
+					} 
+					${width ?? "w-full"}`}
 				onClick={(e) => !disabled && !isLoading && onClick?.(e)}
 			>
 				{isLoading && <LoadingSpin />}
