@@ -6,6 +6,7 @@ import { useIsMainnet } from "@hooks";
 import { CONFIG } from "../../app.config";
 import { GlobalPreferences } from "./GlobalPreferences";
 import { useTranslation } from "next-i18next";
+import Image from "next/image";
 
 export function NavItems() {
 	const isMainet = useIsMainnet();
@@ -48,11 +49,9 @@ export default function Navbar() {
 			<div>
 				<header className="w-full h-16 px-5 md:px-10 bg-white border-b border-menu-separator bg-menu-back backdrop-blur justify-between items-center inline-flex">
 					<div className="h-9 justify-start items-center gap-6 inline-flex">
-						<Link className="w-8 h-8 justify-center items-center inline-flex" href={CONFIG.landing}>
-							<div className="w-8 h-8 relative flex-col justify-start items-start flex overflow-hidden">
-								<picture className="w-8 h-8 relative">
-									<img src="/coin/logo.png" alt="Logo" />
-								</picture>
+						<Link className="w-[120px] flex items-center justify-center" href={CONFIG.landing}>
+							<div className="relative">
+								<Image src="/assets/dEuro-Logo.svg" alt="Logo" width={120} height={31} priority />
 							</div>
 						</Link>
 

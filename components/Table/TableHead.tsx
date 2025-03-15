@@ -32,9 +32,10 @@ export default function TableHeader({ headers, subHeaders, actionCol, colSpan, t
 						onClick={(e) => handleOnClick(header)}
 					>
 						<span
-							className={`text-base font-extrabold ${!!tab ? "cursor-pointer" : ""} ${
-								tab === header ? "text-table-header-active font-bold" : ""
-							}`}
+							className={`text-base font-extrabold transition-colors duration-200 ${!!tab ? "cursor-pointer" : ""} ${
+								tab === header ? "text-table-header-active font-bold" : "text-table-header-default hover:text-table-header-hover"
+							}
+							`}
 						>
 							{header}
 						</span>

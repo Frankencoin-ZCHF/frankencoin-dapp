@@ -155,9 +155,10 @@ module.exports = {
 					header: {
 						primary: "#FFFFFF",
 						secondary: "#F0F1F5",
-						active: "#092f62",
+						active: "#272b38",
 						action: "#ced0da",
-						default: "#8b91a7",
+						default: "#CED1DA",
+						hover: "#8B92A8"
 					},
 					row: {
 						primary: "#FFFFFF",
