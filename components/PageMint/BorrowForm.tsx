@@ -308,7 +308,7 @@ export default function PositionCreate({}) {
 			<AppCard className="max-w-lg p-4 flex-col justify-start items-center gap-8 inline-flex overflow-hidden">
 				<div className="self-stretch justify-center items-center gap-1.5 inline-flex">
 					<div className="text-text-title text-xl font-black ">
-						{t("mint.borrow")} {TOKEN_SYMBOL}
+						{t("mint.symbol_borrow", { symbol: TOKEN_SYMBOL })}
 					</div>
 				</div>
 

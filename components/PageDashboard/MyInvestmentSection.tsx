@@ -43,8 +43,8 @@ export const MyInvestmentSection = () => {
 				/>
 				<ExplanationItem
 					icon="/icons/grow.svg"
-					title={t("dashboard.benefit_from_protocol")}
-					description={t("dashboard.benefit_from_protocol_description")}
+					title={t("dashboard.the_gobernance_token_ecosystem")}
+					description={t("dashboard.the_gobernance_token_ecosystem_description")}
 				/>
 			</div>
 		</div>
