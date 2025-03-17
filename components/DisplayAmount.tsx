@@ -7,6 +7,7 @@ const TokenLogo = dynamic(() => import("./TokenLogo"), { ssr: false });
 
 interface Props {
 	className?: string;
+	output?: string;
 	amount?: bigint | number;
 	unit?: string;
 	digits?: number | bigint;
@@ -19,6 +20,7 @@ interface Props {
 
 export default function DisplayAmount({
 	className,
+	output,
 	amount,
 	digits = 18,
 	currency,
@@ -31,10 +33,14 @@ export default function DisplayAmount({
 	const url = useContractUrl(address || zeroAddress);
 	return (
 		<div className={className || "pt-2"}>
-			<div className="flex items-center">
-				<div className={`flex-1 text-text-primary ${bold && "font-bold"} ${big ? "text-xl" : "text-lg"}`}>
-					{amount ? formatCurrency(typeof amount === "number" ? amount : formatUnits(amount, Number(digits))) : "0.00"}
-				</div>
+			<div className="flex items-center gap-2">
+				{output != undefined ? (
+					<div className={`flex-1 text-text-primary ${bold && "font-bold"} ${big ? "text-xl" : "text-lg"}`}>{output}</div>
+				) : (
+					<div className={`flex-1 text-text-primary ${bold && "font-bold"} ${big ? "text-xl" : "text-lg"}`}>
+						{amount ? formatCurrency(typeof amount === "number" ? amount : formatUnits(amount, Number(digits))) : "0.00"}
+					</div>
+				)}
 
 				<div className="text-card-input-label">
 					{address ? (

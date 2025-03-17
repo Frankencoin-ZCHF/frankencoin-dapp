@@ -8,7 +8,7 @@ import { formatDateTime, shortenAddress } from "@utils";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { useContractUrl } from "@hooks";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowUpRightFromSquare, faEye } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight, faArrowRightToBracket, faArrowUpRightFromSquare, faEye } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import { CONFIG, WAGMI_CONFIG } from "../../../app.config";
@@ -18,6 +18,7 @@ import { ChallengesQueryItem, PositionQuery } from "@frankencoin/api";
 import { useRouter as useNavigation } from "next/navigation";
 import Button from "@components/Button";
 import { ADDRESS, FrankencoinABI } from "@frankencoin/zchf";
+import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 
 export default function PositionDetail() {
 	const [reserve, setReserve] = useState<bigint>(0n);
@@ -32,9 +33,10 @@ export default function PositionDetail() {
 	const position = positions.find((p) => p.position.toLowerCase() === address.toLowerCase());
 	const challengesActive = (challengesPositions.map[address.toLowerCase() as Address] || []).filter((c) => c.status === "Active");
 
-	const explorerUrl = useContractUrl(String(address));
-	const ownerLink = useContractUrl(position?.owner || zeroAddress);
+	const positionExplorerUrl = useContractUrl(String(address));
+	const ownerExplorerLink = useContractUrl(position?.owner || zeroAddress);
 	const myPosLink = `/mypositions?address=${position?.owner || zeroAddress}`;
+	const parentLink = `/monitoring/${(position?.version == 2 && position?.parent) || zeroAddress}`;
 
 	useEffect(() => {
 		if (!position) return;
@@ -60,6 +62,14 @@ export default function PositionDetail() {
 		return now < position.cooldown && position.cooldown < 32508005122n;
 	};
 
+	const parentAddressInfo = (): string => {
+		if (position.version == 1) return "Not available for V1";
+		else if (position.version == 2) {
+			if (position.isOriginal) return "-";
+			else return shortenAddress(position.parent);
+		} else return "-";
+	};
+
 	return (
 		<>
 			<Head>
@@ -68,22 +78,12 @@ export default function PositionDetail() {
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
-						<Link href={explorerUrl} target="_blank">
-							<div className="text-lg font-bold underline text-center">
-								Position {shortenAddress(position.position)}
-								<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
-							</div>
-						</Link>
+						<div className="text-lg font-bold text-center">Position</div>
 
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:col-span-2">
 							<AppBox>
 								<DisplayLabel label="Minted Total" />
-								<DisplayAmount
-									amount={BigInt(position.minted)}
-									currency="ZCHF"
-									address={ADDRESS[chainId].frankenCoin}
-									className="mt-2"
-								/>
+								<DisplayAmount amount={BigInt(position.minted)} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Collateral" />
@@ -92,7 +92,6 @@ export default function PositionDetail() {
 									currency={position.collateralSymbol}
 									digits={position.collateralDecimals}
 									address={position.collateral}
-									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox>
@@ -102,12 +101,11 @@ export default function PositionDetail() {
 									currency={"ZCHF"}
 									digits={36 - position.collateralDecimals}
 									address={ADDRESS[chainId].frankenCoin}
-									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Retained Reserve" />
-								<DisplayAmount amount={reserve} currency={"ZCHF"} address={ADDRESS[chainId].frankenCoin} className="mt-2" />
+								<DisplayAmount amount={reserve} currency={"ZCHF"} address={ADDRESS[chainId].frankenCoin} />
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Limit" />
@@ -115,7 +113,6 @@ export default function PositionDetail() {
 									amount={BigInt(position.limitForClones)}
 									currency={"ZCHF"}
 									address={ADDRESS[chainId].frankenCoin}
-									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox>
@@ -124,38 +121,61 @@ export default function PositionDetail() {
 									amount={BigInt(position.availableForClones)}
 									currency={"ZCHF"}
 									address={ADDRESS[chainId].frankenCoin}
-									className="mt-2"
 								/>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Auction Duration" />
-								<DisplayAmount amount={position.challengePeriod / 60 / 60} unit={"hours"} className="mt-2" />
+								<DisplayOutputAlignedRight amount={position.challengePeriod / 60 / 60} unit={"hours"} />
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Owner" />
-								<Link href={ownerLink} className="flex items-center underline" target="_blank">
+								<Link
+									href={ownerExplorerLink}
+									className="flex items-center justify-end underline text-lg pt-2"
+									target="_blank"
+								>
 									{shortenAddress(position.owner)}
-									<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
-									<Link href={myPosLink} className="flex items-center underline ml-2">
-										<FontAwesomeIcon icon={faEye} className="w-3 m-2" />
-									</Link>
+									<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-3" />
+									{/* <Link href={myPosLink} className="flex items-center underline ml-1">
+										<FontAwesomeIcon icon={faEye} className="w-3 mx-2" />
+									</Link> */}
 								</Link>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Reserve Requirement" />
-								<DisplayAmount amount={BigInt(position.reserveContribution / 100)} digits={2} unit={"%"} />
+								<DisplayOutputAlignedRight amount={BigInt(position.reserveContribution / 100)} digits={2} unit={"%"} />
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Annual Interest" />
-								<DisplayAmount amount={BigInt(position.annualInterestPPM / 100)} digits={2} unit={"%"} />
+								<DisplayOutputAlignedRight amount={BigInt(position.annualInterestPPM / 100)} digits={2} unit={"%"} />
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Start Date" />
-								<b>{formatDateTime(position.isOriginal ? position.start : position.created)}</b>
+								<DisplayOutputAlignedRight
+									output={formatDateTime(position.isOriginal ? position.start : position.created)}
+								/>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Expiration Date" />
-								<b>{position.closed ? "Closed" : formatDateTime(position.expiration)}</b>
+								<DisplayOutputAlignedRight output={position.closed ? "Closed" : formatDateTime(position.expiration)} />
+							</AppBox>
+							<AppBox>
+								<DisplayLabel label="Smart Contract" />
+								<Link
+									href={positionExplorerUrl}
+									className="flex items-center justify-end underline text-lg pt-2"
+									target="_blank"
+								>
+									{shortenAddress(position.position)}
+									<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-3" />
+								</Link>
+							</AppBox>
+							<AppBox>
+								<DisplayLabel label="Parent Position" />
+								<Link href={parentLink} className="flex items-center justify-end underline text-lg pt-2" target="_blank">
+									{parentAddressInfo()}
+									<FontAwesomeIcon icon={faArrowRight} className="w-3 ml-3" />
+								</Link>
 							</AppBox>
 						</div>
 					</div>
@@ -206,7 +226,6 @@ function ActiveAuctionsRow({ position, challenge }: Props) {
 						digits={position.collateralDecimals}
 						currency={position.collateralSymbol}
 						address={position.collateral}
-						className="mt-2"
 					/>
 				</AppBox>
 
