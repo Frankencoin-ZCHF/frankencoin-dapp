@@ -149,6 +149,9 @@ module.exports = {
 						secondary: {
 							text: "#8B92A8",
 						},
+						hover: {
+							text: "#272b37",
+						},
 					},
 				},
 				table: {

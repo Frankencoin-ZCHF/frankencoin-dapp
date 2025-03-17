@@ -58,7 +58,7 @@ export default function PositionCreate({}) {
 	const { query } = useRouter();
 
 	const elegiblePositions = useMemo(() => {
-		const blockTimestamp = latestBlock?.timestamp || new Date().getTime()/1000;
+		const blockTimestamp = latestBlock?.timestamp || new Date().getTime() / 1000;
 		return positions
 			.filter((p) => BigInt(p.availableForClones) > 0n)
 			.filter((p) => blockTimestamp > toTimestamp(toDate(p.cooldown)))
@@ -68,15 +68,14 @@ export default function PositionCreate({}) {
 
 	const collateralTokenList = useMemo(() => {
 		const uniqueTokens = new Map();
-		elegiblePositions
-			.forEach((p) => {
-				uniqueTokens.set(p.collateral.toLowerCase(), {
-					symbol: p.collateralSymbol,
-					address: p.collateral,
-					name: p.collateralName,
-					allowance: [ADDRESS[chainId].mintingHubGateway],
-				});
+		elegiblePositions.forEach((p) => {
+			uniqueTokens.set(p.collateral.toLowerCase(), {
+				symbol: p.collateralSymbol,
+				address: p.collateral,
+				name: p.collateralName,
+				allowance: [ADDRESS[chainId].mintingHubGateway],
 			});
+		});
 		return Array.from(uniqueTokens.values());
 	}, [elegiblePositions, isApproving]);
 
@@ -97,7 +96,7 @@ export default function PositionCreate({}) {
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const collateralPriceDeuro = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0; // TODO: change to eur?
 
-	const collateralPriceUsd = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0;	
+	const collateralPriceUsd = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0;
 	const decimalsAdjustment = selectedPosition?.collateralDecimals === 0 ? 18 : (selectedPosition?.collateralDecimals as number);
 	const collateralEurValue = selectedPosition
 		? collateralPriceDeuro * parseFloat(formatUnits(BigInt(collateralAmount), decimalsAdjustment))
@@ -109,14 +108,14 @@ export default function PositionCreate({}) {
 	const isLiquidationPriceTooHigh = selectedPosition ? BigInt(liquidationPrice) >= maxLiquidationPrice : false;
 	const userAllowance =
 		balances.find((b) => b.address == selectedCollateral?.address)?.allowance?.[ADDRESS[chainId].mintingHubGateway] || 0n;
-	const isCollateralError = collateralAmount !== "0" && collateralAmount !== "" && BigInt(collateralAmount) < BigInt(selectedPosition?.minimumCollateral || 0n);
+	const isCollateralError =
+		collateralAmount !== "0" && collateralAmount !== "" && BigInt(collateralAmount) < BigInt(selectedPosition?.minimumCollateral || 0n);
 
 	const handleOnSelectedToken = (token: TokenBalance) => {
 		if (!token) return;
 		setSelectedCollateral(token);
 
-		const selectedPosition = elegiblePositions
-			.find((p) => p.collateral.toLowerCase() == token.address.toLowerCase());
+		const selectedPosition = elegiblePositions.find((p) => p.collateral.toLowerCase() == token.address.toLowerCase());
 		if (!selectedPosition) return;
 
 		const liqPrice = BigInt(selectedPosition.price) / 2n;
@@ -126,11 +125,7 @@ export default function PositionCreate({}) {
 		setExpirationDate(toDate(selectedPosition.expiration));
 		setLiquidationPrice(liqPrice.toString());
 
-		const loanDetails = getLoanDetailsByCollateralAndLiqPrice(
-			selectedPosition,
-			BigInt(selectedPosition.minimumCollateral),
-			liqPrice,
-		);
+		const loanDetails = getLoanDetailsByCollateralAndLiqPrice(selectedPosition, BigInt(selectedPosition.minimumCollateral), liqPrice);
 
 		setLoanDetails(loanDetails);
 		setBorrowedAmount(loanDetails.amountToSendToWallet.toString());
@@ -150,11 +145,7 @@ export default function PositionCreate({}) {
 
 		if (!selectedPosition) return;
 
-		const loanDetails = getLoanDetailsByCollateralAndLiqPrice(
-			selectedPosition,
-			BigInt(collateralAmount),
-			BigInt(value),
-		);
+		const loanDetails = getLoanDetailsByCollateralAndLiqPrice(selectedPosition, BigInt(collateralAmount), BigInt(value));
 		setLoanDetails(loanDetails);
 		setBorrowedAmount(loanDetails.amountToSendToWallet.toString());
 	};
@@ -187,7 +178,13 @@ export default function PositionCreate({}) {
 				address: ADDRESS[chainId].mintingHubGateway,
 				abi: MintingHubGatewayABI,
 				functionName: "clone",
-				args: [selectedPosition.position, BigInt(collateralAmount), loanDetails.loanAmount, toTimestamp(expirationDate), frontendCode],
+				args: [
+					selectedPosition.position,
+					BigInt(collateralAmount),
+					loanDetails.loanAmount,
+					toTimestamp(expirationDate),
+					frontendCode,
+				],
 			});
 
 			const toastContent = [
@@ -239,22 +236,20 @@ export default function PositionCreate({}) {
 
 	const parseCloneEventLogs = (logs: Log[]) => {
 		try {
-			const cloneEventLog = logs.find(log => 
-				log.address.toLowerCase() === ADDRESS[chainId].mintingHubGateway.toLowerCase()
-			);
-			
+			const cloneEventLog = logs.find((log) => log.address.toLowerCase() === ADDRESS[chainId].mintingHubGateway.toLowerCase());
+
 			if (cloneEventLog) {
 				const decodedLog = decodeEventLog({
 					abi: MintingHubGatewayABI,
 					data: cloneEventLog.data,
 					topics: cloneEventLog.topics,
 				});
-				
-				if (decodedLog.eventName === 'PositionOpened') {
+
+				if (decodedLog.eventName === "PositionOpened") {
 					return decodedLog.args.position as Address;
 				}
 			}
-			
+
 			return null;
 		} catch (error) {
 			return null;
@@ -305,106 +300,105 @@ export default function PositionCreate({}) {
 
 	return (
 		<div className="md:mt-8 flex justify-center">
-			<AppCard className="max-w-lg p-4 flex-col justify-start items-center gap-8 inline-flex overflow-hidden">
-				<div className="self-stretch justify-center items-center gap-1.5 inline-flex">
-					<div className="text-text-title text-xl font-black ">
-						{t("mint.symbol_borrow", { symbol: TOKEN_SYMBOL })}
+			<div className="max-w-lg w-[32rem]">
+				<AppCard className="w-full p-4 flex-col justify-start items-center gap-8 flex">
+					<div className="self-stretch justify-center items-center gap-1.5 inline-flex">
+						<div className="text-text-title text-xl font-black ">{t("mint.symbol_borrow", { symbol: TOKEN_SYMBOL })}</div>
 					</div>
-				</div>
-
-				<div className="self-stretch flex-col justify-start items-center gap-1 flex">
-					<InputTitle icon={faCircleQuestion}>{t("mint.select_collateral")}</InputTitle>
-					<TokenInputSelectOutlined
-						selectedToken={selectedCollateral}
-						onSelectTokenClick={() => setIsOpenTokenSelector(true)}
-						value={collateralAmount}
-						onChange={onAmountCollateralChange}
-						usdValue={collateralUsdValue}
-						eurValue={collateralEurValue}
-						isError={isCollateralError}
-						errorMessage={`${t("mint.error.must_be_at_least_the_minimum_amount")} (${formatBigInt(BigInt(selectedPosition?.minimumCollateral || 0n))} ${selectedPosition?.collateralSymbol})`}
-					/>
-					<TokenSelectModal
-						title={t("mint.token_select_modal_title")}
-						isOpen={isOpenTokenSelector}
-						setIsOpen={setIsOpenTokenSelector}
-						options={balances}
-						onTokenSelect={handleOnSelectedToken}
-					/>
-				</div>
-				<div className="self-stretch flex-col justify-start items-center gap-1 flex">
-					<InputTitle icon={faCircleQuestion}>{t("mint.select_liquidation_price")}</InputTitle>
-					<SliderInputOutlined
-						value={liquidationPrice}
-						onChange={onLiquidationPriceChange}
-						min={BigInt(0)}
-						max={maxLiquidationPrice}
-						decimals={selectedPosition?.collateralDecimals || 0}
-						isError={isLiquidationPriceTooHigh}
-						errorMessage={t("mint.liquidation_price_too_high")}
-					/>
-				</div>
-				<div className="self-stretch flex-col justify-start items-center gap-1.5 flex">
-					<InputTitle>{t("mint.set_expiration_date")}</InputTitle>
-					<DateInputOutlined
-						value={expirationDate}
-						maxDate={expirationDate}
-						placeholderText="YYYY-MM-DD"
-						onChange={setExpirationDate}
-						rightAdornment={expirationDate ? <MaxButton onClick={handleMaxExpirationDate} /> : null}
-					/>
-					<div className="self-stretch text-xs font-medium leading-normal">{t("mint.expiration_date_description")}</div>
-				</div>
-				<div className="self-stretch flex-col justify-start items-start gap-4 flex">
+					<div className="self-stretch flex-col justify-start items-center gap-1 flex">
+						<InputTitle icon={faCircleQuestion}>{t("mint.select_collateral")}</InputTitle>
+						<TokenInputSelectOutlined
+							selectedToken={selectedCollateral}
+							onSelectTokenClick={() => setIsOpenTokenSelector(true)}
+							value={collateralAmount}
+							onChange={onAmountCollateralChange}
+							usdValue={collateralUsdValue}
+							eurValue={collateralEurValue}
+							isError={isCollateralError}
+							errorMessage={`${t("mint.error.must_be_at_least_the_minimum_amount")} (${formatBigInt(
+								BigInt(selectedPosition?.minimumCollateral || 0n)
+							)} ${selectedPosition?.collateralSymbol})`}
+						/>
+						<TokenSelectModal
+							title={t("mint.token_select_modal_title")}
+							isOpen={isOpenTokenSelector}
+							setIsOpen={setIsOpenTokenSelector}
+							options={balances}
+							onTokenSelect={handleOnSelectedToken}
+						/>
+					</div>
+					<div className="self-stretch flex-col justify-start items-center gap-1 flex">
+						<InputTitle icon={faCircleQuestion}>{t("mint.select_liquidation_price")}</InputTitle>
+						<SliderInputOutlined
+							value={liquidationPrice}
+							onChange={onLiquidationPriceChange}
+							min={BigInt(0)}
+							max={maxLiquidationPrice}
+							decimals={selectedPosition?.collateralDecimals || 0}
+							isError={isLiquidationPriceTooHigh}
+							errorMessage={t("mint.liquidation_price_too_high")}
+						/>
+					</div>
 					<div className="self-stretch flex-col justify-start items-center gap-1.5 flex">
-						<InputTitle>{t("mint.you_get")}</InputTitle>
-						<NormalInputOutlined value={borrowedAmount} onChange={onYouGetChange} decimals={18} />
+						<InputTitle>{t("mint.set_expiration_date")}</InputTitle>
+						<DateInputOutlined
+							value={expirationDate}
+							maxDate={expirationDate}
+							placeholderText="YYYY-MM-DD"
+							onChange={setExpirationDate}
+							rightAdornment={expirationDate ? <MaxButton onClick={handleMaxExpirationDate} /> : null}
+						/>
+						<div className="self-stretch text-xs font-medium leading-normal">{t("mint.expiration_date_description")}</div>
 					</div>
-					<DetailsExpandablePanel loanDetails={loanDetails} collateralPriceDeuro={collateralPriceDeuro} />
-				</div>
-				<GuardToAllowedChainBtn label={t("mint.symbol_borrow", { symbol: TOKEN_SYMBOL })}>
-					{  !selectedCollateral ? (
-						<Button
-							className="!p-4 text-lg font-extrabold leading-none"
-							onClick={handleOnClonePosition}
-							disabled={!selectedPosition || !selectedCollateral || isLiquidationPriceTooHigh}
-					>
-						
-							
-								{ t("common.receive") + " 0.00 " + TOKEN_SYMBOL}
-						</Button>
-					) : userAllowance > BigInt(collateralAmount) ? (
-						<Button
-							className="!p-4 text-lg font-extrabold leading-none"
-							onClick={handleOnClonePosition}
-							disabled={!selectedPosition || !selectedCollateral || isLiquidationPriceTooHigh || isCollateralError}
-						>
-							{isLiquidationPriceTooHigh
-								? t("mint.your_liquidation_price_is_too_high")
-								: t("common.receive") + " " + formatCurrency(formatUnits(BigInt(borrowedAmount), 18), 2)}
-						</Button>
-					) : (
-						<Button className="!p-4 text-lg font-extrabold leading-none" onClick={handleApprove} isLoading={isApproving}>
-							{t("common.approve")}
-						</Button>
-					)}
-				</GuardToAllowedChainBtn>
-				<BorrowingDEUROModal
-					isOpen={isOpenBorrowingDEUROModal}
-					setIsOpen={setIsOpenBorrowingDEUROModal}
-					youGet={formatCurrency(formatUnits(BigInt(borrowedAmount), 18), 2)}
-					liquidationPrice={formatCurrency(
-						formatUnits(BigInt(liquidationPrice), 36 - (selectedPosition?.collateralDecimals || 0)),
-						2
-					)}
-					expiration={expirationDate}
-					formmatedCollateral={`${formatUnits(BigInt(collateralAmount), 36 - (selectedPosition?.collateralDecimals || 0))} ${
-						selectedPosition?.collateralSymbol
-					}`}
-					isSuccess={isCloneSuccess}
-					isLoading={isCloneLoading}
-				/>
-			</AppCard>
+					<div className="self-stretch flex-col justify-start items-start gap-4 flex">
+						<div className="self-stretch flex-col justify-start items-center gap-1.5 flex">
+							<InputTitle>{t("mint.you_get")}</InputTitle>
+							<NormalInputOutlined value={borrowedAmount} onChange={onYouGetChange} decimals={18} />
+						</div>
+						<DetailsExpandablePanel loanDetails={loanDetails} collateralPriceDeuro={collateralPriceDeuro} />
+					</div>
+					<GuardToAllowedChainBtn label={t("mint.symbol_borrow", { symbol: TOKEN_SYMBOL })}>
+						{!selectedCollateral ? (
+							<Button
+								className="!p-4 text-lg font-extrabold leading-none"
+								onClick={handleOnClonePosition}
+								disabled={!selectedPosition || !selectedCollateral || isLiquidationPriceTooHigh}
+							>
+								{t("common.receive") + " 0.00 " + TOKEN_SYMBOL}
+							</Button>
+						) : userAllowance > BigInt(collateralAmount) ? (
+							<Button
+								className="!p-4 text-lg font-extrabold leading-none"
+								onClick={handleOnClonePosition}
+								disabled={!selectedPosition || !selectedCollateral || isLiquidationPriceTooHigh || isCollateralError}
+							>
+								{isLiquidationPriceTooHigh
+									? t("mint.your_liquidation_price_is_too_high")
+									: t("common.receive") + " " + formatCurrency(formatUnits(BigInt(borrowedAmount), 18), 2)}
+							</Button>
+						) : (
+							<Button className="!p-4 text-lg font-extrabold leading-none" onClick={handleApprove} isLoading={isApproving}>
+								{t("common.approve")}
+							</Button>
+						)}
+					</GuardToAllowedChainBtn>
+					<BorrowingDEUROModal
+						isOpen={isOpenBorrowingDEUROModal}
+						setIsOpen={setIsOpenBorrowingDEUROModal}
+						youGet={formatCurrency(formatUnits(BigInt(borrowedAmount), 18), 2)}
+						liquidationPrice={formatCurrency(
+							formatUnits(BigInt(liquidationPrice), 36 - (selectedPosition?.collateralDecimals || 0)),
+							2
+						)}
+						expiration={expirationDate}
+						formmatedCollateral={`${formatUnits(BigInt(collateralAmount), 36 - (selectedPosition?.collateralDecimals || 0))} ${
+							selectedPosition?.collateralSymbol
+						}`}
+						isSuccess={isCloneSuccess}
+						isLoading={isCloneLoading}
+					/>
+				</AppCard>
+			</div>
 		</div>
 	);
 }

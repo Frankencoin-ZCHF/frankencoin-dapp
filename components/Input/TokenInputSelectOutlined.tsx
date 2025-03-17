@@ -59,7 +59,7 @@ export function TokenInputSelectOutlined({
 				<div className="self-stretch justify-start items-center gap-3 inline-flex">
 					<div className="grow h-11 px-2 py-3 bg-white rounded-lg justify-start items-center flex min-w-0">
 						<BigNumberInput
-							className={`pl-0 text-input-primary placeholder:text-input-placeholder text-2xl font-medium leading-tight ${
+							className={`w-full pl-0 text-input-primary placeholder:text-input-placeholder text-2xl font-medium leading-tight ${
 								isError ? "!text-text-warning" : ""
 							}`}
 							placeholder="0"

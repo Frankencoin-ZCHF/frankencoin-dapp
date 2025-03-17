@@ -24,6 +24,7 @@ import { writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import { TxToast } from "@components/TxToast";
 import { DetailsExpandablePanel } from "@components/DetailsExpandablePanel";
+import { SvgIconButton } from "./PlusMinusButtons";
 
 export const BorrowedManageSection = () => {
 	const [amount, setAmount] = useState("");
@@ -289,26 +290,12 @@ export const BorrowedManageSection = () => {
 						</div>
 					</div>
 					<div className="flex flex-col sm:flex-row justify-end items-start sm:items-center">
-						<button className="px-2 flex flex-row gap-x-1 items-center py-1" onClick={() => setIsBorrowMore(true)}>
-							<AddCircleOutlineIcon color={isBorrowMore ? "#065DC1" : "#8B92A8"} />
-							<span
-								className={`mt-0.5 ${
-									isBorrowMore ? "text-button-textGroup-primary-text" : "text-button-textGroup-secondary-text"
-								} text-base font-extrabold leading-tight`}
-							>
-								{t("mint.borrow_more")}
-							</span>
-						</button>
-						<button className="px-2 flex flex-row gap-x-1 items-center py-1" onClick={() => setIsBorrowMore(false)}>
-							<RemoveCircleOutlineIcon color={isBorrowMore ? "#8B92A8" : "#065DC1"} />
-							<span
-								className={`mt-0.5 ${
-									isBorrowMore ? "text-button-textGroup-secondary-text" : "text-button-textGroup-primary-text"
-								} text-base font-extrabold leading-tight`}
-							>
-								{t("mint.pay_back")}
-							</span>
-						</button>
+						<SvgIconButton isSelected={isBorrowMore} onClick={() => setIsBorrowMore(true)} SvgComponent={AddCircleOutlineIcon}>
+							{t("mint.borrow_more")}
+						</SvgIconButton>
+						<SvgIconButton isSelected={!isBorrowMore} onClick={() => setIsBorrowMore(false)} SvgComponent={RemoveCircleOutlineIcon}>
+							{t("mint.pay_back")}
+						</SvgIconButton>
 					</div>
 				</div>
 				<div className="w-full">

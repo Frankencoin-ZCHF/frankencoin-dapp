@@ -22,6 +22,7 @@ import { renderErrorTxToast } from "@components/TxToast";
 import { TxToast } from "@components/TxToast";
 import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import { DetailsExpandablePanel } from "@components/DetailsExpandablePanel";
+import { SvgIconButton } from "@components/PageMint/PlusMinusButtons";
 
 export const CollateralManageSection = () => {
 	const router = useRouter();
@@ -92,7 +93,8 @@ export const CollateralManageSection = () => {
 	const balanceDEURO: number = Math.round(((balance * collTokenPrice) / deuroPrice) * 100) / 100;
 	const liquidationDEURO: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
 	const liquidationPct: number = Math.round((balanceDEURO / (liquidationDEURO * balance)) * 10000) / 100;
-	const maxToRemoveThreshold = balanceOf - (debt * 10n ** BigInt(position.collateralDecimals) / price) - BigInt(position.minimumCollateral);
+	const maxToRemoveThreshold =
+		balanceOf - (debt * 10n ** BigInt(position.collateralDecimals)) / price - BigInt(position.minimumCollateral);
 	const maxToRemove = maxToRemoveThreshold > 0n ? maxToRemoveThreshold : 0n;
 
 	const handleAddMax = () => {
@@ -266,8 +268,7 @@ export const CollateralManageSection = () => {
 						<TokenLogo currency={position.collateralSymbol} />
 						<div className="flex flex-col">
 							<span className="text-base font-extrabold leading-tight">
-								<span className="">{formatUnits(balanceOf, position.collateralDecimals)}</span>{" "}
-								{position.collateralSymbol}
+								<span className="">{formatUnits(balanceOf, position.collateralDecimals)}</span> {position.collateralSymbol}
 							</span>
 							<span className="text-xs font-medium text-text-muted2 leading-[1rem]">
 								{formatCurrency(collateralValuation)} dEURO
@@ -275,26 +276,12 @@ export const CollateralManageSection = () => {
 						</div>
 					</div>
 					<div className="flex flex-col sm:flex-row justify-end items-start sm:items-center">
-						<button className="px-2 flex flex-row gap-x-1 items-center py-1" onClick={() => setIsAdd(true)}>
-							<AddCircleOutlineIcon color={isAdd ? "#065DC1" : "#8B92A8"} />
-							<span
-								className={`mt-0.5 ${
-									isAdd ? "text-button-textGroup-primary-text" : "text-button-textGroup-secondary-text"
-								} text-base font-extrabold leading-tight`}
-							>
-								{t("common.add")}
-							</span>
-						</button>
-						<button className="px-2 flex flex-row gap-x-1 items-center py-1" onClick={() => setIsAdd(false)}>
-							<RemoveCircleOutlineIcon color={isAdd ? "#8B92A8" : "#065DC1"} />
-							<span
-								className={`mt-0.5 ${
-									isAdd ? "text-button-textGroup-secondary-text" : "text-button-textGroup-primary-text"
-								} text-base font-extrabold leading-tight`}
-							>
-								{t("common.remove")}
-							</span>
-						</button>
+						<SvgIconButton isSelected={isAdd} onClick={() => setIsAdd(true)} SvgComponent={AddCircleOutlineIcon}>
+							{t("common.add")}
+						</SvgIconButton>
+						<SvgIconButton isSelected={!isAdd} onClick={() => setIsAdd(false)} SvgComponent={RemoveCircleOutlineIcon}>
+							{t("common.remove")}
+						</SvgIconButton>
 					</div>
 				</div>
 				<div className="w-full">
@@ -311,7 +298,8 @@ export const CollateralManageSection = () => {
 									{t(isAdd ? "mint.available_to_add" : "mint.available_to_remove")}:
 								</span>
 								<button className="text-text-labelButton font-extrabold" onClick={isAdd ? handleAddMax : handleRemoveMax}>
-									{formatUnits(isAdd ? walletBalance : maxToRemove, position.collateralDecimals)} {position.collateralSymbol}
+									{formatUnits(isAdd ? walletBalance : maxToRemove, position.collateralDecimals)}{" "}
+									{position.collateralSymbol}
 								</button>
 							</div>
 						}
@@ -324,7 +312,12 @@ export const CollateralManageSection = () => {
 				</div>
 			</div>
 			{allowance > BigInt(amount) ? (
-				<Button className="text-lg leading-snug !font-extrabold" onClick={isAdd ? handleAdd : handleRemove} isLoading={isTxOnGoing} disabled={Boolean(error) || !Boolean(amount)}>
+				<Button
+					className="text-lg leading-snug !font-extrabold"
+					onClick={isAdd ? handleAdd : handleRemove}
+					isLoading={isTxOnGoing}
+					disabled={Boolean(error) || !Boolean(amount)}
+				>
 					{t(isAdd ? "mint.add_collateral" : "mint.remove_collateral")}
 				</Button>
 			) : (

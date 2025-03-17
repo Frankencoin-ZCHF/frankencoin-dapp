@@ -22,13 +22,11 @@ export default function Button({ size = "md", width, className, onClick, isLoadi
 			<button
 				className={`
 					btn
-					hover:bg-button-primary-hover-bg
-					hover:text-button-primary-hover-text
 					${className} ${sizeClass}
 				 	${
 						disabled || isLoading
 							? "font-medium cursor-not-allowed bg-button-primary-disabled-bg text-button-primary-disabled-text"
-							: "font-extrabold bg-button-primary-default-bg text-button-primary-default-text"
+							: "font-extrabold bg-button-primary-default-bg text-button-primary-default-text hover:bg-button-primary-hover-bg hover:text-button-primary-hover-text"
 					} 
 					${width ?? "w-full"}`}
 				onClick={(e) => !disabled && !isLoading && onClick?.(e)}
