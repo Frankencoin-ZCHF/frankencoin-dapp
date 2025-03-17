@@ -19,6 +19,8 @@ import AppTitle from "@components/AppTitle";
 import Link from "next/link";
 import PositionRollerTable from "@components/PageMypositions/PositionRollerTable";
 import AppCard from "@components/AppCard";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -421,11 +423,13 @@ export default function PositionAdjust() {
 									<div className="flex-1 text-text-secondary">
 										<span>Address</span>
 									</div>
-									<div className="text-right">
-										<Link className="underline" href={`/monitoring/${position.position}`}>
-											{shortenAddress(position.position)}
-										</Link>
-									</div>
+									<Link
+										className="flex items-center justify-end font-black text-card-input-max hover:text-card-input-hover"
+										href={`/monitoring/${position.position}`}
+									>
+										<div className="underline">{shortenAddress(position.position)}</div>
+										<FontAwesomeIcon icon={faCircleArrowRight} className="w-3 ml-2" />
+									</Link>
 								</div>
 							</div>
 
@@ -545,9 +549,9 @@ export default function PositionAdjust() {
 				<>
 					<AppTitle title={`Renewal`}>
 						<div className="text-text-secondary">
-							You can renew positions by rolling them into suitable new ones with the same collateral. When rolling, the owed amount will be
-							increased by the up-front interest for the new position and any excess collateral paid out to your address. If you want to reduce
-							the outstanding amount, you should do that before rolling.
+							You can renew positions by rolling them into suitable new ones with the same collateral. When rolling, the owed
+							amount will be increased by the up-front interest for the new position and any excess collateral paid out to
+							your address. If you want to reduce the outstanding amount, you should do that before rolling.
 						</div>
 					</AppTitle>
 

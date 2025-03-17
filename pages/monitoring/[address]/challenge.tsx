@@ -22,7 +22,7 @@ import { useRouter as useNavigation } from "next/navigation";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 export default function PositionChallenge() {
 	const [amount, setAmount] = useState(0n);
@@ -267,15 +267,15 @@ export default function PositionChallenge() {
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Target Position" />
 								<Link
-									className="flex items-center justify-end underline text-lg pt-2"
+									className="flex items-center justify-end pt-2 font-black text-card-input-max hover:text-card-input-hover"
 									href={`/monitoring/${position.position}`}
 								>
-									{shortenAddress(position.position || zeroAddress)}
-									<FontAwesomeIcon icon={faArrowRight} className="w-3 ml-3" />
+									<div className="underline">{shortenAddress(position.position || zeroAddress)}</div>
+									<FontAwesomeIcon icon={faCircleArrowRight} className="w-3 ml-2" />
 								</Link>
 							</AppBox>
 						</div>
-						<div className="mx-auto mt-4 w-72 max-w-full flex-col">
+						<div className="mx-auto mt-4 w-[20rem] max-w-full flex-col">
 							<GuardToAllowedChainBtn label={amount > userAllowance ? "Approve" : "Challenge"}>
 								{amount > userAllowance ? (
 									<Button isLoading={isApproving} disabled={!!error} onClick={() => handleApprove()}>

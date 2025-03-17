@@ -92,7 +92,7 @@ export default function DateInput({
 
 						{!disabled && max != undefined && (
 							<div
-								className="text-card-input-max cursor-pointer hover:text-card-input-focus"
+								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
 									if (max !== undefined) {
 										onChange(max);
@@ -105,7 +105,7 @@ export default function DateInput({
 						)}
 						{!disabled && min != undefined && (
 							<div
-								className="text-card-input-min cursor-pointer hover:text-card-input-focus"
+								className="text-card-input-min cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
 									if (min !== undefined) {
 										onChange(min);
@@ -118,7 +118,7 @@ export default function DateInput({
 						)}
 						{!disabled && reset != undefined && reset != value && (
 							<div
-								className="text-card-input-max cursor-pointer hover:text-card-input-focus"
+								className="text-card-input-reset cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
 									if (reset !== undefined) {
 										onChange(reset);

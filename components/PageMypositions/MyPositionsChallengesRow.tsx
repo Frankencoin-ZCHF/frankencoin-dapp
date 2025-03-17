@@ -78,7 +78,7 @@ export default function MyPositionsChallengesRow({ headers, tab, challenge }: Pr
 					<span className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</span>
-					<span className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(challengeRemainingSize, 2, 2)} ${
+					<span className={`col-span-2 text-md`}>{`${formatCurrency(challengeRemainingSize, 2, 2)} ${
 						position.collateralSymbol
 					}`}</span>
 				</div>
@@ -88,9 +88,7 @@ export default function MyPositionsChallengesRow({ headers, tab, challenge }: Pr
 					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</div>
-					<div className={`col-span-2 text-md text-text-primary font-semibold`}>{`${formatCurrency(challengeRemainingSize)} ${
-						position.collateralSymbol
-					}`}</div>
+					<div className={`col-span-2 text-md`}>{`${formatCurrency(challengeRemainingSize)} ${position.collateralSymbol}`}</div>
 				</AppBox>
 			</div>
 

@@ -18,9 +18,10 @@ import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { RootState } from "../../../redux/redux.store";
 import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { faArrowUpRightFromSquare, faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { useRouter as useNavigation } from "next/navigation";
 import { ADDRESS, FrankencoinABI, MintingHubV2ABI } from "@frankencoin/zchf";
+import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 
 export default function MonitoringForceSell() {
 	const [isInit, setInit] = useState(false);
@@ -208,33 +209,35 @@ export default function MonitoringForceSell() {
 							<AppBox>
 								<DisplayLabel label="Owner" />
 								<Link
-									className="text-link"
+									className="flex items-center justify-end pt-2 font-black text-card-input-max hover:text-card-input-hover"
 									href={ContractUrl(position.owner, WAGMI_CHAIN)}
 									target="_blank"
 									rel="noreferrer"
 								>
-									<div className="">
-										{shortenAddress(position.owner)}
-										<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
-									</div>
+									<div className="underline">{shortenAddress(position.owner)}</div>
+									<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
 								</Link>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Position" />
-								<Link className="text-link" href={`/monitoring/${position.position}`}>
-									<div className="">{shortenAddress(position.position)}</div>
+								<Link
+									className="flex items-center justify-end pt-2 font-black text-card-input-max hover:text-card-input-hover"
+									href={`/monitoring/${position.position}`}
+								>
+									<div className="underline">{shortenAddress(position.position || zeroAddress)}</div>
+									<FontAwesomeIcon icon={faCircleArrowRight} className="w-3 ml-2" />
 								</Link>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="From 10x price decline until" />
-								<div>{formatDateTime(declineOnePriceTimestamp / 1000) || "---"}</div>
+								<DisplayOutputAlignedRight output={"-"} />
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Reaching zero at" />
-								{formatDateTime(zeroPriceTimestamp / 1000) || "---"}
+								<DisplayOutputAlignedRight output={formatDateTime(zeroPriceTimestamp / 1000) || "-"} />
 							</AppBox>
 						</div>
-						<div className="mx-auto mt-4 w-72 max-w-full flex-col">
+						<div className="mx-auto mt-4 w-[20rem] max-w-full flex-col">
 							{/* Override lable here */}
 							<GuardToAllowedChainBtn label="Force Sell">
 								<Button

@@ -12,7 +12,7 @@ export default function NavButton({ to, name, external }: Props) {
 	const active = router.pathname.includes(to);
 	return (
 		<Link
-			className={`flex md:btn md:btn-nav md:py-2 max-md:py-[10px] max-md:pl-[16px] max-md:w-[160px] max-md:text-left hover:text-menu-hover font-medium ${
+			className={`flex md:btn md:btn-nav md:py-2 max-md:py-[10px] max-md:pl-[16px] max-md:w-[160px] max-md:text-left hover:bg-menu-hover hover:text-menu-text font-medium ${
 				active ? "text-menu-textactive bg-menu-active rounded-lg font-semibold" : "text-menu-text"
 			}`}
 			href={to}

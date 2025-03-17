@@ -174,7 +174,7 @@ export default function TokenInputSelect({
 
 						{!disabled && max != undefined && (
 							<div
-								className="text-card-input-max cursor-pointer hover:text-card-input-focus"
+								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
 									if (max !== undefined) {
 										onChange(max.toString());
@@ -187,7 +187,7 @@ export default function TokenInputSelect({
 						)}
 						{!disabled && min != undefined && (
 							<div
-								className="text-card-input-min cursor-pointer hover:text-card-input-focus"
+								className="text-card-input-min cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
 									if (min !== undefined) {
 										onChange(min.toString());
@@ -200,7 +200,7 @@ export default function TokenInputSelect({
 						)}
 						{!disabled && reset != undefined && reset != BigInt(value) && (
 							<div
-								className="text-card-input-max cursor-pointer hover:text-card-input-focus"
+								className="text-card-input-reset cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
 									if (reset !== undefined) {
 										onChange(reset.toString());

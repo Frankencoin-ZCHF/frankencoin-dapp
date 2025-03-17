@@ -32,7 +32,7 @@ export default function DisplayCollateralBorrowTable({ bold = true, symbol, symb
 				</div>
 
 				<div className="flex flex-col">
-					<span className={`text-left ${bold && "font-bold"}`}>
+					<span className={`text-left`}>
 						{symbol}
 						<span className="text-xs font-normal">{` ${symbolTiny}`}</span>
 						<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2 cursor-pointer" />

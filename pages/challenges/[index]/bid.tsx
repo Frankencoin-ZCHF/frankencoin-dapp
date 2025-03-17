@@ -22,6 +22,7 @@ import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useRouter as useNavigation } from "next/navigation";
 import { ADDRESS, FrankencoinABI, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import { ChallengesId } from "@frankencoin/api";
+import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 
 export default function ChallengePlaceBid() {
 	const [isInit, setInit] = useState(false);
@@ -205,7 +206,6 @@ export default function ChallengePlaceBid() {
 									currency={position.collateralSymbol}
 									address={position.collateral}
 									digits={position.collateralDecimals}
-									className="mt-4"
 								/>
 							</AppBox>
 							<AppBox>
@@ -215,7 +215,6 @@ export default function ChallengePlaceBid() {
 									digits={36 - position.collateralDecimals}
 									address={ADDRESS[chainId].frankenCoin}
 									currency={"ZCHF"}
-									className="mt-4"
 								/>
 							</AppBox>
 							<AppBox>
@@ -225,30 +224,27 @@ export default function ChallengePlaceBid() {
 									currency={position.collateralSymbol}
 									address={position.collateral}
 									digits={position.collateralDecimals}
-									className="mt-4"
 								/>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Challenger" />
 								<Link
-									className="text-link"
+									className="flex items-center justify-end pt-2 font-black text-card-input-max hover:text-card-input-hover"
 									href={ContractUrl(challenge?.challenger || zeroAddress, WAGMI_CHAIN)}
 									target="_blank"
 									rel="noreferrer"
 								>
-									<div className="mt-4">
-										{shortenAddress(challenge?.challenger || zeroAddress)}
-										<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
-									</div>
+									<div className="underline">{shortenAddress(position.position || zeroAddress)}</div>
+									<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
 								</Link>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Fixed price until" />
-								<div>{formatDateTime(declineStartTimestamp / 1000) || "---"}</div>
+								<DisplayOutputAlignedRight output={formatDateTime(declineStartTimestamp / 1000) || "-"} />
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Reaching zero at" />
-								{formatDateTime(zeroPriceTimestamp / 1000) || "---"}
+								<DisplayOutputAlignedRight output={formatDateTime(zeroPriceTimestamp / 1000) || "---"} />
 							</AppBox>
 						</div>
 						<div className="mx-auto mt-4 w-72 max-w-full flex-col">

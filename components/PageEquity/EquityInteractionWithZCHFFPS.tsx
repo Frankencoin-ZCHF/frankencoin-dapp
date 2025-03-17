@@ -204,8 +204,6 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 		}
 	};
 
-	console.log(poolStats);
-
 	return (
 		<>
 			<div className="mt-8">

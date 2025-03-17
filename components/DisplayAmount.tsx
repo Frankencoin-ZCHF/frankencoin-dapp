@@ -35,9 +35,9 @@ export default function DisplayAmount({
 		<div className={className || "pt-2"}>
 			<div className="flex items-center gap-2">
 				{output != undefined ? (
-					<div className={`flex-1 text-text-primary ${bold && "font-bold"} ${big ? "text-xl" : "text-lg"}`}>{output}</div>
+					<div className={`flex-1 text-text-primary ${bold && "font-medium"} ${big ? "text-lg" : ""}`}>{output}</div>
 				) : (
-					<div className={`flex-1 text-text-primary ${bold && "font-bold"} ${big ? "text-xl" : "text-lg"}`}>
+					<div className={`flex-1 text-text-primary ${bold && "font-medium"} ${big ? "text-lg" : ""}`}>
 						{amount ? formatCurrency(typeof amount === "number" ? amount : formatUnits(amount, Number(digits))) : "0.00"}
 					</div>
 				)}

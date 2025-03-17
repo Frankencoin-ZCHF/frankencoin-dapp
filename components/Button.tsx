@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function Button({ size = "md", width, className, onClick, isLoading, children, disabled, error }: Props) {
-	const sizeClass = size == "sm" ? "text-sm px-2 py-1 md:px-3 md:py-1" : "px-3 py-3";
+	const sizeClass = size == "sm" ? "text-sm px-2 py-1 md:py-1" : "py-3";
 
 	return (
 		<>

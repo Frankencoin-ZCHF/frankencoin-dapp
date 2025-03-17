@@ -57,9 +57,9 @@ export default function MyPositionsBidsRow({ headers, tab, bid }: Props) {
 					<span className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</span>
-					<span className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(
-						formatUnits(bid.filledSize, position.collateralDecimals)
-					)} ${position.collateralSymbol}`}</span>
+					<span className={`col-span-2 text-md`}>{`${formatCurrency(formatUnits(bid.filledSize, position.collateralDecimals))} ${
+						position.collateralSymbol
+					}`}</span>
 				</div>
 
 				{/* mobile view */}
@@ -67,9 +67,9 @@ export default function MyPositionsBidsRow({ headers, tab, bid }: Props) {
 					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</div>
-					<div className={`col-span-2 text-md text-text-primary font-semibold`}>{`${formatCurrency(
-						formatUnits(bid.filledSize, position.collateralDecimals)
-					)} ${position.collateralSymbol}`}</div>
+					<div className={`col-span-2 text-md`}>{`${formatCurrency(formatUnits(bid.filledSize, position.collateralDecimals))} ${
+						position.collateralSymbol
+					}`}</div>
 				</AppBox>
 			</div>
 

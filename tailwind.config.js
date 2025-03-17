@@ -9,7 +9,7 @@ module.exports = {
 	],
 	theme: {
 		fontFamily: {
-			sans: ["Helvetica"],
+			default: ["Avenir"],
 		},
 		extend: {
 			height: {
@@ -31,7 +31,7 @@ module.exports = {
 					text: "#272B38",
 					textactive: "#272B38",
 					active: "#F0F1F5",
-					hover: "#B7BFD1",
+					hover: "#F5F6F9",
 					back: "#FFFFFF",
 					separator: "#EAEBF0",
 				},

@@ -8,7 +8,7 @@ import { formatDateTime, shortenAddress } from "@utils";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { useContractUrl } from "@hooks";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight, faArrowRightToBracket, faArrowUpRightFromSquare, faEye } from "@fortawesome/free-solid-svg-icons";
+import { faArrowUpRightFromSquare, faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import { CONFIG, WAGMI_CONFIG } from "../../../app.config";
@@ -130,12 +130,12 @@ export default function PositionDetail() {
 							<AppBox>
 								<DisplayLabel label="Owner" />
 								<Link
+									className="flex items-center justify-end pt-2 font-black text-card-input-max hover:text-card-input-hover"
 									href={ownerExplorerLink}
-									className="flex items-center justify-end underline text-lg pt-2"
 									target="_blank"
 								>
-									{shortenAddress(position.owner)}
-									<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-3" />
+									<div className="underline">{shortenAddress(position.owner)}</div>
+									<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
 									{/* <Link href={myPosLink} className="flex items-center underline ml-1">
 										<FontAwesomeIcon icon={faEye} className="w-3 mx-2" />
 									</Link> */}
@@ -162,19 +162,23 @@ export default function PositionDetail() {
 							<AppBox>
 								<DisplayLabel label="Smart Contract" />
 								<Link
+									className="flex items-center justify-end pt-2 font-black text-card-input-max hover:text-card-input-hover"
 									href={positionExplorerUrl}
-									className="flex items-center justify-end underline text-lg pt-2"
 									target="_blank"
 								>
-									{shortenAddress(position.position)}
-									<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-3" />
+									<div className="underline">{shortenAddress(position.position)}</div>
+									<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
 								</Link>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Parent Position" />
-								<Link href={parentLink} className="flex items-center justify-end underline text-lg pt-2" target="_blank">
-									{parentAddressInfo()}
-									<FontAwesomeIcon icon={faArrowRight} className="w-3 ml-3" />
+								<Link
+									className="flex items-center justify-end pt-2 font-black text-card-input-max hover:text-card-input-hover"
+									href={parentLink}
+									target="_blank"
+								>
+									<div className="underline">{parentAddressInfo()}</div>
+									<FontAwesomeIcon icon={faCircleArrowRight} className="w-3 ml-2" />
 								</Link>
 							</AppBox>
 						</div>
@@ -218,23 +222,19 @@ function ActiveAuctionsRow({ position, challenge }: Props) {
 	const remaining: number = parseFloat(formatUnits(challenge.size - challenge.filledSize, position.collateralDecimals));
 	return (
 		<AppBox className="flex-1 mt-4">
-			<div className={`relative flex flex-row gap-2`}>
-				<AppBox className="col-span-3">
-					<DisplayLabel label="Remaining Size" />
-					<DisplayAmount
-						amount={BigInt(challenge.size - challenge.filledSize)}
-						digits={position.collateralDecimals}
-						currency={position.collateralSymbol}
-						address={position.collateral}
-					/>
-				</AppBox>
+			<AppBox className="col-span-3">
+				<DisplayLabel label="Remaining Size" />
+				<DisplayAmount
+					amount={BigInt(challenge.size - challenge.filledSize)}
+					digits={position.collateralDecimals}
+					currency={position.collateralSymbol}
+					address={position.collateral}
+				/>
 
-				<div className="absolute right-4 bottom-6 w-20">
-					<Button className="h-10" onClick={() => navigate.push(`/challenges/${challenge.id}/bid`)}>
-						Bid
-					</Button>
-				</div>
-			</div>
+				<Button className="h-10 mt-6" onClick={() => navigate.push(`/challenges/${challenge.id}/bid`)}>
+					Bid
+				</Button>
+			</AppBox>
 		</AppBox>
 	);
 }
