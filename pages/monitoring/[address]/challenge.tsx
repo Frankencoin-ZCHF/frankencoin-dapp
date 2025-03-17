@@ -20,6 +20,9 @@ import { RootState } from "../../../redux/redux.store";
 import Link from "next/link";
 import { useRouter as useNavigation } from "next/navigation";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
+import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 export default function PositionChallenge() {
 	const [amount, setAmount] = useState(0n);
@@ -259,12 +262,16 @@ export default function PositionChallenge() {
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Phase duration" />
-								<div className="py-2 text-lg">{formatDuration(position.challengePeriod)}</div>
+								<DisplayOutputAlignedRight output={formatDuration(position.challengePeriod)} />
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Target Position" />
-								<Link className="text-link" href={`/monitoring/${position.position}`}>
-									<div className="py-2 text-lg">{shortenAddress(position.position || zeroAddress)}</div>
+								<Link
+									className="flex items-center justify-end underline text-lg pt-2"
+									href={`/monitoring/${position.position}`}
+								>
+									{shortenAddress(position.position || zeroAddress)}
+									<FontAwesomeIcon icon={faArrowRight} className="w-3 ml-3" />
 								</Link>
 							</AppBox>
 						</div>

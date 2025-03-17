@@ -16,6 +16,7 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
+import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -203,6 +204,8 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 		}
 	};
 
+	console.log(poolStats);
+
 	return (
 		<>
 			<div className="mt-8">
@@ -276,13 +279,17 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Holding Duration" />
-					<div className={`py-2 text-lg ${!unlocked ? "text-text-warning font-bold" : ""}`}>
-						{poolStats.equityBalance > 0 ? formatDuration(poolStats.equityHoldingDuration) : "-"}
-					</div>
+					<DisplayOutputAlignedRight
+						textColorOutput={!poolStats.equityCanRedeem ? "text-red-500" : undefined}
+						output={poolStats.equityBalance > 0 ? formatDuration(poolStats.equityHoldingDuration) : "-"}
+					/>
 				</AppBox>
 				<AppBox className="flex-1">
 					<DisplayLabel label="Can redeem after" />
-					<div className={`py-2 text-lg ${!unlocked ? "text-text-warning font-bold" : ""}`}>{formatDuration(redeemLeft)}</div>
+					<DisplayOutputAlignedRight
+						textColorOutput={!poolStats.equityCanRedeem ? "text-red-500" : undefined}
+						output={formatDuration(redeemLeft)}
+					/>
 				</AppBox>
 			</div>
 		</>

@@ -16,6 +16,7 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { ADDRESS, EquityABI, FPSWrapperABI } from "@frankencoin/zchf";
+import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -260,13 +261,17 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Holding Duration WFPS" />
-					<div className={`py-2 text-lg ${!unlocked ? "text-text-warning font-bold" : ""}`}>
-						{wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 10 ? formatDuration(wfpsHolding) : "-"}
-					</div>
+					<DisplayOutputAlignedRight
+						textColorOutput={!poolStats.equityCanRedeem ? "text-red-500" : undefined}
+						output={wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 10 ? formatDuration(wfpsHolding) : "-"}
+					/>
 				</AppBox>
 				<AppBox className="flex-1">
 					<DisplayLabel label="Can redeem after" />
-					<div className={`py-2 text-lg ${!unlocked ? "text-text-warning font-bold" : ""}`}>{formatDuration(redeemLeft)}</div>
+					<DisplayOutputAlignedRight
+						textColorOutput={!poolStats.equityCanRedeem ? "text-red-500" : undefined}
+						output={formatDuration(redeemLeft)}
+					/>
 				</AppBox>
 			</div>
 		</>

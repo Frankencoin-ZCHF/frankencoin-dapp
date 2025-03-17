@@ -9,6 +9,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { formatUnits, parseEther, parseUnits } from "viem";
+import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const Timeframes = ["All", "1Y", "1Q", "1M", "1W"];
@@ -201,7 +202,7 @@ export default function EquityFPSDetailsCard() {
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label={timeframe == "1Y" ? "Return on Equity" : "RoE (annualized from " + timeframe + ")"} />
-					<DisplayAmount amount={returnOnEquity * 100n} unit="%" />
+					<DisplayOutputAlignedRight amount={returnOnEquity * 100n} unit="%" />
 				</AppBox>
 			</div>
 		</div>

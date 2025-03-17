@@ -396,8 +396,8 @@ export default function PositionCreate({}) {
 							label="Initial Collateral"
 							symbol={collTokenData.symbol}
 							error={initialCollAmountError}
-							min={minCollAmount}
-							max={collTokenData.balance}
+							// min={minCollAmount}
+							// max={collTokenData.balance}
 							value={initialCollAmount.toString()}
 							onChange={onChangeInitialCollAmount}
 							digit={collTokenData.decimals}
@@ -411,9 +411,9 @@ export default function PositionCreate({}) {
 							hideMaxLabel
 							symbol="ZCHF"
 							error={limitAmountError}
-							min={parseEther("200000")}
-							max={parseEther("10000000")}
-							reset={parseEther("1000000")}
+							// min={parseEther("200000")}
+							// max={parseEther("10000000")}
+							// reset={parseEther("1000000")}
 							value={limitAmount.toString()}
 							onChange={onChangeLimitAmount}
 							placeholder="Amount"
@@ -442,14 +442,13 @@ export default function PositionCreate({}) {
 						<div className="text-lg font-bold text-center mt-3">Liquidation</div>
 						<TokenInput
 							label="Liquidation Price"
-							balanceLabel="Pick"
 							symbol="ZCHF"
 							error={liqPriceError}
 							digit={36n - collTokenData.decimals}
 							hideMaxLabel={minCollAmount == 0n}
-							min={minCollAmount == 0n ? 0n : (5000n * 10n ** 36n + minCollAmount - 1n) / minCollAmount / 2n}
-							max={minCollAmount == 0n ? 0n : (5000n * 15n * 10n ** 36n + minCollAmount - 1n) / minCollAmount / 10n}
-							reset={minCollAmount == 0n ? 0n : (5000n * 10n ** 36n + minCollAmount - 1n) / minCollAmount}
+							// min={minCollAmount == 0n ? 0n : (5000n * 10n ** 36n + minCollAmount - 1n) / minCollAmount / 2n}
+							// max={minCollAmount == 0n ? 0n : (5000n * 15n * 10n ** 36n + minCollAmount - 1n) / minCollAmount / 10n}
+							// reset={minCollAmount == 0n ? 0n : (5000n * 10n ** 36n + minCollAmount - 1n) / minCollAmount}
 							value={liqPrice.toString()}
 							onChange={onChangeLiqPrice}
 							placeholder="Price"

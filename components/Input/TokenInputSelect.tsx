@@ -163,10 +163,15 @@ export default function TokenInputSelect({
 
 				{limitLabel != undefined || max != undefined || min != undefined || reset != undefined ? (
 					<div className="flex flex-row gap-2 py-1">
-						{limitLabel != undefined && <div className="text-text-secondary">{limitLabel}</div>}
-						{limitLabel != undefined && (
-							<div className="text-text-primary truncate">{formatUnits(limit, Number(limitDigit))}</div>
-						)}
+						<div className="flex-1">
+							<div className="flex flex-row gap-2">
+								{limitLabel != undefined && <div className="text-text-secondary">{limitLabel}</div>}
+								{limitLabel != undefined && (
+									<div className="text-text-primary truncate">{formatUnits(limit, Number(limitDigit))}</div>
+								)}
+							</div>
+						</div>
+
 						{!disabled && max != undefined && (
 							<div
 								className="text-card-input-max cursor-pointer hover:text-card-input-focus"

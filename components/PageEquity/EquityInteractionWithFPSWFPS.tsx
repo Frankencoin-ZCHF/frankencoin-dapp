@@ -15,6 +15,7 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { ADDRESS, EquityABI, FPSWrapperABI } from "@frankencoin/zchf";
+import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -290,20 +291,20 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 					<DisplayAmount amount={fpsBalance} currency="FPS" address={ADDRESS[chainId].equity} />
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Holding Duration FPS" />
-					<div className="py-2 text-lg">
-						{fpsHolding > 0 && fpsHolding < 86_400 * 365 * 10 ? formatDuration(fpsHolding) : "-"}
-					</div>
-				</AppBox>
-				<AppBox>
 					<DisplayLabel label="Your Balance" />
 					<DisplayAmount amount={wfpsBalance} currency="WFPS" address={ADDRESS[chainId].wFPS} />
 				</AppBox>
 				<AppBox>
+					<DisplayLabel label="Holding Duration FPS" />
+					<DisplayOutputAlignedRight
+						output={fpsHolding > 0 && fpsHolding < 86_400 * 365 * 10 ? formatDuration(fpsHolding) : "-"}
+					/>
+				</AppBox>
+				<AppBox>
 					<DisplayLabel label="Holding Duration WFPS" />
-					<div className="py-2 text-lg">
-						{wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 10 ? formatDuration(wfpsHolding) : "-"}
-					</div>
+					<DisplayOutputAlignedRight
+						output={wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 10 ? formatDuration(wfpsHolding) : "-"}
+					/>
 				</AppBox>
 			</div>
 		</>
