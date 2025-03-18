@@ -213,7 +213,7 @@ export default function MonitoringForceSell() {
 								/>
 							</AppBox>
 							<AppBox>
-								<DisplayLabel label="Position" />
+								<DisplayLabel label="Target Position" />
 								<AppLink
 									label={shortenAddress(position.position || zeroAddress)}
 									href={`/monitoring/${position.position}`}

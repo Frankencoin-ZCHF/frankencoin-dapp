@@ -13,8 +13,8 @@ import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import DisplayLabel from "@components/DisplayLabel";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
-import { RootState } from "../../../redux/redux.store";
+import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../../app.config";
+import { RootState } from "../../../../redux/redux.store";
 import { useSelector } from "react-redux";
 import { useRouter as useNavigation } from "next/navigation";
 import { ADDRESS, FrankencoinABI, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
@@ -37,7 +37,9 @@ export default function ChallengePlaceBid() {
 	const navigate = useNavigation();
 
 	const chainId = useChainId();
-	const challengeId: ChallengesId = (String(router.query.index) as ChallengesId) || `${zeroAddress}-challenge-0`;
+	const addressQuery: Address = (router.query.address as string).toLowerCase() as Address;
+	const indexQuery: string = router.query.index as string;
+	const challengeId: ChallengesId = `${addressQuery ?? zeroAddress}-challenge-${BigInt(indexQuery)}`;
 
 	const challenges = useSelector((state: RootState) => state.challenges.list.list);
 	const positions = useSelector((state: RootState) => state.positions.list.list);
@@ -186,7 +188,9 @@ export default function ChallengePlaceBid() {
 								symbol={position.collateralSymbol}
 								error={error}
 								placeholder="Collateral Amount"
-								balanceLabel="Available:"
+								limitLabel="Available"
+								limitDigit={position.collateralDecimals}
+								limit={remainingSize}
 							/>
 							<div className="flex flex-col">
 								<span>Your balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} ZCHF</span>
@@ -230,6 +234,22 @@ export default function ChallengePlaceBid() {
 									label={shortenAddress(challenge?.challenger || zeroAddress)}
 									href={ContractUrl(challenge?.challenger || zeroAddress, WAGMI_CHAIN)}
 									external={true}
+								/>
+							</AppBox>
+							<AppBox>
+								<DisplayLabel label="Owner" />
+								<AppLink
+									label={shortenAddress(position.owner)}
+									href={ContractUrl(position.owner, WAGMI_CHAIN)}
+									external={true}
+								/>
+							</AppBox>
+							<AppBox>
+								<DisplayLabel label="Target Position" />
+								<AppLink
+									label={shortenAddress(position.position || zeroAddress)}
+									href={`/monitoring/${position.position}`}
+									external={false}
 								/>
 							</AppBox>
 							<AppBox>

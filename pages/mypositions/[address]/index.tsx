@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { formatUnits, maxUint256, erc20Abi, Address, parseEther } from "viem";
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
-import { abs, bigIntMax, bigIntMin, ContractUrl, formatBigInt, formatCurrency, shortenAddress } from "@utils";
+import { abs, bigIntMax, bigIntMin, ContractUrl, formatBigInt, formatCurrency, formatDuration, shortenAddress } from "@utils";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -283,6 +283,8 @@ export default function PositionAdjust() {
 
 	const expirationDateArr: string[] = new Date(position.expiration * 1000).toDateString().split(" ");
 	const expirationDateStr: string = `${expirationDateArr[2]} ${expirationDateArr[1]} ${expirationDateArr[3]}`;
+	const expirationDiff: number = Math.round((position.expiration * 1000 - Date.now()) / 1000);
+	const expiredIn: string = expirationDiff > 0 ? formatDuration(expirationDiff) : "Expired";
 
 	// Minted Min
 	const mintedMin = bigIntMax(
@@ -352,7 +354,7 @@ export default function PositionAdjust() {
 
 			<AppTitle title={`Manage Position `}>
 				<div className="text-text-secondary">
-					Manage your position with details{" "}
+					Manage your position with address{" "}
 					<AppLink
 						label={shortenAddress(position.position) + "."}
 						href={`/monitoring/${position.position}`}
@@ -360,7 +362,12 @@ export default function PositionAdjust() {
 						className="pr-1"
 					/>
 					View the Smart Contract in the explorer{" "}
-					<AppLink label={"explorer."} href={ContractUrl(position.position)} external={true} className="pr-1" />
+					<AppLink
+						label={shortenAddress(position.position) + "."}
+						href={ContractUrl(position.position)}
+						external={true}
+						className="pr-1"
+					/>
 				</div>
 			</AppTitle>
 
@@ -427,13 +434,9 @@ export default function PositionAdjust() {
 								</div>
 								<div className="flex mt-2">
 									<div className="flex-1 text-text-secondary">
-										<span>Address</span>
+										<span>Expired in</span>
 									</div>
-									<AppLink
-										className=""
-										label={shortenAddress(position.position)}
-										href={`/monitoring/${position.position}`}
-									></AppLink>
+									<div className="text-right">{expiredIn}</div>
 								</div>
 							</div>
 
