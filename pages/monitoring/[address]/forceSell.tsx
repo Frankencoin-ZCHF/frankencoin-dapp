@@ -6,7 +6,6 @@ import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { ContractUrl, formatBigInt, formatCurrency, formatDateTime, shortenAddress } from "@utils";
-import Link from "next/link";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -17,11 +16,10 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { RootState } from "../../../redux/redux.store";
 import { useSelector } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowUpRightFromSquare, faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { useRouter as useNavigation } from "next/navigation";
 import { ADDRESS, FrankencoinABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
+import AppLink from "@components/AppLink";
 
 export default function MonitoringForceSell() {
 	const [isInit, setInit] = useState(false);
@@ -208,29 +206,23 @@ export default function MonitoringForceSell() {
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Owner" />
-								<Link
-									className="flex items-center justify-end pt-2 font-black text-card-input-max hover:text-card-input-hover"
+								<AppLink
+									label={shortenAddress(position.owner)}
 									href={ContractUrl(position.owner, WAGMI_CHAIN)}
-									target="_blank"
-									rel="noreferrer"
-								>
-									<div className="underline">{shortenAddress(position.owner)}</div>
-									<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
-								</Link>
+									external={true}
+								/>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Position" />
-								<Link
-									className="flex items-center justify-end pt-2 font-black text-card-input-max hover:text-card-input-hover"
+								<AppLink
+									label={shortenAddress(position.position || zeroAddress)}
 									href={`/monitoring/${position.position}`}
-								>
-									<div className="underline">{shortenAddress(position.position || zeroAddress)}</div>
-									<FontAwesomeIcon icon={faCircleArrowRight} className="w-3 ml-2" />
-								</Link>
+									external={false}
+								/>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="From 10x price decline until" />
-								<DisplayOutputAlignedRight output={"-"} />
+								<DisplayOutputAlignedRight output={formatDateTime(declineOnePriceTimestamp / 1000) || "-"} />
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Reaching zero at" />

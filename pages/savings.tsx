@@ -8,15 +8,13 @@ import { useEffect } from "react";
 import { store } from "../redux/redux.store";
 import { fetchBalance, fetchSavings } from "../redux/slices/savings.slice";
 import { useAccount } from "wagmi";
-import Link from "next/link";
 import AppTitle from "@components/AppTitle";
 import SavingsRankedBalancesTable from "@components/PageSavings/SavingsRankedBalancesTable";
 import { useContractUrl } from "@hooks";
 import { ADDRESS } from "@frankencoin/zchf";
 import { WAGMI_CHAIN } from "../app.config";
 import { shortenAddress } from "@utils";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
+import AppLink from "@components/AppLink";
 
 export default function SavingsPage() {
 	const { address } = useAccount();
@@ -36,10 +34,10 @@ export default function SavingsPage() {
 			</Head>
 
 			<AppTitle title={`Savings `}>
-				<Link className="underline" target="_blank" href={link}>
-					({shortenAddress(savings)})
-					<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
-				</Link>
+				<div className="text-text-secondary">
+					View the Savings Module in the explorer{" "}
+					<AppLink label={shortenAddress(savings) + "."} href={link} external={true} className="pr-1" />
+				</div>
 			</AppTitle>
 
 			<SavingsGlobalCard />

@@ -1,7 +1,6 @@
 import { Hash } from "viem";
 import TableRow from "../Table/TableRow";
-import { formatCurrency } from "../../utils/format";
-import { AddressLabelSimple, TxLabelSimple } from "@components/AddressLabel";
+import { formatCurrency, shortenAddress } from "../../utils/format";
 import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { CONFIG, WAGMI_CONFIG } from "../../app.config";
@@ -11,6 +10,8 @@ import Button from "@components/Button";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { toast } from "react-toastify";
 import { renderErrorTxToast, renderErrorTxToastDecode, TxToast } from "@components/TxToast";
+import AppLink from "@components/AppLink";
+import { ContractUrl, TxUrl } from "@utils";
 
 interface Props {
 	headers: string[];
@@ -160,11 +161,11 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 				}
 			>
 				<div className="flex flex-col md:text-left max-md:text-right">
-					<TxLabelSimple label={dateStr} tx={proposal.txHash as Hash} showLink />
+					<AppLink label={dateStr} href={TxUrl(proposal.txHash as Hash)} external={true} className="" />
 				</div>
 
 				<div className="flex flex-col">
-					<AddressLabelSimple address={proposal.proposer} showLink />
+					<AppLink label={shortenAddress(proposal.proposer)} href={ContractUrl(proposal.proposer)} external={true} className="" />
 				</div>
 
 				<div className={`flex flex-col ${currentProposal && info.isProposal ? "font-semibold" : ""}`}>

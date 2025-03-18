@@ -10,6 +10,8 @@ import { readContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { useAccount } from "wagmi";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
+import AppLink from "@components/AppLink";
+import { ContractUrl } from "@utils";
 
 interface Props {
 	headers: string[];
@@ -81,9 +83,9 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 				<div className="flex items-center">
 					<div className="flex flex-col md:text-left max-md:text-right max-md:w-full">
 						{connectedWallet ? (
-							<AddressLabelSimple className="font-semibold" address={voter.holder} label="Connected wallet" showLink />
+							<AppLink label={"Connected wallet"} href={ContractUrl(voter.holder)} external={true} className="" />
 						) : (
-							<AddressLabelSimple address={voter.holder} showLink />
+							<AppLink label={shortenAddress(voter.holder)} href={ContractUrl(voter.holder)} external={true} className="" />
 						)}
 						{isDelegated && !isRevoked ? (
 							<AddressLabelSimple
@@ -116,7 +118,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 						/>
 					}
 				>
-					<AddressLabelSimple className="text-left" address={delegatee} label="Delegate address" showLink />
+					<AppLink label={"Delegate address"} href={ContractUrl(delegatee)} external={true} className="text-left" />
 					<div className="flex flex-col">{formatCurrency(formatUnits(isDelegateeVotes?.fps || 0n, 18))} FPS</div>
 					<div className={`flex flex-col`}>{formatCurrency((isDelegateeVotes?.votingPowerRatio || 0) * 100)}%</div>
 				</TableRow>

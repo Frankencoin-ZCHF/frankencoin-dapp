@@ -16,8 +16,8 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
-import Link from "next/link";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
+import AppLink from "@components/AppLink";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
@@ -401,21 +401,21 @@ export default function PositionBorrow({}) {
 								{position.isClone && (
 									<div className="mt-2 flex">
 										<div className="flex-1 text-text-secondary">Parent Position</div>
-										<Link
-											className="underline"
+										<AppLink
+											label={shortenAddress(position.version == 2 ? position.parent : position.original)}
 											href={`/monitoring/${position.version == 2 ? position.parent : position.original}`}
-										>
-											{shortenAddress(position.version == 2 ? position.parent : position.original)}
-										</Link>
+										></AppLink>
 									</div>
 								)}
 
 								{position.version == 2 && (
 									<div className="mt-2 flex">
 										<div className="flex-1 text-text-secondary">Original Position</div>
-										<Link className="underline" href={`/monitoring/${position.original}`}>
-											{shortenAddress(position.original)}
-										</Link>
+										<AppLink
+											className=""
+											label={shortenAddress(position.original)}
+											href={`/monitoring/${position.original}`}
+										></AppLink>
 									</div>
 								)}
 

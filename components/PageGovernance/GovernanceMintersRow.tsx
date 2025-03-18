@@ -3,7 +3,8 @@ import TableRow from "../Table/TableRow";
 import { MinterQuery } from "@frankencoin/api";
 import { useContractUrl } from "@hooks";
 import GovernanceMintersAction from "./GovernanceMintersAction";
-import { AddressLabelSimple, TxLabelSimple } from "@components/AddressLabel";
+import AppLink from "@components/AppLink";
+import { ContractUrl, shortenAddress, TxUrl } from "@utils";
 
 interface Props {
 	headers: string[];
@@ -37,12 +38,12 @@ export default function GovernanceMintersRow({ headers, tab, minter }: Props) {
 			}
 		>
 			<div className="flex flex-col md:text-left max-md:text-right">
-				<TxLabelSimple label={dateStr} tx={minter.txHash as Hash} showLink />
+				<AppLink label={dateStr} href={TxUrl(minter.txHash as Hash)} external={true} className="" />
 			</div>
 
 			{/* Minter */}
 			<div className="flex flex-col">
-				<AddressLabelSimple address={minter.minter} showLink />
+				<AppLink label={shortenAddress(minter.minter)} href={ContractUrl(minter.minter)} external={true} className="" />
 			</div>
 
 			{/* Comment */}

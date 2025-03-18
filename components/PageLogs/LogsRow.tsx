@@ -1,15 +1,10 @@
-import { Address, formatUnits, Hash, parseEther, parseUnits } from "viem";
+import { formatUnits, Hash, parseEther } from "viem";
 import TableRow from "../Table/TableRow";
-import { RootState } from "../../redux/redux.store";
-import { useSelector } from "react-redux";
-import { useRouter as useNavigation } from "next/navigation";
 import { formatCurrency } from "../../utils/format";
-import { AnalyticsTransactionLog, PositionQueryV2 } from "@frankencoin/api";
-import Button from "@components/Button";
-import AppBox from "@components/AppBox";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { AnalyticsTransactionLog } from "@frankencoin/api";
 import { useTxUrl } from "@hooks";
+import { TxUrl } from "@utils";
+import AppLink from "@components/AppLink";
 
 interface Props {
 	headers: string[];
@@ -33,11 +28,7 @@ export default function LogsRow({ headers, tab, log }: Props) {
 	return (
 		<TableRow headers={headers} tab={tab}>
 			<div className="cursor-pointer underline md:text-left max-md:text-right" onClick={openExplorer}>
-				<div>
-					{dateArr[0]}
-					<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2 cursor-pointer" />
-				</div>
-				<div>{dateArr[1]}</div>
+				<AppLink className="" label={dateArr[0] + " " + dateArr[1]} href={TxUrl(log.txHash as Hash)} external={true} />
 			</div>
 			<div>
 				<div>{kindArr[0]}</div>

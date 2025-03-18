@@ -1,14 +1,11 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import Link from "next/link";
 import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
 import { formatDateTime, shortenAddress } from "@utils";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { useContractUrl } from "@hooks";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowUpRightFromSquare, faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import { CONFIG, WAGMI_CONFIG } from "../../../app.config";
@@ -19,6 +16,7 @@ import { useRouter as useNavigation } from "next/navigation";
 import Button from "@components/Button";
 import { ADDRESS, FrankencoinABI } from "@frankencoin/zchf";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
+import AppLink from "@components/AppLink";
 
 export default function PositionDetail() {
 	const [reserve, setReserve] = useState<bigint>(0n);
@@ -129,17 +127,7 @@ export default function PositionDetail() {
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Owner" />
-								<Link
-									className="flex items-center justify-end pt-2 font-black text-card-input-max hover:text-card-input-hover"
-									href={ownerExplorerLink}
-									target="_blank"
-								>
-									<div className="underline">{shortenAddress(position.owner)}</div>
-									<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
-									{/* <Link href={myPosLink} className="flex items-center underline ml-1">
-										<FontAwesomeIcon icon={faEye} className="w-3 mx-2" />
-									</Link> */}
-								</Link>
+								<AppLink label={shortenAddress(position.owner)} href={ownerExplorerLink} external={true} />
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Reserve Requirement" />
@@ -161,25 +149,11 @@ export default function PositionDetail() {
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Smart Contract" />
-								<Link
-									className="flex items-center justify-end pt-2 font-black text-card-input-max hover:text-card-input-hover"
-									href={positionExplorerUrl}
-									target="_blank"
-								>
-									<div className="underline">{shortenAddress(position.position)}</div>
-									<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
-								</Link>
+								<AppLink label={shortenAddress(position.position)} href={positionExplorerUrl} external={true} />
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Parent Position" />
-								<Link
-									className="flex items-center justify-end pt-2 font-black text-card-input-max hover:text-card-input-hover"
-									href={parentLink}
-									target="_blank"
-								>
-									<div className="underline">{parentAddressInfo()}</div>
-									<FontAwesomeIcon icon={faCircleArrowRight} className="w-3 ml-2" />
-								</Link>
+								<AppLink label={parentAddressInfo()} href={parentLink} external={false} />
 							</AppBox>
 						</div>
 					</div>

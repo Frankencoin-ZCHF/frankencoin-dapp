@@ -1,9 +1,9 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { formatUnits, maxUint256, erc20Abi, Address, parseEther, parseUnits } from "viem";
+import { formatUnits, maxUint256, erc20Abi, Address, parseEther } from "viem";
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
-import { abs, bigIntMax, bigIntMin, formatBigInt, formatCurrency, formatDateTime, shortenAddress } from "@utils";
+import { abs, bigIntMax, bigIntMin, ContractUrl, formatBigInt, formatCurrency, shortenAddress } from "@utils";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -16,11 +16,9 @@ import { RootState } from "../../../redux/redux.store";
 import { PositionQuery } from "@frankencoin/api";
 import { ADDRESS, PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
 import AppTitle from "@components/AppTitle";
-import Link from "next/link";
 import PositionRollerTable from "@components/PageMypositions/PositionRollerTable";
 import AppCard from "@components/AppCard";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
+import AppLink from "@components/AppLink";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -353,9 +351,17 @@ export default function PositionAdjust() {
 			</Head>
 
 			<AppTitle title={`Manage Position `}>
-				<Link className="underline" href={`/monitoring/${position.position}`}>
-					({shortenAddress(position.position)})
-				</Link>
+				<div className="text-text-secondary">
+					Manage your position with details{" "}
+					<AppLink
+						label={shortenAddress(position.position) + "."}
+						href={`/monitoring/${position.position}`}
+						external={false}
+						className="pr-1"
+					/>
+					View the Smart Contract in the explorer{" "}
+					<AppLink label={"explorer."} href={ContractUrl(position.position)} external={true} className="pr-1" />
+				</div>
 			</AppTitle>
 
 			<div className="md:mt-8">
@@ -423,13 +429,11 @@ export default function PositionAdjust() {
 									<div className="flex-1 text-text-secondary">
 										<span>Address</span>
 									</div>
-									<Link
-										className="flex items-center justify-end font-black text-card-input-max hover:text-card-input-hover"
+									<AppLink
+										className=""
+										label={shortenAddress(position.position)}
 										href={`/monitoring/${position.position}`}
-									>
-										<div className="underline">{shortenAddress(position.position)}</div>
-										<FontAwesomeIcon icon={faCircleArrowRight} className="w-3 ml-2" />
-									</Link>
+									></AppLink>
 								</div>
 							</div>
 

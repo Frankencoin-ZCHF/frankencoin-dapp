@@ -6,7 +6,6 @@ import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { ContractUrl, formatBigInt, formatCurrency, formatDateTime, shortenAddress } from "@utils";
-import Link from "next/link";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -17,12 +16,11 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { RootState } from "../../../redux/redux.store";
 import { useSelector } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useRouter as useNavigation } from "next/navigation";
 import { ADDRESS, FrankencoinABI, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import { ChallengesId } from "@frankencoin/api";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
+import AppLink from "@components/AppLink";
 
 export default function ChallengePlaceBid() {
 	const [isInit, setInit] = useState(false);
@@ -228,15 +226,11 @@ export default function ChallengePlaceBid() {
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Challenger" />
-								<Link
-									className="flex items-center justify-end pt-2 font-black text-card-input-max hover:text-card-input-hover"
+								<AppLink
+									label={shortenAddress(challenge?.challenger || zeroAddress)}
 									href={ContractUrl(challenge?.challenger || zeroAddress, WAGMI_CHAIN)}
-									target="_blank"
-									rel="noreferrer"
-								>
-									<div className="underline">{shortenAddress(position.position || zeroAddress)}</div>
-									<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
-								</Link>
+									external={true}
+								/>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Fixed price until" />

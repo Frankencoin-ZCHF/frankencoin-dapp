@@ -17,12 +17,10 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
-import Link from "next/link";
 import { useRouter as useNavigation } from "next/navigation";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
+import AppLink from "@components/AppLink";
 
 export default function PositionChallenge() {
 	const [amount, setAmount] = useState(0n);
@@ -266,13 +264,10 @@ export default function PositionChallenge() {
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Target Position" />
-								<Link
-									className="flex items-center justify-end pt-2 font-black text-card-input-max hover:text-card-input-hover"
+								<AppLink
+									label={shortenAddress(position.position || zeroAddress)}
 									href={`/monitoring/${position.position}`}
-								>
-									<div className="underline">{shortenAddress(position.position || zeroAddress)}</div>
-									<FontAwesomeIcon icon={faCircleArrowRight} className="w-3 ml-2" />
-								</Link>
+								/>
 							</AppBox>
 						</div>
 						<div className="mx-auto mt-4 w-[20rem] max-w-full flex-col">

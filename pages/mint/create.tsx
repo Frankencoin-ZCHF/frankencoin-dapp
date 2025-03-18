@@ -1,7 +1,7 @@
 "use client";
 import Head from "next/head";
 import { useEffect } from "react";
-import { Address, isAddress, maxUint256, parseEther, parseUnits } from "viem";
+import { Address, isAddress, maxUint256, parseUnits } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useTokenData, useUserBalance } from "@hooks";
 import { useState } from "react";
@@ -12,13 +12,13 @@ import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/ac
 import { formatBigInt, shortenAddress } from "@utils";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
-import Link from "next/link";
 import NormalInput from "@components/Input/NormalInput";
 import AddressInput from "@components/Input/AddressInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, MintingHubV2ABI } from "@frankencoin/zchf";
 import AppTitle from "@components/AppTitle";
+import AppLink from "@components/AppLink";
 
 export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
@@ -344,14 +344,12 @@ export default function PositionCreate({}) {
 						</div>
 						<div className="text-text-secondary">
 							It is recommended to{" "}
-							<Link
-								className="underline font-semibold"
+							<AppLink
+								label={"discuss"}
 								href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions"
-								target="_blank"
-							>
-								{" "}
-								discuss
-							</Link>{" "}
+								external={true}
+								className="pr-1"
+							/>
 							new positions before initiating them to increase the probability of passing the decentralized governance
 							process.
 						</div>

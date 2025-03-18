@@ -5,8 +5,6 @@ import DisplayLabel from "@components/DisplayLabel";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { ADDRESS } from "@frankencoin/zchf";
-import { useChainId } from "wagmi";
-import { useContractUrl } from "@hooks";
 import { WAGMI_CHAIN } from "../../app.config";
 
 export default function SavingsGlobalCard() {
@@ -14,9 +12,7 @@ export default function SavingsGlobalCard() {
 		(state: RootState) => state.savings.savingsInfo
 	);
 
-	const moduleAddress = ADDRESS[useChainId()].savings;
 	const frankencoinAddress = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
-	const url = useContractUrl(moduleAddress);
 
 	return (
 		<AppCard>
@@ -30,18 +26,9 @@ export default function SavingsGlobalCard() {
 					<DisplayAmount className="mt-1" amount={totalBalance} currency="ZCHF" address={frankencoinAddress} />
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Total Paid Out" />
+					<DisplayLabel label="Total Interest Claims" />
 					<DisplayAmount className="mt-1" amount={totalInterest} currency="ZCHF" address={frankencoinAddress} />
 				</AppBox>
-				{/* <AppBox>
-					<DisplayLabel label="Module Contract" />
-					<Link href={url} target="_blank">
-						<div className="mt-1 underline cursor-pointer">
-							{shortenAddress(moduleAddress)}
-							<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
-						</div>
-					</Link>
-				</AppBox> */}
 			</div>
 		</AppCard>
 	);

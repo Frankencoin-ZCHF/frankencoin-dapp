@@ -1,8 +1,8 @@
-import { AddressLabelSimple, TxLabelSimple } from "@components/AddressLabel";
+import AppLink from "@components/AppLink";
 import TableRow from "@components/Table/TableRow";
-import { SavingsBalanceQuery, SavingsWithdrawQuery } from "@frankencoin/api";
-import { formatCurrency } from "@utils";
-import { formatUnits, Hash } from "viem";
+import { SavingsBalanceQuery } from "@frankencoin/api";
+import { ContractUrl, formatCurrency, shortenAddress } from "@utils";
+import { formatUnits } from "viem";
 
 interface Props {
 	headers: string[];
@@ -19,9 +19,7 @@ export default function SavingsRankedBalancesRow({ headers, tab, item }: Props) 
 			<TableRow headers={headers} tab={tab}>
 				<div className="flex flex-col md:text-left max-md:text-right">{dateStr}</div>
 
-				<div className="flex flex-col">
-					<AddressLabelSimple address={item.id} showLink />
-				</div>
+				<AppLink className="" label={shortenAddress(item.id)} href={ContractUrl(item.id)} external={true} />
 
 				<div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.interest), 18))} ZCHF</div>
 				<div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.balance), 18))} ZCHF</div>

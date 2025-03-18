@@ -9,7 +9,7 @@ import { ADDRESS, ERC20ABI } from "@frankencoin/zchf";
 import { useAccount, useBlockNumber } from "wagmi";
 import PositionRollerApproveAction from "./PositionRollerApproveAction";
 import PositionRollerFullRollAction from "./PositionRollerFullRollAction";
-import Link from "next/link";
+import AppLink from "@components/AppLink";
 
 interface Props {
 	headers: string[];
@@ -69,9 +69,12 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 			}
 		>
 			{/* target */}
-			<Link className="flex flex-col md:text-left max-md:text-right cursor-pointer underline" href={`/monitoring/${target.position}`}>
-				{shortenAddress(target.position)}
-			</Link>
+			<AppLink
+				className="text-left"
+				label={shortenAddress(target.position)}
+				href={`/monitoring/${target.position}`}
+				external={false}
+			/>
 
 			{/* Liquidation */}
 			<div className="flex flex-col">

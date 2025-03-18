@@ -1,7 +1,7 @@
-import { AddressLabelSimple, TxLabelSimple } from "@components/AddressLabel";
+import AppLink from "@components/AppLink";
 import TableRow from "@components/Table/TableRow";
 import { SavingsInterestQuery } from "@frankencoin/api";
-import { formatCurrency } from "@utils";
+import { ContractUrl, formatCurrency, shortenAddress, TxUrl } from "@utils";
 import { formatUnits, Hash } from "viem";
 
 interface Props {
@@ -18,20 +18,14 @@ export default function SavingsInterestRow({ headers, tab, item }: Props) {
 		<>
 			<TableRow headers={headers} tab={tab}>
 				<div className="flex flex-col md:text-left max-md:text-right">
-					<TxLabelSimple label={dateStr} tx={item.txHash as Hash} showLink />
+					<AppLink className="" label={dateStr} href={TxUrl(item.txHash as Hash)} external={true} />
 				</div>
 
-				<div className="flex flex-col">
-					<AddressLabelSimple address={item.account} showLink />
-				</div>
+				<AppLink className="" label={shortenAddress(item.account)} href={ContractUrl(item.account)} external={true} />
 
 				<div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.amount), 18))} ZCHF</div>
 
-				{/* <div className={`flex flex-col`}>{formatCurrency(item.rate / 10_000)} %</div> */}
-
 				<div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.balance), 18))} ZCHF</div>
-
-				{/* <div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.total), 18))} ZCHF</div> */}
 			</TableRow>
 		</>
 	);
