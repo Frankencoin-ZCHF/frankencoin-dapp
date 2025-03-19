@@ -70,7 +70,11 @@ export default function MyPositionsChallengesRow({ headers, tab, challenge }: Pr
 	};
 
 	return (
-		<TableRow headers={headers} tab={tab} actionCol={<MyPositionsChallengesCancel challenge={challenge} hidden={stateIdx == 1} />}>
+		<TableRow
+			headers={headers}
+			tab={tab}
+			actionCol={stateIdx == 1 ? <></> : <MyPositionsChallengesCancel challenge={challenge} hidden={stateIdx == 1} />}
+		>
 			{/* Collateral */}
 			<div className="flex flex-col max-md:mb-5">
 				{/* desktop view */}

@@ -44,22 +44,13 @@ export default function EquityFPSDetailsCard() {
 	const timestampDiff = timestampEnd - timestampBegin;
 	const oneYear = 365n * 24n * 60n * 60n * 1000n;
 
-	const totalEquity = BigInt(matchingLogs.at(-1)?.totalEquity || "0");
-	const returnOnEquity = totalEquity > 0n ? (((netIncome * parseEther("1")) / totalEquity) * oneYear) / timestampDiff : 0n;
+	const totalEquityAvg = (BigInt(matchingLogs.at(-1)?.totalEquity || "0") + BigInt(matchingLogs.at(0)?.totalEquity || "0")) / 2n;
+	const returnOnEquity = totalEquityAvg > 0n ? (((netIncome * parseEther("1")) / totalEquityAvg) * oneYear) / timestampDiff : 0n;
 
 	return (
 		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 grid grid-cols-1 gap-2">
 			<div id="chart-timeline">
-				<div className="flex justify-between">
-					<div>
-						<DisplayLabel label="FPS Price" />
-						<DisplayAmount amount={poolStats.equityPrice} unit="ZCHF" />
-					</div>
-					<div className="text-right">
-						<DisplayLabel label="Supply" />
-						<DisplayAmount amount={poolStats.equitySupply} unit="FPS" />
-					</div>
-				</div>
+				<TypeTabs tabs={TypeCharts} tab={typechart} setTab={setTypechart} />
 
 				<div className="-m-2">
 					<ApexChart
@@ -170,14 +161,20 @@ export default function EquityFPSDetailsCard() {
 					<div className="flex justify-center text-text-warning">No data available for selected timeframe.</div>
 				) : null}
 
-				<TypeTabs tabs={TypeCharts} tab={typechart} setTab={setTypechart} />
-
 				<TimeframeTabs tabs={Timeframes} tab={timeframe} setTab={setTimeframe} />
 			</div>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
-					<DisplayLabel label="Market Cap" />
+					<DisplayLabel label="FPS Price" />
+					<DisplayAmount amount={poolStats.equityPrice} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
+				</AppBox>
+				<AppBox>
+					<DisplayLabel label="Total Supply" />
+					<DisplayAmount amount={poolStats.equitySupply} currency="FPS" address={ADDRESS[chainId].equity} />
+				</AppBox>
+				<AppBox>
+					<DisplayLabel label="Market Cap." />
 					<DisplayAmount
 						amount={(poolStats.equitySupply * poolStats.equityPrice) / BigInt(1e18)}
 						currency="ZCHF"
@@ -185,16 +182,8 @@ export default function EquityFPSDetailsCard() {
 					/>
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Total Reserve" />
-					<DisplayAmount amount={poolStats.frankenTotalReserve} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
-				</AppBox>
-				<AppBox>
 					<DisplayLabel label="Equity Capital" />
 					<DisplayAmount amount={poolStats.frankenEquity} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
-				</AppBox>
-				<AppBox>
-					<DisplayLabel label="Minter Reserve" />
-					<DisplayAmount amount={poolStats.frankenMinterReserve} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label={"Net Income (" + timeframe + ")"} />
