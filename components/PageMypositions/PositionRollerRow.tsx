@@ -54,6 +54,7 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 	return (
 		<TableRow
 			headers={headers}
+			rawHeader={true}
 			tab={tab}
 			actionCol={
 				userCollAllowance < BigInt(source.collateralBalance) ? (

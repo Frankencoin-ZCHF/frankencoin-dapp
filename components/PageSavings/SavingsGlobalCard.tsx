@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { ADDRESS } from "@frankencoin/zchf";
 import { WAGMI_CHAIN } from "../../app.config";
+import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 
 export default function SavingsGlobalCard() {
 	const { totalBalance, totalSaved, totalWithdrawn, totalInterest, rate, ratioOfSupply } = useSelector(
@@ -19,7 +20,7 @@ export default function SavingsGlobalCard() {
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
 				<AppBox>
 					<DisplayLabel label="Current Interest Rate" />
-					<DisplayAmount className="mt-1" amount={rate / 10_000} unit="%" hideLogo />
+					<DisplayOutputAlignedRight className="" amount={rate / 10_000} unit="%" />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Total Savings" />

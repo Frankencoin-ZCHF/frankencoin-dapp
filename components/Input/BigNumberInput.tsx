@@ -86,7 +86,7 @@ export function BigNumberInput({
 		onChange: updateValue,
 		type: "text",
 		value: inputValue,
-		className: "max-lg:truncate" + " " + className,
+		className: "truncate " + className,
 		autoFocus,
 		disabled,
 	};

@@ -8,8 +8,18 @@ import GovernanceLeadrateTable from "@components/PageGovernance/GovernanceLeadra
 import GovernanceLeadrateCurrent from "@components/PageGovernance/GovernanceLeadrateCurrent";
 import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
+import { useEffect } from "react";
+import { store } from "../redux/redux.store";
+import { fetchSavings } from "../redux/slices/savings.slice";
+import { useAccount } from "wagmi";
 
 export default function Governance() {
+	const { address } = useAccount();
+
+	useEffect(() => {
+		store.dispatch(fetchSavings(address));
+	}, [address]);
+
 	return (
 		<>
 			<Head>

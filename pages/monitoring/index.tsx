@@ -19,9 +19,9 @@ export default function Positions() {
 
 			<AppTitle title="Auctions">
 				<div className="text-text-secondary">
-					Track live challenges through Dutch auctions of Frankencoin minting positions. Monitor real-time bidding activities,
-					challenge periods and engage in decentralized price discovery - either by challenging positions or placing strategic
-					bids on existing auctions.
+					Track live challenges through Dutch auctions of Frankencoin minting positions. Monitor bidding activities, auction
+					phases and engage in decentralized price discovery - either by challenging positions or placing strategic bids on
+					existing auctions.
 				</div>
 			</AppTitle>
 

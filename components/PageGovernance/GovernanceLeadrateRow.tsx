@@ -30,7 +30,7 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 
 	const vetoUntil = proposal.nextChange * 1000;
 	const hoursUntil: number = (vetoUntil - Date.now()) / 1000 / 60 / 60;
-	const stateStr: string = `${hoursUntil < 10 ? Math.round(hoursUntil * 10) / 10 : Math.round(hoursUntil)} hours left`;
+	const stateStr: string = `${hoursUntil < 10 && hoursUntil > 0 ? Math.round(hoursUntil * 10) / 10 : Math.round(hoursUntil)} hours left`;
 
 	const dateArr: string[] = new Date(proposal.created * 1000).toDateString().split(" ");
 	const dateStr: string = `${dateArr[2]} ${dateArr[1]} ${dateArr[3]}`;
@@ -128,13 +128,13 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 	return (
 		<>
 			<TableRow
-				paddingY={currentProposal ? "md:py-0 max-md:py-4" : undefined}
+				paddingY={currentProposal && proposal.nextRate != info.rate ? "md:py-0 max-md:py-4" : undefined}
 				headers={headers}
 				tab={tab}
 				rawHeader={true}
 				actionCol={
-					currentProposal ? (
-						info.isPending && info.isProposal ? (
+					currentProposal && info.isProposal ? (
+						info.isPending ? (
 							<GuardToAllowedChainBtn label="Deny" disabled={!info.isPending || !info.isProposal}>
 								<Button
 									className="h-10"
@@ -145,7 +145,7 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 									Deny
 								</Button>
 							</GuardToAllowedChainBtn>
-						) : !info.isPending && info.isProposal ? (
+						) : !info.isPending ? (
 							<GuardToAllowedChainBtn label="Apply" disabled={!info.isProposal}>
 								<Button
 									className="h-10"
@@ -176,8 +176,8 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 					{proposal.nextRate / 10_000} %
 				</div>
 
-				<div className="flex flex-col">
-					{currentProposal ? (hoursUntil > 0 ? stateStr : info.rate != proposal.nextRate ? "Ready" : "Passed") : "Expired"}
+				<div className={`flex flex-col`}>
+					{currentProposal ? (info.rate != proposal.nextRate ? (hoursUntil > 0 ? stateStr : "Ready") : "Passed") : "Inactive"}
 				</div>
 			</TableRow>
 		</>

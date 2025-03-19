@@ -30,6 +30,7 @@ export default function GovernanceMintersRow({ headers, tab, minter }: Props) {
 	return (
 		<TableRow
 			headers={headers}
+			rawHeader={true}
 			tab={tab}
 			actionCol={
 				<div className="">

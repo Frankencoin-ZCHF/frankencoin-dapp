@@ -41,13 +41,22 @@ export default function MyPositionsBidsRow({ headers, tab, bid }: Props) {
 	return (
 		<TableRow
 			headers={headers}
+			paddingY={!isDisabled ? "md:py-1 max-md:py-4" : undefined}
 			tab={tab}
 			actionCol={
-				<div className="">
-					<Button className="h-10" disabled={isDisabled} onClick={() => navigate.push(`/challenges/${challenge.id}/bid`)}>
-						Buy Again
-					</Button>
-				</div>
+				isDisabled ? (
+					<></>
+				) : (
+					<div className="">
+						<Button
+							className="h-10"
+							disabled={isDisabled}
+							onClick={() => navigate.push(`/monitoring/${challenge.position.toLowerCase()}/auction/${challenge.number}`)}
+						>
+							Buy Again
+						</Button>
+					</div>
+				)
 			}
 		>
 			{/* Collateral */}
