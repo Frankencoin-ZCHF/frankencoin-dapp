@@ -29,7 +29,7 @@ export function TransactionHistoryPanel() {
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
-	const { withdraw, save, interest } = useSelector((state: RootState) => state.savings.savingsAllUserTable);
+	const { withdraw, save, interest } = useSelector((state: RootState) => state.savings.savingsUserTable);
 
 	const sorted = [
 		...withdraw.map((r) => ({ ...r, type: t("savings.withdraw") })),
