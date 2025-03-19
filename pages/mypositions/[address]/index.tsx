@@ -434,7 +434,7 @@ export default function PositionAdjust() {
 								</div>
 								<div className="flex mt-2">
 									<div className="flex-1 text-text-secondary">
-										<span>Expired in</span>
+										<span>Expiration</span>
 									</div>
 									<div className="text-right">{expiredIn}</div>
 								</div>
@@ -533,9 +533,9 @@ export default function PositionAdjust() {
 									</div>
 								</div>
 
-								<hr className="mt-4 border-slate-700 border-dashed" />
+								<hr className="mt-4 border-text-primary border-dashed" />
 
-								<div className="mt-2 flex font-bold">
+								<div className="mt-2 flex font-extrabold">
 									<div className="flex-1 text-text-secondary">
 										<span>Future minted amount</span>
 									</div>

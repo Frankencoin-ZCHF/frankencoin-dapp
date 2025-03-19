@@ -212,6 +212,9 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 					value={amount.toString()}
 					error={error}
 					placeholder={fromSymbol + " Amount"}
+					limit={wfpsBalance}
+					limitDigit={18}
+					limitLabel="Balance"
 				/>
 
 				<div className="py-4 text-center z-0">

@@ -285,8 +285,8 @@ export default function PositionChallenge() {
 						</div>
 					</div>
 					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
-						<div className="text-lg font-bold text-center mt-3">How does it work?</div>
-						<div className="flex-1 mt-4">
+						<div className="text-lg font-bold text-center mt-3 text-text-primary">How does it work?</div>
+						<div className="flex-1 mt-4 text-text-secondary">
 							<p>A challenge is divided into two phases:</p>
 							<ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
 								<li>

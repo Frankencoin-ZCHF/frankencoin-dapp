@@ -65,6 +65,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 			<TableRow
 				className={connectedWallet ? "bg-card-content-primary" : undefined}
 				headers={headers}
+				rawHeader={true}
 				tab={tab}
 				actionCol={
 					connectedWallet ? (
@@ -109,6 +110,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 				<TableRow
 					className="bg-card-content-primary"
 					tab={tab}
+					rawHeader={true}
 					actionCol={
 						<GovernanceVotersAction
 							key={voter.holder}
@@ -118,9 +120,9 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 						/>
 					}
 				>
-					<AppLink label={"Delegate address"} href={ContractUrl(delegatee)} external={true} className="text-left" />
-					<div className="flex flex-col">{formatCurrency(formatUnits(isDelegateeVotes?.fps || 0n, 18))} FPS</div>
-					<div className={`flex flex-col`}>{formatCurrency((isDelegateeVotes?.votingPowerRatio || 0) * 100)}%</div>
+					<AppLink label={"Delegate Address"} href={ContractUrl(delegatee)} external={true} className="text-left" />
+					<div className="">{formatCurrency(formatUnits(isDelegateeVotes?.fps || 0n, 18))} FPS</div>
+					<div className="">{formatCurrency((isDelegateeVotes?.votingPowerRatio || 0) * 100)}%</div>
 				</TableRow>
 			) : null}
 		</>

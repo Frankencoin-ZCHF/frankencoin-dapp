@@ -10,6 +10,8 @@ interface Props {
 	headers?: string[];
 	subHeaders?: string[];
 	tab: string;
+	rawHeader?: boolean;
+	paddingY?: string;
 }
 
 export default function TableRow({
@@ -22,12 +24,14 @@ export default function TableRow({
 	tab = "",
 	className,
 	classNameMobile = "",
+	rawHeader = false,
+	paddingY,
 }: Props) {
 	return (
 		<div
-			className={`${
-				className ?? "bg-table-row-primary md:hover:bg-table-row-hover"
-			} cursor-default px-8  xl:px-12 py-4 border-t border-table-row-hover last:rounded-b-xl duration-300`}
+			className={`${className} ${
+				paddingY ?? "py-4"
+			} bg-table-row-primary md:hover:bg-table-row-hover cursor-default px-8 xl:px-12 border-t border-table-row-hover last:rounded-b-xl duration-300`}
 		>
 			<div className="flex sm:pl-8 flex-col justify-between gap-y-5 md:flex-row">
 				{/* @dev: this is desktop view */}
@@ -36,7 +40,7 @@ export default function TableRow({
 				</div>
 
 				{/* @dev: this is mobile view */}
-				<TableRowMobile headers={headers} subHeaders={subHeaders} tab={tab} className={classNameMobile}>
+				<TableRowMobile headers={headers} subHeaders={subHeaders} tab={tab} className={classNameMobile} rawHeader={rawHeader}>
 					{children}
 				</TableRowMobile>
 
@@ -53,9 +57,10 @@ interface TableRowMobileProps {
 	subHeaders: string[];
 	tab: string;
 	className: string;
+	rawHeader: boolean;
 }
 
-function TableRowMobile({ children, headers, subHeaders, tab, className }: TableRowMobileProps) {
+function TableRowMobile({ children, rawHeader, headers, subHeaders, tab, className }: TableRowMobileProps) {
 	if (headers.length === 0) {
 		return <div className={`${className} md:hidden justify-items-center text-center gap-6 grid flex-grow grid-cols-1`}>{children}</div>;
 	} else {
@@ -64,7 +69,7 @@ function TableRowMobile({ children, headers, subHeaders, tab, className }: Table
 				{children.map((c, idx) => (
 					<div className="mt-2 flex" key={c.key ?? `TableRowMobile_${tab}_${idx}`}>
 						<div className="flex-1 text-left">
-							{idx === 0 ? (
+							{idx === 0 && !rawHeader ? (
 								<div className={`${headers[idx] == tab ? "text-text-primary font-semibold" : "text-text-subheader"}`}>
 									{c}
 								</div>
@@ -88,7 +93,7 @@ function TableRowMobile({ children, headers, subHeaders, tab, className }: Table
 							)}
 						</div>
 						<div className={`text-right ${headers[idx] == tab ? "text-text-primary font-semibold" : "text-text-subheader"}`}>
-							{idx === 0 ? "" : c}
+							{idx === 0 && !rawHeader ? "" : c}
 						</div>
 					</div>
 				))}

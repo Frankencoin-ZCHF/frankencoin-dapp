@@ -217,6 +217,9 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 					value={amount.toString()}
 					error={error}
 					placeholder={fromSymbol + " Amount"}
+					limit={fromBalance}
+					limitDigit={18}
+					limitLabel="Balance"
 				/>
 
 				<div className="py-4 text-center z-0">
@@ -286,7 +289,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 					<DisplayLabel label="Can redeem after" />
 					<DisplayOutputAlignedRight
 						textColorOutput={!poolStats.equityCanRedeem ? "text-red-500" : undefined}
-						output={formatDuration(redeemLeft)}
+						output={redeemLeft > 0 ? formatDuration(redeemLeft) : "Ready"}
 					/>
 				</AppBox>
 			</div>

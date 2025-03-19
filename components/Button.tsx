@@ -18,7 +18,7 @@ export default function Button({ size = "md", width, className, onClick, isLoadi
 		<>
 			{error && <div className="mb-2 px-1 text-text-warning text-center">{error}</div>}
 			<button
-				className={`btn ${className} ${sizeClass} ${
+				className={`btn ${className} ${
 					disabled || isLoading
 						? "cursor-not-allowed bg-button-disabled text-button-textdisabled"
 						: "bg-button-default text-white"

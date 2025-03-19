@@ -174,7 +174,9 @@ export default function PositionDetail() {
 						<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col mb-4">
 							<div className="text-lg font-bold text-center">Active Challenges ({challengesActive.length})</div>
 
-							{challengesActive.map((c) => ActiveAuctionsRow({ position, challenge: c }))}
+							{challengesActive.map((c, idx) => (
+								<ActiveAuctionsRow key={c.id || `ActiveAuctionsRow_${idx}`} position={position} challenge={c} />
+							))}
 							{challengesActive.length === 0 ? <ActiveAuctionsRowEmpty /> : null}
 						</div>
 					</div>
@@ -205,7 +207,10 @@ function ActiveAuctionsRow({ position, challenge }: Props) {
 					address={position.collateral}
 				/>
 
-				<Button className="h-10 mt-6" onClick={() => navigate.push(`/challenges/${challenge.id}/bid`)}>
+				<Button
+					className="h-10 mt-6"
+					onClick={() => navigate.push(`/monitoring/${challenge.position.toLowerCase()}/auction/${challenge.number}`)}
+				>
 					Bid
 				</Button>
 			</AppBox>

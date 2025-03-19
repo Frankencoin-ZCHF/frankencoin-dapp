@@ -243,6 +243,9 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 					value={amount.toString()}
 					error={error}
 					placeholder={fromSymbol + " Amount"}
+					limit={fromBalance}
+					limitDigit={18}
+					limitLabel="Balance"
 				/>
 
 				<div className="py-4 text-center z-0">

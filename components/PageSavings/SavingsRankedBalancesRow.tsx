@@ -16,7 +16,7 @@ export default function SavingsRankedBalancesRow({ headers, tab, item }: Props) 
 
 	return (
 		<>
-			<TableRow headers={headers} tab={tab}>
+			<TableRow headers={headers} tab={tab} rawHeader={true}>
 				<div className="flex flex-col md:text-left max-md:text-right">{dateStr}</div>
 
 				<AppLink className="" label={shortenAddress(item.id)} href={ContractUrl(item.id)} external={true} />

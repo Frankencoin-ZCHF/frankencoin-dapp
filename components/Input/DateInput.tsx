@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 import ReactDatePicker from "react-datepicker";
-import { formatUnits } from "viem";
+import { formatDate } from "@utils";
 
 interface Props {
 	label: string;
@@ -84,9 +84,7 @@ export default function DateInput({
 						<div className="flex-1">
 							<div className="flex flex-row gap-2">
 								{limitLabel != undefined && <div className="text-text-secondary">{limitLabel}</div>}
-								{limitLabel != undefined && (
-									<div className="text-text-primary truncate">{formatUnits(limit, Number(limitDigit))}</div>
-								)}
+								{limitLabel != undefined && <div className="text-text-primary truncate">{formatDate(limit)}</div>}
 							</div>
 						</div>
 

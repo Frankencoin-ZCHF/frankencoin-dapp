@@ -16,7 +16,7 @@ export default function SavingsitemdRow({ headers, tab, item }: Props) {
 
 	return (
 		<>
-			<TableRow headers={headers} tab={tab}>
+			<TableRow headers={headers} tab={tab} rawHeader={true}>
 				<div className="flex flex-col md:text-left max-md:text-right">
 					<AppLink className="" label={dateStr} href={TxUrl(item.txHash as Hash)} external={true} />
 				</div>
