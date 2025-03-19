@@ -5,8 +5,8 @@ import SavingsSavedTable from "@components/PageSavings/SavingsSavedTable";
 import SavingsWithdrawnTable from "@components/PageSavings/SavingsWithdrawnTable";
 import Head from "next/head";
 import { useEffect } from "react";
-import { store } from "../redux/redux.store";
-import { fetchSavings } from "../redux/slices/savings.slice";
+import { store } from "../../redux/redux.store";
+import { fetchSavings, fetchSavingsCoreInfo } from "../../redux/slices/savings.slice";
 import { useAccount } from "wagmi";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
@@ -17,7 +17,7 @@ export default function SavingsPage() {
 
 	useEffect(() => {
 		store.dispatch(fetchSavings(address));
-		// store.dispatch(fetchSavingsCoreInfo()); // TODO: Reactivate when API is ready
+		store.dispatch(fetchSavingsCoreInfo());
 	}, [address]);
 
 	return (

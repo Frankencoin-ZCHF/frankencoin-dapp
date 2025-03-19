@@ -21,7 +21,7 @@ import { waitForTransactionReceipt } from "wagmi/actions";
 import { renderErrorTxToast } from "@components/TxToast";
 import { TxToast } from "@components/TxToast";
 import { fetchPositionsList } from "../../redux/slices/positions.slice";
-import { DetailsExpandablePanel } from "@components/DetailsExpandablePanel";
+import { DetailsExpandablePanel } from "@components/PageMint/DetailsExpandablePanel";
 import { SvgIconButton } from "@components/PageMint/PlusMinusButtons";
 
 export const CollateralManageSection = () => {

@@ -23,7 +23,7 @@ import { WAGMI_CONFIG } from "../../app.config";
 import { writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import { TxToast } from "@components/TxToast";
-import { DetailsExpandablePanel } from "@components/DetailsExpandablePanel";
+import { DetailsExpandablePanel } from "@components/PageMint/DetailsExpandablePanel";
 import { SvgIconButton } from "./PlusMinusButtons";
 
 export const BorrowedManageSection = () => {

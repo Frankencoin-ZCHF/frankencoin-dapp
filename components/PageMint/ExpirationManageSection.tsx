@@ -1,6 +1,6 @@
 import { DateInputOutlined } from "@components/Input/DateInputOutlined";
 import { MaxButton } from "@components/Input/MaxButton";
-import { DetailsExpandablePanel } from "@components/DetailsExpandablePanel";
+import { DetailsExpandablePanel } from "@components/PageMint/DetailsExpandablePanel";
 import { useTranslation } from "next-i18next";
 import { useEffect, useMemo, useState } from "react";
 import { renderErrorTxToast } from "@components/TxToast";
