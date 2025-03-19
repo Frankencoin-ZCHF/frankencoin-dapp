@@ -71,12 +71,12 @@ export default function PositionDetail() {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Position Overview</title>
+				<title>Frankencoin - Position Details</title>
 			</Head>
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center">Position</div>
+						<div className="text-lg font-bold text-center">Position Details</div>
 
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:col-span-2">
 							<AppBox>

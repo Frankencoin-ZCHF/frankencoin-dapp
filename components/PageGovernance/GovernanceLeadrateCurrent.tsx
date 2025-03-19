@@ -210,6 +210,14 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 								axisTicks: {
 									show: true,
 								},
+								min: (min) => {
+									// Add 10% padding below the minimum value
+									return min - min * 0.1;
+								},
+								max: (max) => {
+									// Add 10% padding above the maximum value
+									return max + max * 0.1;
+								},
 							},
 							fill: {
 								type: "gradient",

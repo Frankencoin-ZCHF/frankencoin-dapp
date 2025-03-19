@@ -169,7 +169,7 @@ export default function ChallengePlaceBid() {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Bid</title>
+				<title>Frankencoin - Auction</title>
 			</Head>
 
 			<div className="md:mt-8">

@@ -42,10 +42,12 @@ export default function EquityFPSDetailsCard() {
 	const timestampBegin = BigInt(matchingLogs.at(0)?.timestamp || "0");
 	const timestampEnd = BigInt(Date.now());
 	const timestampDiff = timestampEnd - timestampBegin;
-	const oneYear = 365n * 24n * 60n * 60n * 1000n;
+	const oneYearMs = 365n * 24n * 60n * 60n * 1000n;
 
-	const totalEquityAvg = (BigInt(matchingLogs.at(-1)?.totalEquity || "0") + BigInt(matchingLogs.at(0)?.totalEquity || "0")) / 2n;
-	const returnOnEquity = totalEquityAvg > 0n ? (((netIncome * parseEther("1")) / totalEquityAvg) * oneYear) / timestampDiff : 0n;
+	const equityStart = BigInt(matchingLogs.at(0)?.totalEquity || "0");
+	const equityEnd = BigInt(matchingLogs.at(-1)?.totalEquity || "0");
+	const equityAvg = (equityStart + equityEnd) / 2n;
+	const returnOnEquity = equityAvg > 0n ? (((netIncome * parseEther("1")) / equityAvg) * oneYearMs) / timestampDiff : 0n;
 
 	return (
 		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 grid grid-cols-1 gap-2">
