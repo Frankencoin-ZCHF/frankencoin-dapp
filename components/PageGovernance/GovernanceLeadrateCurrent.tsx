@@ -115,7 +115,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 							},
 							colors: ["#092f62"],
 							stroke: {
-								curve: "stepline",
+								curve: "linestep",
 								width: 3,
 							},
 							chart: {
