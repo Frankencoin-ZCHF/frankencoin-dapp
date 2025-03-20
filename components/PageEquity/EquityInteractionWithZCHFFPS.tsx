@@ -178,6 +178,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 	});
 
 	const fromBalance = direction ? poolStats.frankenBalance : poolStats.equityBalance;
+	const toBalance = !direction ? poolStats.frankenBalance : poolStats.equityBalance;
 	const result = (direction ? fpsResult : frankenResult) || 0n;
 	const fromSymbol = direction ? "ZCHF" : "FPS";
 	const toSymbol = !direction ? "ZCHF" : "FPS";
@@ -236,6 +237,9 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 					output={Math.round(parseFloat(formatUnits(result, 18)) * 10000) / 10000}
 					label="Receive"
 					disabled={true}
+					limit={toBalance}
+					limitDigit={18}
+					limitLabel="Balance"
 				/>
 
 				<div className={`mt-2 px-1 transition-opacity ${(shareLoading || proceedLoading) && "opacity-50"}`}>{conversionNote()}</div>

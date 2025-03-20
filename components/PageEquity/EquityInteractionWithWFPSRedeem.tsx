@@ -29,6 +29,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 	const [error, setError] = useState("");
 	const [isApproving, setApproving] = useState(false);
 	const [isRedeeming, setRedeeming] = useState(false);
+	const [userBalance, setUserBalance] = useState<bigint>(0n);
 	const [wfpsAllowance, setWfpsAllowance] = useState<bigint>(0n);
 	const [wfpsBalance, setWfpsBalance] = useState<bigint>(0n);
 	const [wfpsHolding, setWfpsHolding] = useState<bigint>(0n);
@@ -64,6 +65,14 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 					args: [account],
 				});
 				setWfpsBalance(_wfpsBalance);
+
+				const _userBalance = await readContract(WAGMI_CONFIG, {
+					address: ADDRESS[chainId].frankenCoin,
+					abi: erc20Abi,
+					functionName: "balanceOf",
+					args: [account],
+				});
+				setUserBalance(_userBalance);
 			}
 
 			const _wfpsHolding = await readContract(WAGMI_CONFIG, {
@@ -218,7 +227,12 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 				/>
 
 				<div className="py-4 text-center z-0">
-					<Button className={`h-10 rounded-full`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
+					<Button
+						className={`h-10 rounded-full`}
+						width="w-10"
+						onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}
+						disabled={true}
+					>
 						<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
 					</Button>
 				</div>
@@ -231,6 +245,9 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 					output={Math.round(parseFloat(formatUnits(calculateProceeds, 18)) * 10000) / 10000}
 					label="Receive"
 					disabled={true}
+					limit={userBalance}
+					limitDigit={18}
+					limitLabel="Balance"
 				/>
 				<div className={`mt-2 px-1 transition-opacity`}>{conversionNote()}</div>
 

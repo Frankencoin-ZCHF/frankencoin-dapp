@@ -218,6 +218,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 
 	const fromBalance = direction ? fpsBalance : wfpsBalance;
 	const fromSymbol = direction ? "FPS" : "WFPS";
+	const toBalance = !direction ? fpsBalance : wfpsBalance;
 	const toSymbol = !direction ? "FPS" : "WFPS";
 
 	const onChangeAmount = (value: string) => {
@@ -262,6 +263,9 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 					output={Math.round(parseFloat(formatUnits(amount, 18)) * 10000) / 10000}
 					label="Receive"
 					disabled={true}
+					limit={toBalance}
+					limitDigit={18}
+					limitLabel="Balance"
 				/>
 				<div className={`mt-2 px-1 transition-opacity`}>
 					1 {fromSymbol} = 1 {toSymbol}
