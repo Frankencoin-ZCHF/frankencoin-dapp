@@ -52,8 +52,10 @@ export default function PositionCreate({}) {
 	const collTokenData = useTokenData(collateralAddress);
 	const userBalance = useUserBalance();
 
+	const { allowance: deuroAllowance, refetch: refetchDeuroAllowance } = useTokenData(ADDRESS[WAGMI_CHAIN.id].decentralizedEURO);
+
 	const { t } = useTranslation();
-	
+
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
 		if (acc === undefined) return;
@@ -76,9 +78,9 @@ export default function PositionCreate({}) {
 	useEffect(() => {
 		if (isAddress(collateralAddress)) {
 			if (collTokenData.name == "NaN") {
-				setCollTokenAddrError(t('mint.error.could_not_obtain_token_data'));
+				setCollTokenAddrError(t("mint.error.could_not_obtain_token_data"));
 			} else if (collTokenData.decimals > 24n) {
-				setCollTokenAddrError(t('mint.error.token_decimals_should_be_less_than_24'));
+				setCollTokenAddrError(t("mint.error.token_decimals_should_be_less_than_24"));
 			} else {
 				setCollTokenAddrError("");
 			}
@@ -110,9 +112,9 @@ export default function PositionCreate({}) {
 		const valueBigInt = BigInt(value);
 		setInitialCollAmount(valueBigInt);
 		if (valueBigInt < minCollAmount) {
-			setInitialCollAmountError(t('mint.error.must_be_at_least_the_minimum_amount'));
+			setInitialCollAmountError(t("mint.error.must_be_at_least_the_minimum_amount"));
 		} else if (valueBigInt > collTokenData.balance) {
-			setInitialCollAmountError(t('common.error.insufficient_balance', {symbol: collTokenData.symbol}));
+			setInitialCollAmountError(t("common.error.insufficient_balance", { symbol: collTokenData.symbol }));
 		} else {
 			setInitialCollAmountError("");
 		}
@@ -135,7 +137,7 @@ export default function PositionCreate({}) {
 		setInterest(valueBigInt);
 
 		if (valueBigInt > 100_0000n) {
-			setInterestError(t('mint.error.annual_interest_rate_exceeded', {rate: 100}));
+			setInterestError(t("mint.error.annual_interest_rate_exceeded", { rate: 100 }));
 		} else {
 			setInterestError("");
 		}
@@ -150,7 +152,7 @@ export default function PositionCreate({}) {
 		const valueBigInt = BigInt(value);
 		setInitPeriod(valueBigInt);
 		if (valueBigInt < 3n) {
-			setInitError(t('mint.error.initialization_period_too_short', {days: 3}));
+			setInitError(t("mint.error.initialization_period_too_short", { days: 3 }));
 		} else {
 			setInitError("");
 		}
@@ -164,8 +166,8 @@ export default function PositionCreate({}) {
 
 	function checkCollateralAmount(coll: bigint, price: bigint) {
 		if (coll * price < 10n ** 36n) {
-			setLiqPriceError(t('mint.error.liquidation_value_too_low', {amount: 5000, symbol: TOKEN_SYMBOL}));
-			setMinCollAmountError(t('mint.error.collateral_value_too_low', {amount: 5000, symbol: TOKEN_SYMBOL}));
+			setLiqPriceError(t("mint.error.liquidation_value_too_low", { amount: 5000, symbol: TOKEN_SYMBOL }));
+			setMinCollAmountError(t("mint.error.collateral_value_too_low", { amount: 5000, symbol: TOKEN_SYMBOL }));
 		} else {
 			setLiqPriceError("");
 			setMinCollAmountError("");
@@ -176,9 +178,9 @@ export default function PositionCreate({}) {
 		const valueBigInt = BigInt(value);
 		setBuffer(valueBigInt);
 		if (valueBigInt > 1000_000n) {
-			setBufferError(t('mint.error.buffer_too_high', {amount: 100}));
+			setBufferError(t("mint.error.buffer_too_high", { amount: 100 }));
 		} else if (valueBigInt < 100_000) {
-			setBufferError(t('mint.error.buffer_too_low', {amount: 10}));
+			setBufferError(t("mint.error.buffer_too_low", { amount: 10 }));
 		} else {
 			setBufferError("");
 		}
@@ -188,7 +190,7 @@ export default function PositionCreate({}) {
 		const valueBigInt = BigInt(value);
 		setAuctionDuration(valueBigInt);
 		if (valueBigInt < 1n) {
-			setDurationError(t('mint.error.duration_too_short', {hours: 1}));
+			setDurationError(t("mint.error.duration_too_short", { hours: 1 }));
 		} else {
 			setDurationError("");
 		}
@@ -221,27 +223,70 @@ export default function PositionCreate({}) {
 
 			const toastContent = [
 				{
-					title: t('common.txs.amount'),
+					title: t("common.txs.amount"),
 					value: "infinite " + collTokenData.symbol,
 				},
 				{
-					title: t('common.txs.spender'),
+					title: t("common.txs.spender"),
 					value: shortenAddress(ADDRESS[chainId].mintingHubGateway),
 				},
 				{
-					title: t('common.txs.transaction'),
+					title: t("common.txs.transaction"),
 					hash: approveWriteHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={t('common.txs.title', {symbol: collTokenData.symbol})} rows={toastContent} />,
+					render: <TxToast title={t("common.txs.title", { symbol: collTokenData.symbol })} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={t('common.txs.success', {symbol: collTokenData.symbol})} rows={toastContent} />,
+					render: <TxToast title={t("common.txs.success", { symbol: collTokenData.symbol })} rows={toastContent} />,
 				},
 			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error)); // TODO: Need translation
+		} finally {
+			setIsConfirming("");
+		}
+	};
+
+	const handleApproveDeuro = async () => {
+		try {
+			setIsConfirming("approveDeuro");
+
+			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].decentralizedEURO,
+				abi: erc20Abi,
+				functionName: "approve",
+				args: [ADDRESS[chainId].mintingHubGateway, maxUint256],
+			});
+
+			const toastContent = [
+				{
+					title: t("common.txs.amount"),
+					value: "infinite " + TOKEN_SYMBOL,
+				},
+				{
+					title: t("common.txs.spender"),
+					value: shortenAddress(ADDRESS[chainId].mintingHubGateway),
+				},
+				{
+					title: t("common.txs.transaction"),
+					hash: approveWriteHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={t("common.txs.title", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title={t("common.txs.success", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
+				},
+			});
+
+			await refetchDeuroAllowance();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: Need translation
 		} finally {
@@ -272,29 +317,29 @@ export default function PositionCreate({}) {
 
 			const toastContent = [
 				{
-					title: t('mint.collateral'),
+					title: t("mint.collateral"),
 					value: shortenAddress(collTokenData.address),
 				},
 				{
-					title: t('mint.collateral_amount'),
+					title: t("mint.collateral_amount"),
 					value: formatBigInt(initialCollAmount, parseInt(collTokenData.decimals.toString())) + " " + collTokenData.symbol,
 				},
 				{
-					title: t('mint.liquidation_price'),
+					title: t("mint.liquidation_price"),
 					value: formatBigInt(liqPrice, 36 - parseInt(collTokenData.decimals.toString())) + ` ${TOKEN_SYMBOL}`,
 				},
 				{
-					title: t('common.txs.transaction'),
+					title: t("common.txs.transaction"),
 					hash: openWriteHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: openWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={t('mint.txs.creating_position')} rows={toastContent} />,
+					render: <TxToast title={t("mint.txs.creating_position")} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={t('mint.txs.position_created')} rows={toastContent} />,
+					render: <TxToast title={t("mint.txs.position_created")} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
@@ -307,50 +352,56 @@ export default function PositionCreate({}) {
 	return (
 		<>
 			<Head>
-				<title>dEURO - {t('mint.propose_position')}</title>
+				<title>dEURO - {t("mint.propose_position")}</title>
 			</Head>
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold justify-center mt-3 flex">{t('mint.proposal_process')}</div>
+						<div className="text-lg font-bold justify-center mt-3 flex">{t("mint.proposal_process")}</div>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							<TokenInput
-								label={t('mint.proposal_fee')}
+								label={t("mint.proposal_fee")}
 								symbol={TOKEN_SYMBOL}
 								hideMaxLabel
 								value={proposalFee.toString()}
 								onChange={onChangeProposalFee}
 								digit={0}
-								error={userBalance.deuroBalance < BigInt(1000 * 1e18) ? t('common.error.not_enough', {symbol: TOKEN_SYMBOL}) : ""}
+								error={
+									userBalance.deuroBalance < BigInt(1000 * 1e18)
+										? t("common.error.not_enough", { symbol: TOKEN_SYMBOL })
+										: ""
+								}
 								disabled={true}
 							/>
 							<NormalInput
-								label={t('mint.initialization_period')}
-								symbol={t('common.days')}
+								label={t("mint.initialization_period")}
+								symbol={t("common.days")}
 								error={initError}
 								digit={0}
 								hideMaxLabel
 								value={initPeriod.toString()}
 								onChange={onChangeInitPeriod}
-								placeholder={t('mint.initialization_period')}
+								placeholder={t("mint.initialization_period")}
 							/>
 						</div>
 						<div>
 							<Trans i18nKey="mint.discuss_recommendation">
-								<Link href={SOCIAL.Forum} target="_blank">discuss</Link>
+								<Link href={SOCIAL.Forum} target="_blank">
+									discuss
+								</Link>
 							</Trans>
 						</div>
 					</div>
 
 					{/* Collateral */}
 					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold justify-center mt-3 flex">{t('mint.collateral')}</div>
+						<div className="text-lg font-bold justify-center mt-3 flex">{t("mint.collateral")}</div>
 
 						<AddressInput
-							label={t('mint.collateral_token')}
+							label={t("mint.collateral_token")}
 							error={collTokenAddrError}
-							placeholder={t('mint.token_contract_address')}
+							placeholder={t("mint.token_contract_address")}
 							value={collateralAddress}
 							onChange={onChangeCollateralAddress}
 						/>
@@ -362,71 +413,73 @@ export default function PositionCreate({}) {
 								}
 								onClick={() => handleApprove()}
 							>
-								{collTokenData.symbol == "NaN" ? t('common.approve') : t('mint.approve_handling', {symbol: collTokenData.symbol})}
+								{collTokenData.symbol == "NaN"
+									? t("common.approve")
+									: t("mint.approve_handling", { symbol: collTokenData.symbol })}
 							</Button>
 						) : (
 							""
 						)}
 						<TokenInput
-							label={t('mint.minimum_collateral')}
+							label={t("mint.minimum_collateral")}
 							symbol={collTokenData.symbol}
 							error={minCollAmountError}
 							hideMaxLabel
 							value={minCollAmount.toString()}
 							onChange={onChangeMinCollAmount}
 							digit={collTokenData.decimals}
-							placeholder={t('mint.minimum_collateral_amount')}
+							placeholder={t("mint.minimum_collateral_amount")}
 						/>
 						<TokenInput
-							balanceLabel={t('common.balance_label') + " "}
-							label={t('mint.initial_collateral')}
+							balanceLabel={t("common.balance_label") + " "}
+							label={t("mint.initial_collateral")}
 							symbol={collTokenData.symbol}
 							error={initialCollAmountError}
 							max={collTokenData.balance}
 							value={initialCollAmount.toString()}
 							onChange={onChangeInitialCollAmount}
 							digit={collTokenData.decimals}
-							placeholder={t('mint.initial_collateral_amount')}
+							placeholder={t("mint.initial_collateral_amount")}
 						/>
 					</div>
 					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center mt-3">{t('mint.financial_terms')}</div>
+						<div className="text-lg font-bold text-center mt-3">{t("mint.financial_terms")}</div>
 						<TokenInput
-							label={t('mint.global_minting_limit')}
+							label={t("mint.global_minting_limit")}
 							hideMaxLabel
 							symbol={TOKEN_SYMBOL}
 							error={limitAmountError}
 							value={limitAmount.toString()}
 							onChange={onChangeLimitAmount}
-							placeholder={t('mint.global_limit_amount')}
+							placeholder={t("mint.global_limit_amount")}
 						/>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							<NormalInput
-								label={t('mint.risk_premium')}
+								label={t("mint.risk_premium")}
 								symbol="%"
 								error={interestError}
 								digit={4}
 								hideMaxLabel
 								value={interest.toString()}
 								onChange={onChangeInterest}
-								placeholder={t('mint.risk_premium_percent')}
+								placeholder={t("mint.risk_premium_percent")}
 							/>
 							<NormalInput
-								label={t('mint.maturity')}
-								symbol={t('common.months')}
+								label={t("mint.maturity")}
+								symbol={t("common.months")}
 								hideMaxLabel
 								digit={0}
 								value={maturity.toString()}
 								onChange={onChangeMaturity}
-								placeholder={t('mint.maturity')}
+								placeholder={t("mint.maturity")}
 							/>
 						</div>
 					</div>
 					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center mt-3">{t('mint.liquidation')}</div>
+						<div className="text-lg font-bold text-center mt-3">{t("mint.liquidation")}</div>
 						<TokenInput
-							label={t('mint.liquidation_price')}
-							balanceLabel={t('common.pick')}
+							label={t("mint.liquidation_price")}
+							balanceLabel={t("common.pick")}
 							symbol={TOKEN_SYMBOL}
 							error={liqPriceError}
 							digit={36n - collTokenData.decimals}
@@ -434,41 +487,53 @@ export default function PositionCreate({}) {
 							max={minCollAmount == 0n ? 0n : (5000n * 10n ** 36n + minCollAmount - 1n) / minCollAmount}
 							value={liqPrice.toString()}
 							onChange={onChangeLiqPrice}
-							placeholder={t('common.price')}
+							placeholder={t("common.price")}
 						/>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							<NormalInput
-								label={t('mint.retained_reserve')}
+								label={t("mint.retained_reserve")}
 								symbol="%"
 								error={bufferError}
 								digit={4}
 								hideMaxLabel
 								value={buffer.toString()}
 								onChange={onChangeBuffer}
-								placeholder={t('common.percent')}
+								placeholder={t("common.percent")}
 							/>
 							<NormalInput
-								label={t('mint.auction_duration')}
-								symbol={t('common.hours')}
+								label={t("mint.auction_duration")}
+								symbol={t("common.hours")}
 								error={durationError}
 								hideMaxLabel
 								digit={0}
 								value={auctionDuration.toString()}
 								onChange={onChangeAuctionDuration}
-								placeholder={t('mint.auction_duration')}
+								placeholder={t("mint.auction_duration")}
 							/>
 						</div>
 					</div>
 				</section>
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-					<GuardToAllowedChainBtn label={t('mint.propose_position')}>
-						<Button
-							disabled={minCollAmount == 0n || userAllowance < initialCollAmount || initialCollAmount == 0n || hasFormError()}
-							isLoading={isConfirming == "open"}
-							onClick={() => handleOpenPosition()}
-						>
-							{t('mint.propose_position')}
-						</Button>
+					<GuardToAllowedChainBtn label={t("mint.propose_position")}>
+						{deuroAllowance < BigInt(1000 * 1e18) ? (
+							<Button
+								disabled={hasFormError()}
+								isLoading={isConfirming == "approveDeuro"}
+								onClick={() => handleApproveDeuro()}
+							>
+								{t("common.approve")}
+							</Button>
+						) : (
+							<Button
+								disabled={
+									minCollAmount == 0n || userAllowance < initialCollAmount || initialCollAmount == 0n || hasFormError()
+								}
+								isLoading={isConfirming == "open"}
+								onClick={() => handleOpenPosition()}
+							>
+								{t("mint.propose_position")}
+							</Button>
+						)}
 					</GuardToAllowedChainBtn>
 				</div>
 			</div>

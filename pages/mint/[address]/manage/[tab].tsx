@@ -18,6 +18,19 @@ enum Tab {
 	Expiration = "expiration",
 }
 
+const renderContent = (tab: Tab) => {
+	switch (tab) {
+		case Tab.Collateral:
+			return <CollateralManageSection />;
+		case Tab.Borrowed:
+			return <BorrowedManageSection />;
+		case Tab.Expiration:
+			return <ExpirationManageSection />;
+		default:
+			return null;
+	}
+};
+
 
 export default function PositionManage() {
 	const router = useRouter();
@@ -54,30 +67,17 @@ export default function PositionManage() {
 		router.replace(`/mint/${address}/manage/${id}${toQueryString(carryOnQueryParams)}`);
 	};
 
-	const renderContent = () => {
-		switch (activeButton) {
-			case Tab.Collateral:
-				return <CollateralManageSection />;
-			case Tab.Borrowed:
-				return <BorrowedManageSection />;
-			case Tab.Expiration:
-				return <ExpirationManageSection />;
-			default:
-				return null;
-		}
-	};
-
 	return (
 		<>
 			<Head>
 				<title>dEURO - {t("my_positions.manage_position")}</title>
 			</Head>
 			<div className="md:mt-8 flex justify-center">
-				<AppCard className="max-w-lg sm:min-w-[33.5rem] p-4 flex flex-col gap-y-8">
+				<AppCard className="max-w-lg sm:min-w-[32rem] p-4 flex flex-col gap-y-8">
 					<SectionTitle className="!mb-0 text-center !text-xl">{t("mint.adjust_your_borrowing_position")}</SectionTitle>
 					<div className="flex flex-col gap-y-7">
 						<GroupButtons buttons={tabs} setActiveButton={handleClick} activeButton={activeButton} />
-						<div className="w-full">{renderContent()}</div>
+						<div className="w-full">{renderContent(activeButton as Tab)}</div>
 					</div>
 				</AppCard>
 			</div>

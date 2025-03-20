@@ -71,7 +71,7 @@
         }
     },
     "swap": {
-        "title": "Swap {{symbol}} for other stablecoins",
+        "title": "Swap other stablecoins for {{symbol}}",
         "limit_label": "Swap limit",
         "placeholder": "Swap Amount",
         "swap": "Swap",
@@ -89,6 +89,7 @@
     "mint": {
         "title": "Lending",
         "mint_title": "Lend Decentralized Euros For Yourself",
+        "mint_title_2": "Lend {{symbol}} against your Asset",
         "borrow": "Lending",
         "symbol_borrow": "{{symbol}} lend",
         "propose_position": "Propose Position",
@@ -338,7 +339,7 @@
     "equity": {
         "title": "Equity",
         "equity": "Equity",
-        "pool_shares_title": "Native Decentralized Pool Shares ({{symbol}})",
+        "pool_shares_title": "Native Decentralized Protocol Shares",
         "also_available_as": "Also available as",
         "symbol_price": "{{symbol}} Price",
         "supply": "Supply",

@@ -303,7 +303,7 @@ export default function PositionCreate({}) {
 			<div className="max-w-lg w-[32rem]">
 				<AppCard className="w-full p-4 flex-col justify-start items-center gap-8 flex">
 					<div className="self-stretch justify-center items-center gap-1.5 inline-flex">
-						<div className="text-text-title text-xl font-black ">{t("mint.symbol_borrow", { symbol: TOKEN_SYMBOL })}</div>
+						<div className="text-text-title text-xl font-black ">{t("mint.mint_title_2", { symbol: TOKEN_SYMBOL })}</div>
 					</div>
 					<div className="self-stretch flex-col justify-start items-center gap-1 flex">
 						<InputTitle icon={faCircleQuestion}>{t("mint.select_collateral")}</InputTitle>

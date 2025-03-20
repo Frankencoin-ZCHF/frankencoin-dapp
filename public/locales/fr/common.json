@@ -338,7 +338,7 @@
     "equity": {
         "title": "Capitaux propres",
         "equity": "Capitaux propres",
-        "pool_shares_title": "Native Decentralized Pool Shares ({{symbol}})",
+        "pool_shares_title": "Native Decentralized Protocol Shares",
         "also_available_as": "Également disponible sous forme de",
         "symbol_price": "Prix {{symbol}}",
         "supply": "Offre",
