@@ -102,6 +102,99 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 			<AppCard>
+				<div className="mt-4 text-lg font-bold text-center">Applicable Rates</div>
+
+				<div className="-m-4 mr-4">
+					<ApexChart
+						type="line"
+						options={{
+							theme: {
+								monochrome: {
+									enabled: false,
+								},
+							},
+							colors: ["#092f62"],
+							stroke: {
+								curve: "stepline",
+								width: 3,
+							},
+							chart: {
+								type: "line",
+								height: 100,
+								dropShadow: {
+									enabled: false,
+								},
+								toolbar: {
+									show: false,
+								},
+								zoom: {
+									enabled: false,
+								},
+								background: "0",
+							},
+							dataLabels: {
+								enabled: false,
+							},
+							grid: {
+								show: false,
+							},
+							xaxis: {
+								type: "datetime",
+								labels: {
+									show: true,
+									formatter: (value) => {
+										const date = new Date(value);
+										const d = date.getDate();
+										const m = date.getMonth() + 1;
+										const y = date.getFullYear();
+										return `${d}.${m}.${y}`;
+									},
+								},
+								axisBorder: {
+									show: false,
+								},
+								axisTicks: {
+									show: false,
+								},
+							},
+							yaxis: {
+								labels: {
+									show: true,
+									formatter: (value) => {
+										return `${Math.round(value / 1000) / 10} %`;
+									},
+								},
+								axisBorder: {
+									show: true,
+								},
+								axisTicks: {
+									show: true,
+								},
+								min: (min) => {
+									return min - min * 0.1;
+								},
+								max: (max) => {
+									return max + max * 0.1;
+								},
+							},
+						}}
+						series={[
+							{
+								name: "Rates",
+								data: matchingRates.map((entry) => {
+									return [entry.created * 1000, Math.round(entry.approvedRate)];
+								}),
+							},
+						]}
+					/>
+
+					{matchingRates.length == 0 ? (
+						<div className="flex justify-center text-text-warning">No data available for selected timeframe.</div>
+					) : null}
+				</div>
+			</AppCard>
+
+			<AppCard>
 				<div className="flex flex-col gap-4">
 					<div className="mt-4 text-lg font-bold text-center">Propose a new Rate</div>
 
@@ -139,109 +232,6 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 							Propose Change
 						</Button>
 					</GuardToAllowedChainBtn>
-				</div>
-			</AppCard>
-
-			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Applied Rates</div>
-
-				<div className="-m-4 mr-4">
-					<ApexChart
-						type="area"
-						options={{
-							theme: {
-								monochrome: {
-									color: "#092f62",
-									enabled: true,
-								},
-							},
-							chart: {
-								type: "area",
-								height: 100,
-								dropShadow: {
-									enabled: false,
-								},
-								toolbar: {
-									show: false,
-								},
-								zoom: {
-									enabled: false,
-								},
-								background: "0",
-							},
-							stroke: {
-								width: 3,
-							},
-							dataLabels: {
-								enabled: false,
-							},
-							grid: {
-								show: false,
-							},
-							xaxis: {
-								type: "datetime",
-								labels: {
-									show: false,
-									formatter: (value) => {
-										const date = new Date(value);
-										const d = date.getDate();
-										const m = date.getMonth() + 1;
-										const y = date.getFullYear();
-										return `${d}.${m}.${y}`;
-									},
-								},
-								axisBorder: {
-									show: false,
-								},
-								axisTicks: {
-									show: false,
-								},
-							},
-							yaxis: {
-								labels: {
-									show: true,
-									formatter: (value) => {
-										return `${Math.round(value / 1000) / 10} %`;
-									},
-								},
-								axisBorder: {
-									show: true,
-								},
-								axisTicks: {
-									show: true,
-								},
-								min: (min) => {
-									// Add 10% padding below the minimum value
-									return min - min * 0.1;
-								},
-								max: (max) => {
-									// Add 10% padding above the maximum value
-									return max + max * 0.1;
-								},
-							},
-							fill: {
-								type: "gradient",
-								gradient: {
-									shadeIntensity: 0,
-									opacityTo: 0.2,
-									shade: "#e7e7ea",
-									gradientToColors: ["#092f62"],
-								},
-							},
-						}}
-						series={[
-							{
-								name: "Rates",
-								data: matchingRates.map((entry) => {
-									return [entry.created * 1000, Math.round(entry.approvedRate)];
-								}),
-							},
-						]}
-					/>
-
-					{matchingRates.length == 0 ? (
-						<div className="flex justify-center text-text-warning">No data available for selected timeframe.</div>
-					) : null}
 				</div>
 			</AppCard>
 		</div>
