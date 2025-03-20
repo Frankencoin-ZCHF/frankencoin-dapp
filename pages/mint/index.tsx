@@ -7,6 +7,7 @@ import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import AppTitle from "@components/AppTitle";
 import { fetchMorphoMarkets } from "../../redux/slices/morpho.slice";
 import BorrowMorphoTable from "@components/PageBorrow/BorrowMorphoTable";
+import AppLink from "@components/AppLink";
 
 export default function Borrow() {
 	useEffect(() => {
@@ -29,10 +30,7 @@ export default function Borrow() {
 					<AppTitle title="Borrow on Morpho">
 						<div className="text-text-secondary">
 							Borrow Frankencoins (ZCHF) at variable rates on the lending platform{" "}
-							<a className="underline cursor-pointer font-semibold" href="https://morpho.org/">
-								Morpho
-							</a>
-							.
+							<AppLink href="https://morpho.org/" label="Morpho" className="" external={true} />.
 						</div>
 					</AppTitle>
 
