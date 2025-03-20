@@ -15,31 +15,23 @@ export default function Borrow() {
 		store.dispatch(fetchMorphoMarkets());
 	}, []);
 
-	// Fri Mar 21 2025 16:00:00 GMT+0100 (Central European Standard Time)
-	const unlockMorphoInterface = new Date("2025-03-21T15:00:00Z").getTime();
-	const isUnlockMorphoInterface: boolean = unlockMorphoInterface < Date.now();
-
 	return (
 		<>
 			<Head>
 				<title>Frankencoin - Borrow</title>
 			</Head>
 
-			{isUnlockMorphoInterface ? (
-				<>
-					<AppTitle title="Borrow on Morpho">
-						<div className="text-text-secondary">
-							Borrow Frankencoins (ZCHF) at variable rates on the lending platform{" "}
-							<AppLink href="https://morpho.org/" label="Morpho" className="" external={true} />.
-						</div>
-					</AppTitle>
+			<AppTitle title="Borrow on Morpho">
+				<div className="text-text-secondary">
+					Borrow Frankencoins (ZCHF) at variable rates on the lending platform{" "}
+					<AppLink href="https://morpho.org/" label="Morpho" className="" external={true} />.
+				</div>
+			</AppTitle>
 
-					<div className="mt-8">
-						<BorrowMorphoTable />
-					</div>
-				</>
-			) : null}
-
+			<div className="mt-8">
+				<BorrowMorphoTable />
+			</div>
+			
 			<AppTitle title="Mint fresh Frankencoins">
 				<div className="text-text-secondary">Mint Frankencoins (ZCHF) at a fixed rate for your duration of choice.</div>
 			</AppTitle>

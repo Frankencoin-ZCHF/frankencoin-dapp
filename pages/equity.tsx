@@ -16,14 +16,7 @@ export default function Equity() {
 				<title>Frankencoin - Equity</title>
 			</Head>
 
-			<AppTitle title={`Equity `}>
-				<div className="text-text-secondary">
-					View the Smart Contract in the explorer{" "}
-					<AppLink label={shortenAddress(equity) + "."} href={ContractUrl(equity)} external={true} className="pr-1" />
-					View the Smart Contract of the Wrapped Version in the explorer{" "}
-					<AppLink label={shortenAddress(wFPS) + "."} href={ContractUrl(wFPS)} external={true} className="pr-1" />
-				</div>
-			</AppTitle>
+			<AppTitle title={`Equity `}></AppTitle>
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">

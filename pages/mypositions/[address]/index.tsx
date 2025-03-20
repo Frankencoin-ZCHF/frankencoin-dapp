@@ -354,14 +354,7 @@ export default function PositionAdjust() {
 
 			<AppTitle title={`Manage Position `}>
 				<div className="text-text-secondary">
-					Manage your position with address{" "}
-					<AppLink
-						label={shortenAddress(position.position) + "."}
-						href={`/monitoring/${position.position}`}
-						external={false}
-						className="pr-1"
-					/>
-					View the Smart Contract in the explorer{" "}
+					Based on contract{" "}
 					<AppLink
 						label={shortenAddress(position.position) + "."}
 						href={ContractUrl(position.position)}

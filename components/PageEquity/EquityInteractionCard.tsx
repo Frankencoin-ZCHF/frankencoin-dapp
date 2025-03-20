@@ -45,11 +45,6 @@ export default function EquityInteractionCard() {
 					selectorMapping={EquityTokenSelectorMapping}
 				/>
 			) : null}
-
-			<div className="mt-4 text-text-secondary">
-				Also available as <AppLink label={"WFPS"} href={ContractUrl(wFPS)} external={true} className="pr-1" />
-				for <AppLink label={"trading on Polygon"} href={SOCIAL.Uniswap_WFPS_Polygon} external={true} className="pr-1" />
-			</div>
 		</div>
 	);
 }
