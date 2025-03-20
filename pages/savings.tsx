@@ -37,6 +37,21 @@ export default function SavingsPage() {
 				<div className="text-text-secondary">
 					View the Savings Module in the explorer{" "}
 					<AppLink label={shortenAddress(savings) + "."} href={link} external={true} className="pr-1" />
+					Alternatively, you can lend your Frankencoins on Morpho and earn flexible interest rates that adjust with market
+					conditions. Lend to{" "}
+					<AppLink
+						label={"WBTC exposure Vault"}
+						href={"https://app.morpho.org/ethereum/vault/0x6619F92861C760AD11BA0D56E8ED63A33EccE22B/alpha-zchf-safe-vault"}
+						external={true}
+						className="pr-1"
+					/>
+					or lend to{" "}
+					<AppLink
+						label={"WETH, xCXV, and xETH market exposure Vault."}
+						href={"https://app.morpho.org/ethereum/vault/0xFa7ED49Eb24A6117D8a3168EEE69D26b45C40C63/alpha-zchf-vault"}
+						external={true}
+						className="pr-1"
+					/>
 				</div>
 			</AppTitle>
 
