@@ -2,6 +2,117 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Avenir Fonts */
+
+/* Avenir-Book-01.ttf
+Avenir-BookOblique-02.ttf
+Avenir-Black-03.ttf
+Avenir-BlackOblique-04.ttf
+Avenir-Heavy-05.ttf
+Avenir-HeavyOblique-06
+Avenir-Light-07.ttf
+Avenir-LightOblique-08.ttf
+Avenir-Medium-09.ttf
+Avenir-MediumOblique-10.ttf
+Avenir-Oblique-11.ttf
+Avenir-Roman-12.ttf */
+
+@font-face {
+	font-family: "Avenir";
+	src: url("/fonts/Avenir-Book-01.ttf") format("truetype");
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Avenir";
+	src: url("/fonts/Avenir-BookOblique-02.ttf") format("truetype");
+	font-weight: 400;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Avenir";
+	src: url("/fonts/Avenir-Black-03.ttf") format("truetype");
+	font-weight: 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Avenir";
+	src: url("/fonts/Avenir-BlackOblique-04.ttf") format("truetype");
+	font-weight: 900;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Avenir";
+	src: url("/fonts/Avenir-Heavy-05.ttf") format("truetype");
+	font-weight: 800;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Avenir";
+	src: url("/fonts/Avenir-HeavyOblique-06.ttf") format("truetype");
+	font-weight: 800;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Avenir";
+	src: url("/fonts/Avenir-Light-07.ttf") format("truetype");
+	font-weight: 300;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Avenir";
+	src: url("/fonts/Avenir-LightOblique-08.ttf") format("truetype");
+	font-weight: 300;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Avenir";
+	src: url("/fonts/Avenir-Medium-09.ttf") format("truetype");
+	font-weight: 500;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Avenir";
+	src: url("/fonts/Avenir-MediumOblique-10.ttf") format("truetype");
+	font-weight: 500;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Avenir";
+	src: url("/fonts/Avenir-Oblique-11.ttf") format("truetype");
+	font-weight: 400;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Avenir";
+	src: url("/fonts/Avenir-Roman-12.ttf") format("truetype");
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
 @layer components {
 	.btn {
 		@apply inline-flex whitespace-nowrap justify-center items-center gap-3 cursor-pointer rounded-lg select-none ease-in duration-200 border border-transparent px-3 py-2 md:px-3 md:py-3;
