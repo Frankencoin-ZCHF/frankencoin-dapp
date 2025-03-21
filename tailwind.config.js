@@ -9,7 +9,7 @@ module.exports = {
 	],
 	theme: {
 		fontFamily: {
-			default: ["Avenir"],
+			default: ["Avenir", "Helvetica", "sans-serif"],
 		},
 		extend: {
 			height: {
