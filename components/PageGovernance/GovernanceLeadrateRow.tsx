@@ -1,7 +1,6 @@
 import { Hash } from "viem";
 import TableRow from "../Table/TableRow";
-import { formatCurrency } from "../../utils/format";
-import { AddressLabelSimple, TxLabelSimple } from "@components/AddressLabel";
+import { formatCurrency, shortenAddress } from "../../utils/format";
 import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { CONFIG, WAGMI_CONFIG } from "../../app.config";
@@ -11,6 +10,8 @@ import Button from "@components/Button";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { toast } from "react-toastify";
 import { renderErrorTxToast, renderErrorTxToastDecode, TxToast } from "@components/TxToast";
+import AppLink from "@components/AppLink";
+import { ContractUrl, TxUrl } from "@utils";
 
 interface Props {
 	headers: string[];
@@ -29,7 +30,7 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 
 	const vetoUntil = proposal.nextChange * 1000;
 	const hoursUntil: number = (vetoUntil - Date.now()) / 1000 / 60 / 60;
-	const stateStr: string = `${Math.round(hoursUntil)} hours left`;
+	const stateStr: string = `${hoursUntil < 10 && hoursUntil > 0 ? Math.round(hoursUntil * 10) / 10 : Math.round(hoursUntil)} hours left`;
 
 	const dateArr: string[] = new Date(proposal.created * 1000).toDateString().split(" ");
 	const dateStr: string = `${dateArr[2]} ${dateArr[1]} ${dateArr[3]}`;
@@ -127,11 +128,13 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 	return (
 		<>
 			<TableRow
+				paddingY={currentProposal && proposal.nextRate != info.rate ? "md:py-0 max-md:py-4" : undefined}
 				headers={headers}
 				tab={tab}
+				rawHeader={true}
 				actionCol={
-					currentProposal ? (
-						info.isPending && info.isProposal ? (
+					currentProposal && info.isProposal ? (
+						info.isPending ? (
 							<GuardToAllowedChainBtn label="Deny" disabled={!info.isPending || !info.isProposal}>
 								<Button
 									className="h-10"
@@ -142,7 +145,7 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 									Deny
 								</Button>
 							</GuardToAllowedChainBtn>
-						) : (
+						) : !info.isPending ? (
 							<GuardToAllowedChainBtn label="Apply" disabled={!info.isProposal}>
 								<Button
 									className="h-10"
@@ -153,6 +156,8 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 									Apply
 								</Button>
 							</GuardToAllowedChainBtn>
+						) : (
+							<></>
 						)
 					) : (
 						<></>
@@ -160,19 +165,19 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 				}
 			>
 				<div className="flex flex-col md:text-left max-md:text-right">
-					<TxLabelSimple label={dateStr} tx={proposal.txHash as Hash} showLink />
+					<AppLink label={dateStr} href={TxUrl(proposal.txHash as Hash)} external={true} className="" />
 				</div>
 
 				<div className="flex flex-col">
-					<AddressLabelSimple address={proposal.proposer} showLink />
+					<AppLink label={shortenAddress(proposal.proposer)} href={ContractUrl(proposal.proposer)} external={true} className="" />
 				</div>
 
 				<div className={`flex flex-col ${currentProposal && info.isProposal ? "font-semibold" : ""}`}>
 					{proposal.nextRate / 10_000} %
 				</div>
 
-				<div className="flex flex-col">
-					{currentProposal ? (hoursUntil > 0 ? stateStr : info.rate != proposal.nextRate ? "Ready" : "Passed") : "Expired"}
+				<div className={`flex flex-col`}>
+					{currentProposal ? (info.rate != proposal.nextRate ? (hoursUntil > 0 ? stateStr : "Ready") : "Passed") : "Inactive"}
 				</div>
 			</TableRow>
 		</>

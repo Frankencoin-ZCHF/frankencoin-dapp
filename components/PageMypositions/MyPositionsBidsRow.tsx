@@ -41,13 +41,22 @@ export default function MyPositionsBidsRow({ headers, tab, bid }: Props) {
 	return (
 		<TableRow
 			headers={headers}
+			paddingY={!isDisabled ? "md:py-1 max-md:py-4" : undefined}
 			tab={tab}
 			actionCol={
-				<div className="">
-					<Button className="h-10" disabled={isDisabled} onClick={() => navigate.push(`/challenges/${challenge.id}/bid`)}>
-						Buy Again
-					</Button>
-				</div>
+				isDisabled ? (
+					<></>
+				) : (
+					<div className="">
+						<Button
+							className="h-10"
+							disabled={isDisabled}
+							onClick={() => navigate.push(`/monitoring/${challenge.position.toLowerCase()}/auction/${challenge.number}`)}
+						>
+							Buy Again
+						</Button>
+					</div>
+				)
 			}
 		>
 			{/* Collateral */}
@@ -57,9 +66,9 @@ export default function MyPositionsBidsRow({ headers, tab, bid }: Props) {
 					<span className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</span>
-					<span className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(
-						formatUnits(bid.filledSize, position.collateralDecimals)
-					)} ${position.collateralSymbol}`}</span>
+					<span className={`col-span-2 text-md`}>{`${formatCurrency(formatUnits(bid.filledSize, position.collateralDecimals))} ${
+						position.collateralSymbol
+					}`}</span>
 				</div>
 
 				{/* mobile view */}
@@ -67,9 +76,9 @@ export default function MyPositionsBidsRow({ headers, tab, bid }: Props) {
 					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</div>
-					<div className={`col-span-2 text-md text-text-primary font-semibold`}>{`${formatCurrency(
-						formatUnits(bid.filledSize, position.collateralDecimals)
-					)} ${position.collateralSymbol}`}</div>
+					<div className={`col-span-2 text-md`}>{`${formatCurrency(formatUnits(bid.filledSize, position.collateralDecimals))} ${
+						position.collateralSymbol
+					}`}</div>
 				</AppBox>
 			</div>
 

@@ -17,9 +17,10 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
-import Link from "next/link";
 import { useRouter as useNavigation } from "next/navigation";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
+import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
+import AppLink from "@components/AppLink";
 
 export default function PositionChallenge() {
 	const [amount, setAmount] = useState(0n);
@@ -259,16 +260,17 @@ export default function PositionChallenge() {
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Phase duration" />
-								<div className="py-2 text-lg">{formatDuration(position.challengePeriod)}</div>
+								<DisplayOutputAlignedRight output={formatDuration(position.challengePeriod)} />
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
 								<DisplayLabel label="Target Position" />
-								<Link className="text-link" href={`/monitoring/${position.position}`}>
-									<div className="py-2 text-lg">{shortenAddress(position.position || zeroAddress)}</div>
-								</Link>
+								<AppLink
+									label={shortenAddress(position.position || zeroAddress)}
+									href={`/monitoring/${position.position}`}
+								/>
 							</AppBox>
 						</div>
-						<div className="mx-auto mt-4 w-72 max-w-full flex-col">
+						<div className="mx-auto mt-4 w-[20rem] max-w-full flex-col">
 							<GuardToAllowedChainBtn label={amount > userAllowance ? "Approve" : "Challenge"}>
 								{amount > userAllowance ? (
 									<Button isLoading={isApproving} disabled={!!error} onClick={() => handleApprove()}>
@@ -283,8 +285,8 @@ export default function PositionChallenge() {
 						</div>
 					</div>
 					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
-						<div className="text-lg font-bold text-center mt-3">How does it work?</div>
-						<div className="flex-1 mt-4">
+						<div className="text-lg font-bold text-center mt-3 text-text-primary">How does it work?</div>
+						<div className="flex-1 mt-4 text-text-secondary">
 							<p>A challenge is divided into two phases:</p>
 							<ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
 								<li>

@@ -16,12 +16,13 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
-import Link from "next/link";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
+import AppLink from "@components/AppLink";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
+	const [errorColl, setErrorColl] = useState("");
 	const [errorDate, setErrorDate] = useState("");
 	const [isInit, setInit] = useState<boolean>(false);
 	const [isApproving, setApproving] = useState(false);
@@ -124,12 +125,13 @@ export default function PositionBorrow({}) {
 		setAmount(valueBigInt);
 		if (valueBigInt > borrowingLimit) {
 			if (availableAmount < valueBigInt) {
-				setError("Can not mint more than " + formatCurrency(parseInt(borrowingLimit.toString()) / 1e18, 2, 2) + " ZCHF");
+				setError("No more than " + formatCurrency(parseInt(availableAmount.toString()) / 1e18, 2, 2) + " ZCHF can be minted");
 			} else if (availableAmount > userValue) {
-				setError(`Not enough ${position.collateralSymbol} in your wallet.`);
+				setErrorColl(`Not enough ${position.collateralSymbol} in your wallet.`);
 			}
 		} else {
 			setError("");
+			setErrorColl("");
 		}
 	};
 
@@ -273,15 +275,21 @@ export default function PositionBorrow({}) {
 								max={availableAmount}
 								value={amount.toString()}
 								onChange={onChangeAmount}
-								placeholder="Total Amount to be Minted"
+								placeholder="Amount to be minted"
+								error={error}
+								limit={availableAmount}
+								limitDigit={18}
+								limitLabel="Available"
 							/>
 							<TokenInput
-								label="Required Collateral"
+								label="Collateral Required"
 								balanceLabel="Your balance:"
 								max={userBalance}
 								min={BigInt(position.minimumCollateral)}
 								digit={position.collateralDecimals}
 								onChange={onChangeCollateral}
+								error={errorColl}
+								placeholder="Amount required"
 								value={requiredColl.toString()}
 								symbol={position.collateralSymbol}
 								limit={userBalance}
@@ -295,9 +303,12 @@ export default function PositionBorrow({}) {
 								value={expirationDate}
 								onChange={onChangeExpiration}
 								error={errorDate}
+								limit={BigInt(position.expiration)}
+								limitDigit={position.collateralDecimals}
+								limitLabel="Until"
 							/>
 						</div>
-						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+						<div className="mx-auto w-72 max-w-full flex-col">
 							<GuardToAllowedChainBtn label={amount > userAllowance ? "Approve" : "Mint"}>
 								{requiredColl > userAllowance ? (
 									<Button
@@ -316,7 +327,6 @@ export default function PositionBorrow({}) {
 										Mint
 									</Button>
 								)}
-								<p className="text-text-warning">{error}</p>
 							</GuardToAllowedChainBtn>
 						</div>
 					</div>
@@ -355,9 +365,9 @@ export default function PositionBorrow({}) {
 									</div>
 								</div>
 
-								<hr className="mt-4 border-slate-700 border-dashed" />
+								<hr className="mt-4 border-text-active border-dashed" />
 
-								<div className="mt-2 flex font-bold">
+								<div className="mt-2 flex font-extrabold">
 									<div className="flex-1 text-text-secondary">
 										<span>Total</span>
 									</div>
@@ -401,21 +411,21 @@ export default function PositionBorrow({}) {
 								{position.isClone && (
 									<div className="mt-2 flex">
 										<div className="flex-1 text-text-secondary">Parent Position</div>
-										<Link
-											className="underline"
+										<AppLink
+											label={shortenAddress(position.version == 2 ? position.parent : position.original)}
 											href={`/monitoring/${position.version == 2 ? position.parent : position.original}`}
-										>
-											{shortenAddress(position.version == 2 ? position.parent : position.original)}
-										</Link>
+										></AppLink>
 									</div>
 								)}
 
 								{position.version == 2 && (
 									<div className="mt-2 flex">
 										<div className="flex-1 text-text-secondary">Original Position</div>
-										<Link className="underline" href={`/monitoring/${position.original}`}>
-											{shortenAddress(position.original)}
-										</Link>
+										<AppLink
+											className=""
+											label={shortenAddress(position.original)}
+											href={`/monitoring/${position.original}`}
+										></AppLink>
 									</div>
 								)}
 

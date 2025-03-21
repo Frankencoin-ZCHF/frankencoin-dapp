@@ -16,6 +16,7 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { ADDRESS, EquityABI, FPSWrapperABI } from "@frankencoin/zchf";
+import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -28,6 +29,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 	const [error, setError] = useState("");
 	const [isApproving, setApproving] = useState(false);
 	const [isRedeeming, setRedeeming] = useState(false);
+	const [userBalance, setUserBalance] = useState<bigint>(0n);
 	const [wfpsAllowance, setWfpsAllowance] = useState<bigint>(0n);
 	const [wfpsBalance, setWfpsBalance] = useState<bigint>(0n);
 	const [wfpsHolding, setWfpsHolding] = useState<bigint>(0n);
@@ -63,6 +65,14 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 					args: [account],
 				});
 				setWfpsBalance(_wfpsBalance);
+
+				const _userBalance = await readContract(WAGMI_CONFIG, {
+					address: ADDRESS[chainId].frankenCoin,
+					abi: erc20Abi,
+					functionName: "balanceOf",
+					args: [account],
+				});
+				setUserBalance(_userBalance);
 			}
 
 			const _wfpsHolding = await readContract(WAGMI_CONFIG, {
@@ -211,10 +221,18 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 					value={amount.toString()}
 					error={error}
 					placeholder={fromSymbol + " Amount"}
+					limit={wfpsBalance}
+					limitDigit={18}
+					limitLabel="Balance"
 				/>
 
 				<div className="py-4 text-center z-0">
-					<Button className={`h-10 rounded-full`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
+					<Button
+						className={`h-10 rounded-full`}
+						width="w-10"
+						onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}
+						disabled={true}
+					>
 						<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
 					</Button>
 				</div>
@@ -227,6 +245,9 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 					output={Math.round(parseFloat(formatUnits(calculateProceeds, 18)) * 10000) / 10000}
 					label="Receive"
 					disabled={true}
+					limit={userBalance}
+					limitDigit={18}
+					limitLabel="Balance"
 				/>
 				<div className={`mt-2 px-1 transition-opacity`}>{conversionNote()}</div>
 
@@ -260,13 +281,17 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Holding Duration WFPS" />
-					<div className={`py-2 text-lg ${!unlocked ? "text-text-warning font-bold" : ""}`}>
-						{wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 10 ? formatDuration(wfpsHolding) : "-"}
-					</div>
+					<DisplayOutputAlignedRight
+						textColorOutput={!poolStats.equityCanRedeem ? "text-red-500" : undefined}
+						output={wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 10 ? formatDuration(wfpsHolding) : "-"}
+					/>
 				</AppBox>
 				<AppBox className="flex-1">
 					<DisplayLabel label="Can redeem after" />
-					<div className={`py-2 text-lg ${!unlocked ? "text-text-warning font-bold" : ""}`}>{formatDuration(redeemLeft)}</div>
+					<DisplayOutputAlignedRight
+						textColorOutput={!poolStats.equityCanRedeem ? "text-red-500" : undefined}
+						output={formatDuration(redeemLeft)}
+					/>
 				</AppBox>
 			</div>
 		</>

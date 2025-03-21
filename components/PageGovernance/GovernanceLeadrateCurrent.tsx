@@ -12,6 +12,12 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ADDRESS, EquityABI, SavingsABI } from "@frankencoin/zchf";
 import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
+import dynamic from "next/dynamic";
+import AppBox from "@components/AppBox";
+import DisplayLabel from "@components/DisplayLabel";
+import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
+import { LeadrateRateQuery } from "@frankencoin/api";
+const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 interface Props {}
 
@@ -20,22 +26,31 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 	const account = useAccount();
 	const chainId = CONFIG.chain.id;
 	const info = useSelector((state: RootState) => state.savings.leadrateInfo);
-	const [newRate, setNewRate] = useState<number>(info.rate || 0);
+	const rates = useSelector((state: RootState) => state.savings.leadrateRate.list);
+	const [newRate, setNewRate] = useState<bigint>(BigInt(info.rate));
 	const [isHidden, setHidden] = useState<boolean>(false);
 	const [isDisabled, setDisabled] = useState<boolean>(true);
 
 	useEffect(() => {
-		if (newRate != info.rate) setDisabled(false);
+		if ((String(newRate) != "" && newRate != BigInt(info.rate)) || info.isProposal) setDisabled(false);
 		else setDisabled(true);
-	}, [newRate, info.rate]);
+	}, [newRate, info]);
 
 	if (!info) return null;
 
+	const latestDefaultEntry: LeadrateRateQuery = {
+		approvedRate: info.rate,
+		blockheight: 0,
+		created: Date.now() / 1000,
+		id: "latestDefaultEntry_id",
+		txHash: "latestDefaultEntry_hash",
+	};
+
+	const matchingRates = [latestDefaultEntry, ...rates];
+
 	const changeNewRate = (value: string) => {
-		if (!value || value?.length == 0) return;
-		const n = parseFloat(value);
-		if (typeof n != "number") setNewRate(0);
-		else setNewRate(n);
+		const valueValue = BigInt(value);
+		setNewRate(valueValue);
 	};
 
 	const handleOnClick = async function (e: any) {
@@ -49,7 +64,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 				address: ADDRESS[chainId].savings,
 				abi: SavingsABI,
 				functionName: "proposeChange",
-				args: [newRate, []],
+				args: [parseInt(String(newRate)), []],
 			});
 
 			const toastContent = [
@@ -59,7 +74,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 				},
 				{
 					title: `Proposing to: `,
-					value: `${formatCurrency(newRate / 10000)}%`,
+					value: `${formatCurrency(parseInt(String(newRate)) / 10000)}%`,
 				},
 				{
 					title: "Transaction: ",
@@ -85,20 +100,128 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 	};
 
 	return (
-		<AppCard>
-			<div className="grid gap-8 md:grid-cols-2 md:px-12 md:py-4 max-md:grid-cols-1 max-md:p-4">
+		<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+			<AppCard>
+				<div className="mt-4 text-lg font-bold text-center">Applicable Rates</div>
+
+				<div className="-m-4 mr-4">
+					<ApexChart
+						type="line"
+						options={{
+							theme: {
+								monochrome: {
+									enabled: false,
+								},
+							},
+							colors: ["#092f62"],
+							stroke: {
+								curve: "linestep",
+								width: 3,
+							},
+							chart: {
+								type: "line",
+								height: 100,
+								dropShadow: {
+									enabled: false,
+								},
+								toolbar: {
+									show: false,
+								},
+								zoom: {
+									enabled: false,
+								},
+								background: "0",
+							},
+							dataLabels: {
+								enabled: false,
+							},
+							grid: {
+								show: false,
+							},
+							xaxis: {
+								type: "datetime",
+								labels: {
+									show: true,
+									formatter: (value) => {
+										const date = new Date(value);
+										const d = date.getDate();
+										const m = date.getMonth() + 1;
+										const y = date.getFullYear();
+										return `${d}.${m}.${y}`;
+									},
+								},
+								axisBorder: {
+									show: false,
+								},
+								axisTicks: {
+									show: false,
+								},
+							},
+							yaxis: {
+								labels: {
+									show: true,
+									formatter: (value) => {
+										return `${Math.round(value / 1000) / 10} %`;
+									},
+								},
+								axisBorder: {
+									show: true,
+								},
+								axisTicks: {
+									show: true,
+								},
+								min: (min) => {
+									return min - min * 0.1;
+								},
+								max: (max) => {
+									return max + max * 0.1;
+								},
+							},
+						}}
+						series={[
+							{
+								name: "Rates",
+								data: matchingRates.map((entry) => {
+									return [entry.created * 1000, Math.round(entry.approvedRate)];
+								}),
+							},
+						]}
+					/>
+
+					{matchingRates.length == 0 ? (
+						<div className="flex justify-center text-text-warning">No data available for selected timeframe.</div>
+					) : null}
+				</div>
+			</AppCard>
+
+			<AppCard>
 				<div className="flex flex-col gap-4">
+					<div className="mt-4 text-lg font-bold text-center">Propose a new Rate</div>
+
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+						<AppBox>
+							<DisplayLabel label="Current Base Rate" />
+							<DisplayOutputAlignedRight className="" amount={info.rate / 10_000} unit="%" />
+						</AppBox>
+						<AppBox>
+							<DisplayLabel label="Current Proposed Rate" />
+							{info.isProposal ? (
+								<DisplayOutputAlignedRight className="" amount={info.nextRate / 10_000} unit="%" />
+							) : (
+								<DisplayOutputAlignedRight className="" output={"-"} unit="%" />
+							)}
+						</AppBox>
+					</div>
+
 					<NormalInput
 						symbol="%"
-						label="Current value"
-						placeholder={`Current Leadrate: %`}
+						label="Change Base Rate"
+						placeholder={`Disable Rate`}
 						value={newRate.toString()}
 						digit={4}
-						onChange={(v) => changeNewRate(v)}
+						onChange={changeNewRate}
 					/>
-				</div>
 
-				<div className="md:mt-8 md:px-16">
 					<GuardToAllowedChainBtn label="Propose" disabled={isDisabled || isHidden}>
 						<Button
 							className="max-md:h-10 md:h-12"
@@ -110,7 +233,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 						</Button>
 					</GuardToAllowedChainBtn>
 				</div>
-			</div>
-		</AppCard>
+			</AppCard>
+		</div>
 	);
 }

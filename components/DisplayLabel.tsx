@@ -7,7 +7,7 @@ interface Props {
 export default function DisplayLabel({ label, children, className }: Props) {
 	return (
 		<div className={`${className} items-center`}>
-			<div className="text-card-input-label">{label}</div>
+			<div className="text-card-input-label font-medium">{label}</div>
 			{children}
 		</div>
 	);

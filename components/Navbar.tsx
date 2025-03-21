@@ -38,7 +38,7 @@ export default function Navbar() {
 	return (
 		<div className="fixed top-0 left-0 right-0 z-10 backdrop-blur border-b-2 border-menu-separator bg-menu-back">
 			<header className="flex items-center md:py-4 px-4 md:gap-x-4 relative w-full">
-				<Link className="" href={CONFIG.landing}>
+				<Link className="pl-6 pr-4" href={CONFIG.landing}>
 					<picture>
 						<img className="h-9 transition" src="/coin/zchf.png" alt="Logo" />
 					</picture>

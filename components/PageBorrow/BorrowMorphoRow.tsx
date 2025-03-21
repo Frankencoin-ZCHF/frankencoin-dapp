@@ -31,8 +31,10 @@ export default function BorrowMorphoRow({ headers, tab, market }: Props) {
 			tab={tab}
 			actionCol={
 				<Button className="h-10" onClick={openExplorer}>
-					Borrow
-					<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2 my-auto cursor-pointer" />
+					<div>Borrow</div>
+					<div className="">
+						<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2 my-auto cursor-pointer" />
+					</div>
 				</Button>
 			}
 		>

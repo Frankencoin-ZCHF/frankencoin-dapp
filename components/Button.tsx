@@ -12,13 +12,13 @@ interface Props {
 }
 
 export default function Button({ size = "md", width, className, onClick, isLoading, children, disabled, error }: Props) {
-	const sizeClass = size == "sm" ? "text-sm px-2 py-1 md:px-3 md:py-1" : "px-3 py-3";
+	const sizeClass = size == "sm" ? "text-sm px-2 py-1 md:py-1" : "py-3";
 
 	return (
 		<>
 			{error && <div className="mb-2 px-1 text-text-warning text-center">{error}</div>}
 			<button
-				className={`btn ${className} ${sizeClass} ${
+				className={`btn ${className} ${
 					disabled || isLoading
 						? "cursor-not-allowed bg-button-disabled text-button-textdisabled"
 						: "bg-button-default text-white"

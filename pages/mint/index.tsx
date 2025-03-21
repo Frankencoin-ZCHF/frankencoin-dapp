@@ -7,6 +7,7 @@ import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import AppTitle from "@components/AppTitle";
 import { fetchMorphoMarkets } from "../../redux/slices/morpho.slice";
 import BorrowMorphoTable from "@components/PageBorrow/BorrowMorphoTable";
+import AppLink from "@components/AppLink";
 
 export default function Borrow() {
 	useEffect(() => {
@@ -20,20 +21,17 @@ export default function Borrow() {
 				<title>Frankencoin - Borrow</title>
 			</Head>
 
-			{/* <AppTitle title="Borrow on Morpho">
+			<AppTitle title="Borrow on Morpho">
 				<div className="text-text-secondary">
 					Borrow Frankencoins (ZCHF) at variable rates on the lending platform{" "}
-					<a className="underline cursor-pointer font-semibold" href="https://morpho.org/">
-						Morpho
-					</a>
-					.
+					<AppLink href="https://morpho.org/" label="Morpho" className="" external={true} />.
 				</div>
-			</AppTitle> */}
+			</AppTitle>
 
-			{/* <div className="mt-8">
+			<div className="mt-8">
 				<BorrowMorphoTable />
-			</div> */}
-
+			</div>
+			
 			<AppTitle title="Mint fresh Frankencoins">
 				<div className="text-text-secondary">Mint Frankencoins (ZCHF) at a fixed rate for your duration of choice.</div>
 			</AppTitle>
@@ -43,10 +41,7 @@ export default function Borrow() {
 			</div>
 
 			<div className="flex">
-				<Link
-					href={"mint/create"}
-					className="btn bg-layout-primary border-text-primary text-menu-text hover:bg-button-hover m-auto"
-				>
+				<Link href={"mint/create"} className="btn bg-layout-primary border-text-primary text-menu-text hover:bg-white m-auto">
 					Propose New Position or Collateral
 				</Link>
 			</div>

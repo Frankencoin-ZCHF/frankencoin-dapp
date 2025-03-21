@@ -35,11 +35,11 @@ export default function NormalInput({
 			<div
 				className={`group border-card-input-border hover:border-card-input-hover focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
-				} text-text-secondary border-2 rounded-lg px-3 py-2 ${disabled ? "bg-card-input-disabled" : ""}`}
+				} text-text-secondary border-2 rounded-lg px-3 py-1 ${disabled ? "bg-card-input-disabled" : ""}`}
 			>
 				<div className="flex text-card-input-label py-1">{label}</div>
 
-				<div className="flex items-center">
+				<div className="flex items-center gap-1">
 					<div
 						className={`flex-1 py-2 ${
 							error ? "text-card-input-error" : !!value ? "text-text-primary" : "placeholder:text-card-input-empty"
@@ -49,7 +49,7 @@ export default function NormalInput({
 							<div className={`text-xl py-0 bg-transparent`}>{output}</div>
 						) : (
 							<BigNumberInput
-								className={`w-full px-0 py-0 text-xl bg-transparent`}
+								className={`w-full px-0 py-0 text-xl text-right`}
 								decimals={Number(digit)}
 								placeholder={placeholder}
 								value={value}
@@ -60,7 +60,7 @@ export default function NormalInput({
 						)}
 					</div>
 
-					<div className="w-16 text-card-input-label text-center">{symbol}</div>
+					<div className="text-card-input-label text-left">{symbol}</div>
 				</div>
 			</div>
 

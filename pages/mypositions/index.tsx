@@ -26,7 +26,7 @@ export default function Positions() {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Positions</title>
+				<title>Frankencoin - My Positions</title>
 			</Head>
 
 			{/* Section Positions */}

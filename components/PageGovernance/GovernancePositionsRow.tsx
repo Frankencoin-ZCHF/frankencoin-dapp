@@ -1,12 +1,12 @@
-import { Address, formatUnits } from "viem";
+import { Address, ContractFunctionZeroDataError, formatUnits } from "viem";
 import TableRow from "../Table/TableRow";
 import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import { formatCurrency, FormatType, shortenAddress } from "../../utils/format";
 import GovernancePositionsAction from "./GovernancePositionsAction";
 import DisplayCollateralBorrowTable from "@components/PageBorrow/DisplayCollateralBorrowTable";
-import { AddressLabelSimple } from "@components/AddressLabel";
-import Link from "next/link";
 import AppBox from "@components/AppBox";
+import AppLink from "@components/AppLink";
+import { ContractUrl } from "@utils";
 
 interface Props {
 	headers: string[];
@@ -58,10 +58,13 @@ export default function GovernancePositionsRow({ headers, subHeaders, tab, posit
 			</div>
 
 			<div className="flex flex-col">
-				<Link href={`/monitoring/${position.position}`} className="underline cursor-pointer">
-					{shortenAddress(position.position)}
-				</Link>
-				<AddressLabelSimple className={"text-sm text-text-subheader"} address={position.owner} showLink />
+				<AppLink
+					label={shortenAddress(position.position)}
+					href={`/monitoring/${position.position}`}
+					external={false}
+					className=""
+				/>
+				<AppLink label={shortenAddress(position.owner)} href={ContractUrl(position.owner)} external={true} className="" />
 			</div>
 
 			<div className="flex flex-col">

@@ -15,6 +15,7 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { ADDRESS, EquityABI, FPSWrapperABI } from "@frankencoin/zchf";
+import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -217,6 +218,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 
 	const fromBalance = direction ? fpsBalance : wfpsBalance;
 	const fromSymbol = direction ? "FPS" : "WFPS";
+	const toBalance = !direction ? fpsBalance : wfpsBalance;
 	const toSymbol = !direction ? "FPS" : "WFPS";
 
 	const onChangeAmount = (value: string) => {
@@ -242,6 +244,9 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 					value={amount.toString()}
 					error={error}
 					placeholder={fromSymbol + " Amount"}
+					limit={fromBalance}
+					limitDigit={18}
+					limitLabel="Balance"
 				/>
 
 				<div className="py-4 text-center z-0">
@@ -258,6 +263,9 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 					output={Math.round(parseFloat(formatUnits(amount, 18)) * 10000) / 10000}
 					label="Receive"
 					disabled={true}
+					limit={toBalance}
+					limitDigit={18}
+					limitLabel="Balance"
 				/>
 				<div className={`mt-2 px-1 transition-opacity`}>
 					1 {fromSymbol} = 1 {toSymbol}
@@ -290,20 +298,20 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 					<DisplayAmount amount={fpsBalance} currency="FPS" address={ADDRESS[chainId].equity} />
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Holding Duration FPS" />
-					<div className="py-2 text-lg">
-						{fpsHolding > 0 && fpsHolding < 86_400 * 365 * 10 ? formatDuration(fpsHolding) : "-"}
-					</div>
-				</AppBox>
-				<AppBox>
 					<DisplayLabel label="Your Balance" />
 					<DisplayAmount amount={wfpsBalance} currency="WFPS" address={ADDRESS[chainId].wFPS} />
 				</AppBox>
 				<AppBox>
+					<DisplayLabel label="Holding Duration FPS" />
+					<DisplayOutputAlignedRight
+						output={fpsHolding > 0 && fpsHolding < 86_400 * 365 * 10 ? formatDuration(fpsHolding) : "-"}
+					/>
+				</AppBox>
+				<AppBox>
 					<DisplayLabel label="Holding Duration WFPS" />
-					<div className="py-2 text-lg">
-						{wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 10 ? formatDuration(wfpsHolding) : "-"}
-					</div>
+					<DisplayOutputAlignedRight
+						output={wfpsHolding > 0 && wfpsHolding < 86_400 * 365 * 10 ? formatDuration(wfpsHolding) : "-"}
+					/>
 				</AppBox>
 			</div>
 		</>

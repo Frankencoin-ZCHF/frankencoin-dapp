@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 import ReactDatePicker from "react-datepicker";
-import { formatUnits } from "viem";
+import { formatDate } from "@utils";
 
 interface Props {
 	label: string;
@@ -50,7 +50,7 @@ export default function DateInput({
 					disabled ? "" : "hover:border-card-input-hover"
 				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
-				} text-text-secondary border-2 rounded-lg px-3 py-2 ${disabled ? "bg-card-input-disabled" : ""}`}
+				} text-text-secondary border-2 rounded-lg px-3 py-1 ${disabled ? "bg-card-input-disabled" : ""}`}
 			>
 				<div className="flex text-card-input-label my-1">{label}</div>
 
@@ -81,13 +81,16 @@ export default function DateInput({
 
 				{limitLabel != undefined || max != undefined || min != undefined || reset != undefined ? (
 					<div className="flex flex-row gap-2 py-1">
-						{limitLabel != undefined && <div className="text-text-secondary">{limitLabel}</div>}
-						{limitLabel != undefined && (
-							<div className="text-text-primary truncate">{formatUnits(limit, Number(limitDigit))}</div>
-						)}
+						<div className="flex-1">
+							<div className="flex flex-row gap-2">
+								{limitLabel != undefined && <div className="text-text-secondary">{limitLabel}</div>}
+								{limitLabel != undefined && <div className="text-text-primary truncate">{formatDate(limit)}</div>}
+							</div>
+						</div>
+
 						{!disabled && max != undefined && (
 							<div
-								className="text-card-input-max cursor-pointer hover:text-card-input-focus"
+								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
 									if (max !== undefined) {
 										onChange(max);
@@ -100,7 +103,7 @@ export default function DateInput({
 						)}
 						{!disabled && min != undefined && (
 							<div
-								className="text-card-input-min cursor-pointer hover:text-card-input-focus"
+								className="text-card-input-min cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
 									if (min !== undefined) {
 										onChange(min);
@@ -113,7 +116,7 @@ export default function DateInput({
 						)}
 						{!disabled && reset != undefined && reset != value && (
 							<div
-								className="text-card-input-max cursor-pointer hover:text-card-input-focus"
+								className="text-card-input-reset cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
 									if (reset !== undefined) {
 										onChange(reset);

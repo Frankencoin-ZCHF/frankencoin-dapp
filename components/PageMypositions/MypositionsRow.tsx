@@ -138,7 +138,7 @@ export default function MypositionsRow({ headers, tab, subHeaders, position }: P
 			subHeaders={subHeaders}
 			tab={tab}
 			actionCol={
-				<Button className="h-10" onClick={() => navigate.push(`/mypositions/${position.position}/adjust`)}>
+				<Button className="h-10" onClick={() => navigate.push(`/mypositions/${position.position}`)}>
 					Manage
 				</Button>
 			}

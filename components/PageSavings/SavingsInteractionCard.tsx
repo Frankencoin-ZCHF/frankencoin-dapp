@@ -121,9 +121,9 @@ export default function SavingsInteractionCard() {
 						value={amount.toString()}
 						onChange={onChangeAmount}
 						error={error}
-						// limit={userBalance}
-						// limitDigit={18}
-						// limitLabel="Balance"
+						limit={userBalance}
+						limitDigit={18}
+						limitLabel="Balance"
 					/>
 				</div>
 

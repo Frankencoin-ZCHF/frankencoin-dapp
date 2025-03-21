@@ -9,7 +9,7 @@ import { ApiLeadrateInfo, LeadrateProposed } from "@frankencoin/api";
 import GovernanceLeadrateRow from "./GovernanceLeadrateRow";
 
 export default function GovernanceLeadrateTable() {
-	const headers: string[] = ["Date", "Proposer", "Rate", "State"];
+	const headers: string[] = ["Date", "Proposer", "Proposed Rate", "State"];
 	const [tab, setTab] = useState<string>(headers[3]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<LeadrateProposed[]>([]);

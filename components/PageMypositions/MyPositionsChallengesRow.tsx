@@ -70,7 +70,11 @@ export default function MyPositionsChallengesRow({ headers, tab, challenge }: Pr
 	};
 
 	return (
-		<TableRow headers={headers} tab={tab} actionCol={<MyPositionsChallengesCancel challenge={challenge} hidden={stateIdx == 1} />}>
+		<TableRow
+			headers={headers}
+			tab={tab}
+			actionCol={stateIdx == 1 ? <></> : <MyPositionsChallengesCancel challenge={challenge} hidden={stateIdx == 1} />}
+		>
 			{/* Collateral */}
 			<div className="flex flex-col max-md:mb-5">
 				{/* desktop view */}
@@ -78,7 +82,7 @@ export default function MyPositionsChallengesRow({ headers, tab, challenge }: Pr
 					<span className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</span>
-					<span className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(challengeRemainingSize, 2, 2)} ${
+					<span className={`col-span-2 text-md`}>{`${formatCurrency(challengeRemainingSize, 2, 2)} ${
 						position.collateralSymbol
 					}`}</span>
 				</div>
@@ -88,9 +92,7 @@ export default function MyPositionsChallengesRow({ headers, tab, challenge }: Pr
 					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</div>
-					<div className={`col-span-2 text-md text-text-primary font-semibold`}>{`${formatCurrency(challengeRemainingSize)} ${
-						position.collateralSymbol
-					}`}</div>
+					<div className={`col-span-2 text-md`}>{`${formatCurrency(challengeRemainingSize)} ${position.collateralSymbol}`}</div>
 				</AppBox>
 			</div>
 

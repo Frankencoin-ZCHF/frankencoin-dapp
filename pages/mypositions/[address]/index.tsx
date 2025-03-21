@@ -1,9 +1,9 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { formatUnits, maxUint256, erc20Abi, Address, parseEther, parseUnits } from "viem";
+import { formatUnits, maxUint256, erc20Abi, Address, parseEther } from "viem";
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
-import { abs, bigIntMax, bigIntMin, formatBigInt, formatCurrency, formatDateTime, shortenAddress } from "@utils";
+import { abs, bigIntMax, bigIntMin, ContractUrl, formatBigInt, formatCurrency, formatDuration, shortenAddress } from "@utils";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -16,9 +16,9 @@ import { RootState } from "../../../redux/redux.store";
 import { PositionQuery } from "@frankencoin/api";
 import { ADDRESS, PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
 import AppTitle from "@components/AppTitle";
-import Link from "next/link";
 import PositionRollerTable from "@components/PageMypositions/PositionRollerTable";
 import AppCard from "@components/AppCard";
+import AppLink from "@components/AppLink";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -283,6 +283,8 @@ export default function PositionAdjust() {
 
 	const expirationDateArr: string[] = new Date(position.expiration * 1000).toDateString().split(" ");
 	const expirationDateStr: string = `${expirationDateArr[2]} ${expirationDateArr[1]} ${expirationDateArr[3]}`;
+	const expirationDiff: number = Math.round((position.expiration * 1000 - Date.now()) / 1000);
+	const expiredIn: string = expirationDiff > 0 ? formatDuration(expirationDiff) : "Expired";
 
 	// Minted Min
 	const mintedMin = bigIntMax(
@@ -351,9 +353,15 @@ export default function PositionAdjust() {
 			</Head>
 
 			<AppTitle title={`Manage Position `}>
-				<Link className="underline" href={`/monitoring/${position.position}`}>
-					({shortenAddress(position.position)})
-				</Link>
+				<div className="text-text-secondary">
+					Based on contract{" "}
+					<AppLink
+						label={shortenAddress(position.position) + "."}
+						href={ContractUrl(position.position)}
+						external={true}
+						className="pr-1"
+					/>
+				</div>
 			</AppTitle>
 
 			<div className="md:mt-8">
@@ -419,13 +427,9 @@ export default function PositionAdjust() {
 								</div>
 								<div className="flex mt-2">
 									<div className="flex-1 text-text-secondary">
-										<span>Address</span>
+										<span>Expiration</span>
 									</div>
-									<div className="text-right">
-										<Link className="underline" href={`/monitoring/${position.position}`}>
-											{shortenAddress(position.position)}
-										</Link>
-									</div>
+									<div className="text-right">{expiredIn}</div>
 								</div>
 							</div>
 
@@ -522,9 +526,9 @@ export default function PositionAdjust() {
 									</div>
 								</div>
 
-								<hr className="mt-4 border-slate-700 border-dashed" />
+								<hr className="mt-4 border-text-primary border-dashed" />
 
-								<div className="mt-2 flex font-bold">
+								<div className="mt-2 flex font-extrabold">
 									<div className="flex-1 text-text-secondary">
 										<span>Future minted amount</span>
 									</div>
@@ -545,9 +549,9 @@ export default function PositionAdjust() {
 				<>
 					<AppTitle title={`Renewal`}>
 						<div className="text-text-secondary">
-							You can renew positions by rolling them into suitable new ones with the same collateral. When rolling, the owed amount will be
-							increased by the up-front interest for the new position and any excess collateral paid out to your address. If you want to reduce
-							the outstanding amount, you should do that before rolling.
+							You can renew positions by rolling them into suitable new ones with the same collateral. When rolling, the owed
+							amount will be increased by the up-front interest for the new position and any excess collateral paid out to
+							your address. If you want to reduce the outstanding amount, you should do that before rolling.
 						</div>
 					</AppTitle>
 
