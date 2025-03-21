@@ -23,6 +23,7 @@ import { TxToast } from "@components/TxToast";
 import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import { DetailsExpandablePanel } from "@components/PageMint/DetailsExpandablePanel";
 import { SvgIconButton } from "@components/PageMint/PlusMinusButtons";
+import { getLoanDetailsByCollateralAndYouGetAmount } from "../../utils/loanCalculations";
 
 export const CollateralManageSection = () => {
 	const router = useRouter();
@@ -260,6 +261,9 @@ export const CollateralManageSection = () => {
 		}
 	}, [isAdd, amount, balanceOf]);
 
+	const amountToUse = isAdd ? balanceOf + BigInt(amount) : balanceOf - BigInt(amount);
+	const loanDetails = getLoanDetailsByCollateralAndYouGetAmount(position, amountToUse, principal);
+
 	return (
 		<div className="flex flex-col gap-y-8">
 			<div className="flex flex-col gap-y-3">
@@ -325,7 +329,7 @@ export const CollateralManageSection = () => {
 					{t("common.approve")}
 				</Button>
 			)}
-			<DetailsExpandablePanel loanDetails={undefined} collateralPriceDeuro={0} />
+			<DetailsExpandablePanel loanDetails={loanDetails} collateralPriceDeuro={collateralPrice} />
 		</div>
 	);
 };

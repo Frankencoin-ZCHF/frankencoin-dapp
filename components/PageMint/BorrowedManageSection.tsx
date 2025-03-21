@@ -37,6 +37,7 @@ export const BorrowedManageSection = () => {
 
 	const router = useRouter();
 	const { address: addressQuery } = router.query;
+	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const position = positions.find((p) => p.position == addressQuery) as PositionQuery;
 
@@ -89,6 +90,7 @@ export const BorrowedManageSection = () => {
 
 	const { reserveContribution } = position;
 
+	const collateralPrice = prices[position.collateralSymbol as Address]?.price?.eur || 1;
 	const principal = data?.[0]?.result || BigInt(position.principal);
 	const price = data?.[1]?.result || BigInt(position.price);
 	const balanceOf = data?.[2]?.result || BigInt(position.collateralBalance);
@@ -276,6 +278,9 @@ export const BorrowedManageSection = () => {
 		}
 	}, [isBorrowMore, amount, debt, walletBalance]);
 
+	
+	const loanDetails = getLoanDetailsByCollateralAndYouGetAmount(position, balanceOf, BigInt(amount) || BigInt(totalDebt));
+
 	return (
 		<div className="flex flex-col gap-y-8">
 			<div className="flex flex-col gap-y-3">
@@ -338,7 +343,7 @@ export const BorrowedManageSection = () => {
 					{t(isBorrowMore ? "mint.borrow_more" : "mint.pay_back")}
 				</Button>
 			)}
-			<DetailsExpandablePanel loanDetails={undefined} collateralPriceDeuro={0} />
+			<DetailsExpandablePanel loanDetails={loanDetails} collateralPriceDeuro={collateralPrice} />
 		</div>
 	);
 };

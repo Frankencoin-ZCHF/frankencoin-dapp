@@ -132,32 +132,35 @@ export const MyBorrow = () => {
 	const overwrite = getPublicViewAddress(router);
 	const account = overwrite || address || zeroAddress;
 
-	const borrowData = positions
-		.filter((position) => position.owner === account)
-		.map((position) => {
-			const { principal, reserveContribution, collateralBalance, collateralDecimals, collateralSymbol } = position;
-			const amountBorrowed = formatCurrency(
-				formatUnits(BigInt(principal) - (BigInt(principal) * BigInt(reserveContribution)) / 1_000_000n, position.deuroDecimals)
-			) as string;
+	const ownedPositions = positions.filter((position) => position.owner === account);
 
-			const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
-			const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd || 1;
-			const balance: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
-			const balanceDEURO: number = Math.round(((balance * collTokenPrice) / deuroPrice) * 100) / 100;
-			const liquidationDEURO: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
-			const liquidationPct: number = Math.round((balanceDEURO / (liquidationDEURO * balance)) * 10000) / 100;
+	const borrowData = ownedPositions.map((position) => {
+		const { principal, reserveContribution, collateralBalance, collateralDecimals, collateralSymbol } = position;
+		const amountBorrowed = formatCurrency(
+			formatUnits(BigInt(principal) - (BigInt(principal) * BigInt(reserveContribution)) / 1_000_000n, position.deuroDecimals)
+		) as string;
 
-			return {
-				position: position.position as `0x${string}`,
-				symbol: collateralSymbol,
-				collateralAmount: formatUnits(BigInt(collateralBalance), collateralDecimals) as string,
-				collateralization: liquidationPct.toString(),
-				loanDueIn: formatCurrency(Math.round((position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24)) as string,
-				amountBorrowed,
-			};
-		});
+		const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
+		const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd || 1;
+		const balance: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
+		const balanceDEURO: number = Math.round(((balance * collTokenPrice) / deuroPrice) * 100) / 100;
+		const liquidationDEURO: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
+		const liquidationPct: number = Math.round((balanceDEURO / (liquidationDEURO * balance)) * 10000) / 100;
 
-	const totalOwed = positions.reduce((acc, curr) => (acc + BigInt(curr.principal) - (BigInt(curr.principal) * BigInt(curr.reserveContribution)) / 1_000_000n), 0n);
+		return {
+			position: position.position as `0x${string}`,
+			symbol: collateralSymbol,
+			collateralAmount: formatUnits(BigInt(collateralBalance), collateralDecimals) as string,
+			collateralization: liquidationPct.toString(),
+			loanDueIn: formatCurrency(Math.round((position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24)) as string,
+			amountBorrowed,
+		};
+	});
+
+	const totalOwed = ownedPositions.reduce(
+		(acc, curr) => acc + BigInt(curr.principal) - (BigInt(curr.principal) * BigInt(curr.reserveContribution)) / 1_000_000n,
+		0n
+	);
 
 	return (
 		<div className="w-full h-full p-4 sm:p-8 flex flex-col items-start">
@@ -171,7 +174,9 @@ export const MyBorrow = () => {
 			<div className="w-full pt-5 flex-1 flex items-end">
 				<div className="flex flex-row items-center w-full">
 					<span className="text-text-primary pr-4 text-base font-extrabold leading-[1.25rem]">{t("dashboard.total_owed")}</span>
-					<span className="text-text-primary text-base font-medium leading-[1.25rem]">{formatCurrency(formatUnits(totalOwed, 18)) as string} {TOKEN_SYMBOL}</span>
+					<span className="text-text-primary text-base font-medium leading-[1.25rem]">
+						{formatCurrency(formatUnits(totalOwed, 18)) as string} {TOKEN_SYMBOL}
+					</span>
 				</div>
 			</div>
 		</div>
