@@ -164,7 +164,7 @@ export const ExpirationManageSection = () => {
 					{t("common.approve")}
 				</Button>
 			) : null}
-			<DetailsExpandablePanel loanDetails={undefined} collateralPriceDeuro={0} />
+			<DetailsExpandablePanel loanDetails={undefined} collateralPriceDeuro={0} collateralDecimals={0} startingLiquidationPrice={0n} />
 		</div>
 	);
 };
