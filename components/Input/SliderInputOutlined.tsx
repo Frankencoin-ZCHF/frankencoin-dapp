@@ -66,7 +66,7 @@ export function SliderInputOutlined({ value, onChange, min, max, decimals, isErr
 										? {
 												min: formatUnits(min, decimals),
 												max: formatUnits(max, decimals),
-												step: formatUnits(BigInt(1), decimals),
+												step: formatUnits(BigInt(1), 36 - decimals),
 										  }
 										: {})}
 								/>

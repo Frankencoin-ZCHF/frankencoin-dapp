@@ -99,12 +99,11 @@ export default function PositionCreate({}) {
 	const collateralPriceDeuro = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0; // TODO: change to eur?
 
 	const collateralPriceUsd = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0;
-	const decimalsAdjustment = selectedPosition?.collateralDecimals === 0 ? 18 : (selectedPosition?.collateralDecimals as number);
 	const collateralEurValue = selectedPosition
-		? collateralPriceDeuro * parseFloat(formatUnits(BigInt(collateralAmount), decimalsAdjustment))
+		? collateralPriceDeuro * parseFloat(formatUnits(BigInt(collateralAmount), selectedPosition.collateralDecimals))
 		: 0;
 	const collateralUsdValue = selectedPosition
-		? collateralPriceUsd * parseFloat(formatUnits(BigInt(collateralAmount), decimalsAdjustment))
+		? collateralPriceUsd * parseFloat(formatUnits(BigInt(collateralAmount), selectedPosition.collateralDecimals))
 		: 0;
 	const maxLiquidationPrice = selectedPosition ? BigInt(selectedPosition.price) : 0n;
 	const isLiquidationPriceTooHigh = selectedPosition ? BigInt(liquidationPrice) > maxLiquidationPrice : false;
@@ -112,16 +111,15 @@ export default function PositionCreate({}) {
 	const userAllowance = collateralUserBalance?.allowance?.[ADDRESS[chainId].mintingHubGateway] || 0n;
 	const userBalance = collateralUserBalance?.balanceOf || 0n;
 	const isCollateralError =
-		collateralAmount !== "0" && collateralAmount !== "" && BigInt(collateralAmount) < BigInt(selectedPosition?.minimumCollateral || 0n);
-
+		collateralAmount !== "0" && collateralAmount !== "" && BigInt(userBalance) < BigInt(selectedPosition?.minimumCollateral || 0n);
+	
 	const handleOnSelectedToken = (token: TokenBalance) => {
 		if (!token) return;
 		setSelectedCollateral(token);
 
 		const selectedPosition = elegiblePositions.find((p) => p.collateral.toLowerCase() == token.address.toLowerCase());
 		if (!selectedPosition) return;
-
-		const liqPrice = BigInt(selectedPosition.price) / 2n;
+		const liqPrice = BigInt(selectedPosition.price);
 
 		setSelectedPosition(selectedPosition);
 		setCollateralAmount(selectedPosition.minimumCollateral);
@@ -164,7 +162,7 @@ export default function PositionCreate({}) {
 
 		const loanDetails = getLoanDetailsByCollateralAndYouGetAmount(selectedPosition, BigInt(collateralAmount), BigInt(value));
 		setLoanDetails(loanDetails);
-		setLiquidationPrice(loanDetails.liquidationPrice.toString());
+		setLiquidationPrice(loanDetails.startingLiquidationPrice.toString());
 	};
 
 	const handleMaxExpirationDate = () => {
@@ -330,7 +328,8 @@ export default function PositionCreate({}) {
 							eurValue={collateralEurValue}
 							isError={isCollateralError}
 							errorMessage={`${t("mint.error.must_be_at_least_the_minimum_amount")} (${formatBigInt(
-								BigInt(selectedPosition?.minimumCollateral || 0n)
+								BigInt(selectedPosition?.minimumCollateral || 0n),
+								selectedPosition?.collateralDecimals || 0
 							)} ${selectedPosition?.collateralSymbol})`}
 						/>
 						<TokenSelectModal
@@ -348,7 +347,7 @@ export default function PositionCreate({}) {
 							onChange={onLiquidationPriceChange}
 							min={BigInt(0)}
 							max={maxLiquidationPrice}
-							decimals={selectedPosition?.collateralDecimals || 0}
+							decimals={36 - (selectedPosition?.collateralDecimals || 0)}
 							isError={isLiquidationPriceTooHigh}
 							errorMessage={t("mint.liquidation_price_too_high")}
 						/>
@@ -369,7 +368,7 @@ export default function PositionCreate({}) {
 							<InputTitle>{t("mint.you_get")}</InputTitle>
 							<NormalInputOutlined value={borrowedAmount} onChange={onYouGetChange} decimals={18} />
 						</div>
-						<DetailsExpandablePanel loanDetails={loanDetails} collateralPriceDeuro={collateralPriceDeuro} />
+						<DetailsExpandablePanel loanDetails={loanDetails} startingLiquidationPrice={BigInt(liquidationPrice)} collateralDecimals={selectedPosition?.collateralDecimals || 0} collateralPriceDeuro={collateralPriceDeuro} />
 					</div>
 					<GuardToAllowedChainBtn label={t("mint.symbol_borrow", { symbol: TOKEN_SYMBOL })}>
 						{!selectedCollateral ? (
@@ -401,11 +400,11 @@ export default function PositionCreate({}) {
 						setIsOpen={setIsOpenBorrowingDEUROModal}
 						youGet={formatCurrency(formatUnits(BigInt(borrowedAmount), 18), 2)}
 						liquidationPrice={formatCurrency(
-							formatUnits(BigInt(loanDetails?.startingLiquidationPrice || 0n), 36 - (selectedPosition?.collateralDecimals || 0)),
+							formatUnits(BigInt(liquidationPrice), 36 - (selectedPosition?.collateralDecimals || 0)),
 							2
 						)}
 						expiration={expirationDate}
-						formmatedCollateral={`${formatUnits(BigInt(collateralAmount), 36 - (selectedPosition?.collateralDecimals || 0))} ${
+						formmatedCollateral={`${formatUnits(BigInt(collateralAmount), selectedPosition?.collateralDecimals || 0)} ${
 							selectedPosition?.collateralSymbol
 						}`}
 						isSuccess={isCloneSuccess}

@@ -10,6 +10,8 @@ import { ExpandablePanel } from "../ExpandablePanel";
 interface DetailsExpandablePanelProps {
 	loanDetails?: LoanDetails;
 	collateralPriceDeuro: number;
+	collateralDecimals: number;
+	startingLiquidationPrice: bigint;
 }
 
 const defaultLoanDetails = {
@@ -25,7 +27,7 @@ const defaultLoanDetails = {
 	startingLiquidationPrice: BigInt(0),
 };
 
-export function DetailsExpandablePanel({ loanDetails = defaultLoanDetails, collateralPriceDeuro = 0 }: DetailsExpandablePanelProps) {
+export function DetailsExpandablePanel({ loanDetails = defaultLoanDetails, collateralPriceDeuro = 0, collateralDecimals = 0, startingLiquidationPrice = 0n }: DetailsExpandablePanelProps) {
 	const { t } = useTranslation();
 
 	const effectiveLTV = Number(loanDetails.loanAmount) / (Number(loanDetails.requiredCollateral) * collateralPriceDeuro) || 0;
@@ -53,7 +55,7 @@ export function DetailsExpandablePanel({ loanDetails = defaultLoanDetails, colla
 			<div className="py-1.5 flex justify-between">
 				<span className="text-base leading-tight">{t("mint.starting_liquidation_price")}</span>
 				<span className="text-right text-sm font-extrabold leading-none tracking-tight">
-					{formatCurrency(formatUnits(loanDetails.startingLiquidationPrice, 18))} €
+					{formatCurrency(formatUnits(startingLiquidationPrice, 36 - collateralDecimals))} €
 				</span>
 			</div>
 			<div className="py-1.5 flex justify-between">

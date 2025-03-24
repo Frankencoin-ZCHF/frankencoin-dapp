@@ -329,7 +329,7 @@ export const CollateralManageSection = () => {
 					{t("common.approve")}
 				</Button>
 			)}
-			<DetailsExpandablePanel loanDetails={loanDetails} collateralPriceDeuro={collateralPrice} />
+			<DetailsExpandablePanel loanDetails={loanDetails} collateralPriceDeuro={collateralPrice} collateralDecimals={position.collateralDecimals} startingLiquidationPrice={BigInt(position.price)} />
 		</div>
 	);
 };

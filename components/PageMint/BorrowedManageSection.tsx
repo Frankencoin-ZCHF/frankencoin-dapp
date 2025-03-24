@@ -16,7 +16,7 @@ import { PositionV2ABI } from "@deuro/eurocoin";
 import { erc20Abi } from "viem";
 import { useAccount, useChainId } from "wagmi";
 import { useReadContracts } from "wagmi";
-import { getLoanDetailsByCollateralAndLiqPrice, getLoanDetailsByCollateralAndYouGetAmount } from "../../utils/loanCalculations";
+import { getLoanDetailsByCollateralAndStartingLiqPrice, getLoanDetailsByCollateralAndYouGetAmount } from "../../utils/loanCalculations";
 import { renderErrorTxToast } from "@components/TxToast";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
@@ -101,7 +101,7 @@ export const BorrowedManageSection = () => {
 	const walletBalance = balancesByAddress?.[position.deuro as Address]?.balanceOf || 0n;
 	const allowance = balancesByAddress?.[position.deuro as Address]?.allowance?.[position.position] || 0n;
 
-	const { amountToSendToWallet: maxAmountByDepositedCollateral } = getLoanDetailsByCollateralAndLiqPrice(position, balanceOf, price);
+	const { amountToSendToWallet: maxAmountByDepositedCollateral } = getLoanDetailsByCollateralAndStartingLiqPrice(position, balanceOf, price);
 	const maxBeforeAddingMoreCollateral = maxAmountByDepositedCollateral - totalDebt > 0 ? maxAmountByDepositedCollateral - totalDebt : 0n;
 
 	const handleMaxAmount = () => {
@@ -342,7 +342,7 @@ export const BorrowedManageSection = () => {
 					{t(isBorrowMore ? "mint.borrow_more" : "mint.pay_back")}
 				</Button>
 			)}
-			<DetailsExpandablePanel loanDetails={loanDetails} collateralPriceDeuro={collateralPrice} />
+			<DetailsExpandablePanel loanDetails={loanDetails} startingLiquidationPrice={BigInt(price)} collateralDecimals={position.collateralDecimals} collateralPriceDeuro={collateralPrice} />
 		</div>
 	);
 };
