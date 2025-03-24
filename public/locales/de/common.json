@@ -89,6 +89,7 @@
     "mint": {
         "title": "Ausleihen",
         "mint_title": "Dezentrale Euros selbst prägen",
+        "mint_title_2": "Leih dir {{symbol}} aus",
         "borrow": "Ausleihe",
         "symbol_borrow": "{{symbol}} ausleihen",
         "propose_position": "Position vorschlagen",

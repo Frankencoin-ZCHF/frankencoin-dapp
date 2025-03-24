@@ -19,6 +19,7 @@ interface Props {
 	address?: string;
 	usdPrice?: number;
 	logoSize?: number;
+	presentationPrecision?: number;
 }
 
 export default function DisplayAmount({
@@ -35,6 +36,7 @@ export default function DisplayAmount({
 	address,
 	usdPrice,
 	logoSize = 8,
+	presentationPrecision = undefined,
 }: Props) {
 	const url = useContractUrl(address || zeroAddress);
 
@@ -53,7 +55,7 @@ export default function DisplayAmount({
 			<div>
 				<div>
 					<span className={`${bold && "font-bold"} ${big ? "text-3xl" : "text-base leading-5"}`}>
-						{amount ? formatCurrency(typeof amount === "number" ? amount : formatUnits(amount, Number(digits))) : "0.00"}
+						{amount ? formatCurrency(typeof amount === "number" ? amount : formatUnits(amount, Number(digits)), presentationPrecision) : "0.00"}
 					</span>
 					<span className={`${bold && "font-bold"} ${big ? "text-3xl" : "text-base leading-5"}`}>
 						{currency == "%" ? "" : " "}

@@ -22,7 +22,7 @@ export default function EquityNativePoolShareDetailsCard() {
 				<div className="flex justify-between">
 					<div>
 						<DisplayLabel label={t("equity.symbol_price", { symbol: POOL_SHARE_TOKEN_SYMBOL })} />
-						<DisplayAmount className="mt-4" bold amount={poolStats.equityPrice} currency={TOKEN_SYMBOL} />
+						<DisplayAmount className="mt-4" bold amount={poolStats.equityPrice} currency={TOKEN_SYMBOL} presentationPrecision={2} />
 					</div>
 					<div className="text-right">
 						<DisplayLabel label={t("equity.supply")} />

@@ -89,6 +89,7 @@
     "mint": {
         "title": "Emprunter",
         "mint_title": "Mettez en circulation vos propres Euros décentralisés",
+        "mint_title_2": "Empruntez {{symbol}}",
         "borrow": "Emprunter",
         "symbol_borrow": "{{symbol}} emprunter",
         "propose_position": "Proposer une position",

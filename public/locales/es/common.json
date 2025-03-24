@@ -89,6 +89,7 @@
     "mint": {
         "title": "Pedir prestado",
         "mint_title": "Crea tus propios Euros Descentralizados",
+        "mint_title_2": "Pedir prestado {{symbol}}",
         "borrow": "Pedir prestado",
         "symbol_borrow": "{{symbol}} pedir prestado",
         "propose_position": "Proponer Posición",
