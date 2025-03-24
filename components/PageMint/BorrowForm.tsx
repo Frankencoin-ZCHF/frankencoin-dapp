@@ -13,7 +13,7 @@ import { PositionQuery } from "@deuro/api";
 import { TokenSelectModal } from "@components/TokenSelectModal";
 import { BorrowingDEUROModal } from "@components/PageMint/BorrowingDEUROModal";
 import { InputTitle } from "@components/Input/InputTitle";
-import { formatBigInt, formatCurrency, shortenAddress, toDate, TOKEN_SYMBOL, toTimestamp } from "@utils";
+import { formatBigInt, formatCurrency, shortenAddress, toDate, TOKEN_SYMBOL, toTimestamp, WHITELISTED_POSITIONS } from "@utils";
 import { TokenBalance, useWalletERC20Balances } from "../../hooks/useWalletBalances";
 import { RootState, store } from "../../redux/redux.store";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
@@ -60,6 +60,7 @@ export default function PositionCreate({}) {
 	const elegiblePositions = useMemo(() => {
 		const blockTimestamp = latestBlock?.timestamp || new Date().getTime() / 1000;
 		return positions
+			.filter((p) => WHITELISTED_POSITIONS.includes(p.position))
 			.filter((p) => BigInt(p.availableForClones) > 0n)
 			.filter((p) => !p.closed)
 			.filter((p) => blockTimestamp > toTimestamp(toDate(p.cooldown)))
