@@ -15,8 +15,9 @@ import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
-import { ADDRESS, EquityABI, DEPSWrapperABI } from "@deuro/eurocoin";
+import { ADDRESS, EquityABI, DEPSWrapperABI, FrontendGatewayABI } from "@deuro/eurocoin";
 import { useTranslation } from "next-i18next";
+import { useFrontendCode } from "../../hooks/useFrontendCode";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -33,6 +34,8 @@ export default function InteractionPoolShareTokenRedeem({ tokenFromTo, setTokenF
 	const [psTokenBalance, setPsTokenBalance] = useState<bigint>(0n);
 	const [psTokenHolding, setPsTokenHolding] = useState<bigint>(0n);
 	const [calculateProceeds, setCalculateProceeds] = useState<bigint>(0n);
+	const { frontendCode } = useFrontendCode();
+
 	const { t } = useTranslation();
 	const { data } = useBlockNumber({ watch: true });
 	const { address } = useAccount();
@@ -53,7 +56,7 @@ export default function InteractionPoolShareTokenRedeem({ tokenFromTo, setTokenF
 					address: ADDRESS[chainId].DEPSwrapper,
 					abi: erc20Abi,
 					functionName: "allowance",
-					args: [account, ADDRESS[chainId].DEPSwrapper],
+					args: [account, ADDRESS[chainId].frontendGateway],
 				});
 				setPsTokenAllowance(_psTokenAllowance);
 
@@ -100,7 +103,7 @@ export default function InteractionPoolShareTokenRedeem({ tokenFromTo, setTokenF
 				address: ADDRESS[chainId].DEPSwrapper,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [ADDRESS[chainId].DEPSwrapper, amount],
+				args: [ADDRESS[chainId].frontendGateway, amount],
 			});
 
 			const toastContent = [
@@ -140,10 +143,10 @@ export default function InteractionPoolShareTokenRedeem({ tokenFromTo, setTokenF
 			setRedeeming(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].DEPSwrapper,
-				abi: DEPSWrapperABI,
+				address: ADDRESS[chainId].frontendGateway,
+				abi: FrontendGatewayABI,
 				functionName: "unwrapAndSell",
-				args: [amount],
+				args: [amount, frontendCode],
 			});
 
 			const toastContent = [

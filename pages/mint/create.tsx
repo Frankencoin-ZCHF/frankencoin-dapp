@@ -20,6 +20,7 @@ import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, MintingHubGatewayABI } from "@deuro/eurocoin";
 import { useTranslation, Trans } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useFrontendCode } from "../../hooks/useFrontendCode";
 
 export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
@@ -44,6 +45,7 @@ export default function PositionCreate({}) {
 	const [durationError, setDurationError] = useState("");
 	const [isConfirming, setIsConfirming] = useState("");
 
+	const { frontendCode } = useFrontendCode();
 	const [userAllowance, setUserAllowance] = useState<bigint>(0n);
 	const { data } = useBlockNumber({ watch: true });
 	const account = useAccount();
@@ -312,6 +314,7 @@ export default function PositionCreate({}) {
 					Number(interest),
 					liqPrice,
 					Number(buffer),
+					frontendCode,
 				],
 			});
 

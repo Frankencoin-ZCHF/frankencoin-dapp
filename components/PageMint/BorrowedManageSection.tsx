@@ -191,7 +191,6 @@ export const BorrowedManageSection = () => {
 			});
 			refetchBalances();
 			refetchReadContracts();
-			setAmount("");
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: needs to be translated
 		} finally {

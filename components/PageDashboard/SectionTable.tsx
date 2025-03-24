@@ -1,11 +1,17 @@
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
+import { getCarryOnQueryParams, toQueryString } from "../../utils/url";
+import { useRouter } from "next/router";
 
 export const LinkTitle = ({ children, href }: { children: React.ReactNode; href: string }) => {
+    const router = useRouter();
+	const carryOnQueryParams = getCarryOnQueryParams(router);
+	const _href = `${href}${toQueryString(carryOnQueryParams)}`;
+    
     return (
         <Link
-            href={href}
+            href={_href}
             className="mb-7 items-center justify-start flex gap-1 text-button-text-default-text hover:text-button-text-hover-text group"
         >
             <span className="text-2xl font-black">{children}</span>

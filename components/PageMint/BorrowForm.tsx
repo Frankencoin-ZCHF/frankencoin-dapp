@@ -29,7 +29,7 @@ import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import {
 	LoanDetails,
 	getLoanDetailsByCollateralAndYouGetAmount,
-	getLoanDetailsByCollateralAndLiqPrice,
+	getLoanDetailsByCollateralAndStartingLiqPrice,
 } from "../../utils/loanCalculations";
 import { useFrontendCode } from "../../hooks/useFrontendCode";
 import { MaxButton } from "@components/Input/MaxButton";
@@ -61,6 +61,7 @@ export default function PositionCreate({}) {
 		const blockTimestamp = latestBlock?.timestamp || new Date().getTime() / 1000;
 		return positions
 			.filter((p) => BigInt(p.availableForClones) > 0n)
+			.filter((p) => !p.closed)
 			.filter((p) => blockTimestamp > toTimestamp(toDate(p.cooldown)))
 			.filter((p) => blockTimestamp < toTimestamp(toDate(p.expiration)))
 			.filter((p) => !challengedPositions.includes(p.position));
@@ -105,9 +106,10 @@ export default function PositionCreate({}) {
 		? collateralPriceUsd * parseFloat(formatUnits(BigInt(collateralAmount), decimalsAdjustment))
 		: 0;
 	const maxLiquidationPrice = selectedPosition ? BigInt(selectedPosition.price) : 0n;
-	const isLiquidationPriceTooHigh = selectedPosition ? BigInt(liquidationPrice) >= maxLiquidationPrice : false;
-	const userAllowance =
-		balances.find((b) => b.address == selectedCollateral?.address)?.allowance?.[ADDRESS[chainId].mintingHubGateway] || 0n;
+	const isLiquidationPriceTooHigh = selectedPosition ? BigInt(liquidationPrice) > maxLiquidationPrice : false;
+	const collateralUserBalance = balances.find((b) => b.address == selectedCollateral?.address)
+	const userAllowance = collateralUserBalance?.allowance?.[ADDRESS[chainId].mintingHubGateway] || 0n;
+	const userBalance = collateralUserBalance?.balanceOf || 0n;
 	const isCollateralError =
 		collateralAmount !== "0" && collateralAmount !== "" && BigInt(collateralAmount) < BigInt(selectedPosition?.minimumCollateral || 0n);
 
@@ -125,7 +127,11 @@ export default function PositionCreate({}) {
 		setExpirationDate(toDate(selectedPosition.expiration));
 		setLiquidationPrice(liqPrice.toString());
 
-		const loanDetails = getLoanDetailsByCollateralAndLiqPrice(selectedPosition, BigInt(selectedPosition.minimumCollateral), liqPrice);
+		const loanDetails = getLoanDetailsByCollateralAndStartingLiqPrice(
+			selectedPosition,
+			BigInt(selectedPosition.minimumCollateral),
+			liqPrice
+		);
 
 		setLoanDetails(loanDetails);
 		setBorrowedAmount(loanDetails.amountToSendToWallet.toString());
@@ -135,7 +141,7 @@ export default function PositionCreate({}) {
 		setCollateralAmount(value);
 		if (!selectedPosition) return;
 
-		const loanDetails = getLoanDetailsByCollateralAndLiqPrice(selectedPosition, BigInt(value), BigInt(liquidationPrice));
+		const loanDetails = getLoanDetailsByCollateralAndStartingLiqPrice(selectedPosition, BigInt(value), BigInt(liquidationPrice));
 		setLoanDetails(loanDetails);
 		setBorrowedAmount(loanDetails.amountToSendToWallet.toString());
 	};
@@ -145,7 +151,7 @@ export default function PositionCreate({}) {
 
 		if (!selectedPosition) return;
 
-		const loanDetails = getLoanDetailsByCollateralAndLiqPrice(selectedPosition, BigInt(collateralAmount), BigInt(value));
+		const loanDetails = getLoanDetailsByCollateralAndStartingLiqPrice(selectedPosition, BigInt(collateralAmount), BigInt(value));
 		setLoanDetails(loanDetails);
 		setBorrowedAmount(loanDetails.amountToSendToWallet.toString());
 	};
@@ -174,6 +180,8 @@ export default function PositionCreate({}) {
 			setIsCloneLoading(true);
 			setIsCloneSuccess(false);
 
+			let txHash = null;
+
 			const cloneWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].mintingHubGateway,
 				abi: MintingHubGatewayABI,
@@ -186,6 +194,7 @@ export default function PositionCreate({}) {
 					frontendCode,
 				],
 			});
+			txHash = cloneWriteHash;
 
 			const toastContent = [
 				{
@@ -206,15 +215,19 @@ export default function PositionCreate({}) {
 			];
 
 			const receipt: TransactionReceipt = await waitForTransactionReceipt(WAGMI_CONFIG, { hash: cloneWriteHash, confirmations: 1 });
-			const newPositionAddress = parseCloneEventLogs(receipt.logs);
-			const adjustPriceHash = await writeContract(WAGMI_CONFIG, {
-				address: newPositionAddress as Address,
-				abi: PositionV2ABI,
-				functionName: "adjustPrice",
-				args: [BigInt(liquidationPrice)],
-			});
 
-			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: adjustPriceHash, confirmations: 1 }), {
+			if (BigInt(liquidationPrice) !== BigInt(selectedPosition?.price)) {
+				const newPositionAddress = parseCloneEventLogs(receipt.logs);
+				const adjustPriceHash = await writeContract(WAGMI_CONFIG, {
+					address: newPositionAddress as Address,
+					abi: PositionV2ABI,
+					functionName: "adjustPrice",
+					args: [BigInt(liquidationPrice) * 10001n / 10000n], // added 0.001% to account for interest in the block before signing this
+				});
+				txHash = adjustPriceHash;
+			}
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: txHash, confirmations: 1 }), {
 				pending: {
 					render: <TxToast title={t("mint.txs.minting", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
 				},
@@ -370,7 +383,7 @@ export default function PositionCreate({}) {
 							<Button
 								className="!p-4 text-lg font-extrabold leading-none"
 								onClick={handleOnClonePosition}
-								disabled={!selectedPosition || !selectedCollateral || isLiquidationPriceTooHigh || isCollateralError}
+								disabled={!selectedPosition || !selectedCollateral || isLiquidationPriceTooHigh || isCollateralError || userBalance < BigInt(collateralAmount)}
 							>
 								{isLiquidationPriceTooHigh
 									? t("mint.your_liquidation_price_is_too_high")
@@ -387,7 +400,7 @@ export default function PositionCreate({}) {
 						setIsOpen={setIsOpenBorrowingDEUROModal}
 						youGet={formatCurrency(formatUnits(BigInt(borrowedAmount), 18), 2)}
 						liquidationPrice={formatCurrency(
-							formatUnits(BigInt(liquidationPrice), 36 - (selectedPosition?.collateralDecimals || 0)),
+							formatUnits(BigInt(loanDetails?.startingLiquidationPrice || 0n), 36 - (selectedPosition?.collateralDecimals || 0)),
 							2
 						)}
 						expiration={expirationDate}

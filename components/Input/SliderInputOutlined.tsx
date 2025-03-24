@@ -13,7 +13,6 @@ interface SliderInputOutlinedProps {
 }
 
 export function SliderInputOutlined({ value, onChange, min, max, decimals, isError, errorMessage }: SliderInputOutlinedProps) {
-	const isOnError = isError || (value && max && BigInt(value) >= max);
 	const [isFocused, setIsFocused] = useState(false);
 
 	return (
@@ -28,7 +27,7 @@ export function SliderInputOutlined({ value, onChange, min, max, decimals, isErr
 								<div className="text-input-placeholder text-xl leading-normal">€</div>
 								<BigNumberInput
 									className={`w-full pl-0 text-input-primary placeholder:text-input-placeholder text-2xl font-medium leading-tight ${
-										isOnError ? "!text-text-warning" : ""
+										isError ? "!text-text-warning" : ""
 									}`}
 									placeholder="0"
 									value={value}
@@ -60,13 +59,13 @@ export function SliderInputOutlined({ value, onChange, min, max, decimals, isErr
 								<input
 									{...props}
 									type="range"
-									className={`w-full min-w-[220px] ${isOnError ? "!bg-text-warning" : ""}`}
+									className={`w-full min-w-[220px] ${isError ? "!bg-text-warning" : ""}`}
 									onFocus={() => setIsFocused(true)}
 									onBlur={() => setIsFocused(false)}
 									{...(min || max
 										? {
 												min: formatUnits(min, decimals),
-												max: formatUnits(max + BigInt(1), decimals), // to allow go a bit over max
+												max: formatUnits(max, decimals),
 												step: formatUnits(BigInt(1), decimals),
 										  }
 										: {})}

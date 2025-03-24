@@ -252,6 +252,7 @@ export default function Swap() {
 				},
 			});
 			swapStats.refetch();
+			setAmount(0n);
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: need to translate
 		} finally {
@@ -300,6 +301,7 @@ export default function Swap() {
 				},
 			});
 			swapStats.refetch();
+			setAmount(0n);
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: need to translate
 		} finally {

@@ -35,6 +35,23 @@ export const useMyReferrals = () => {
 		}
 	);
 
+	const { data: referralsData } = useQuery(
+		gql`
+			query {
+				frontendRewardsMappings(where: { id: "${referrals.myFrontendCode}" }) {
+					items {
+						totalVolume
+						totalReffered
+					}
+				}
+			}
+		`,
+		{
+			pollInterval: 0,
+			skip: !referrals.myFrontendCode
+		}
+	);
+
 	useEffect(() => {
 		if (!data || !data?.frontendCodeMapping) {
 			dispatch(clearMyReferralData());
@@ -50,6 +67,8 @@ export const useMyReferrals = () => {
 
 	return {
 		...referrals,
+		totalVolume: referralsData?.frontendRewardsMappings?.items[0]?.totalVolume || 0n,
+		totalReffered: referralsData?.frontendRewardsMappings?.items[0]?.totalReffered || 0,
 		setMyReferralName: (referralName: string) => setReferralName(referralName),
 	};
 };

@@ -9,7 +9,16 @@ import { TxLabelSimple } from "@components/AddressLabel";
 import { formatCurrency } from "@utils";
 import { formatUnits } from "viem";
 
-const HystoryRow = ({ item }: { item: { created: number; type: string; rate: number; amount: string; txHash: string } }) => {
+interface TransactionHistoryData {
+	id: string;
+	created: number;
+	type: string;
+	rate: number;
+	amount: string;
+	txHash: string;
+}
+
+const HystoryRow = ({ item }: { item: TransactionHistoryData }) => {
 	const dateArr: string[] = new Date(item.created * 1000).toDateString().split(" ");
 	const dateStr: string = `${dateArr[2]} ${dateArr[1]} ${dateArr[3]}`;
 
@@ -31,12 +40,6 @@ export function TransactionHistoryPanel() {
 
 	const { withdraw, save, interest } = useSelector((state: RootState) => state.savings.savingsUserTable);
 
-	const sorted = [
-		...withdraw.map((r) => ({ ...r, type: t("savings.withdraw") })),
-		...save.map((r) => ({ ...r, type: t("savings.deposit") })),
-		...interest.map((r) => ({ ...r, type: t("savings.claimed_interest") })),
-	];
-
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
 			setReverse(!reverse);
@@ -45,6 +48,17 @@ export function TransactionHistoryPanel() {
 			setTab(e);
 		}
 	};
+
+	const sorted = sortTransactionHistory({
+		transactionHistory: [
+			...withdraw.map((r) => ({ ...r, type: t("savings.withdraw"), id: `withdraw-${r.txHash}` })),
+			...save.map((r) => ({ ...r, type: t("savings.deposit"), id: `deposit-${r.txHash}` })),
+			...interest.map((r) => ({ ...r, type: t("savings.claimed_interest"), id: `interest-${r.txHash}` })),
+		],
+		headers,
+		tab,
+		reverse,
+	});
 
 	return (
 		<ExpandablePanel title={t("savings.transaction_history")}>
@@ -68,4 +82,25 @@ export function TransactionHistoryPanel() {
 			)}
 		</ExpandablePanel>
 	);
+}
+
+function sortTransactionHistory(params: {
+	transactionHistory: TransactionHistoryData[];
+	headers: string[];
+	tab: string;
+	reverse: boolean;
+}): TransactionHistoryData[] {
+	const { transactionHistory, headers, tab, reverse } = params;
+
+	if (tab === headers[0]) {
+		transactionHistory.sort((a, b) => a.created - b.created);
+	} else if (tab === headers[1]) {
+		transactionHistory.sort((a, b) => a.type.localeCompare(b.type));
+	} else if (tab === headers[2]) {
+		transactionHistory.sort((a, b) => a.rate - b.rate);
+	} else if (tab === headers[3]) {
+		transactionHistory.sort((a, b) => Number(b.amount) - Number(a.amount));
+	}
+
+	return reverse ? transactionHistory.reverse() : transactionHistory;
 }

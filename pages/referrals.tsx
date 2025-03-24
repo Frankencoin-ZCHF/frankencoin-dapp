@@ -17,12 +17,8 @@ export default function Referrals() {
 
 			<div className="md:mt-8 flex flex-col gap-6 sm:gap-12">
 				<ReferralCenterSection />
-				<YourReferralsTable
-					data={[]}
-				/>
-				<BonusHistoryTable
-					data={[]}
-				/>
+				<YourReferralsTable />
+				<BonusHistoryTable />
 				<FAQ />
 			</div>
 		</>

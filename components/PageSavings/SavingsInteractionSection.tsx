@@ -164,6 +164,7 @@ export default function SavingsInteractionSection() {
 
 			refetchInterest();
 			refetchBalances();
+			setAmount("");
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {

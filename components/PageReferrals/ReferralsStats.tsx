@@ -13,9 +13,7 @@ import { toast } from "react-toastify";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 
 export const ReferralsStats = () => {
-	const { myFrontendCode } = useMyReferrals();
-	const [referralsCount, setReferralsCount] = useState(0);
-	const [totalRewards, setTotalRewards] = useState(0n);
+	const { myFrontendCode, totalVolume, totalReffered } = useMyReferrals();
 	const [availableToClaim, setAvailableToClaim] = useState(0n);
 	const [isClaiming, setIsClaiming] = useState(false);
 	const chainId = useChainId();
@@ -69,10 +67,10 @@ export const ReferralsStats = () => {
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: tx, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={t("savings.txs.claiming_referral_bonus")} rows={toastContent} />,
+					render: <TxToast title={t("referrals.txs.claiming_referral_bonus")} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={t("savings.txs.successfully_claimed_referral_bonus")} rows={toastContent} />,
+					render: <TxToast title={t("referrals.txs.successfully_claimed_referral_bonus")} rows={toastContent} />,
 				},
 			});
 			await fetchReferralsStats();
@@ -83,9 +81,9 @@ export const ReferralsStats = () => {
 		}
 	};
 
-	const hasReferrals = referralsCount > 0;
+	const hasReferrals = totalReffered  > 0;
 	const hasAvailableToClaim = availableToClaim > 0;
-	const hasTotalRewards = totalRewards > 0;
+	const hasTotalRewards = totalVolume > 0;
 
 	return (
 		<div className="self-stretch flex">
@@ -99,7 +97,7 @@ export const ReferralsStats = () => {
 							hasTotalRewards ? "" : "text-menu-wallet-bg"
 						} text-xl sm:text-2xl font-extrabold leading-normal`}
 					>
-						€ 00.00
+						€ {formatCurrency(formatUnits(totalVolume, 18))}
 					</div>
 				</div>
 			</div>
@@ -133,11 +131,11 @@ export const ReferralsStats = () => {
 				</div>
 				<div className="flex-col justify-center items-center gap-2.5 flex">
 					<div
-						className={`text-menu-wallet-bg text-xl sm:text-2xl font-extrabold leading-normal ${
+						className={`text-xl sm:text-2xl font-extrabold leading-normal ${
 							hasReferrals ? "" : "text-menu-wallet-bg"
 						}`}
 					>
-						0
+						{totalReffered}
 					</div>
 				</div>
 			</div>

@@ -132,7 +132,7 @@ export const MyBorrow = () => {
 	const overwrite = getPublicViewAddress(router);
 	const account = overwrite || address || zeroAddress;
 
-	const ownedPositions = positions.filter((position) => position.owner === account);
+	const ownedPositions = positions.filter((position) => position.owner === account).filter((position) => !position.closed);
 
 	const borrowData = ownedPositions.map((position) => {
 		const { principal, reserveContribution, collateralBalance, collateralDecimals, collateralSymbol } = position;

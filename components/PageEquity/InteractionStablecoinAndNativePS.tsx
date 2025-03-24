@@ -9,15 +9,14 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import Button from "@components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown, faArrowDownLong } from "@fortawesome/free-solid-svg-icons";
-import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
+import { faArrowDownLong } from "@fortawesome/free-solid-svg-icons";
+import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
-import { ADDRESS, EquityABI, FrontendGatewayABI } from "@deuro/eurocoin";
+import { ADDRESS, DecentralizedEUROABI, EquityABI, FrontendGatewayABI } from "@deuro/eurocoin";
 import { useFrontendCode } from "../../hooks/useFrontendCode";
-import { useFrontendGatewayStats } from "../../hooks/useFrontendGatewayStats";
 import { useTranslation } from "next-i18next";
 
 interface Props {
@@ -33,7 +32,6 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 	const [isInversting, setInversting] = useState(false);
 	const [isRedeeming, setRedeeming] = useState(false);
 	const { t } = useTranslation();
-	const { frontendGatewayAllowance, refetchFrontendGatewayStats } = useFrontendGatewayStats();
 	const { frontendCode } = useFrontendCode();
 	const { address } = useAccount();
 	const chainId = useChainId();
@@ -41,12 +39,28 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 	const account = address || zeroAddress;
 	const direction: boolean = tokenFromTo.from === TOKEN_SYMBOL;
 
+	const { data: frontendDeuroAllowanceData, refetch: refetchFrontendDeuroAllowance } = useReadContract({
+		address: ADDRESS[chainId].decentralizedEURO,
+		abi: DecentralizedEUROABI,
+		functionName: "allowance",
+		args: [account, ADDRESS[chainId].frontendGateway],
+	});
+	const frontendDeuroAllowance = frontendDeuroAllowanceData ? BigInt(String(frontendDeuroAllowanceData)) : 0n;
+
+	const { data: frontendEquityAllowanceData, refetch: refetchFrontendEquityAllowance } = useReadContract({
+		address: ADDRESS[chainId].equity,
+		abi: EquityABI,
+		functionName: "allowance",
+		args: [account, ADDRESS[chainId].frontendGateway],
+	});
+	const frontendEquityAllowance = frontendEquityAllowanceData ? BigInt(String(frontendEquityAllowanceData)) : 0n;
+
 	useEffect(() => {
 		setAmount(0n);
 		setError("");
 	}, [tokenFromTo]);
 
-	const handleApprove = async () => {
+	const handleApproveInvest = async () => {
 		try {
 			setApproving(true);
 
@@ -82,7 +96,7 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 			});
 
 			await poolStats.refetchPoolStats();
-			await refetchFrontendGatewayStats();
+			await refetchFrontendDeuroAllowance();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
@@ -130,49 +144,6 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 			setInversting(false);
 		}
 	};
-	const handleRedeem = async () => {
-		try {
-			setRedeeming(true);
-
-			const redeemWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].equity,
-				abi: EquityABI,
-				functionName: "redeem",
-				args: [account, amount],
-			});
-
-			const toastContent = [
-				{
-					title: t("common.txs.amount"),
-					value: formatBigInt(amount) + " " + NATIVE_POOL_SHARE_TOKEN_SYMBOL,
-				},
-				{
-					title: t("common.txs.receive"),
-					value: formatBigInt(result) + " " + TOKEN_SYMBOL,
-				},
-				{
-					title: t("common.txs.transaction"),
-					hash: redeemWriteHash,
-				},
-			];
-
-			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: redeemWriteHash, confirmations: 1 }), {
-				pending: {
-					render: <TxToast title={t("equity.txs.redeeming", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
-				},
-				success: {
-					render: <TxToast title={t("equity.txs.successfully_redeemed", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
-				},
-			});
-
-			await poolStats.refetchPoolStats();
-		} catch (error) {
-			toast.error(renderErrorTxToast(error)); // TODO: add error translation
-		} finally {
-			setAmount(0n);
-			setRedeeming(false);
-		}
-	};
 
 	const { data: nativePSResult, isLoading: shareLoading } = useReadContract({
 		address: ADDRESS[chainId].equity,
@@ -206,6 +177,100 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 		}
 	};
 
+	const handleApproveRedeem = async () => {
+		try {
+			setApproving(true);
+
+			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].equity,
+				abi: EquityABI,
+				functionName: "approve",
+				args: [ADDRESS[chainId].frontendGateway, amount],
+			});
+
+			const toastContent = [
+				{
+					title: t("common.txs.amount"),
+					value: formatBigInt(amount) + " " + NATIVE_POOL_SHARE_TOKEN_SYMBOL,
+				},
+				{
+					title: t("common.txs.spender"),
+					value: shortenAddress(ADDRESS[chainId].frontendGateway),
+				},
+				{
+					title: t("common.txs.transaction"),
+					hash: approveWriteHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={t("common.txs.title", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title={t("common.txs.success", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
+				},
+			});
+
+			await poolStats.refetchPoolStats();
+			await refetchFrontendEquityAllowance();
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
+		} finally {
+			setApproving(false);
+		}
+	};
+
+	const handleRedeem = async () => {
+		if (!deuroResult) return;
+
+		try {
+			setRedeeming(true);
+			const redeemWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].frontendGateway,
+				abi: FrontendGatewayABI,
+				functionName: "redeem",
+				args: [account, amount, deuroResult, frontendCode],
+			});
+
+			const toastContent = [
+				{
+					title: t("common.txs.amount"),
+					value: formatBigInt(amount) + " " + NATIVE_POOL_SHARE_TOKEN_SYMBOL,
+				},
+				{
+					title: t("common.txs.receive"),
+					value: formatBigInt(result) + " " + TOKEN_SYMBOL,
+				},
+				{
+					title: t("common.txs.transaction"),
+					hash: redeemWriteHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: redeemWriteHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={t("equity.txs.redeeming", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
+				},
+				success: {
+					render: (
+						<TxToast
+							title={t("equity.txs.successfully_redeemed", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })}
+							rows={toastContent}
+						/>
+					),
+				},
+			});
+
+			await poolStats.refetchPoolStats();
+		} catch (error) {
+			toast.error(renderErrorTxToast(error)); // TODO: add error translation
+		} finally {
+			setAmount(0n);
+			setRedeeming(false);
+		}
+	};
+
 	return (
 		<>
 			<div className="mb-4">
@@ -221,7 +286,11 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 				/>
 
 				<div className="py-2 text-center z-0">
-					<Button className={`h-10 rounded-full mt-4 !p-2.5`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
+					<Button
+						className={`h-10 rounded-full mt-4 !p-2.5`}
+						width="w-10"
+						onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}
+					>
 						<span className="flex items-center justify-center flex-1">
 							<FontAwesomeIcon icon={faArrowDownLong} className="w-5 h-5" />
 						</span>
@@ -240,8 +309,8 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 					<GuardToAllowedChainBtn label={direction ? t("equity.mint") : t("equity.redeem")}>
 						{direction ? (
-							amount > frontendGatewayAllowance ? (
-								<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>
+							amount > frontendDeuroAllowance ? (
+								<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApproveInvest()}>
 									{t("common.approve")}
 								</Button>
 							) : (
@@ -249,10 +318,14 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 									{t("equity.mint")}
 								</Button>
 							)
+						) : amount > frontendEquityAllowance ? (
+							<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApproveRedeem()}>
+								{t("common.approve")}
+							</Button>
 						) : (
 							<Button
 								isLoading={isRedeeming}
-								disabled={amount == 0n || !!error || !poolStats.equityCanRedeem}
+								disabled={amount == 0n || !!error || !poolStats.equityCanRedeem || !nativePSResult}
 								onClick={() => handleRedeem()}
 							>
 								{t("equity.redeem")}
@@ -265,7 +338,13 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 			<div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
 					<DisplayLabel label={t("equity.your_balance")} />
-					<DisplayAmount bold className="mt-2" amount={poolStats.equityBalance} currency={NATIVE_POOL_SHARE_TOKEN_SYMBOL} address={ADDRESS[chainId].equity} />
+					<DisplayAmount
+						bold
+						className="mt-2"
+						amount={poolStats.equityBalance}
+						currency={NATIVE_POOL_SHARE_TOKEN_SYMBOL}
+						address={ADDRESS[chainId].equity}
+					/>
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label={t("equity.value_at_current_price")} />
