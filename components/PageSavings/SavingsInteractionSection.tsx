@@ -92,12 +92,8 @@ export default function SavingsInteractionSection() {
 	const showToastForWithdraw = async ({ hash }: { hash: `0x${string}` }) => {
 		const toastContent = [
 			{
-				title: `${t("savings.txs.saved_amount")}`,
-				value: `${formatCurrency(formatUnits(100n, 18))} ${TOKEN_SYMBOL}`,
-			},
-			{
 				title: `${t("savings.txs.withdraw")}`,
-				value: `${formatCurrency(formatUnits(100n, 18))} ${TOKEN_SYMBOL}`,
+				value: `${formatCurrency(formatUnits(BigInt(amount), 18))} ${TOKEN_SYMBOL}`,
 			},
 			{
 				title: `${t("common.txs.transaction")}`,
@@ -119,11 +115,7 @@ export default function SavingsInteractionSection() {
 		const toastContent = [
 			{
 				title: `${t("savings.txs.saving_amount")}`,
-				value: `${formatCurrency(formatUnits(100n, 18))} ${TOKEN_SYMBOL}`,
-			},
-			{
-				title: `${t("savings.txs.accured_interest")}`,
-				value: `${formatCurrency(formatUnits(100n, 18))} ${TOKEN_SYMBOL}`,
+				value: `${formatCurrency(formatUnits(BigInt(amount), 18))} ${TOKEN_SYMBOL}`,
 			},
 			{
 				title: `${t("common.txs.transaction")}`,

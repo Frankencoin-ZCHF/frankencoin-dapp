@@ -77,9 +77,9 @@ export const CollateralManageSection = () => {
 		],
 	});
 
-	const principal = data?.[0]?.result || BigInt(position.principal);
-	const price = data?.[1]?.result || BigInt(position.price);
-	const balanceOf = data?.[2]?.result || BigInt(position.collateralBalance); // collateral reserve
+	const principal = data?.[0]?.result || 0n;
+	const price = data?.[1]?.result || 1n;
+	const balanceOf = data?.[2]?.result || 0n; // collateral reserve
 	const debt = data?.[3]?.result || 0n;
 	const collateralPrice = prices[position.collateralSymbol as Address]?.price?.eur || 1;
 	const collateralValuation = collateralPrice * Number(formatUnits(balanceOf, position.collateralDecimals));
@@ -91,9 +91,11 @@ export const CollateralManageSection = () => {
 	const balanceDEURO: number = Math.round(((balance * collTokenPrice) / deuroPrice) * 100) / 100;
 	const liquidationDEURO: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
 	const liquidationPct: number = Math.round((balanceDEURO / (liquidationDEURO * balance)) * 10000) / 100;
+
 	const maxToRemoveThreshold =
 		balanceOf - (debt * 10n ** BigInt(position.collateralDecimals)) / price - BigInt(position.minimumCollateral);
-	const maxToRemove = maxToRemoveThreshold > 0n ? maxToRemoveThreshold : 0n;
+	
+	const maxToRemove = debt > 0n ? maxToRemoveThreshold : balanceOf;
 
 	const handleAddMax = () => {
 		setAmount(walletBalance.toString());
@@ -163,7 +165,7 @@ export const CollateralManageSection = () => {
 			const toastContent = [
 				{
 					title: t("common.txs.amount"),
-					value: formatBigInt(BigInt(amount)) + ` ${position.collateralSymbol}`,
+					value: formatCurrency(formatUnits(BigInt(amount), position.collateralDecimals)) + ` ${position.collateralSymbol}`,
 				},
 				{
 					title: t("common.txs.transaction"),
@@ -204,7 +206,7 @@ export const CollateralManageSection = () => {
 			const toastContent = [
 				{
 					title: t("common.txs.amount"),
-					value: formatBigInt(BigInt(amount)) + ` ${position.collateralSymbol}`,
+					value: formatCurrency(formatUnits(BigInt(amount), position.collateralDecimals)) + ` ${position.collateralSymbol}`,
 				},
 				{
 					title: t("common.txs.transaction"),

@@ -89,9 +89,9 @@ export const BorrowedManageSection = () => {
 	const { reserveContribution } = position;
 
 	const collateralPrice = prices[position.collateralSymbol as Address]?.price?.eur || 1;
-	const principal = data?.[0]?.result || BigInt(position.principal);
-	const price = data?.[1]?.result || BigInt(position.price);
-	const balanceOf = data?.[2]?.result || BigInt(position.collateralBalance);
+	const principal = data?.[0]?.result || 0n;
+	const price = data?.[1]?.result || 1n;
+	const balanceOf = data?.[2]?.result || 0n;
 	const interest = data?.[3]?.result || 0n;
 	const totalDebt = data?.[4]?.result || 0n;
 	const amountBorrowed = BigInt(principal) - (BigInt(principal) * BigInt(reserveContribution)) / 1_000_000n;
@@ -126,7 +126,7 @@ export const BorrowedManageSection = () => {
 			const toastContent = [
 				{
 					title: t("common.txs.amount"),
-					value: formatBigInt(BigInt(amount)) + ` ${position.deuroSymbol}`,
+					value: formatCurrency(formatUnits(BigInt(amount), position.deuroDecimals)) + ` ${position.deuroSymbol}`,
 				},
 				{
 					title: t("common.txs.transaction"),
@@ -221,7 +221,7 @@ export const BorrowedManageSection = () => {
 			const toastContent = [
 				{
 					title: t("common.txs.amount"),
-					value: formatBigInt(BigInt(amount)) + ` ${position.deuroSymbol}`,
+					value: formatCurrency(formatUnits(BigInt(amount), position.deuroDecimals)) + ` ${position.deuroSymbol}`,
 				},
 				{
 					title: t("common.txs.transaction"),

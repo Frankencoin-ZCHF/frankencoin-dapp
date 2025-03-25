@@ -41,11 +41,12 @@ export function NavItems() {
 
 export default function Navbar() {
 	const [isNavBarOpen, setIsNavBarOpen] = useState(false);
+	const [isWarningVisible, setIsWarningVisible] = useState(window.location.href.includes('dev'));
 	const { t } = useTranslation();
 
 	return (
 		<div className="fixed top-0 left-0 right-0 z-20">
-			<div className="bg-yellow-500 text-black text-center font-bold text-sm md:text-base">{t("common.navbar.not_live")}</div>
+			<div className={`flex justify-between px-4 bg-yellow-500 text-black text-center font-bold text-sm md:text-base ${isWarningVisible ? 'block' : 'hidden'}`}><span/><span>{t("common.navbar.not_live")}</span><button onClick={() => setIsWarningVisible(false)}>X</button></div>
 			<div>
 				<header className="w-full h-16 px-5 md:px-10 bg-white border-b border-menu-separator bg-menu-back backdrop-blur justify-between items-center inline-flex">
 					<div className="h-9 justify-start items-center gap-6 inline-flex">
