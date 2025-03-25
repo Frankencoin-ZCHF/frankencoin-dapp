@@ -94,8 +94,8 @@ export const CollateralManageSection = () => {
 
 	const maxToRemoveThreshold =
 		balanceOf - (debt * 10n ** BigInt(position.collateralDecimals)) / price - BigInt(position.minimumCollateral);
-	
-	const maxToRemove = debt > 0n ? maxToRemoveThreshold : balanceOf;
+
+	const maxToRemove = debt > 0n ? (maxToRemoveThreshold > 0n ? maxToRemoveThreshold : 0n) : balanceOf;
 
 	const handleAddMax = () => {
 		setAmount(walletBalance.toString());
@@ -328,7 +328,12 @@ export const CollateralManageSection = () => {
 					{t("common.approve")}
 				</Button>
 			)}
-			<DetailsExpandablePanel loanDetails={loanDetails} collateralPriceDeuro={collateralPrice} collateralDecimals={position.collateralDecimals} startingLiquidationPrice={BigInt(position.price)} />
+			<DetailsExpandablePanel
+				loanDetails={loanDetails}
+				collateralPriceDeuro={collateralPrice}
+				collateralDecimals={position.collateralDecimals}
+				startingLiquidationPrice={BigInt(position.price)}
+			/>
 		</div>
 	);
 };
