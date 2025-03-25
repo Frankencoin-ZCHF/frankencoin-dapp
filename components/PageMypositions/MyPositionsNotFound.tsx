@@ -12,8 +12,6 @@ interface Props {
 export default function MyPositionsNotFound({ query }: Props) {
 	const explorerLink = useContractUrl(query);
 
-	console.log({ query, explorerLink });
-
 	return (
 		<>
 			<Head>
