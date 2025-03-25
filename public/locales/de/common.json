@@ -568,7 +568,6 @@
         "enter_withdraw_amount": "Betrag zum Auszahlen eingeben",
         "withdraw_to_my_wallet": "Auszahlen auf meine Wallet",
         "transaction_history": "Transaktionsverlauf",
-        "savings_rate_description": "Wenn du zusätzliches dEURO einzahlst, wird dein Guthaben bis zur Gutschrift der Zinsen gesperrt, was bis zu drei Tage dauern kann. Diese Regel stellt sicher, dass eingezahlte Beträge nicht für kurzfristige Transaktionen verwendet werden.",
         "claimed_interest": "Eingeforderte Zinsen",
         "error": {
             "insufficient_balance": "Nicht genügend Guthaben",

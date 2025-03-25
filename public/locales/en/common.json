@@ -568,7 +568,6 @@
         "enter_withdraw_amount": "Enter withdraw amount",
         "withdraw_to_my_wallet": "Withdraw to my wallet",
         "transaction_history": "Transaction history",
-        "savings_rate_description": "When saving additional funds, your balance will be locked until interest starts accruing, which can take up to three days. This rules serves to disincentivize the saving of funds held for transactional purposes.",
         "claimed_interest": "Claimed Interest",
         "error": {
             "insufficient_balance": "Insufficient balance",

@@ -568,7 +568,6 @@
         "enter_withdraw_amount": "Ingresar cantidad para retirar",
         "withdraw_to_my_wallet": "Retirar a mi monedero",
         "transaction_history": "Historial de transacciones",
-        "savings_rate_description": "Cuando guarda fondos adicionales, su saldo quedará bloqueado hasta que comiencen a generarse intereses, lo que puede tardar hasta tres días. Esta norma sirve para desincentivar el ahorro de fondos destinados a transacciones.",
         "claimed_interest": "Intereses reclamados",
         "error": {
             "insufficient_balance": "Fondos insuficientes",

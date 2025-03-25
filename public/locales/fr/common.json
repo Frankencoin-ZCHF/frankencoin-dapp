@@ -568,7 +568,6 @@
         "enter_withdraw_amount": "Saisissez le montant à retirer",
         "withdraw_to_my_wallet": "Retirer vers mon portefeuille",
         "transaction_history": "Historique des transactions",
-        "savings_rate_description": "Lorsque vous déposez des fonds supplémentaires, votre solde sera bloqué jusqu'au début de la capitalisation des intérêts, ce qui peut prendre jusqu'à trois jours. Cette règle vise à décourager l'épargne de fonds détenus à des fins transactionnelles.",
         "claimed_interest": "Intérêts récoltés",
         "error": {
             "insufficient_balance": "Solde insuffisant",

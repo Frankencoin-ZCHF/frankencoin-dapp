@@ -278,9 +278,6 @@ export default function SavingsInteractionSection() {
 					</Button>
 				)}
 			</div>
-			<div className="py-2 px-4 border border-borders-dividerLight rounded-xl">
-				<div className="text-text-primary text-sm/4 font-normal">{t("savings.savings_rate_description")}</div>
-			</div>
 		</div>
 	);
 }
