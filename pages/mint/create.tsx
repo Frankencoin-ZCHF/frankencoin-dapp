@@ -1,7 +1,7 @@
 "use client";
 import Head from "next/head";
 import { useEffect } from "react";
-import { Address, isAddress, maxUint256, parseUnits } from "viem";
+import { Address, decodeEventLog, isAddress, maxUint256, parseUnits } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useTokenData, useUserBalance } from "@hooks";
 import { useState } from "react";
@@ -19,6 +19,7 @@ import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, MintingHubV2ABI } from "@frankencoin/zchf";
 import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
+import { useRouter as useNavigation } from "next/navigation";
 
 export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
@@ -46,6 +47,7 @@ export default function PositionCreate({}) {
 	const [userAllowance, setUserAllowance] = useState<bigint>(0n);
 	const { data } = useBlockNumber({ watch: true });
 	const account = useAccount();
+	const navigate = useNavigation();
 
 	const chainId = useChainId();
 	const collTokenData = useTokenData(collateralAddress);
@@ -302,6 +304,32 @@ export default function PositionCreate({}) {
 					render: <TxToast title={`Successfully created a position`} rows={toastContent} />,
 				},
 			});
+
+			const receipt = await waitForTransactionReceipt(WAGMI_CONFIG, {
+				hash: openWriteHash,
+				confirmations: 1,
+			});
+
+			const targetEvents = receipt.logs
+				.map((log) => {
+					try {
+						// Try to decode each log using your ABI
+						return decodeEventLog({
+							abi: MintingHubV2ABI,
+							data: log.data,
+							topics: log.topics,
+						});
+					} catch (error) {
+						// If decoding fails, it's not an event from your contract
+						return null;
+					}
+				})
+				.filter((event) => event !== null && event.eventName === "PositionOpened");
+
+			if (targetEvents.length > 0) {
+				const position = targetEvents[0].args.position;
+				navigate.push(`/mypositions/${position}`);
+			}
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
