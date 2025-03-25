@@ -100,10 +100,10 @@ export default function PositionCreate({}) {
 
 	const collateralPriceUsd = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0;
 	const collateralEurValue = selectedPosition
-		? collateralPriceDeuro * parseFloat(formatUnits(BigInt(collateralAmount), selectedPosition.collateralDecimals))
+		? formatCurrency(collateralPriceDeuro * parseFloat(formatUnits(BigInt(collateralAmount), selectedPosition.collateralDecimals)))
 		: 0;
 	const collateralUsdValue = selectedPosition
-		? collateralPriceUsd * parseFloat(formatUnits(BigInt(collateralAmount), selectedPosition.collateralDecimals))
+		? formatCurrency(collateralPriceUsd * parseFloat(formatUnits(BigInt(collateralAmount), selectedPosition.collateralDecimals)))
 		: 0;
 	const maxLiquidationPrice = selectedPosition ? BigInt(selectedPosition.price) : 0n;
 	const isLiquidationPriceTooHigh = selectedPosition ? BigInt(liquidationPrice) > maxLiquidationPrice : false;
@@ -237,6 +237,8 @@ export default function PositionCreate({}) {
 
 			store.dispatch(fetchPositionsList());
 			setIsCloneSuccess(true);
+			setCollateralAmount("0");
+			await refetchBalances();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 			setIsOpenBorrowingDEUROModal(false);
@@ -407,6 +409,7 @@ export default function PositionCreate({}) {
 						formmatedCollateral={`${formatUnits(BigInt(collateralAmount), selectedPosition?.collateralDecimals || 0)} ${
 							selectedPosition?.collateralSymbol
 						}`}
+						collateralPriceDeuro={collateralPriceDeuro}
 						isSuccess={isCloneSuccess}
 						isLoading={isCloneLoading}
 					/>

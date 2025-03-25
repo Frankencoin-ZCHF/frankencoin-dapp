@@ -1,6 +1,6 @@
 import Button from "@components/Button";
 import TokenLogo from "@components/TokenLogo";
-import { formatDate, toTimestamp } from "@utils";
+import { formatCurrency, formatDate, toTimestamp } from "@utils";
 import { Modal } from "flowbite-react";
 import { useTranslation } from "next-i18next";
 
@@ -13,9 +13,10 @@ type BorrowingDEUROModalProps = {
 	youGet: string | null | undefined;
 	isSuccess: boolean;
 	isLoading: boolean;
+	collateralPriceDeuro: number;
 };
 
-export function BorrowingDEUROModal({ isOpen, setIsOpen, youGet, formmatedCollateral, expiration, liquidationPrice, isSuccess, isLoading }: BorrowingDEUROModalProps) {
+export function BorrowingDEUROModal({ isOpen, setIsOpen, youGet, formmatedCollateral, expiration, liquidationPrice, isSuccess, isLoading, collateralPriceDeuro }: BorrowingDEUROModalProps) {
 	const { t } = useTranslation();
 
 	return (
@@ -51,7 +52,7 @@ export function BorrowingDEUROModal({ isOpen, setIsOpen, youGet, formmatedCollat
 								<div className="h-5 text-right text-sm font-extrabold leading-none tracking-tight">
 									{formmatedCollateral}
 								</div>
-								<div className="text-right text-text-icon text-xs font-medium leading-none">€{formmatedCollateral}</div>
+								<div className="text-right text-text-icon text-xs font-medium leading-none">€ {formatCurrency(collateralPriceDeuro)}</div>
 							</div>
 						</div>
 						<div className="self-stretch justify-start items-start inline-flex">

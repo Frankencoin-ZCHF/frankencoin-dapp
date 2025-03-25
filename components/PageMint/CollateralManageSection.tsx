@@ -77,9 +77,6 @@ export const CollateralManageSection = () => {
 		],
 	});
 
-	
-	if (!position) return null;
-
 	const principal = data?.[0]?.result || BigInt(position.principal);
 	const price = data?.[1]?.result || BigInt(position.price);
 	const balanceOf = data?.[2]?.result || BigInt(position.collateralBalance); // collateral reserve

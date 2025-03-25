@@ -21,8 +21,8 @@ interface TokenInputSelectOutlinedProps {
 	value: string;
 	onChange: (value: string) => void;
 	disabled?: boolean;
-	usdValue?: number;
-	eurValue?: number;
+	usdValue?: string | number | null | undefined;
+	eurValue?: string | number | null | undefined;
 	isError?: boolean;
 	errorMessage?: string;
 }

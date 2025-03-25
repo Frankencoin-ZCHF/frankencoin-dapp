@@ -86,8 +86,6 @@ export const BorrowedManageSection = () => {
 		],
 	});
 
-	if (!position) return null;
-
 	const { reserveContribution } = position;
 
 	const collateralPrice = prices[position.collateralSymbol as Address]?.price?.eur || 1;

@@ -27,11 +27,18 @@ const defaultLoanDetails = {
 	startingLiquidationPrice: BigInt(0),
 };
 
-export function DetailsExpandablePanel({ loanDetails = defaultLoanDetails, collateralPriceDeuro = 0, collateralDecimals = 0, startingLiquidationPrice = 0n }: DetailsExpandablePanelProps) {
+export function DetailsExpandablePanel({
+	loanDetails = defaultLoanDetails,
+	collateralPriceDeuro = 0,
+	collateralDecimals = 0,
+	startingLiquidationPrice = 0n,
+}: DetailsExpandablePanelProps) {
 	const { t } = useTranslation();
 
-	const effectiveLTV = Number(loanDetails.loanAmount) / (Number(loanDetails.requiredCollateral) * collateralPriceDeuro) || 0;
-	
+	const effectiveLTV =
+		Number(formatUnits(loanDetails.loanAmount, 18)) * 100 /
+		(Number(formatUnits(loanDetails.requiredCollateral, collateralDecimals)) * collateralPriceDeuro) || 0;
+
 	return (
 		<ExpandablePanel title={t("mint.details")}>
 			<div className="py-1.5 flex justify-between">
@@ -82,7 +89,7 @@ export function DetailsExpandablePanel({ loanDetails = defaultLoanDetails, colla
 			</div>
 			<div className="py-1.5 flex justify-between">
 				<span className="text-base leading-tight">{t("mint.loan_to_value")}</span>
-				<span className="text-right text-sm font-extrabold leading-none tracking-tight">{formatCurrency(effectiveLTV * 100)}%</span>
+				<span className="text-right text-sm font-extrabold leading-none tracking-tight">{formatCurrency(effectiveLTV)}%</span>
 			</div>
 			<div className="py-1.5 flex justify-between">
 				<span className="text-base leading-tight">{t("mint.original_position")}</span>
