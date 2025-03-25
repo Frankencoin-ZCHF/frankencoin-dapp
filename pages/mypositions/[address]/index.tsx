@@ -19,6 +19,7 @@ import AppTitle from "@components/AppTitle";
 import PositionRollerTable from "@components/PageMypositions/PositionRollerTable";
 import AppCard from "@components/AppCard";
 import AppLink from "@components/AppLink";
+import MyPositionsNotFound from "@components/PageMypositions/MyPositionsNotFound";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -34,15 +35,13 @@ export default function PositionAdjust() {
 	const account = useAccount();
 	const router = useRouter();
 
-	const chainId = useChainId();
 	const addressQuery: Address = router.query.address as Address;
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const position = positions.find((p) => p.position == addressQuery) as PositionQuery;
-	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
-	const [amount, setAmount] = useState<bigint>(BigInt(position.minted || 0n));
-	const [collateralAmount, setCollateralAmount] = useState<bigint>(BigInt(position.collateralBalance));
+	const [amount, setAmount] = useState<bigint>(BigInt(position?.minted ?? 0n));
+	const [collateralAmount, setCollateralAmount] = useState<bigint>(BigInt(position?.collateralBalance ?? 0n));
 	const [liqPrice, setLiqPrice] = useState<bigint>(BigInt(position?.price ?? 0n));
 
 	// ---------------------------------------------------------------------------
@@ -90,7 +89,7 @@ export default function PositionAdjust() {
 	}, [data, account.address, position]);
 
 	// ---------------------------------------------------------------------------
-	if (!position) return null;
+	if (!position) return <MyPositionsNotFound query={addressQuery} />;
 
 	const isCooldown: boolean = position.cooldown * 1000 - Date.now() > 0;
 
