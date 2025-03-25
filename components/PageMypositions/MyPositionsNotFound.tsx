@@ -22,14 +22,11 @@ export default function MyPositionsNotFound({ query }: Props) {
 
 			<AppTitle title={`Manage Position `}>
 				<div className="text-text-secondary">
-					Position not found. The system is either still indexing the address:{" "}
-					<AppLink className="" label={query} href={explorerLink} external={true} /> or the position does not exist.
-					<AppLink
-						className=""
-						label=" Ping us on Github if you think this is a bug"
-						href={SOCIAL.Github_dapp_new_issue}
-						external={true}
-					/>
+					Position not found. If this position was recently created, it may take a few minutes to be indexed. If you can verify
+					this is a valid position on <AppLink className="" label="the Explorer" href={explorerLink} external={true} /> but it is
+					not appearing here, please{" "}
+					<AppLink className="" label="file a bug report" href={SOCIAL.Github_dapp_new_issue} external={true} /> including the
+					current URL.
 				</div>
 			</AppTitle>
 		</>
