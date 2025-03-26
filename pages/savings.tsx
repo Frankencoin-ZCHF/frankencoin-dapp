@@ -10,9 +10,6 @@ import { fetchBalance, fetchSavings } from "../redux/slices/savings.slice";
 import { useAccount } from "wagmi";
 import AppTitle from "@components/AppTitle";
 import SavingsRankedBalancesTable from "@components/PageSavings/SavingsRankedBalancesTable";
-import { useContractUrl } from "@hooks";
-import { ADDRESS } from "@frankencoin/zchf";
-import { WAGMI_CHAIN } from "../app.config";
 import AppLink from "@components/AppLink";
 import SavingsYearlyTable from "@components/PageSavings/SavingsYearlyTable";
 
@@ -23,9 +20,6 @@ export default function SavingsPage() {
 		store.dispatch(fetchSavings(address));
 		store.dispatch(fetchBalance());
 	}, [address]);
-
-	const savings = ADDRESS[WAGMI_CHAIN.id].savings;
-	const link = useContractUrl(savings);
 
 	return (
 		<>
@@ -50,9 +44,13 @@ export default function SavingsPage() {
 				.
 			</div>
 
-			<AppTitle title="Yearly Accounts" />
+			{address == undefined ? null : (
+				<>
+					<AppTitle title="Yearly Accounts" />
 
-			<SavingsYearlyTable />
+					<SavingsYearlyTable />
+				</>
+			)}
 
 			<AppTitle title="Recent Deposits" />
 
