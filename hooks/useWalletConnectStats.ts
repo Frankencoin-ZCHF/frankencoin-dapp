@@ -3,10 +3,10 @@ import { useAccount } from "wagmi";
 import { WAGMI_CHAIN } from "../app.config";
 
 export const useIsConnectedToCorrectChain = (): boolean => {
-	const { address, chain, isConnected } = useAccount();
+	const { address, isConnected, chainId } = useAccount();
 
-	if (!isConnected || !chain || !address) return false;
-	return (WAGMI_CHAIN.id as number) === (chain.id as number);
+	if (!isConnected || !chainId || !address) return false;
+	return (WAGMI_CHAIN.id as number) === (chainId as number);
 };
 
 export const useIsMainnet = (): boolean => {

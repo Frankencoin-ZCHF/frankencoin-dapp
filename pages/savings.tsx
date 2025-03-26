@@ -13,8 +13,8 @@ import SavingsRankedBalancesTable from "@components/PageSavings/SavingsRankedBal
 import { useContractUrl } from "@hooks";
 import { ADDRESS } from "@frankencoin/zchf";
 import { WAGMI_CHAIN } from "../app.config";
-import { shortenAddress } from "@utils";
 import AppLink from "@components/AppLink";
+import SavingsYearlyTable from "@components/PageSavings/SavingsYearlyTable";
 
 export default function SavingsPage() {
 	const { address } = useAccount();
@@ -33,22 +33,26 @@ export default function SavingsPage() {
 				<title>Frankencoin - Savings</title>
 			</Head>
 
-			<AppTitle title={`Savings `}>
-			</AppTitle>
+			<AppTitle title={`Savings `}></AppTitle>
 
 			<SavingsGlobalCard />
 
 			<SavingsInteractionCard />
 
 			<div className="text-text-secondary">
-				Alternatively, you can also earn a yield by lending on  
-					<AppLink
-						label={" Morpho"}
-						href={"https://app.morpho.org/ethereum/earn?assetIdsFilter=ecc8bd13-eab5-4c7b-97e1-ba23d58f8cd3"}
-						external={true}
-						className="pr-1"
-					/>.
+				Alternatively, you can also earn a yield by lending on
+				<AppLink
+					label={" Morpho"}
+					href={"https://app.morpho.org/ethereum/earn?assetIdsFilter=ecc8bd13-eab5-4c7b-97e1-ba23d58f8cd3"}
+					external={true}
+					className="pr-1"
+				/>
+				.
 			</div>
+
+			<AppTitle title="Yearly Accounts" />
+
+			<SavingsYearlyTable />
 
 			<AppTitle title="Recent Deposits" />
 
