@@ -141,17 +141,7 @@ export default function EquityNativePoolShareDetailsCard() {
 					<DisplayAmount
 						className="mt-2 text-text-success"
 						bold
-						amount={profit}
-						currency={TOKEN_SYMBOL}
-						address={ADDRESS[chainId].decentralizedEURO}
-					/>
-				</AppBox>
-				<AppBox>
-					<DisplayLabel label={t("equity.total_losses")} />
-					<DisplayAmount
-						className="mt-2 text-text-warning"
-						bold
-						amount={loss}
+						amount={profit - loss}
 						currency={TOKEN_SYMBOL}
 						address={ADDRESS[chainId].decentralizedEURO}
 					/>

@@ -48,6 +48,7 @@ export default function PositionCreate({}) {
 	const [isApproving, setIsApproving] = useState(false);
 	const [isCloneSuccess, setIsCloneSuccess] = useState(false);
 	const [isCloneLoading, setIsCloneLoading] = useState(false);
+	const [collateralError, setCollateralError] = useState("");
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const challenges = useSelector((state: RootState) => state.challenges.list.list);
@@ -81,7 +82,7 @@ export default function PositionCreate({}) {
 		return Array.from(uniqueTokens.values());
 	}, [elegiblePositions, isApproving]);
 
-	const { balances, refetchBalances } = useWalletERC20Balances(collateralTokenList);
+	const { balances, balancesByAddress, refetchBalances } = useWalletERC20Balances(collateralTokenList);
 	const { frontendCode } = useFrontendCode();
 	const { t } = useTranslation();
 
@@ -95,6 +96,30 @@ export default function PositionCreate({}) {
 		}
 	}, []);
 
+	// Collateral input validation
+	useEffect(() => {
+		if (!selectedPosition || !selectedCollateral) return;
+
+		if (BigInt(collateralAmount) === 0n || collateralAmount === "") {
+			setCollateralError("");
+			return;
+		}
+
+		const balanceInWallet = balancesByAddress[selectedCollateral?.address] as TokenBalance;
+		if (BigInt(collateralAmount) < BigInt(selectedPosition.minimumCollateral)) {
+			const minColl = formatBigInt(BigInt(selectedPosition?.minimumCollateral || 0n), selectedPosition?.collateralDecimals || 0);
+			const notTheMinimum = `${t("mint.error.must_be_at_least_the_minimum_amount")} (${minColl} ${
+				selectedPosition?.collateralSymbol
+			})`;
+			setCollateralError(notTheMinimum);
+		} else if (BigInt(collateralAmount) > BigInt(balanceInWallet.balanceOf)) {
+			const notEnoughBalance = t("common.error.insufficient_balance", { symbol: selectedPosition?.collateralSymbol });
+			setCollateralError(notEnoughBalance);
+		} else {
+			setCollateralError("");
+		}
+	}, [collateralAmount]);
+
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const collateralPriceDeuro = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0; // TODO: change to eur?
 
@@ -107,12 +132,13 @@ export default function PositionCreate({}) {
 		: 0;
 	const maxLiquidationPrice = selectedPosition ? BigInt(selectedPosition.price) : 0n;
 	const isLiquidationPriceTooHigh = selectedPosition ? BigInt(liquidationPrice) > maxLiquidationPrice : false;
-	const collateralUserBalance = balances.find((b) => b.address == selectedCollateral?.address)
+	const collateralUserBalance = balances.find((b) => b.address == selectedCollateral?.address);
 	const userAllowance = collateralUserBalance?.allowance?.[ADDRESS[chainId].mintingHubGateway] || 0n;
 	const userBalance = collateralUserBalance?.balanceOf || 0n;
 	const isCollateralError =
 		collateralAmount !== "0" && collateralAmount !== "" && BigInt(userBalance) < BigInt(selectedPosition?.minimumCollateral || 0n);
-	
+	const selectedBalance = Boolean(selectedCollateral) ? balancesByAddress[selectedCollateral?.address as Address] : null;
+
 	const handleOnSelectedToken = (token: TokenBalance) => {
 		if (!token) return;
 		setSelectedCollateral(token);
@@ -221,7 +247,7 @@ export default function PositionCreate({}) {
 					address: newPositionAddress as Address,
 					abi: PositionV2ABI,
 					functionName: "adjustPrice",
-					args: [BigInt(liquidationPrice) * 10001n / 10000n], // added 0.001% to account for interest in the block before signing this
+					args: [(BigInt(liquidationPrice) * 10001n) / 10000n], // added 0.001% to account for interest in the block before signing this
 				});
 				txHash = adjustPriceHash;
 			}
@@ -237,7 +263,6 @@ export default function PositionCreate({}) {
 
 			store.dispatch(fetchPositionsList());
 			setIsCloneSuccess(true);
-			setCollateralAmount("0");
 			await refetchBalances();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: add error translation
@@ -322,17 +347,14 @@ export default function PositionCreate({}) {
 					<div className="self-stretch flex-col justify-start items-center gap-1 flex">
 						<InputTitle icon={faCircleQuestion}>{t("mint.select_collateral")}</InputTitle>
 						<TokenInputSelectOutlined
-							selectedToken={selectedCollateral}
+							selectedToken={selectedBalance}
 							onSelectTokenClick={() => setIsOpenTokenSelector(true)}
 							value={collateralAmount}
 							onChange={onAmountCollateralChange}
 							usdValue={collateralUsdValue}
 							eurValue={collateralEurValue}
-							isError={isCollateralError}
-							errorMessage={`${t("mint.error.must_be_at_least_the_minimum_amount")} (${formatBigInt(
-								BigInt(selectedPosition?.minimumCollateral || 0n),
-								selectedPosition?.collateralDecimals || 0
-							)} ${selectedPosition?.collateralSymbol})`}
+							isError={Boolean(collateralError)}
+							errorMessage={collateralError}
 						/>
 						<TokenSelectModal
 							title={t("mint.token_select_modal_title")}
@@ -370,7 +392,12 @@ export default function PositionCreate({}) {
 							<InputTitle>{t("mint.you_get")}</InputTitle>
 							<NormalInputOutlined value={borrowedAmount} onChange={onYouGetChange} decimals={18} />
 						</div>
-						<DetailsExpandablePanel loanDetails={loanDetails} startingLiquidationPrice={BigInt(liquidationPrice)} collateralDecimals={selectedPosition?.collateralDecimals || 0} collateralPriceDeuro={collateralPriceDeuro} />
+						<DetailsExpandablePanel
+							loanDetails={loanDetails}
+							startingLiquidationPrice={BigInt(liquidationPrice)}
+							collateralDecimals={selectedPosition?.collateralDecimals || 0}
+							collateralPriceDeuro={collateralPriceDeuro}
+						/>
 					</div>
 					<GuardToAllowedChainBtn label={t("mint.symbol_borrow", { symbol: TOKEN_SYMBOL })}>
 						{!selectedCollateral ? (
@@ -385,7 +412,13 @@ export default function PositionCreate({}) {
 							<Button
 								className="!p-4 text-lg font-extrabold leading-none"
 								onClick={handleOnClonePosition}
-								disabled={!selectedPosition || !selectedCollateral || isLiquidationPriceTooHigh || isCollateralError || userBalance < BigInt(collateralAmount)}
+								disabled={
+									!selectedPosition ||
+									!selectedCollateral ||
+									isLiquidationPriceTooHigh ||
+									isCollateralError ||
+									userBalance < BigInt(collateralAmount)
+								}
 							>
 								{isLiquidationPriceTooHigh
 									? t("mint.your_liquidation_price_is_too_high")
