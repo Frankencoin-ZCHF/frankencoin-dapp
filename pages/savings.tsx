@@ -13,8 +13,8 @@ import SavingsRankedBalancesTable from "@components/PageSavings/SavingsRankedBal
 import { useContractUrl } from "@hooks";
 import { ADDRESS } from "@frankencoin/zchf";
 import { WAGMI_CHAIN } from "../app.config";
-import { shortenAddress } from "@utils";
 import AppLink from "@components/AppLink";
+import SavingsYearlyTable from "@components/PageSavings/SavingsYearlyTable";
 
 export default function SavingsPage() {
 	const { address } = useAccount();
@@ -49,6 +49,10 @@ export default function SavingsPage() {
 				/>
 				.
 			</div>
+
+			<AppTitle title="Yearly Accounts" />
+
+			<SavingsYearlyTable />
 
 			<AppTitle title="Recent Deposits" />
 
