@@ -15,9 +15,11 @@ import {
 	PriceQueryObjectArray,
 } from "@deuro/api";
 import { Address, formatUnits } from "viem";
+import { useTranslation } from "next-i18next";
 
 export default function ChallengesTable() {
-	const headers: string[] = ["Available", "Price", "Phase", "Ends in"];
+	const { t } = useTranslation();
+	const headers: string[] = [t("challenges.available"), t("challenges.price"), t("challenges.phase"), t("challenges.ends_in")];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
@@ -56,12 +58,12 @@ export default function ChallengesTable() {
 
 	return (
 		<Table>
-			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
+			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol headerClassNames={["text-center"]} />
 			<TableBody>
 				{sorted.length == 0 ? (
-					<TableRowEmpty>{"There are no active challenges."}</TableRowEmpty>
+					<TableRowEmpty>{t("challenges.no_active_challenges")}</TableRowEmpty>
 				) : (
-					sorted.map((c) => <ChallengesRow key={c.id} headers={headers} challenge={c} />)
+					sorted.map((c) => <ChallengesRow key={c.id} headers={headers} challenge={c} tab={tab} />)
 				)}
 			</TableBody>
 		</Table>
@@ -87,7 +89,7 @@ function sortChallenges(params: SortChallenges): ChallengesQueryItem[] {
 			const calc = function (c: ChallengesQueryItem) {
 				const pos: PositionQuery = positions[c.position.toLowerCase() as Address];
 				const size: number = parseFloat(formatUnits(c.size, pos.collateralDecimals));
-				const price: number = prices[pos.collateral.toLowerCase() as Address].price.eur || 1;
+				const price: number = prices[pos.collateral.toLowerCase() as Address]?.price?.eur || 1;
 				return size * price;
 			};
 			return calc(b) - calc(a);

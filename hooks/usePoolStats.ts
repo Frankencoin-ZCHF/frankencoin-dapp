@@ -13,12 +13,12 @@ export const usePoolStats = () => {
 		abi: EquityABI,
 	};
 
-	const frankenContract = {
+	const deuroContract = {
 		address: ADDRESS[chainId].decentralizedEURO,
 		abi: DecentralizedEUROABI,
 	};
 
-	const { data } = useReadContracts({
+	const { data, refetch } = useReadContracts({
 		contracts: [
 			// Equity Calls
 			{
@@ -53,22 +53,21 @@ export const usePoolStats = () => {
 				functionName: "holdingDuration",
 				args: [account],
 			},
-			// Frankencoin Calls
 			{
-				...frankenContract,
+				...deuroContract,
 				functionName: "minterReserve",
 			},
 			{
-				...frankenContract,
+				...deuroContract,
 				functionName: "equity",
 			},
 			{
-				...frankenContract,
+				...deuroContract,
 				functionName: "balanceOf",
 				args: [account],
 			},
 			{
-				...frankenContract,
+				...deuroContract,
 				functionName: "allowance",
 				args: [account, ADDRESS[chainId].equity],
 			},
@@ -83,11 +82,11 @@ export const usePoolStats = () => {
 	const equityCanRedeem: boolean = data ? Boolean(data[5].result) : false;
 	const equityHoldingDuration: bigint = data ? decodeBigIntCall(data[6]) : 0n;
 
-	const frankenMinterReserve: bigint = data ? decodeBigIntCall(data[7]) : 0n;
-	const frankenEquity: bigint = data ? decodeBigIntCall(data[8]) : 0n;
-	const frankenTotalReserve = frankenMinterReserve + frankenEquity;
-	const frankenBalance: bigint = data ? decodeBigIntCall(data[9]) : 0n;
-	const frankenAllowance: bigint = data ? decodeBigIntCall(data[10]) : 0n;
+	const deuroMinterReserve: bigint = data ? decodeBigIntCall(data[7]) : 0n;
+	const deuroEquity: bigint = data ? decodeBigIntCall(data[8]) : 0n;
+	const deuroTotalReserve = deuroMinterReserve + deuroEquity;
+	const deuroBalance: bigint = data ? decodeBigIntCall(data[9]) : 0n;
+	const deuroAllowance: bigint = data ? decodeBigIntCall(data[10]) : 0n;
 
 	return {
 		equitySupply,
@@ -98,10 +97,11 @@ export const usePoolStats = () => {
 		equityCanRedeem,
 		equityHoldingDuration,
 
-		frankenTotalReserve,
-		frankenMinterReserve,
-		frankenEquity,
-		frankenBalance,
-		frankenAllowance,
+		deuroTotalReserve,
+		deuroMinterReserve,
+		deuroEquity,
+		deuroBalance,
+		deuroAllowance,
+		refetchPoolStats: refetch,
 	};
 };

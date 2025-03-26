@@ -8,23 +8,23 @@ import { formatCurrency } from "../../utils/format";
 import { useRouter as useNavigation } from "next/navigation";
 import { useContractUrl } from "@hooks";
 import Button from "@components/Button";
-import AppBox from "@components/AppBox";
+import { useTranslation } from "next-i18next";
 
 interface Props {
 	headers: string[];
 	position: PositionQuery;
+	tab: string;
 }
 
-export default function MonitoringRow({ headers, position }: Props) {
+export default function MonitoringRow({ headers, position, tab }: Props) {
 	const navigate = useNavigation();
+	const { t } = useTranslation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
-	const bids = useSelector((state: RootState) => state.bids.positions);
 	const url = useContractUrl(position.collateral || zeroAddress);
-	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
-	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd;
-	if (!collTokenPrice || !deuroPrice) return null;
+	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
+	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd || 1;
 
 	const maturity: number = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
 
@@ -57,43 +57,45 @@ export default function MonitoringRow({ headers, position }: Props) {
 					className="h-10"
 					onClick={() => navigate.push(`/monitoring/${position.position}/${maturity <= 0 ? "forceSell" : "challenge"}`)}
 				>
-					{maturity <= 0 ? "Force Sell" : "Challenge"}
+					{maturity <= 0 ? t("monitoring.force_sell") : t("monitoring.challenge")}
 				</Button>
 			}
+			tab={tab}
+			showFirstHeader={true}
 		>
 			{/* Collateral */}
-			<div className="flex flex-col max-md:mb-5">
+			<div className="flex flex-col">
 				{/* desktop view */}
-				<div className="max-md:hidden flex flex-row items-center -ml-12">
-					<span className="mr-4 cursor-pointer" onClick={openExplorer}>
+				<div className="max-md:hidden flex flex-row items-center">
+					<span className="mr-3 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</span>
-					<span className={`col-span-2 text-md text-text-primary`}>{`${formatCurrency(balance)} ${
+					<span className={`col-span-2 text-md font-extrabold text-text-primary`}>{`${formatCurrency(balance)} ${
 						position.collateralSymbol
 					}`}</span>
 				</div>
 
 				{/* mobile view */}
-				<AppBox className="md:hidden flex flex-row items-center">
+				<div className="md:hidden flex flex-row items-center py-1 mb-3">
 					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</div>
 					<div className={`col-span-2 text-md text-text-primary font-semibold`}>{`${formatCurrency(balance)} ${
 						position.collateralSymbol
 					}`}</div>
-				</AppBox>
+				</div>
 			</div>
 
 			{/* Coll. */}
 			<div className="flex flex-col gap-2">
-				<div className={`col-span-2 text-md ${liquidationPct < 110 ? "text-text-warning font-bold" : "text-text-primary"}`}>
+				<div className={`col-span-2 text-md ${liquidationPct < 110 ? "text-text-warning font-bold" : ""}`}>
 					{!isNaN(liquidationPct) ? formatCurrency(liquidationPct) : "-.--"}%
 				</div>
 			</div>
 
 			{/* Expiration */}
 			<div className="flex flex-col gap-2">
-				<div className={`col-span-2 text-md ${maturity < 7 ? "text-text-warning font-bold" : "text-text-primary"}`}>
+				<div className={`col-span-2 text-md ${maturity < 7 ? "text-text-warning font-bold" : ""}`}>
 					{maturity < 3
 						? maturity > 0
 							? `${formatCurrency(maturity * 24)} hours`
@@ -104,7 +106,7 @@ export default function MonitoringRow({ headers, position }: Props) {
 
 			{/* Challenges */}
 			<div className="flex flex-col gap-2">
-				<div className={`col-span-2 text-md text-text-primary`}>{challengesRatioPct == 0 ? "-" : `${challengesRatioPct}%`}</div>
+				<div className={`col-span-2 text-md`}>{challengesRatioPct == 0 ? "-" : `${challengesRatioPct}%`}</div>
 			</div>
 		</TableRow>
 	);

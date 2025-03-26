@@ -1,11 +1,18 @@
 import Head from "next/head";
 import Link from "next/link";
-import BorrowTable from "@components/PageBorrow/BorrowTable";
+import BorrowTable from "@components/PageMint/BorrowTable";
 import { useEffect } from "react";
-import { store } from "../../redux/redux.store";
+import { RootState, store } from "../../redux/redux.store";
 import { fetchPositionsList } from "../../redux/slices/positions.slice";
+import { useSelector } from "react-redux";
+import BorrowForm from "@components/PageMint/BorrowForm";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
 export default function Borrow() {
+	const expertMode = useSelector((state: RootState) => state.globalPreferences.expertMode);
+	const { t } = useTranslation();
+
 	useEffect(() => {
 		store.dispatch(fetchPositionsList());
 	}, []);
@@ -13,18 +20,18 @@ export default function Borrow() {
 	return (
 		<>
 			<Head>
-				<title>dEURO - Borrow</title>
+				<title>dEURO - {t("mint.title")}</title>
 			</Head>
 
-			<div className="mt-8">
-				<BorrowTable />
-			</div>
-
-			<div className="flex">
-				<Link href={"mint/create"} className="btn bg-layout-secondary text-layout-primary m-auto">
-					Propose New Position or Collateral
-				</Link>
-			</div>
+			<BorrowForm />
 		</>
 	);
+}
+
+export async function getStaticProps({ locale }: { locale: string }) {
+	return {
+		props: {
+			...(await serverSideTranslations(locale, ["common"])),
+		},
+	};
 }

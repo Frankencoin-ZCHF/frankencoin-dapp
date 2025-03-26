@@ -7,13 +7,13 @@ import { formatCurrency } from "../../utils/format";
 import MyPositionsDisplayCollateral from "./MyPositionsDisplayCollateral";
 import { useRouter as useNavigate } from "next/navigation";
 import Button from "@components/Button";
-import AppBox from "@components/AppBox";
 import { TOKEN_SYMBOL } from "@utils";
 
 interface Props {
 	headers: string[];
 	subHeaders: string[];
 	position: PositionQuery;
+	tab: string;
 }
 
 type ChallengeInfos = {
@@ -26,22 +26,20 @@ type ChallengeInfos = {
 	challenge: ChallengesQueryItem;
 };
 
-export default function MypositionsRow({ headers, subHeaders, position }: Props) {
+export default function MypositionsRow({ headers, subHeaders, position, tab }: Props) {
 	const navigate = useNavigate();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
-	const bids = useSelector((state: RootState) => state.bids.positions);
-	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
-	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd;
-	if (!collTokenPrice || !deuroPrice) return null;
+	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
+	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd || 1; // TODO: remove when api is ready
 
 	const maturity: number = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
 
 	const balance: number = parseInt(position.collateralBalance) / 10 ** position.collateralDecimals;
 	const balanceDEURO: number = (balance * collTokenPrice) / deuroPrice;
 
-	const loanDEURO: number = parseInt(position.minted) / 10 ** position.deuroDecimals;
+	const loanDEURO: number = parseInt(position.principal) / 10 ** position.deuroDecimals;
 
 	const liquidationDEURO: number = parseInt(position.price) / 10 ** (36 - position.collateralDecimals);
 	const liquidationPct: number = (balanceDEURO / (liquidationDEURO * balance)) * 100;
@@ -139,27 +137,29 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 					Manage
 				</Button>
 			}
+			tab={tab}
+			showFirstHeader
 		>
 			{/* Collateral */}
-			<div className="flex flex-col max-md:mb-5">
+			<div className="flex flex-col">
 				{/* desktop view */}
 				<div className="max-md:hidden">
-					<MyPositionsDisplayCollateral position={position} collateralPrice={collTokenPrice} zchfPrice={deuroPrice} />
+					<MyPositionsDisplayCollateral position={position} collateralPrice={collTokenPrice} deuroPrice={deuroPrice} />
 				</div>
 				{/* mobile view */}
-				<AppBox className="md:hidden">
+				<div className="md:hidden max-md:mb-5">
 					<MyPositionsDisplayCollateral
 						className={"justify-items-center items-center"}
 						position={position}
 						collateralPrice={collTokenPrice}
-						zchfPrice={deuroPrice}
+						deuroPrice={deuroPrice}
 					/>
-				</AppBox>
+				</div>
 			</div>
 
 			{/* Liquidation */}
 			<div className="flex flex-col">
-				<span className={liquidationPct < 110 ? `text-md font-bold text-text-warning` : "text-md text-text-primary"}>
+				<span className={liquidationPct < 110 ? `text-md font-bold text-text-warning` : "text-md "}>
 					{formatCurrency(liquidationDEURO, 2, 2)} {TOKEN_SYMBOL}
 				</span>
 				<span className="text-sm text-text-subheader">{formatCurrency(collTokenPrice / deuroPrice, 2, 2)} {TOKEN_SYMBOL}</span>
@@ -167,13 +167,13 @@ export default function MypositionsRow({ headers, subHeaders, position }: Props)
 
 			{/* Loan Value */}
 			<div className="flex flex-col">
-				<span className="text-md text-text-primary">{formatCurrency(loanDEURO, 2, 2)} {TOKEN_SYMBOL}</span>
+				<span className="text-md ">{formatCurrency(loanDEURO, 2, 2)} {TOKEN_SYMBOL}</span>
 				<span className="text-sm text-text-subheader">{formatCurrency(balance * liquidationDEURO - loanDEURO, 2, 2)} {TOKEN_SYMBOL}</span>
 			</div>
 
 			{/* State */}
 			<div className="flex flex-col">
-				<div className={`text-md ${stateIdx != 6 ? "text-text-warning font-bold" : "text-text-primary "}`}>{states[stateIdx]}</div>
+				<div className={`text-md ${stateIdx != 6 ? "text-text-warning font-bold" : " "}`}>{states[stateIdx]}</div>
 				<div
 					className={`text-sm text-text-subheader ${stateIdx == 1 ? "underline cursor-pointer" : ""}`}
 					onClick={navigateToChallenge}

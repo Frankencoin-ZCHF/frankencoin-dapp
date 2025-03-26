@@ -11,15 +11,18 @@ import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { useAccount } from "wagmi";
 import { ADDRESS, EquityABI } from "@deuro/eurocoin";
 import { NATIVE_POOL_SHARE_TOKEN_SYMBOL } from "../../utils/constant";
+import { useTranslation } from "next-i18next";
 
 interface Props {
 	headers: string[];
 	voter: VoteData;
 	votesTotal: bigint;
 	connectedWallet?: boolean;
+	tab: string;	
 }
 
-export default function GovernanceVotersRow({ headers, voter, votesTotal, connectedWallet }: Props) {
+export default function GovernanceVotersRow({ headers, voter, votesTotal, connectedWallet, tab }: Props) {
+	const { t } = useTranslation();
 	const [isDelegateeVotes, setDelegateeVotes] = useState<VoteData | undefined>(undefined);
 	const delegationData = useDelegationQuery();
 	const account = useAccount();
@@ -35,7 +38,7 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 	useEffect(() => {
 		if (!isDelegateeVotes && isDelegated && !isRevoked) {
 			const fetcher = async function () {
-				const fps = await readContract(WAGMI_CONFIG, {
+				const nativePS = await readContract(WAGMI_CONFIG, {
 					address: ADDRESS[WAGMI_CHAIN.id].equity,
 					abi: EquityABI,
 					functionName: "balanceOf",
@@ -51,7 +54,7 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 
 				const votingPower = votingPowerRatio * votesTotal;
 
-				setDelegateeVotes({ holder: delegatee, fps, votingPower, votingPowerRatio: parseFloat(formatUnits(votingPowerRatio, 18)) });
+				setDelegateeVotes({ holder: delegatee, nativePS, votingPower, votingPowerRatio: parseFloat(formatUnits(votingPowerRatio, 18)) });
 			};
 
 			fetcher();
@@ -75,12 +78,13 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 						/>
 					)
 				}
+				tab={tab}
 			>
 				{/* Owner */}
 				<div className="flex items-center">
 					<div className="flex flex-col md:text-left max-md:text-right max-md:w-full">
 						{connectedWallet ? (
-							<AddressLabelSimple address={voter.holder} label="Connected wallet" showLink />
+							<AddressLabelSimple address={voter.holder} label={t("governance.connected_wallet")} showLink />
 						) : (
 							<AddressLabelSimple address={voter.holder} showLink />
 						)}
@@ -94,7 +98,7 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 					</div>
 				</div>
 
-				<div className="flex flex-col">{formatCurrency(formatUnits(voter.fps, 18))} {NATIVE_POOL_SHARE_TOKEN_SYMBOL}</div>
+				<div className="flex flex-col">{formatCurrency(formatUnits(voter.nativePS, 18))} {NATIVE_POOL_SHARE_TOKEN_SYMBOL}</div>
 				<div className={`flex flex-col`}>{formatCurrency(voter.votingPowerRatio * 100)}%</div>
 			</TableRow>
 
@@ -109,9 +113,10 @@ export default function GovernanceVotersRow({ headers, voter, votesTotal, connec
 							disabled={connectedWallet && (!isDelegated || (isDelegated && isRevoked))}
 						/>
 					}
+					tab={tab}
 				>
 					<AddressLabelSimple className="text-left" address={delegatee} label="Delegate address" showLink />
-					<div className="flex flex-col">{formatCurrency(formatUnits(isDelegateeVotes?.fps || 0n, 18))} {NATIVE_POOL_SHARE_TOKEN_SYMBOL}</div>
+					<div className="flex flex-col">{formatCurrency(formatUnits(isDelegateeVotes?.nativePS || 0n, 18))} {NATIVE_POOL_SHARE_TOKEN_SYMBOL}</div>
 					<div className={`flex flex-col`}>{formatCurrency((isDelegateeVotes?.votingPowerRatio || 0) * 100)}%</div>
 				</TableRow>
 			) : null}

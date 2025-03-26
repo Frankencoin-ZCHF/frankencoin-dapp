@@ -37,6 +37,6 @@ export default function TokenLogo({ currency, size = 8, chain }: Props) {
 			)}
 		</picture>
 	) : (
-		<FontAwesomeIcon icon={faCircleQuestion} className={`w-${size} h-${size} mr-2`} />
+		<FontAwesomeIcon icon={faCircleQuestion} className={`w-${size} h-${size}`} />
 	);
 }

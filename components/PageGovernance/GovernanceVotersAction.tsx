@@ -9,7 +9,7 @@ import Button from "@components/Button";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { VoteData } from "./GovernanceVotersTable";
 import { ADDRESS, EquityABI } from "@deuro/eurocoin";
-
+import { useTranslation } from "next-i18next";
 interface Props {
 	voter: VoteData;
 	disabled?: boolean;
@@ -21,6 +21,7 @@ export default function GovernanceVotersAction({ voter, disabled, connectedWalle
 	const account = useAccount();
 	const chainId = CONFIG_CHAIN().id;
 	const [isHidden, setHidden] = useState<boolean>(false);
+	const { t } = useTranslation();
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
@@ -39,25 +40,25 @@ export default function GovernanceVotersAction({ voter, disabled, connectedWalle
 
 			const toastContent = [
 				{
-					title: `Owner: `,
+					title: `${t("governance.owner")}: `,
 					value: shortenAddress(account.address),
 				},
 				{
-					title: `Delegete to: `,
+					title: `${t("governance.delegate_to")}: `,
 					value: shortenAddress(addr),
 				},
 				{
-					title: "Transaction: ",
+					title: t("common.txs.transaction"),
 					hash: writeHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Delegating votes...`} rows={toastContent} />,
+					render: <TxToast title={`${t("governance.txs.delegating_votes")}`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully delegated votes" rows={toastContent} />,
+					render: <TxToast title={`${t("governance.txs.successfully_delegated_votes")}`} rows={toastContent} />,
 				},
 			});
 
@@ -71,7 +72,7 @@ export default function GovernanceVotersAction({ voter, disabled, connectedWalle
 
 	return (
 		<div className="">
-			<GuardToAllowedChainBtn label={connectedWallet ? "Revoke" : "Delegate"} disabled={isHidden || disabled}>
+			<GuardToAllowedChainBtn label={connectedWallet ? t("governance.txs.revoke") : t("governance.txs.delegate")} disabled={isHidden || disabled}>
 				<div className="overflow-hidden">
 					<Button
 						className="h-10 scroll-nopeak"
@@ -79,7 +80,7 @@ export default function GovernanceVotersAction({ voter, disabled, connectedWalle
 						isLoading={isDelegating}
 						onClick={(e) => handleOnClick(e)}
 					>
-						{connectedWallet ? "Revoke" : "Delegate"}
+						{connectedWallet ? t("governance.txs.revoke") : t("governance.txs.delegate")}
 					</Button>
 				</div>
 			</GuardToAllowedChainBtn>

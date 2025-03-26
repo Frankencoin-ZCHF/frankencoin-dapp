@@ -12,7 +12,7 @@ export type PricesState = {
 
 	coingecko: ApiPriceMapping;
 	mint: ERC20Info | ApiPriceERC20;
-	fps: ERC20Info | ApiPriceERC20;
+	nativePS: ERC20Info | ApiPriceERC20;
 	collateral: ApiPriceERC20Mapping;
 };
 

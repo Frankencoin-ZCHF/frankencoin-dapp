@@ -17,6 +17,8 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ADDRESS, SavingsABI } from "@deuro/eurocoin";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
+import { useTranslation } from "next-i18next";
+import { BigNumberInput } from "@components/Input/BigNumberInput";
 
 interface Props {}
 
@@ -28,6 +30,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 	const [newRate, setNewRate] = useState<number>(info.rate || 0);
 	const [isHidden, setHidden] = useState<boolean>(false);
 	const [isDisabled, setDisabled] = useState<boolean>(true);
+	const { t } = useTranslation();
 
 	useEffect(() => {
 		if (newRate != info.rate) setDisabled(false);
@@ -51,7 +54,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 			setHandling(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].savings,
+				address: ADDRESS[chainId].savingsGateway,
 				abi: SavingsABI,
 				functionName: "proposeChange",
 				args: [newRate, []],
@@ -59,62 +62,70 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 
 			const toastContent = [
 				{
-					title: `From: `,
+					title: t("governance.txs.from"),
 					value: `${formatCurrency(info.rate / 10000)}%`,
 				},
 				{
-					title: `Proposing to: `,
+					title: t("governance.txs.proposing_to"),
 					value: `${formatCurrency(newRate / 10000)}%`,
 				},
 				{
-					title: "Transaction: ",
+					title: t("governance.txs.transaction"),
 					hash: writeHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Proposing rate change...`} rows={toastContent} />,
+					render: <TxToast title={t("governance.txs.proposing_rate_change")} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully proposed" rows={toastContent} />,
+					render: <TxToast title={t("governance.txs.successfully_proposed")} rows={toastContent} />,
 				},
 			});
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: add error toast
 		} finally {
 			setHandling(false);
 		}
 	};
 
 	return (
-		<AppCard>
-			<div className="grid gap-8 md:grid-cols-2 md:px-12 md:py-4 max-md:grid-cols-1 max-md:p-4">
-				<div className="flex flex-col gap-4">
-					<NormalInput
-						symbol="%"
-						label="Current value"
-						placeholder={`Current Leadrate: %`}
-						value={newRate.toString()}
-						digit={4}
-						onChange={(v) => changeNewRate(v)}
-					/>
+		<AppCard className="p-0">
+			<div className="grid p-4 md:pl-8 md:pr-12 md:py-4 sm:grid-cols-2 sm:auto-rows-auto gap-2 sm:gap-y-3 sm:gap-x-6">
+				<span className="text-base font-[350] leading-tight text-text-muted2">{t("governance.current_value")}</span>
+				<div></div>
+				<div className="p-2 pr-4 flex items-center gap-3 bg-layout-primary rounded-xl">
+					<div className="flex flex-1 p-2.5 border border-input-border rounded-lg bg-white">
+						<BigNumberInput
+							placeholder={`${t("governance.current_leadrate")}: %`}
+							value={newRate.toString()}
+							decimals={4}
+							onChange={(v) => changeNewRate(v)}
+							className="flex flex-1 text-right p-0 text-lg leading-[1.4375rem]"
+						/>
+					</div>
+					<div className="px-5 flex items-center justify-center">
+						<span className="text-text-disabled font-medium text-lg leading-[1.4375rem]">%</span>
+					</div>
 				</div>
 
-				<div className="md:mt-8 md:px-16">
-					<GuardToAllowedChainBtn label="Propose" disabled={isDisabled || isHidden}>
-						<Button
-							className="max-md:h-10 md:h-12"
-							disabled={isDisabled || isHidden}
-							isLoading={isHandling}
-							onClick={(e) => handleOnClick(e)}
-						>
-							Propose Change
-						</Button>
-					</GuardToAllowedChainBtn>
-				</div>
+				<GuardToAllowedChainBtn
+					buttonClassName="h-full w-full sm:max-w-48 p-4"
+					label={t("dashboard.propose")}
+					disabled={isDisabled || isHidden}
+				>
+					<Button
+						className="h-full full sm:max-w-48 p-4"
+						disabled={isDisabled || isHidden}
+						isLoading={isHandling}
+						onClick={(e) => handleOnClick(e)}
+					>
+						{t("dashboard.propose")}
+					</Button>
+				</GuardToAllowedChainBtn>
 			</div>
 		</AppCard>
 	);

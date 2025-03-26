@@ -3,9 +3,9 @@ import { DEURO_API_CLIENT } from "../../app.config";
 import {
 	DispatchApiEcosystemCollateralPositions,
 	DispatchApiEcosystemCollateralStats,
-	DispatchApiEcosystemFpsInfo,
-	DispatchApiEcosystemFrankencoinInfo,
-	DispatchApiEcosystemFrankencoinMinters,
+	DispatchApiEcosystemNativePoolShareInfo,
+	DispatchApiEcosystemStablecoinInfo,
+	DispatchApiEcosystemStablecoinMinters,
 	DispatchBoolean,
 	EcosystemState,
 } from "./ecosystem.types";
@@ -27,7 +27,7 @@ export const initialState: EcosystemState = {
 	collateralPositions: {},
 	collateralStats: { num: 0, addresses: [], totalValueLocked: { usd: 0, eur: 0 }, map: {} },
 	depsInfo: {	
-		values: { depsMarketCapInChf: 0, price: 0, totalSupply: 0 },
+		values: { depsMarketCapInChf: 0, price: 0, totalSupply: 0 }, //@dev: require update in the api package
 		earnings: { profit: 0, loss: 0 },
 		reserve: { balance: 0, equity: 0, minter: 0 },
 	},
@@ -42,7 +42,7 @@ export const initialState: EcosystemState = {
 		deps: {
 			price: 0,
 			totalSupply: 0,
-			depsMarketCapInChf: 0,
+			depsMarketCapInChf: 0, //@dev: require update in the api package
 		},
 		tvl: { usd: 0, eur: 0 },
 	},
@@ -81,12 +81,12 @@ export const slice = createSlice({
 			state.depsInfo = action.payload;
 		},
 
-		// SET Frankencoin Info
+		// SET Product token Info
 		setStablecoinInfo: (state, action: { payload: ApiEcosystemStablecoinInfo }) => {
 			state.stablecoinInfo = action.payload;
 		},
 
-		// SET Frankencoin Minters
+		// SET Product token Minters
 		setStablecoinMinters: (state, action: { payload: ApiMinterListing }) => {
 			state.stablecoinMinters = action.payload;
 		},
@@ -104,9 +104,9 @@ export const fetchEcosystem =
 			| DispatchBoolean
 			| DispatchApiEcosystemCollateralPositions
 			| DispatchApiEcosystemCollateralStats
-			| DispatchApiEcosystemFpsInfo
-			| DispatchApiEcosystemFrankencoinInfo
-			| DispatchApiEcosystemFrankencoinMinters
+			| DispatchApiEcosystemNativePoolShareInfo
+			| DispatchApiEcosystemStablecoinInfo
+			| DispatchApiEcosystemStablecoinMinters
 		>
 	) => {
 		// ---------------------------------------------------------------

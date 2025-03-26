@@ -5,10 +5,11 @@ import { useChainId } from "wagmi";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import EquityInteractionWithZCHFFPS from "./EquityInteractionWithZCHFFPS";
-import EquityInteractionWithFPSWFPS from "./EquityInteractionWithFPSWFPS";
-import EquityInteractionWithWFPSRedeem from "./EquityInteractionWithWFPSRedeem";
+import InteractionStablecoinAndNativePS from "./InteractionStablecoinAndNativePS";
+import InteractionNativePSAndPoolShareToken from "./InteractionNativePSAndPoolShareToken";
+import InteractionPoolShareTokenRedeem from "./InteractionPoolShareTokenRedeem";
 import { ADDRESS } from "@deuro/eurocoin";
+import { useTranslation } from "next-i18next";
 
 export const EquityTokenSelectorMapping: { [key: string]: string[] } = {
 	[TOKEN_SYMBOL]: [NATIVE_POOL_SHARE_TOKEN_SYMBOL],
@@ -28,26 +29,24 @@ export default function EquityInteractionCard() {
 		const adjustedSelection = {
 			from: newSelection.from,
 			to: isToTokenAvailable ? newSelection.to : toTokenOptions[0],
-		}		
+		};
 		setTokenFromTo(adjustedSelection);
 	};
 
 	const chainId = useChainId();
-	const equityUrl = useContractUrl(ADDRESS[chainId].equity);
+	const wrappedPoolShareUrl = useContractUrl(ADDRESS[chainId].DEPSwrapper);
+	const { t } = useTranslation();
 
 	return (
-		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
-			<Link href={equityUrl} target="_blank">
-				<div className="mt-4 text-lg font-bold underline text-center">
-					Decentralized Euro Pool Shares ({NATIVE_POOL_SHARE_TOKEN_SYMBOL})
-					<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
-				</div>
-			</Link>
+		<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col">
+			<div className="mb-4 pb-2 justify-center items-center gap-1.5 inline-flex">
+				<div className="text-text-title text-xl font-black ">{t("equity.pool_shares_title", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })}</div>
+			</div>
 
 			{/* Load modules dynamically */}
 			{(tokenFromTo.from === TOKEN_SYMBOL && tokenFromTo.to === NATIVE_POOL_SHARE_TOKEN_SYMBOL) ||
 			(tokenFromTo.from === NATIVE_POOL_SHARE_TOKEN_SYMBOL && tokenFromTo.to === TOKEN_SYMBOL) ? (
-				<EquityInteractionWithZCHFFPS
+				<InteractionStablecoinAndNativePS
 					tokenFromTo={tokenFromTo}
 					setTokenFromTo={onTokenFromToChange}
 					selectorMapping={EquityTokenSelectorMapping}
@@ -56,7 +55,7 @@ export default function EquityInteractionCard() {
 
 			{(tokenFromTo.from === NATIVE_POOL_SHARE_TOKEN_SYMBOL && tokenFromTo.to === POOL_SHARE_TOKEN_SYMBOL) ||
 			(tokenFromTo.from === POOL_SHARE_TOKEN_SYMBOL && tokenFromTo.to === NATIVE_POOL_SHARE_TOKEN_SYMBOL) ? (
-				<EquityInteractionWithFPSWFPS
+				<InteractionNativePSAndPoolShareToken
 					tokenFromTo={tokenFromTo}
 					setTokenFromTo={onTokenFromToChange}
 					selectorMapping={EquityTokenSelectorMapping}
@@ -64,7 +63,7 @@ export default function EquityInteractionCard() {
 			) : null}
 
 			{tokenFromTo.from === POOL_SHARE_TOKEN_SYMBOL && tokenFromTo.to === TOKEN_SYMBOL ? (
-				<EquityInteractionWithWFPSRedeem
+				<InteractionPoolShareTokenRedeem
 					tokenFromTo={tokenFromTo}
 					setTokenFromTo={onTokenFromToChange}
 					selectorMapping={EquityTokenSelectorMapping}
@@ -72,12 +71,8 @@ export default function EquityInteractionCard() {
 			) : null}
 
 			<div className="mt-4">
-				Also available as{" "}
-				<Link
-					href={"https://etherscan.io/address/0x5052d3cc819f53116641e89b96ff4cd1ee80b182"}
-					target="_blank"
-					className="underline"
-				>
+				{t("equity.also_available_as")}{" "}
+				<Link href={wrappedPoolShareUrl} target="_blank" className="underline">
 					{POOL_SHARE_TOKEN_SYMBOL}
 				</Link>
 			</div>

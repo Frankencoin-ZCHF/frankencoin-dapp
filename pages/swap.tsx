@@ -14,8 +14,10 @@ import { WAGMI_CONFIG } from "../app.config";
 import AppCard from "@components/AppCard";
 import { StablecoinBridgeABI } from "@deuro/eurocoin";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
-const STABLECOIN_SYMBOLS = ["EURT", "EURC", "VEUR", "EURS"];
+const STABLECOIN_SYMBOLS = ["EURC", "EURT", "VEUR", "EURS"];
 
 const noTokenMeta = {
 	symbol: "",
@@ -31,7 +33,7 @@ const noTokenMeta = {
 };
 
 const rebaseDecimals = (amount: bigint, fromDecimals: bigint, toDecimals: bigint) => {
-	return amount * 10n ** toDecimals / 10n ** fromDecimals;
+	return (amount * 10n ** toDecimals) / 10n ** fromDecimals;
 };
 
 const getAmountWithLeastPrecision = (amount: bigint, fromDecimals: bigint, toDecimals: bigint) => {
@@ -40,15 +42,15 @@ const getAmountWithLeastPrecision = (amount: bigint, fromDecimals: bigint, toDec
 };
 
 export default function Swap() {
-	const [fromSymbol, setFromSymbol] = useState(TOKEN_SYMBOL);
-	const [fromOptions, setFromOptions] = useState([TOKEN_SYMBOL]);
-	const [toSymbol, setToSymbol] = useState(STABLECOIN_SYMBOLS[0]);
-	const [toOptions, setToOptions] = useState(STABLECOIN_SYMBOLS);
+	const [fromSymbol, setFromSymbol] = useState(STABLECOIN_SYMBOLS[0]);
+	const [fromOptions, setFromOptions] = useState(STABLECOIN_SYMBOLS);
+	const [toSymbol, setToSymbol] = useState(TOKEN_SYMBOL);
+	const [toOptions, setToOptions] = useState([TOKEN_SYMBOL]);
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [isTxOnGoing, setTxOnGoing] = useState(false);
-
 	const swapStats = useSwapStats();
+	const { t } = useTranslation();
 
 	const getSelectedStablecoinSymbol = useCallback(() => {
 		return fromSymbol === TOKEN_SYMBOL ? toSymbol : fromSymbol;
@@ -153,15 +155,15 @@ export default function Swap() {
 		const backwardCoefficient = Number(backwardSubtraction) > 0 ? 10n ** BigInt(backwardSubtraction) : 1n;
 
 		if (amount > fromTokenData.userBal) {
-			setError(`Not enough ${fromSymbol} in your wallet.`);
+			setError(t("common.error.insufficient_balance", { symbol: fromSymbol }));
 		} else if (isBurning && amount * backwardCoefficient > toTokenData.bridgeBal * forwardCoefficient) {
-			setError(`Not enough ${toSymbol} available to swap.`);
+			setError(t("swap.error.insufficient_bridge", { symbol: toSymbol }));
 		} else if (isMinting && amount * backwardCoefficient > fromTokenData.remaining * forwardCoefficient) {
-			setError(`Amount exceeds the swap limit.`);
+			setError(t("swap.error.exceeds_limit"));
 		} else {
 			setError("");
 		}
-	}, [amount, fromSymbol, toSymbol, getTokenMetaBySymbol]);
+	}, [amount, fromSymbol, toSymbol, getTokenMetaBySymbol, t]);
 
 	const handleApprove = async () => {
 		try {
@@ -181,29 +183,30 @@ export default function Swap() {
 
 			const toastContent = [
 				{
-					title: "Amount:",
+					title: t("common.txs.amount"),
 					value: "infinite",
 				},
 				{
-					title: "Spender: ",
+					title: t("common.txs.spender"),
 					value: shortenAddress(bridgeAddress),
 				},
 				{
-					title: "Transaction:",
+					title: t("common.txs.transaction"),
 					hash: approveWriteHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Approving ${fromSymbol}`} rows={toastContent} />,
+					render: <TxToast title={t("common.txs.title", { symbol: fromSymbol })} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`Successfully Approved ${fromSymbol}`} rows={toastContent} />,
+					render: <TxToast title={t("common.txs.success", { symbol: fromSymbol })} rows={toastContent} />,
 				},
 			});
+			swapStats.refetch();
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: need to translate
 		} finally {
 			setTxOnGoing(false);
 		}
@@ -227,29 +230,31 @@ export default function Swap() {
 
 			const toastContent = [
 				{
-					title: `${fromSymbol} Amount: `,
+					title: t("swap.swap_tx.amount_from", { symbol: fromSymbol }),
 					value: formatBigInt(amount, Number(fromDecimals)) + " " + fromSymbol,
 				},
 				{
-					title: `${toSymbol} Amount: `,
+					title: t("swap.swap_tx.amount_to", { symbol: toSymbol }),
 					value: formatBigInt(amount, Number(fromDecimals)) + " " + toSymbol,
 				},
 				{
-					title: "Transaction:",
+					title: t("common.txs.transaction"),
 					hash: mintWriteHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: mintWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Swapping ${fromSymbol} to ${toSymbol}`} rows={toastContent} />,
+					render: <TxToast title={t("swap.swap_tx.title", { fromSymbol, toSymbol })} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`Successfully Swapped ${fromSymbol} to ${toSymbol}`} rows={toastContent} />,
+					render: <TxToast title={t("swap.swap_tx.success", { fromSymbol, toSymbol })} rows={toastContent} />,
 				},
 			});
+			swapStats.refetch();
+			setAmount(0n);
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: need to translate
 		} finally {
 			setTxOnGoing(false);
 		}
@@ -274,29 +279,31 @@ export default function Swap() {
 
 			const toastContent = [
 				{
-					title: `${fromSymbol} Amount: `,
+					title: t("swap.swap_tx.amount_from", { symbol: fromSymbol }),
 					value: formatBigInt(amount, Number(fromDecimals)) + " " + fromSymbol,
 				},
 				{
-					title: `${toSymbol} Amount: `,
+					title: t("swap.swap_tx.amount_to", { symbol: toSymbol }),
 					value: formatBigInt(amount, Number(fromDecimals)) + " " + toSymbol,
 				},
 				{
-					title: "Transaction:",
+					title: t("common.txs.transaction"),
 					hash: burnWriteHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: burnWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Swapping ${fromSymbol} to ${toSymbol}`} rows={toastContent} />,
+					render: <TxToast title={t("swap.swap_tx.title", { fromSymbol, toSymbol })} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`Successfully Swapped ${fromSymbol} to ${toSymbol}`} rows={toastContent} />,
+					render: <TxToast title={t("swap.swap_tx.success", { fromSymbol, toSymbol })} rows={toastContent} />,
 				},
 			});
+			swapStats.refetch();
+			setAmount(0n);
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: need to translate
 		} finally {
 			setTxOnGoing(false);
 		}
@@ -313,66 +320,82 @@ export default function Swap() {
 	return (
 		<>
 			<Head>
-				<title>dEURO - Swap</title>
+				<title>dEURO - {t("swap.swap")}</title>
 			</Head>
 
-			<div className="md:mt-8">
-				<AppCard>
-					<div className="mt-4 text-lg font-bold underline text-center">Swap {TOKEN_SYMBOL} for other stablecoins</div>
+			<div className="md:mt-8 flex justify-center">
+				<div className="max-w-lg w-[32rem]">
+					<AppCard className="w-full p-4 gap-8">
+						<div className="mb-2 sm:mb-4 pb-2 w-full self-stretch justify-center items-center gap-1.5 inline-flex">
+							<div className="text-text-title text-center text-lg sm:text-xl font-black ">
+								{t("swap.title", { symbol: TOKEN_SYMBOL })}
+							</div>
+						</div>
 
-					<div className="mt-8">
+						<div className="mt-8">
+							<TokenInputSelect
+								digit={fromTokenMeta.decimals}
+								max={fromTokenMeta.userBal}
+								symbol={fromTokenMeta.symbol}
+								symbolOptions={fromOptions}
+								symbolOnChange={(o) => onSetFromSymbol(o.value)}
+								limit={limit}
+								limitLabel={t("swap.limit_label")}
+								limitDigits={toTokenMeta.decimals}
+								placeholder={t("swap.placeholder")}
+								onChange={onChangeAmount}
+								value={amount.toString()}
+								error={error}
+								hideLimitIcon
+							/>
+						</div>
+
+						<div className="py-4 mt-1 text-center z-0">
+							<Button className={`h-10 rounded-full`} width="w-10" onClick={onChangeDirection}>
+								<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
+							</Button>
+						</div>
+
 						<TokenInputSelect
-							digit={fromTokenMeta.decimals}
-							max={fromTokenMeta.userBal}
-							symbol={fromTokenMeta.symbol}
-							symbolOptions={fromOptions}
-							symbolOnChange={(o) => onSetFromSymbol(o.value)}
-							limit={limit}
-							limitLabel="Swap limit"
-							limitDigits={toTokenMeta.decimals}
-							placeholder={"Swap Amount"}
-							onChange={onChangeAmount}
-							value={amount.toString()}
-							error={error}
+							digit={toTokenMeta.decimals}
+							max={toTokenMeta.userBal}
+							symbol={toTokenMeta.symbol}
+							symbolOptions={toOptions}
+							symbolOnChange={(o) => onSetToSymbol(o.value)}
+							output={outputAmount}
+							note={`1 ${fromSymbol} = 1 ${toSymbol}`}
+							label={t("common.receive")}
+							showMaxButton={false}
 						/>
-					</div>
 
-					<div className="py-4 text-center z-0">
-						<Button className={`h-10 rounded-full`} width="w-10" onClick={onChangeDirection}>
-							<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
-						</Button>
-					</div>
-
-					<TokenInputSelect
-						digit={toTokenMeta.decimals}
-						max={toTokenMeta.userBal}
-						symbol={toTokenMeta.symbol}
-						symbolOptions={toOptions}
-						symbolOnChange={(o) => onSetToSymbol(o.value)}
-						output={outputAmount}
-						note={`1 ${fromSymbol} = 1 ${toSymbol}`}
-						label="Receive"
-					/>
-
-					<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-						<GuardToAllowedChainBtn>
-							{amount > fromTokenMeta.userAllowance ? (
-								<Button isLoading={isTxOnGoing} onClick={() => handleApprove()}>
-									Approve
-								</Button>
-							) : fromSymbol === TOKEN_SYMBOL ? (
-								<Button disabled={amount == 0n || !!error} isLoading={isTxOnGoing} onClick={() => handleBurn()}>
-									Swap
-								</Button>
-							) : (
-								<Button disabled={amount == 0n || !!error} isLoading={isTxOnGoing} onClick={() => handleMint()}>
-									Swap
-								</Button>
-							)}
-						</GuardToAllowedChainBtn>
-					</div>
-				</AppCard>
+						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+							<GuardToAllowedChainBtn>
+								{amount > fromTokenMeta.userAllowance ? (
+									<Button isLoading={isTxOnGoing} onClick={() => handleApprove()}>
+										{t("common.approve")}
+									</Button>
+								) : fromSymbol === TOKEN_SYMBOL ? (
+									<Button disabled={amount == 0n || !!error} isLoading={isTxOnGoing} onClick={() => handleBurn()}>
+										{t("swap.swap")}
+									</Button>
+								) : (
+									<Button disabled={amount == 0n || !!error} isLoading={isTxOnGoing} onClick={() => handleMint()}>
+										{t("swap.swap")}
+									</Button>
+								)}
+							</GuardToAllowedChainBtn>
+						</div>
+					</AppCard>
+				</div>
 			</div>
 		</>
 	);
+}
+
+export async function getStaticProps({ locale }: { locale: string }) {
+	return {
+		props: {
+			...(await serverSideTranslations(locale, ["common"])),
+		},
+	};
 }

@@ -8,8 +8,8 @@
 
 ### Automatic deployment
 
-1. The main branch should deploy to app.frankencoin.com
-2. The dev Branch should deploy to dev.app.frankencoin.com
+1. The main branch should deploy to app.deuro.com
+2. The dev Branch should deploy to dev.app.deuro.com
 
 ### Deploy or run with developer default keys
 
@@ -129,7 +129,7 @@ Blocktime: 10sec
 
 ```
 [ethereum3.id]: {
-   frankenCoin: "0x4800b6c288e4B2BBa7b2314328DB485F5FfB0414",
+   decentralizedEURO: "0x4800b6c288e4B2BBa7b2314328DB485F5FfB0414",
    bridge: zeroAddress,
    xchf: zeroAddress,
    equity: "0xD47DE3328848cf8fd4079673cA40510536323e59",
@@ -157,7 +157,7 @@ if ((WAGMI_CHAIN.id as number) === 1337) {
          return value * (1 + ((Date.now() - 1718033809979) / (3600 * 24)) * 0.005 + Math.random() * 0.01);
       };
 
-      if (erc.address === ADDRESS[WAGMI_CHAIN.id].frankenCoin) price = { usd: calc(1.12) };
+      if (erc.address === ADDRESS[WAGMI_CHAIN.id].decentralizedEURO) price = { usd: calc(1.12) };
       if (erc.address === ADDRESS[WAGMI_CHAIN.id].mockWbtc) price = { usd: calc(69000) };
       if (erc.address === ADDRESS[WAGMI_CHAIN.id].mockLseth) price = { usd: calc(3800) };
       if (erc.address === ADDRESS[WAGMI_CHAIN.id].mockBoss) price = { usd: calc(11.54) };

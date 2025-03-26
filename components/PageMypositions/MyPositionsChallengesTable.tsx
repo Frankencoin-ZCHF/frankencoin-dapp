@@ -17,9 +17,11 @@ import {
 } from "@deuro/api";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 
 export default function MyPositionsChallengesTable() {
-	const headers: string[] = ["Remaining Size", "Current Price", "State", "Time Left"];
+	const { t } = useTranslation();
+	const headers: string[] = [t("my_positions.remaining_size"), t("my_positions.current_price"), t("my_positions.state"), t("my_positions.time_left")];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
@@ -57,12 +59,12 @@ export default function MyPositionsChallengesTable() {
 
 	return (
 		<Table>
-			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
+			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol headerClassNames={["text-center"]} />
 			<TableBody>
 				{sorted.length == 0 ? (
-					<TableRowEmpty>{"You do not have any challenges yet."}</TableRowEmpty>
+					<TableRowEmpty>{t("my_positions.no_challenges")}</TableRowEmpty>
 				) : (
-					sorted.map((c) => <MyPositionsChallengesRow headers={headers} key={c.id} challenge={c} />)
+					sorted.map((c) => <MyPositionsChallengesRow headers={headers} key={c.id} challenge={c} tab={tab} />)
 				)}
 			</TableBody>
 		</Table>
@@ -89,7 +91,7 @@ function sortChallenges(params: SortChallenges): ChallengesQueryItem[] {
 				const pos: PositionQuery = positions[c.position.toLowerCase() as Address];
 				const size: number = parseFloat(formatUnits(c.size, pos.collateralDecimals));
 				const filled: number = parseFloat(formatUnits(c.filledSize, pos.collateralDecimals));
-				const price: number = prices[pos.collateral.toLowerCase() as Address].price.eur || 1;
+				const price: number = prices[pos.collateral.toLowerCase() as Address]?.price?.eur || 1;
 				return (size - filled) * price;
 			};
 			return calc(b) - calc(a);

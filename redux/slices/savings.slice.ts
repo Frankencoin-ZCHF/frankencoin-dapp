@@ -133,10 +133,8 @@ export const fetchSavings =
 		const response3 = await DEURO_API_CLIENT.get("/savings/leadrate/rates");
 		dispatch(slice.actions.setLeadrateRate(response3.data as ApiLeadrateRate));
 
-		/* TODO: Reactivate when API is ready
 		const response4 = await DEURO_API_CLIENT.get("/savings/core/info");
 		dispatch(slice.actions.setSavingsInfo(response4.data as ApiSavingsInfo));
-		*/
 
 		const response6 = await DEURO_API_CLIENT.get(`/savings/core/user/${zeroAddress}`);
 		dispatch(slice.actions.setSavingsAllUserTable(response6.data as ApiSavingsUserTable));
@@ -153,7 +151,6 @@ export const fetchSavings =
 		dispatch(slice.actions.setLoaded(true));
 	};
 
-// TODO: Deactivate when API is ready, and add this call to fetchSavings
 export const fetchSavingsCoreInfo = () => async (dispatch: Dispatch<DispatchApiSavingsInfo>) => {
 	const response = await DEURO_API_CLIENT.get("/savings/core/info");
 	dispatch(slice.actions.setSavingsInfo(response.data as ApiSavingsInfo));

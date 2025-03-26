@@ -6,6 +6,7 @@ import { version } from "../package.json";
 import { faCodeCommit } from "@fortawesome/free-solid-svg-icons";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import { useIsMainnet } from "@hooks";
+import Image from "next/image";
 
 export default function LoadingScreen() {
 	return (
@@ -14,18 +15,10 @@ export default function LoadingScreen() {
 				<div className="flex flex-col items-center gap-8">
 					<div className="flex flex-row items-center -mt-20">
 						<picture>
-							<img className="h-10 mr-4" src="/coin/logo.png" alt="Logo" />
+							<Image className="h-10 mr-4" width={40} height={40} src="/coin/logo.png" alt="Logo"/>
 						</picture>
 						<h1>dEURO is loading...</h1>
 					</div>
-
-					<div className="absolute bottom-[20%]">
-						<h1 className="px-8 text-center">
-							This website uses third-party cookies, and certain features may not function properly if you choose to block
-							them.
-						</h1>
-					</div>
-
 					<div className="absolute bottom-0 bg-layout-footer w-full pb-8 pt-8 justify-items-center">
 						<SubmitIssue />
 					</div>
@@ -39,7 +32,7 @@ export function SubmitIssue() {
 	const isMainnet = useIsMainnet();
 
 	return (
-		<ul className="flex items-center gap-8 text-layout-primary">
+		<ul className="flex justify-center sm:justify-start items-center gap-8 text-layout-primary">
 			<li>
 				<FooterButton link={SOCIAL.Github_dapp_new_issue} text="Submit an Issue" icon={faGithub} />
 			</li>

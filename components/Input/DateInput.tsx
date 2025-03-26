@@ -28,7 +28,7 @@ export default function DateInput({ label, max, value, error, onChange }: Props)
 				<FontAwesomeIcon icon={faHourglassStart} className="w-10 h-8 mr-2" />
 				<div className="flex-1">
 					<div
-						className={`flex gap-1 rounded-lg p-1 bg-card-content-secondary border-2 ${
+						className={`date-input flex gap-1 rounded-lg p-1 bg-card-content-secondary border-2 ${
 							error ? "border-text-warning" : " border-card-content-secondary"
 						}`}
 					>

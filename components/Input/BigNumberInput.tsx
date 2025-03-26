@@ -13,6 +13,8 @@ export type BigNumberInputProps = {
 	min?: string;
 	className?: string;
 	disabled?: boolean;
+	onFocus?: () => void;
+	onBlur?: () => void;
 };
 
 export function BigNumberInput({
@@ -26,6 +28,8 @@ export function BigNumberInput({
 	min,
 	className,
 	disabled,
+	onFocus,
+	onBlur,	
 }: BigNumberInputProps) {
 	const inputRef = React.useRef<any>(null);
 
@@ -89,6 +93,8 @@ export function BigNumberInput({
 		type: "text",
 		value: inputValue,
 		className: `${className} ${disabled ? "text-slate-400" : ""}`,
+		onFocus,
+		onBlur,
 	};
 
 	return renderInput ? renderInput({ ...inputProps }) : <input {...inputProps} ref={inputRef} disabled={disabled} />;

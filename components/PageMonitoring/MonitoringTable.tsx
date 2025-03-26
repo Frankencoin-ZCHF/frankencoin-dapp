@@ -8,9 +8,17 @@ import { ApiChallengesPositions, ChallengesQueryItem, PositionQuery, PriceQueryO
 import { Address, formatUnits } from "viem";
 import MonitoringRow from "./MonitoringRow";
 import { useState } from "react";
+import { useTranslation } from "next-i18next";
+import { INTERNAL_PROTOCOL_POSITIONS } from "@utils";
 
 export default function MonitoringTable() {
-	const headers: string[] = ["Collateral", "Collateralization", "Expiration", "Challenged"];
+	const { t } = useTranslation();
+	const headers: string[] = [
+		t("monitoring.collateral"),
+		t("monitoring.collateralization"),
+		t("monitoring.expiration"),
+		t("monitoring.challenged"),
+	];
 	const [tab, setTab] = useState<string>(headers[1]);
 	const [reverse, setReverse] = useState<boolean>(true);
 
@@ -19,7 +27,9 @@ export default function MonitoringTable() {
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 	const matchingPositions = openPositionsByCollateral.flat();
 
-	const sorted: PositionQuery[] = sortPositions(matchingPositions, coingecko, challenges, headers, tab, reverse);
+	const sorted: PositionQuery[] = sortPositions(matchingPositions, coingecko, challenges, headers, tab, reverse).filter(
+		(p) => !INTERNAL_PROTOCOL_POSITIONS.includes(p.position)
+	);
 
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
@@ -35,12 +45,19 @@ export default function MonitoringTable() {
 
 	return (
 		<Table>
-			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
+			<TableHeader
+				headers={headers}
+				tab={tab}
+				reverse={reverse}
+				tabOnChange={handleTabOnChange}
+				actionCol
+				headerClassNames={["text-center"]}
+			/>
 			<TableBody>
 				{sorted.length == 0 ? (
-					<TableRowEmpty>{"There are no active positions."}</TableRowEmpty>
+					<TableRowEmpty>{t("monitoring.no_active_positions")}</TableRowEmpty>
 				) : (
-					sorted.map((pos) => <MonitoringRow headers={headers} position={pos} key={pos.position} />)
+					sorted.map((pos) => <MonitoringRow headers={headers} position={pos} key={pos.position} tab={tab} />)
 				)}
 			</TableBody>
 		</Table>

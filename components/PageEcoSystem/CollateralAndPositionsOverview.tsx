@@ -31,14 +31,14 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 
 		balance = balance / 10 ** collateral.decimals;
 		const valueLocked = Math.round(balance * collateral.price.usd);
-		const highestZCHFPrice =
+		const highestDEUROPrice =
 			Math.round(Math.max(...positions.map((p) => (parseInt(p.price) * 100) / 10 ** (36 - p.collateralDecimals)))) / 100;
 
-		const collateralizedPct = Math.round((collateral.price.usd / (highestZCHFPrice * mint.price.usd)) * 10000) / 100;
+		const collateralizedPct = Math.round((collateral.price.usd / (highestDEUROPrice * mint.price.usd)) * 10000) / 100;
 		const availableForClonesPct = Math.round((availableForClones / limitForClones) * 10000) / 100;
 
 		const minted = Math.round(limitForClones - availableForClones);
-		const collateralPriceInZCHF = Math.round((collateral.price.usd / mint.price.usd) * 100) / 100;
+		const collateralPriceInDEURO = Math.round((collateral.price.usd / mint.price.usd) * 100) / 100;
 		const worstStatus =
 			collateralizedPct < 100
 				? `${collateralizedPct}% collaterized`
@@ -58,10 +58,10 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 			limitForClones,
 			availableForClones,
 			valueLocked,
-			highestZCHFPrice,
+			highestDEUROPrice,
 			collateralizedPct,
 			availableForClonesPct,
-			collateralPriceInZCHF,
+			collateralPriceInDEURO,
 			worstStatus,
 			worstStatusColors,
 		});
@@ -115,13 +115,13 @@ export default function CollateralAndPositionsOverview() {
 					<div className="mb-5">
 						The highest liquidation price from all positions is{" "}
 						<span className="front-bold font-semibold text-text-header">
-							{formatCurrency(stat.highestZCHFPrice.toString(), 2)} {TOKEN_SYMBOL}/{stat.collateral.symbol}
+							{formatCurrency(stat.highestDEUROPrice.toString(), 2)} {TOKEN_SYMBOL}/{stat.collateral.symbol}
 						</span>
 						, which represents the worst{" "}
 						<span className="front-bold font-semibold text-text-header">collateralisation of {stat.collateralizedPct}%</span>{" "}
 						for this collateral. The current price of {stat.collateral.name} ({stat.collateral.symbol}) on Coingecko is{" "}
 						<span className="front-bold font-semibold text-text-header">
-							{formatCurrency(stat.collateralPriceInZCHF.toString(), 2)} {TOKEN_SYMBOL}/{stat.collateral.symbol}
+							{formatCurrency(stat.collateralPriceInDEURO.toString(), 2)} {TOKEN_SYMBOL}/{stat.collateral.symbol}
 						</span>{" "}
 						or {formatCurrency((stat.collateral.price.usd ?? "0").toString(), 2)} USD/{stat.collateral.symbol}.
 					</div>

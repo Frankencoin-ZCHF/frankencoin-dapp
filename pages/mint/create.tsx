@@ -17,7 +17,10 @@ import NormalInput from "@components/Input/NormalInput";
 import AddressInput from "@components/Input/AddressInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
-import { ADDRESS, MintingHubV2ABI } from "@deuro/eurocoin";
+import { ADDRESS, MintingHubGatewayABI } from "@deuro/eurocoin";
+import { useTranslation, Trans } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useFrontendCode } from "../../hooks/useFrontendCode";
 
 export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
@@ -42,6 +45,7 @@ export default function PositionCreate({}) {
 	const [durationError, setDurationError] = useState("");
 	const [isConfirming, setIsConfirming] = useState("");
 
+	const { frontendCode } = useFrontendCode();
 	const [userAllowance, setUserAllowance] = useState<bigint>(0n);
 	const { data } = useBlockNumber({ watch: true });
 	const account = useAccount();
@@ -49,6 +53,10 @@ export default function PositionCreate({}) {
 	const chainId = useChainId();
 	const collTokenData = useTokenData(collateralAddress);
 	const userBalance = useUserBalance();
+
+	const { allowance: deuroAllowance, refetch: refetchDeuroAllowance } = useTokenData(ADDRESS[WAGMI_CHAIN.id].decentralizedEURO);
+
+	const { t } = useTranslation();
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
@@ -61,7 +69,7 @@ export default function PositionCreate({}) {
 				address: collateralAddress as Address,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHubV2],
+				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHubGateway],
 			});
 			setUserAllowance(_allowance);
 		};
@@ -72,9 +80,9 @@ export default function PositionCreate({}) {
 	useEffect(() => {
 		if (isAddress(collateralAddress)) {
 			if (collTokenData.name == "NaN") {
-				setCollTokenAddrError("Could not obtain token data");
+				setCollTokenAddrError(t("mint.error.could_not_obtain_token_data"));
 			} else if (collTokenData.decimals > 24n) {
-				setCollTokenAddrError("Token decimals should be less than 24.");
+				setCollTokenAddrError(t("mint.error.token_decimals_should_be_less_than_24"));
 			} else {
 				setCollTokenAddrError("");
 			}
@@ -106,9 +114,9 @@ export default function PositionCreate({}) {
 		const valueBigInt = BigInt(value);
 		setInitialCollAmount(valueBigInt);
 		if (valueBigInt < minCollAmount) {
-			setInitialCollAmountError("Must be at least the minimum amount.");
+			setInitialCollAmountError(t("mint.error.must_be_at_least_the_minimum_amount"));
 		} else if (valueBigInt > collTokenData.balance) {
-			setInitialCollAmountError(`Not enough ${collTokenData.symbol} in your wallet.`);
+			setInitialCollAmountError(t("common.error.insufficient_balance", { symbol: collTokenData.symbol }));
 		} else {
 			setInitialCollAmountError("");
 		}
@@ -131,7 +139,7 @@ export default function PositionCreate({}) {
 		setInterest(valueBigInt);
 
 		if (valueBigInt > 100_0000n) {
-			setInterestError("Annual Interest Rate should be less than 100%");
+			setInterestError(t("mint.error.annual_interest_rate_exceeded", { rate: 100 }));
 		} else {
 			setInterestError("");
 		}
@@ -146,7 +154,7 @@ export default function PositionCreate({}) {
 		const valueBigInt = BigInt(value);
 		setInitPeriod(valueBigInt);
 		if (valueBigInt < 3n) {
-			setInitError("Initialization Period must be at least 3 days.");
+			setInitError(t("mint.error.initialization_period_too_short", { days: 3 }));
 		} else {
 			setInitError("");
 		}
@@ -160,8 +168,8 @@ export default function PositionCreate({}) {
 
 	function checkCollateralAmount(coll: bigint, price: bigint) {
 		if (coll * price < 10n ** 36n) {
-			setLiqPriceError(`The liquidation value of the collateral must be at least 5000 ${TOKEN_SYMBOL}`);
-			setMinCollAmountError(`The collateral must be worth at least 5000 ${TOKEN_SYMBOL}`);
+			setLiqPriceError(t("mint.error.liquidation_value_too_low", { amount: 5000, symbol: TOKEN_SYMBOL }));
+			setMinCollAmountError(t("mint.error.collateral_value_too_low", { amount: 5000, symbol: TOKEN_SYMBOL }));
 		} else {
 			setLiqPriceError("");
 			setMinCollAmountError("");
@@ -172,9 +180,9 @@ export default function PositionCreate({}) {
 		const valueBigInt = BigInt(value);
 		setBuffer(valueBigInt);
 		if (valueBigInt > 1000_000n) {
-			setBufferError("Buffer cannot exceed 100%");
+			setBufferError(t("mint.error.buffer_too_high", { amount: 100 }));
 		} else if (valueBigInt < 100_000) {
-			setBufferError("Buffer must be at least 10%");
+			setBufferError(t("mint.error.buffer_too_low", { amount: 10 }));
 		} else {
 			setBufferError("");
 		}
@@ -184,7 +192,7 @@ export default function PositionCreate({}) {
 		const valueBigInt = BigInt(value);
 		setAuctionDuration(valueBigInt);
 		if (valueBigInt < 1n) {
-			setDurationError("Duration must be at least 1h");
+			setDurationError(t("mint.error.duration_too_short", { hours: 1 }));
 		} else {
 			setDurationError("");
 		}
@@ -212,34 +220,77 @@ export default function PositionCreate({}) {
 				address: collTokenData.address,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [ADDRESS[chainId].mintingHubV2, maxUint256],
+				args: [ADDRESS[chainId].mintingHubGateway, maxUint256],
 			});
 
 			const toastContent = [
 				{
-					title: "Amount: ",
+					title: t("common.txs.amount"),
 					value: "infinite " + collTokenData.symbol,
 				},
 				{
-					title: "Spender: ",
-					value: shortenAddress(ADDRESS[chainId].mintingHubV2),
+					title: t("common.txs.spender"),
+					value: shortenAddress(ADDRESS[chainId].mintingHubGateway),
 				},
 				{
-					title: "Transaction:",
+					title: t("common.txs.transaction"),
 					hash: approveWriteHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Approving ${collTokenData.symbol}`} rows={toastContent} />,
+					render: <TxToast title={t("common.txs.title", { symbol: collTokenData.symbol })} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`Successfully Approved ${collTokenData.symbol}`} rows={toastContent} />,
+					render: <TxToast title={t("common.txs.success", { symbol: collTokenData.symbol })} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: Need translation
+		} finally {
+			setIsConfirming("");
+		}
+	};
+
+	const handleApproveDeuro = async () => {
+		try {
+			setIsConfirming("approveDeuro");
+
+			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].decentralizedEURO,
+				abi: erc20Abi,
+				functionName: "approve",
+				args: [ADDRESS[chainId].mintingHubGateway, maxUint256],
+			});
+
+			const toastContent = [
+				{
+					title: t("common.txs.amount"),
+					value: "infinite " + TOKEN_SYMBOL,
+				},
+				{
+					title: t("common.txs.spender"),
+					value: shortenAddress(ADDRESS[chainId].mintingHubGateway),
+				},
+				{
+					title: t("common.txs.transaction"),
+					hash: approveWriteHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={t("common.txs.title", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title={t("common.txs.success", { symbol: TOKEN_SYMBOL })} rows={toastContent} />,
+				},
+			});
+
+			await refetchDeuroAllowance();
+		} catch (error) {
+			toast.error(renderErrorTxToast(error)); // TODO: Need translation
 		} finally {
 			setIsConfirming("");
 		}
@@ -249,8 +300,8 @@ export default function PositionCreate({}) {
 		try {
 			setIsConfirming("open");
 			const openWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].mintingHubV2,
-				abi: MintingHubV2ABI,
+				address: ADDRESS[chainId].mintingHubGateway,
+				abi: MintingHubGatewayABI,
 				functionName: "openPosition",
 				args: [
 					collTokenData.address,
@@ -263,38 +314,39 @@ export default function PositionCreate({}) {
 					Number(interest),
 					liqPrice,
 					Number(buffer),
+					frontendCode,
 				],
 			});
 
 			const toastContent = [
 				{
-					title: "Collateral",
+					title: t("mint.collateral"),
 					value: shortenAddress(collTokenData.address),
 				},
 				{
-					title: "Collateral Amount:",
+					title: t("mint.collateral_amount"),
 					value: formatBigInt(initialCollAmount, parseInt(collTokenData.decimals.toString())) + " " + collTokenData.symbol,
 				},
 				{
-					title: "LiqPrice: ",
+					title: t("mint.liquidation_price"),
 					value: formatBigInt(liqPrice, 36 - parseInt(collTokenData.decimals.toString())) + ` ${TOKEN_SYMBOL}`,
 				},
 				{
-					title: "Transaction:",
+					title: t("common.txs.transaction"),
 					hash: openWriteHash,
 				},
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: openWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Creating a new position`} rows={toastContent} />,
+					render: <TxToast title={t("mint.txs.creating_position")} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={`Successfully created a position`} rows={toastContent} />,
+					render: <TxToast title={t("mint.txs.position_created")} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
-			toast.error(renderErrorTxToast(error));
+			toast.error(renderErrorTxToast(error)); // TODO: Need translation
 		} finally {
 			setIsConfirming("");
 		}
@@ -303,54 +355,56 @@ export default function PositionCreate({}) {
 	return (
 		<>
 			<Head>
-				<title>dEURO - Propose Position</title>
+				<title>dEURO - {t("mint.propose_position")}</title>
 			</Head>
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold justify-center mt-3 flex">Proposal Process</div>
+					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
+						<div className="text-lg font-bold justify-center mt-3 flex">{t("mint.proposal_process")}</div>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							<TokenInput
-								label="Proposal Fee"
+								label={t("mint.proposal_fee")}
 								symbol={TOKEN_SYMBOL}
 								hideMaxLabel
 								value={proposalFee.toString()}
 								onChange={onChangeProposalFee}
 								digit={0}
-								error={userBalance.frankenBalance < BigInt(1000 * 1e18) ? `Not enough ${TOKEN_SYMBOL}` : ""}
+								error={
+									userBalance.deuroBalance < BigInt(1000 * 1e18)
+										? t("common.error.not_enough", { symbol: TOKEN_SYMBOL })
+										: ""
+								}
 								disabled={true}
 							/>
 							<NormalInput
-								label="Initialization Period"
-								symbol="days"
+								label={t("mint.initialization_period")}
+								symbol={t("common.days")}
 								error={initError}
 								digit={0}
 								hideMaxLabel
 								value={initPeriod.toString()}
 								onChange={onChangeInitPeriod}
-								placeholder="Initialization Period"
+								placeholder={t("mint.initialization_period")}
 							/>
 						</div>
 						<div>
-							It is recommended to{" "}
-							<Link href={SOCIAL.Forum} target="_blank">
-								{" "}
-								discuss{" "}
-							</Link>{" "}
-							new positions before initiating them to increase the probability of passing the decentralized governance
-							process.
+							<Trans i18nKey="mint.discuss_recommendation">
+								<Link href={SOCIAL.Forum} target="_blank">
+									discuss
+								</Link>
+							</Trans>
 						</div>
 					</div>
 
 					{/* Collateral */}
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold justify-center mt-3 flex">Collateral</div>
+					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
+						<div className="text-lg font-bold justify-center mt-3 flex">{t("mint.collateral")}</div>
 
 						<AddressInput
-							label="Collateral Token"
+							label={t("mint.collateral_token")}
 							error={collTokenAddrError}
-							placeholder="Token contract address"
+							placeholder={t("mint.token_contract_address")}
 							value={collateralAddress}
 							onChange={onChangeCollateralAddress}
 						/>
@@ -362,70 +416,73 @@ export default function PositionCreate({}) {
 								}
 								onClick={() => handleApprove()}
 							>
-								Approve {collTokenData.symbol == "NaN" ? "" : "Handling of " + collTokenData.symbol}
+								{collTokenData.symbol == "NaN"
+									? t("common.approve")
+									: t("mint.approve_handling", { symbol: collTokenData.symbol })}
 							</Button>
 						) : (
 							""
 						)}
 						<TokenInput
-							label="Minimum Collateral"
+							label={t("mint.minimum_collateral")}
 							symbol={collTokenData.symbol}
 							error={minCollAmountError}
 							hideMaxLabel
 							value={minCollAmount.toString()}
 							onChange={onChangeMinCollAmount}
 							digit={collTokenData.decimals}
-							placeholder="Minimum Collateral Amount"
+							placeholder={t("mint.minimum_collateral_amount")}
 						/>
 						<TokenInput
-							label="Initial Collateral"
+							balanceLabel={t("common.balance_label") + " "}
+							label={t("mint.initial_collateral")}
 							symbol={collTokenData.symbol}
 							error={initialCollAmountError}
 							max={collTokenData.balance}
 							value={initialCollAmount.toString()}
 							onChange={onChangeInitialCollAmount}
 							digit={collTokenData.decimals}
-							placeholder="Initial Collateral Amount"
+							placeholder={t("mint.initial_collateral_amount")}
 						/>
 					</div>
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center mt-3">Financial Terms</div>
+					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
+						<div className="text-lg font-bold text-center mt-3">{t("mint.financial_terms")}</div>
 						<TokenInput
-							label="Global Minting Limit"
+							label={t("mint.global_minting_limit")}
 							hideMaxLabel
 							symbol={TOKEN_SYMBOL}
 							error={limitAmountError}
 							value={limitAmount.toString()}
 							onChange={onChangeLimitAmount}
-							placeholder="Global Limit Amount"
+							placeholder={t("mint.global_limit_amount")}
 						/>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							<NormalInput
-								label="Risk Premium"
+								label={t("mint.risk_premium")}
 								symbol="%"
 								error={interestError}
 								digit={4}
 								hideMaxLabel
 								value={interest.toString()}
 								onChange={onChangeInterest}
-								placeholder="Risk Premium Percent"
+								placeholder={t("mint.risk_premium_percent")}
 							/>
 							<NormalInput
-								label="Maturity"
-								symbol="months"
+								label={t("mint.maturity")}
+								symbol={t("common.months")}
 								hideMaxLabel
 								digit={0}
 								value={maturity.toString()}
 								onChange={onChangeMaturity}
-								placeholder="Maturity"
+								placeholder={t("mint.maturity")}
 							/>
 						</div>
 					</div>
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center mt-3">Liquidation</div>
+					<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col gap-y-4">
+						<div className="text-lg font-bold text-center mt-3">{t("mint.liquidation")}</div>
 						<TokenInput
-							label="Liquidation Price"
-							balanceLabel="Pick"
+							label={t("mint.liquidation_price")}
+							balanceLabel={t("common.pick")}
 							symbol={TOKEN_SYMBOL}
 							error={liqPriceError}
 							digit={36n - collTokenData.decimals}
@@ -433,44 +490,64 @@ export default function PositionCreate({}) {
 							max={minCollAmount == 0n ? 0n : (5000n * 10n ** 36n + minCollAmount - 1n) / minCollAmount}
 							value={liqPrice.toString()}
 							onChange={onChangeLiqPrice}
-							placeholder="Price"
+							placeholder={t("common.price")}
 						/>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							<NormalInput
-								label="Retained Reserve"
+								label={t("mint.retained_reserve")}
 								symbol="%"
 								error={bufferError}
 								digit={4}
 								hideMaxLabel
 								value={buffer.toString()}
 								onChange={onChangeBuffer}
-								placeholder="Percent"
+								placeholder={t("common.percent")}
 							/>
 							<NormalInput
-								label="Auction Duration"
-								symbol="hours"
+								label={t("mint.auction_duration")}
+								symbol={t("common.hours")}
 								error={durationError}
 								hideMaxLabel
 								digit={0}
 								value={auctionDuration.toString()}
 								onChange={onChangeAuctionDuration}
-								placeholder="Auction Duration"
+								placeholder={t("mint.auction_duration")}
 							/>
 						</div>
 					</div>
 				</section>
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-					<GuardToAllowedChainBtn label="Propose Position">
-						<Button
-							disabled={minCollAmount == 0n || userAllowance < initialCollAmount || initialCollAmount == 0n || hasFormError()}
-							isLoading={isConfirming == "open"}
-							onClick={() => handleOpenPosition()}
-						>
-							Propose Position
-						</Button>
+					<GuardToAllowedChainBtn label={t("mint.propose_position")}>
+						{deuroAllowance < BigInt(1000 * 1e18) ? (
+							<Button
+								disabled={hasFormError()}
+								isLoading={isConfirming == "approveDeuro"}
+								onClick={() => handleApproveDeuro()}
+							>
+								{t("common.approve")}
+							</Button>
+						) : (
+							<Button
+								disabled={
+									minCollAmount == 0n || userAllowance < initialCollAmount || initialCollAmount == 0n || hasFormError()
+								}
+								isLoading={isConfirming == "open"}
+								onClick={() => handleOpenPosition()}
+							>
+								{t("mint.propose_position")}
+							</Button>
+						)}
 					</GuardToAllowedChainBtn>
 				</div>
 			</div>
 		</>
 	);
+}
+
+export async function getStaticProps({ locale }: { locale: string }) {
+	return {
+		props: {
+			...(await serverSideTranslations(locale, ["common"])),
+		},
+	};
 }

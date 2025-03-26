@@ -10,8 +10,8 @@ export const useTokenData = (addr: string) => {
 	const { address } = useAccount();
 
 	const account = address || zeroAddress;
-	const mintingHub = ADDRESS[WAGMI_CHAIN.id].mintingHubV2;
-	const { data } = useReadContracts({
+	const mintingHub = ADDRESS[WAGMI_CHAIN.id].mintingHubGateway;
+	const { data, refetch } = useReadContracts({
 		contracts: [
 			{
 				address: tokenAddress,
@@ -56,5 +56,6 @@ export const useTokenData = (addr: string) => {
 		decimals,
 		balance,
 		allowance,
+		refetch,
 	};
 };

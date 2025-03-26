@@ -18,6 +18,8 @@ interface Props {
 	className?: string;
 	address?: string;
 	usdPrice?: number;
+	logoSize?: number;
+	presentationPrecision?: number;
 }
 
 export default function DisplayAmount({
@@ -33,6 +35,8 @@ export default function DisplayAmount({
 	className,
 	address,
 	usdPrice,
+	logoSize = 8,
+	presentationPrecision = undefined,
 }: Props) {
 	const url = useContractUrl(address || zeroAddress);
 
@@ -44,16 +48,16 @@ export default function DisplayAmount({
 	return (
 		<div className={`flex items-center ${className}`}>
 			{!hideLogo && currency && (
-				<div className="mr-4">
-					<TokenLogo currency={currency} />
+				<div className="mr-3">
+					<TokenLogo currency={currency} size={logoSize} />
 				</div>
 			)}
 			<div>
 				<div>
-					<span className={`${bold && "font-bold"} ${big && "text-3xl"}`}>
-						{amount ? formatCurrency(typeof amount === "number" ? amount : formatUnits(amount, Number(digits))) : "0.00"}
+					<span className={`${bold && "font-bold"} ${big ? "text-3xl" : "text-base leading-5"}`}>
+						{amount ? formatCurrency(typeof amount === "number" ? amount : formatUnits(amount, Number(digits)), presentationPrecision) : "0.00"}
 					</span>
-					<span>
+					<span className={`${bold && "font-bold"} ${big ? "text-3xl" : "text-base leading-5"}`}>
 						{currency == "%" ? "" : " "}
 						{address ? (
 							<a href={url} target="_blank" rel="noreferrer" onClick={openExplorer}>

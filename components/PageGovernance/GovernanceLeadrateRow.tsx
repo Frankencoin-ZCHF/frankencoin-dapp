@@ -18,9 +18,10 @@ interface Props {
 	info: ApiLeadrateInfo;
 	proposal: LeadrateProposed;
 	currentProposal: boolean;
+	tab: string;
 }
 
-export default function GovernanceLeadrateRow({ headers, info, proposal, currentProposal }: Props) {
+export default function GovernanceLeadrateRow({ headers, info, proposal, currentProposal, tab }: Props) {
 	const [isDenying, setDenying] = useState<boolean>(false);
 	const [isApplying, setApplying] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
@@ -42,7 +43,7 @@ export default function GovernanceLeadrateRow({ headers, info, proposal, current
 			setApplying(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].savings,
+				address: ADDRESS[chainId].savingsGateway,
 				abi: SavingsABI,
 				functionName: "applyChange",
 				args: [],
@@ -87,7 +88,7 @@ export default function GovernanceLeadrateRow({ headers, info, proposal, current
 			setDenying(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].savings,
+				address: ADDRESS[chainId].savingsGateway,
 				abi: SavingsABI,
 				functionName: "proposeChange",
 				args: [info.rate, []],
@@ -129,6 +130,7 @@ export default function GovernanceLeadrateRow({ headers, info, proposal, current
 		<>
 			<TableRow
 				headers={headers}
+				tab={tab}
 				actionCol={
 					currentProposal ? (
 						info.isPending && info.isProposal ? (
