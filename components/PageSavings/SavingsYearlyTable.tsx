@@ -5,7 +5,7 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { useEffect, useState } from "react";
-import { SavingsInterestQuery } from "@frankencoin/api";
+import { SavingsInterestQuery, SavingsSavedQuery } from "@frankencoin/api";
 import SavingsYearlyRow from "./SavingsYearlyRow";
 
 export type AccountYearly = { year: number; collected: bigint; balance: bigint };
@@ -16,8 +16,9 @@ export default function SavingsYearlyTable() {
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<AccountYearly[]>([]);
 
-	const { interest } = useSelector((state: RootState) => state.savings.savingsUserTable);
+	const { interest, save } = useSelector((state: RootState) => state.savings.savingsUserTable);
 
+	const mappedYearlySave: { [key: string]: SavingsSavedQuery[] } = {};
 	const mappedYearly: { [key: string]: SavingsInterestQuery[] } = {};
 
 	for (const i of interest) {
@@ -25,17 +26,28 @@ export default function SavingsYearlyTable() {
 		if (mappedYearly[year] == undefined) mappedYearly[year] = [];
 		mappedYearly[year].push(i);
 	}
+	for (const i of save) {
+		const year = new Date(i.created * 1000).getFullYear();
+		if (mappedYearlySave[year] == undefined) mappedYearlySave[year] = [];
+		mappedYearlySave[year].push(i);
+	}
 
 	const accountYearly: AccountYearly[] = [];
 
 	for (const y of Object.keys(mappedYearly)) {
 		const items = mappedYearly[y];
+		const saveCreated = mappedYearlySave[y].at(-1)?.created ?? 0;
+		const mappedCreated = items.at(-1)?.created ?? 0;
+		const isSaveBalance = saveCreated > mappedCreated;
+		const saveBalance = BigInt(mappedYearlySave[y].at(-1)?.balance ?? 0n);
+		const mappedBalance = BigInt(items.at(-1)?.balance ?? 0n);
+
 		accountYearly.push({
 			year: parseInt(y),
 			collected: items.reduce<bigint>((a, b) => {
 				return a + BigInt(b.amount);
 			}, 0n),
-			balance: BigInt(items.at(-1)?.balance ?? 0n),
+			balance: isSaveBalance ? saveBalance : mappedBalance,
 		});
 	}
 
