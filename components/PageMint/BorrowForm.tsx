@@ -77,6 +77,7 @@ export default function PositionCreate({}) {
 				address: p.collateral,
 				name: p.collateralName,
 				allowance: [ADDRESS[chainId].mintingHubGateway],
+				decimals: p.collateralDecimals,
 			});
 		});
 		return Array.from(uniqueTokens.values());
@@ -112,13 +113,13 @@ export default function PositionCreate({}) {
 				selectedPosition?.collateralSymbol
 			})`;
 			setCollateralError(notTheMinimum);
-		} else if (BigInt(collateralAmount) > BigInt(balanceInWallet.balanceOf)) {
+		} else if (BigInt(collateralAmount) > BigInt(balanceInWallet?.balanceOf || 0n)) {
 			const notEnoughBalance = t("common.error.insufficient_balance", { symbol: selectedPosition?.collateralSymbol });
 			setCollateralError(notEnoughBalance);
 		} else {
 			setCollateralError("");
 		}
-	}, [collateralAmount]);
+	}, [collateralAmount, balancesByAddress]);
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const collateralPriceDeuro = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0; // TODO: change to eur?
