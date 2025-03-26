@@ -4,7 +4,7 @@ export const useNativePSQuery = (id: string) => {
 	const { data, loading } = useQuery(
 		gql`
       query {
-        fPS(id: "${id}") {
+        dEPS(id: "${id}") {
           id
           profits
           loss
@@ -14,7 +14,7 @@ export const useNativePSQuery = (id: string) => {
     `
 	);
 
-	if (!data || !data.fPS) {
+	if (!data || !data.dEPS) {
 		return {
 			profit: 0n,
 			loss: 0n,
@@ -22,7 +22,7 @@ export const useNativePSQuery = (id: string) => {
 	}
 
 	return {
-		profit: BigInt(data.fPS.profits),
-		loss: BigInt(data.fPS.loss),
+		profit: BigInt(data.dEPS.profits),
+		loss: BigInt(data.dEPS.loss),
 	};
 };
