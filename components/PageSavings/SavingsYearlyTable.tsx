@@ -11,7 +11,7 @@ import SavingsYearlyRow from "./SavingsYearlyRow";
 export type AccountYearly = { year: number; collected: bigint; balance: bigint };
 
 export default function SavingsYearlyTable() {
-	const headers: string[] = ["Year", "Interest Collected", "Balance"];
+	const headers: string[] = ["Year", "Interest Collected", "Year End Balance"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<AccountYearly[]>([]);
