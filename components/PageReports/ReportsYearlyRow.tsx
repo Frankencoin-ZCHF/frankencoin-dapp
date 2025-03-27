@@ -1,7 +1,7 @@
 import TableRow from "@components/Table/TableRow";
 import { ContractUrl, formatCurrency, shortenAddress, TxUrl } from "@utils";
 import { formatUnits, Hash } from "viem";
-import { AccountYearly } from "./SavingsYearlyTable";
+import { AccountYearly } from "./ReportsYearlyTable";
 
 interface Props {
 	headers: string[];
@@ -9,7 +9,7 @@ interface Props {
 	item: AccountYearly;
 }
 
-export default function SavingsYearlyRow({ headers, tab, item }: Props) {
+export default function ReportsYearlyRow({ headers, tab, item }: Props) {
 	return (
 		<TableRow headers={headers} tab={tab} rawHeader={true}>
 			<div className="flex flex-col md:text-left">{item.year}</div>
