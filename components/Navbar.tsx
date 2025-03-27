@@ -28,6 +28,9 @@ export function NavItems() {
 			<li>
 				<NavButton to="/governance" name="Governance" />
 			</li>
+			<li>
+				<NavButton to="/reports" name="Reports" />
+			</li>
 		</>
 	);
 }
