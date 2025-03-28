@@ -24,11 +24,6 @@ export const MARKETING_PARAM_NAME = "ref";
 
 export const DEFAULT_FRONTEND_CODE = "0xc155a9c8a3ce42a8268fb22f801479e378d5e70dbcc83db8604b296c6d1d3e10";
 
-export const FRONTEND_CODES: { [key: string]: `0x${string}` } = {
-	dEuro: "0xc155a9c8a3ce42a8268fb22f801479e378d5e70dbcc83db8604b296c6d1d3e10",
-	Michael: "0xdc09f425cfb64bbb93a07bf22ea7e7922e24874971b6d17ce1f91750ad92ef62",
-};
-
 export const WHITELISTED_POSITIONS = [
 	"0x489c40401d465A632297c5810b0E209059e71bE4", // LsETH
 	"0x1F26fAAc7DCdBe356d21d12AEdE2C2fF3aCB044e", // WETH

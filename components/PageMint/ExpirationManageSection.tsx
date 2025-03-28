@@ -11,7 +11,7 @@ import { writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { useBlock, useChainId } from "wagmi";
 import { Address } from "viem/accounts";
-import { toDate, toTimestamp } from "@utils";
+import { getCarryOnQueryParams, toDate, toQueryString, toTimestamp } from "@utils";
 import { toast } from "react-toastify";
 import { TxToast } from "@components/TxToast";
 import { useSelector } from "react-redux";
@@ -50,16 +50,23 @@ export const ExpirationManageSection = () => {
 			.sort((a, b) => toTimestamp(toDate(a.expiration)) - toTimestamp(toDate(b.expiration)));
 	}, [positions, challengedPositions]);
 
-	const { balancesByAddress } = useWalletERC20Balances([
+	const { balancesByAddress, refetchBalances } = useWalletERC20Balances([
 		{
 			symbol: position.collateralSymbol,
 			address: position.collateral,
 			name: position.collateralSymbol,
 			allowance: [ADDRESS[chainId].roller],
 		},
+		{
+			symbol: position.deuroSymbol,
+			address: position.deuro,
+			name: position.deuroSymbol,
+			allowance: [ADDRESS[chainId].roller],
+		},
 	]);
 
-	const allowance = balancesByAddress[position.collateral]?.allowance?.[ADDRESS[chainId].roller];
+	const collateralAllowance = balancesByAddress[position.collateral]?.allowance?.[ADDRESS[chainId].roller];
+	const deuroAllowance = balancesByAddress[position.deuro]?.allowance?.[ADDRESS[chainId].roller];
 
 	useEffect(() => {
 		setExpirationDate(new Date(position.expiration * 1000));
@@ -93,6 +100,10 @@ export const ExpirationManageSection = () => {
 					render: <TxToast title={t("mint.txs.extending_success")} rows={toastContent} />,
 				},
 			});
+
+			const carryOnQueryParams = getCarryOnQueryParams(router);
+			const _href = `/dashboard${toQueryString(carryOnQueryParams)}`;
+			router.push(_href);
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
@@ -100,7 +111,7 @@ export const ExpirationManageSection = () => {
 		}
 	};
 
-	const handleApprove = async () => {
+	const handleApproveCollateral = async () => {
 		try {
 			setIsTxOnGoing(true);
 
@@ -126,6 +137,43 @@ export const ExpirationManageSection = () => {
 					render: <TxToast title={t("common.txs.success", { symbol: position.collateralSymbol })} rows={toastContent} />,
 				},
 			});
+
+			await refetchBalances();
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
+		} finally {
+			setIsTxOnGoing(false);
+		}
+	};
+
+	const handleApproveDeuro = async () => {
+		try {
+			setIsTxOnGoing(true);
+
+			const approvingHash = await writeContract(WAGMI_CONFIG, {
+				address: position.deuro,
+				abi: erc20Abi,
+				functionName: "approve",
+				args: [ADDRESS[chainId].roller, maxUint256],
+			});
+
+			const toastContent = [
+				{
+					title: t("common.txs.transaction"),
+					hash: approvingHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approvingHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={t("common.txs.title", { symbol: position.deuroSymbol })} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title={t("common.txs.success", { symbol: position.deuroSymbol })} rows={toastContent} />,
+				},
+			});
+
+			await refetchBalances();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
@@ -154,14 +202,23 @@ export const ExpirationManageSection = () => {
 				/>
 				<span className="text-xs font-medium leading-[1rem]">{t("mint.extend_roll_borrowing_description")}</span>
 			</div>
-			{!allowance ? (
+			{!collateralAllowance ? (
 				<Button
 					className="text-lg leading-snug !font-extrabold"
-					onClick={handleApprove}
+					onClick={handleApproveCollateral}
 					isLoading={isTxOnGoing}
 					disabled={isTxOnGoing}
 				>
-					{t("common.approve")}
+					{t("common.approve")} {position.collateralSymbol}
+				</Button>
+			) : !deuroAllowance ? (
+				<Button
+					className="text-lg leading-snug !font-extrabold"
+					onClick={handleApproveDeuro}
+					isLoading={isTxOnGoing}
+					disabled={isTxOnGoing}
+				>
+					{t("common.approve")} {position.deuroSymbol}
 				</Button>
 			) : null}
 			<DetailsExpandablePanel loanDetails={undefined} collateralPriceDeuro={0} collateralDecimals={0} startingLiquidationPrice={0n} />
