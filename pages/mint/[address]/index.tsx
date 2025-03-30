@@ -340,7 +340,7 @@ export default function PositionBorrow({}) {
 							<GuardToAllowedChainBtn label={amount > userAllowance ? "Approve" : "Mint"}>
 								{requiredColl > userAllowance ? (
 									<Button
-										disabled={amount == 0n || requiredColl > userBalance || !!error}
+										disabled={requiredColl > userBalance || !!error}
 										isLoading={isApproving}
 										onClick={() => handleApprove()}
 									>
@@ -348,7 +348,7 @@ export default function PositionBorrow({}) {
 									</Button>
 								) : (
 									<Button
-										disabled={amount == 0n || requiredColl > userBalance || !!error}
+										disabled={requiredColl > userBalance || !!error}
 										isLoading={isCloning}
 										onClick={() => handleClone()}
 									>
