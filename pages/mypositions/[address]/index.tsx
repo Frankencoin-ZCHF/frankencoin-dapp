@@ -292,47 +292,52 @@ export default function PositionAdjust() {
 	);
 
 	const mintedMinCallback = () => {
+		/* Disabled: I think the user should click min separately on the collateral field if he also wants to have the collateral returned
 		const p = liqPrice;
 		const calcCollateral = (mintedMin * parseEther("1")) / p;
 		const verifyMint = (calcCollateral * p) / parseEther("1");
 		const isRoundingError = verifyMint < mintedMin;
 		const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
 		setCollateralAmount(correctedCollateral);
-		return correctedCollateral;
+		return correctedCollateral; */
 	};
 
 	// Minted Max
 	const mintedMax = bigIntMin(maxTotalLimit, (liqPrice * (BigInt(position.collateralBalance) + userCollBalance)) / parseEther("1"));
 
 	const mintedMaxCallback = () => {
+		/* Disabled: I think the user should click max separately on the collateral field if he also wants to have the collateral returned
 		const p = liqPrice;
-		const calcCollateral = (mintedMax * parseEther("1")) / p;
-		const verifyMint = (calcCollateral * p) / parseEther("1");
-		const isRoundingError = verifyMint < mintedMax;
-		const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
-		setCollateralAmount(correctedCollateral);
-		return correctedCollateral;
+		if (p > 0){
+			const calcCollateral = (mintedMax * parseEther("1")) / p;
+			const verifyMint = (calcCollateral * p) / parseEther("1");
+			const isRoundingError = verifyMint < mintedMax;
+			const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
+			setCollateralAmount(correctedCollateral);
+		} */
 	};
 
 	// Collateral Min
 	const collateralMinCallback = () => {
 		const p = liqPrice;
-		const calcCollateral = (amount * parseEther("1")) / p;
-		const verifyMint = (calcCollateral * p) / parseEther("1");
-		const isRoundingError = verifyMint < amount;
-		const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
-		setCollateralAmount(correctedCollateral);
-		return correctedCollateral;
+		if (p > 0){
+			const calcCollateral = (amount * parseEther("1")) / p;
+			const verifyMint = (calcCollateral * p) / parseEther("1");
+			const isRoundingError = verifyMint < amount;
+			const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
+			setCollateralAmount(correctedCollateral);
+		}
 	};
 
 	// LiqPrice
 	const liqPriceMinCallback = () => {
-		const calcPrice = (amount * parseEther("1")) / collateralAmount;
-		const verifyMint = (calcPrice * collateralAmount) / parseEther("1");
-		const isRoundingError = verifyMint < amount;
-		const corrected = isRoundingError ? calcPrice + 1n : calcPrice;
-		setLiqPrice(corrected);
-		return corrected;
+		if (collateralAmount > 0){
+			const calcPrice = (amount * parseEther("1")) / collateralAmount;
+			const verifyMint = (calcPrice * collateralAmount) / parseEther("1");
+			const isRoundingError = verifyMint < amount;
+			const corrected = isRoundingError ? calcPrice + 1n : calcPrice;
+			setLiqPrice(corrected);
+		}
 	};
 
 	const liqPriceMaxCallback = () => {
@@ -342,7 +347,6 @@ export default function PositionAdjust() {
 		const corrected = isRoundingError ? calcPrice + 1n : calcPrice;
 		setLiqPrice(corrected);
 		setCollateralAmount(BigInt(position.collateralBalance) + userCollBalance);
-		return corrected;
 	};
 
 	return (
@@ -406,8 +410,8 @@ export default function PositionAdjust() {
 							<TokenInput
 								label="Liquidation Price"
 								symbol={"ZCHF"}
-								min={BigInt(position.price) / 2n}
-								max={(BigInt(position.price) * 15n) / 10n}
+								min={collateralAmount == 0n ? 0n : amount * 10n**18n / collateralAmount}
+								/* max={(BigInt(position.price) * 15n) / 10n} TODO: this could be 0.8x the current market price*/
 								reset={BigInt(position.price)}
 								value={liqPrice.toString()}
 								digit={36 - position.collateralDecimals}
