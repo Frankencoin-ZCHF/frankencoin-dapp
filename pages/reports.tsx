@@ -4,22 +4,23 @@ import AppTitle from "@components/AppTitle";
 import AddressInput from "@components/Input/AddressInput";
 import { useEffect, useState } from "react";
 import AppCard from "@components/AppCard";
-import { formatUnits, isAddress, zeroAddress } from "viem";
-import { FRANKENCOIN_API_CLIENT, PONDER_CLIENT } from "../app.config";
+import { Address, isAddress } from "viem";
+import { FRANKENCOIN_API_CLIENT } from "../app.config";
 import { ApiSavingsUserTable } from "@frankencoin/api";
 import ReportsSavingsYearlyTable from "@components/PageReports/ReportsSavingsYearlyTable";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 import { FPSBalanceHistory } from "../hooks/FPSBalanceHistory";
 import { FPSEarningsHistory } from "../hooks/FPSEarningsHistory";
+import ReportsFPSYearlyTable from "@components/PageReports/ReportsFPSYearlyTable";
 
 export default function ReportsPage() {
 	const { address } = useAccount();
 	const [isLoading, setLoading] = useState<boolean>(false);
-	const [reportingAddress, setReportingAddress] = useState<string>("0x7497493f6259E2b34d2b8daBbFdE5A85870c88FB");
+	const [reportingAddress, setReportingAddress] = useState<string>("0x7497493f6259E2b34d2b8daBbFdE5A85870c88FB"); // FIXME: Undo hardcoded address
 	const [savings, setSavings] = useState<ApiSavingsUserTable>({ save: [], interest: [], withdraw: [] });
-	const [fpshistory, setFpsHistory] = useState<FPSBalanceHistory[]>();
-	const [fpsEarnings, setFpsEarnings] = useState<FPSEarningsHistory[]>();
+	const [fpsHistory, setFpsHistory] = useState<FPSBalanceHistory[]>([]);
+	const [fpsEarnings, setFpsEarnings] = useState<FPSEarningsHistory[]>([]);
 
 	useEffect(() => {
 		if (!isAddress(reportingAddress)) return;
@@ -30,12 +31,10 @@ export default function ReportsPage() {
 			setSavings(responseSavings.data as ApiSavingsUserTable);
 
 			const responseBalance = await FPSBalanceHistory(reportingAddress);
-			setFpsHistory(responseBalance);
-			console.log({ responseBalance });
+			setFpsHistory(responseBalance.reverse());
 
 			const responseEarnings = await FPSEarningsHistory(reportingAddress);
-			setFpsEarnings(responseEarnings);
-			console.log({ responseEarnings });
+			setFpsEarnings(responseEarnings.reverse());
 		};
 
 		fetcher();
@@ -98,15 +97,7 @@ export default function ReportsPage() {
 			<ReportsSavingsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} />
 
 			<AppTitle title="FPS Holder Earnings" />
-			{/* <ReportsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} /> */}
-
-			{fpshistory?.map((l) => (
-				<div key={l.id}>
-					<div>ID: Transfer-{l.count}</div>
-					<div>Date: {new Date(parseInt(l.created.toString()) * 1000).toDateString()}</div>
-					<div>Balance: {formatUnits(l.to == reportingAddress.toLowerCase() ? l.balanceTo : l.balanceFrom, 18)}</div>
-				</div>
-			))}
+			<ReportsFPSYearlyTable address={reportingAddress as Address} fpsHistory={fpsHistory} fpsEarnings={fpsEarnings} />
 		</>
 	);
 }

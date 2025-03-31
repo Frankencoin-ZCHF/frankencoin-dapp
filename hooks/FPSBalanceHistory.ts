@@ -4,8 +4,8 @@ import { PONDER_CLIENT } from "../app.config";
 
 export interface FPSBalanceHistory {
 	id: string;
-	count: bigint;
-	created: bigint;
+	count: number;
+	created: number;
 	txHash: string;
 	from: Address;
 	to: Address;
@@ -15,7 +15,9 @@ export interface FPSBalanceHistory {
 }
 
 export async function FPSBalanceHistory(address: Address): Promise<FPSBalanceHistory[]> {
-	const { data } = await PONDER_CLIENT.query({
+	const { data } = await PONDER_CLIENT.query<{
+		balanceHistorys: { items: FPSBalanceHistory[] };
+	}>({
 		fetchPolicy: "no-cache",
 		query: gql`
 			query {
@@ -50,5 +52,17 @@ export async function FPSBalanceHistory(address: Address): Promise<FPSBalanceHis
 		return [];
 	}
 
-	return data.balanceHistorys.items;
+	const list: FPSBalanceHistory[] = data.balanceHistorys.items.map((i) => ({
+		id: i.id,
+		count: Number(i.count),
+		created: Number(i.created),
+		txHash: i.txHash,
+		from: i.from,
+		to: i.to,
+		amount: BigInt(i.amount),
+		balanceFrom: BigInt(i.balanceFrom),
+		balanceTo: BigInt(i.balanceTo),
+	}));
+
+	return list;
 }
