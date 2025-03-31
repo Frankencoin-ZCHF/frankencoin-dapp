@@ -4,15 +4,15 @@ import { PONDER_CLIENT } from "../app.config";
 
 export interface FPSEarningsHistory {
 	id: string;
-	count: bigint;
-	created: bigint;
+	count: number;
+	created: number;
 	kind: string;
 	amount: bigint;
 	perFPS: bigint;
 }
 
 export async function FPSEarningsHistory(address: Address): Promise<FPSEarningsHistory[]> {
-	const { data } = await PONDER_CLIENT.query({
+	const { data } = await PONDER_CLIENT.query<{ profitLosss: { items: FPSEarningsHistory[] } }>({
 		fetchPolicy: "no-cache",
 		query: gql`
 			query {
@@ -34,5 +34,14 @@ export async function FPSEarningsHistory(address: Address): Promise<FPSEarningsH
 		return [];
 	}
 
-	return data.profitLosss.items;
+	const list: FPSEarningsHistory[] = data.profitLosss.items.map((i) => ({
+		id: i.id,
+		count: Number(i.count),
+		created: Number(i.created),
+		kind: i.kind,
+		amount: BigInt(i.amount),
+		perFPS: BigInt(i.perFPS),
+	}));
+
+	return list;
 }
