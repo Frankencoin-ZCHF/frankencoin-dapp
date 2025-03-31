@@ -7,17 +7,19 @@ import AppCard from "@components/AppCard";
 import { formatUnits, isAddress, zeroAddress } from "viem";
 import { FRANKENCOIN_API_CLIENT, PONDER_CLIENT } from "../app.config";
 import { ApiSavingsUserTable } from "@frankencoin/api";
-import ReportsYearlyTable from "@components/PageReports/ReportsYearlyTable";
+import ReportsYearlyTable from "@components/PageMonitoring/PageReports/ReportsYearlyTable";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 import { FPSBalanceHistory } from "../hooks/FPSBalanceHistory";
+import { FPSEarningsHistory } from "../hooks/FPSEarningsHistory";
 
 export default function ReportsPage() {
 	const { address } = useAccount();
 	const [isLoading, setLoading] = useState<boolean>(false);
-	const [reportingAddress, setReportingAddress] = useState<string>(address || zeroAddress);
+	const [reportingAddress, setReportingAddress] = useState<string>("0x7497493f6259E2b34d2b8daBbFdE5A85870c88FB");
 	const [savings, setSavings] = useState<ApiSavingsUserTable>({ save: [], interest: [], withdraw: [] });
 	const [fpshistory, setFpsHistory] = useState<FPSBalanceHistory[]>();
+	const [fpsEarnings, setFpsEarnings] = useState<FPSEarningsHistory[]>();
 
 	useEffect(() => {
 		if (!isAddress(reportingAddress)) return;
@@ -28,8 +30,11 @@ export default function ReportsPage() {
 			setSavings(responseSavings.data as ApiSavingsUserTable);
 
 			const responseBalance = await FPSBalanceHistory(reportingAddress);
-			console.log({ responseBalance });
 			setFpsHistory(responseBalance);
+
+			const responseEarnings = await FPSEarningsHistory(reportingAddress);
+			setFpsEarnings(responseEarnings);
+			console.log({ responseEarnings });
 		};
 
 		fetcher();
@@ -56,11 +61,11 @@ export default function ReportsPage() {
 							<ul className="flex flex-col gap-4">
 								<li className="flex justify-left items-center">
 									<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-card-body-secondary" />
-									<span className="ml-5 text-center">Savings Module</span>
+									<span className="ml-5 text-center">Position Costs</span>
 								</li>
 								<li className="flex justify-left items-center">
 									<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-card-body-secondary" />
-									<span className="ml-5 text-center">Position Costs</span>
+									<span className="ml-5 text-center">Savings Module</span>
 								</li>
 								<li className="flex justify-left items-center">
 									<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-card-body-secondary" />
@@ -86,20 +91,21 @@ export default function ReportsPage() {
 			</AppCard>
 
 			<AppTitle title="Position Costs" />
-			<ReportsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} />
+			{/* <ReportsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} /> */}
 
 			<AppTitle title="Savings Yearly Accounts" />
 			<ReportsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} />
 
+			<AppTitle title="FPS Holder Earnings" />
+			{/* <ReportsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} /> */}
+
 			{fpshistory?.map((l) => (
 				<div key={l.id}>
-					<div>{l.address}</div>
-					<div>{formatUnits(l.balance, 18)}</div>
+					<div>ID: Transfer-{l.count}</div>
+					<div>Date: {new Date(parseInt(l.created.toString()) * 1000).toDateString()}</div>
+					<div>Balance: {formatUnits(l.to == reportingAddress.toLowerCase() ? l.balanceTo : l.balanceFrom, 18)}</div>
 				</div>
 			))}
-
-			<AppTitle title="FPS Holder Earnings" />
-			<ReportsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} />
 		</>
 	);
 }

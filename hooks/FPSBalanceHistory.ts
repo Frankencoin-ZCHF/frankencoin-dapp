@@ -5,16 +5,14 @@ import { PONDER_CLIENT } from "../app.config";
 export interface FPSBalanceHistory {
 	id: string;
 	count: bigint;
-	txHash: string;
-	address: Address;
-	amount: bigint;
-	kind: string;
-	balance: bigint;
 	created: bigint;
+	txHash: string;
+	from: Address;
+	to: Address;
+	amount: bigint;
+	balanceFrom: bigint;
+	balanceTo: bigint;
 }
-
-// where: { address: "${address.toLowerCase()}" },
-// 0x5052D3Cc819f53116641e89b96Ff4cD1EE80B182
 
 export async function FPSBalanceHistory(address: Address): Promise<FPSBalanceHistory[]> {
 	const { data } = await PONDER_CLIENT.query({
@@ -22,7 +20,12 @@ export async function FPSBalanceHistory(address: Address): Promise<FPSBalanceHis
 		query: gql`
 			query {
 				balanceHistorys(
-					where: { address: "${address}" }
+					where: { 
+						OR: [
+							{ from: "${address.toLowerCase()}" },
+							{ to: "${address.toLowerCase()}" }
+						]
+					},
 					orderBy: "count"
 					orderDirection: "desc"
 					limit: 1000
@@ -30,12 +33,13 @@ export async function FPSBalanceHistory(address: Address): Promise<FPSBalanceHis
 					items {
 						id
 						count
-						txHash
-						address
-						amount
-						kind
-						balance
 						created
+						txHash
+						from
+						to
+						amount
+						balanceFrom
+						balanceTo
 					}
 				}
 			}

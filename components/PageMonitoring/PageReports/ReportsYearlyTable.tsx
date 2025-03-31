@@ -1,9 +1,9 @@
-import TableHeader from "../Table/TableHead";
-import TableBody from "../Table/TableBody";
-import Table from "../Table";
-import TableRowEmpty from "../Table/TableRowEmpty";
+import TableHeader from "../../Table/TableHead";
+import TableBody from "../../Table/TableBody";
+import Table from "../../Table";
+import TableRowEmpty from "../../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
-import { RootState } from "../../redux/redux.store";
+import { RootState } from "../../../redux/redux.store";
 import { useEffect, useState } from "react";
 import { SavingsInterestQuery, SavingsSavedQuery, SavingsWithdrawQuery } from "@frankencoin/api";
 import SavingsYearlyRow from "./ReportsYearlyRow";
