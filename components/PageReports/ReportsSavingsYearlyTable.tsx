@@ -1,12 +1,10 @@
-import TableHeader from "../../Table/TableHead";
-import TableBody from "../../Table/TableBody";
-import Table from "../../Table";
-import TableRowEmpty from "../../Table/TableRowEmpty";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../redux/redux.store";
+import TableHeader from "../Table/TableHead";
+import TableBody from "../Table/TableBody";
+import Table from "../Table";
+import TableRowEmpty from "../Table/TableRowEmpty";
 import { useEffect, useState } from "react";
 import { SavingsInterestQuery, SavingsSavedQuery, SavingsWithdrawQuery } from "@frankencoin/api";
-import SavingsYearlyRow from "./ReportsYearlyRow";
+import ReportsSavingsYearlyRow from "./ReportsSavingsYearlyRow";
 
 export type AccountYearly = { year: number; collected: bigint; balance: bigint };
 
@@ -103,7 +101,7 @@ export default function ReportsYearlyTable({ save, interest, withdraw }: Props) 
 					<TableRowEmpty>{"There are no savings yet."}</TableRowEmpty>
 				) : (
 					list.map((r, idx) => (
-						<SavingsYearlyRow headers={headers} tab={tab} key={`SavingsYearlyRow_${idx}_${r.year}`} item={r} />
+						<ReportsSavingsYearlyRow headers={headers} tab={tab} key={`SavingsYearlyRow_${idx}_${r.year}`} item={r} />
 					))
 				)}
 			</TableBody>

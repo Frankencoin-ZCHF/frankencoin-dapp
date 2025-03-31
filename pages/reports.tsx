@@ -7,7 +7,7 @@ import AppCard from "@components/AppCard";
 import { formatUnits, isAddress, zeroAddress } from "viem";
 import { FRANKENCOIN_API_CLIENT, PONDER_CLIENT } from "../app.config";
 import { ApiSavingsUserTable } from "@frankencoin/api";
-import ReportsYearlyTable from "@components/PageMonitoring/PageReports/ReportsYearlyTable";
+import ReportsSavingsYearlyTable from "@components/PageReports/ReportsSavingsYearlyTable";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 import { FPSBalanceHistory } from "../hooks/FPSBalanceHistory";
@@ -31,6 +31,7 @@ export default function ReportsPage() {
 
 			const responseBalance = await FPSBalanceHistory(reportingAddress);
 			setFpsHistory(responseBalance);
+			console.log({ responseBalance });
 
 			const responseEarnings = await FPSEarningsHistory(reportingAddress);
 			setFpsEarnings(responseEarnings);
@@ -94,7 +95,7 @@ export default function ReportsPage() {
 			{/* <ReportsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} /> */}
 
 			<AppTitle title="Savings Yearly Accounts" />
-			<ReportsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} />
+			<ReportsSavingsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} />
 
 			<AppTitle title="FPS Holder Earnings" />
 			{/* <ReportsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} /> */}
