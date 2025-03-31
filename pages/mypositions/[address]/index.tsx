@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { formatUnits, maxUint256, erc20Abi, Address, parseEther } from "viem";
+import { formatUnits, maxUint256, erc20Abi, Address, parseEther, parseUnits } from "viem";
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
 import { abs, bigIntMax, bigIntMin, ContractUrl, formatBigInt, formatCurrency, formatDuration, shortenAddress } from "@utils";
@@ -40,11 +40,22 @@ export default function PositionAdjust() {
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const position = positions.find((p) => p.position == addressQuery) as PositionQuery;
 
+	const prices = useSelector((state: RootState) => state.prices.coingecko);
+
 	const [amount, setAmount] = useState<bigint>(BigInt(position?.minted ?? 0n));
 	const [collateralAmount, setCollateralAmount] = useState<bigint>(BigInt(position?.collateralBalance ?? 0n));
 	const [liqPrice, setLiqPrice] = useState<bigint>(BigInt(position?.price ?? 0n));
 
 	// ---------------------------------------------------------------------------
+
+	useEffect(() => {
+		if (position != undefined && amount == 0n && collateralAmount == 0n && liqPrice == 0n) {
+			setAmount(BigInt(position.minted));
+			setCollateralAmount(BigInt(position.collateralBalance));
+			setLiqPrice(BigInt(position.price));
+		}
+	}, [position, amount, collateralAmount, liqPrice]);
+
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
 		const fc: Address = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
@@ -90,6 +101,12 @@ export default function PositionAdjust() {
 
 	// ---------------------------------------------------------------------------
 	if (!position) return <MyPositionsNotFound query={addressQuery} />;
+
+	const priceQuery = prices[position.collateral.toLowerCase() as Address];
+	if (!priceQuery) return <AppCard>Market Price of position not found</AppCard>;
+
+	const marketPriceDec = priceQuery.price.chf != undefined ? Math.round(priceQuery.price.chf * 80) / 100 : 1;
+	const marketPrice80Pct = parseUnits(String(marketPriceDec), 36 - position.collateralDecimals);
 
 	const isCooldown: boolean = position.cooldown * 1000 - Date.now() > 0;
 
@@ -320,7 +337,7 @@ export default function PositionAdjust() {
 	// Collateral Min
 	const collateralMinCallback = () => {
 		const p = liqPrice;
-		if (p > 0){
+		if (p > 0) {
 			const calcCollateral = (amount * parseEther("1")) / p;
 			const verifyMint = (calcCollateral * p) / parseEther("1");
 			const isRoundingError = verifyMint < amount;
@@ -331,7 +348,7 @@ export default function PositionAdjust() {
 
 	// LiqPrice
 	const liqPriceMinCallback = () => {
-		if (collateralAmount > 0){
+		if (collateralAmount > 0) {
 			const calcPrice = (amount * parseEther("1")) / collateralAmount;
 			const verifyMint = (calcPrice * collateralAmount) / parseEther("1");
 			const isRoundingError = verifyMint < amount;
@@ -341,12 +358,12 @@ export default function PositionAdjust() {
 	};
 
 	const liqPriceMaxCallback = () => {
-		const calcPrice = (amount * parseEther("1")) / (BigInt(position.collateralBalance) + userCollBalance);
-		const verifyMint = (calcPrice * collateralAmount) / parseEther("1");
-		const isRoundingError = verifyMint < amount;
-		const corrected = isRoundingError ? calcPrice + 1n : calcPrice;
-		setLiqPrice(corrected);
-		setCollateralAmount(BigInt(position.collateralBalance) + userCollBalance);
+		// const calcPrice = (amount * parseEther("1")) / (BigInt(position.collateralBalance) + userCollBalance);
+		// const verifyMint = (calcPrice * collateralAmount) / parseEther("1");
+		// const isRoundingError = verifyMint < amount;
+		// const corrected = isRoundingError ? calcPrice + 1n : calcPrice;
+		// setLiqPrice(corrected);
+		// setCollateralAmount(BigInt(position.collateralBalance) + userCollBalance);
 	};
 
 	return (
@@ -410,8 +427,8 @@ export default function PositionAdjust() {
 							<TokenInput
 								label="Liquidation Price"
 								symbol={"ZCHF"}
-								min={collateralAmount == 0n ? 0n : amount * 10n**18n / collateralAmount}
-								/* max={(BigInt(position.price) * 15n) / 10n} TODO: this could be 0.8x the current market price*/
+								min={collateralAmount == 0n ? 0n : (amount * 10n ** 18n) / collateralAmount}
+								max={marketPrice80Pct}
 								reset={BigInt(position.price)}
 								value={liqPrice.toString()}
 								digit={36 - position.collateralDecimals}

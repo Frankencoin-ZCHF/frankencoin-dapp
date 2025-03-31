@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
-import { useAppKit, useAppKitState } from "@reown/appkit/react";
+import { useAppKit, useAppKitState, useAppKitNetwork } from "@reown/appkit/react";
 import Button from "@components/Button";
 import { useIsConnectedToCorrectChain } from "../../hooks/useWalletConnectStats";
+import { WAGMI_CHAIN } from "../../app.config";
 
 interface Props {
 	children?: React.ReactNode;
@@ -14,17 +15,18 @@ export default function GuardToAllowedChainBtn(props: Props) {
 	const [requestedChange, setRequestedChange] = useState(false);
 
 	const { isDisconnected } = useAccount();
-	const Web3Modal = useAppKit();
-	const Web3ModalState = useAppKitState();
+	const AppKit = useAppKit();
+	const AppKitState = useAppKitState();
+	const AppKitNetwork = useAppKitNetwork();
 	const isCorrectChain = useIsConnectedToCorrectChain();
 
 	// to close modal after successful connection or change of chain
 	useEffect(() => {
-		if (requestedChange && isCorrectChain && Web3ModalState.open) {
-			Web3Modal.close();
+		if (requestedChange && isCorrectChain && AppKitState.open) {
+			AppKit.close();
 			setRequestedChange(false);
 		}
-	}, [requestedChange, isCorrectChain, Web3Modal, Web3ModalState]);
+	}, [requestedChange, isCorrectChain, AppKit, AppKitState]);
 
 	// Check if wallet is disconnected
 	if (isDisconnected)
@@ -33,7 +35,7 @@ export default function GuardToAllowedChainBtn(props: Props) {
 				className="h-10"
 				disabled={props.disabled}
 				onClick={() => {
-					Web3Modal.open();
+					AppKit.open();
 					setRequestedChange(true);
 				}}
 			>
@@ -48,7 +50,7 @@ export default function GuardToAllowedChainBtn(props: Props) {
 				className="h-10"
 				disabled={props.disabled}
 				onClick={() => {
-					Web3Modal.open({ view: "Networks" });
+					AppKitNetwork.switchNetwork(WAGMI_CHAIN);
 					setRequestedChange(true);
 				}}
 			>
