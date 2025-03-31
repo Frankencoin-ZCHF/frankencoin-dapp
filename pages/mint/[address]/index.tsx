@@ -125,26 +125,18 @@ export default function PositionBorrow({}) {
 	const onChangeAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
-		if (valueBigInt > borrowingLimit) {
-			if (availableAmount < valueBigInt) {
-				setError("No more than " + formatCurrency(parseInt(availableAmount.toString()) / 1e18, 2, 2) + " ZCHF can be minted");
-			} else if (availableAmount > userValue) {
-				setErrorColl(`Not enough ${position.collateralSymbol} in your wallet.`);
-			}
+		if (valueBigInt > availableAmount) {
+			setError("No more than " + formatCurrency(parseInt(availableAmount.toString()) / 1e18, 2, 2) + " ZCHF can be minted");
 		} else {
 			setError("");
-			setErrorColl("");
 		}
 	};
 
 	const onChangeCollateral = (value: string) => {
-		const valueBigInt = (BigInt(value) * BigInt(position.price)) / BigInt(1e18);
-		if (valueBigInt > borrowingLimit) {
-			setError("Can not mint more than " + formatCurrency(parseInt(borrowingLimit.toString()) / 1e18, 2, 2) + " ZCHF");
-		} else {
-			setError("");
+		if (BigInt(value) > userBalance){
+			setErrorColl(`Not enough ${position.collateralSymbol} in your wallet.`);
 		}
-		setAmount(valueBigInt);
+		setAmount((BigInt(value) * BigInt(position.price)) / BigInt(1e18));
 	};
 
 	const onChangeExpiration = (value: Date | null) => {
@@ -312,7 +304,7 @@ export default function PositionBorrow({}) {
 							<TokenInput
 								label="Collateral Required"
 								balanceLabel="Your balance:"
-								max={userBalance}
+								max={userBalance > requiredColl ? userBalance : requiredColl}
 								min={BigInt(position.minimumCollateral)}
 								digit={position.collateralDecimals}
 								onChange={onChangeCollateral}
@@ -331,9 +323,9 @@ export default function PositionBorrow({}) {
 								value={expirationDate}
 								onChange={onChangeExpiration}
 								error={errorDate}
-								limit={BigInt(position.expiration)}
+								/* limit={BigInt(position.expiration)}
 								limitDigit={position.collateralDecimals}
-								limitLabel="Until"
+								limitLabel="Until" */
 							/>
 						</div>
 						<div className="mx-auto w-72 max-w-full flex-col">

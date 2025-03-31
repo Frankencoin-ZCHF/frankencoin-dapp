@@ -88,7 +88,7 @@ export default function DateInput({
 							</div>
 						</div>
 
-						{!disabled && max != undefined && max != value && (
+						{!disabled && max != undefined && max.getDate() != value.getDate() && (
 							<div
 								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
@@ -101,7 +101,7 @@ export default function DateInput({
 								Max
 							</div>
 						)}
-						{!disabled && min != undefined && min != value && min != max && (
+						{!disabled && min != undefined && min.getDate() != value.getDate() && (
 							<div
 								className="text-card-input-min cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
