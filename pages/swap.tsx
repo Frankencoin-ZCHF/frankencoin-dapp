@@ -19,6 +19,15 @@ import { useTranslation } from "next-i18next";
 
 const STABLECOIN_SYMBOLS = ["EURC", "EURT", "VEUR", "EURS"];
 
+const TEMPORARY_UNAVAILABLE = [{
+	from: "EURT",
+	to: TOKEN_SYMBOL,
+}];
+
+const isTemporaryUnavailable = (from: string, to: string) => {
+	return TEMPORARY_UNAVAILABLE.some((pair) => pair.from === from && pair.to === to);
+};
+
 const noTokenMeta = {
 	symbol: "",
 	userBal: 0n,
@@ -370,7 +379,11 @@ export default function Swap() {
 
 						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 							<GuardToAllowedChainBtn>
-								{amount > fromTokenMeta.userAllowance ? (
+								{isTemporaryUnavailable(fromSymbol, toSymbol) ? (
+									<Button disabled>
+										{t("common.temporary_unavailable")}
+									</Button>
+								) : amount > fromTokenMeta.userAllowance ? (
 									<Button isLoading={isTxOnGoing} onClick={() => handleApprove()}>
 										{t("common.approve")}
 									</Button>

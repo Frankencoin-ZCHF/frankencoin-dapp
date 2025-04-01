@@ -37,6 +37,7 @@
         "add": "Hinzufügen",
         "remove": "Entfernen",
         "connect_wallet": "Wallet verbinden",
+        "temporary_unavailable": "Temporär nicht verfügbar",
         "navbar": {
             "my_referrals": "Meine Empfehlungen",
             "swap": "Tausch",

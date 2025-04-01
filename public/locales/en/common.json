@@ -37,6 +37,7 @@
         "add": "Add",
         "remove": "Remove",
         "connect_wallet": "Connect Wallet",
+        "temporary_unavailable": "Temporary Unavailable",
         "navbar": {
             "my_referrals": "My Referrals",
             "swap": "Swap",

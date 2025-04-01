@@ -37,6 +37,7 @@
         "add": "Ajouter",
         "remove": "Retirer",
         "connect_wallet": "Connecter le portefeuille",
+        "temporary_unavailable": "Temporairement non disponible",
         "navbar": {
             "my_referrals": "Mes filleuls",
             "swap": "Swap",
