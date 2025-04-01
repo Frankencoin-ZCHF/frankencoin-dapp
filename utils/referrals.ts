@@ -11,5 +11,6 @@ export const getFrontendCodeFromReferralName = (referralName: string) => {
 } 
 
 export const getReferralNameFromFrontendCode = (frontendCode: `0x${string}`) => {
-    return hexToString(frontendCode).toString().replace(/\0/g, '');
+    const decoded = hexToString(frontendCode).toString().replace(/\0/g, '');
+    return /^[\x20-\x7E]*$/.test(decoded) ? decoded : '';
 }

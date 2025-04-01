@@ -37,6 +37,7 @@
         "add": "Add",
         "remove": "Remove",
         "connect_wallet": "Connect Wallet",
+        "temporary_unavailable": "Temporary Unavailable",
         "navbar": {
             "my_referrals": "My Referrals",
             "swap": "Swap",
@@ -48,7 +49,6 @@
             "equity": "Equity",
             "auctions": "Auctions",
             "governance": "Governance",
-            "not_live": "This website is still in the beta phase.",
             "expert_mode": "Expert Mode",
             "global_preferences": "Global Preferences",
             "language": "Language",

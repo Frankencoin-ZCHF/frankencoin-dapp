@@ -37,6 +37,7 @@
         "add": "Ajouter",
         "remove": "Retirer",
         "connect_wallet": "Connecter le portefeuille",
+        "temporary_unavailable": "Temporairement non disponible",
         "navbar": {
             "my_referrals": "Mes filleuls",
             "swap": "Swap",
@@ -48,7 +49,6 @@
             "equity": "Capitaux propres",
             "auctions": "Ventes aux enchères",
             "governance": "Gouvernance",
-            "not_live": "Ce site web est encore en phase bêta.",
             "expert_mode": "Mode Expert",
             "global_preferences": "Préférences Globales",
             "language": "Langue",

@@ -37,6 +37,7 @@
         "add": "Agregar",
         "remove": "Eliminar",
         "connect_wallet": "Conectar Wallet",
+        "temporary_unavailable": "Temporalmente no disponible",
         "navbar": {
             "my_referrals": "Mis Referidos",
             "swap": "Intercambiar",
@@ -48,7 +49,6 @@
             "equity": "Capital Accionario",
             "auctions": "Subastas",
             "governance": "Gobernanza",
-            "not_live": "Este sitio web todavía está en fase beta.",
             "expert_mode": "Modo Experto",
             "global_preferences": "Preferencias Globales",
             "language": "Idioma",
