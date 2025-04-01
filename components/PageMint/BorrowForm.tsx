@@ -387,7 +387,7 @@ export default function PositionCreate({}) {
 						<InputTitle>{t("mint.set_expiration_date")}</InputTitle>
 						<DateInputOutlined
 							value={expirationDate}
-							maxDate={expirationDate}
+							maxDate={selectedPosition?.expiration ? toDate(selectedPosition?.expiration) : expirationDate}
 							placeholderText="YYYY-MM-DD"
 							onChange={setExpirationDate}
 							rightAdornment={expirationDate ? <MaxButton onClick={handleMaxExpirationDate} /> : null}
