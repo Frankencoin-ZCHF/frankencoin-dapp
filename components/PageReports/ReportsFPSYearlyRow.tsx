@@ -1,5 +1,5 @@
 import TableRow from "@components/Table/TableRow";
-import { Address, formatUnits, Hash } from "viem";
+import { Address, formatUnits } from "viem";
 import { AccountYearly } from "./ReportsFPSYearlyTable";
 import { formatCurrency } from "@utils";
 

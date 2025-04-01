@@ -4,7 +4,7 @@ import AppTitle from "@components/AppTitle";
 import AddressInput from "@components/Input/AddressInput";
 import { useEffect, useState } from "react";
 import AppCard from "@components/AppCard";
-import { Address, isAddress } from "viem";
+import { Address, isAddress, zeroAddress } from "viem";
 import { FRANKENCOIN_API_CLIENT } from "../app.config";
 import { ApiSavingsUserTable } from "@frankencoin/api";
 import ReportsSavingsYearlyTable from "@components/PageReports/ReportsSavingsYearlyTable";
@@ -13,11 +13,18 @@ import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 import { FPSBalanceHistory } from "../hooks/FPSBalanceHistory";
 import { FPSEarningsHistory } from "../hooks/FPSEarningsHistory";
 import ReportsFPSYearlyTable from "@components/PageReports/ReportsFPSYearlyTable";
+import ReportsPositionsYearlyTable from "@components/PageReports/ReportsPositionsYearlyTable";
+
+export type OwnerPositionFees = {
+	t: number;
+	f: bigint;
+};
 
 export default function ReportsPage() {
 	const { address } = useAccount();
 	const [isLoading, setLoading] = useState<boolean>(false);
-	const [reportingAddress, setReportingAddress] = useState<string>("0x7497493f6259E2b34d2b8daBbFdE5A85870c88FB"); // FIXME: Undo hardcoded address
+	const [reportingAddress, setReportingAddress] = useState<string>(address ?? zeroAddress);
+	const [ownerPositionFees, setOwnerPositionFees] = useState<OwnerPositionFees[]>([]);
 	const [savings, setSavings] = useState<ApiSavingsUserTable>({ save: [], interest: [], withdraw: [] });
 	const [fpsHistory, setFpsHistory] = useState<FPSBalanceHistory[]>([]);
 	const [fpsEarnings, setFpsEarnings] = useState<FPSEarningsHistory[]>([]);
@@ -27,6 +34,9 @@ export default function ReportsPage() {
 		setLoading(true);
 
 		const fetcher = async () => {
+			const responseOwnerPosition = await FRANKENCOIN_API_CLIENT.get(`/positions/mintingupdates/owner/${reportingAddress}/fees`);
+			setOwnerPositionFees((responseOwnerPosition.data as { t: number; f: string }[]).map((i) => ({ t: i.t, f: BigInt(i.f) })));
+
 			const responseSavings = await FRANKENCOIN_API_CLIENT.get(`/savings/core/user/${reportingAddress}`);
 			setSavings(responseSavings.data as ApiSavingsUserTable);
 
@@ -91,9 +101,9 @@ export default function ReportsPage() {
 			</AppCard>
 
 			<AppTitle title="Position Costs" />
-			{/* <ReportsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} /> */}
+			<ReportsPositionsYearlyTable address={reportingAddress as Address} ownerPositionFees={ownerPositionFees} />
 
-			<AppTitle title="Savings Yearly Accounts" />
+			<AppTitle title="Savings Yearly Earnings" />
 			<ReportsSavingsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} />
 
 			<AppTitle title="FPS Holder Earnings" />

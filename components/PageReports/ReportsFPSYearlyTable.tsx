@@ -5,7 +5,7 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { useEffect, useState } from "react";
 import { FPSEarningsHistory } from "../../hooks/FPSEarningsHistory";
 import { FPSBalanceHistory } from "../../hooks/FPSBalanceHistory";
-import { Address, formatUnits } from "viem";
+import { Address } from "viem";
 import ReportsFPSYearlyRow from "./ReportsFPSYearlyRow";
 
 export type AccountYearly = { year: number; earnings: bigint; balance: bigint };
@@ -90,7 +90,7 @@ export default function ReportsFPSYearlyTable({ address, fpsHistory, fpsEarnings
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} />
 			<TableBody>
 				{list.length == 0 ? (
-					<TableRowEmpty>{"There are no savings yet."}</TableRowEmpty>
+					<TableRowEmpty>{"There are no earnings accounted yet."}</TableRowEmpty>
 				) : (
 					list.map((r, idx) => (
 						<ReportsFPSYearlyRow
