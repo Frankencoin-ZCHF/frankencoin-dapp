@@ -78,9 +78,15 @@ export default function PositionCreate({}) {
 				name: p.collateralName,
 				allowance: [ADDRESS[chainId].mintingHubGateway],
 				decimals: p.collateralDecimals,
+				position: p.position,
 			});
 		});
-		return Array.from(uniqueTokens.values());
+		return Array.from(uniqueTokens.values()).sort((a, b) => {
+			const posA = WHITELISTED_POSITIONS.findIndex((p) => p.toLowerCase() === a.position.toLowerCase());
+			const posB = WHITELISTED_POSITIONS.findIndex((p) => p.toLowerCase() === b.position.toLowerCase());
+			if (posA === -1 || posB === -1) return 0;
+			return posA - posB;
+		});
 	}, [elegiblePositions, isApproving]);
 
 	const { balances, balancesByAddress, refetchBalances } = useWalletERC20Balances(collateralTokenList);
