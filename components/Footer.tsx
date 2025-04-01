@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SOCIAL } from "@utils";
+import { DEFAULT_FRONTEND_CODE, shortenHash, SOCIAL, ZERO_FRONTEND_CODE } from "@utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faBook, faBookmark, faComments, faCodeCommit } from "@fortawesome/free-solid-svg-icons";
@@ -30,15 +30,19 @@ const DynamicDocs = (): string => {
 
 export default function Footer() {
 	const isMainnet = useIsMainnet();
-	const { marketingCode } = useFrontendCode();
+
+	const { marketingCode, frontendCode } = useFrontendCode();
+	const parsedFrontendCode =
+		frontendCode && frontendCode !== ZERO_FRONTEND_CODE && frontendCode !== DEFAULT_FRONTEND_CODE && shortenHash(frontendCode);
+	const code = marketingCode || parsedFrontendCode;
 
 	return (
 		<div className="md:flex max-md:grid-rows-2 max-md:justify-items-center md:px-12 pb-12 pt-6 bg-layout-footer text-layout-primary">
 			<div className="flex-1 justify-start text-center md:text-left">
 				<SubmitIssue />
-				{marketingCode && (
+				{code && (
 					<div className="mt-4 text-sm text-layout-primary">
-						Using referral code: <span className="font-bold">{marketingCode}</span>
+						Using referral code: <span className="font-bold">{code}</span>
 					</div>
 				)}
 			</div>
