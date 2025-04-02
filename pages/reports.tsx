@@ -107,7 +107,7 @@ export default function ReportsPage() {
 				<title>Frankencoin - Reports</title>
 			</Head>
 
-			<AppTitle title={`Reports `}>
+			<AppTitle title={`Create a Report `}>
 				<div className="text-text-secondary">
 					The Frankencoin Reports page lets you track ZCHF finances for a specific address, perfect for tax purposes or yearly
 					summaries.
@@ -155,7 +155,7 @@ export default function ReportsPage() {
 				</div>
 			</AppCard>
 
-			<hr className="my-12 h-0.5 border-t-0 bg-text-secondary" />
+			<hr className="mt-12 mb-6 border-t border-dashed border-text-secondary bg-transparent" />
 
 			<div className="grid gap-8 relative min-h-[100%] pb-24" ref={targetRef}>
 				<AppTitle title={`Frankencoin Report `}>
