@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { Address, erc20Abi, formatUnits, maxUint256, TransactionReceipt, Log, decodeEventLog } from "viem";
+import { Address, erc20Abi, formatUnits, maxUint256, TransactionReceipt, Log, decodeEventLog, zeroAddress } from "viem";
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 import AppCard from "@components/AppCard";
 import Button from "@components/Button";
@@ -34,6 +34,7 @@ import {
 import { useFrontendCode } from "../../hooks/useFrontendCode";
 import { MaxButton } from "@components/Input/MaxButton";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 export default function PositionCreate({}) {
 	const [selectedCollateral, setSelectedCollateral] = useState<TokenBalance | null | undefined>(null);
@@ -404,6 +405,17 @@ export default function PositionCreate({}) {
 							startingLiquidationPrice={BigInt(liquidationPrice)}
 							collateralDecimals={selectedPosition?.collateralDecimals || 0}
 							collateralPriceDeuro={collateralPriceDeuro}
+							extraRows={
+								<div className="py-1.5 flex justify-between">
+									<span className="text-base leading-tight">{t("mint.original_position")}</span>
+									<Link
+										className="underline text-right text-sm font-extrabold leading-none tracking-tight"
+										href={`/monitoring/${selectedPosition?.position}`}
+									>
+										{shortenAddress(selectedPosition?.position || zeroAddress)}
+									</Link>
+								</div>
+							}
 						/>
 					</div>
 					<GuardToAllowedChainBtn label={t("mint.symbol_borrow", { symbol: TOKEN_SYMBOL })}>

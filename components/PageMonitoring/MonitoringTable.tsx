@@ -86,9 +86,13 @@ function sortPositions(
 		// sort for coll.
 		list.sort((a, b) => {
 			const calc = function (p: PositionQuery) {
-				const liqPrice: number = parseFloat(formatUnits(BigInt(p.price), 36 - p.collateralDecimals));
-				const price: number = prices[p.collateral.toLowerCase() as Address]?.price?.eur || 1;
-				return price / liqPrice;
+				const collTokenPrice = prices[p.collateral.toLowerCase() as Address]?.price?.usd || 0;
+				const deuroPrice = prices[p.deuro.toLowerCase() as Address]?.price?.usd || 1;
+				const balance: number = Math.round((parseInt(p.collateralBalance) / 10 ** p.collateralDecimals) * 100) / 100;
+				const balanceDEURO: number = Math.round(((balance * collTokenPrice) / deuroPrice) * 100) / 100;
+				const liquidationDEURO: number = Math.round((parseInt(p.price) / 10 ** (36 - p.collateralDecimals)) * 100) / 100;
+				const liquidationPct: number = Math.round((balanceDEURO / (liquidationDEURO * balance)) * 10000) / 100;
+				return liquidationPct;
 			};
 			return calc(b) - calc(a);
 		});

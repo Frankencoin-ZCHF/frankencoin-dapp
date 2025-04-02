@@ -12,6 +12,7 @@ interface DetailsExpandablePanelProps {
 	collateralPriceDeuro: number;
 	collateralDecimals: number;
 	startingLiquidationPrice: bigint;
+	extraRows?: React.ReactNode;
 }
 
 const defaultLoanDetails = {
@@ -32,6 +33,7 @@ export function DetailsExpandablePanel({
 	collateralPriceDeuro = 0,
 	collateralDecimals = 0,
 	startingLiquidationPrice = 0n,
+	extraRows = null,
 }: DetailsExpandablePanelProps) {
 	const { t } = useTranslation();
 
@@ -91,15 +93,7 @@ export function DetailsExpandablePanel({
 				<span className="text-base leading-tight">{t("mint.loan_to_value")}</span>
 				<span className="text-right text-sm font-extrabold leading-none tracking-tight">{formatCurrency(effectiveLTV)}%</span>
 			</div>
-			<div className="py-1.5 flex justify-between">
-				<span className="text-base leading-tight">{t("mint.original_position")}</span>
-				<Link
-					className="underline text-right text-sm font-extrabold leading-none tracking-tight"
-					href={`/monitoring/${loanDetails.originalPosition}`}
-				>
-					{shortenAddress(loanDetails.originalPosition)}
-				</Link>
-			</div>
+			{extraRows}
 		</ExpandablePanel>
 	);
 }

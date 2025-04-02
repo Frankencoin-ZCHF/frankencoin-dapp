@@ -63,7 +63,7 @@ export function BorrowingDEUROModal({ isOpen, setIsOpen, youGet, formmatedCollat
 								<div className="h-5 text-right text-sm font-extrabold leading-none tracking-tight">
 									€ {liquidationPrice}
 								</div>
-								<div className="text-right text-text-icon text-xs font-medium leading-none">$0</div>
+								<div className="text-right text-text-icon text-xs font-medium leading-none"></div>
 							</div>
 						</div>
 						<div className="self-stretch justify-start items-center gap-2.5 inline-flex">

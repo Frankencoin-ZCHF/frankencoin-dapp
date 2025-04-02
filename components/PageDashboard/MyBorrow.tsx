@@ -13,7 +13,7 @@ import { getPublicViewAddress } from "../../utils/url";
 interface BorrowData {
 	position: `0x${string}`;
 	symbol: string;
-	collateralAmount: string;
+	collateralAmount: string | null | undefined;
 	collateralization: string;
 	loanDueIn: string;
 	amountBorrowed: string;
@@ -150,7 +150,7 @@ export const MyBorrow = () => {
 		return {
 			position: position.position as `0x${string}`,
 			symbol: collateralSymbol,
-			collateralAmount: formatUnits(BigInt(collateralBalance), collateralDecimals) as string,
+			collateralAmount: formatCurrency(formatUnits(BigInt(collateralBalance), collateralDecimals) as string, 0, 5),
 			collateralization: liquidationPct.toString(),
 			loanDueIn: formatCurrency(Math.round((position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24)) as string,
 			amountBorrowed,

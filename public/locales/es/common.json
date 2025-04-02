@@ -38,6 +38,7 @@
         "remove": "Eliminar",
         "connect_wallet": "Conectar Wallet",
         "temporary_unavailable": "Temporalmente no disponible",
+        "using_referral_code": "Usando código de referido",
         "navbar": {
             "my_referrals": "Mis Referidos",
             "swap": "Intercambiar",

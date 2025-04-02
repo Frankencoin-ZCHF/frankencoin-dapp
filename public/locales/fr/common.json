@@ -38,6 +38,7 @@
         "remove": "Retirer",
         "connect_wallet": "Connecter le portefeuille",
         "temporary_unavailable": "Temporairement non disponible",
+        "using_referral_code": "Utilisation du code de parrainage",
         "navbar": {
             "my_referrals": "Mes filleuls",
             "swap": "Swap",
