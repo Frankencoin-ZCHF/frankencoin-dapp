@@ -1,31 +1,39 @@
 import React, { useEffect, useState } from "react";
-import AppBox from "@components/AppBox";
-import DisplayLabel from "@components/DisplayLabel";
-import DisplayAmount from "@components/DisplayAmount";
 import { usePoolStats } from "@hooks";
-import { formatBigInt, formatDuration, POOL_SHARE_TOKEN_SYMBOL, shortenAddress, TOKEN_SYMBOL } from "@utils";
-import { useAccount, useBlockNumber, useChainId } from "wagmi";
+import { formatBigInt, formatCurrency, formatDuration, POOL_SHARE_TOKEN_SYMBOL, shortenAddress, TOKEN_SYMBOL } from "@utils";
+import { useAccount, useBlockNumber, useChainId, useReadContract } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import Button from "@components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown, faArrowDown19, faArrowDownLong } from "@fortawesome/free-solid-svg-icons";
-import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
+import { faArrowDownLong } from "@fortawesome/free-solid-svg-icons";
+import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
-import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { ADDRESS, EquityABI, DEPSWrapperABI, FrontendGatewayABI } from "@deuro/eurocoin";
 import { useTranslation } from "next-i18next";
 import { useFrontendCode } from "../../hooks/useFrontendCode";
-
+import { TokenBalance } from "../../hooks/useWalletBalances";
+import { TokenInputSelectOutlined } from "@components/Input/TokenInputSelectOutlined";
+import { MaxButton } from "@components/Input/MaxButton";
+import { InputTitle } from "@components/Input/InputTitle";
+import { TokenInteractionSide } from "./EquityInteractionCard";
 interface Props {
-	tokenFromTo: { from: string; to: string };
-	setTokenFromTo: (set: { from: string; to: string }) => void;
-	selectorMapping: { [key: string]: string[] };
+	openSelector: (tokenInteractionSide: TokenInteractionSide) => void;
+	selectedFromToken: TokenBalance;
+	selectedToToken: TokenBalance;
+	refetchBalances: () => void;
+	reverseSelection: () => void;
 }
 
-export default function InteractionPoolShareTokenRedeem({ tokenFromTo, setTokenFromTo, selectorMapping }: Props) {
+export default function InteractionPoolShareTokenRedeem({
+	openSelector,
+	selectedFromToken,
+	selectedToToken,
+	refetchBalances,
+	reverseSelection,
+}: Props) {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [isApproving, setApproving] = useState(false);
@@ -42,12 +50,11 @@ export default function InteractionPoolShareTokenRedeem({ tokenFromTo, setTokenF
 	const poolStats = usePoolStats();
 	const chainId = useChainId();
 	const account = address || zeroAddress;
-	const direction: boolean = true;
 
 	useEffect(() => {
 		setAmount(0n);
 		setError("");
-	}, [tokenFromTo]);
+	}, [selectedToToken.symbol, selectedFromToken.symbol]);
 
 	useEffect(() => {
 		const fetchAsync = async function () {
@@ -131,6 +138,7 @@ export default function InteractionPoolShareTokenRedeem({ tokenFromTo, setTokenF
 			});
 			await poolStats.refetchPoolStats();
 			setPsTokenAllowance(amount);
+			await refetchBalances();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {
@@ -173,6 +181,7 @@ export default function InteractionPoolShareTokenRedeem({ tokenFromTo, setTokenF
 				},
 			});
 			await poolStats.refetchPoolStats();
+			await refetchBalances();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {
@@ -196,39 +205,97 @@ export default function InteractionPoolShareTokenRedeem({ tokenFromTo, setTokenF
 		}
 	};
 
-
 	return (
-		<>
-			<div className="mb-4">
-				<TokenInputSelect
-					max={psTokenBalance}
-					symbol={fromSymbol}
-					symbolOptions={Object.keys(selectorMapping) || []}
-					symbolOnChange={(o) => setTokenFromTo({ from: o.label, to: selectorMapping[o.label][0] })}
-					onChange={onChangeAmount}
+		<div className="flex flex-col">
+			<div className="">
+				<InputTitle>{t("common.send")}</InputTitle>
+				<TokenInputSelectOutlined
+					selectedToken={selectedFromToken}
+					onSelectTokenClick={() => openSelector(TokenInteractionSide.INPUT)}
 					value={amount.toString()}
-					error={error}
-					placeholder={t("common.symbol_amount", { symbol: fromSymbol })}
+					onChange={onChangeAmount}
+					isError={Boolean(error)}
+					errorMessage={error}
+					adornamentRow={
+						<div className="self-stretch justify-start items-center inline-flex">
+							<div className="grow shrink basis-0 h-4 px-2 justify-start items-center gap-2 flex max-w-full overflow-hidden">
+								<div className="text-text-muted3 text-xs font-medium leading-none">
+									€{formatCurrency(formatUnits(calculateProceeds, 18))}
+								</div>
+								{/**
+								 * 
+								 // TODO: make available when USD price is available from the backend
+								 <div className="h-4 w-0.5 border-l border-input-placeholder"></div>
+								 <div className="text-text-muted3 text-xs font-medium leading-none">${collateralUsdValue}</div>
+								 */}
+							</div>
+							<div className="h-7 justify-end items-center gap-2.5 flex">
+								{selectedFromToken && (
+									<>
+										<div className="text-text-muted3 text-xs font-medium leading-none">
+											{t("common.balance_label")} {": "}
+											{formatUnits(selectedFromToken.balanceOf || 0n, selectedFromToken.decimals || 18)}{" "}
+											{selectedFromToken.symbol}
+										</div>
+										<MaxButton
+											disabled={BigInt(selectedFromToken.balanceOf || 0n) === BigInt(0)}
+											onClick={() => onChangeAmount(selectedFromToken?.balanceOf?.toString() || "0")}
+										/>
+									</>
+								)}
+							</div>
+						</div>
+					}
 				/>
 
-				<div className="py-2 text-center z-0">
-					<Button className={`h-10 rounded-full mt-4 !p-2.5`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
+				<div className="pt-2 text-center z-0">
+					<Button className={`h-10 rounded-full mt-4 !p-2.5`} width="w-10" onClick={reverseSelection}>
 						<span className="flex items-center justify-center flex-1">
 							<FontAwesomeIcon icon={faArrowDownLong} className="w-5 h-5" />
 						</span>
 					</Button>
 				</div>
 
-				<TokenInputSelect
-					symbol={toSymbol}
-					symbolOptions={selectorMapping[fromSymbol] || []}
-					symbolOnChange={(o) => setTokenFromTo({ from: tokenFromTo.from, to: o.label })}
-					hideMaxLabel
-					output={Math.round(parseFloat(formatUnits(calculateProceeds, 18)) * 10000) / 10000}
-					label={t("common.receive")}
+				<InputTitle>{t("common.receive")}</InputTitle>
+				<TokenInputSelectOutlined
+					notEditable
+					selectedToken={selectedToToken}
+					onSelectTokenClick={() => openSelector(TokenInteractionSide.OUTPUT)}
+					value={calculateProceeds.toString()}
+					onChange={() => {}}
+					adornamentRow={
+						<div className="self-stretch justify-start items-center inline-flex">
+							<div className="grow shrink basis-0 h-4 px-2 justify-start items-center gap-2 flex max-w-full overflow-hidden">
+								<div className="text-text-muted3 text-xs font-medium leading-none">
+									€{formatCurrency(formatUnits(calculateProceeds, 18))}
+								</div>
+								{/**
+								 * 
+								 // TODO: make available when USD price is available from the backend
+								 <div className="h-4 w-0.5 border-l border-input-placeholder"></div>
+								 <div className="text-text-muted3 text-xs font-medium leading-none">${collateralUsdValue}</div>
+								 */}
+							</div>
+							<div className="h-7 justify-end items-center gap-2.5 flex">
+								{selectedToToken && (
+									<>
+										<div className="text-text-muted3 text-xs font-medium leading-none">
+											{t("common.balance_label")} {": "}
+											{formatUnits(selectedToToken.balanceOf || 0n, selectedToToken.decimals || 18)}{" "}
+											{selectedFromToken.symbol}
+										</div>
+										<MaxButton
+											disabled={BigInt(selectedToToken.balanceOf || 0n) === BigInt(0)}
+											onClick={() => onChangeAmount(selectedToToken?.balanceOf?.toString() || "0")}
+										/>
+									</>
+								)}
+							</div>
+						</div>
+					}
 				/>
 
-				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+				<div className="my-12 max-w-full flex-col">
 					<GuardToAllowedChainBtn label={t("equity.unwrap_and_redeem")}>
 						{amount > psTokenAllowance ? (
 							<Button isLoading={isApproving} disabled={amount == 0n || !!error || !unlocked} onClick={() => handleApprove()}>
@@ -242,33 +309,20 @@ export default function InteractionPoolShareTokenRedeem({ tokenFromTo, setTokenF
 					</GuardToAllowedChainBtn>
 				</div>
 			</div>
-
-			<div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-2">
-				<AppBox>
-					<DisplayLabel label={t("equity.your_balance")} />
-					<DisplayAmount className="mt-2" bold amount={psTokenBalance} currency={POOL_SHARE_TOKEN_SYMBOL} address={ADDRESS[chainId].DEPSwrapper} />
-				</AppBox>
-				<AppBox>
-					<DisplayLabel label={t("equity.value_at_current_price")} />
-					<DisplayAmount
-						className="mt-2"
-						amount={(poolStats.equityPrice * psTokenBalance) / BigInt(1e18)}
-						currency={TOKEN_SYMBOL}
-						address={ADDRESS[chainId].decentralizedEURO}
-						bold
-					/>
-				</AppBox>
-				<AppBox>
-					<DisplayLabel label={t("equity.holding_duration_contract", { symbol: POOL_SHARE_TOKEN_SYMBOL })} />
-					<div className={!unlocked ? "text-text-warning font-bold" : ""}>
+			<div className="border-t border-borders-dividerLight grid grid-cols-1 md:grid-cols-2 gap-2">
+				<div className="flex flex-col gap-2 p-4">
+					<div className="text-text-muted2 text-base font-medium leading-tight">
+						{t("equity.holding_duration_symbol", { symbol: POOL_SHARE_TOKEN_SYMBOL })}
+					</div>
+					<div className="text-base font-medium leading-tight">
 						{psTokenHolding > 0 && psTokenHolding < 86_400 * 365 * 10 ? formatDuration(psTokenHolding) : "--"}
 					</div>
-				</AppBox>
-				<AppBox className="flex-1">
-					<DisplayLabel label={t("equity.can_redeem_after_symbol")} />
-					<div className={!unlocked ? "text-text-warning font-bold mt-2" : ""}>{formatDuration(redeemLeft)}</div>
-				</AppBox>
+				</div>
+				<div className="flex flex-col gap-2 p-4">
+					<div className="text-text-muted2 text-base font-medium leading-tight">{t("equity.can_redeem_after_symbol")}</div>
+					<div className="text-base font-medium leading-tight">{formatDuration(redeemLeft)}</div>
+				</div>
 			</div>
-		</>
+		</div>
 	);
 }

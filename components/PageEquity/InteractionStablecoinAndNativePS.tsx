@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
-import DisplayAmount from "@components/DisplayAmount";
 import { usePoolStats } from "@hooks";
 import { formatBigInt, formatDuration, NATIVE_POOL_SHARE_TOKEN_SYMBOL, shortenAddress, TOKEN_SYMBOL } from "@utils";
 import { useAccount, useChainId, useReadContract } from "wagmi";
@@ -14,18 +13,23 @@ import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
-import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { ADDRESS, DecentralizedEUROABI, EquityABI, FrontendGatewayABI } from "@deuro/eurocoin";
 import { useFrontendCode } from "../../hooks/useFrontendCode";
 import { useTranslation } from "next-i18next";
-
+import { TokenInputSelectOutlined } from "@components/Input/TokenInputSelectOutlined";
+import { InputTitle } from "@components/Input/InputTitle";
+import { MaxButton } from "@components/Input/MaxButton";
+import { TokenBalance } from "../../hooks/useWalletBalances";
+import { TokenInteractionSide } from "./EquityInteractionCard";
 interface Props {
-	tokenFromTo: { from: string; to: string };
-	setTokenFromTo: (set: { from: string; to: string }) => void;
-	selectorMapping: { [key: string]: string[] };
+	openSelector: (tokenInteractionSide: TokenInteractionSide) => void;	
+	selectedFromToken: TokenBalance;
+	selectedToToken: TokenBalance;
+	refetchBalances: () => void;
+	reverseSelection: () => void;
 }
 
-export default function InteractionStablecoinAndNativePS({ tokenFromTo, setTokenFromTo, selectorMapping }: Props) {
+export default function InteractionStablecoinAndNativePS({ openSelector, selectedFromToken, selectedToToken, refetchBalances, reverseSelection }: Props) {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [isApproving, setApproving] = useState(false);
@@ -37,7 +41,7 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 	const chainId = useChainId();
 	const poolStats = usePoolStats();
 	const account = address || zeroAddress;
-	const direction: boolean = tokenFromTo.from === TOKEN_SYMBOL;
+	const direction: boolean = selectedFromToken.symbol === TOKEN_SYMBOL;
 
 	const { data: frontendDeuroAllowanceData, refetch: refetchFrontendDeuroAllowance } = useReadContract({
 		address: ADDRESS[chainId].decentralizedEURO,
@@ -58,7 +62,7 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 	useEffect(() => {
 		setAmount(0n);
 		setError("");
-	}, [tokenFromTo]);
+	}, [selectedFromToken.symbol]);
 
 	const handleApproveInvest = async () => {
 		try {
@@ -103,6 +107,7 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 			setApproving(false);
 		}
 	};
+
 	const handleInvest = async () => {
 		try {
 			const investWriteHash = await writeContract(WAGMI_CONFIG, {
@@ -137,6 +142,7 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 			});
 
 			await poolStats.refetchPoolStats();
+			await refetchBalances();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
@@ -162,10 +168,11 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 	const fromBalance = direction ? poolStats.deuroBalance : poolStats.equityBalance;
 	const result = (direction ? nativePSResult : deuroResult) || 0n;
 	const fromSymbol = direction ? TOKEN_SYMBOL : NATIVE_POOL_SHARE_TOKEN_SYMBOL;
-	const toSymbol = !direction ? TOKEN_SYMBOL : NATIVE_POOL_SHARE_TOKEN_SYMBOL;
 	const unlocked =
 		poolStats.equityUserVotes > 86_400 * 90 && poolStats.equityUserVotes < 86_400 * 365 * 30 && poolStats.equityUserVotes > 0n;
 	const redeemLeft = 86400n * 90n - (poolStats.equityBalance ? poolStats.equityUserVotes / poolStats.equityBalance / 2n ** 20n : 0n);
+
+	const collateralEurValue = formatBigInt(deuroResult);
 
 	const onChangeAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
@@ -263,6 +270,7 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 			});
 
 			await poolStats.refetchPoolStats();
+			await refetchBalances();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {
@@ -270,26 +278,52 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 			setRedeeming(false);
 		}
 	};
-
+	
 	return (
-		<>
-			<div className="mb-4">
-				<TokenInputSelect
-					max={fromBalance}
-					symbol={fromSymbol}
-					symbolOptions={Object.keys(selectorMapping) || []}
-					symbolOnChange={(o) => setTokenFromTo({ from: o.label, to: selectorMapping[o.label][0] })}
-					onChange={onChangeAmount}
+		<div className="flex flex-col">
+			<div className="">
+				<InputTitle>{t("common.send")}</InputTitle>
+				<TokenInputSelectOutlined
+					selectedToken={selectedFromToken}
+					onSelectTokenClick={() => openSelector(TokenInteractionSide.INPUT)}
 					value={amount.toString()}
-					error={error}
-					placeholder={t("common.symbol_amount", { symbol: fromSymbol })}
+					onChange={onChangeAmount}
+					isError={Boolean(error)}
+					errorMessage={error}
+					adornamentRow={
+						<div className="self-stretch justify-start items-center inline-flex">
+							<div className="grow shrink basis-0 h-4 px-2 justify-start items-center gap-2 flex max-w-full overflow-hidden">
+								<div className="text-text-muted3 text-xs font-medium leading-none">€{collateralEurValue}</div>
+								{/**
+								 * 
+								 // TODO: make available when USD price is available from the backend
+								 <div className="h-4 w-0.5 border-l border-input-placeholder"></div>
+								 <div className="text-text-muted3 text-xs font-medium leading-none">${collateralUsdValue}</div>
+								 */}
+							</div>
+							<div className="h-7 justify-end items-center gap-2.5 flex">
+								{selectedFromToken && (
+									<>
+										<div className="text-text-muted3 text-xs font-medium leading-none">
+											{t("common.balance_label")} {": "}
+											{formatUnits(selectedFromToken.balanceOf || 0n, selectedFromToken.decimals || 18)} {selectedFromToken.symbol}
+										</div>
+										<MaxButton
+											disabled={BigInt(selectedFromToken.balanceOf || 0n) === BigInt(0)}
+											onClick={() => onChangeAmount(selectedFromToken?.balanceOf?.toString() || "0")}
+										/>
+									</>
+								)}
+							</div>
+						</div>
+					}
 				/>
 
-				<div className="py-2 text-center z-0">
+				<div className="pt-2 text-center z-0">
 					<Button
 						className={`h-10 rounded-full mt-4 !p-2.5`}
 						width="w-10"
-						onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}
+						onClick={reverseSelection}
 					>
 						<span className="flex items-center justify-center flex-1">
 							<FontAwesomeIcon icon={faArrowDownLong} className="w-5 h-5" />
@@ -297,16 +331,43 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 					</Button>
 				</div>
 
-				<TokenInputSelect
-					symbol={toSymbol}
-					symbolOptions={selectorMapping[fromSymbol] || []}
-					symbolOnChange={(o) => setTokenFromTo({ from: tokenFromTo.from, to: o.label })}
-					hideMaxLabel
-					output={Math.round(parseFloat(formatUnits(result, 18)) * 10000) / 10000}
-					label={t("common.receive")}
+				<InputTitle>{t("common.receive")}</InputTitle>
+				<TokenInputSelectOutlined
+					notEditable
+					selectedToken={selectedToToken}
+					onSelectTokenClick={() => openSelector(TokenInteractionSide.OUTPUT)}
+					value={result.toString()}
+					onChange={()=>{}}
+					adornamentRow={
+						<div className="self-stretch justify-start items-center inline-flex">
+							<div className="grow shrink basis-0 h-4 px-2 justify-start items-center gap-2 flex max-w-full overflow-hidden">
+								<div className="text-text-muted2 text-xs font-medium leading-none">€{collateralEurValue}</div>
+								{/**
+								 * 
+								 // TODO: make available when USD price is available from the backend
+								 <div className="h-4 w-0.5 border-l border-input-placeholder"></div>
+								 <div className="text-text-muted2 text-xs font-medium leading-none">${collateralUsdValue}</div>
+								 */}
+							</div>
+							<div className="h-7 justify-end items-center gap-2.5 flex">
+								{selectedToToken && (
+									<>
+										<div className="text-text-muted2 text-xs font-medium leading-none">
+											{formatUnits(selectedToToken.balanceOf || 0n, selectedToToken.decimals || 18)}{" "}
+											{selectedToToken.symbol}
+										</div>
+										<MaxButton
+											disabled={BigInt(selectedToToken.balanceOf || 0n) === BigInt(0)}
+											onClick={() => onChangeAmount(selectedToToken?.balanceOf?.toString() || "0")}
+										/>
+									</>
+								)}
+							</div>
+						</div>
+					}
 				/>
 
-				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+				<div className="my-12 max-w-full flex-col">
 					<GuardToAllowedChainBtn label={direction ? t("equity.mint") : t("equity.redeem")}>
 						{direction ? (
 							amount > frontendDeuroAllowance ? (
@@ -335,38 +396,20 @@ export default function InteractionStablecoinAndNativePS({ tokenFromTo, setToken
 				</div>
 			</div>
 
-			<div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-2">
-				<AppBox>
-					<DisplayLabel label={t("equity.your_balance")} />
-					<DisplayAmount
-						bold
-						className="mt-2"
-						amount={poolStats.equityBalance}
-						currency={NATIVE_POOL_SHARE_TOKEN_SYMBOL}
-						address={ADDRESS[chainId].equity}
-					/>
-				</AppBox>
-				<AppBox>
-					<DisplayLabel label={t("equity.value_at_current_price")} />
-					<DisplayAmount
-						bold
-						className="mt-2"
-						amount={(poolStats.equityPrice * poolStats.equityBalance) / BigInt(1e18)}
-						currency={TOKEN_SYMBOL}
-						address={ADDRESS[chainId].decentralizedEURO}
-					/>
-				</AppBox>
-				<AppBox>
-					<DisplayLabel label={t("equity.holding_duration")} />
-					<div className={!unlocked ? "text-text-warning font-bold mt-2" : ""}>
+			<div className="border-t border-borders-dividerLight grid grid-cols-1 md:grid-cols-2 gap-2">
+				<div className="flex flex-col gap-2 p-4">
+					<div className="text-text-muted2 text-base font-medium leading-tight">{t("equity.holding_duration")}</div>
+					<div className="text-base font-medium leading-tight">
 						{poolStats.equityBalance > 0 ? formatDuration(poolStats.equityHoldingDuration) : "--"}
 					</div>
-				</AppBox>
-				<AppBox className="flex-1">
-					<DisplayLabel label={t("equity.can_redeem_after_symbol")} />
-					<div className={!unlocked ? "text-text-warning font-bold mt-2" : ""}>{formatDuration(redeemLeft)}</div>
-				</AppBox>
+				</div>
+				<div className="flex flex-col gap-2 p-4">
+					<div className="text-text-muted2 text-base font-medium leading-tight">{t("equity.can_redeem_after_symbol")}</div>
+					<div className="text-base font-medium leading-tight">
+						{formatDuration(redeemLeft)}
+					</div>
+				</div>
 			</div>
-		</>
+		</div>
 	);
 }

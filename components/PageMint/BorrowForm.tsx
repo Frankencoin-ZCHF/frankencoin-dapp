@@ -10,7 +10,7 @@ import { SliderInputOutlined } from "@components/Input/SliderInputOutlined";
 import { DetailsExpandablePanel } from "@components/PageMint/DetailsExpandablePanel";
 import { NormalInputOutlined } from "@components/Input/NormalInputOutlined";
 import { PositionQuery } from "@deuro/api";
-import { TokenSelectModal } from "@components/TokenSelectModal";
+import { SelectCollateralModal } from "./SelectCollateralModal";
 import { BorrowingDEUROModal } from "@components/PageMint/BorrowingDEUROModal";
 import { InputTitle } from "@components/Input/InputTitle";
 import { formatBigInt, formatCurrency, shortenAddress, toDate, TOKEN_SYMBOL, toTimestamp, WHITELISTED_POSITIONS } from "@utils";
@@ -19,7 +19,7 @@ import { RootState, store } from "../../redux/redux.store";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { useTranslation } from "next-i18next";
 import { ADDRESS, MintingHubGatewayABI, PositionV2ABI } from "@deuro/eurocoin";
-import { useBlock, useChainId } from "wagmi";
+import { useAccount, useBlock, useChainId } from "wagmi";
 import { WAGMI_CONFIG } from "../../app.config";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { TxToast } from "@components/TxToast";
@@ -57,7 +57,9 @@ export default function PositionCreate({}) {
 
 	const { data: latestBlock } = useBlock();
 	const chainId = useChainId();
-	const { query } = useRouter();
+	const { address } = useAccount();
+	const router = useRouter();
+	const { query } = router;
 
 	const elegiblePositions = useMemo(() => {
 		const blockTimestamp = latestBlock?.timestamp || new Date().getTime() / 1000;
@@ -108,7 +110,7 @@ export default function PositionCreate({}) {
 	useEffect(() => {
 		if (!selectedPosition || !selectedCollateral) return;
 
-		if (BigInt(collateralAmount) === 0n || collateralAmount === "") {
+		if (BigInt(collateralAmount) === 0n || collateralAmount === "" || !address) {
 			setCollateralError("");
 			return;
 		}
@@ -126,7 +128,7 @@ export default function PositionCreate({}) {
 		} else {
 			setCollateralError("");
 		}
-	}, [collateralAmount, balancesByAddress]);
+	}, [collateralAmount, balancesByAddress, address]);
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const collateralPriceDeuro = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0; // TODO: change to eur?
@@ -150,6 +152,11 @@ export default function PositionCreate({}) {
 	const handleOnSelectedToken = (token: TokenBalance) => {
 		if (!token) return;
 		setSelectedCollateral(token);
+		const currentQuery = { ...router.query, collateral: token.symbol };
+		router.replace({
+			pathname: router.pathname,
+			query: currentQuery,
+		});
 
 		const selectedPosition = elegiblePositions.find((p) => p.collateral.toLowerCase() == token.address.toLowerCase());
 		if (!selectedPosition) return;
@@ -355,16 +362,37 @@ export default function PositionCreate({}) {
 					<div className="self-stretch flex-col justify-start items-center gap-1 flex">
 						<InputTitle icon={faCircleQuestion}>{t("mint.select_collateral")}</InputTitle>
 						<TokenInputSelectOutlined
-							selectedToken={selectedBalance}
+							selectedToken={selectedCollateral}
 							onSelectTokenClick={() => setIsOpenTokenSelector(true)}
 							value={collateralAmount}
 							onChange={onAmountCollateralChange}
-							usdValue={collateralUsdValue}
-							eurValue={collateralEurValue}
 							isError={Boolean(collateralError)}
 							errorMessage={collateralError}
+							adornamentRow={
+								<div className="self-stretch justify-start items-center inline-flex">
+									<div className="grow shrink basis-0 h-4 px-2 justify-start items-center gap-2 flex max-w-full overflow-hidden">
+										<div className="text-input-label text-xs font-medium leading-none">€{collateralEurValue}</div>
+										<div className="h-4 w-0.5 border-l border-input-placeholder"></div>
+										<div className="text-input-label text-xs font-medium leading-none">${collateralUsdValue}</div>
+									</div>
+									<div className="h-7 justify-end items-center gap-2.5 flex">
+										{selectedBalance && (
+											<>
+												<div className="text-input-label text-xs font-medium leading-none">
+													{formatUnits(selectedBalance.balanceOf || 0n, selectedBalance.decimals || 18)}{" "}
+													{selectedBalance.symbol}
+												</div>
+												<MaxButton
+													disabled={BigInt(selectedBalance.balanceOf || 0n) === BigInt(0)}
+													onClick={() => onAmountCollateralChange(selectedBalance?.balanceOf?.toString() || "0")}
+												/>
+											</>
+										)}
+									</div>
+								</div>
+							}
 						/>
-						<TokenSelectModal
+						<SelectCollateralModal
 							title={t("mint.token_select_modal_title")}
 							isOpen={isOpenTokenSelector}
 							setIsOpen={setIsOpenTokenSelector}

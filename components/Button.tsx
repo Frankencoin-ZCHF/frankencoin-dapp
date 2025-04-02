@@ -77,3 +77,20 @@ export const SecondaryLinkButton = ({ children, className, onClick, disabled, is
 		</Link>
 	);
 };
+
+interface SegmentedControlButtonProps {
+	selected?: boolean;
+	children?: React.ReactNode;
+	onClick?: () => void;
+}
+
+export const SegmentedControlButton = ({ children, selected, onClick }: SegmentedControlButtonProps) => {
+	return (
+		<button
+			className={`btn px-3 py-1.5 rounded-lg ${selected ? "bg-white" : "bg-transparent hover:bg-[#F9FAFC]"} text-sm font-medium transition-all duration-300`}
+			onClick={onClick}
+		>
+			{children}
+		</button>
+	);
+};
