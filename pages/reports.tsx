@@ -158,7 +158,7 @@ export default function ReportsPage() {
 			<hr className="my-12 h-0.5 border-t-0 bg-text-secondary" />
 
 			<div className="grid gap-8 relative min-h-[100%] pb-24" ref={targetRef}>
-				<AppTitle title={`Report `}>
+				<AppTitle title={`Frankencoin Report `}>
 					<div className="text-text-secondary">
 						<div className="mb-4">This report provides a summary of Frankencoin ZCHF financial activities for:</div>
 						<AppLink className="text-sm" label={reportingAddress} href={useContractUrl(reportingAddress)} external={true} />
