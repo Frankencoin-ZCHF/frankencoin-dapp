@@ -3,13 +3,8 @@ import Head from "next/head";
 import EquityFPSDetailsCard from "@components/PageEquity/EquityFPSDetailsCard";
 import EquityInteractionCard from "@components/PageEquity/EquityInteractionCard";
 import AppTitle from "@components/AppTitle";
-import AppLink from "@components/AppLink";
-import { ContractUrl, shortenAddress } from "@utils";
-import { ADDRESS } from "@frankencoin/zchf";
-import { WAGMI_CHAIN } from "../app.config";
 
 export default function Equity() {
-	const { equity, wFPS } = ADDRESS[WAGMI_CHAIN.id];
 	return (
 		<>
 			<Head>
