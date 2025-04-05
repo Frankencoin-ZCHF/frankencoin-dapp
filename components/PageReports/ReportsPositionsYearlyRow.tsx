@@ -14,9 +14,9 @@ export default function ReportsPositionsYearlyRow({ headers, tab, item }: Props)
 		<TableRow headers={headers} tab={tab} rawHeader={true}>
 			<div className="flex flex-col md:text-left">{item.year}</div>
 
-			<div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.otherCosts), 18))} ZCHF</div>
-
 			<div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.interestPaid), 18))} ZCHF</div>
+
+			<div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.openDebt), 18))} ZCHF</div>
 		</TableRow>
 	);
 }

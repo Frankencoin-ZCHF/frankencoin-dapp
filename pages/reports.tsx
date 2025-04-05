@@ -26,6 +26,12 @@ export type OwnerPositionFees = {
 	f: bigint;
 };
 
+export type OwnerPositionDebt = {
+	t: number;
+	p: Address;
+	m: bigint;
+};
+
 export default function ReportsPage() {
 	const targetRef = useRef<HTMLDivElement>(null); // for pdf print
 	const { address } = useAccount();
@@ -33,6 +39,7 @@ export default function ReportsPage() {
 	const [reportingAddress, setReportingAddress] = useState<string>(address ?? "");
 	const [error, setError] = useState<string>("");
 	const [ownerPositionFees, setOwnerPositionFees] = useState<OwnerPositionFees[]>([]);
+	const [ownerPositionDebt, setOwnerPositionDebt] = useState<OwnerPositionDebt[]>([]);
 	const [savings, setSavings] = useState<ApiSavingsUserTable>({ save: [], interest: [], withdraw: [] });
 	const [fpsHistory, setFpsHistory] = useState<FPSBalanceHistory[]>([]);
 	const [fpsEarnings, setFpsEarnings] = useState<FPSEarningsHistory[]>([]);
@@ -65,8 +72,18 @@ export default function ReportsPage() {
 		setLoading(true);
 		const fetcher = async () => {
 			try {
-				const responseOwnerPosition = await FRANKENCOIN_API_CLIENT.get(`/positions/mintingupdates/owner/${reportingAddress}/fees`);
-				setOwnerPositionFees((responseOwnerPosition.data as { t: number; f: string }[]).map((i) => ({ t: i.t, f: BigInt(i.f) })));
+				const responsePositionsFees = await FRANKENCOIN_API_CLIENT.get(`/positions/mintingupdates/owner/${reportingAddress}/fees`);
+				setOwnerPositionFees((responsePositionsFees.data as { t: number; f: string }[]).map((i) => ({ t: i.t, f: BigInt(i.f) })));
+
+				const responsePositionsDebt = await FRANKENCOIN_API_CLIENT.get(`/positions/mintingupdates/owner/${reportingAddress}/debt`);
+				const debt = responsePositionsDebt.data as { [key: string]: { [key: Address]: { t: number; p: Address; m: string }[] } };
+
+				const yearly: OwnerPositionDebt[] = Object.keys(debt)
+					.map((y) => Object.values(debt[y]).flat())
+					.flat()
+					.map((i) => ({ ...i, m: BigInt(i.m) }));
+
+				setOwnerPositionDebt(yearly);
 
 				const responseSavings = await FRANKENCOIN_API_CLIENT.get(`/savings/core/user/${reportingAddress}`);
 				setSavings(responseSavings.data as ApiSavingsUserTable);
@@ -166,7 +183,15 @@ export default function ReportsPage() {
 				</AppTitle>
 
 				<AppTitle title="Positions Costs" />
-				<ReportsPositionsYearlyTable address={reportingAddress as Address} ownerPositionFees={ownerPositionFees} />
+				<ReportsPositionsYearlyTable
+					address={reportingAddress as Address}
+					ownerPositionFees={ownerPositionFees}
+					ownerPositionDebt={ownerPositionDebt}
+				/>
+				<div className="text-text-secondary text-sm -mt-7">
+					* Year-end debt may vary if positions were transferred to a new owner or if no minting updates occurred during the
+					current year.
+				</div>
 
 				<AppTitle title="Savings Yearly Earnings" />
 				<ReportsSavingsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} />
