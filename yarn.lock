@@ -251,13 +251,13 @@
     tunnel-agent "^0.6.0"
     uuid "^8.3.2"
 
-"@deuro/api@0.2.6":
-  version "0.2.6"
-  resolved "https://registry.yarnpkg.com/@deuro/api/-/api-0.2.6.tgz#c88ac8a444841002fdccf0367b7332e6cb8ac617"
-  integrity sha512-LN8pzRFrqPWX34ee77tPWfHDI8e+sRQ/1dSAHbNBl+kH6PIvejdTxnwUDHghbHEIR0Ofh2HHXbzsNOm4m8IEHw==
+"@deuro/api@0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@deuro/api/-/api-0.3.0.tgz#16f983e8a33c80dbca55a4cdff1b80a74ed1fde3"
+  integrity sha512-3S52Ge5aiSWMa3iP/qfS/M2mzlq1IKQB2w5c3R9z6pIW8Dple1cRhXO+bJxxy3y7IPXYuU/RwrmXiFf5t5l2Zg==
   dependencies:
     "@apollo/client" "^3.10.5"
-    "@deuro/eurocoin" "^1.0.9"
+    "@deuro/eurocoin" "1.0.12"
     "@nestjs/common" "^10.0.0"
     "@nestjs/config" "^3.2.3"
     "@nestjs/core" "^10.0.0"
@@ -287,20 +287,6 @@
     prettier-plugin-solidity "^1.4.1"
     prompt "^1.3.0"
     solhint "^5.0.5"
-    ts-node "^10.9.1"
-    typescript "^5.2.2"
-
-"@deuro/eurocoin@^1.0.9":
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/@deuro/eurocoin/-/eurocoin-1.0.9.tgz#9275de1cac69e1d9a6a489514eada74eb888385b"
-  integrity sha512-bP1oscV2ihnxeIp1dffRfKNz5qiaMEa8O6pLzYWbMRcGeo5F+8xxhO9ip+k7LHGagA29noDknATQjdS2w2izEg==
-  dependencies:
-    hardhat-abi-exporter "^2.10.0"
-    hardhat-contract-sizer "^2.5.1"
-    prettier "^3.3.3"
-    prettier-plugin-solidity "^1.4.1"
-    prompt "^1.3.0"
-    solhint "^5.0.3"
     ts-node "^10.9.1"
     typescript "^5.2.2"
 
@@ -7354,32 +7340,6 @@ socket.io-parser@~4.2.4:
   dependencies:
     "@socket.io/component-emitter" "~3.1.0"
     debug "~4.3.1"
-
-solhint@^5.0.3:
-  version "5.0.3"
-  resolved "https://registry.yarnpkg.com/solhint/-/solhint-5.0.3.tgz#b57f6d2534fe09a60f9db1b92e834363edd1cbde"
-  integrity sha512-OLCH6qm/mZTCpplTXzXTJGId1zrtNuDYP5c2e6snIv/hdRVxPfBBz/bAlL91bY/Accavkayp2Zp2BaDSrLVXTQ==
-  dependencies:
-    "@solidity-parser/parser" "^0.18.0"
-    ajv "^6.12.6"
-    antlr4 "^4.13.1-patch-1"
-    ast-parents "^0.0.1"
-    chalk "^4.1.2"
-    commander "^10.0.0"
-    cosmiconfig "^8.0.0"
-    fast-diff "^1.2.0"
-    glob "^8.0.3"
-    ignore "^5.2.4"
-    js-yaml "^4.1.0"
-    latest-version "^7.0.0"
-    lodash "^4.17.21"
-    pluralize "^8.0.0"
-    semver "^7.5.2"
-    strip-ansi "^6.0.1"
-    table "^6.8.1"
-    text-table "^0.2.0"
-  optionalDependencies:
-    prettier "^2.8.3"
 
 solhint@^5.0.5:
   version "5.0.5"

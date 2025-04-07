@@ -10,9 +10,10 @@ interface SliderInputOutlinedProps {
 	decimals: number;
 	isError?: boolean;
 	errorMessage?: string;
+	usdPrice?: string;
 }
 
-export function SliderInputOutlined({ value, onChange, min, max, decimals, isError, errorMessage }: SliderInputOutlinedProps) {
+export function SliderInputOutlined({ value, onChange, min, max, decimals, isError, errorMessage, usdPrice }: SliderInputOutlinedProps) {
 	const [isFocused, setIsFocused] = useState(false);
 
 	return (
@@ -40,7 +41,7 @@ export function SliderInputOutlined({ value, onChange, min, max, decimals, isErr
 						</div>
 						<div className="px-2 justify-start items-center gap-2.5 inline-flex">
 							<div className="grow shrink basis-0 h-4 justify-start items-center gap-2 flex">
-								<div className="text-input-label text-xs font-medium leading-none">$0</div>
+								<div className="text-input-label text-xs font-medium leading-none">${usdPrice ? `${usdPrice}` : "0"}</div>
 							</div>
 						</div>
 					</div>

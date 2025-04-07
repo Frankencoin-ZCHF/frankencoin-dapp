@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import AppBox from "@components/AppBox";
 import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
-import { Address, formatUnits, zeroAddress } from "viem";
+import { Address, erc20Abi, formatUnits, maxUint256, zeroAddress } from "viem";
 import { ContractUrl, formatBigInt, formatCurrency, formatDate, shortenAddress, TOKEN_SYMBOL } from "@utils";
 import Link from "next/link";
 import Button from "@components/Button";

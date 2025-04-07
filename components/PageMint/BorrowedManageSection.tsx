@@ -6,7 +6,7 @@ import { AddCircleOutlineIcon } from "@components/SvgComponents/add_circle_outli
 import { RemoveCircleOutlineIcon } from "@components/SvgComponents/remove_circle_outline";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
-import { formatBigInt, formatCurrency, shortenAddress, TOKEN_SYMBOL } from "@utils";
+import { formatCurrency, shortenAddress, TOKEN_SYMBOL } from "@utils";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQuery } from "@deuro/api";
@@ -91,7 +91,7 @@ export const BorrowedManageSection = () => {
 
 	const { reserveContribution } = position;
 
-	const collateralPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
+	const collateralPrice = prices[position.collateral.toLowerCase() as Address]?.price?.eur || 0;
 	const principal = data?.[0]?.result || 0n;
 	const price = data?.[1]?.result || 1n;
 	const balanceOf = data?.[2]?.result || 0n;
@@ -101,6 +101,14 @@ export const BorrowedManageSection = () => {
 	const debt = amountBorrowed + interest;
 	const walletBalance = balancesByAddress?.[position.deuro as Address]?.balanceOf || 0n;
 	const allowance = balancesByAddress?.[position.deuro as Address]?.allowance?.[position.position] || 0n;
+
+	const collBalancePosition: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
+	const collTokenPriceMarket = prices[position.collateral.toLowerCase() as Address]?.price?.eur || 0;
+	const collTokenPricePosition: number = Math.round((parseInt(position.virtualPrice || position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
+	
+	const marketValueCollateral: number = collBalancePosition * collTokenPriceMarket;
+	const positionValueCollateral: number = collBalancePosition * collTokenPricePosition;
+	const collateralizationPercentage: number = Math.round((marketValueCollateral / positionValueCollateral) * 10000) / 100;
 
 	const { amountToSendToWallet: maxAmountByDepositedCollateral } = getLoanDetailsByCollateralAndStartingLiqPrice(
 		position,
@@ -339,7 +347,7 @@ export const BorrowedManageSection = () => {
 				</div>
 				<div className="w-full mt-1.5 px-4 py-2 rounded-xl bg-[#E4F0FC] flex flex-row justify-between items-center text-base font-extrabold text-[#272B38]">
 					<span>{t("mint.collateralization")}</span>
-					<span>100%</span>
+					<span>{collateralizationPercentage} %</span>
 				</div>
 			</div>
 			{allowance < BigInt(amount) && !isBorrowMore ? (

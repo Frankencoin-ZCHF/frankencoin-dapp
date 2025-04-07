@@ -84,16 +84,18 @@ export const CollateralManageSection = () => {
 	const price = data?.[1]?.result || 1n;
 	const balanceOf = data?.[2]?.result || 0n; // collateral reserve
 	const debt = data?.[3]?.result || 0n;
-	const collateralPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
+	const collateralPrice = prices[position.collateral.toLowerCase() as Address]?.price?.eur || 0;
 	const collateralValuation = collateralPrice * Number(formatUnits(balanceOf, position.collateralDecimals));
 	const walletBalance = balancesByAddress[position.collateral as Address]?.balanceOf || 0n;
 	const allowance = balancesByAddress[position.collateral as Address]?.allowance?.[position.position] || 0n;
-	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
-	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd || 1;
-	const balance: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
-	const balanceDEURO: number = Math.round(((balance * collTokenPrice) / deuroPrice) * 100) / 100;
-	const liquidationDEURO: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
-	const liquidationPct: number = Math.round((balanceDEURO / (liquidationDEURO * balance)) * 10000) / 100;
+		
+	const collBalancePosition: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
+	const collTokenPriceMarket = prices[position.collateral.toLowerCase() as Address]?.price?.eur || 0;
+	const collTokenPricePosition: number = Math.round((parseInt(position.virtualPrice || position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
+	
+	const marketValueCollateral: number = collBalancePosition * collTokenPriceMarket;
+	const positionValueCollateral: number = collBalancePosition * collTokenPricePosition;
+	const collateralizationPercentage: number = Math.round((marketValueCollateral / positionValueCollateral) * 10000) / 100;
 
 	const maxToRemoveThreshold =
 		balanceOf - (debt * 10n ** BigInt(position.collateralDecimals)) / price - BigInt(position.minimumCollateral);
@@ -314,7 +316,7 @@ export const CollateralManageSection = () => {
 				</div>
 				<div className="w-full mt-1.5 px-4 py-2 rounded-xl bg-[#E4F0FC] flex flex-row justify-between items-center text-base font-extrabold text-[#272B38]">
 					<span>{t("mint.collateralization")}</span>
-					<span>{liquidationPct} %</span>
+					<span>{collateralizationPercentage} %</span>
 				</div>
 			</div>
 			{allowance > BigInt(amount) ? (

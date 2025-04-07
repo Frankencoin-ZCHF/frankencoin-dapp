@@ -20,6 +20,8 @@ import { TokenInputSelectOutlined } from "@components/Input/TokenInputSelectOutl
 import { MaxButton } from "@components/Input/MaxButton";
 import { InputTitle } from "@components/Input/InputTitle";
 import { TokenInteractionSide } from "./EquityInteractionCard";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/redux.store";
 interface Props {
 	openSelector: (tokenInteractionSide: TokenInteractionSide) => void;
 	selectedFromToken: TokenBalance;
@@ -49,6 +51,7 @@ export default function InteractionNativePSAndPoolShareToken({
 	const { data } = useBlockNumber({ watch: true });
 	const { address } = useAccount();
 	const chainId = useChainId();
+	const eurPrice = useSelector((state: RootState) => state.prices.eur?.usd);
 	const account = address || zeroAddress;
 	const direction: boolean = selectedFromToken.symbol === NATIVE_POOL_SHARE_TOKEN_SYMBOL;
 
@@ -254,6 +257,8 @@ export default function InteractionNativePSAndPoolShareToken({
 		}
 	};
 
+	const usdValue = eurPrice && collateralEurValue ? formatBigInt(BigInt(Math.floor(eurPrice * 10000)) * collateralEurValue / 10000n) : formatBigInt(0n);
+
 	return (
 		<div className="flex flex-col">
 			<div className="">
@@ -269,12 +274,12 @@ export default function InteractionNativePSAndPoolShareToken({
 						<div className="self-stretch justify-start items-center inline-flex">
 							<div className="grow shrink basis-0 h-4 px-2 justify-start items-center gap-2 flex max-w-full overflow-hidden">
 								<div className="text-text-muted3 text-xs font-medium leading-none">€{formatCurrency(formatUnits(collateralEurValue, 18))}</div>
-								{/**
-								 * 
-								 // TODO: make available when USD price is available from the backend
-								 <div className="h-4 w-0.5 border-l border-input-placeholder"></div>
-								 <div className="text-text-muted3 text-xs font-medium leading-none">${collateralUsdValue}</div>
-								 */}
+								{eurPrice && (
+									<>
+										<div className="h-4 w-0.5 border-l border-input-placeholder"></div>
+										<div className="text-text-muted3 text-xs font-medium leading-none">${formatCurrency(usdValue)}</div>
+									</>
+								)}
 							</div>
 							<div className="h-7 justify-end items-center gap-2.5 flex">
 								{selectedFromToken && (
@@ -314,12 +319,12 @@ export default function InteractionNativePSAndPoolShareToken({
 						<div className="self-stretch justify-start items-center inline-flex">
 							<div className="grow shrink basis-0 h-4 px-2 justify-start items-center gap-2 flex max-w-full overflow-hidden">
 							<div className="text-text-muted3 text-xs font-medium leading-none">€{formatCurrency(formatUnits(collateralEurValue, 18))}</div>
-								{/**
-								 * 
-								 // TODO: make available when USD price is available from the backend
-								 <div className="h-4 w-0.5 border-l border-input-placeholder"></div>
-								 <div className="text-text-muted3 text-xs font-medium leading-none">${collateralUsdValue}</div>
-								 */}
+								{eurPrice && (
+									<>
+										<div className="h-4 w-0.5 border-l border-input-placeholder"></div>
+										<div className="text-text-muted3 text-xs font-medium leading-none">${formatCurrency(usdValue)}</div>
+									</>
+								)}
 							</div>
 							<div className="h-7 justify-end items-center gap-2.5 flex">
 								{selectedToToken && (

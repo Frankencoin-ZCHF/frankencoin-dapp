@@ -23,16 +23,16 @@ export default function MonitoringRow({ headers, position, tab }: Props) {
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const url = useContractUrl(position.collateral || zeroAddress);
-	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
-	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd || 1;
-
 	const maturity: number = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
-
-	const balance: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
-	const balanceDEURO: number = Math.round(((balance * collTokenPrice) / deuroPrice) * 100) / 100;
-
-	const liquidationDEURO: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
-	const liquidationPct: number = Math.round((balanceDEURO / (liquidationDEURO * balance)) * 10000) / 100;
+	
+	
+	const collBalancePosition: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
+	const collTokenPriceMarket = prices[position.collateral.toLowerCase() as Address]?.price?.eur || 0;
+	const collTokenPricePosition: number = Math.round((parseInt(position.virtualPrice || position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
+	
+	const marketValueCollateral: number = collBalancePosition * collTokenPriceMarket;
+	const positionValueCollateral: number = collBalancePosition * collTokenPricePosition;
+	const collateralizationPercentage: number = Math.round((marketValueCollateral / positionValueCollateral) * 10000) / 100;
 
 	const digits: number = position.collateralDecimals;
 	const positionChallenges = challenges.map[position.position.toLowerCase() as Address] ?? [];
@@ -70,7 +70,7 @@ export default function MonitoringRow({ headers, position, tab }: Props) {
 					<span className="mr-3 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</span>
-					<span className={`col-span-2 text-md font-extrabold text-text-primary`}>{`${formatCurrency(balance)} ${
+					<span className={`col-span-2 text-md font-extrabold text-text-primary`}>{`${formatCurrency(collBalancePosition)} ${
 						position.collateralSymbol
 					}`}</span>
 				</div>
@@ -80,7 +80,7 @@ export default function MonitoringRow({ headers, position, tab }: Props) {
 					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</div>
-					<div className={`col-span-2 text-md text-text-primary font-semibold`}>{`${formatCurrency(balance)} ${
+					<div className={`col-span-2 text-md text-text-primary font-semibold`}>{`${formatCurrency(collBalancePosition)} ${
 						position.collateralSymbol
 					}`}</div>
 				</div>
@@ -88,8 +88,8 @@ export default function MonitoringRow({ headers, position, tab }: Props) {
 
 			{/* Coll. */}
 			<div className="flex flex-col gap-2">
-				<div className={`col-span-2 text-md ${liquidationPct < 110 ? "text-text-warning font-bold" : ""}`}>
-					{!isNaN(liquidationPct) ? formatCurrency(liquidationPct) : "-.--"}%
+				<div className={`col-span-2 text-md ${collateralizationPercentage < 110 ? "text-text-warning font-bold" : ""}`}>
+					{!isNaN(collateralizationPercentage) ? formatCurrency(collateralizationPercentage) : "-.--"}%
 				</div>
 			</div>
 

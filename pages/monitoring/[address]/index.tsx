@@ -101,7 +101,7 @@ export default function PositionDetail() {
 							<AppBox>
 								<DisplayLabel label={t("common.liquidation_price")} />
 								<DisplayAmount
-									amount={BigInt(position.price)}
+									amount={BigInt(position.virtualPrice || position.price)}
 									currency={TOKEN_SYMBOL}
 									digits={36 - position.collateralDecimals}
 									address={ADDRESS[chainId].decentralizedEURO}

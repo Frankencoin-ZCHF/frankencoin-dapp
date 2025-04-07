@@ -3,14 +3,15 @@ import {
 	ApiPriceERC20,
 	ApiPriceERC20Mapping,
 	ApiPriceMapping,
+	PriceQueryCurrencies,
 } from "@deuro/api";
 
 // --------------------------------------------------------------------------------
 export type PricesState = {
 	error: string | null;
 	loaded: boolean;
-
 	coingecko: ApiPriceMapping;
+	eur: PriceQueryCurrencies;
 	mint: ERC20Info | ApiPriceERC20;
 	nativePS: ERC20Info | ApiPriceERC20;
 	collateral: ApiPriceERC20Mapping;

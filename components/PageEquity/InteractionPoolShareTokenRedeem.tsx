@@ -19,6 +19,8 @@ import { TokenInputSelectOutlined } from "@components/Input/TokenInputSelectOutl
 import { MaxButton } from "@components/Input/MaxButton";
 import { InputTitle } from "@components/Input/InputTitle";
 import { TokenInteractionSide } from "./EquityInteractionCard";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/redux.store";
 interface Props {
 	openSelector: (tokenInteractionSide: TokenInteractionSide) => void;
 	selectedFromToken: TokenBalance;
@@ -49,6 +51,7 @@ export default function InteractionPoolShareTokenRedeem({
 	const { address } = useAccount();
 	const poolStats = usePoolStats();
 	const chainId = useChainId();
+	const eurPrice = useSelector((state: RootState) => state.prices.eur?.usd);
 	const account = address || zeroAddress;
 
 	useEffect(() => {
@@ -205,6 +208,8 @@ export default function InteractionPoolShareTokenRedeem({
 		}
 	};
 
+	const usdValue = eurPrice && calculateProceeds ? formatBigInt(BigInt(Math.floor(eurPrice * 10000)) * calculateProceeds / 10000n) : formatBigInt(0n);
+
 	return (
 		<div className="flex flex-col">
 			<div className="">
@@ -222,12 +227,12 @@ export default function InteractionPoolShareTokenRedeem({
 								<div className="text-text-muted3 text-xs font-medium leading-none">
 									€{formatCurrency(formatUnits(calculateProceeds, 18))}
 								</div>
-								{/**
-								 * 
-								 // TODO: make available when USD price is available from the backend
-								 <div className="h-4 w-0.5 border-l border-input-placeholder"></div>
-								 <div className="text-text-muted3 text-xs font-medium leading-none">${collateralUsdValue}</div>
-								 */}
+								{eurPrice && (
+									<>
+										<div className="h-4 w-0.5 border-l border-input-placeholder"></div>
+										<div className="text-text-muted3 text-xs font-medium leading-none">${formatCurrency(usdValue)}</div>
+									</>
+								)}
 							</div>
 							<div className="h-7 justify-end items-center gap-2.5 flex">
 								{selectedFromToken && (
@@ -269,12 +274,12 @@ export default function InteractionPoolShareTokenRedeem({
 								<div className="text-text-muted3 text-xs font-medium leading-none">
 									€{formatCurrency(formatUnits(calculateProceeds, 18))}
 								</div>
-								{/**
-								 * 
-								 // TODO: make available when USD price is available from the backend
-								 <div className="h-4 w-0.5 border-l border-input-placeholder"></div>
-								 <div className="text-text-muted3 text-xs font-medium leading-none">${collateralUsdValue}</div>
-								 */}
+								{eurPrice && (
+									<>
+										<div className="h-4 w-0.5 border-l border-input-placeholder"></div>
+										<div className="text-text-muted3 text-xs font-medium leading-none">${formatCurrency(usdValue)}</div>
+									</>
+								)}
 							</div>
 							<div className="h-7 justify-end items-center gap-2.5 flex">
 								{selectedToToken && (

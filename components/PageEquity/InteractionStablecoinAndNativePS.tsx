@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import { usePoolStats } from "@hooks";
-import { formatBigInt, formatDuration, NATIVE_POOL_SHARE_TOKEN_SYMBOL, shortenAddress, TOKEN_SYMBOL } from "@utils";
+import { formatBigInt, formatCurrency, formatDuration, NATIVE_POOL_SHARE_TOKEN_SYMBOL, shortenAddress, TOKEN_SYMBOL } from "@utils";
 import { useAccount, useChainId, useReadContract } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
@@ -21,15 +21,23 @@ import { InputTitle } from "@components/Input/InputTitle";
 import { MaxButton } from "@components/Input/MaxButton";
 import { TokenBalance } from "../../hooks/useWalletBalances";
 import { TokenInteractionSide } from "./EquityInteractionCard";
+import { RootState } from "../../redux/redux.store";
+import { useSelector } from "react-redux";
 interface Props {
-	openSelector: (tokenInteractionSide: TokenInteractionSide) => void;	
+	openSelector: (tokenInteractionSide: TokenInteractionSide) => void;
 	selectedFromToken: TokenBalance;
 	selectedToToken: TokenBalance;
 	refetchBalances: () => void;
 	reverseSelection: () => void;
 }
 
-export default function InteractionStablecoinAndNativePS({ openSelector, selectedFromToken, selectedToToken, refetchBalances, reverseSelection }: Props) {
+export default function InteractionStablecoinAndNativePS({
+	openSelector,
+	selectedFromToken,
+	selectedToToken,
+	refetchBalances,
+	reverseSelection,
+}: Props) {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [isApproving, setApproving] = useState(false);
@@ -40,6 +48,7 @@ export default function InteractionStablecoinAndNativePS({ openSelector, selecte
 	const { address } = useAccount();
 	const chainId = useChainId();
 	const poolStats = usePoolStats();
+	const eurPrice = useSelector((state: RootState) => state.prices.eur?.usd);
 	const account = address || zeroAddress;
 	const direction: boolean = selectedFromToken.symbol === TOKEN_SYMBOL;
 
@@ -172,7 +181,9 @@ export default function InteractionStablecoinAndNativePS({ openSelector, selecte
 		poolStats.equityUserVotes > 86_400 * 90 && poolStats.equityUserVotes < 86_400 * 365 * 30 && poolStats.equityUserVotes > 0n;
 	const redeemLeft = 86400n * 90n - (poolStats.equityBalance ? poolStats.equityUserVotes / poolStats.equityBalance / 2n ** 20n : 0n);
 
-	const collateralEurValue = formatBigInt(deuroResult);
+	const collateralValue = direction ? amount : deuroResult;
+	const collateralEurValue = formatBigInt(collateralValue);
+	const collateralUsdValue = eurPrice && collateralValue ? formatBigInt(BigInt(Math.floor(eurPrice * 10000)) * collateralValue / 10000n) : formatBigInt(0n);
 
 	const onChangeAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
@@ -278,7 +289,7 @@ export default function InteractionStablecoinAndNativePS({ openSelector, selecte
 			setRedeeming(false);
 		}
 	};
-	
+
 	return (
 		<div className="flex flex-col">
 			<div className="">
@@ -294,19 +305,22 @@ export default function InteractionStablecoinAndNativePS({ openSelector, selecte
 						<div className="self-stretch justify-start items-center inline-flex">
 							<div className="grow shrink basis-0 h-4 px-2 justify-start items-center gap-2 flex max-w-full overflow-hidden">
 								<div className="text-text-muted3 text-xs font-medium leading-none">€{collateralEurValue}</div>
-								{/**
-								 * 
-								 // TODO: make available when USD price is available from the backend
-								 <div className="h-4 w-0.5 border-l border-input-placeholder"></div>
-								 <div className="text-text-muted3 text-xs font-medium leading-none">${collateralUsdValue}</div>
-								 */}
+								{eurPrice && (
+									<>
+										<div className="h-4 w-0.5 border-l border-input-placeholder"></div>
+										<div className="text-text-muted3 text-xs font-medium leading-none">${collateralUsdValue}</div>
+									</>
+								)}
 							</div>
 							<div className="h-7 justify-end items-center gap-2.5 flex">
 								{selectedFromToken && (
 									<>
 										<div className="text-text-muted3 text-xs font-medium leading-none">
 											{t("common.balance_label")} {": "}
-											{formatUnits(selectedFromToken.balanceOf || 0n, selectedFromToken.decimals || 18)} {selectedFromToken.symbol}
+											{formatCurrency(
+												formatUnits(selectedFromToken.balanceOf || 0n, selectedFromToken.decimals || 18)
+											)}{" "}
+											{selectedFromToken.symbol}
 										</div>
 										<MaxButton
 											disabled={BigInt(selectedFromToken.balanceOf || 0n) === BigInt(0)}
@@ -320,11 +334,7 @@ export default function InteractionStablecoinAndNativePS({ openSelector, selecte
 				/>
 
 				<div className="pt-2 text-center z-0">
-					<Button
-						className={`h-10 rounded-full mt-4 !p-2.5`}
-						width="w-10"
-						onClick={reverseSelection}
-					>
+					<Button className={`h-10 rounded-full mt-4 !p-2.5`} width="w-10" onClick={reverseSelection}>
 						<span className="flex items-center justify-center flex-1">
 							<FontAwesomeIcon icon={faArrowDownLong} className="w-5 h-5" />
 						</span>
@@ -337,17 +347,17 @@ export default function InteractionStablecoinAndNativePS({ openSelector, selecte
 					selectedToken={selectedToToken}
 					onSelectTokenClick={() => openSelector(TokenInteractionSide.OUTPUT)}
 					value={result.toString()}
-					onChange={()=>{}}
+					onChange={() => {}}
 					adornamentRow={
 						<div className="self-stretch justify-start items-center inline-flex">
 							<div className="grow shrink basis-0 h-4 px-2 justify-start items-center gap-2 flex max-w-full overflow-hidden">
 								<div className="text-text-muted2 text-xs font-medium leading-none">€{collateralEurValue}</div>
-								{/**
-								 * 
-								 // TODO: make available when USD price is available from the backend
-								 <div className="h-4 w-0.5 border-l border-input-placeholder"></div>
-								 <div className="text-text-muted2 text-xs font-medium leading-none">${collateralUsdValue}</div>
-								 */}
+								{eurPrice && (
+									<>
+										<div className="h-4 w-0.5 border-l border-input-placeholder"></div>
+										<div className="text-text-muted2 text-xs font-medium leading-none">${collateralUsdValue}</div>
+									</>
+								)}
 							</div>
 							<div className="h-7 justify-end items-center gap-2.5 flex">
 								{selectedToToken && (
@@ -405,9 +415,7 @@ export default function InteractionStablecoinAndNativePS({ openSelector, selecte
 				</div>
 				<div className="flex flex-col gap-2 p-4">
 					<div className="text-text-muted2 text-base font-medium leading-tight">{t("equity.can_redeem_after_symbol")}</div>
-					<div className="text-base font-medium leading-tight">
-						{formatDuration(redeemLeft)}
-					</div>
+					<div className="text-base font-medium leading-tight">{formatDuration(redeemLeft)}</div>
 				</div>
 			</div>
 		</div>

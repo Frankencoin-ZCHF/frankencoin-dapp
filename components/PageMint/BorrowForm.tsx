@@ -131,7 +131,8 @@ export default function PositionCreate({}) {
 	}, [collateralAmount, balancesByAddress, address]);
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
-	const collateralPriceDeuro = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0; // TODO: change to eur?
+	const eurPrice = useSelector((state: RootState) => state.prices.eur?.usd);
+	const collateralPriceDeuro = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.eur || 0;
 
 	const collateralPriceUsd = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0;
 	const collateralEurValue = selectedPosition
@@ -148,6 +149,7 @@ export default function PositionCreate({}) {
 	const isCollateralError =
 		collateralAmount !== "0" && collateralAmount !== "" && BigInt(userBalance) < BigInt(selectedPosition?.minimumCollateral || 0n);
 	const selectedBalance = Boolean(selectedCollateral) ? balancesByAddress[selectedCollateral?.address as Address] : null;
+	const usdLiquidationPrice = formatCurrency(parseFloat(formatUnits(BigInt(liquidationPrice), 36 - (selectedPosition?.collateralDecimals || 0))) * (eurPrice || 0))?.toString();
 
 	const handleOnSelectedToken = (token: TokenBalance) => {
 		if (!token) return;
@@ -410,6 +412,7 @@ export default function PositionCreate({}) {
 							decimals={36 - (selectedPosition?.collateralDecimals || 0)}
 							isError={isLiquidationPriceTooHigh}
 							errorMessage={t("mint.liquidation_price_too_high")}
+							usdPrice={usdLiquidationPrice}
 						/>
 					</div>
 					<div className="self-stretch flex-col justify-start items-center gap-1.5 flex">
@@ -489,9 +492,10 @@ export default function PositionCreate({}) {
 						formmatedCollateral={`${formatUnits(BigInt(collateralAmount), selectedPosition?.collateralDecimals || 0)} ${
 							selectedPosition?.collateralSymbol
 						}`}
-						collateralPriceDeuro={collateralPriceDeuro}
+						collateralPriceDeuro={collateralEurValue || "0"}
 						isSuccess={isCloneSuccess}
 						isLoading={isCloneLoading}
+						usdLiquidationPrice={usdLiquidationPrice}
 					/>
 				</AppCard>
 			</div>

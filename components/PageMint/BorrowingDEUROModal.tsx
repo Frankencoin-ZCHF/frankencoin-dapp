@@ -1,6 +1,6 @@
 import Button from "@components/Button";
 import TokenLogo from "@components/TokenLogo";
-import { formatCurrency, formatDate, toTimestamp } from "@utils";
+import { formatDate, toTimestamp } from "@utils";
 import { Modal } from "flowbite-react";
 import { useTranslation } from "next-i18next";
 
@@ -13,10 +13,11 @@ type BorrowingDEUROModalProps = {
 	youGet: string | null | undefined;
 	isSuccess: boolean;
 	isLoading: boolean;
-	collateralPriceDeuro: number;
+	collateralPriceDeuro: string;
+	usdLiquidationPrice: string | undefined;
 };
 
-export function BorrowingDEUROModal({ isOpen, setIsOpen, youGet, formmatedCollateral, expiration, liquidationPrice, isSuccess, isLoading, collateralPriceDeuro }: BorrowingDEUROModalProps) {
+export function BorrowingDEUROModal({ isOpen, setIsOpen, youGet, formmatedCollateral, expiration, liquidationPrice, isSuccess, isLoading, collateralPriceDeuro, usdLiquidationPrice }: BorrowingDEUROModalProps) {
 	const { t } = useTranslation();
 
 	return (
@@ -52,7 +53,7 @@ export function BorrowingDEUROModal({ isOpen, setIsOpen, youGet, formmatedCollat
 								<div className="h-5 text-right text-sm font-extrabold leading-none tracking-tight">
 									{formmatedCollateral}
 								</div>
-								<div className="text-right text-text-icon text-xs font-medium leading-none">€ {formatCurrency(collateralPriceDeuro)}</div>
+								<div className="text-right text-text-icon text-xs font-medium leading-none">€ {collateralPriceDeuro}</div>
 							</div>
 						</div>
 						<div className="self-stretch justify-start items-start inline-flex">
@@ -63,7 +64,7 @@ export function BorrowingDEUROModal({ isOpen, setIsOpen, youGet, formmatedCollat
 								<div className="h-5 text-right text-sm font-extrabold leading-none tracking-tight">
 									€ {liquidationPrice}
 								</div>
-								<div className="text-right text-text-icon text-xs font-medium leading-none"></div>
+								<div className="text-right text-text-icon text-xs font-medium leading-none">${usdLiquidationPrice}</div>
 							</div>
 						</div>
 						<div className="self-stretch justify-start items-center gap-2.5 inline-flex">
