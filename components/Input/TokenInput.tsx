@@ -102,7 +102,7 @@ export default function TokenInput({
 							)}
 						</div>
 
-						{!disabled && max != undefined && (
+						{!disabled && max != undefined && max != BigInt(value) && (
 							<div
 								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
@@ -115,7 +115,7 @@ export default function TokenInput({
 								Max
 							</div>
 						)}
-						{!disabled && min != undefined && (
+						{!disabled && min != undefined && min != BigInt(value) && min != max &&(
 							<div
 								className="text-card-input-min cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
@@ -128,7 +128,7 @@ export default function TokenInput({
 								Min
 							</div>
 						)}
-						{!disabled && reset != undefined && reset != BigInt(value) && (
+						{!disabled && reset != undefined && reset != BigInt(value) && reset != min && reset != max && (
 							<div
 								className="text-card-input-reset cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {

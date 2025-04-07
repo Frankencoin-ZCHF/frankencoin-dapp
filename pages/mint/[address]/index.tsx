@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { formatUnits, maxUint256, erc20Abi, Hash, zeroHash, parseEther } from "viem";
+import { formatUnits, maxUint256, erc20Abi, Hash, zeroHash, parseEther, decodeEventLog } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useState } from "react";
 import Button from "@components/Button";
@@ -18,6 +18,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
+import { useRouter as useNavigation } from "next/navigation";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
@@ -33,6 +34,7 @@ export default function PositionBorrow({}) {
 	const [userBalance, setUserBalance] = useState(0n);
 
 	const { data } = useBlockNumber({ watch: true });
+	const navigate = useNavigation();
 	const account = useAccount();
 	const router = useRouter();
 
@@ -123,26 +125,18 @@ export default function PositionBorrow({}) {
 	const onChangeAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
-		if (valueBigInt > borrowingLimit) {
-			if (availableAmount < valueBigInt) {
-				setError("No more than " + formatCurrency(parseInt(availableAmount.toString()) / 1e18, 2, 2) + " ZCHF can be minted");
-			} else if (availableAmount > userValue) {
-				setErrorColl(`Not enough ${position.collateralSymbol} in your wallet.`);
-			}
+		if (valueBigInt > availableAmount) {
+			setError("No more than " + formatCurrency(parseInt(availableAmount.toString()) / 1e18, 2, 2) + " ZCHF can be minted");
 		} else {
 			setError("");
-			setErrorColl("");
 		}
 	};
 
 	const onChangeCollateral = (value: string) => {
-		const valueBigInt = (BigInt(value) * BigInt(position.price)) / BigInt(1e18);
-		if (valueBigInt > borrowingLimit) {
-			setError("Can not mint more than " + formatCurrency(parseInt(borrowingLimit.toString()) / 1e18, 2, 2) + " ZCHF");
-		} else {
-			setError("");
+		if (BigInt(value) > userBalance){
+			setErrorColl(`Not enough ${position.collateralSymbol} in your wallet.`);
 		}
-		setAmount(valueBigInt);
+		setAmount((BigInt(value) * BigInt(position.price)) / BigInt(1e18));
 	};
 
 	const onChangeExpiration = (value: Date | null) => {
@@ -249,6 +243,32 @@ export default function PositionBorrow({}) {
 					render: <TxToast title="Successfully Minted ZCHF" rows={toastContent} />,
 				},
 			});
+
+			const receipt = await waitForTransactionReceipt(WAGMI_CONFIG, {
+				hash: cloneWriteHash,
+				confirmations: 1,
+			});
+
+			const targetEvents = receipt.logs
+				.map((log) => {
+					try {
+						// Try to decode each log using your ABI
+						return decodeEventLog({
+							abi: position.version == 1 ? MintingHubV1ABI : MintingHubV2ABI,
+							data: log.data,
+							topics: log.topics,
+						});
+					} catch (error) {
+						// If decoding fails, it's not an event from your contract
+						return null;
+					}
+				})
+				.filter((event) => event !== null && event.eventName === "PositionOpened");
+
+			if (targetEvents.length > 0) {
+				const position = targetEvents[0].args.position;
+				navigate.push(`/mypositions/${position}`);
+			}
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
@@ -284,7 +304,7 @@ export default function PositionBorrow({}) {
 							<TokenInput
 								label="Collateral Required"
 								balanceLabel="Your balance:"
-								max={userBalance}
+								max={userBalance > requiredColl ? userBalance : requiredColl}
 								min={BigInt(position.minimumCollateral)}
 								digit={position.collateralDecimals}
 								onChange={onChangeCollateral}
@@ -303,16 +323,16 @@ export default function PositionBorrow({}) {
 								value={expirationDate}
 								onChange={onChangeExpiration}
 								error={errorDate}
-								limit={BigInt(position.expiration)}
+								/* limit={BigInt(position.expiration)}
 								limitDigit={position.collateralDecimals}
-								limitLabel="Until"
+								limitLabel="Until" */
 							/>
 						</div>
 						<div className="mx-auto w-72 max-w-full flex-col">
 							<GuardToAllowedChainBtn label={amount > userAllowance ? "Approve" : "Mint"}>
 								{requiredColl > userAllowance ? (
 									<Button
-										disabled={amount == 0n || requiredColl > userBalance || !!error}
+										disabled={requiredColl > userBalance || !!error}
 										isLoading={isApproving}
 										onClick={() => handleApprove()}
 									>
@@ -320,7 +340,7 @@ export default function PositionBorrow({}) {
 									</Button>
 								) : (
 									<Button
-										disabled={amount == 0n || requiredColl > userBalance || !!error}
+										disabled={requiredColl > userBalance || !!error}
 										isLoading={isCloning}
 										onClick={() => handleClone()}
 									>

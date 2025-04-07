@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { formatUnits, maxUint256, erc20Abi, Address, parseEther } from "viem";
+import { formatUnits, maxUint256, erc20Abi, Address, parseEther, parseUnits } from "viem";
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
 import { abs, bigIntMax, bigIntMin, ContractUrl, formatBigInt, formatCurrency, formatDuration, shortenAddress } from "@utils";
@@ -19,6 +19,7 @@ import AppTitle from "@components/AppTitle";
 import PositionRollerTable from "@components/PageMypositions/PositionRollerTable";
 import AppCard from "@components/AppCard";
 import AppLink from "@components/AppLink";
+import MyPositionsNotFound from "@components/PageMypositions/MyPositionsNotFound";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -34,18 +35,27 @@ export default function PositionAdjust() {
 	const account = useAccount();
 	const router = useRouter();
 
-	const chainId = useChainId();
 	const addressQuery: Address = router.query.address as Address;
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const position = positions.find((p) => p.position == addressQuery) as PositionQuery;
+
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
-	const [amount, setAmount] = useState<bigint>(BigInt(position.minted || 0n));
-	const [collateralAmount, setCollateralAmount] = useState<bigint>(BigInt(position.collateralBalance));
+	const [amount, setAmount] = useState<bigint>(BigInt(position?.minted ?? 0n));
+	const [collateralAmount, setCollateralAmount] = useState<bigint>(BigInt(position?.collateralBalance ?? 0n));
 	const [liqPrice, setLiqPrice] = useState<bigint>(BigInt(position?.price ?? 0n));
 
 	// ---------------------------------------------------------------------------
+
+	useEffect(() => {
+		if (position != undefined && amount == 0n && collateralAmount == 0n && liqPrice == 0n) {
+			setAmount(BigInt(position.minted));
+			setCollateralAmount(BigInt(position.collateralBalance));
+			setLiqPrice(BigInt(position.price));
+		}
+	}, [position, amount, collateralAmount, liqPrice]);
+
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
 		const fc: Address = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
@@ -90,7 +100,13 @@ export default function PositionAdjust() {
 	}, [data, account.address, position]);
 
 	// ---------------------------------------------------------------------------
-	if (!position) return null;
+	if (!position) return <MyPositionsNotFound query={addressQuery} />;
+
+	const priceQuery = prices[position.collateral.toLowerCase() as Address];
+	if (!priceQuery) return <AppCard>Market Price of position not found</AppCard>;
+
+	const marketPriceDec = priceQuery.price.chf != undefined ? Math.round(priceQuery.price.chf * 80) / 100 : 1;
+	const marketPrice80Pct = parseUnits(String(marketPriceDec), 36 - position.collateralDecimals);
 
 	const isCooldown: boolean = position.cooldown * 1000 - Date.now() > 0;
 
@@ -293,57 +309,61 @@ export default function PositionAdjust() {
 	);
 
 	const mintedMinCallback = () => {
+		/* Disabled: I think the user should click min separately on the collateral field if he also wants to have the collateral returned
 		const p = liqPrice;
 		const calcCollateral = (mintedMin * parseEther("1")) / p;
 		const verifyMint = (calcCollateral * p) / parseEther("1");
 		const isRoundingError = verifyMint < mintedMin;
 		const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
 		setCollateralAmount(correctedCollateral);
-		return correctedCollateral;
+		return correctedCollateral; */
 	};
 
 	// Minted Max
 	const mintedMax = bigIntMin(maxTotalLimit, (liqPrice * (BigInt(position.collateralBalance) + userCollBalance)) / parseEther("1"));
 
 	const mintedMaxCallback = () => {
+		/* Disabled: I think the user should click max separately on the collateral field if he also wants to have the collateral returned
 		const p = liqPrice;
-		const calcCollateral = (mintedMax * parseEther("1")) / p;
-		const verifyMint = (calcCollateral * p) / parseEther("1");
-		const isRoundingError = verifyMint < mintedMax;
-		const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
-		setCollateralAmount(correctedCollateral);
-		return correctedCollateral;
+		if (p > 0){
+			const calcCollateral = (mintedMax * parseEther("1")) / p;
+			const verifyMint = (calcCollateral * p) / parseEther("1");
+			const isRoundingError = verifyMint < mintedMax;
+			const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
+			setCollateralAmount(correctedCollateral);
+		} */
 	};
 
 	// Collateral Min
 	const collateralMinCallback = () => {
 		const p = liqPrice;
-		const calcCollateral = (amount * parseEther("1")) / p;
-		const verifyMint = (calcCollateral * p) / parseEther("1");
-		const isRoundingError = verifyMint < amount;
-		const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
-		setCollateralAmount(correctedCollateral);
-		return correctedCollateral;
+		if (p > 0) {
+			const calcCollateral = (amount * parseEther("1")) / p;
+			const verifyMint = (calcCollateral * p) / parseEther("1");
+			const isRoundingError = verifyMint < amount;
+			const correctedCollateral = isRoundingError ? calcCollateral + 1n : calcCollateral;
+			setCollateralAmount(correctedCollateral);
+		}
 	};
 
 	// LiqPrice
 	const liqPriceMinCallback = () => {
-		const calcPrice = (amount * parseEther("1")) / collateralAmount;
-		const verifyMint = (calcPrice * collateralAmount) / parseEther("1");
-		const isRoundingError = verifyMint < amount;
-		const corrected = isRoundingError ? calcPrice + 1n : calcPrice;
-		setLiqPrice(corrected);
-		return corrected;
+		if (collateralAmount > 0) {
+			const calcPrice = (amount * parseEther("1")) / collateralAmount;
+			const verifyMint = (calcPrice * collateralAmount) / parseEther("1");
+			const isRoundingError = verifyMint < amount;
+			const corrected = isRoundingError ? calcPrice + 1n : calcPrice;
+			setLiqPrice(corrected);
+		}
 	};
 
 	const liqPriceMaxCallback = () => {
-		const calcPrice = (amount * parseEther("1")) / (BigInt(position.collateralBalance) + userCollBalance);
-		const verifyMint = (calcPrice * collateralAmount) / parseEther("1");
-		const isRoundingError = verifyMint < amount;
-		const corrected = isRoundingError ? calcPrice + 1n : calcPrice;
-		setLiqPrice(corrected);
-		setCollateralAmount(BigInt(position.collateralBalance) + userCollBalance);
-		return corrected;
+		// const calcPrice = (amount * parseEther("1")) / (BigInt(position.collateralBalance) + userCollBalance);
+		// const verifyMint = (calcPrice * collateralAmount) / parseEther("1");
+		// const isRoundingError = verifyMint < amount;
+		// const corrected = isRoundingError ? calcPrice + 1n : calcPrice;
+		// setLiqPrice(corrected);
+		// setCollateralAmount(BigInt(position.collateralBalance) + userCollBalance);
 	};
 
 	return (
@@ -407,8 +427,8 @@ export default function PositionAdjust() {
 							<TokenInput
 								label="Liquidation Price"
 								symbol={"ZCHF"}
-								min={BigInt(position.price) / 2n}
-								max={(BigInt(position.price) * 15n) / 10n}
+								min={collateralAmount == 0n ? 0n : (amount * 10n ** 18n) / collateralAmount}
+								max={marketPrice80Pct}
 								reset={BigInt(position.price)}
 								value={liqPrice.toString()}
 								digit={36 - position.collateralDecimals}

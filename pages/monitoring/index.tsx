@@ -17,14 +17,16 @@ export default function Positions() {
 				<title>Frankencoin - Monitoring</title>
 			</Head>
 
-			<AppTitle title="Positions"></AppTitle>
-			<div className="text-text-secondary">Earn a reward by challenging undercollateralized positions.</div>
+			<AppTitle title="Positions">
+				<div className="text-text-secondary">Earn a reward by challenging undercollateralized positions.</div>
+			</AppTitle>
 			<div className="md:mt-8">
 				<MonitoringTable />
 			</div>
 
-			<AppTitle title="Auctions"></AppTitle>
-			<div className="text-text-secondary">Buy collateral of challenged or expired positions in a Dutch auction.</div>
+			<AppTitle title="Auctions">
+				<div className="text-text-secondary">Buy collateral of challenged or expired positions in a Dutch auction.</div>
+			</AppTitle>
 			<div className="md:mt-8">
 				<ChallengesTable />
 			</div>
