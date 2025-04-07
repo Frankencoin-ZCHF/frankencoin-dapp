@@ -17,16 +17,7 @@ import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 
-const STABLECOIN_SYMBOLS = ["EURC", "EURT", "VEUR", "EURS"];
-
-const TEMPORARY_UNAVAILABLE = [{
-	from: "EURT",
-	to: TOKEN_SYMBOL,
-}];
-
-const isTemporaryUnavailable = (from: string, to: string) => {
-	return TEMPORARY_UNAVAILABLE.some((pair) => pair.from === from && pair.to === to);
-};
+const STABLECOIN_SYMBOLS = ["EURC", "VEUR", "EURS"];
 
 const noTokenMeta = {
 	symbol: "",
@@ -83,8 +74,6 @@ export default function Swap() {
 						contractBridgeAddress: "0x0",
 						contractAddress: swapStats.dEuro.contractAddress,
 					};
-				case "EURT":
-					return swapStats.eurt;
 				case "EURC":
 					return swapStats.eurc;
 				case "VEUR":
@@ -379,11 +368,7 @@ export default function Swap() {
 
 						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 							<GuardToAllowedChainBtn>
-								{isTemporaryUnavailable(fromSymbol, toSymbol) ? (
-									<Button disabled>
-										{t("common.temporary_unavailable")}
-									</Button>
-								) : amount > fromTokenMeta.userAllowance ? (
+								{amount > fromTokenMeta.userAllowance ? (
 									<Button isLoading={isTxOnGoing} onClick={() => handleApprove()}>
 										{t("common.approve")}
 									</Button>
