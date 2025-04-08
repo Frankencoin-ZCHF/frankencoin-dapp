@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import AppBox from "@components/AppBox";
 import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
-import { Address, formatUnits, zeroAddress } from "viem";
+import { Address, formatUnits, parseEther, zeroAddress } from "viem";
 import { ContractUrl, formatBigInt, formatCurrency, formatDateTime, shortenAddress } from "@utils";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
@@ -24,11 +24,11 @@ import AppLink from "@components/AppLink";
 
 export default function ChallengePlaceBid() {
 	const [isInit, setInit] = useState(false);
-	const [amount, setAmount] = useState(0n);
+	const [amount, setAmount] = useState<bigint>(0n);
 	const [error, setError] = useState("");
 	const [isBidding, setBidding] = useState(false);
 	const [isNavigating, setNavigating] = useState(false);
-	const [userBalance, setUserBalance] = useState(0n);
+	const [userBalance, setUserBalance] = useState<bigint>(0n);
 	const [auctionPrice, setAuctionPrice] = useState<bigint>(0n);
 
 	const { data } = useBlockNumber({ watch: true });
@@ -80,7 +80,7 @@ export default function ChallengePlaceBid() {
 		if (isInit) return;
 		if (challenge === undefined) return;
 
-		const _amount = BigInt(parseInt(challenge.size.toString()) - parseInt(challenge.filledSize.toString()));
+		const _amount = challenge.size - challenge.filledSize;
 		setAmount(_amount);
 
 		setInit(true);
@@ -95,7 +95,7 @@ export default function ChallengePlaceBid() {
 	if (!challenge) return null;
 	if (!position) return null;
 
-	const remainingSize = BigInt(parseInt(challenge.size.toString()) - parseInt(challenge.filledSize.toString()));
+	const remainingSize = BigInt(challenge.size) - BigInt(challenge.filledSize);
 
 	const start: number = parseInt(challenge.start.toString()) * 1000; // timestamp
 	const duration: number = parseInt(challenge.duration.toString()) * 1000;
@@ -106,16 +106,13 @@ export default function ChallengePlaceBid() {
 	const declineStartTimestamp = start + phase1;
 	const zeroPriceTimestamp = start + phase1 + duration;
 
-	const expectedZCHF = (bidAmount?: bigint) => {
-		if (!bidAmount) bidAmount = amount;
-		return challenge ? (bidAmount * auctionPrice) / BigInt(1e18) : BigInt(0);
-	};
+	const expectedZCHF = (amount * auctionPrice) / parseEther("1");
 
 	const onChangeAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
 
-		if (expectedZCHF() > userBalance) {
+		if (expectedZCHF > userBalance) {
 			setError("Not enough ZCHF in your wallet to cover the expected costs.");
 		} else if (valueBigInt > remainingSize) {
 			setError("Expected winning collateral should be lower than remaining collateral.");
@@ -142,7 +139,7 @@ export default function ChallengePlaceBid() {
 				},
 				{
 					title: `Expected ZCHF: `,
-					value: formatCurrency(formatUnits(expectedZCHF(), 18)) + " ZCHF",
+					value: formatCurrency(formatUnits(expectedZCHF, 18)) + " ZCHF",
 				},
 				{
 					title: "Transaction:",
@@ -196,7 +193,7 @@ export default function ChallengePlaceBid() {
 								<span>Your balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} ZCHF</span>
 							</div>
 							<div className="flex flex-col">
-								<span>Estimated cost: {formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} ZCHF</span>
+								<span>Estimated cost: {formatCurrency(formatUnits(expectedZCHF, 18), 2, 2)} ZCHF</span>
 							</div>
 						</div>
 
@@ -264,7 +261,7 @@ export default function ChallengePlaceBid() {
 						<div className="mx-auto mt-4 w-[20rem] max-w-full flex-col">
 							<GuardToAllowedChainBtn label="Buy">
 								<Button
-									disabled={amount == 0n || expectedZCHF() > userBalance || error != ""}
+									disabled={amount == 0n || expectedZCHF > userBalance || error != ""}
 									isLoading={isBidding}
 									onClick={() => handleBid()}
 								>
