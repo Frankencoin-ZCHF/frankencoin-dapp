@@ -33,7 +33,7 @@ export default function BorrowMorphoRow({ headers, tab, market }: Props) {
 				<Button className="h-10" onClick={openExplorer}>
 					<div>Borrow</div>
 					<div className="">
-						<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2 my-auto cursor-pointer" />
+						<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 my-auto cursor-pointer" />
 					</div>
 				</Button>
 			}

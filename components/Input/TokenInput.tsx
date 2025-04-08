@@ -74,7 +74,7 @@ export default function TokenInput({
 								className={`w-full px-0 py-0 text-xl bg-transparent`}
 								decimals={Number(digit)}
 								placeholder={placeholder}
-								value={value}
+								value={value || ""}
 								onChange={onChange}
 								autoFocus={autoFocus}
 								disabled={disabled}
@@ -115,7 +115,7 @@ export default function TokenInput({
 								Max
 							</div>
 						)}
-						{!disabled && min != undefined && min != BigInt(value) && min != max &&(
+						{!disabled && min != undefined && min != BigInt(value) && min != max && (
 							<div
 								className="text-card-input-min cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
