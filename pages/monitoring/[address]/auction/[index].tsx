@@ -106,7 +106,8 @@ export default function ChallengePlaceBid() {
 	const declineStartTimestamp = start + phase1;
 	const zeroPriceTimestamp = start + phase1 + duration;
 
-	const expectedZCHF = (amount * auctionPrice) / parseEther("1");
+	// @dev: issues with amount converstion from string input. Reconvert to bigint.
+	const expectedZCHF = (BigInt(amount) * auctionPrice) / parseEther("1");
 
 	const onChangeAmount = (value: string) => {
 		const valueBigInt = BigInt(value);

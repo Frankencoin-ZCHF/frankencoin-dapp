@@ -34,10 +34,10 @@ export default function Governance() {
 						label={"github forum"}
 						href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions/categories/acceptable-collaterals?discussions_q=is%3Aopen+category%3A%22Acceptable+Collaterals%22"
 						external={true}
-						className="pr-1"
+						className="pr-2"
 					/>
 					{"and a "}
-					<AppLink label={"telegram group"} href={SOCIAL.Telegram} external={true} className="pr-1" />
+					<AppLink label={"telegram group"} href={SOCIAL.Telegram} external={true} className="pr-2" />
 					to discuss eligible collaterals and their parameters.
 				</div>
 			</AppTitle>
