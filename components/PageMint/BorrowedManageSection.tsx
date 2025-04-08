@@ -158,8 +158,8 @@ export const BorrowedManageSection = () => {
 				},
 			});
 			setAmount("");
-			refetchBalances();
-			refetchReadContracts();
+			await refetchBalances();
+			await refetchReadContracts();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
@@ -201,8 +201,7 @@ export const BorrowedManageSection = () => {
 					render: <TxToast title={`${t("common.txs.success", { symbol: position.deuroSymbol })}`} rows={toastContent} />,
 				},
 			});
-			refetchBalances();
-			refetchReadContracts();
+			await refetchBalances();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: needs to be translated
 		} finally {
@@ -220,7 +219,8 @@ export const BorrowedManageSection = () => {
 				payBackHash = await writeContract(WAGMI_CONFIG, {
 					address: position.position,
 					abi: PositionV2ABI,
-					functionName: "repayFull",
+					functionName: "adjust",
+					args: [BigInt(0), BigInt(0), BigInt(position.price)],
 				});
 			} else {
 				const { loanAmount } = getLoanDetailsByCollateralAndYouGetAmount(position, balanceOf, BigInt(amount));
@@ -252,8 +252,8 @@ export const BorrowedManageSection = () => {
 				},
 			});
 			setAmount("");
-			refetchBalances();
-			refetchReadContracts();
+			await refetchBalances();
+			await refetchReadContracts();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
@@ -366,7 +366,13 @@ export const BorrowedManageSection = () => {
 					isLoading={isTxOnGoing}
 					disabled={!amount}
 				>
-					{t(isBorrowMore ? "mint.borrow_more" : "mint.pay_back")}
+					{t(
+						isBorrowMore
+							? "mint.borrow_more"
+							: amount.toString() === debt.toString()
+							? "mint.pay_back_and_close"
+							: "mint.pay_back"
+					)}
 				</Button>
 			)}
 			<DetailsExpandablePanel

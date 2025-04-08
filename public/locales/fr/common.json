@@ -166,6 +166,7 @@
         "remove_collateral": "Retirer Collatéral",
         "borrow_more": "Emprunter plus",
         "pay_back": "Rembourser",
+        "pay_back_and_close": "Rembourser et fermer la position",
         "available_to_borrow": "Disponible à emprunter",
         "pay_back_amount": "Montant à rembourser",
         "current_expiration_date": "Date d'expiration actuelle",

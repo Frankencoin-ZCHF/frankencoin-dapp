@@ -166,6 +166,7 @@
         "remove_collateral": "Remove Collateral",
         "borrow_more": "Lending more",
         "pay_back": "Pay back",
+        "pay_back_and_close": "Pay back and close position",
         "available_to_borrow": "Available to lend",
         "pay_back_amount": "Pay back amount",
         "current_expiration_date": "Current expiration date",

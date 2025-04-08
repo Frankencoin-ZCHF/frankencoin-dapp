@@ -166,6 +166,7 @@
         "remove_collateral": "Eliminar Colateral",
         "borrow_more": "Pedir más",
         "pay_back": "Pagar",
+        "pay_back_and_close": "Pagar y cerrar posición",
         "available_to_borrow": "Disponible para pedir prestado",
         "pay_back_amount": "Cantidad a pagar",
         "current_expiration_date": "Fecha de vencimiento actual",
