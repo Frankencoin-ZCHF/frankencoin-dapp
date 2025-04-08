@@ -21,7 +21,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 
 export default function SavingsInteractionSection() {
-	const { userSavingsBalance, refetchInterest } = useSavingsInterest();
+	const { userSavingsBalance, interestToBeCollected, refetchInterest } = useSavingsInterest();
 	const [amount, setAmount] = useState("");
 	const [isDeposit, setIsDeposit] = useState(true);
 	const [isTxOnGoing, setIsTxOnGoing] = useState(false);
@@ -133,29 +133,51 @@ export default function SavingsInteractionSection() {
 		});
 	};
 
-	const handleOnClick = async function () {
+	const handleSave = async () => {
 		if (!account.address) return;
 
 		try {
 			setIsTxOnGoing(true);
 
-			const adjustedAmount = isDeposit ? BigInt(userSavingsBalance) + BigInt(amount) : BigInt(userSavingsBalance) - BigInt(amount);
-
-			const writeHash = await writeContract(WAGMI_CONFIG, {
+			const saveHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].savingsGateway,
 				abi: SavingsGatewayABI,
-				functionName: "adjust",
-				args: [adjustedAmount, frontendCode],
+				functionName: "save",
+				args: [BigInt(amount), frontendCode],
 			});
 
-			if (isDeposit) {
-				showToastForDeposit({ hash: writeHash });
-			} else {
-				showToastForWithdraw({ hash: writeHash });
-			}
+			await showToastForDeposit({ hash: saveHash });
+			await refetchInterest();
+			await refetchBalances();
+			setAmount("");
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
+		} finally {
+			setIsTxOnGoing(false);
+		}
+	};
 
-			refetchInterest();
-			refetchBalances();
+	const handleWithdraw = async () => {
+		if (!account.address) return;
+
+		try {
+			setIsTxOnGoing(true);
+
+			const adjustedAmount =
+				amount === userSavingsBalance.toString()
+					? 2n * BigInt(amount) + interestToBeCollected  // 2X so we can be sure to widhtdraw all the funds
+					: BigInt(amount) + interestToBeCollected;
+
+			const withdrawHash = await writeContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].savingsGateway,
+				abi: SavingsGatewayABI,
+				functionName: "withdraw",
+				args: [account.address, adjustedAmount, frontendCode],
+			});
+
+			await showToastForWithdraw({ hash: withdrawHash });
+			await refetchInterest();
+			await refetchBalances();
 			setAmount("");
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
@@ -256,7 +278,7 @@ export default function SavingsInteractionSection() {
 				) : (
 					<Button
 						className="text-lg leading-snug !font-extrabold"
-						onClick={handleOnClick}
+						onClick={isDeposit ? handleSave : handleWithdraw}
 						isLoading={isTxOnGoing}
 						disabled={!!error || !Boolean(amount)}
 					>
@@ -265,8 +287,8 @@ export default function SavingsInteractionSection() {
 								? t("savings.start_earning_interest", { rate: rate / 10_000 })
 								: t("savings.enter_amount_to_add_savings")
 							: !Boolean(amount)
-								? t("savings.enter_withdraw_amount")
-								: t("savings.withdraw_to_my_wallet")}
+							? t("savings.enter_withdraw_amount")
+							: t("savings.withdraw_to_my_wallet")}
 					</Button>
 				)}
 			</div>
