@@ -238,8 +238,8 @@ export default function ChallengePlaceBid() {
 								<DisplayLabel label="Owner" />
 								<AppLink
 									label={shortenAddress(position.owner)}
-									href={ContractUrl(position.owner, WAGMI_CHAIN)}
-									external={true}
+									href={`/mypositions?address=${position.owner}`}
+									external={false}
 								/>
 							</AppBox>
 							<AppBox>
