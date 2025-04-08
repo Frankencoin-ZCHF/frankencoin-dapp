@@ -22,8 +22,9 @@ export default function BorrowRow({ headers, position, tab }: Props) {
 	const { t } = useTranslation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const eurPrice = useSelector((state: RootState) => state.prices.eur?.usd);
 	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
-	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd;
+	const deuroPrice = eurPrice || prices[position.deuro.toLowerCase() as Address]?.price?.usd;
 	if (!collTokenPrice || !deuroPrice) return null;
 
 	const interest: number = Math.round((position.annualInterestPPM / 10 ** 4) * 100) / 100;

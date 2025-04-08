@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { Address, erc20Abi, formatUnits, maxUint256, TransactionReceipt, Log, decodeEventLog } from "viem";
+import { Address, erc20Abi, formatUnits, maxUint256, TransactionReceipt, Log, decodeEventLog, zeroAddress } from "viem";
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 import AppCard from "@components/AppCard";
 import Button from "@components/Button";
@@ -10,7 +10,7 @@ import { SliderInputOutlined } from "@components/Input/SliderInputOutlined";
 import { DetailsExpandablePanel } from "@components/PageMint/DetailsExpandablePanel";
 import { NormalInputOutlined } from "@components/Input/NormalInputOutlined";
 import { PositionQuery } from "@deuro/api";
-import { TokenSelectModal } from "@components/TokenSelectModal";
+import { SelectCollateralModal } from "./SelectCollateralModal";
 import { BorrowingDEUROModal } from "@components/PageMint/BorrowingDEUROModal";
 import { InputTitle } from "@components/Input/InputTitle";
 import { formatBigInt, formatCurrency, shortenAddress, toDate, TOKEN_SYMBOL, toTimestamp, WHITELISTED_POSITIONS } from "@utils";
@@ -19,7 +19,7 @@ import { RootState, store } from "../../redux/redux.store";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { useTranslation } from "next-i18next";
 import { ADDRESS, MintingHubGatewayABI, PositionV2ABI } from "@deuro/eurocoin";
-import { useBlock, useChainId } from "wagmi";
+import { useAccount, useBlock, useChainId } from "wagmi";
 import { WAGMI_CONFIG } from "../../app.config";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { TxToast } from "@components/TxToast";
@@ -34,6 +34,7 @@ import {
 import { useFrontendCode } from "../../hooks/useFrontendCode";
 import { MaxButton } from "@components/Input/MaxButton";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 export default function PositionCreate({}) {
 	const [selectedCollateral, setSelectedCollateral] = useState<TokenBalance | null | undefined>(null);
@@ -56,7 +57,9 @@ export default function PositionCreate({}) {
 
 	const { data: latestBlock } = useBlock();
 	const chainId = useChainId();
-	const { query } = useRouter();
+	const { address } = useAccount();
+	const router = useRouter();
+	const { query } = router;
 
 	const elegiblePositions = useMemo(() => {
 		const blockTimestamp = latestBlock?.timestamp || new Date().getTime() / 1000;
@@ -107,7 +110,7 @@ export default function PositionCreate({}) {
 	useEffect(() => {
 		if (!selectedPosition || !selectedCollateral) return;
 
-		if (BigInt(collateralAmount) === 0n || collateralAmount === "") {
+		if (BigInt(collateralAmount) === 0n || collateralAmount === "" || !address) {
 			setCollateralError("");
 			return;
 		}
@@ -125,10 +128,11 @@ export default function PositionCreate({}) {
 		} else {
 			setCollateralError("");
 		}
-	}, [collateralAmount, balancesByAddress]);
+	}, [collateralAmount, balancesByAddress, address]);
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
-	const collateralPriceDeuro = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0; // TODO: change to eur?
+	const eurPrice = useSelector((state: RootState) => state.prices.eur?.usd);
+	const collateralPriceDeuro = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.eur || 0;
 
 	const collateralPriceUsd = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.usd || 0;
 	const collateralEurValue = selectedPosition
@@ -145,10 +149,16 @@ export default function PositionCreate({}) {
 	const isCollateralError =
 		collateralAmount !== "0" && collateralAmount !== "" && BigInt(userBalance) < BigInt(selectedPosition?.minimumCollateral || 0n);
 	const selectedBalance = Boolean(selectedCollateral) ? balancesByAddress[selectedCollateral?.address as Address] : null;
+	const usdLiquidationPrice = formatCurrency(parseFloat(formatUnits(BigInt(liquidationPrice), 36 - (selectedPosition?.collateralDecimals || 0))) * (eurPrice || 0))?.toString();
 
 	const handleOnSelectedToken = (token: TokenBalance) => {
 		if (!token) return;
 		setSelectedCollateral(token);
+		const currentQuery = { ...router.query, collateral: token.symbol };
+		router.replace({
+			pathname: router.pathname,
+			query: currentQuery,
+		});
 
 		const selectedPosition = elegiblePositions.find((p) => p.collateral.toLowerCase() == token.address.toLowerCase());
 		if (!selectedPosition) return;
@@ -354,16 +364,37 @@ export default function PositionCreate({}) {
 					<div className="self-stretch flex-col justify-start items-center gap-1 flex">
 						<InputTitle icon={faCircleQuestion}>{t("mint.select_collateral")}</InputTitle>
 						<TokenInputSelectOutlined
-							selectedToken={selectedBalance}
+							selectedToken={selectedCollateral}
 							onSelectTokenClick={() => setIsOpenTokenSelector(true)}
 							value={collateralAmount}
 							onChange={onAmountCollateralChange}
-							usdValue={collateralUsdValue}
-							eurValue={collateralEurValue}
 							isError={Boolean(collateralError)}
 							errorMessage={collateralError}
+							adornamentRow={
+								<div className="self-stretch justify-start items-center inline-flex">
+									<div className="grow shrink basis-0 h-4 px-2 justify-start items-center gap-2 flex max-w-full overflow-hidden">
+										<div className="text-input-label text-xs font-medium leading-none">€{collateralEurValue}</div>
+										<div className="h-4 w-0.5 border-l border-input-placeholder"></div>
+										<div className="text-input-label text-xs font-medium leading-none">${collateralUsdValue}</div>
+									</div>
+									<div className="h-7 justify-end items-center gap-2.5 flex">
+										{selectedBalance && (
+											<>
+												<div className="text-input-label text-xs font-medium leading-none">
+													{formatUnits(selectedBalance.balanceOf || 0n, selectedBalance.decimals || 18)}{" "}
+													{selectedBalance.symbol}
+												</div>
+												<MaxButton
+													disabled={BigInt(selectedBalance.balanceOf || 0n) === BigInt(0)}
+													onClick={() => onAmountCollateralChange(selectedBalance?.balanceOf?.toString() || "0")}
+												/>
+											</>
+										)}
+									</div>
+								</div>
+							}
 						/>
-						<TokenSelectModal
+						<SelectCollateralModal
 							title={t("mint.token_select_modal_title")}
 							isOpen={isOpenTokenSelector}
 							setIsOpen={setIsOpenTokenSelector}
@@ -381,13 +412,14 @@ export default function PositionCreate({}) {
 							decimals={36 - (selectedPosition?.collateralDecimals || 0)}
 							isError={isLiquidationPriceTooHigh}
 							errorMessage={t("mint.liquidation_price_too_high")}
+							usdPrice={usdLiquidationPrice}
 						/>
 					</div>
 					<div className="self-stretch flex-col justify-start items-center gap-1.5 flex">
 						<InputTitle>{t("mint.set_expiration_date")}</InputTitle>
 						<DateInputOutlined
 							value={expirationDate}
-							maxDate={expirationDate}
+							maxDate={selectedPosition?.expiration ? toDate(selectedPosition?.expiration) : expirationDate}
 							placeholderText="YYYY-MM-DD"
 							onChange={setExpirationDate}
 							rightAdornment={expirationDate ? <MaxButton onClick={handleMaxExpirationDate} /> : null}
@@ -404,6 +436,17 @@ export default function PositionCreate({}) {
 							startingLiquidationPrice={BigInt(liquidationPrice)}
 							collateralDecimals={selectedPosition?.collateralDecimals || 0}
 							collateralPriceDeuro={collateralPriceDeuro}
+							extraRows={
+								<div className="py-1.5 flex justify-between">
+									<span className="text-base leading-tight">{t("mint.original_position")}</span>
+									<Link
+										className="underline text-right text-sm font-extrabold leading-none tracking-tight"
+										href={`/monitoring/${selectedPosition?.position}`}
+									>
+										{shortenAddress(selectedPosition?.position || zeroAddress)}
+									</Link>
+								</div>
+							}
 						/>
 					</div>
 					<GuardToAllowedChainBtn label={t("mint.symbol_borrow", { symbol: TOKEN_SYMBOL })}>
@@ -449,9 +492,10 @@ export default function PositionCreate({}) {
 						formmatedCollateral={`${formatUnits(BigInt(collateralAmount), selectedPosition?.collateralDecimals || 0)} ${
 							selectedPosition?.collateralSymbol
 						}`}
-						collateralPriceDeuro={collateralPriceDeuro}
+						collateralPriceDeuro={collateralEurValue || "0"}
 						isSuccess={isCloneSuccess}
 						isLoading={isCloneLoading}
+						usdLiquidationPrice={usdLiquidationPrice}
 					/>
 				</AppCard>
 			</div>

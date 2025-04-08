@@ -38,6 +38,7 @@
         "remove": "Entfernen",
         "connect_wallet": "Wallet verbinden",
         "temporary_unavailable": "Temporär nicht verfügbar",
+        "using_referral_code": "Mit Referral-Code verwenden",
         "navbar": {
             "my_referrals": "Meine Empfehlungen",
             "swap": "Tausch",
@@ -165,6 +166,7 @@
         "remove_collateral": "Besicherung entfernen",
         "borrow_more": "Mehr ausleihen",
         "pay_back": "Zurückzahlen",
+        "pay_back_and_close": "Zurückzahlen und Position schließen",
         "available_to_borrow": "Kann ausgeliehen werden",
         "pay_back_amount": "Rückzahlungsbetrag",
         "current_expiration_date": "Aktuelles Ablaufdatum",

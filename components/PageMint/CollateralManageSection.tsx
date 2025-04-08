@@ -24,6 +24,8 @@ import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import { DetailsExpandablePanel } from "@components/PageMint/DetailsExpandablePanel";
 import { SvgIconButton } from "@components/PageMint/PlusMinusButtons";
 import { getLoanDetailsByCollateralAndYouGetAmount } from "../../utils/loanCalculations";
+import Link from "next/link";
+import { useContractUrl } from "../../hooks/useContractUrl";
 
 export const CollateralManageSection = () => {
 	const router = useRouter();
@@ -46,6 +48,7 @@ export const CollateralManageSection = () => {
 			allowance: [position.position],
 		},
 	]);
+	const url = useContractUrl(position.position);
 
 	const { data, refetch: refetchReadContracts } = useReadContracts({
 		contracts: [
@@ -81,16 +84,18 @@ export const CollateralManageSection = () => {
 	const price = data?.[1]?.result || 1n;
 	const balanceOf = data?.[2]?.result || 0n; // collateral reserve
 	const debt = data?.[3]?.result || 0n;
-	const collateralPrice = prices[position.collateralSymbol as Address]?.price?.eur || 1;
+	const collateralPrice = prices[position.collateral.toLowerCase() as Address]?.price?.eur || 0;
 	const collateralValuation = collateralPrice * Number(formatUnits(balanceOf, position.collateralDecimals));
 	const walletBalance = balancesByAddress[position.collateral as Address]?.balanceOf || 0n;
 	const allowance = balancesByAddress[position.collateral as Address]?.allowance?.[position.position] || 0n;
-	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
-	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd || 1;
-	const balance: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
-	const balanceDEURO: number = Math.round(((balance * collTokenPrice) / deuroPrice) * 100) / 100;
-	const liquidationDEURO: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
-	const liquidationPct: number = Math.round((balanceDEURO / (liquidationDEURO * balance)) * 10000) / 100;
+		
+	const collBalancePosition: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
+	const collTokenPriceMarket = prices[position.collateral.toLowerCase() as Address]?.price?.eur || 0;
+	const collTokenPricePosition: number = Math.round((parseInt(position.virtualPrice || position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
+	
+	const marketValueCollateral: number = collBalancePosition * collTokenPriceMarket;
+	const positionValueCollateral: number = collBalancePosition * collTokenPricePosition;
+	const collateralizationPercentage: number = Math.round((marketValueCollateral / positionValueCollateral) * 10000) / 100;
 
 	const maxToRemoveThreshold =
 		balanceOf - (debt * 10n ** BigInt(position.collateralDecimals)) / price - BigInt(position.minimumCollateral);
@@ -271,7 +276,7 @@ export const CollateralManageSection = () => {
 						<TokenLogo currency={position.collateralSymbol} />
 						<div className="flex flex-col">
 							<span className="text-base font-extrabold leading-tight">
-								<span className="">{formatUnits(balanceOf, position.collateralDecimals)}</span> {position.collateralSymbol}
+								<span className="">{formatCurrency(formatUnits(balanceOf, position.collateralDecimals), 0, 5)}</span> {position.collateralSymbol}
 							</span>
 							<span className="text-xs font-medium text-text-muted2 leading-[1rem]">
 								{formatCurrency(collateralValuation)} dEURO
@@ -311,7 +316,7 @@ export const CollateralManageSection = () => {
 				</div>
 				<div className="w-full mt-1.5 px-4 py-2 rounded-xl bg-[#E4F0FC] flex flex-row justify-between items-center text-base font-extrabold text-[#272B38]">
 					<span>{t("mint.collateralization")}</span>
-					<span>{liquidationPct} %</span>
+					<span>{collateralizationPercentage} %</span>
 				</div>
 			</div>
 			{allowance > BigInt(amount) ? (
@@ -333,6 +338,18 @@ export const CollateralManageSection = () => {
 				collateralPriceDeuro={collateralPrice}
 				collateralDecimals={position.collateralDecimals}
 				startingLiquidationPrice={BigInt(position.price)}
+				extraRows={
+					<div className="py-1.5 flex justify-between">
+						<span className="text-base leading-tight">{t("common.position")}</span>
+						<Link
+							className="underline text-right text-sm font-extrabold leading-none tracking-tight"
+							href={url}
+							target="_blank"
+						>
+							{shortenAddress(position.position)}
+						</Link>
+					</div>
+				}
 			/>
 		</div>
 	);

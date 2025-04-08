@@ -1,6 +1,6 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
 import { PricesState, DispatchBoolean, DispatchApiPriceMapping, DispatchApiPriceERC20Mapping } from "./prices.types";
-import { ApiPriceERC20, ApiPriceERC20Mapping, ApiPriceMapping } from "@deuro/api";
+import { ApiPriceERC20, ApiPriceERC20Mapping, ApiPriceMapping, PriceQueryCurrencies } from "@deuro/api";
 import { DEURO_API_CLIENT } from "../../app.config";
 import { zeroAddress } from "viem";
 
@@ -11,6 +11,7 @@ export const initialState: PricesState = {
 	loaded: false,
 
 	coingecko: {},
+	eur: {},
 	mint: {
 		address: zeroAddress,
 		name: "dEURO",
@@ -64,6 +65,11 @@ export const slice = createSlice({
 		setCollateralERC20Info: (state, action: { payload: ApiPriceERC20Mapping }) => {
 			state.collateral = action.payload;
 		},
+
+		// SET EUR PRICE
+		setEurPrice: (state, action: { payload: PriceQueryCurrencies }) => {
+			state.eur = action.payload;
+		},
 	},
 });
 
@@ -89,6 +95,9 @@ export const fetchPricesList =
 
 		const response4 = await DEURO_API_CLIENT.get("/prices/erc20/deps");
 		dispatch(slice.actions.setNativePSERC20Info(response4.data as ApiPriceERC20));
+
+		const response5 = await DEURO_API_CLIENT.get("/prices/eur");
+		dispatch(slice.actions.setEurPrice(response5.data as PriceQueryCurrencies));
 
 		// ---------------------------------------------------------------
 		// Finalizing, loaded set to ture

@@ -37,6 +37,7 @@ const getMappedResponseByAddress = (query: QueryItem[], tokenList: TokenDescript
 
 	tokenList.forEach((token) => {
 		mappedResponse[token.address] = { address: token.address, symbol: token.symbol, name: token.name, decimals: 0, balanceOf: BigInt(0), allowance: {} };
+		if (!response?.length) return;
 
 		const tokenQuery = query.filter((queryItem) => queryItem.address === token.address);
 		const startIndex = query.findIndex(q => q.address === token.address);
@@ -115,7 +116,6 @@ export function useWalletERC20Balances(tokenList: TokenDescriptor[] = [], { acco
 	}) ?? { data: [], isLoading: true };
 
 	const responseMappedByAddress = useMemo(() => {
-		if (isLoading) return {};
 		return getMappedResponseByAddress(query, tokenList, data as any[]);
 	}, [query, data, isLoading]);
 

@@ -137,7 +137,7 @@ export const formatDateDuration = (timestamp: number | bigint): string => {
 export const formatDuration = (time: number | bigint): string => {
 	const duration = dayjs.duration(Number(time), "seconds").humanize(false); // TODO: add translation
 
-	return time > 0 ? duration : "-";
+	return time > 0 ? duration : "--";
 };
 
 export const isDateExpired = (timestamp: number | bigint): boolean => {

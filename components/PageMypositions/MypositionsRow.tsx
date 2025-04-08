@@ -30,9 +30,10 @@ export default function MypositionsRow({ headers, subHeaders, position, tab }: P
 	const navigate = useNavigate();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const eurPrice = useSelector((state: RootState) => state.prices.eur?.usd);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
-	const deuroPrice = prices[position.deuro.toLowerCase() as Address]?.price?.usd || 1; // TODO: remove when api is ready
+	const deuroPrice = eurPrice || prices[position.deuro.toLowerCase() as Address]?.price?.usd || 1;
 
 	const maturity: number = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
 

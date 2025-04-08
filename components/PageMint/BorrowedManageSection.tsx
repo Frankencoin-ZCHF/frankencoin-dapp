@@ -6,7 +6,7 @@ import { AddCircleOutlineIcon } from "@components/SvgComponents/add_circle_outli
 import { RemoveCircleOutlineIcon } from "@components/SvgComponents/remove_circle_outline";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
-import { formatBigInt, formatCurrency, shortenAddress, TOKEN_SYMBOL } from "@utils";
+import { formatCurrency, shortenAddress, TOKEN_SYMBOL } from "@utils";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQuery } from "@deuro/api";
@@ -25,6 +25,8 @@ import { toast } from "react-toastify";
 import { TxToast } from "@components/TxToast";
 import { DetailsExpandablePanel } from "@components/PageMint/DetailsExpandablePanel";
 import { SvgIconButton } from "./PlusMinusButtons";
+import Link from "next/link";
+import { useContractUrl } from "../../hooks/useContractUrl";
 
 export const BorrowedManageSection = () => {
 	const [amount, setAmount] = useState("");
@@ -49,7 +51,8 @@ export const BorrowedManageSection = () => {
 			allowance: [position.position],
 		},
 	]);
-
+	const url = useContractUrl(position.position);
+	
 	const { data, refetch: refetchReadContracts } = useReadContracts({
 		contracts: [
 			{
@@ -88,7 +91,7 @@ export const BorrowedManageSection = () => {
 
 	const { reserveContribution } = position;
 
-	const collateralPrice = prices[position.collateralSymbol as Address]?.price?.eur || 1;
+	const collateralPrice = prices[position.collateral.toLowerCase() as Address]?.price?.eur || 0;
 	const principal = data?.[0]?.result || 0n;
 	const price = data?.[1]?.result || 1n;
 	const balanceOf = data?.[2]?.result || 0n;
@@ -99,16 +102,28 @@ export const BorrowedManageSection = () => {
 	const walletBalance = balancesByAddress?.[position.deuro as Address]?.balanceOf || 0n;
 	const allowance = balancesByAddress?.[position.deuro as Address]?.allowance?.[position.position] || 0n;
 
-	const { amountToSendToWallet: maxAmountByDepositedCollateral } = getLoanDetailsByCollateralAndStartingLiqPrice(position, balanceOf, price);
+	const collBalancePosition: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
+	const collTokenPriceMarket = prices[position.collateral.toLowerCase() as Address]?.price?.eur || 0;
+	const collTokenPricePosition: number = Math.round((parseInt(position.virtualPrice || position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
+	
+	const marketValueCollateral: number = collBalancePosition * collTokenPriceMarket;
+	const positionValueCollateral: number = collBalancePosition * collTokenPricePosition;
+	const collateralizationPercentage: number = Math.round((marketValueCollateral / positionValueCollateral) * 10000) / 100;
+
+	const { amountToSendToWallet: maxAmountByDepositedCollateral } = getLoanDetailsByCollateralAndStartingLiqPrice(
+		position,
+		balanceOf,
+		price
+	);
 	const maxBeforeAddingMoreCollateral = maxAmountByDepositedCollateral - totalDebt > 0 ? maxAmountByDepositedCollateral - totalDebt : 0n;
 
 	const handleMaxAmount = () => {
-		if(isBorrowMore) {
+		if (isBorrowMore) {
 			setAmount(maxBeforeAddingMoreCollateral.toString());
 		} else {
 			setAmount(debt.toString());
 		}
-	}
+	};
 
 	const handleBorrowMore = async () => {
 		try {
@@ -143,15 +158,14 @@ export const BorrowedManageSection = () => {
 				},
 			});
 			setAmount("");
-			refetchBalances();
-			refetchReadContracts();
+			await refetchBalances();
+			await refetchReadContracts();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
 			setIsTxOnGoing(false);
 		}
 	};
-
 
 	const handleApprove = async () => {
 		try {
@@ -187,8 +201,7 @@ export const BorrowedManageSection = () => {
 					render: <TxToast title={`${t("common.txs.success", { symbol: position.deuroSymbol })}`} rows={toastContent} />,
 				},
 			});
-			refetchBalances();
-			refetchReadContracts();
+			await refetchBalances();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: needs to be translated
 		} finally {
@@ -202,11 +215,12 @@ export const BorrowedManageSection = () => {
 
 			let payBackHash: `0x${string}` = zeroAddress as `0x${string}`;
 
-			if(amount.toString() === debt.toString()) {
+			if (amount.toString() === debt.toString()) {
 				payBackHash = await writeContract(WAGMI_CONFIG, {
 					address: position.position,
 					abi: PositionV2ABI,
-					functionName: "repayFull",
+					functionName: "adjust",
+					args: [BigInt(0), BigInt(0), BigInt(position.price)],
 				});
 			} else {
 				const { loanAmount } = getLoanDetailsByCollateralAndYouGetAmount(position, balanceOf, BigInt(amount));
@@ -238,8 +252,8 @@ export const BorrowedManageSection = () => {
 				},
 			});
 			setAmount("");
-			refetchBalances();
-			refetchReadContracts();
+			await refetchBalances();
+			await refetchReadContracts();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
@@ -249,12 +263,17 @@ export const BorrowedManageSection = () => {
 
 	// Error validation for Borrow More
 	useEffect(() => {
-		if(!isBorrowMore) return;
+		if (!isBorrowMore) return;
 
-		if(!amount) {
+		if (!amount) {
 			setError(null);
-		} else if(BigInt(amount) > maxBeforeAddingMoreCollateral) {
-			setError(t("mint.error.minting_limit_exceeded", { amount: formatCurrency(formatUnits(maxBeforeAddingMoreCollateral, 18)), symbol: position.deuroSymbol }));
+		} else if (BigInt(amount) > maxBeforeAddingMoreCollateral) {
+			setError(
+				t("mint.error.minting_limit_exceeded", {
+					amount: formatCurrency(formatUnits(maxBeforeAddingMoreCollateral, 18)),
+					symbol: position.deuroSymbol,
+				})
+			);
 		} else {
 			setError(null);
 		}
@@ -262,20 +281,21 @@ export const BorrowedManageSection = () => {
 
 	// Error validation for Pay Back
 	useEffect(() => {
-		if(isBorrowMore) return;
+		if (isBorrowMore) return;
 
-		if(!amount) {
+		if (!amount) {
 			setError(null);
 		} else if (BigInt(amount) > walletBalance) {
 			setError(t("common.error.insufficient_balance", { symbol: position.deuroSymbol }));
-		} else if(BigInt(amount) > debt) {
-			setError(t("mint.error.amount_greater_than_debt", { amount: formatCurrency(formatUnits(debt, 18)), symbol: position.deuroSymbol }));
+		} else if (BigInt(amount) > debt) {
+			setError(
+				t("mint.error.amount_greater_than_debt", { amount: formatCurrency(formatUnits(debt, 18)), symbol: position.deuroSymbol })
+			);
 		} else {
 			setError(null);
 		}
 	}, [isBorrowMore, amount, debt, walletBalance]);
 
-	
 	const loanDetails = getLoanDetailsByCollateralAndYouGetAmount(position, balanceOf, BigInt(amount) || BigInt(totalDebt));
 
 	return (
@@ -295,7 +315,11 @@ export const BorrowedManageSection = () => {
 						<SvgIconButton isSelected={isBorrowMore} onClick={() => setIsBorrowMore(true)} SvgComponent={AddCircleOutlineIcon}>
 							{t("mint.borrow_more")}
 						</SvgIconButton>
-						<SvgIconButton isSelected={!isBorrowMore} onClick={() => setIsBorrowMore(false)} SvgComponent={RemoveCircleOutlineIcon}>
+						<SvgIconButton
+							isSelected={!isBorrowMore}
+							onClick={() => setIsBorrowMore(false)}
+							SvgComponent={RemoveCircleOutlineIcon}
+						>
 							{t("mint.pay_back")}
 						</SvgIconButton>
 					</div>
@@ -323,11 +347,16 @@ export const BorrowedManageSection = () => {
 				</div>
 				<div className="w-full mt-1.5 px-4 py-2 rounded-xl bg-[#E4F0FC] flex flex-row justify-between items-center text-base font-extrabold text-[#272B38]">
 					<span>{t("mint.collateralization")}</span>
-					<span>100%</span>
+					<span>{collateralizationPercentage} %</span>
 				</div>
 			</div>
 			{allowance < BigInt(amount) && !isBorrowMore ? (
-				<Button className="text-lg leading-snug !font-extrabold" onClick={handleApprove} isLoading={isTxOnGoing} disabled={isTxOnGoing}>
+				<Button
+					className="text-lg leading-snug !font-extrabold"
+					onClick={handleApprove}
+					isLoading={isTxOnGoing}
+					disabled={isTxOnGoing}
+				>
 					{t("common.approve")}
 				</Button>
 			) : (
@@ -337,10 +366,33 @@ export const BorrowedManageSection = () => {
 					isLoading={isTxOnGoing}
 					disabled={!amount}
 				>
-					{t(isBorrowMore ? "mint.borrow_more" : "mint.pay_back")}
+					{t(
+						isBorrowMore
+							? "mint.borrow_more"
+							: amount.toString() === debt.toString()
+							? "mint.pay_back_and_close"
+							: "mint.pay_back"
+					)}
 				</Button>
 			)}
-			<DetailsExpandablePanel loanDetails={loanDetails} startingLiquidationPrice={BigInt(price)} collateralDecimals={position.collateralDecimals} collateralPriceDeuro={collateralPrice} />
+			<DetailsExpandablePanel
+				loanDetails={loanDetails}
+				startingLiquidationPrice={BigInt(price)}
+				collateralDecimals={position.collateralDecimals}
+				collateralPriceDeuro={collateralPrice}
+				extraRows={
+					<div className="py-1.5 flex justify-between">
+						<span className="text-base leading-tight">{t("common.position")}</span>
+						<Link
+							className="underline text-right text-sm font-extrabold leading-none tracking-tight"
+							href={url}
+							target="_blank"
+						>
+							{shortenAddress(position.position)}
+						</Link>
+					</div>
+				}
+			/>
 		</div>
 	);
 };

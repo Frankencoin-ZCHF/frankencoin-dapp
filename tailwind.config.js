@@ -96,12 +96,15 @@ module.exports = {
 					bg: "#f5f6f9",
 					borderFocus: "#3d89f4",
 					borderHover: "#5D647B",
+					bgNotEditable: "#F5F6F9",
 				},
 				button: {
 					max: {
 						bg: "#e4f0fb",
 						text: "#092f62",
 						hover: "#CCE4FF",
+						disabledBg: "#E9EBF0",
+						disabledText: "#ADB2C2",
 					},
 					primary: {
 						disabled: {

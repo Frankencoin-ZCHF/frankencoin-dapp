@@ -2,28 +2,41 @@ import React, { useEffect, useState } from "react";
 import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
-import { formatBigInt, formatDuration, NATIVE_POOL_SHARE_TOKEN_SYMBOL, POOL_SHARE_TOKEN_SYMBOL, shortenAddress } from "@utils";
-import { useAccount, useBlockNumber, useChainId } from "wagmi";
+import { formatBigInt, formatCurrency, formatDuration, NATIVE_POOL_SHARE_TOKEN_SYMBOL, POOL_SHARE_TOKEN_SYMBOL, shortenAddress } from "@utils";
+import { useAccount, useBlockNumber, useChainId, useReadContract } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import Button from "@components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown, faArrowDown19, faArrowDownLong, faArrowDownUpLock } from "@fortawesome/free-solid-svg-icons";
-import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
+import { faArrowDownLong } from "@fortawesome/free-solid-svg-icons";
+import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
-import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { ADDRESS, EquityABI, DEPSWrapperABI } from "@deuro/eurocoin";
 import { useTranslation } from "next-i18next";
-
+import { TokenBalance } from "../../hooks/useWalletBalances";
+import { TokenInputSelectOutlined } from "@components/Input/TokenInputSelectOutlined";
+import { MaxButton } from "@components/Input/MaxButton";
+import { InputTitle } from "@components/Input/InputTitle";
+import { TokenInteractionSide } from "./EquityInteractionCard";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/redux.store";
 interface Props {
-	tokenFromTo: { from: string; to: string };
-	setTokenFromTo: (set: { from: string; to: string }) => void;
-	selectorMapping: { [key: string]: string[] };
+	openSelector: (tokenInteractionSide: TokenInteractionSide) => void;
+	selectedFromToken: TokenBalance;
+	selectedToToken: TokenBalance;
+	refetchBalances: () => void;
+	reverseSelection: () => void;
 }
 
-export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setTokenFromTo, selectorMapping }: Props) {
+export default function InteractionNativePSAndPoolShareToken({
+	openSelector,
+	selectedFromToken,
+	selectedToToken,
+	refetchBalances,
+	reverseSelection,
+}: Props) {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [isApproving, setApproving] = useState(false);
@@ -38,12 +51,20 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 	const { data } = useBlockNumber({ watch: true });
 	const { address } = useAccount();
 	const chainId = useChainId();
+	const eurPrice = useSelector((state: RootState) => state.prices.eur?.usd);
 	const account = address || zeroAddress;
-	const direction: boolean = tokenFromTo.from === NATIVE_POOL_SHARE_TOKEN_SYMBOL;
+	const direction: boolean = selectedFromToken.symbol === NATIVE_POOL_SHARE_TOKEN_SYMBOL;
+
+	const { data: collateralEurValue = 0n } = useReadContract({
+		address: ADDRESS[chainId].equity,
+		abi: EquityABI,
+		functionName: "calculateProceeds",
+		args: [amount],
+	});
 
 	useEffect(() => {
 		setError("");
-	}, [tokenFromTo]);
+	}, [selectedFromToken.symbol]);
 
 	useEffect(() => {
 		const fetchAsync = async function () {
@@ -128,12 +149,14 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 				},
 			});
 			setNativePSAllowance(amount);
+			await refetchBalances();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {
 			setApproving(false);
 		}
 	};
+
 	const handleWrapping = async () => {
 		try {
 			setWrapping(true);
@@ -165,9 +188,12 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 					render: <TxToast title={t("equity.txs.wrapping", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title={t("equity.txs.success_wrapping", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
+					render: (
+						<TxToast title={t("equity.txs.success_wrapping", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />
+					),
 				},
 			});
+			await refetchBalances();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {
@@ -209,6 +235,7 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 					render: <TxToast title={t("equity.txs.success_unwrapping", { symbol: POOL_SHARE_TOKEN_SYMBOL })} rows={toastContent} />,
 				},
 			});
+			await refetchBalances();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {
@@ -219,7 +246,6 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 
 	const fromBalance = direction ? nativePSBalance : psTokenBalance;
 	const fromSymbol = direction ? NATIVE_POOL_SHARE_TOKEN_SYMBOL : POOL_SHARE_TOKEN_SYMBOL;
-	const toSymbol = !direction ? NATIVE_POOL_SHARE_TOKEN_SYMBOL : POOL_SHARE_TOKEN_SYMBOL;
 
 	const onChangeAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
@@ -231,38 +257,95 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 		}
 	};
 
+	const usdValue = eurPrice && collateralEurValue ? formatBigInt(BigInt(Math.floor(eurPrice * 10000)) * collateralEurValue / 10000n) : formatBigInt(0n);
+
 	return (
-		<>
-			<div className="mb-4">
-				<TokenInputSelect
-					max={fromBalance}
-					symbol={fromSymbol}
-					symbolOptions={Object.keys(selectorMapping) || []}
-					symbolOnChange={(o) => setTokenFromTo({ from: o.label, to: selectorMapping[o.label][0] })}
-					onChange={onChangeAmount}
+		<div className="flex flex-col">
+			<div className="">
+				<InputTitle>{t("common.send")}</InputTitle>
+				<TokenInputSelectOutlined
+					selectedToken={selectedFromToken}
+					onSelectTokenClick={() => openSelector(TokenInteractionSide.INPUT)}
 					value={amount.toString()}
-					error={error}
-					placeholder={t("common.symbol_amount", { symbol: fromSymbol })}
+					onChange={onChangeAmount}
+					isError={Boolean(error)}
+					errorMessage={error}
+					adornamentRow={
+						<div className="self-stretch justify-start items-center inline-flex">
+							<div className="grow shrink basis-0 h-4 px-2 justify-start items-center gap-2 flex max-w-full overflow-hidden">
+								<div className="text-text-muted3 text-xs font-medium leading-none">€{formatCurrency(formatUnits(collateralEurValue, 18))}</div>
+								{eurPrice && (
+									<>
+										<div className="h-4 w-0.5 border-l border-input-placeholder"></div>
+										<div className="text-text-muted3 text-xs font-medium leading-none">${formatCurrency(usdValue)}</div>
+									</>
+								)}
+							</div>
+							<div className="h-7 justify-end items-center gap-2.5 flex">
+								{selectedFromToken && (
+									<>
+										<div className="text-text-muted3 text-xs font-medium leading-none">
+											{t("common.balance_label")} {": "}
+											{formatUnits(selectedFromToken.balanceOf || 0n, selectedFromToken.decimals || 18)}{" "}
+											{selectedFromToken.symbol}
+										</div>
+										<MaxButton
+											disabled={BigInt(selectedFromToken.balanceOf || 0n) === BigInt(0)}
+											onClick={() => onChangeAmount(selectedFromToken?.balanceOf?.toString() || "0")}
+										/>
+									</>
+								)}
+							</div>
+						</div>
+					}
 				/>
 
-				<div className="py-2 text-center z-0">
-					<Button className={`h-10 rounded-full mt-4 !p-2.5`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
+				<div className="pt-2 text-center z-0">
+					<Button className={`h-10 rounded-full mt-4 !p-2.5`} width="w-10" onClick={reverseSelection}>
 						<span className="flex items-center justify-center flex-1">
 							<FontAwesomeIcon icon={faArrowDownLong} className="w-5 h-5" />
 						</span>
 					</Button>
 				</div>
 
-				<TokenInputSelect
-					symbol={toSymbol}
-					symbolOptions={selectorMapping[fromSymbol] || []}
-					symbolOnChange={(o) => setTokenFromTo({ from: tokenFromTo.from, to: o.label })}
-					hideMaxLabel
-					output={Math.round(parseFloat(formatUnits(amount, 18)) * 10000) / 10000}
-					label={t("common.receive")}
+				<InputTitle>{t("common.receive")}</InputTitle>
+				<TokenInputSelectOutlined
+					notEditable
+					selectedToken={selectedToToken}
+					onSelectTokenClick={() => openSelector(TokenInteractionSide.OUTPUT)}
+					value={amount.toString()}
+					onChange={() => {}}
+					adornamentRow={
+						<div className="self-stretch justify-start items-center inline-flex">
+							<div className="grow shrink basis-0 h-4 px-2 justify-start items-center gap-2 flex max-w-full overflow-hidden">
+							<div className="text-text-muted3 text-xs font-medium leading-none">€{formatCurrency(formatUnits(collateralEurValue, 18))}</div>
+								{eurPrice && (
+									<>
+										<div className="h-4 w-0.5 border-l border-input-placeholder"></div>
+										<div className="text-text-muted3 text-xs font-medium leading-none">${formatCurrency(usdValue)}</div>
+									</>
+								)}
+							</div>
+							<div className="h-7 justify-end items-center gap-2.5 flex">
+								{selectedToToken && (
+									<>
+										<div className="text-text-muted3 text-xs font-medium leading-none">
+											{t("common.balance_label")} {": "}
+											{formatUnits(selectedToToken.balanceOf || 0n, selectedToToken.decimals || 18)}{" "}
+											{selectedFromToken.symbol}
+										</div>
+										<MaxButton
+											disabled={BigInt(selectedToToken.balanceOf || 0n) === BigInt(0)}
+											onClick={() => onChangeAmount(selectedToToken?.balanceOf?.toString() || "0")}
+										/>
+									</>
+								)}
+							</div>
+						</div>
+					}
 				/>
 
-				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+				<div className="my-12 max-w-full flex-col">
 					<GuardToAllowedChainBtn label={direction ? t("equity.wrap") : t("equity.unwrap")}>
 						{direction ? (
 							amount > nativePSAllowance ? (
@@ -283,36 +366,24 @@ export default function InteractionNativePSAndPoolShareToken({ tokenFromTo, setT
 				</div>
 			</div>
 
-			<div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-2">
-				<AppBox>
-					<DisplayLabel label={t("equity.your_balance")} />
-					<DisplayAmount
-						bold
-						className="mt-2"
-						amount={nativePSBalance}
-						currency={NATIVE_POOL_SHARE_TOKEN_SYMBOL}
-						address={ADDRESS[chainId].equity}
-					/>
-				</AppBox>
-				<AppBox>
-					<DisplayLabel label={t("equity.holding_duration_symbol", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })} />
-					<div className="mt-2 font-bold">{nativePSHolding > 0 && nativePSHolding < 86_400 * 365 * 10 ? formatDuration(nativePSHolding) : "--"}</div>
-				</AppBox>
-				<AppBox>
-					<DisplayLabel label={t("equity.your_balance")} />
-					<DisplayAmount
-						bold
-						className="mt-2"
-						amount={psTokenBalance}
-						currency={POOL_SHARE_TOKEN_SYMBOL}
-						address={ADDRESS[chainId].DEPSwrapper}
-					/>
-				</AppBox>
-				<AppBox>
-					<DisplayLabel label={t("equity.holding_duration_symbol", { symbol: POOL_SHARE_TOKEN_SYMBOL })} />
-					<div className="mt-2 font-bold">{psTokenHolding > 0 && psTokenHolding < 86_400 * 365 * 10 ? formatDuration(psTokenHolding) : "--"}</div>
-				</AppBox>
+			<div className="border-t border-borders-dividerLight grid grid-cols-1 md:grid-cols-2 gap-2">
+				<div className="flex flex-col gap-2 p-4">
+					<div className="text-text-muted2 text-base font-medium leading-tight">
+						{t("equity.holding_duration_symbol", { symbol: NATIVE_POOL_SHARE_TOKEN_SYMBOL })}
+					</div>
+					<div className="text-base font-medium leading-tight">
+						{nativePSHolding > 0 && nativePSHolding < 86_400 * 365 * 10 ? formatDuration(nativePSHolding) : "--"}
+					</div>
+				</div>
+				<div className="flex flex-col gap-2 p-4">
+					<div className="text-text-muted2 text-base font-medium leading-tight">
+						{t("equity.holding_duration_symbol", { symbol: POOL_SHARE_TOKEN_SYMBOL })}
+					</div>
+					<div className="text-base font-medium leading-tight">
+						{psTokenHolding > 0 && psTokenHolding < 86_400 * 365 * 10 ? formatDuration(psTokenHolding) : "--"}
+					</div>
+				</div>
 			</div>
-		</>
+		</div>
 	);
 }

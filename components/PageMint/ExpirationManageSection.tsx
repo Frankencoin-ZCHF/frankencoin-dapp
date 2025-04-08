@@ -11,7 +11,7 @@ import { writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { useBlock, useChainId } from "wagmi";
 import { Address } from "viem/accounts";
-import { getCarryOnQueryParams, toDate, toQueryString, toTimestamp } from "@utils";
+import { getCarryOnQueryParams, shortenAddress, toDate, toQueryString, toTimestamp } from "@utils";
 import { toast } from "react-toastify";
 import { TxToast } from "@components/TxToast";
 import { useSelector } from "react-redux";
@@ -20,6 +20,9 @@ import { PositionQuery } from "@deuro/api";
 import { useWalletERC20Balances } from "../../hooks/useWalletBalances";
 import Button from "@components/Button";
 import { erc20Abi, maxUint256 } from "viem";
+import Link from "next/link";
+import { useContractUrl } from "../../hooks/useContractUrl";
+import { getLoanDetailsByCollateralAndLiqPrice } from "../../utils/loanCalculations";
 
 export const ExpirationManageSection = () => {
 	const [expirationDate, setExpirationDate] = useState<Date | undefined | null>(undefined);
@@ -32,6 +35,7 @@ export const ExpirationManageSection = () => {
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const position = positions.find((p) => p.position == positionAddress) as PositionQuery;
+	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
 	const challenges = useSelector((state: RootState) => state.challenges.list.list);
 	const challengedPositions = challenges.filter((c) => c.status === "Active").map((c) => c.position);
@@ -67,6 +71,8 @@ export const ExpirationManageSection = () => {
 
 	const collateralAllowance = balancesByAddress[position.collateral]?.allowance?.[ADDRESS[chainId].roller];
 	const deuroAllowance = balancesByAddress[position.deuro]?.allowance?.[ADDRESS[chainId].roller];
+
+	const url = useContractUrl(position.position);
 
 	useEffect(() => {
 		setExpirationDate(new Date(position.expiration * 1000));
@@ -181,6 +187,9 @@ export const ExpirationManageSection = () => {
 		}
 	};
 
+	const collateralPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
+	const loanDetails = getLoanDetailsByCollateralAndLiqPrice(position, BigInt(position?.collateralBalance), BigInt(position.price));
+
 	return (
 		<div className="flex flex-col gap-y-8">
 			<div className="flex flex-col gap-y-1.5">
@@ -221,7 +230,25 @@ export const ExpirationManageSection = () => {
 					{t("common.approve")} {position.deuroSymbol}
 				</Button>
 			) : null}
-			<DetailsExpandablePanel loanDetails={undefined} collateralPriceDeuro={0} collateralDecimals={0} startingLiquidationPrice={0n} />
+
+			<DetailsExpandablePanel
+				loanDetails={loanDetails}
+				collateralPriceDeuro={collateralPrice}
+				collateralDecimals={position.collateralDecimals}
+				startingLiquidationPrice={BigInt(position.price)}
+				extraRows={
+					<div className="py-1.5 flex justify-between">
+						<span className="text-base leading-tight">{t("common.position")}</span>
+						<Link
+							className="underline text-right text-sm font-extrabold leading-none tracking-tight"
+							href={url}
+							target="_blank"
+						>
+							{shortenAddress(position.position)}
+						</Link>
+					</div>
+				}
+			/>
 		</div>
 	);
 };

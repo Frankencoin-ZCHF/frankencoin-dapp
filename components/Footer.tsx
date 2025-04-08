@@ -8,6 +8,7 @@ import { SubmitIssue } from "./LoadingScreen";
 import { usePathname } from "next/navigation";
 import { useIsMainnet } from "@hooks";
 import { useFrontendCode } from "../hooks/useFrontendCode";
+import { useTranslation } from "next-i18next";
 
 const DynamicDocs = (): string => {
 	const p = usePathname();
@@ -30,7 +31,7 @@ const DynamicDocs = (): string => {
 
 export default function Footer() {
 	const isMainnet = useIsMainnet();
-
+	const { t } = useTranslation();
 	const { marketingCode, frontendCode } = useFrontendCode();
 	const parsedFrontendCode =
 		frontendCode && frontendCode !== ZERO_FRONTEND_CODE && frontendCode !== DEFAULT_FRONTEND_CODE && shortenHash(frontendCode);
@@ -42,7 +43,7 @@ export default function Footer() {
 				<SubmitIssue />
 				{code && (
 					<div className="mt-4 text-sm text-layout-primary">
-						Using referral code: <span className="font-bold">{code}</span>
+						{t("common.using_referral_code")}: <span className="font-bold">{code}</span>
 					</div>
 				)}
 			</div>
