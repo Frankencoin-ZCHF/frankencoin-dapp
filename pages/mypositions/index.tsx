@@ -12,6 +12,8 @@ import { fetchChallengesList } from "../../redux/slices/challenges.slice";
 import { fetchBidsList } from "../../redux/slices/bids.slice";
 import AppTitle from "@components/AppTitle";
 import MyPositionsTotalsCard from "@components/PageMypositions/MyPositionsTotalsCard";
+import AppLink from "@components/AppLink";
+import { useContractUrl } from "@hooks";
 
 export default function Positions() {
 	const router = useRouter();
@@ -56,9 +58,14 @@ export default function Positions() {
 }
 
 function DisplayWarningMessage(props: { overwrite: Address }) {
+	const link = useContractUrl(props.overwrite);
+	if (props.overwrite == undefined) return;
+
 	return (
 		<div>
-			<span className="font-bold text-sm">{props.overwrite ? `(Public View for: ${shortenAddress(props.overwrite)})` : ""}</span>
+			<span className="font-bold text-sm">
+				Public View for: {<AppLink className="" label={shortenAddress(props.overwrite)} href={link} external={true} />}
+			</span>
 		</div>
 	);
 }

@@ -38,7 +38,8 @@ export function BigNumberInput({
 
 			try {
 				parseInputValue = parseUnits(inputValue || "0", decimals);
-			} catch {
+			} catch (e) {
+				console.log(e);
 				// do nothing
 			}
 
@@ -56,7 +57,8 @@ export function BigNumberInput({
 	}, [autoFocus, inputRef]);
 
 	const updateValue = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const { value } = event.currentTarget;
+		// @dev: often copying and pasting values will include a tail space
+		const value = event.currentTarget.value.split(" ").join("");
 
 		if (value === "") {
 			onChange?.(value);
@@ -68,6 +70,7 @@ export function BigNumberInput({
 		try {
 			newValue = parseUnits(value, decimals);
 		} catch (e) {
+			console.log(e);
 			// don't update the input on invalid values
 			return;
 		}

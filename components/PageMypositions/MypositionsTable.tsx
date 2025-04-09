@@ -33,7 +33,7 @@ export default function MypositionsTable() {
 	for (const p of positions) {
 		const k: Address = p.collateral.toLowerCase() as Address;
 
-		if (p.owner !== account) continue;
+		if (p.owner.toLowerCase() !== account.toLowerCase()) continue;
 
 		if (p.closed || p.denied) {
 			if (BigInt(p.collateralBalance) == 0n) continue;

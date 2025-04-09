@@ -127,7 +127,7 @@ export default function PositionDetail() {
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Owner" />
-								<AppLink label={shortenAddress(position.owner)} href={ownerExplorerLink} external={true} />
+								<AppLink label={shortenAddress(position.owner)} href={myPosLink} external={false} />
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Reserve Requirement" />

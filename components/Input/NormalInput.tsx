@@ -52,7 +52,7 @@ export default function NormalInput({
 								className={`w-full px-0 py-0 text-xl text-right`}
 								decimals={Number(digit)}
 								placeholder={placeholder}
-								value={value}
+								value={value || ""}
 								onChange={onChange}
 								autoFocus={autoFocus}
 								disabled={disabled}

@@ -5,7 +5,7 @@ import AppBox from "@components/AppBox";
 import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
 import { Address, formatUnits, zeroAddress } from "viem";
-import { ContractUrl, formatBigInt, formatCurrency, formatDateTime, shortenAddress } from "@utils";
+import { formatBigInt, formatCurrency, formatDateTime, shortenAddress } from "@utils";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -208,8 +208,8 @@ export default function MonitoringForceSell() {
 								<DisplayLabel label="Owner" />
 								<AppLink
 									label={shortenAddress(position.owner)}
-									href={ContractUrl(position.owner, WAGMI_CHAIN)}
-									external={true}
+									href={`/mypositions?address=${position.owner}`}
+									external={false}
 								/>
 							</AppBox>
 							<AppBox>
