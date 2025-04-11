@@ -46,7 +46,7 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 	const timeLeft = isCooldown ? (cooldownTimestamp - Date.now()) / 1000 / 60 / 60 : 0;
 	const cooldownText = formatCurrency(timeLeft, 1, 1, FormatType.us) + "h Cooldown";
 
-	const isTargetOwned = target.owner.toLowerCase() === account.toLowerCase();
+	const isTargetOwned = target.owner.toLowerCase() === source.owner.toLowerCase();
 
 	const dateArr: string[] = new Date(target.expiration * 1000).toDateString().split(" ");
 	const dateStr: string = `${dateArr[2]} ${dateArr[1]} ${dateArr[3]}`;
