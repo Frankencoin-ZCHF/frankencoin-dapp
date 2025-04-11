@@ -57,7 +57,7 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 			rawHeader={true}
 			tab={tab}
 			actionCol={
-				userCollAllowance < BigInt(source.collateralBalance) ? (
+				address && userCollAllowance < BigInt(source.collateralBalance) ? (
 					<PositionRollerApproveAction source={source} disabled={isCooldown} />
 				) : (
 					<PositionRollerFullRollAction
