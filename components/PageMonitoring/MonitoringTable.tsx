@@ -4,7 +4,7 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { ApiChallengesPositions, ChallengesQueryItem, PositionQuery, PriceQueryObjectArray } from "@deuro/api";
+import { ApiChallengesPositions, PositionQuery, PriceQueryObjectArray } from "@deuro/api";
 import { Address, formatUnits } from "viem";
 import MonitoringRow from "./MonitoringRow";
 import { useState } from "react";
@@ -15,19 +15,18 @@ export default function MonitoringTable() {
 	const { t } = useTranslation();
 	const headers: string[] = [
 		t("monitoring.collateral"),
+		t("dashboard.liquidation_price"),
 		t("monitoring.collateralization"),
 		t("monitoring.expiration"),
-		t("monitoring.challenged"),
 	];
 	const [tab, setTab] = useState<string>(headers[1]);
 	const [reverse, setReverse] = useState<boolean>(true);
 
 	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
-	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 	const matchingPositions = openPositionsByCollateral.flat();
 
-	const sorted: PositionQuery[] = sortPositions(matchingPositions, coingecko, challenges, headers, tab, reverse).filter(
+	const sorted: PositionQuery[] = sortPositions(matchingPositions, coingecko, headers, tab, reverse).filter(
 		(p) => !INTERNAL_PROTOCOL_POSITIONS.includes(p.position)
 	);
 
@@ -67,7 +66,6 @@ export default function MonitoringTable() {
 function sortPositions(
 	list: PositionQuery[],
 	prices: PriceQueryObjectArray,
-	challenges: ApiChallengesPositions,
 	headers: string[],
 	tab: string,
 	reverse: boolean
@@ -83,6 +81,14 @@ function sortPositions(
 			return calc(b) - calc(a);
 		});
 	} else if (tab === headers[1]) {
+		// sort for Liquidation Price
+		list.sort((a, b) => {
+			const calc = function (p: PositionQuery) {
+				return Math.round((parseInt(p.virtualPrice || p.price) / 10 ** (36 - p.collateralDecimals)) * 100) / 100;
+			};
+			return calc(b) - calc(a);
+		});
+	} else if (tab === headers[2]) {
 		// sort for coll.
 		list.sort((a, b) => {
 			const calc = function (p: PositionQuery) {
@@ -96,26 +102,10 @@ function sortPositions(
 			};
 			return calc(b) - calc(a);
 		});
-	} else if (tab === headers[2]) {
+	} else if (tab === headers[3]) {
 		// sorft for Expiration
 		list.sort((a, b) => {
 			return b.expiration - a.expiration;
-		});
-	} else if (tab === headers[3]) {
-		// sort for Challenged
-		list.sort((a, b) => {
-			const calc = function (p: PositionQuery) {
-				const size: number = parseFloat(formatUnits(BigInt(p.collateralBalance), p.collateralDecimals));
-				const cp: ChallengesQueryItem[] = challenges.map[p.position.toLowerCase() as Address] || [];
-				const ca: ChallengesQueryItem[] = cp.filter((c) => c.status === "Active");
-				const cs: number = ca.reduce<number>((n: number, c: ChallengesQueryItem): number => {
-					const _size: number = parseFloat(formatUnits(BigInt(c.size.toString()), p.collateralDecimals));
-					const _filled: number = parseFloat(formatUnits(BigInt(c.filledSize.toString()), p.collateralDecimals));
-					return n + _size - _filled;
-				}, 0);
-				return cs / size;
-			};
-			return calc(b) - calc(a);
 		});
 	}
 

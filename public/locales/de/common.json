@@ -39,6 +39,7 @@
         "connect_wallet": "Wallet verbinden",
         "temporary_unavailable": "Temporär nicht verfügbar",
         "using_referral_code": "Mit Referral-Code verwenden",
+        "details": "Details",
         "navbar": {
             "my_referrals": "Meine Empfehlungen",
             "swap": "Tausch",
@@ -76,6 +77,7 @@
         "limit_label": "Tauschlimit",
         "placeholder": "Tauschbetrag",
         "swap": "Tauschen",
+        "select_stablecoin": "Besicherungsasset auswählen",
         "error": {
             "insufficient_bridge": "Nicht genügend {{symbol}} zum Tauschen verfügbar.",
             "exceeds_limit": "Betrag überschreitet das Tauschlimit."
@@ -172,6 +174,7 @@
         "current_expiration_date": "Aktuelles Ablaufdatum",
         "extend_roll_borrowing": "Verlängern/Neuabschließen",
         "extend_roll_borrowing_description": "Die Position muss vor dem Ablaufdatum zurückgezahlt oder verlängert werden.",
+        "clone": "Klonen",
         "error": {
             "could_not_obtain_token_data": "Tokendaten konnten nicht abgerufen werden.",
             "token_decimals_should_be_less_than_24": "Die Nachkommastellen des Tokens sollten kleiner als 24 sein.",
@@ -274,6 +277,7 @@
         "start_date": "Startdatum",
         "expiration_date": "Ablaufdatum",
         "cooldown": "Abklingzeit",
+        "liquidation_price": "Liquidationspreis",
         "cooldown_message": "Diese Position unterliegt einer Abklingzeit, die am {{formatDate}} endet, da ihr Eigentümer kürzlich den anwendbaren Liquidationspreis erhöht hat. Die Abklingzeit gibt anderen Nutzern die Möglichkeit, die Position anzufechten, bevor weitere dEUROs geprägt werden können.",
         "active_challenges": "Aktive Anfechtungen",
         "remaining_size": "Restgröße",
@@ -517,6 +521,7 @@
         "collateral": "Besicherung",
         "collateralization": "Besicherung",
         "loan_due_in": "Fälligkeit der Leihe",
+        "liquidation_price": "Liquidationspreis",
         "amount_borrowed": "Ausleihbetrag",
         "total_owed": "Gesamtbetrag",
         "governance_description": "Hier hast du die Möglichkeit, an der Steuerung des dEURO-Protokolls teilzunehmen, indem du neue Positionen, den Basiszinssatz oder andere systemrelevante Parameter überwachst. Aktiviere den Expertenmodus, um Einblicke zu erhalten.",

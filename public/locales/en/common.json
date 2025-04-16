@@ -39,6 +39,7 @@
         "connect_wallet": "Connect Wallet",
         "temporary_unavailable": "Temporary Unavailable",
         "using_referral_code": "Using referral code",
+        "details": "Details",
         "navbar": {
             "my_referrals": "My Referrals",
             "swap": "Swap",
@@ -76,6 +77,7 @@
         "limit_label": "Swap limit",
         "placeholder": "Swap Amount",
         "swap": "Swap",
+        "select_stablecoin": "Select Asset",
         "error": {
             "insufficient_bridge": "Not enough {{symbol}} available to swap.",
             "exceeds_limit": "Amount exceeds the swap limit."
@@ -172,6 +174,7 @@
         "current_expiration_date": "Current expiration date",
         "extend_roll_borrowing": "Extend/roll lending",
         "extend_roll_borrowing_description": "The position must either be repaid or extended before the expiry date.",
+        "clone": "Clone",
         "error": {
             "could_not_obtain_token_data": "Could not obtain token data",
             "token_decimals_should_be_less_than_24": "Token decimals should be less than 24.",
@@ -274,6 +277,7 @@
         "start_date": "Start Date",
         "expiration_date": "Expiration Date",
         "cooldown": "Cooldown",
+        "liquidation_price": "Liquidation Price",
         "cooldown_message": "This position is subject to a cooldown period that ends on {{formatDate}} as its owner has recently increased the applicable liquidation price. The cooldown period gives other users an opportunity to challenge the position before additional dEuros can be minted.",
         "active_challenges": "Active Challenges",
         "remaining_size": "Remaining Size",
@@ -517,6 +521,7 @@
         "collateral": "Collateral",
         "collateralization": "Collateralization",
         "loan_due_in": "Loan due in",
+        "liquidation_price": "Liquidation Price",
         "amount_borrowed": "Amount lended",
         "total_owed": "Total owed",
         "governance_description": "Here you have the opportunity to participate in the governance of the dEURO protocol by monitoring new positions, the base rate or other system-relevant parameters. Activate the expert mode to gain insight.",

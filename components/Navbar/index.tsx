@@ -7,6 +7,7 @@ import { CONFIG } from "../../app.config";
 import { GlobalPreferences } from "./GlobalPreferences";
 import { useTranslation } from "next-i18next";
 import Image from "next/image";
+import { LanguageSelectorDropdown } from "./LanguageSelector";
 
 export function NavItems() {
 	const isMainet = useIsMainnet();
@@ -31,9 +32,6 @@ export function NavItems() {
 			</li>
 			<li>
 				<NavButton to="/equity" name={t("common.navbar.equity")} />
-			</li>
-			<li className={`${localStorage.getItem('dev-deuro') ? 'block' : 'hidden'} border border-red-500`}>
-				<NavButton to="/dev" name="dev" />
 			</li>
 		</>
 	);
@@ -100,6 +98,9 @@ export default function Navbar() {
 								}`}
 							>
 								<div className="min-h-full w-full bg-white rounded-l-xl border border-borders-primary backdrop-blur px-6 pt-12 shadow-xl relative">
+									<div className="absolute top-4 left-[24px]">
+										<LanguageSelectorDropdown />
+									</div>
 									<button className="absolute top-4 right-4" onClick={() => setIsNavBarOpen(false)}>
 										<svg
 											xmlns="http://www.w3.org/2000/svg"
@@ -112,7 +113,7 @@ export default function Navbar() {
 										</svg>
 									</button>
 									<menu
-										className="grid grid-cols-1 gap-3 mt-1 place-content-stretch"
+										className="grid grid-cols-1 gap-3 mt-4 place-content-stretch"
 										onClick={() => setIsNavBarOpen(false)}
 									>
 										<NavItems />

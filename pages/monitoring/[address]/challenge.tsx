@@ -217,9 +217,9 @@ export default function PositionChallenge() {
 						/>
 						<div className="grid grid-cols-6 gap-2 lg:col-span-2">
 							<AppBox className="col-span-6 sm:col-span-3">
-								<DisplayLabel label={t("monitoring.starting_price")} />
+								<DisplayLabel label={t("monitoring.liquidation_price")} />
 								<DisplayAmount
-									amount={BigInt(position.price)}
+									amount={BigInt(position.virtualPrice)}
 									currency={TOKEN_SYMBOL}
 									digits={36 - position.collateralDecimals}
 									address={ADDRESS[chainId].decentralizedEURO}

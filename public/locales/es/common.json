@@ -39,6 +39,7 @@
         "connect_wallet": "Conectar Wallet",
         "temporary_unavailable": "Temporalmente no disponible",
         "using_referral_code": "Usando código de referido",
+        "details": "Detalles",
         "navbar": {
             "my_referrals": "Mis Referidos",
             "swap": "Intercambiar",
@@ -76,6 +77,7 @@
         "limit_label": "Límite de intercambio",
         "placeholder": "Cantidad a intercambiar",
         "swap": "Intercambiar",
+        "select_stablecoin": "Seleccionar Activo",
         "error": {
             "insufficient_bridge": "Fondos {{symbol}} insuficientes para el intercambio.",
             "exceeds_limit": "La cantidad excede el límite de intercambio."
@@ -172,6 +174,7 @@
         "current_expiration_date": "Fecha de vencimiento actual",
         "extend_roll_borrowing": "Extender préstamo",
         "extend_roll_borrowing_description": "La posición debe ser reembolsada o extendida antes de la fecha de vencimiento.",
+        "clone": "Clonar",
         "error": {
             "could_not_obtain_token_data": "No se pudieron obtener los datos del token",
             "token_decimals_should_be_less_than_24": "Los decimales del token deben ser inferiores a 24.",
@@ -274,6 +277,7 @@
         "start_date": "Fecha de Inicio",
         "expiration_date": "Fecha de Caducidad",
         "cooldown": "Período de Enfriamiento",
+        "liquidation_price": "Precio de liquidación",
         "cooldown_message": "Esta posición está sujeta a un período de enfriamiento que finaliza el {{formatDate}}, ya que su propietario recientemente aumentó el precio de liquidación aplicable. El período de enfriamiento brinda a otros usuarios la oportunidad de desafiar la posición antes de que se puedan acuñar más dEuros.",
         "active_challenges": "Desafíos Activos",
         "remaining_size": "Tamaño Restante",
@@ -517,6 +521,7 @@
         "collateral": "Garantía",
         "collateralization": "Colateralización",
         "loan_due_in": "Vencimiento del préstamo",
+        "liquidation_price": "Precio de liquidación",
         "amount_borrowed": "Monto prestado",
         "total_owed": "Total adeudado",
         "governance_description": "Aquí tiene la oportunidad de participar en la gobernanza del protocolo dEURO mediante el seguimiento de nuevas posiciones, el tipo base u otros parámetros relevantes del sistema. Active el modo experto para obtener información detallada.",

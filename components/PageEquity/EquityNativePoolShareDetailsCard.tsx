@@ -11,11 +11,11 @@ import { SegmentedControlButton } from "@components/Button";
 import TokenLogo from "@components/TokenLogo";
 
 enum Timeframe {
-	ALL = "All",
 	WEEK = "1W",
 	MONTH = "1M",
 	QUARTER = "1Q",
 	YEAR = "1Y",
+	ALL = "All",
 }
 
 const getStartTimestampByTimeframe = (timeframe: Timeframe) => {

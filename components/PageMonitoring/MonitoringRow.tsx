@@ -6,9 +6,11 @@ import { useSelector } from "react-redux";
 import TokenLogo from "@components/TokenLogo";
 import { formatCurrency } from "../../utils/format";
 import { useRouter as useNavigation } from "next/navigation";
+import { useRouter } from "next/router";
 import { useContractUrl } from "@hooks";
 import Button from "@components/Button";
 import { useTranslation } from "next-i18next";
+import { getCarryOnQueryParams, TOKEN_SYMBOL, toQueryString } from "@utils";
 
 interface Props {
 	headers: string[];
@@ -18,18 +20,19 @@ interface Props {
 
 export default function MonitoringRow({ headers, position, tab }: Props) {
 	const navigate = useNavigation();
+	const router = useRouter();
 	const { t } = useTranslation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const url = useContractUrl(position.collateral || zeroAddress);
 	const maturity: number = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
-	
-	
+
 	const collBalancePosition: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
 	const collTokenPriceMarket = prices[position.collateral.toLowerCase() as Address]?.price?.eur || 0;
-	const collTokenPricePosition: number = Math.round((parseInt(position.virtualPrice || position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
-	
+	const collTokenPricePosition: number =
+		Math.round((parseInt(position.virtualPrice || position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
+
 	const marketValueCollateral: number = collBalancePosition * collTokenPriceMarket;
 	const positionValueCollateral: number = collBalancePosition * collTokenPricePosition;
 	const collateralizationPercentage: number = Math.round((marketValueCollateral / positionValueCollateral) * 10000) / 100;
@@ -44,6 +47,12 @@ export default function MonitoringRow({ headers, position, tab }: Props) {
 	const collateralBalanceNumber: number = parseInt(formatUnits(BigInt(position.collateralBalance), digits - 2)) / 100;
 	const challengesRatioPct: number = Math.round((positionChallengesActiveCollateral / collateralBalanceNumber) * 100);
 
+	const liquidationPrice = formatCurrency(
+		Math.round((parseInt(position.virtualPrice || position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100, 
+		2,
+		2
+	);
+
 	const openExplorer = (e: any) => {
 		e.preventDefault();
 		window.open(url, "_blank");
@@ -53,11 +62,8 @@ export default function MonitoringRow({ headers, position, tab }: Props) {
 		<TableRow
 			headers={headers}
 			actionCol={
-				<Button
-					className="h-10"
-					onClick={() => navigate.push(`/monitoring/${position.position}/${maturity <= 0 ? "forceSell" : "challenge"}`)}
-				>
-					{maturity <= 0 ? t("monitoring.force_sell") : t("monitoring.challenge")}
+				<Button className="h-10" onClick={() => navigate.push(`/monitoring/${position.position}${toQueryString(getCarryOnQueryParams(router))}`)}>
+					{t("common.details")}
 				</Button>
 			}
 			tab={tab}
@@ -86,6 +92,13 @@ export default function MonitoringRow({ headers, position, tab }: Props) {
 				</div>
 			</div>
 
+			{/* Liquidation price */}
+			<div className="flex flex-col gap-2">
+				<div className={`col-span-2 text-md`}>
+					{liquidationPrice} {TOKEN_SYMBOL}
+				</div>
+			</div>
+
 			{/* Coll. */}
 			<div className="flex flex-col gap-2">
 				<div className={`col-span-2 text-md ${collateralizationPercentage < 110 ? "text-text-warning font-bold" : ""}`}>
@@ -102,11 +115,6 @@ export default function MonitoringRow({ headers, position, tab }: Props) {
 							: "Expired"
 						: `${formatCurrency(Math.round(maturity))} days`}
 				</div>
-			</div>
-
-			{/* Challenges */}
-			<div className="flex flex-col gap-2">
-				<div className={`col-span-2 text-md`}>{challengesRatioPct == 0 ? "-" : `${challengesRatioPct}%`}</div>
 			</div>
 		</TableRow>
 	);

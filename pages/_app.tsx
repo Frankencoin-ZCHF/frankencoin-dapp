@@ -16,8 +16,11 @@ import BlockUpdater from "@components/BlockUpdater";
 import USGovSanctionList from "@components/USGovSanctionList";
 import { FrontendCodeProvider } from "@components/FrontendCodeProvider";
 import { appWithTranslation } from "next-i18next";
+import { useLanguageSelector } from "../hooks/useLanguageSelector";
 
 function App({ Component, pageProps }: AppProps) {
+	useLanguageSelector();
+
 	return (
 		<ReduxProvider store={store}>
 			<Web3ModalProvider>

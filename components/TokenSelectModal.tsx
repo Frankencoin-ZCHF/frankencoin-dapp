@@ -9,12 +9,14 @@ type TokenSelectModalProps = {
 };
 
 export const TokenModalRowButton = ({
+	currency = "$",
 	symbol,
 	price,
 	balance,
 	name,
 	onClick,
 }: {
+	currency?: string;
 	symbol: string;
 	price: string;
 	balance: string;
@@ -32,7 +34,7 @@ export const TokenModalRowButton = ({
 			<div className="flex flex-col self-stretch justify-start items-start max-h-10 min-w-0 w-full">
 				<div className="flex flex-row self-stretch justify-between items-start w-full">
 					<span className="text-base leading-tight font-extrabold truncate">{symbol}</span>
-					<span className="text-base leading-tight font-extrabold ml-2 flex-shrink-0">${price}</span>
+					<span className="text-base leading-tight font-extrabold ml-2 flex-shrink-0">{currency}{price}</span>
 				</div>
 				<div className="flex flex-row gap-2 self-stretch justify-between items-center w-full">
 					<span className="text-base leading-tight text-text-muted truncate max-w-[60%]">{name}</span>

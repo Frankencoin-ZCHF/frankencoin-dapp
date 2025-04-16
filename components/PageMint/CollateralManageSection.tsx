@@ -88,11 +88,12 @@ export const CollateralManageSection = () => {
 	const collateralValuation = collateralPrice * Number(formatUnits(balanceOf, position.collateralDecimals));
 	const walletBalance = balancesByAddress[position.collateral as Address]?.balanceOf || 0n;
 	const allowance = balancesByAddress[position.collateral as Address]?.allowance?.[position.position] || 0n;
-		
+
 	const collBalancePosition: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
 	const collTokenPriceMarket = prices[position.collateral.toLowerCase() as Address]?.price?.eur || 0;
-	const collTokenPricePosition: number = Math.round((parseInt(position.virtualPrice || position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
-	
+	const collTokenPricePosition: number =
+		Math.round((parseInt(position.virtualPrice || position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
+
 	const marketValueCollateral: number = collBalancePosition * collTokenPriceMarket;
 	const positionValueCollateral: number = collBalancePosition * collTokenPricePosition;
 	const collateralizationPercentage: number = Math.round((marketValueCollateral / positionValueCollateral) * 10000) / 100;
@@ -118,13 +119,13 @@ export const CollateralManageSection = () => {
 				address: position.collateral as Address,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [position.position, maxUint256],
+				args: [position.position, BigInt(amount)],
 			});
 
 			const toastContent = [
 				{
 					title: t("common.txs.amount"),
-					value: "infinite " + position.collateralSymbol,
+					value: formatCurrency(formatUnits(BigInt(amount), position.collateralDecimals)) + " " + position.collateralSymbol,
 				},
 				{
 					title: t("common.txs.spender"),
@@ -144,8 +145,8 @@ export const CollateralManageSection = () => {
 					render: <TxToast title={`${t("common.txs.success", { symbol: position.collateralSymbol })}`} rows={toastContent} />,
 				},
 			});
-			refetchBalances();
-			refetchReadContracts();
+			await refetchBalances();
+			await refetchReadContracts();
 			store.dispatch(fetchPositionsList());
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: needs to be translated
@@ -276,7 +277,8 @@ export const CollateralManageSection = () => {
 						<TokenLogo currency={position.collateralSymbol} />
 						<div className="flex flex-col">
 							<span className="text-base font-extrabold leading-tight">
-								<span className="">{formatCurrency(formatUnits(balanceOf, position.collateralDecimals), 0, 5)}</span> {position.collateralSymbol}
+								<span className="">{formatCurrency(formatUnits(balanceOf, position.collateralDecimals), 0, 5)}</span>{" "}
+								{position.collateralSymbol}
 							</span>
 							<span className="text-xs font-medium text-text-muted2 leading-[1rem]">
 								{formatCurrency(collateralValuation)} dEURO
@@ -319,10 +321,19 @@ export const CollateralManageSection = () => {
 					<span>{collateralizationPercentage} %</span>
 				</div>
 			</div>
-			{allowance > BigInt(amount) ? (
+			{!isAdd ? (
 				<Button
 					className="text-lg leading-snug !font-extrabold"
-					onClick={isAdd ? handleAdd : handleRemove}
+					onClick={handleRemove}
+					isLoading={isTxOnGoing}
+					disabled={Boolean(error) || !Boolean(amount)}
+				>
+					{t(isAdd ? "mint.add_collateral" : "mint.remove_collateral")}
+				</Button>
+			) : allowance >= BigInt(amount) ? (
+				<Button
+					className="text-lg leading-snug !font-extrabold"
+					onClick={handleAdd}
 					isLoading={isTxOnGoing}
 					disabled={Boolean(error) || !Boolean(amount)}
 				>

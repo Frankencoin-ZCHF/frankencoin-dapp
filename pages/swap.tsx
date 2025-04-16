@@ -7,15 +7,25 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
-import { formatBigInt, shortenAddress, TOKEN_SYMBOL } from "@utils";
+import { formatBigInt, formatCurrency, shortenAddress, TOKEN_SYMBOL } from "@utils";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../app.config";
 import AppCard from "@components/AppCard";
 import { StablecoinBridgeABI } from "@deuro/eurocoin";
-import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
+import { TokenInputSelectOutlined } from "@components/Input/TokenInputSelectOutlined";
+import { InputTitle } from "@components/Input/InputTitle";
+import { MaxButton } from "@components/Input/MaxButton";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/redux.store";
+import { TokenModalRowButton, TokenSelectModal } from "@components/TokenSelectModal";
+
+enum TokenInteractionSide {
+	INPUT = "input",
+	OUTPUT = "output",
+}
 
 const STABLECOIN_SYMBOLS = ["EURC", "VEUR", "EURS"];
 
@@ -49,6 +59,9 @@ export default function Swap() {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [isTxOnGoing, setTxOnGoing] = useState(false);
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [interactionSide, setInteractionSide] = useState<TokenInteractionSide>();
+	const eurPrice = useSelector((state: RootState) => state.prices.eur?.usd);
 	const swapStats = useSwapStats();
 	const { t } = useTranslation();
 
@@ -127,6 +140,7 @@ export default function Swap() {
 			setAmount(newAmount);
 		}
 		setFromSymbol(symbol);
+		setToSymbol(TOKEN_SYMBOL);
 	};
 
 	const onSetToSymbol = (symbol: string) => {
@@ -137,6 +151,7 @@ export default function Swap() {
 			setAmount(newAmount);
 		}
 		setToSymbol(symbol);
+		setFromSymbol(TOKEN_SYMBOL);
 	};
 
 	// Only for triggering errors when the amount or the symbol is changed
@@ -202,7 +217,7 @@ export default function Swap() {
 					render: <TxToast title={t("common.txs.success", { symbol: fromSymbol })} rows={toastContent} />,
 				},
 			});
-			swapStats.refetch();
+			await swapStats.refetch();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: need to translate
 		} finally {
@@ -307,13 +322,31 @@ export default function Swap() {
 		}
 	};
 
+	const handleOpenModal = (side: TokenInteractionSide) => {
+		setInteractionSide(side);
+		setIsModalOpen(true);
+	};
+
+	const handleCloseModal = () => {
+		setIsModalOpen(false);
+		setInteractionSide(undefined);
+	};
+
+	const handleSelectToken = (symbol: string) => {		
+		if(interactionSide === TokenInteractionSide.INPUT) {
+			onSetFromSymbol(symbol);
+		} else {
+			onSetToSymbol(symbol);
+		}
+
+		handleCloseModal();
+	};
+
 	const fromTokenMeta = getTokenMetaBySymbol(fromSymbol);
 	const toTokenMeta = getTokenMetaBySymbol(toSymbol);
-
 	const stablecoinMeta = getTokenMetaBySymbol(getSelectedStablecoinSymbol());
 	const limit = fromSymbol === TOKEN_SYMBOL ? stablecoinMeta.bridgeBal : stablecoinMeta.remaining;
-
-	const outputAmount = formatUnits(rebaseDecimals(amount, fromTokenMeta.decimals, toTokenMeta.decimals), Number(toTokenMeta.decimals));
+	const rebasedOutputAmount = rebaseDecimals(amount, fromTokenMeta.decimals, toTokenMeta.decimals);
 
 	return (
 		<>
@@ -323,69 +356,174 @@ export default function Swap() {
 
 			<div className="md:mt-8 flex justify-center">
 				<div className="max-w-lg w-[32rem]">
-					<AppCard className="w-full p-4 gap-8">
-						<div className="mb-2 sm:mb-4 pb-2 w-full self-stretch justify-center items-center gap-1.5 inline-flex">
+					<AppCard className="w-full p-4 flex flex-col gap-8">
+						<div className="w-full self-stretch justify-center items-center gap-1.5 inline-flex">
 							<div className="text-text-title text-center text-lg sm:text-xl font-black ">
 								{t("swap.title", { symbol: TOKEN_SYMBOL })}
 							</div>
 						</div>
 
-						<div className="mt-8">
-							<TokenInputSelect
-								digit={fromTokenMeta.decimals}
-								max={fromTokenMeta.userBal}
-								symbol={fromTokenMeta.symbol}
-								symbolOptions={fromOptions}
-								symbolOnChange={(o) => onSetFromSymbol(o.value)}
-								limit={limit}
-								limitLabel={t("swap.limit_label")}
-								limitDigits={toTokenMeta.decimals}
-								placeholder={t("swap.placeholder")}
-								onChange={onChangeAmount}
+						<div className="">
+							<InputTitle>{t("common.send")}</InputTitle>
+							<TokenInputSelectOutlined
+								selectedToken={{
+									symbol: fromTokenMeta.symbol,
+									name: fromTokenMeta.symbol,
+									address: fromTokenMeta.contractAddress as `0x${string}`,
+									decimals: Number(fromTokenMeta.decimals),
+								}}
+								onSelectTokenClick={() => handleOpenModal(TokenInteractionSide.INPUT)}
 								value={amount.toString()}
-								error={error}
-								hideLimitIcon
+								onChange={onChangeAmount}
+								isError={Boolean(error)}
+								errorMessage={error}
+								label={
+									t("swap.limit_label") +
+									" " +
+									formatBigInt(limit, Number(toTokenMeta.decimals)) +
+									" " +
+									fromTokenMeta.symbol
+								}
+								adornamentRow={
+									<div className="self-stretch justify-start items-center inline-flex">
+										<div className="grow shrink basis-0 h-4 px-2 justify-start items-center gap-2 flex max-w-full overflow-hidden">
+											<div className="text-text-muted3 text-xs font-medium leading-none">
+												€{formatCurrency(formatUnits(amount, Number(fromTokenMeta.decimals)), 2, 2)}
+											</div>
+											<div className="h-4 w-0.5 border-l border-input-placeholder"></div>
+											<div className="text-text-muted3 text-xs font-medium leading-none">
+												$
+												{formatCurrency(
+													Number(formatUnits(amount, Number(fromTokenMeta.decimals))) * (eurPrice as number),
+													2,
+													2
+												)}
+											</div>
+										</div>
+										<div className="h-7 justify-end items-center gap-2.5 flex">
+											<div className="text-text-muted3 text-xs font-medium leading-none">
+												{t("common.balance_label")} {": "}
+												{formatCurrency(
+													formatUnits(fromTokenMeta.userBal || 0n, Number(fromTokenMeta.decimals)),
+													2,
+													2
+												)}{" "}
+												{fromTokenMeta.symbol}
+											</div>
+											<MaxButton
+												disabled={BigInt(fromTokenMeta.userBal) === BigInt(0)}
+												onClick={() => onChangeAmount(fromTokenMeta.userBal.toString())}
+											/>
+										</div>
+									</div>
+								}
 							/>
-						</div>
 
-						<div className="py-4 mt-1 text-center z-0">
-							<Button className={`h-10 rounded-full`} width="w-10" onClick={onChangeDirection}>
-								<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
-							</Button>
-						</div>
+							<div className="pt-11 text-center z-0">
+								<Button className={`h-10 rounded-full`} width="w-10" onClick={onChangeDirection}>
+									<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
+								</Button>
+							</div>
 
-						<TokenInputSelect
-							digit={toTokenMeta.decimals}
-							max={toTokenMeta.userBal}
-							symbol={toTokenMeta.symbol}
-							symbolOptions={toOptions}
-							symbolOnChange={(o) => onSetToSymbol(o.value)}
-							output={outputAmount}
-							note={`1 ${fromSymbol} = 1 ${toSymbol}`}
-							label={t("common.receive")}
-							showMaxButton={false}
-						/>
+							<InputTitle>{t("common.receive")}</InputTitle>
+							<TokenInputSelectOutlined
+								notEditable
+								selectedToken={{
+									symbol: toTokenMeta.symbol,
+									name: toTokenMeta.symbol,
+									address: toTokenMeta.contractAddress as `0x${string}`,
+									decimals: Number(toTokenMeta.decimals),
+								}}
+								onSelectTokenClick={() => handleOpenModal(TokenInteractionSide.OUTPUT)}
+								value={rebasedOutputAmount.toString()}
+								onChange={() => {}}
+								adornamentRow={
+									<div className="self-stretch justify-start items-center inline-flex">
+										<div className="grow shrink basis-0 h-4 px-2 justify-start items-center gap-2 flex max-w-full overflow-hidden">
+											<div className="text-text-muted3 text-xs font-medium leading-none">
+												€{formatCurrency(formatUnits(BigInt(rebasedOutputAmount), Number(toTokenMeta.decimals)), 2, 2)}
+											</div>
 
-						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-							<GuardToAllowedChainBtn>
-								{amount > fromTokenMeta.userAllowance ? (
-									<Button isLoading={isTxOnGoing} onClick={() => handleApprove()}>
-										{t("common.approve")}
-									</Button>
-								) : fromSymbol === TOKEN_SYMBOL ? (
-									<Button disabled={amount == 0n || !!error} isLoading={isTxOnGoing} onClick={() => handleBurn()}>
-										{t("swap.swap")}
-									</Button>
-								) : (
-									<Button disabled={amount == 0n || !!error} isLoading={isTxOnGoing} onClick={() => handleMint()}>
-										{t("swap.swap")}
-									</Button>
-								)}
-							</GuardToAllowedChainBtn>
+											<div className="h-4 w-0.5 border-l border-input-placeholder"></div>
+											<div className="text-text-muted3 text-xs font-medium leading-none">
+												$
+												{formatCurrency(
+													Number(formatUnits(BigInt(rebasedOutputAmount), Number(toTokenMeta.decimals))) *
+														(eurPrice as number)
+												)}
+											</div>
+										</div>
+										<div className="h-7 justify-end items-center gap-2.5 flex">
+											<div className="text-text-muted3 text-xs font-medium leading-none">
+												{t("common.balance_label")} {": "}
+												{formatCurrency(formatUnits(toTokenMeta.userBal || 0n, Number(toTokenMeta.decimals)), 2, 2)}{" "}
+												{toTokenMeta.symbol}
+											</div>
+											<MaxButton
+												disabled={BigInt(toTokenMeta.userBal) === BigInt(0)}
+												onClick={() =>
+													onChangeAmount(
+														rebaseDecimals(
+															toTokenMeta.userBal,
+															toTokenMeta.decimals,
+															fromTokenMeta.decimals
+														).toString()
+													)
+												}
+											/>
+										</div>
+									</div>
+								}
+							/>
+							<div className="mx-auto mt-12 max-w-full flex-col">
+								<GuardToAllowedChainBtn>
+									{amount > fromTokenMeta.userAllowance ? (
+										<Button isLoading={isTxOnGoing} onClick={() => handleApprove()}>
+											{t("common.approve")}
+										</Button>
+									) : fromSymbol === TOKEN_SYMBOL ? (
+										<Button disabled={amount == 0n || !!error} isLoading={isTxOnGoing} onClick={() => handleBurn()}>
+											{t("swap.swap")}
+										</Button>
+									) : (
+										<Button disabled={amount == 0n || !!error} isLoading={isTxOnGoing} onClick={() => handleMint()}>
+											{t("swap.swap")}
+										</Button>
+									)}
+								</GuardToAllowedChainBtn>
+							</div>
 						</div>
 					</AppCard>
 				</div>
 			</div>
+			<TokenSelectModal title={t("swap.select_stablecoin")} isOpen={isModalOpen} setIsOpen={setIsModalOpen}>
+				<div className="h-full">
+					<TokenModalRowButton
+						currency="€"
+						symbol={swapStats.eurc.symbol}
+						price={formatCurrency(formatUnits(swapStats.eurc.userBal, Number(swapStats.eurc.decimals)), 2, 2) as string}
+						balance={formatCurrency(formatUnits(swapStats.eurc.userBal, Number(swapStats.eurc.decimals))) as string}
+						name={swapStats.eurc.symbol}
+						onClick={() => handleSelectToken(swapStats.eurc.symbol)}
+					/>
+					<TokenModalRowButton
+						currency="€"
+						symbol={swapStats.veur.symbol}
+						price={formatCurrency(formatUnits(swapStats.veur.userBal, Number(swapStats.veur.decimals)), 2, 2) as string}
+						balance={formatCurrency(formatUnits(swapStats.veur.userBal, Number(swapStats.veur.decimals))) as string}
+						name={swapStats.veur.symbol}
+						onClick={() => handleSelectToken(swapStats.veur.symbol)}
+					/>
+					<TokenModalRowButton
+						currency="€"
+						symbol={swapStats.eurs.symbol}
+						price={formatCurrency(formatUnits(swapStats.eurs.userBal, Number(swapStats.eurs.decimals)), 2, 2) as string}
+						balance={formatCurrency(formatUnits(swapStats.eurs.userBal, Number(swapStats.eurs.decimals))) as string}
+						name={swapStats.eurs.symbol}
+						onClick={() => handleSelectToken(swapStats.eurs.symbol)}
+					/>
+				</div>
+			</TokenSelectModal>
 		</>
 	);
 }

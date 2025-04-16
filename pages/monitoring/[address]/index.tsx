@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { ChallengesQueryItem, PositionQuery } from "@deuro/api";
 import { useRouter as useNavigation } from "next/navigation";
-import Button from "@components/Button";
+import Button, { SecondaryLinkButton } from "@components/Button";
 import { ADDRESS, DecentralizedEUROABI } from "@deuro/eurocoin";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
@@ -33,10 +33,9 @@ export default function PositionDetail() {
 
 	const position = positions.find((p) => p.position.toLowerCase() === address.toLowerCase());
 	const challengesActive = (challengesPositions.map[address.toLowerCase() as Address] || []).filter((c) => c.status === "Active");
-
 	const explorerUrl = useContractUrl(String(address));
 	const ownerLink = useContractUrl(position?.owner || zeroAddress);
-
+	const navigate = useNavigation();
 	const { t } = useTranslation();
 
 	useEffect(() => {
@@ -57,6 +56,8 @@ export default function PositionDetail() {
 	}, [position]);
 
 	if (!position) return;
+
+	const maturity: number = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
 
 	const isSubjectToCooldown = () => {
 		const now = BigInt(Math.floor(Date.now() / 1000));
@@ -110,7 +111,12 @@ export default function PositionDetail() {
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label={t("monitoring.retained_reserve")} />
-								<DisplayAmount amount={reserve} currency={TOKEN_SYMBOL} address={ADDRESS[chainId].decentralizedEURO} className="mt-2" />
+								<DisplayAmount
+									amount={reserve}
+									currency={TOKEN_SYMBOL}
+									address={ADDRESS[chainId].decentralizedEURO}
+									className="mt-2"
+								/>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label={t("common.limit")} />
@@ -147,6 +153,17 @@ export default function PositionDetail() {
 								<b>{position.closed ? t("common.closed") : formatDate(position.expiration)}</b>
 							</AppBox>
 						</div>
+						<div className="flex flex-row gap-2 mt-3">
+							<SecondaryLinkButton
+								className="h-10 flex-1"
+								href={`/monitoring/${position.position}/${maturity <= 0 ? "forceSell" : "challenge"}`}
+							>
+								{maturity <= 0 ? t("monitoring.force_sell") : t("monitoring.challenge")}
+							</SecondaryLinkButton>
+							<SecondaryLinkButton className="h-10 flex-1" href={`/mint/${position.position}/`}>
+								{t("mint.clone")}
+							</SecondaryLinkButton>
+						</div>
 					</div>
 					<div>
 						{isSubjectToCooldown() && (
@@ -159,7 +176,9 @@ export default function PositionDetail() {
 						)}
 
 						<div className="bg-card-body-primary shadow-card rounded-xl p-4 flex flex-col mb-4">
-							<div className="text-lg font-bold text-center">{t("monitoring.active_challenges")} ({challengesActive.length})</div>
+							<div className="text-lg font-bold text-center">
+								{t("monitoring.active_challenges")} ({challengesActive.length})
+							</div>
 
 							{challengesActive.map((c) => ActiveAuctionsRow({ position, challenge: c }))}
 							{challengesActive.length === 0 ? <ActiveAuctionsRowEmpty /> : null}
@@ -207,7 +226,7 @@ function ActiveAuctionsRow({ position, challenge }: Props) {
 }
 
 function ActiveAuctionsRowEmpty() {
-	const { t } = useTranslation();	
+	const { t } = useTranslation();
 	return (
 		<AppBox className="flex-1 mt-4">
 			<p>{t("monitoring.no_active_challenges")}</p>

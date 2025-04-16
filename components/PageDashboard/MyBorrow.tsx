@@ -1,4 +1,4 @@
-import { SecondaryButton, SecondaryLinkButton } from "@components/Button";
+import { SecondaryLinkButton } from "@components/Button";
 import TokenLogo from "@components/TokenLogo";
 import { useTranslation } from "next-i18next";
 import { Fragment } from "react";
@@ -17,6 +17,7 @@ interface BorrowData {
 	collateralization: string;
 	loanDueIn: string;
 	amountBorrowed: string;
+	liquidationPrice: string;
 }
 
 const DesktopTable = ({ borrowData }: { borrowData: BorrowData[] }) => {
@@ -25,10 +26,11 @@ const DesktopTable = ({ borrowData }: { borrowData: BorrowData[] }) => {
 	const isBorrowData = borrowData.length > 0;
 
 	return (
-		<div className="w-full hidden sm:grid grid-cols-[auto_1fr_1fr_1fr_1fr_auto] items-center">
+		<div className="w-full hidden sm:grid grid-cols-[auto_1fr_1fr_1fr_1fr_1fr_auto] items-center">
 			{/** Headers */}
 			<div></div>
 			<HeaderCell>{t("dashboard.collateral")}</HeaderCell>
+			<HeaderCell>{t("dashboard.liquidation_price")}</HeaderCell>
 			<HeaderCell>{t("dashboard.collateralization")}</HeaderCell>
 			<HeaderCell>{t("dashboard.loan_due_in")}</HeaderCell>
 			<HeaderCell>{t("dashboard.amount_borrowed")}</HeaderCell>
@@ -43,6 +45,9 @@ const DesktopTable = ({ borrowData }: { borrowData: BorrowData[] }) => {
 						</div>
 						<div className="font-medium text-base leading-tight">
 							{item.collateralAmount} {item.symbol}
+						</div>
+						<div className="font-medium text-base leading-tight">
+							{item.liquidationPrice} {TOKEN_SYMBOL}
 						</div>
 						<div className="font-medium text-base leading-tight">
 							{item.collateralization === "Infinity" ? "∞" : item.collateralization} %
@@ -79,7 +84,7 @@ const MobileTable = ({ borrowData }: { borrowData: BorrowData[] }) => {
 					{borrowData.map((item) => (
 						<div className="w-full flex flex-col gap-1 border-b border-borders-dividerLight" key={item.position}>
 							<div className="mb-2 w-full flex flex-col justify-start items-start gap-1">
-								<div className="text-text-muted2 text-xs font-medium leading-[1.125rem]">Collateral</div>
+								<div className="text-text-muted2 text-xs font-medium leading-[1.125rem]">{t("dashboard.collateral")}</div>
 								<div className="flex flex-row items-center gap-2">
 									<div className="flex items-center justify-center">
 										<TokenLogo currency={item.symbol} size={8} />
@@ -91,19 +96,24 @@ const MobileTable = ({ borrowData }: { borrowData: BorrowData[] }) => {
 							</div>
 
 							<div className="w-full flex flex-row justify-between items-center">
-								<div className="text-text-muted2 text-xs font-medium leading-[1.125rem]">Collateralization</div>
+								<div className="text-text-muted2 text-xs font-medium leading-[1.125rem]">{t("dashboard.liquidation_price")}</div>
+								<div className="font-medium text-base leading-tight">{item.liquidationPrice} {TOKEN_SYMBOL}</div>
+							</div>
+
+							<div className="w-full flex flex-row justify-between items-center">
+								<div className="text-text-muted2 text-xs font-medium leading-[1.125rem]">{t("dashboard.collateralization")}</div>
 								<div className="font-medium text-base leading-tight">{item.collateralization} %</div>
 							</div>
 
 							<div className="w-full flex flex-row justify-between items-center">
-								<div className="text-text-muted2 text-xs font-medium leading-[1.125rem]">Loan due in</div>
+								<div className="text-text-muted2 text-xs font-medium leading-[1.125rem]">{t("dashboard.loan_due_in")}</div>
 								<div className="font-medium text-base leading-tight">
 									{item.loanDueIn} {t("common.days")}
 								</div>
 							</div>
 
 							<div className="w-full flex flex-row justify-between items-center">
-								<div className="text-text-muted2 text-xs font-medium leading-[1.125rem]">Amount borrowed</div>
+								<div className="text-text-muted2 text-xs font-medium leading-[1.125rem]">{t("dashboard.amount_borrowed")}</div>
 								<div className="font-extrabold text-base leading-tight">
 									{item.amountBorrowed} {TOKEN_SYMBOL}
 								</div>
@@ -155,6 +165,7 @@ export const MyBorrow = () => {
 			collateralization: collateralizationPercentage.toString(),
 			loanDueIn: formatCurrency(Math.round((position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24)) as string,
 			amountBorrowed,
+			liquidationPrice: formatCurrency(formatUnits(BigInt(position.virtualPrice || position.price), 36 - collateralDecimals) as string, 2, 2) as string,
 		};
 	});
 

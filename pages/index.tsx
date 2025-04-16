@@ -6,7 +6,7 @@ export default function MainPage() {
 	const router = useRouter();
 	const carryOnQueryParams = getCarryOnQueryParams(router);
 
-	router.push(`/mint${toQueryString(carryOnQueryParams)}`);
+	router.push(`/dashboard${toQueryString(carryOnQueryParams)}`);
 
 	return null;
 }
