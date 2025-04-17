@@ -560,6 +560,9 @@
         "rate": "Rate",
         "balance": "Balance",
         "interest": "Interest",
+        "total_saved": "Total Saved",
+        "unrealized_interest": "Unrealized Interest",
+        "interest_received": "Interest Received",
         "no_savings_yet": "There are no savings yet.",
         "no_interest_claims_yet": "There are no interest claims yet.",
         "no_withdrawals_yet": "There are no withdrawals yet.",
@@ -576,6 +579,9 @@
         "withdraw_to_my_wallet": "Withdraw to my wallet",
         "transaction_history": "Transaction history",
         "claimed_interest": "Claimed Interest",
+        "reinvested_interest": "Reinvest Interest",
+        "accrued_interest": "Interest paid",
+        "savings_leaderboard": "Savings Leaderboard",
         "error": {
             "insufficient_balance": "Insufficient balance",
             "greater_than_savings": "Amount is greater than savings"

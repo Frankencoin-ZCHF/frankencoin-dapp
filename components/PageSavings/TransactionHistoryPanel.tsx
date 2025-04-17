@@ -49,12 +49,40 @@ export function TransactionHistoryPanel() {
 		}
 	};
 
+	const operationsHistory = [
+		...withdraw.map((r) => ({ ...r, type: t("savings.withdraw"), id: `withdraw-${r.txHash}` })),
+		...save.map((r) => ({ ...r, type: t("savings.deposit"), id: `deposit-${r.txHash}` })),
+		...interest.map((r) => ({ ...r, type: t("savings.claimed_interest"), id: `interest-${r.txHash}` })),
+	];
+
+	const operationsGroupedByTx = operationsHistory.reduce((acc: Record<string, TransactionHistoryData[]>, curr) => {
+		const key = curr.txHash;
+		if (!acc[key]) acc[key] = [];
+		acc[key].push(curr);
+		return acc;
+	}, {});
+
+	const transactionHistory = Object.values(operationsGroupedByTx)
+		.map((operations) => {
+			if (operations.length === 1) return operations;
+
+			const deposit = operations.find((op) => op.type === t("savings.deposit"));
+			const withdraw = operations.find((op) => op.type === t("savings.withdraw")) as TransactionHistoryData;
+			const interest = operations.find((op) => op.type === t("savings.claimed_interest"));
+			
+			if (deposit) {
+				return [deposit, { ...interest, type: t("savings.reinvested_interest"), created: String(Number(interest?.created) - 1) }];
+			}
+			
+			if (withdraw && interest) {
+				return withdraw.amount === interest.amount ? [interest] : [withdraw, { ...interest, type: t("savings.accrued_interest"), created: String(Number(interest?.created) - 1) }];
+			}
+		})
+		.flat()
+		.filter((item): item is TransactionHistoryData => item !== undefined);
+
 	const sorted = sortTransactionHistory({
-		transactionHistory: [
-			...withdraw.map((r) => ({ ...r, type: t("savings.withdraw"), id: `withdraw-${r.txHash}` })),
-			...save.map((r) => ({ ...r, type: t("savings.deposit"), id: `deposit-${r.txHash}` })),
-			...interest.map((r) => ({ ...r, type: t("savings.claimed_interest"), id: `interest-${r.txHash}` })),
-		],
+		transactionHistory,
 		headers,
 		tab,
 		reverse,
@@ -71,7 +99,7 @@ export function TransactionHistoryPanel() {
 						reverse={reverse}
 						tabOnChange={handleTabOnChange}
 					/>
-					<div className="w-full grid grid-cols-4 gap-y-2">
+					<div className="w-full grid grid-cols-[1.2fr_auto_1fr_1fr] gap-y-2">
 						{sorted.map((r) => (
 							<HystoryRow key={r.id} item={r} />
 						))}
@@ -93,7 +121,7 @@ function sortTransactionHistory(params: {
 	const { transactionHistory, headers, tab, reverse } = params;
 
 	if (tab === headers[0]) {
-		transactionHistory.sort((a, b) => a.created - b.created);
+		transactionHistory.sort((a, b) => Number(b.created) - Number(a.created));
 	} else if (tab === headers[1]) {
 		transactionHistory.sort((a, b) => a.type.localeCompare(b.type));
 	} else if (tab === headers[2]) {

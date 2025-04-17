@@ -1,9 +1,10 @@
-import { shortenAddress } from "@utils";
+import { getCarryOnQueryParams, shortenAddress, toQueryString } from "@utils";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
 import Link from "next/link";
 import { useAccount } from "wagmi";
 import { useTranslation } from "next-i18next";
 import Button from "@components/Button";
+import { useRouter } from "next/router";
 
 const ConnectButton = () => {
 	const Web3Modal = useWeb3Modal();
@@ -33,6 +34,8 @@ const ConnectButton = () => {
 
 export default function WalletConnect() {
 	const { t } = useTranslation();
+	const router = useRouter();
+	const carryOnQueryParams = toQueryString(getCarryOnQueryParams(router));
 
 	return (
 		<>
@@ -40,7 +43,7 @@ export default function WalletConnect() {
 				<ConnectButton />
 			</div>
 			<div className="h-9 pl-2 pr-0.5 bg-menu-wallet-bg rounded-full border border-menu-wallet-border justify-start items-center gap-4 hidden md:inline-flex">
-				<Link href="/referrals" className="justify-start items-center gap-2 flex !hover:text-button-text-hover-text group">
+				<Link href={`/referrals${carryOnQueryParams}`} className="justify-start items-center gap-2 flex !hover:text-button-text-hover-text group">
 					<div className="min-w-6 h-6 flex justify-center items-center bg-gradient-to-br to-[#272b37] from-[#5a637f] rounded-full">
 						<img src="/icons/chest_white.svg" alt="Logo" width={16} height={16} />
 					</div>

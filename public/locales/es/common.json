@@ -560,6 +560,9 @@
         "rate": "Tasa",
         "balance": "Saldo",
         "interest": "Intereses",
+        "total_saved": "Total ahorrado",
+        "unrealized_interest": "Intereses no realizados",
+        "interest_received": "Intereses recibidos",
         "no_savings_yet": "Aún no hay ahorros.",
         "no_interest_claims_yet": "Aún no hay intereses por reclamar.",
         "no_withdrawals_yet": "Aún no hay retiros.",
@@ -576,6 +579,9 @@
         "withdraw_to_my_wallet": "Retirar a mi monedero",
         "transaction_history": "Historial de transacciones",
         "claimed_interest": "Intereses reclamados",
+        "reinvested_interest": "Intereses reinvertido",
+        "accrued_interest": "Intereses acreditado",
+        "savings_leaderboard": "Tabla de posiciones de ahorros",
         "error": {
             "insufficient_balance": "Fondos insuficientes",
             "greater_than_savings": "La cantidad es mayor que los ahorros"

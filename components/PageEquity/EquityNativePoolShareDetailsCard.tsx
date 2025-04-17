@@ -49,6 +49,8 @@ export default function EquityNativePoolShareDetailsCard() {
 		return parseFloat(trade.time) * 1000 > startTrades;
 	});
 
+	const maxPrice = Math.max(...filteredTrades.map((trade) => Math.round(Number(trade.lastPrice) / 10 ** 16) / 100));
+
 	return (
 		<div className="bg-layout-primary border border-borders-dividerLight border-offset-1 rounded-xl grid grid-cols-1">
 			<div id="chart-timeline" className="relative">
@@ -108,6 +110,8 @@ export default function EquityNativePoolShareDetailsCard() {
 						},
 						yaxis: {
 							show: false,
+							min: 0,
+							max: maxPrice * 2,
 						},
 						fill: {
 							colors: ["#0F80F099"],

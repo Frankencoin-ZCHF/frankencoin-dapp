@@ -1,5 +1,5 @@
 import { MARKETING_PARAM_NAME } from "./constant";
-import { pad, stringToHex, hexToString } from "viem";
+import { pad, stringToHex, hexToString, Hex } from "viem";
 
 
 export const getReferralLink = (referralName: string) => {
@@ -11,6 +11,8 @@ export const getFrontendCodeFromReferralName = (referralName: string) => {
 } 
 
 export const getReferralNameFromFrontendCode = (frontendCode: `0x${string}`) => {
-    const decoded = hexToString(frontendCode).toString().replace(/\0/g, '');
-    return /^[\x20-\x7E]+$/.test(decoded) ? decoded : '';
+    if (frontendCode?.startsWith('0x00')) {
+		return hexToString(frontendCode as Hex).replace(/\0/g, '');
+	}
+    return '';
 }

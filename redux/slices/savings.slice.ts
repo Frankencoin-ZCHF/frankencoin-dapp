@@ -8,8 +8,9 @@ import {
 	DispatchApiSavingsUserTable,
 	DispatchBoolean,
 	SavingsState,
+	DispatchApiSavingsLeaderboard,
 } from "./savings.types";
-import { ApiLeadrateInfo, ApiLeadrateProposed, ApiLeadrateRate, ApiSavingsInfo, ApiSavingsUserTable } from "@deuro/api";
+import { ApiLeadrateInfo, ApiLeadrateProposed, ApiLeadrateRate, ApiSavingsInfo, ApiSavingsUserTable, ApiSavingsUserLeaderboard } from "@deuro/api";
 import { Address, zeroAddress } from "viem";
 
 // --------------------------------------------------------------------------------
@@ -61,6 +62,8 @@ export const initialState: SavingsState = {
 		save: [],
 		withdraw: [],
 	},
+
+	savingsLeaderboard: [],
 };
 
 // --------------------------------------------------------------------------------
@@ -100,6 +103,9 @@ export const slice = createSlice({
 		setSavingsAllUserTable: (state, action: { payload: ApiSavingsUserTable }) => {
 			state.savingsAllUserTable = action.payload;
 		},
+		setSavingsLeaderboard: (state, action: { payload: ApiSavingsUserLeaderboard[] }) => {
+			state.savingsLeaderboard = action.payload;
+		},
 	},
 });
 
@@ -117,6 +123,7 @@ export const fetchSavings =
 			| DispatchApiLeadrateRate
 			| DispatchApiSavingsInfo
 			| DispatchApiSavingsUserTable
+			| DispatchApiSavingsLeaderboard
 		>
 	) => {
 		// ---------------------------------------------------------------
@@ -149,6 +156,9 @@ export const fetchSavings =
 		// ---------------------------------------------------------------
 		// Finalizing, loaded set to ture
 		dispatch(slice.actions.setLoaded(true));
+
+		const response7 = await DEURO_API_CLIENT.get("/savings/core/info/leaderboard");
+		dispatch(slice.actions.setSavingsLeaderboard(response7.data as ApiSavingsUserLeaderboard[]));
 	};
 
 export const fetchSavingsCoreInfo = () => async (dispatch: Dispatch<DispatchApiSavingsInfo>) => {

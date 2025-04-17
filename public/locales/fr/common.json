@@ -560,6 +560,9 @@
         "rate": "Taux",
         "balance": "Solde",
         "interest": "Intérêts",
+        "total_saved": "Total enregistré",
+        "unrealized_interest": "Intérêts non réalisés",
+        "interest_received": "Intérêts reçus",
         "no_savings_yet": "Aucun enregistrement d'épargne pour le moment.",
         "no_interest_claims_yet": "Aucune demande d'intérêts pour le moment.",
         "no_withdrawals_yet": "Aucun retrait pour le moment.",
@@ -576,6 +579,9 @@
         "withdraw_to_my_wallet": "Retirer vers mon portefeuille",
         "transaction_history": "Historique des transactions",
         "claimed_interest": "Intérêts récoltés",
+        "reinvested_interest": "Intérêts réinvestis",
+        "accrued_interest": "Intérêts payés",
+        "savings_leaderboard": "Classement des épargnes",
         "error": {
             "insufficient_balance": "Solde insuffisant",
             "greater_than_savings": "Montant est supérieur à l'épargne"

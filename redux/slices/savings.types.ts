@@ -1,4 +1,4 @@
-import { ApiLeadrateInfo, ApiLeadrateProposed, ApiLeadrateRate, ApiSavingsInfo, ApiSavingsUserTable } from "@deuro/api";
+import { ApiLeadrateInfo, ApiLeadrateProposed, ApiLeadrateRate, ApiSavingsInfo, ApiSavingsUserTable, ApiSavingsUserLeaderboard } from "@deuro/api";
 
 // --------------------------------------------------------------------------------
 export type SavingsState = {
@@ -13,6 +13,7 @@ export type SavingsState = {
 
 	savingsUserTable: ApiSavingsUserTable;
 	savingsAllUserTable: ApiSavingsUserTable;
+	savingsLeaderboard: ApiSavingsUserLeaderboard[];
 };
 
 // --------------------------------------------------------------------------------
@@ -44,4 +45,9 @@ export type DispatchApiSavingsInfo = {
 export type DispatchApiSavingsUserTable = {
 	type: string;
 	payload: ApiSavingsUserTable;
+};
+
+export type DispatchApiSavingsLeaderboard = {
+	type: string;
+	payload: ApiSavingsUserLeaderboard[];
 };
