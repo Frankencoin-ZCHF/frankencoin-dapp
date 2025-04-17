@@ -1,14 +1,14 @@
-import { useSwapStats } from "@hooks";
+import { useSwapXCHFStats } from "@hooks";
 import { SOCIAL, formatCurrency } from "@utils";
 import Link from "next/link";
 import TokenLogo from "@components/TokenLogo";
 
 export default function StableCoinBridgeXCHF() {
-	const swapStats = useSwapStats();
+	const swapStats = useSwapXCHFStats();
 
 	const expirationTimestamp = 1729980479000;
 	const limit = parseInt(swapStats.bridgeLimit.toString()) / 10 ** 18;
-	const minted = parseInt(swapStats.xchfBridgeBal.toString()) / 10 ** 18;
+	const minted = parseInt(swapStats.otherBridgeBal.toString()) / 10 ** 18;
 	const ratio = Math.round((minted / limit) * 10000) / 100;
 	const expiration = Math.round(((expirationTimestamp - Date.now()) / 1000 / 60 / 60 / 24) * 100) / 100;
 	const statusText =
@@ -18,8 +18,8 @@ export default function StableCoinBridgeXCHF() {
 	return (
 		<div className="bg-card-body-primary rounded-2xl p-8">
 			<div className="grid grid-cols-3 gap-4">
-				<TokenLogo currency={swapStats.xchfSymbol.toLowerCase()} />
-				<div className="col-span-2 text-2xl font-bold mb-10">Stablecoin Bridge ({swapStats.xchfSymbol})</div>
+				<TokenLogo currency={swapStats.otherSymbol.toLowerCase()} />
+				<div className="col-span-2 text-2xl font-bold mb-10">Stablecoin Bridge ({swapStats.otherSymbol})</div>
 			</div>
 
 			<div className="mb-5">
