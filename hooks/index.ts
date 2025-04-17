@@ -1,5 +1,6 @@
 export * from "./useContractUrl";
-export * from "./useSwapStats";
+export * from "./useSwapXCHFStats";
+export * from "./useSwapVCHFStats";
 export * from "./usePoolStats";
 export * from "./useLocalStorage";
 export * from "./useTheme";

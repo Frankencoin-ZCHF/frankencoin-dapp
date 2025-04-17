@@ -1,21 +1,21 @@
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
-import { useState } from "react";
-import { useContractUrl, useSwapStats } from "@hooks";
+import { useEffect, useState } from "react";
+import { useContractUrl, useSwapVCHFStats } from "@hooks";
 import { erc20Abi, formatUnits, maxUint256 } from "viem";
 import Button from "@components/Button";
 import { useChainId } from "wagmi";
-import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown, faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { formatBigInt, shortenAddress } from "@utils";
-import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
+import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../app.config";
-import Link from "next/link";
 import AppCard from "@components/AppCard";
-import { ADDRESS, StablecoinBridgeABI } from "@frankencoin/zchf";
+import { ADDRESS, FrankencoinABI, StablecoinBridgeABI } from "@frankencoin/zchf";
+import AppLink from "@components/AppLink";
 
 export default function Swap() {
 	const [amount, setAmount] = useState(0n);
@@ -24,19 +24,38 @@ export default function Swap() {
 	const [isApproving, setApproving] = useState(false);
 	const [isMinting, setMinting] = useState(false);
 	const [isBurning, setBurning] = useState(false);
+	const [isMinter, setMinter] = useState<bigint>(0n);
 
 	const chainId = useChainId();
-	const swapStats = useSwapStats();
-	const xchfUrl = useContractUrl(ADDRESS[chainId].xchf);
+	const swapStats = useSwapVCHFStats();
+
+	const other = ADDRESS[chainId].vchf;
+	const bridge = ADDRESS[chainId].stablecoinBridgeVCHF;
+	const bridgeUrl = useContractUrl(bridge);
+
+	useEffect(() => {
+		const fetcher = async () => {
+			const active = await readContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].frankenCoin,
+				abi: FrankencoinABI,
+				functionName: "minters",
+				args: [bridge],
+			});
+
+			if (active != isMinter) setMinter(active);
+		};
+
+		fetcher();
+	}, [bridge, chainId, isMinter]);
 
 	const handleApprove = async () => {
 		try {
 			setApproving(true);
 			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].xchf,
+				address: other,
 				abi: erc20Abi,
 				functionName: "approve",
-				args: [ADDRESS[chainId].bridge, maxUint256],
+				args: [bridge, maxUint256],
 			});
 
 			const toastContent = [
@@ -46,7 +65,7 @@ export default function Swap() {
 				},
 				{
 					title: "Spender: ",
-					value: shortenAddress(ADDRESS[chainId].bridge),
+					value: shortenAddress(bridge),
 				},
 				{
 					title: "Transaction:",
@@ -56,10 +75,10 @@ export default function Swap() {
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title="Approving XCHF" rows={toastContent} />,
+					render: <TxToast title={`Approving ${fromSymbol}`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully Approved XCHF" rows={toastContent} />,
+					render: <TxToast title={`Successfully Approved ${fromSymbol}`} rows={toastContent} />,
 				},
 			});
 		} catch (error) {
@@ -72,7 +91,7 @@ export default function Swap() {
 		try {
 			setMinting(true);
 			const mintWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].bridge,
+				address: bridge,
 				abi: StablecoinBridgeABI,
 				functionName: "mint",
 				args: [amount],
@@ -112,7 +131,7 @@ export default function Swap() {
 			setBurning(true);
 
 			const burnWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].bridge,
+				address: bridge,
 				abi: StablecoinBridgeABI,
 				functionName: "burn",
 				args: [amount],
@@ -148,11 +167,12 @@ export default function Swap() {
 		}
 	};
 
-	const fromBalance = direction ? swapStats.xchfUserBal : swapStats.zchfUserBal;
-	const toBalance = !direction ? swapStats.xchfUserBal : swapStats.zchfUserBal;
-	const fromSymbol = direction ? "XCHF" : "ZCHF";
-	const toSymbol = !direction ? "XCHF" : "ZCHF";
-	const swapLimit = direction ? swapStats.bridgeLimit - swapStats.xchfBridgeBal : swapStats.xchfBridgeBal;
+	const fromBalance = direction ? swapStats.otherUserBal : swapStats.zchfUserBal;
+	const toBalance = !direction ? swapStats.otherUserBal : swapStats.zchfUserBal;
+	const fromSymbol = direction ? swapStats.otherSymbol : "ZCHF";
+	const toSymbol = !direction ? swapStats.otherSymbol : "ZCHF";
+	const swapLimit = direction ? swapStats.bridgeLimit - swapStats.otherBridgeBal : swapStats.otherBridgeBal;
+	const horizon = new Date(Number(swapStats.bridgeHorizon * 1000n));
 
 	const onChangeDirection = () => {
 		setDirection(!direction);
@@ -178,65 +198,73 @@ export default function Swap() {
 			</Head>
 
 			<div className="md:mt-8">
-				<AppCard>
-					<Link href={xchfUrl} target="_blank">
-						<div className="mt-4 text-lg font-bold underline text-center">
-							Swap XCHF and ZCHF
-							<FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3 ml-2" />
+				<section className="mx-auto max-w-2xl sm:px-8">
+					<AppCard>
+						<div className="mt-4 text-lg font-bold text-center">Swap {swapStats.otherSymbol} and ZCHF</div>
+
+						<div className="mt-8">
+							The <AppLink className="" label="Stablecoin Bridge" href={bridgeUrl} external={true} /> allows you to swao from{" "}
+							{swapStats.otherSymbol} to ZCHF and is set to expire on {horizon.toDateString()}. Want to know more?{" "}
+							<AppLink className="" label="VNX Swiss Franc (VCHF)" href="https://vnx.li/vchf/" external={true} />.
 						</div>
-					</Link>
-					<div className="mt-8">
-						Swapping from XCHF to ZCHF will cease to function on 2024-10-26 as the crypto franc is{" "}
-						<Link href="https://www.bitcoinsuisse.com/cryptofranc">discontinued by the isser</Link>.
-					</div>
 
-					<div className="mt-8">
+						{isMinter == 0n ? (
+							<div className="mt-4 text-sm text-text-secondary">*It looks like the bridge is not proposed yet.</div>
+						) : isMinter * 1000n >= BigInt(Date.now()) ? (
+							<div className="mt-4 text-sm text-text-secondary">
+								*It looks like the bridge is still in the{" "}
+								<AppLink className="" label="minters proposal" href="/governance" /> state.
+							</div>
+						) : null}
+
+						<div className="mt-8">
+							<TokenInput
+								max={fromBalance}
+								symbol={fromSymbol}
+								limit={swapLimit}
+								limitLabel="Swap limit"
+								placeholder={"Swap Amount"}
+								onChange={onChangeAmount}
+								value={amount.toString()}
+								error={error}
+							/>
+						</div>
+
+						<div className="py-4 text-center z-0">
+							<Button className={`h-10 rounded-full`} width="w-10" onClick={onChangeDirection}>
+								<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
+							</Button>
+						</div>
+
 						<TokenInput
-							max={fromBalance}
-							symbol={fromSymbol}
-							limit={swapLimit}
-							limitLabel="Swap limit"
-							placeholder={"Swap Amount"}
-							onChange={onChangeAmount}
-							value={amount.toString()}
-							error={error}
+							symbol={toSymbol}
+							output={formatUnits(amount, 18)}
+							note={`1 ${fromSymbol} = 1 ${toSymbol}`}
+							label="Receive"
+							disabled={true}
 						/>
-					</div>
 
-					<div className="py-4 text-center z-0">
-						<Button className={`h-10 rounded-full`} width="w-10" onClick={onChangeDirection}>
-							<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
-						</Button>
-					</div>
-
-					<TokenInput
-						symbol={toSymbol}
-						max={toBalance}
-						output={formatUnits(amount, 18)}
-						note={`1 ${fromSymbol} = 1 ${toSymbol}`}
-						label="Receive"
-					/>
-
-					<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-						<GuardToAllowedChainBtn>
-							{direction ? (
-								amount > swapStats.xchfUserAllowance ? (
-									<Button isLoading={isApproving} onClick={() => handleApprove()}>
-										Approve
-									</Button>
+						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+							<GuardToAllowedChainBtn>
+								{direction ? (
+									amount > swapStats.otherUserAllowance ? (
+										<Button isLoading={isApproving} onClick={() => handleApprove()}>
+											Approve
+										</Button>
+									) : (
+										<Button disabled={amount == 0n || !!error} isLoading={isMinting} onClick={() => handleMint()}>
+											Swap
+										</Button>
+									)
 								) : (
-									<Button disabled={amount == 0n || !!error} isLoading={isMinting} onClick={() => handleMint()}>
+									<Button isLoading={isBurning} disabled={amount == 0n || !!error} onClick={() => handleBurn()}>
 										Swap
 									</Button>
-								)
-							) : (
-								<Button isLoading={isBurning} disabled={amount == 0n || !!error} onClick={() => handleBurn()}>
-									Swap
-								</Button>
-							)}
-						</GuardToAllowedChainBtn>
-					</div>
-				</AppCard>
+								)}
+							</GuardToAllowedChainBtn>
+						</div>
+					</AppCard>
+				</section>
 			</div>
 		</>
 	);
