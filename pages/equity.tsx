@@ -8,6 +8,7 @@ import { FPSBalanceHistory } from "../hooks/FPSBalanceHistory";
 import { FPSEarningsHistory } from "../hooks/FPSEarningsHistory";
 import ReportsFPSYearlyTable from "@components/PageReports/ReportsFPSYearlyTable";
 import { zeroAddress } from "viem";
+import AppLink from "@components/AppLink";
 
 export default function Equity() {
 	const { address } = useAccount();
@@ -51,12 +52,9 @@ export default function Equity() {
 				</section>
 			</div>
 
-			{address != undefined && (
-				<>
-					<AppTitle title="FPS Holder Earnings" />
-					<ReportsFPSYearlyTable address={address || zeroAddress} fpsHistory={fpsHistory} fpsEarnings={fpsEarnings} />
-				</>
-			)}
+			<AppTitle title="Attributable Income" />
+			Historic system income <AppLink className="text-left" label={"attributable to the current address"} href={`/report`}/>. {/* /${address} */}
+			<ReportsFPSYearlyTable address={address || zeroAddress} fpsHistory={fpsHistory} fpsEarnings={fpsEarnings} />
 		</>
 	);
 }

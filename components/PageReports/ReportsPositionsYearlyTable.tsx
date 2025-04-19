@@ -4,7 +4,7 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useEffect, useState } from "react";
 import { Address } from "viem";
-import { OwnerPositionDebt, OwnerPositionFees } from "../../pages/reports";
+import { OwnerPositionDebt, OwnerPositionFees } from "../../pages/report";
 import ReportsPositionsYearlyRow from "./ReportsPositionsYearlyRow";
 
 export type AccountYearly = { year: number; interestPaid: bigint; openDebt: bigint };
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export default function ReportsPositionsYearlyTable({ address, ownerPositionFees, ownerPositionDebt }: Props) {
-	const headers: string[] = ["Year", "Interest Paid", "Year End Debt"];
+	const headers: string[] = ["Year", "Interest Paid", "Debt", "Collateral Value"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<AccountYearly[]>([]);

@@ -17,7 +17,7 @@ interface Props {
 }
 
 export default function ReportsFPSYearlyTable({ address, fpsHistory, fpsEarnings }: Props) {
-	const headers: string[] = ["Date", "Attributable Income", "Year End Balance"];
+	const headers: string[] = ["Year", "Income", "Balance", "Value"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<AccountYearly[]>([]);

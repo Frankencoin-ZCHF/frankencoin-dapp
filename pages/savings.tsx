@@ -44,13 +44,12 @@ export default function SavingsPage() {
 				.
 			</div>
 
-			{address == undefined ? null : (
-				<>
-					<AppTitle title="Yearly Accounts" />
-
-					<SavingsYearlyTable />
-				</>
-			)}
+			<AppTitle title="Yearly Accounts">
+				<div>The yearly interest income of the current account. See also the 
+				<AppLink className="text-left" label={" report page"} href={`/report`}/>.
+				</div>
+			</AppTitle>
+			<SavingsYearlyTable />
 
 			<AppTitle title="Recent Deposits" />
 

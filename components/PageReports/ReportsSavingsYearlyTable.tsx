@@ -98,7 +98,7 @@ export default function ReportsYearlyTable({ save, interest, withdraw }: Props) 
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} />
 			<TableBody>
 				{list.length == 0 ? (
-					<TableRowEmpty>{"There are no savings accounted yet."}</TableRowEmpty>
+					<TableRowEmpty>{"No savings found"}</TableRowEmpty>
 				) : (
 					list.map((r, idx) => (
 						<ReportsSavingsYearlyRow headers={headers} tab={tab} key={`ReportsSavingsYearlyRow_${idx}_${r.year}`} item={r} />
