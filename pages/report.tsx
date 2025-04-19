@@ -32,7 +32,7 @@ export type OwnerPositionDebt = {
 	m: bigint;
 };
 
-export default function ReportsPage() {
+export default function ReportPage() {
 	const targetRef = useRef<HTMLDivElement>(null); // for pdf print
 	const { address } = useAccount();
 	const [isLoading, setLoading] = useState<boolean>(false);
@@ -119,104 +119,62 @@ export default function ReportsPage() {
 	};
 
 	return (
-		<div className="grid gap-8">
+		<div className="grid gap-8" ref={targetRef}>
 			<Head>
-				<title>Frankencoin - Reports</title>
+				<title>Frankencoin - Report</title>
 			</Head>
 
-			<AppTitle title={`Create a Report `}>
+			<AppTitle title={`Frankencoin Wealth and Income Report`}>
 				<div className="text-text-secondary">
-					The Frankencoin Reports page lets you track ZCHF finances for a specific address, perfect for tax purposes or yearly
-					summaries.
+					Track the yearly wealth, income, debt, and costs attributable to a given address. For the current year, the values reflect the accrued amounts
+					up to the current date.
+					All data is provided on a 'best effort' basis without any guarantee of accuracy. The contents of this page are also available as {" "}
+					<span className="text-card-input-min hover:text-card-input-hover cursor-pointer" onClick={handlePDFCreation}>
+						pdf download
+					</span>. 
 				</div>
 			</AppTitle>
 
 			<AppCard>
-				<div className={`grid md:grid-cols-2 m-4`}>
-					<div>
-						<div className="grid grid-cols-1 w-full my-4 md:ml-6 max-md:ml-2">
-							<ul className="flex flex-col gap-4">
-								<li className="flex justify-left items-center">
-									<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-card-body-secondary" />
-									<span className="ml-5 text-center">Positions Costs</span>
-								</li>
-								<li className="flex justify-left items-center">
-									<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-card-body-secondary" />
-									<span className="ml-5 text-center">Savings Earnings</span>
-								</li>
-								<li className="flex justify-left items-center">
-									<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-card-body-secondary" />
-									<span className="ml-5 text-center">FPS Holder Earnings</span>
-								</li>
-							</ul>
-						</div>
-					</div>
-
-					<div className="mt-4">
-						<div className="text-text-secondary mb-4">
-							Enter any address to View or{" "}
-							<span className="text-card-input-min hover:text-card-input-hover cursor-pointer" onClick={handlePDFCreation}>
-								Download
-							</span>{" "}
-							the report.
-						</div>
-
-						<AddressInput
-							label="Reporting Address"
-							value={reportingAddress}
-							onChange={setReportingAddress}
-							disabled={isLoading}
-							error={error}
-						/>
-					</div>
-				</div>
+			<AddressInput
+				label="Address of Interest"
+				value={reportingAddress}
+				onChange={setReportingAddress}
+				disabled={isLoading}
+				error={error}
+			/>
 			</AppCard>
 
-			<hr className="mt-12 mb-6 border-t border-dashed border-text-secondary bg-transparent" />
-
-			<div className="grid gap-8 relative min-h-[100%] pb-24" ref={targetRef}>
-				<AppTitle title={`Frankencoin Report `}>
-					<div className="text-text-secondary">
-						<div className="mb-4">This report provides a summary of Frankencoin ZCHF financial activities for:</div>
-						<AppLink className="text-sm" label={reportingAddress} href={useContractUrl(reportingAddress)} external={true} />
-					</div>
+				<AppTitle title="Collateralized Debt Positions">
+				<div className="text-text-secondary">
+				Open positions at the end of each year as well as interest paid.
+				</div>
 				</AppTitle>
-
-				<AppTitle title="Positions Costs" />
 				<ReportsPositionsYearlyTable
 					address={reportingAddress as Address}
 					ownerPositionFees={ownerPositionFees}
 					ownerPositionDebt={ownerPositionDebt}
 				/>
 				<div className="text-text-secondary text-sm -mt-7">
-					* Year-end debt may vary if positions were transferred to a new owner or if no minting updates occurred during the
-					current year.
+					Note: 'Ownership transfer' events are not tracked. If the owner of a position was changed, they might not be correctly reflected in this table.
+					Interest payments are attributed towards the year the payment happened even if the payment covers the owed interest of a period that exceeds that year.
 				</div>
 
-				<AppTitle title="Savings Yearly Earnings" />
+				<AppTitle title="Savings">
+				<div className="text-text-secondary">
+				Interest collected for each period as well as the year end balances.
+				</div>
+				</AppTitle>
 				<ReportsSavingsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} />
 
-				<AppTitle title="FPS Holder Earnings" />
+				<AppTitle title="Equity Participation">
+				<div className="text-text-secondary">
+				Attributable income for each year, as well as the balance and its value at the end of the year. Attributable income
+				is the sum of all income and loss events, weighted by the held FPS tokens relative to the total supply at each relevant point in time.
+				</div>
+				</AppTitle>
 				<ReportsFPSYearlyTable address={reportingAddress as Address} fpsHistory={fpsHistory} fpsEarnings={fpsEarnings} />
 
-				<div className="grid md:grid-cols-2 mt-auto pt-24">
-					<div className="relative">
-						<div className="absolute bottom-8 w-full flex justify-center">
-							<picture>
-								<img src="/assets/frankencoin_logo.svg" alt="logo" className="h-20" />
-							</picture>
-						</div>
-					</div>
-
-					<div className="flex flex-col items-center justify-center">
-						<QRCode size={256} value={`${CONFIG.app}/reports?address=${reportingAddress}`} bgColor="transparent" />
-
-						<div className="text-xl my-2">
-							<div>Scan to View Online</div>
-						</div>
-					</div>
-				</div>
 			</div>
-		</div>
 	);
 }
