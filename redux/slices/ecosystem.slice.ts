@@ -27,8 +27,8 @@ export const initialState: EcosystemState = {
 	collateralPositions: {},
 	collateralStats: { num: 0, addresses: [], totalValueLocked: { usd: 0, eur: 0 }, map: {} },
 	depsInfo: {	
-		values: { depsMarketCapInChf: 0, price: 0, totalSupply: 0 }, //@dev: require update in the api package
-		earnings: { profit: 0, loss: 0 },
+		values: { depsMarketCapInChf: 0, price: 0, totalSupply: 0 },
+		earnings: { profit: 0, loss: 0, unrealizedProfit: 0 },
 		reserve: { balance: 0, equity: 0, minter: 0 },
 	},
 	stablecoinInfo: {
@@ -42,7 +42,7 @@ export const initialState: EcosystemState = {
 		deps: {
 			price: 0,
 			totalSupply: 0,
-			depsMarketCapInChf: 0, //@dev: require update in the api package
+			depsMarketCapInChf: 0,
 		},
 		tvl: { usd: 0, eur: 0 },
 	},
@@ -123,11 +123,9 @@ export const fetchEcosystem =
 		const response3 = await DEURO_API_CLIENT.get("/ecosystem/deps/info");
 		dispatch(slice.actions.setDepsInfo(response3.data as ApiEcosystemDepsInfo));
 
-		/* TODO: Reactivate when API is ready
 		const response4 = await DEURO_API_CLIENT.get("/ecosystem/stablecoin/info");
 		dispatch(slice.actions.setStablecoinInfo(response4.data as ApiEcosystemStablecoinInfo));
-		*/
-
+		
 		const response5 = await DEURO_API_CLIENT.get("/ecosystem/stablecoin/minter/list");
 		dispatch(slice.actions.setStablecoinMinters(response5.data as ApiMinterListing));
 
