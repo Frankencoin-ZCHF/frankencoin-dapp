@@ -251,10 +251,10 @@
     tunnel-agent "^0.6.0"
     uuid "^8.3.2"
 
-"@deuro/api@^0.3.2":
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/@deuro/api/-/api-0.3.2.tgz#c0e79f7bf64c4c7be66ab432d2e232849c9abbf5"
-  integrity sha512-sbDdmiV3bYQx63BB0I+b/jngZvAxwoxzoW9AVtkIGVZPQCDB+ZUi6W4jcQitfdzdU8QTBz5Vb4sX+M5ciOr4pg==
+"@deuro/api@^0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@deuro/api/-/api-0.3.3.tgz#c9ce811404e9bde5ad001b19f2aee3884e0ad4cf"
+  integrity sha512-SbdG/Un8PK+rZC8AJOtatjnRnakbMrGygIUc5C7ct/M5qMfb3OyRFMLOh+iMlhIKOMoFCTxqdYT2PdTvfXIzlA==
   dependencies:
     "@apollo/client" "^3.10.5"
     "@deuro/eurocoin" "1.0.12"

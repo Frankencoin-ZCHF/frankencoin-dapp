@@ -1,14 +1,14 @@
-import { useState } from "react";
-import { useNativePSQuery, usePoolStats, useTradeQuery } from "@hooks";
-import { useChainId } from "wagmi";
+import { useState, useMemo } from "react";
+import { usePoolStats, useTradeQuery } from "@hooks";
 import dynamic from "next/dynamic";
-import { ADDRESS } from "@deuro/eurocoin";
 import { formatCurrency, NATIVE_POOL_SHARE_TOKEN_SYMBOL, POOL_SHARE_TOKEN_SYMBOL, TOKEN_SYMBOL } from "@utils";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 import { useTranslation } from "next-i18next";
 import { formatUnits } from "viem";
 import { SegmentedControlButton } from "@components/Button";
 import TokenLogo from "@components/TokenLogo";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/redux.store";
 
 enum Timeframe {
 	WEEK = "1W",
@@ -37,19 +37,17 @@ const getStartTimestampByTimeframe = (timeframe: Timeframe) => {
 
 export default function EquityNativePoolShareDetailsCard() {
 	const [timeframe, setTimeframe] = useState<Timeframe>(Timeframe.ALL);
-	const chainId = useChainId();
 	const poolStats = usePoolStats();
-	const { profit, loss } = useNativePSQuery(ADDRESS[chainId].decentralizedEURO);
+	const { profit, loss, unrealizedProfit } = useSelector((state: RootState) => state.ecosystem.depsInfo.earnings);
 	const { trades } = useTradeQuery();
 	const { t } = useTranslation();
-
 	const startTrades = getStartTimestampByTimeframe(timeframe);
 
-	const filteredTrades = trades.filter((trade) => {
+	const filteredTrades = useMemo(() => trades.filter((trade) => {
 		return parseFloat(trade.time) * 1000 > startTrades;
-	});
+	}), [trades, startTrades]);
 
-	const maxPrice = Math.max(...filteredTrades.map((trade) => Math.round(Number(trade.lastPrice) / 10 ** 16) / 100));
+	const maxPrice = useMemo(() => Math.max(...filteredTrades.map((trade) => Math.round(Number(trade.lastPrice) / 10 ** 16) / 100)), [filteredTrades]);
 
 	return (
 		<div className="bg-layout-primary border border-borders-dividerLight border-offset-1 rounded-xl grid grid-cols-1">
@@ -58,7 +56,7 @@ export default function EquityNativePoolShareDetailsCard() {
 					<TokenLogo currency={NATIVE_POOL_SHARE_TOKEN_SYMBOL} size={7} />
 					<div>
 						<span className="text-base font-extrabold leading-tight">
-							{formatCurrency(formatUnits(poolStats.equityPrice, 18))}
+							{formatCurrency(formatUnits(poolStats.equityPrice, 18), 4, 4)}
 						</span>{" "}
 						<span className="text-base font-[350] leading-tight">{TOKEN_SYMBOL}</span>
 					</div>
@@ -148,37 +146,37 @@ export default function EquityNativePoolShareDetailsCard() {
 				<div className="flex flex-row justify-between">
 					<div className="text-sm font-medium leading-relaxed">{t("equity.supply")}</div>
 					<div className="text-sm font-medium leading-tight ">
-						{formatCurrency(formatUnits(poolStats.equitySupply, 18))} {TOKEN_SYMBOL}
+						{formatCurrency(formatUnits(poolStats.equitySupply, 18), 2, 2)} {TOKEN_SYMBOL}
 					</div>
 				</div>
 				<div className="flex flex-row justify-between">
 					<div className="text-sm font-medium leading-relaxed">{t("equity.market_cap")}</div>
 					<div className="text-sm font-medium leading-tight ">
-						{formatCurrency(formatUnits((poolStats.equitySupply * poolStats.equityPrice) / BigInt(1e18), 18))} {TOKEN_SYMBOL}
+						{formatCurrency(formatUnits((poolStats.equitySupply * poolStats.equityPrice) / BigInt(1e18), 18), 2, 2)} {TOKEN_SYMBOL}
 					</div>
 				</div>
 				<div className="flex flex-row justify-between">
 					<div className="text-sm font-medium leading-relaxed">{t("equity.total_reserve")}</div>
 					<div className="text-sm font-medium leading-tight ">
-						{formatCurrency(formatUnits(poolStats.deuroTotalReserve, 18))} {TOKEN_SYMBOL}
+						{formatCurrency(formatUnits(poolStats.deuroTotalReserve, 18), 2, 2)} {TOKEN_SYMBOL}
 					</div>
 				</div>
 				<div className="flex flex-row justify-between">
 					<div className="text-sm font-medium leading-relaxed">{t("equity.equity_capital")}</div>
 					<div className="text-sm font-medium leading-tight ">
-						{formatCurrency(formatUnits(poolStats.deuroEquity, 18))} {TOKEN_SYMBOL}
+						{formatCurrency(formatUnits(poolStats.deuroEquity, 18), 2, 2)} {TOKEN_SYMBOL}
 					</div>
 				</div>
 				<div className="flex flex-row justify-between">
 					<div className="text-sm font-medium leading-relaxed">{t("equity.minter_reserve")}</div>
 					<div className="text-sm font-medium leading-tight ">
-						{formatCurrency(formatUnits(poolStats.deuroMinterReserve, 18))} {TOKEN_SYMBOL}
+						{formatCurrency(formatUnits(poolStats.deuroMinterReserve, 18), 2, 2)} {TOKEN_SYMBOL}
 					</div>
 				</div>
 				<div className="flex flex-row justify-between">
 					<div className="text-sm font-medium leading-relaxed">{t("equity.total_income")}</div>
 					<div className="text-sm font-medium leading-tight ">
-						{formatCurrency(formatUnits(profit - loss, 18))} {TOKEN_SYMBOL}
+						{formatCurrency(profit + unrealizedProfit - loss, 2, 2)} {TOKEN_SYMBOL}
 					</div>
 				</div>
 			</div>

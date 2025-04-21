@@ -3,7 +3,6 @@ export * from "./useSwapStats";
 export * from "./usePoolStats";
 export * from "./useLocalStorage";
 export * from "./useTheme";
-export * from "./useNativePSQuery";
 export * from "./useDelegationQuery";
 export * from "./useGovStats";
 export * from "./useTradeQuery";
