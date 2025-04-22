@@ -52,8 +52,11 @@ export default function Equity() {
 				</section>
 			</div>
 
-			<AppTitle title="Attributable Income" />
-			Historic system income <AppLink className="text-left" label={"attributable to the current address"} href={`/report`}/>. {/* /${address} */}
+			<AppTitle title="Attributable Income">
+				<div className="text-text-secondary">
+					Historic system income <AppLink className="text-left" label={"attributable to the current address"} href={`/report`} />.
+				</div>
+			</AppTitle>
 			<ReportsFPSYearlyTable address={address || zeroAddress} fpsHistory={fpsHistory} fpsEarnings={fpsEarnings} />
 		</>
 	);

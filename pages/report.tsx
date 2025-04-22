@@ -5,21 +5,16 @@ import AddressInput from "@components/Input/AddressInput";
 import { useEffect, useState } from "react";
 import AppCard from "@components/AppCard";
 import { Address, isAddress } from "viem";
-import { CONFIG, FRANKENCOIN_API_CLIENT } from "../app.config";
+import { FRANKENCOIN_API_CLIENT } from "../app.config";
 import { ApiSavingsUserTable } from "@frankencoin/api";
 import ReportsSavingsYearlyTable from "@components/PageReports/ReportsSavingsYearlyTable";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 import { FPSBalanceHistory } from "../hooks/FPSBalanceHistory";
 import { FPSEarningsHistory } from "../hooks/FPSEarningsHistory";
 import ReportsFPSYearlyTable from "@components/PageReports/ReportsFPSYearlyTable";
 import ReportsPositionsYearlyTable from "@components/PageReports/ReportsPositionsYearlyTable";
 import { useRef } from "react";
 import generatePDF, { Margin } from "react-to-pdf";
-import AppLink from "@components/AppLink";
-import { useContractUrl } from "@hooks";
 import { useRouter } from "next/router";
-import QRCode from "react-qr-code";
 
 export type OwnerPositionFees = {
 	t: number;
@@ -126,55 +121,53 @@ export default function ReportPage() {
 
 			<AppTitle title={`Frankencoin Wealth and Income Report`}>
 				<div className="text-text-secondary">
-					Track the yearly wealth, income, debt, and costs attributable to a given address. For the current year, the values reflect the accrued amounts
-					up to the current date.
-					All data is provided on a 'best effort' basis without any guarantee of accuracy. The contents of this page are also available as {" "}
+					Track the yearly wealth, income, debt, and costs attributable to a given address. For the current year, the values
+					reflect the accrued amounts up to the current date. All data is provided on a 'best effort' basis without any guarantee
+					of accuracy. The contents of this page are also available as{" "}
 					<span className="text-card-input-min hover:text-card-input-hover cursor-pointer" onClick={handlePDFCreation}>
 						pdf download
-					</span>. 
+					</span>
+					.
 				</div>
 			</AppTitle>
 
 			<AppCard>
-			<AddressInput
-				label="Address of Interest"
-				value={reportingAddress}
-				onChange={setReportingAddress}
-				disabled={isLoading}
-				error={error}
-			/>
+				<AddressInput
+					label="Address of Interest"
+					value={reportingAddress}
+					onChange={setReportingAddress}
+					disabled={isLoading}
+					error={error}
+				/>
 			</AppCard>
 
-				<AppTitle title="Collateralized Debt Positions">
-				<div className="text-text-secondary">
-				Open positions at the end of each year as well as interest paid.
-				</div>
-				</AppTitle>
-				<ReportsPositionsYearlyTable
-					address={reportingAddress as Address}
-					ownerPositionFees={ownerPositionFees}
-					ownerPositionDebt={ownerPositionDebt}
-				/>
-				<div className="text-text-secondary text-sm -mt-7">
-					Note: 'Ownership transfer' events are not tracked. If the owner of a position was changed, they might not be correctly reflected in this table.
-					Interest payments are attributed towards the year the payment happened even if the payment covers the owed interest of a period that exceeds that year.
-				</div>
-
-				<AppTitle title="Savings">
-				<div className="text-text-secondary">
-				Interest collected for each period as well as the year end balances.
-				</div>
-				</AppTitle>
-				<ReportsSavingsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} />
-
-				<AppTitle title="Equity Participation">
-				<div className="text-text-secondary">
-				Attributable income for each year, as well as the balance and its value at the end of the year. Attributable income
-				is the sum of all income and loss events, weighted by the held FPS tokens relative to the total supply at each relevant point in time.
-				</div>
-				</AppTitle>
-				<ReportsFPSYearlyTable address={reportingAddress as Address} fpsHistory={fpsHistory} fpsEarnings={fpsEarnings} />
-
+			<AppTitle title="Collateralized Debt Positions">
+				<div className="text-text-secondary">Open positions at the end of each year as well as interest paid.</div>
+			</AppTitle>
+			<ReportsPositionsYearlyTable
+				address={reportingAddress as Address}
+				ownerPositionFees={ownerPositionFees}
+				ownerPositionDebt={ownerPositionDebt}
+			/>
+			<div className="text-text-secondary text-sm -mt-7">
+				Note: 'Ownership transfer' events are not tracked. If a position's ownership changes, the outstanding debt may not be
+				accurately deducted from the previous owner or reflected correctly in this table. Additionally, interest payments are
+				recorded in the year they are made, even if they cover interest accrued in a different period.
 			</div>
+
+			<AppTitle title="Savings">
+				<div className="text-text-secondary">Interest collected for each period as well as the year end balances.</div>
+			</AppTitle>
+			<ReportsSavingsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} />
+
+			<AppTitle title="Equity Participation">
+				<div className="text-text-secondary">
+					Attributable income for each year, as well as the balance and its value at the end of the year. Attributable income is
+					the sum of all income and loss events, weighted by the held FPS tokens relative to the total supply at each relevant
+					point in time.
+				</div>
+			</AppTitle>
+			<ReportsFPSYearlyTable address={reportingAddress as Address} fpsHistory={fpsHistory} fpsEarnings={fpsEarnings} />
+		</div>
 	);
 }

@@ -45,8 +45,9 @@ export default function SavingsPage() {
 			</div>
 
 			<AppTitle title="Yearly Accounts">
-				<div>The yearly interest income of the current account. See also the 
-				<AppLink className="text-left" label={" report page"} href={`/report`}/>.
+				<div className={`text-text-secondary`}>
+					The yearly interest income of the current account. See also the
+					<AppLink className="" label={" report page"} href={`/report`} />.
 				</div>
 			</AppTitle>
 			<SavingsYearlyTable />
