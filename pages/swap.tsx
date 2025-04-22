@@ -9,7 +9,7 @@ import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/ac
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
-import { formatBigInt, shortenAddress } from "@utils";
+import { formatBigInt, formatCurrency, shortenAddress } from "@utils";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../app.config";
@@ -167,6 +167,7 @@ export default function Swap() {
 		}
 	};
 
+	const activeMinter = isMinter > 0 && isMinter * 1000n <= Date.now();
 	const fromBalance = direction ? swapStats.otherUserBal : swapStats.zchfUserBal;
 	const toBalance = !direction ? swapStats.otherUserBal : swapStats.zchfUserBal;
 	const fromSymbol = direction ? swapStats.otherSymbol : "ZCHF";
@@ -203,8 +204,9 @@ export default function Swap() {
 						<div className="mt-4 text-lg font-bold text-center">Swap {swapStats.otherSymbol} and ZCHF</div>
 
 						<div className="mt-8">
-							The <AppLink className="" label="Stablecoin Bridge" href={bridgeUrl} external={true} /> allows you to swao from{" "}
-							{swapStats.otherSymbol} to ZCHF and is set to expire on {horizon.toDateString()}. Want to know more?{" "}
+							The <AppLink className="" label="Stablecoin Bridge" href={bridgeUrl} external={true} /> allows you to swap from{" "}
+							{formatCurrency(formatUnits(swapStats.bridgeLimit - swapStats.otherBridgeBal, 18))} {swapStats.otherSymbol} to
+							ZCHF. Want to know more?{" "}
 							<AppLink className="" label="VNX Swiss Franc (VCHF)" href="https://vnx.li/vchf/" external={true} />.
 						</div>
 
@@ -217,12 +219,16 @@ export default function Swap() {
 							</div>
 						) : null}
 
+						{horizon.getTime() < Date.now() + 1000 * 60 * 60 * 24 * 60 ? (
+							<div className="mt-4 text-sm text-text-secondary">*The bridge will expire on {horizon.toDateString()}.</div>
+						) : null}
+
 						<div className="mt-8">
 							<TokenInput
 								max={fromBalance}
 								symbol={fromSymbol}
-								limit={swapLimit}
-								limitLabel="Swap limit"
+								limit={fromBalance}
+								limitLabel="Balance"
 								placeholder={"Swap Amount"}
 								onChange={onChangeAmount}
 								value={amount.toString()}
@@ -238,7 +244,10 @@ export default function Swap() {
 
 						<TokenInput
 							symbol={toSymbol}
-							output={formatUnits(amount, 18)}
+							// max={toBalance} // no effect since disabled=true
+							limit={toBalance}
+							limitLabel="Balance"
+							value={amount.toString()}
 							note={`1 ${fromSymbol} = 1 ${toSymbol}`}
 							label="Receive"
 							disabled={true}
@@ -248,11 +257,15 @@ export default function Swap() {
 							<GuardToAllowedChainBtn>
 								{direction ? (
 									amount > swapStats.otherUserAllowance ? (
-										<Button isLoading={isApproving} onClick={() => handleApprove()}>
+										<Button disabled={!activeMinter || !!error} isLoading={isApproving} onClick={() => handleApprove()}>
 											Approve
 										</Button>
 									) : (
-										<Button disabled={amount == 0n || !!error} isLoading={isMinting} onClick={() => handleMint()}>
+										<Button
+											disabled={amount == 0n || !activeMinter || !!error}
+											isLoading={isMinting}
+											onClick={() => handleMint()}
+										>
 											Swap
 										</Button>
 									)
