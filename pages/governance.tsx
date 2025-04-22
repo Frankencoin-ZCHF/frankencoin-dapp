@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import { store } from "../redux/redux.store";
 import { fetchSavings } from "../redux/slices/savings.slice";
 import { useAccount } from "wagmi";
+import GovernanceMintersPropose from "@components/PageGovernance/GovernanceMintersPropose";
 
 export default function Governance() {
 	const { address } = useAccount();
@@ -57,6 +58,8 @@ export default function Governance() {
 			<GovernanceLeadrateTable />
 
 			<AppTitle title="Minting Modules" />
+
+			<GovernanceMintersPropose />
 
 			<GovernanceMintersTable />
 
