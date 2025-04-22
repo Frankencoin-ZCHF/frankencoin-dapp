@@ -15,6 +15,7 @@ import AppLink from "@components/AppLink";
 import AddressInput from "@components/Input/AddressInput";
 import { Address, isAddress, parseEther, parseUnits } from "viem";
 import { useUserBalance } from "@hooks";
+import { SOCIAL } from "@utils";
 
 interface Props {}
 
@@ -117,12 +118,14 @@ export default function GovernanceMintersPropose({}: Props) {
 				<div className="text-text-secondary">
 					It is recommended to{" "}
 					<AppLink
-						label={"discuss"}
+						label="discuss"
 						href="https://github.com/Frankencoin-ZCHF/FrankenCoin/discussions"
 						external={true}
-						className="pr-1"
-					/>
-					the new module before proposing it to increase the probability of passing the decentralized governance process.
+						className=""
+					/>{" "}
+					the new module and share your thought with the{" "}
+					<AppLink label="community" href={SOCIAL.Telegram} external={true} className="" /> before proposing it to increase the
+					probability of passing the decentralized governance process.
 				</div>
 			</AppCard>
 
