@@ -10,9 +10,10 @@ interface Props {
 }
 
 export default function ReportsSavingsYearlyRow({ headers, tab, item }: Props) {
+	const current = new Date().getFullYear();
 	return (
 		<TableRow headers={headers} tab={tab} rawHeader={true}>
-			<div className="flex flex-col md:text-left">{item.year}</div>
+			<div className="flex flex-col md:text-left">{item.year == current ? "Current" : item.year}</div>
 
 			<div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.collected), 18))} ZCHF</div>
 

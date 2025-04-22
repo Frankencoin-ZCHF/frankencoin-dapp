@@ -4,6 +4,7 @@ import ReactDatePicker from "react-datepicker";
 import { formatDate } from "@utils";
 
 interface Props {
+	className?: string;
 	label: string;
 	hideMax?: boolean;
 	min?: Date;
@@ -25,6 +26,7 @@ interface Props {
 }
 
 export default function DateInput({
+	className,
 	label,
 	min,
 	max,
@@ -44,7 +46,7 @@ export default function DateInput({
 	error,
 }: Props) {
 	return (
-		<div className="">
+		<div className={className}>
 			<div
 				className={`group border-card-input-border ${
 					disabled ? "" : "hover:border-card-input-hover"

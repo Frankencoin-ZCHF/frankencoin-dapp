@@ -7,8 +7,10 @@ import { FPSEarningsHistory } from "../../hooks/FPSEarningsHistory";
 import { FPSBalanceHistory } from "../../hooks/FPSBalanceHistory";
 import { Address } from "viem";
 import ReportsFPSYearlyRow from "./ReportsFPSYearlyRow";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/redux.store";
 
-export type AccountYearly = { year: number; earnings: bigint; balance: bigint };
+export type AccountYearly = { year: number; earnings: bigint; balance: bigint; value: bigint };
 
 interface Props {
 	address: Address;
@@ -21,9 +23,9 @@ export default function ReportsFPSYearlyTable({ address, fpsHistory, fpsEarnings
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<AccountYearly[]>([]);
+	const { logs } = useSelector((state: RootState) => state.dashboard.dailyLog);
 
 	const entriesRaw = fpsHistory.map((item, idx) => {
-		// console.log(typeof item.created);
 		const balance = item.to == address.toLowerCase() ? item.balanceTo : item.balanceFrom;
 		const firstDate = item.created * 1000;
 		const lastDate = idx == fpsHistory.length - 1 ? Date.now() : fpsHistory[idx + 1].created * 1000;
@@ -33,6 +35,7 @@ export default function ReportsFPSYearlyTable({ address, fpsHistory, fpsEarnings
 			year: new Date(e.created * 1000).getFullYear(),
 			earnings: e.perFPS,
 			balance: balance,
+			value: 0n,
 		}));
 
 		return accounting;
@@ -61,10 +64,17 @@ export default function ReportsFPSYearlyTable({ address, fpsHistory, fpsEarnings
 			latestBalance = latestItem.to == address.toLowerCase() ? latestItem.balanceTo : latestItem.balanceFrom;
 		}
 
+		// get fps price
+		const yearNew = new Date(`${Number(y) + 1}-01-01`).getTime();
+		const filteredLogs = logs.filter((l) => Number(l.timestamp) < yearNew);
+		const price = BigInt(filteredLogs.at(-1)?.fpsPrice || "0");
+		const value = (latestBalance * price) / BigInt(10 ** 18);
+
 		accountYearly.push({
 			year: parseInt(y),
 			earnings,
 			balance: latestBalance,
+			value,
 		});
 	}
 
@@ -127,6 +137,9 @@ function sortFunction(params: SortFunctionParams): AccountYearly[] {
 	} else if (tab === headers[2]) {
 		// Balance
 		sortingList.sort((a, b) => parseInt(b.balance.toString()) - parseInt(a.balance.toString()));
+	} else if (tab === headers[3]) {
+		// Value
+		sortingList.sort((a, b) => Number(b.value) - Number(a.value));
 	}
 
 	return reverse ? sortingList.reverse() : sortingList;

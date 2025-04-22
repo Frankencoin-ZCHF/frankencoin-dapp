@@ -15,6 +15,7 @@ import ReportsPositionsYearlyTable from "@components/PageReports/ReportsPosition
 import { useRef } from "react";
 import generatePDF, { Margin } from "react-to-pdf";
 import { useRouter } from "next/router";
+import DateInput from "@components/Input/DateInput";
 
 export type OwnerPositionFees = {
 	t: number;
@@ -31,6 +32,7 @@ export default function ReportPage() {
 	const targetRef = useRef<HTMLDivElement>(null); // for pdf print
 	const { address } = useAccount();
 	const [isLoading, setLoading] = useState<boolean>(false);
+	const [isExporting, setExporting] = useState<boolean>(false);
 	const [reportingAddress, setReportingAddress] = useState<string>(address ?? "");
 	const [error, setError] = useState<string>("");
 	const [ownerPositionFees, setOwnerPositionFees] = useState<OwnerPositionFees[]>([]);
@@ -104,17 +106,27 @@ export default function ReportPage() {
 		setLoading(false);
 	}, [reportingAddress]);
 
-	const handlePDFCreation = () => {
+	useEffect(() => {
+		if (!isExporting) return;
+
 		generatePDF(targetRef, {
 			filename: `FrankencoinReport-${reportingAddress}.pdf`,
 			page: {
 				margin: Margin.LARGE,
+				format: "A4",
+				orientation: "portrait",
 			},
 		});
+
+		setExporting(false);
+	}, [isExporting, reportingAddress]);
+
+	const handlePDFCreation = () => {
+		setExporting(true);
 	};
 
 	return (
-		<div className="grid gap-8" ref={targetRef}>
+		<div className={`grid gap-8 ${isExporting ? "w-[60rem]" : ""}`} ref={targetRef}>
 			<Head>
 				<title>Frankencoin - Report</title>
 			</Head>
@@ -122,8 +134,8 @@ export default function ReportPage() {
 			<AppTitle title={`Frankencoin Wealth and Income Report`}>
 				<div className="text-text-secondary">
 					Track the yearly wealth, income, debt, and costs attributable to a given address. For the current year, the values
-					reflect the accrued amounts up to the current date. All data is provided on a 'best effort' basis without any guarantee
-					of accuracy. The contents of this page are also available as{" "}
+					reflect the accrued amounts up to the current date. All data is provided on a &apos;best effort&apos; basis without any
+					guarantee of accuracy. The contents of this page are also available as{" "}
 					<span className="text-card-input-min hover:text-card-input-hover cursor-pointer" onClick={handlePDFCreation}>
 						pdf download
 					</span>
@@ -132,13 +144,18 @@ export default function ReportPage() {
 			</AppTitle>
 
 			<AppCard>
-				<AddressInput
-					label="Address of Interest"
-					value={reportingAddress}
-					onChange={setReportingAddress}
-					disabled={isLoading}
-					error={error}
-				/>
+				<div className="grid md:gap-8 md:grid-cols-2 items-center -mb-4">
+					<DateInput className="" label="Current Date" value={new Date()} disabled={true} />
+
+					<AddressInput
+						className=""
+						label="Address of Interest"
+						value={reportingAddress}
+						onChange={setReportingAddress}
+						disabled={isLoading}
+						error={error}
+					/>
+				</div>
 			</AppCard>
 
 			<AppTitle title="Collateralized Debt Positions">
@@ -150,9 +167,9 @@ export default function ReportPage() {
 				ownerPositionDebt={ownerPositionDebt}
 			/>
 			<div className="text-text-secondary text-sm -mt-7">
-				Note: 'Ownership transfer' events are not tracked. If a position's ownership changes, the outstanding debt may not be
-				accurately deducted from the previous owner or reflected correctly in this table. Additionally, interest payments are
-				recorded in the year they are made, even if they cover interest accrued in a different period.
+				Note: &apos;Ownership transfer&apos; events are not tracked. If a position&apos;s ownership changes, the outstanding debt
+				may not be accurately deducted from the previous owner or reflected correctly in this table. Additionally, interest payments
+				are recorded in the year they are made, even if they cover interest accrued in a different period.
 			</div>
 
 			<AppTitle title="Savings">

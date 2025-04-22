@@ -38,7 +38,7 @@ export default function Positions() {
 
 			<MypositionsTable />
 
-			<MyPositionsTotalsCard />
+			{/* <MyPositionsTotalsCard /> */}
 
 			{/* Section Challenges */}
 			<AppTitle title="Initiated Challenges">
