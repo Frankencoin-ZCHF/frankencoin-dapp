@@ -19,14 +19,14 @@ export default function LoadingScreen() {
 						<h1>Frankencoin is loading...</h1>
 					</div>
 
-					<div className="absolute bottom-[20%]">
-						<h1 className="px-8 text-center">
+					<div className="absolute bottom-[20%] w-full flex justify-center">
+						<h1 className="px-8 text-center max-w-2xl">
 							This website uses third-party cookies, and certain features may not function properly if you choose to block
 							them.
 						</h1>
 					</div>
 
-					<div className="absolute bottom-0 bg-layout-footer w-full pb-8 pt-8 justify-items-center">
+					<div className="absolute bottom-0 bg-layout-footer w-full pb-8 pt-8 grid place-items-center">
 						<SubmitIssue />
 					</div>
 				</div>
