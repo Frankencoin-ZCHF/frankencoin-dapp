@@ -29,11 +29,11 @@ const DynamicDocs = (): string => {
 export default function Footer() {
 	return (
 		<div className="md:flex md:grid-rows-2 justify-items-center md:px-12 md:pb-[80px] max-md:pb-[40px] pt-6 bg-layout-footer text-layout-primary">
-			<div className="flex-1">
+			<div className="flex-1 justify-center">
 				<SubmitIssue />
 			</div>
 
-			<ul className="flex gap-8 max-md:pt-12">
+			<ul className="flex gap-8 max-md:pt-12 justify-center">
 				<li>
 					<FooterButton link={SOCIAL.Twitter} text="Twitter" icon={faXTwitter} />
 				</li>
