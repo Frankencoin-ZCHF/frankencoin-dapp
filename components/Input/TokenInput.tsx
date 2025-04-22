@@ -145,7 +145,7 @@ export default function TokenInput({
 				) : null}
 			</div>
 
-			<div className="flex my-2 px-3.5 text-text-warning">{error}</div>
+			{error ? <div className="flex my-2 px-3.5 text-text-warning">{error}</div> : <div className="flex my-2 px-3.5">{note}</div>}
 		</div>
 	);
 }
