@@ -1,18 +1,9 @@
 import Head from "next/head";
 import AppTitle from "@components/AppTitle";
-import { useEffect } from "react";
-import { ADDRESS } from "@frankencoin/zchf";
-import { WAGMI_CHAIN } from "../../app.config";
 import TransferListTable from "@components/PageTransfer/TransferListTable";
 import TransferInteractionCard from "@components/PageTransfer/TransferInteractionCard";
 
 export default function TransferPage() {
-	useEffect(() => {
-		//
-	}, []);
-
-	console.log(ADDRESS[WAGMI_CHAIN.id]);
-
 	return (
 		<>
 			<Head>

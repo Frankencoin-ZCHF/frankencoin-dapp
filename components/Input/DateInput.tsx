@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 import ReactDatePicker from "react-datepicker";
 import { formatDate } from "@utils";
+import { useRef } from "react";
 
 interface Props {
 	className?: string;
@@ -45,6 +46,14 @@ export default function DateInput({
 	disabled,
 	error,
 }: Props) {
+	const datePickerRef = useRef<any>(null);
+
+	const handleContainerClick = () => {
+		if (datePickerRef.current && !disabled) {
+			datePickerRef.current.setOpen(true);
+		}
+	};
+
 	return (
 		<div className={className}>
 			<div
@@ -56,24 +65,22 @@ export default function DateInput({
 			>
 				<div className="flex text-card-input-label my-1">{label}</div>
 
-				<div className="flex items-center">
+				<div className="flex items-center" onClick={handleContainerClick}>
 					<div
 						className={`flex-1 py-2 ${
 							error ? "text-card-input-error" : !!value ? "text-text-primary" : "placeholder:text-card-input-empty"
 						}`}
 					>
-						{output ? (
-							<div className={`text-xl py-0 bg-transparent`}>{output}</div>
-						) : (
-							<ReactDatePicker
-								className="-ml-2 text-xl bg-transparent"
-								id="expiration-datepicker"
-								selected={value}
-								dateFormat={"yyyy-MM-dd"}
-								onChange={(e) => !disabled && onChange?.(e)}
-								disabled={disabled}
-							/>
-						)}
+						<ReactDatePicker
+							ref={datePickerRef}
+							className={`-ml-2 text-xl bg-transparent`}
+							id="expiration-datepicker"
+							selected={value}
+							dateFormat={"yyyy-MM-dd"}
+							onChange={(e) => !disabled && onChange?.(e)}
+							disabled={disabled}
+							value={output}
+						/>
 					</div>
 
 					<div className="mr-2">
