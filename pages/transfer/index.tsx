@@ -16,8 +16,8 @@ export default function TransferPage() {
 
 			<TransferInteractionCard />
 
-			<AppTitle title="View your Transfers">
-				<div className="text-text-secondary">Uee the filters to fine tune your results</div>
+			<AppTitle title="View through Transfers">
+				<div className="text-text-secondary">Use the filters to fine tune your results.</div>
 			</AppTitle>
 
 			<TransferListTable />

@@ -10,7 +10,7 @@ import DateInput from "@components/Input/DateInput";
 import { Address, isAddress } from "viem";
 import { useAccount } from "wagmi";
 import { FRANKENCOIN_API_CLIENT } from "../../app.config";
-import { TransferReferenceQuery } from "@frankencoin/api";
+import { ApiTransferReferenceList, TransferReferenceQuery } from "@frankencoin/api";
 
 const RESET_DATE = new Date(new Date().getUTCFullYear().toString());
 
@@ -29,11 +29,20 @@ export default function TransferListTable() {
 	const [end, setEnd] = useState<Date | string>("Now");
 
 	useEffect(() => {
-		// guards
-		if (sender.length == 0 && recipient.length == 0) return;
+		// load all, if non is selected.
+		if (sender.length == 0 && recipient.length == 0) {
+			const fetcher = async () => {
+				const data = await FRANKENCOIN_API_CLIENT.get<ApiTransferReferenceList>(`/transfer/reference/list`);
+				setFetchedList(data.data.list);
+			};
+
+			fetcher();
+			return;
+		}
+
+		// guard for address validation
 		if ((sender.length > 0 && !isAddress(sender)) || (recipient.length > 0 && !isAddress(recipient))) return;
 
-		// at least the sender is known
 		const fetcher = async () => {
 			const params: Record<string, string | number> = {};
 
@@ -87,8 +96,8 @@ export default function TransferListTable() {
 	return (
 		<div className="grid gap-4">
 			<AppCard>
-				<div className="grid md:grid-cols-2 gap-4">
-					<div className="">
+				<div className="grid md:grid-cols-2 gap-4 -mb-4">
+					<div className="flex flex-col justify-center gap-2">
 						<AddressInput
 							label="Sender"
 							placeholder="Enter sender address here"
@@ -110,15 +119,28 @@ export default function TransferListTable() {
 							onChange={setReference}
 						/>
 					</div>
-					<div className="flex flex-col justify-center">
-						<DateInput label="Start" value={start} onChange={(d) => d && setStart(d)} reset={RESET_DATE} />
+					<div className="flex flex-col justify-center gap-2">
+						<DateInput
+							label="Start"
+							value={start}
+							onChange={(d) => d && setStart(d)}
+							reset={RESET_DATE}
+							note="Note: Selected date is included in the result."
+						/>
 						<DateInput
 							label="End"
 							value={end === "Now" ? new Date() : (end as Date)}
-							onChange={(d) => d && setEnd(d)}
+							onChange={(d) => {
+								if (d) {
+									const dateWithZeroTime = new Date(d);
+									dateWithZeroTime.setUTCHours(0, 0, 0, 0);
+									setEnd(dateWithZeroTime);
+								}
+							}}
 							output={end === "Now" ? end : undefined}
 							reset={end === "Now" ? undefined : new Date()}
 							onReset={() => setEnd("Now")}
+							note="Note: Selected date is excluded from the result."
 						/>
 					</div>
 				</div>

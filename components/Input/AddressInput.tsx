@@ -7,9 +7,10 @@ interface Props {
 	error?: string;
 	autoFocus?: boolean;
 	disabled?: boolean;
+	note?: string;
 }
 
-export default function AddressInput({ label, className, placeholder, value, error, onChange, autoFocus, disabled }: Props) {
+export default function AddressInput({ label, className, placeholder, value, error, onChange, autoFocus, disabled, note }: Props) {
 	return (
 		<div className={className}>
 			<div
@@ -29,7 +30,7 @@ export default function AddressInput({ label, className, placeholder, value, err
 				/>
 			</div>
 
-			<div className="flex my-2 px-3.5 text-text-warning">{error}</div>
+			{error ? <div className="flex my-2 px-3.5 text-text-warning">{error}</div> : <div className="flex my-2 px-3.5">{note}</div>}
 		</div>
 	);
 }
