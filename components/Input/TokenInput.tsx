@@ -41,7 +41,7 @@ export default function TokenInput({
 	limitLabel,
 	output,
 	note,
-	value = "0",
+	value = "",
 	autoFocus,
 	disabled,
 	onChange = () => {},
@@ -71,7 +71,7 @@ export default function TokenInput({
 							<div className={`text-xl py-0 bg-transparent`}>{output}</div>
 						) : (
 							<BigNumberInput
-								className={`w-full px-0 py-0 text-xl bg-transparent`}
+								className={`w-full px-0 py-0 text-xl ${disabled ? "bg-card-input-disabled" : ""}`}
 								decimals={Number(digit)}
 								placeholder={placeholder}
 								value={value || ""}
