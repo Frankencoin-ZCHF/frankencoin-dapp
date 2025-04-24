@@ -10,9 +10,9 @@ export function NavItems() {
 			<li>
 				<NavButton to="/mint" name="Borrow" />
 			</li>
-			<li>
+			{/* <li>
 				<NavButton to="/swap" name="Swap" />
-			</li>
+			</li> */}
 			<li>
 				<NavButton to="/mypositions" name="My Positions" />
 			</li>
