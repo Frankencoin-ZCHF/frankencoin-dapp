@@ -12,6 +12,7 @@ import { useFrontendCode } from "./useFrontendCode";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../app.config";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
+import { gql, useQuery } from "@apollo/client";
 
 export const useSavingsInterest = () => {
 	const [amount, setAmount] = useState(0n);
@@ -21,7 +22,6 @@ export const useSavingsInterest = () => {
 	const [interestToBeCollected, setInterestToBeCollected] = useState(0n);
 	const [isClaiming, setIsClaiming] = useState<boolean>(false);
 	const leadrate = useSelector((state: RootState) => state.savings.savingsInfo.rate);
-	const claims = useSelector((state: RootState) => state.savings.savingsUserTable.interest);
 	const [refetchSignal, setRefetchSignal] = useState(0);
 
 	const { data } = useBlockNumber({ watch: true });
@@ -34,7 +34,20 @@ export const useSavingsInterest = () => {
 
 	const { frontendCode } = useFrontendCode();
 
-	const change: bigint = claims.reduce((acc, claim) => acc + BigInt(claim.amount), 0n);
+	const { data: leaderboardData, refetch: refetchLeaderboard } = useQuery(
+		gql`
+			{
+				savingsUserLeaderboard(id: "${account}") {
+					interestReceived
+				}
+			}
+		`,
+		{
+			pollInterval: 0,
+			skip: !account || account === zeroAddress,
+		}
+	);
+	const change = BigInt(leaderboardData?.savingsUserLeaderboard?.interestReceived || 0n);
 
 	useEffect(() => {
 		if (account === zeroAddress || isClaiming) return;
@@ -83,6 +96,7 @@ export const useSavingsInterest = () => {
 
 	const refetchInterest = async () => {
 		setRefetchSignal((prev) => prev + 1);
+		refetchLeaderboard();
 	};
 
 	const claimInterest = async () => {
@@ -113,7 +127,7 @@ export const useSavingsInterest = () => {
 				},
 			];
 
-			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 2 }), {
 				pending: {
 					render: <TxToast title={`Claiming Interest...`} rows={toastContent} />,
 				},
@@ -123,6 +137,8 @@ export const useSavingsInterest = () => {
 			});
 
 			setUserSavingsInterest(0n);
+			refetchInterest();
+			refetchLeaderboard();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error)); // TODO: add error translation
 		} finally {
@@ -142,4 +158,4 @@ export const useSavingsInterest = () => {
 		claimInterest,
 		refetchInterest,
 	};
-}
+};

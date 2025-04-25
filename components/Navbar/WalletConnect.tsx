@@ -14,8 +14,10 @@ const ConnectButton = () => {
 	return (
 		<>
 			{isDisconnected || !address ? (
-				<Button className="!py-0.5 !px-8 rounded-full" onClick={() => Web3Modal.open()}>
-					{t("common.connect_wallet")}
+				<Button className="!py-0.5 !px-0 rounded-full" onClick={() => Web3Modal.open()}>
+					<span className="px-3 xs:px-8">
+						{t("common.connect_wallet")}
+					</span>
 				</Button>
 			) : (
 				<button

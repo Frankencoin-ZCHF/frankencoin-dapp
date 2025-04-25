@@ -15,7 +15,7 @@ export function NavItems() {
 
 	return (
 		<>
-			<li className="inline-block sm:hidden">
+			<li className="inline-block 2md:hidden">
 				<NavButton to="/referrals" name={t("common.navbar.my_referrals")} />
 			</li>
 			<li>
@@ -43,7 +43,7 @@ export default function Navbar() {
 	return (
 		<div className="fixed top-0 left-0 right-0 z-20">
 			<div>
-				<header className="w-full h-16 px-5 md:px-10 bg-white border-b border-menu-separator bg-menu-back backdrop-blur justify-between items-center inline-flex">
+				<header className="w-full h-16 px-5 lg:px-10 bg-white border-b border-menu-separator bg-menu-back backdrop-blur justify-between items-center inline-flex">
 					<div className="h-9 justify-start items-center gap-6 inline-flex">
 						<Link className="w-[120px] flex items-center justify-center" href={CONFIG.landing}>
 							<div className="relative">
@@ -51,17 +51,17 @@ export default function Navbar() {
 							</div>
 						</Link>
 
-						<ul className={`justify-left hidden flex-1 gap-2 md:flex lg:gap-3`}>
+						<ul className={`justify-left hidden flex-1 gap-2 2md:flex lg:gap-3`}>
 							<NavItems />
 						</ul>
 					</div>
-					<div className="flex flex-1 justify-end items-center max-md:pr-4 sm:gap-4">
+					<div className="flex flex-1 justify-end items-center max-2md:pr-4 sm:gap-4">
 						<WalletConnect />
-						<div className="hidden md:block flex items-center">
+						<div className="hidden 2md:block flex items-center">
 							<GlobalPreferences />
 						</div>
 					</div>
-					<div className="md:hidden">
+					<div className="2md:hidden">
 						<button onClick={() => setIsNavBarOpen(!isNavBarOpen)} className="cursor-pointer flex items-center">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -76,9 +76,9 @@ export default function Navbar() {
 					</div>
 				</header>
 
-				<aside className="flex md:hidden">
-					<div className="flex items-center md:block">
-						<label className="absolute z-20 cursor-pointer px-3 py-6 right-0 md:right-4" htmlFor="ss-mobile-menu">
+				<aside className="flex 2md:hidden">
+					<div className="flex items-center 2md:block">
+						<label className="absolute z-20 cursor-pointer px-3 py-6 right-0 2md:right-4" htmlFor="ss-mobile-menu">
 							<input className="peer hidden" type="checkbox" id="ss-mobile-menu" />
 
 							<div className="hidden peer-checked:block">

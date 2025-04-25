@@ -52,7 +52,7 @@ export default function EquityNativePoolShareDetailsCard() {
 	return (
 		<div className="bg-layout-primary border border-borders-dividerLight border-offset-1 rounded-xl grid grid-cols-1">
 			<div id="chart-timeline" className="relative">
-				<div className="absolute top-[20px] left-[20px] gap-2 flex flex-col items-start">
+				<div className="absolute top-[20px] left-[20px] z-10 gap-2 flex flex-col items-start">
 					<TokenLogo currency={NATIVE_POOL_SHARE_TOKEN_SYMBOL} size={7} />
 					<div>
 						<span className="text-base font-extrabold leading-tight">
@@ -126,7 +126,7 @@ export default function EquityNativePoolShareDetailsCard() {
 						{
 							name: `${POOL_SHARE_TOKEN_SYMBOL} Price`,
 							data: filteredTrades.map((trade) => {
-								return [parseFloat(trade.time) * 1000, Math.round(Number(trade.lastPrice) / 10 ** 16) / 100];
+								return [parseFloat(trade.time) * 1000, Number(((Number(trade.lastPrice) / 10 ** 16) / 100).toFixed(4))];
 							}),
 						},
 					]}
@@ -146,7 +146,7 @@ export default function EquityNativePoolShareDetailsCard() {
 				<div className="flex flex-row justify-between">
 					<div className="text-sm font-medium leading-relaxed">{t("equity.supply")}</div>
 					<div className="text-sm font-medium leading-tight ">
-						{formatCurrency(formatUnits(poolStats.equitySupply, 18), 2, 2)} {TOKEN_SYMBOL}
+						{formatCurrency(formatUnits(poolStats.equitySupply, 18), 2, 2)} {NATIVE_POOL_SHARE_TOKEN_SYMBOL}
 					</div>
 				</div>
 				<div className="flex flex-row justify-between">

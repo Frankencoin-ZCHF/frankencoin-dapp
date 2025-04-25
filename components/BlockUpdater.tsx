@@ -13,6 +13,8 @@ import { fetchChallengesList } from "../redux/slices/challenges.slice";
 import { fetchBidsList } from "../redux/slices/bids.slice";
 import { fetchEcosystem } from "../redux/slices/ecosystem.slice";
 import { fetchSavings } from "../redux/slices/savings.slice";
+import { getPublicViewAddress } from "../utils/url";
+import { useRouter } from "next/router";
 
 let initializing: boolean = false;
 let initStart: number = 0;
@@ -20,7 +22,10 @@ let loading: boolean = false;
 
 export default function BockUpdater({ children }: { children?: React.ReactElement | React.ReactElement[] }) {
 	const { error, data } = useBlockNumber({ chainId: WAGMI_CHAIN.id, watch: true });
-	const { address } = useAccount();
+	const { address: connectedAddress } = useAccount();
+	const router = useRouter();
+	const overwrite = getPublicViewAddress(router);
+	const address = overwrite || connectedAddress;
 	const isConnectedToCorrectChain = useIsConnectedToCorrectChain();
 
 	const [initialized, setInitialized] = useState<boolean>(false);
@@ -116,10 +121,10 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 			store.dispatch(accountActions.resetAccountState());
 			store.dispatch(fetchSavings(undefined));
 		} else if (address && (!latestAddress || address != latestAddress)) {
-			setLatestAddress(address);
+			setLatestAddress(address as `0x${string}`);
 			console.log(`Policy [BlockUpdater]: Address changed to: ${address}`);
-			store.dispatch(fetchAccount(address));
-			store.dispatch(fetchSavings(address));
+			store.dispatch(fetchAccount(address as `0x${string}`));
+			store.dispatch(fetchSavings(address as `0x${string}`));
 		}
 	}, [address, latestAddress]);
 
