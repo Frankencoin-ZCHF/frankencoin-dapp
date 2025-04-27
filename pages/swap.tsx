@@ -211,7 +211,7 @@ export default function Swap() {
 						</div>
 
 						{isMinter == 0n ? (
-							<div className="mt-4 text-sm text-text-secondary">*It looks like the bridge is not proposed yet.</div>
+							<div className="mt-4 text-sm text-text-secondary">*It looks like the bridge has not been proposed yet.</div>
 						) : isMinter * 1000n >= BigInt(Date.now()) ? (
 							<div className="mt-4 text-sm text-text-secondary">
 								*It looks like the bridge is still in the{" "}
