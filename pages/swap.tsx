@@ -177,20 +177,28 @@ export default function Swap() {
 
 	const onChangeDirection = () => {
 		setDirection(!direction);
+		updateError(amount);
 	};
 
 	const onChangeAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
+		updateError(valueBigInt);
+	}
 
+	function updateError(valueBigInt: bigint){
 		if (valueBigInt > fromBalance) {
 			setError(`Not enough ${fromSymbol} in your wallet.`);
 		} else if (valueBigInt > swapLimit) {
 			setError(`Not enough ${toSymbol} available to swap.`);
+		} else if (isMinter * 1000n >= BigInt(Date.now())) {
+			setError(`Swap module has not completed governance process yet.`);
+		} else if (!direction && horizon.getTime() >= Date.now()){
+			setError(`Swap module has expired on ` + horizon);
 		} else {
 			setError("");
 		}
-	};
+	}
 
 	return (
 		<>
@@ -204,24 +212,11 @@ export default function Swap() {
 						<div className="mt-4 text-lg font-bold text-center">Swap {swapStats.otherSymbol} and ZCHF</div>
 
 						<div className="mt-8">
-							The <AppLink className="" label="Stablecoin Bridge" href={bridgeUrl} external={true} /> allows you to swap from{" "}
-							{formatCurrency(formatUnits(swapStats.bridgeLimit - swapStats.otherBridgeBal, 18))} {swapStats.otherSymbol} to
-							ZCHF. Want to know more?{" "}
-							<AppLink className="" label="VNX Swiss Franc (VCHF)" href="https://vnx.li/vchf/" external={true} />.
+							The <AppLink className="" label="swap module" href={bridgeUrl} external={true} /> enables 1:1 to converstion other Swiss franc stablecoins and back,
+							up to certain limits. For now, {" "}
+							<AppLink className="" label="VNX Swiss Franc (VCHF)" href="https://vnx.li/vchf/" external={true} />
+							{" "} is supported. 
 						</div>
-
-						{isMinter == 0n ? (
-							<div className="mt-4 text-sm text-text-secondary">*It looks like the bridge has not been proposed yet.</div>
-						) : isMinter * 1000n >= BigInt(Date.now()) ? (
-							<div className="mt-4 text-sm text-text-secondary">
-								*It looks like the bridge is still in the{" "}
-								<AppLink className="" label="minters proposal" href="/governance" /> state.
-							</div>
-						) : null}
-
-						{horizon.getTime() < Date.now() + 1000 * 60 * 60 * 24 * 60 ? (
-							<div className="mt-4 text-sm text-text-secondary">*The bridge will expire on {horizon.toDateString()}.</div>
-						) : null}
 
 						<div className="mt-8">
 							<TokenInput
