@@ -7,6 +7,9 @@ import { useState } from "react";
 export function NavItems() {
 	return (
 		<>
+			{/* <li>
+				<NavButton to="/swap" name="Swap" />
+			</li> */}
 			<li>
 				<NavButton to="/mint" name="Borrow" />
 			</li>
@@ -16,9 +19,6 @@ export function NavItems() {
 			<li>
 				<NavButton to="/monitoring" name="Monitoring" />
 			</li>
-			{/* <li>
-				<NavButton to="/challenges" name="Auctions" />
-			</li> */}
 			<li>
 				<NavButton to="/savings" name="Savings" />
 			</li>

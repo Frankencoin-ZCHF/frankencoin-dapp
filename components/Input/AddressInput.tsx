@@ -19,7 +19,7 @@ export default function AddressInput({ label, placeholder, value, error, onChang
 				<div className="flex text-card-input-label my-1">{label}</div>
 
 				<input
-					className={`w-full py-2 text-lg bg-transparent ${error ? "text-card-input-error" : "text-text-primary"}`}
+					className={`w-full py-2 text-lg text-right bg-transparent ${error ? "text-card-input-error" : "text-text-primary"}`}
 					placeholder={placeholder}
 					value={value}
 					onChange={(e) => onChange?.(e.target.value)}

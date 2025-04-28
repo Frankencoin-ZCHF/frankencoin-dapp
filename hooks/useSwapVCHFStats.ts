@@ -4,40 +4,43 @@ import { erc20Abi } from "viem";
 import { WAGMI_CHAIN } from "../app.config";
 import { ADDRESS, StablecoinBridgeABI } from "@frankencoin/zchf";
 
-export const useSwapStats = () => {
+export const useSwapVCHFStats = () => {
 	const chainId = WAGMI_CHAIN.id as number;
 	const { address } = useAccount();
 	const account = address || "0x0";
 
+	const other = ADDRESS[chainId].vchf;
+	const bridge = ADDRESS[chainId].stablecoinBridgeVCHF;
+
 	const { data, isError, isLoading } = useReadContracts({
 		contracts: [
-			// XCHF Calls
+			// Other Calls
 			{
 				chainId,
-				address: ADDRESS[chainId].xchf,
+				address: other,
 				abi: erc20Abi,
 				functionName: "balanceOf",
 				args: [account],
 			},
 			{
 				chainId,
-				address: ADDRESS[chainId].xchf,
+				address: other,
 				abi: erc20Abi,
 				functionName: "symbol",
 			},
 			{
 				chainId,
-				address: ADDRESS[chainId].xchf,
+				address: other,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [account, ADDRESS[chainId].bridge],
+				args: [account, bridge],
 			},
 			{
 				chainId,
-				address: ADDRESS[chainId].xchf,
+				address: other,
 				abi: erc20Abi,
 				functionName: "balanceOf",
-				args: [ADDRESS[chainId].bridge],
+				args: [bridge],
 			},
 			// Frankencoin Calls
 			{
@@ -58,42 +61,50 @@ export const useSwapStats = () => {
 				address: ADDRESS[chainId].frankenCoin,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [account, ADDRESS[chainId].bridge],
+				args: [account, bridge],
 			},
 			// Bridge Calls
 			{
 				chainId,
-				address: ADDRESS[chainId].bridge,
+				address: bridge,
 				abi: StablecoinBridgeABI,
 				functionName: "limit",
+			},
+			{
+				chainId,
+				address: bridge,
+				abi: StablecoinBridgeABI,
+				functionName: "horizon",
 			},
 		],
 	});
 
-	const xchfUserBal: bigint = data ? decodeBigIntCall(data[0]) : BigInt(0);
-	const xchfSymbol: string = data ? String(data[1].result) : "";
-	const xchfUserAllowance: bigint = data ? decodeBigIntCall(data[2]) : BigInt(0);
-	const xchfBridgeBal: bigint = data ? decodeBigIntCall(data[3]) : BigInt(0);
+	const otherUserBal: bigint = data ? decodeBigIntCall(data[0]) : BigInt(0);
+	const otherSymbol: string = data ? String(data[1].result) : "";
+	const otherUserAllowance: bigint = data ? decodeBigIntCall(data[2]) : BigInt(0);
+	const otherBridgeBal: bigint = data ? decodeBigIntCall(data[3]) : BigInt(0);
 
 	const zchfUserBal: bigint = data ? decodeBigIntCall(data[4]) : BigInt(0);
-	const frankenSymbol: string = data ? String(data[5].result) : "";
+	const zchfSymbol: string = data ? String(data[5].result) : "";
 	const zchfUserAllowance: bigint = data ? decodeBigIntCall(data[6]) : BigInt(0);
 
 	const bridgeLimit: bigint = data ? decodeBigIntCall(data[7]) : BigInt(0);
+	const bridgeHorizon: bigint = data ? decodeBigIntCall(data[8]) : BigInt(0);
 
 	return {
 		isError,
 		isLoading,
 
-		xchfUserBal,
-		xchfSymbol,
-		xchfUserAllowance,
-		xchfBridgeBal,
+		otherUserBal,
+		otherSymbol,
+		otherUserAllowance,
+		otherBridgeBal,
 
 		zchfUserBal,
-		frankenSymbol,
+		zchfSymbol,
 		zchfUserAllowance,
 
 		bridgeLimit,
+		bridgeHorizon,
 	};
 };

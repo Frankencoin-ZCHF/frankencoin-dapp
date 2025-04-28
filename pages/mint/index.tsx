@@ -21,17 +21,6 @@ export default function Borrow() {
 				<title>Frankencoin - Borrow</title>
 			</Head>
 
-			<AppTitle title="Borrow on Morpho">
-				<div className="text-text-secondary">
-					Borrow Frankencoins (ZCHF) at variable rates on the lending platform{" "}
-					<AppLink href="https://morpho.org/" label="Morpho" className="" external={true} />.
-				</div>
-			</AppTitle>
-
-			<div className="mt-8">
-				<BorrowMorphoTable />
-			</div>
-			
 			<AppTitle title="Mint fresh Frankencoins">
 				<div className="text-text-secondary">Mint Frankencoins (ZCHF) at a fixed rate for your duration of choice.</div>
 			</AppTitle>
@@ -44,6 +33,17 @@ export default function Borrow() {
 				<Link href={"mint/create"} className="btn bg-layout-primary border-text-primary text-menu-text hover:bg-white m-auto">
 					Propose New Position or Collateral
 				</Link>
+			</div>
+
+			<AppTitle title="Borrow on Morpho">
+				<div className="text-text-secondary">
+					Borrow Frankencoins (ZCHF) at variable rates on the lending platform{" "}
+					<AppLink href="https://morpho.org/" label="Morpho" className="" external={true} />.
+				</div>
+			</AppTitle>
+
+			<div className="mt-8">
+				<BorrowMorphoTable />
 			</div>
 		</>
 	);

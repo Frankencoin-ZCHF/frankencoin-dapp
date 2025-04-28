@@ -49,7 +49,7 @@ export default function NormalInput({
 							<div className={`text-xl py-0 bg-transparent`}>{output}</div>
 						) : (
 							<BigNumberInput
-								className={`w-full px-0 py-0 text-xl text-right`}
+								className={`w-full px-0 py-0 text-xl text-right ${disabled ? "bg-card-input-disabled" : ""}`}
 								decimals={Number(digit)}
 								placeholder={placeholder}
 								value={value || ""}
