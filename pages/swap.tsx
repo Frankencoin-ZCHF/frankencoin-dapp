@@ -61,12 +61,12 @@ export default function Swap() {
 
 		if (!activeMinter) {
 			setErrorBridge("The swap module has not yet completed the governance process.");
-		} else if (horizon.getTime() < Date.now()) {
+		} else if (horizon.getTime() < Date.now() && direction) {
 			setErrorBridge(`Swap module has expired on ${horizon.toDateString()}`);
 		} else {
 			setErrorBridge("");
 		}
-	}, [activeMinter, swapStats]);
+	}, [activeMinter, swapStats, direction]);
 
 	const handleApprove = async () => {
 		try {
