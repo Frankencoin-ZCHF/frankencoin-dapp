@@ -22,7 +22,12 @@ export default function ReportsPositionsYearlyTable({ address, ownerPositionFees
 	const [list, setList] = useState<AccountYearly[]>([]);
 
 	const entries = ownerPositionFees.map((i) => ({ year: new Date(i.t * 1000).getFullYear(), fee: i.f }));
-	const entriesDebt = ownerPositionDebt.map((i) => ({ year: new Date(i.t * 1000).getFullYear(), position: i.p, debt: BigInt(i.m) }));
+	const entriesDebt = ownerPositionDebt.map((i) => ({
+		year: new Date(i.t * 1000).getFullYear(),
+		position: i.p,
+		debt: BigInt(i.m),
+		r: BigInt(i.r),
+	}));
 
 	const accountYears: string[] = [...entries, ...entriesDebt]
 		.map((e) => String(e.year))
@@ -53,7 +58,7 @@ export default function ReportsPositionsYearlyTable({ address, ownerPositionFees
 		// 	}
 		// }
 
-		const openDebt = itemsDebt.reduce<bigint>((a, b) => a + b.debt, 0n);
+		const openDebt = itemsDebt.reduce<bigint>((a, b) => a + (b.debt * (1_000_000n - b.r)) / 1_000_000n, 0n);
 
 		accountYearly.push({
 			year: parseInt(y),

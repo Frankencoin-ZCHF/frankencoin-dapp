@@ -26,6 +26,7 @@ export type OwnerPositionDebt = {
 	t: number;
 	p: Address;
 	m: bigint;
+	r: bigint;
 };
 
 export default function ReportPage() {
@@ -73,12 +74,14 @@ export default function ReportPage() {
 				setOwnerPositionFees((responsePositionsFees.data as { t: number; f: string }[]).map((i) => ({ t: i.t, f: BigInt(i.f) })));
 
 				const responsePositionsDebt = await FRANKENCOIN_API_CLIENT.get(`/positions/mintingupdates/owner/${reportingAddress}/debt`);
-				const debt = responsePositionsDebt.data as { [key: string]: { [key: Address]: { t: number; p: Address; m: string }[] } };
+				const debt = responsePositionsDebt.data as {
+					[key: string]: { [key: Address]: { t: number; p: Address; m: string; r: number }[] };
+				};
 
 				const yearly: OwnerPositionDebt[] = Object.keys(debt)
 					.map((y) => Object.values(debt[y]).flat())
 					.flat()
-					.map((i) => ({ ...i, m: BigInt(i.m) }));
+					.map((i) => ({ ...i, m: BigInt(i.m), r: BigInt(i.r) }));
 
 				setOwnerPositionDebt(yearly);
 

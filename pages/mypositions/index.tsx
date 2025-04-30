@@ -55,12 +55,14 @@ export default function Positions() {
 				const responsePositionsDebt = await FRANKENCOIN_API_CLIENT.get(
 					`/positions/mintingupdates/owner/${overwrite || address}/debt`
 				);
-				const debt = responsePositionsDebt.data as { [key: string]: { [key: Address]: { t: number; p: Address; m: string }[] } };
+				const debt = responsePositionsDebt.data as {
+					[key: string]: { [key: Address]: { t: number; p: Address; m: string; r: number }[] };
+				};
 
 				const yearly: OwnerPositionDebt[] = Object.keys(debt)
 					.map((y) => Object.values(debt[y]).flat())
 					.flat()
-					.map((i) => ({ ...i, m: BigInt(i.m) }));
+					.map((i) => ({ ...i, m: BigInt(i.m), r: BigInt(i.r) }));
 
 				setOwnerPositionDebt(yearly);
 
@@ -93,7 +95,7 @@ export default function Positions() {
 			<MypositionsTable />
 
 			{/* Section Report */}
-			<AppTitle title="Collateralized Debt Positions">
+			<AppTitle title="Yearly Accounts">
 				<DisplayWarningMessage overwrite={overwrite} />
 				<div className="text-text-secondary">
 					Open positions at the end of each year as well as interest paid. See also the
