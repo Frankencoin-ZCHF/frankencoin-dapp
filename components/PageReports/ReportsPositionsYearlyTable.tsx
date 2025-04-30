@@ -16,7 +16,7 @@ interface Props {
 }
 
 export default function ReportsPositionsYearlyTable({ address, ownerPositionFees, ownerPositionDebt }: Props) {
-	const headers: string[] = ["Year", "Interest Paid", "Debt", "Collateral Value"];
+	const headers: string[] = ["Year", "Interest Paid", "Debt" /*, "Collateral Value" */];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<AccountYearly[]>([]);
