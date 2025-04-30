@@ -7,9 +7,9 @@ import { useState } from "react";
 export function NavItems() {
 	return (
 		<>
-			{/* <li>
+			<li>
 				<NavButton to="/swap" name="Swap" />
-			</li> */}
+			</li>
 			<li>
 				<NavButton to="/mint" name="Borrow" />
 			</li>
