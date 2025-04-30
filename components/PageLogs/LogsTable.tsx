@@ -26,15 +26,6 @@ export default function LogsTable() {
 
 	const { logs } = useSelector((state: RootState) => state.dashboard.txLog);
 
-	// @dev: sequence needs correction due to event triggering sequence from SCs
-	const correctedLogs = logs.map((log, idx, all) => {
-		if (idx > 0 && log.kind == "Equity:Profit" && log.timestamp == all[idx - 1].timestamp) {
-			return all[idx - 1];
-		} else if (idx < all.length - 1 && log.kind == "Frankencoin:Mint" && log.timestamp == all[idx + 1].timestamp) {
-			return all[idx + 1];
-		} else return log;
-	});
-
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
 			setReverse(!reverse);
@@ -49,12 +40,10 @@ export default function LogsTable() {
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} />
 			<TableBody>
 				<div className="text-text-active">
-					{correctedLogs.length == 0 ? (
+					{logs.length == 0 ? (
 						<TableRowEmpty>{"There are no logs yet."}</TableRowEmpty>
 					) : (
-						correctedLogs.map((l, idx) => (
-							<LogsRow headers={headers} tab={tab} log={l} key={`${l.id}-${l.amount}-logs_row_${idx}`} />
-						))
+						logs.map((l, idx) => <LogsRow headers={headers} tab={tab} log={l} key={`${l.id}-${l.amount}-logs_row_${idx}`} />)
 					)}
 				</div>
 			</TableBody>

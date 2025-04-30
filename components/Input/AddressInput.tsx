@@ -1,5 +1,6 @@
 interface Props {
 	label?: string;
+	className?: string;
 	placeholder?: string;
 	value?: string;
 	onChange?: (value: string) => void;
@@ -8,9 +9,9 @@ interface Props {
 	disabled?: boolean;
 }
 
-export default function AddressInput({ label, placeholder, value, error, onChange, autoFocus, disabled }: Props) {
+export default function AddressInput({ label, className, placeholder, value, error, onChange, autoFocus, disabled }: Props) {
 	return (
-		<div className="">
+		<div className={className}>
 			<div
 				className={`group border-card-input-border hover:border-card-input-hover focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""

@@ -1,15 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import EquityFPSDetailsCard from "@components/PageEquity/EquityFPSDetailsCard";
 import EquityInteractionCard from "@components/PageEquity/EquityInteractionCard";
 import AppTitle from "@components/AppTitle";
+import { useAccount } from "wagmi";
+import { FPSBalanceHistory } from "../hooks/FPSBalanceHistory";
+import { FPSEarningsHistory } from "../hooks/FPSEarningsHistory";
+import ReportsFPSYearlyTable from "@components/PageReports/ReportsFPSYearlyTable";
+import { zeroAddress } from "viem";
 import AppLink from "@components/AppLink";
-import { ContractUrl, shortenAddress } from "@utils";
-import { ADDRESS } from "@frankencoin/zchf";
-import { WAGMI_CHAIN } from "../app.config";
 
 export default function Equity() {
-	const { equity, wFPS } = ADDRESS[WAGMI_CHAIN.id];
+	const { address } = useAccount();
+	const [fpsHistory, setFpsHistory] = useState<FPSBalanceHistory[]>([]);
+	const [fpsEarnings, setFpsEarnings] = useState<FPSEarningsHistory[]>([]);
+
+	useEffect(() => {
+		if (address == undefined) {
+			setFpsHistory([]);
+			setFpsEarnings([]);
+			return;
+		}
+
+		const fetcher = async () => {
+			try {
+				const responseBalance = await FPSBalanceHistory(address);
+				setFpsHistory(responseBalance.reverse());
+
+				const responseEarnings = await FPSEarningsHistory(address);
+				setFpsEarnings(responseEarnings.reverse());
+			} catch (error) {
+				console.log(error);
+			}
+		};
+
+		fetcher();
+	}, [address]);
+
 	return (
 		<>
 			<Head>
@@ -24,6 +51,13 @@ export default function Equity() {
 					<EquityFPSDetailsCard />
 				</section>
 			</div>
+
+			<AppTitle title="Attributable Income">
+				<div className="text-text-secondary">
+					Historic system income <AppLink className="text-left" label={"attributable to the current address"} href={`/report`} />.
+				</div>
+			</AppTitle>
+			<ReportsFPSYearlyTable address={address || zeroAddress} fpsHistory={fpsHistory} fpsEarnings={fpsEarnings} />
 		</>
 	);
 }
