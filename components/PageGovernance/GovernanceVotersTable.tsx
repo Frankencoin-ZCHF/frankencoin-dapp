@@ -12,18 +12,26 @@ import { useAccount } from "wagmi";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
+
 export type VoteData = {
 	holder: Address;
 	fps: bigint;
 	votingPower: bigint;
 	votingPowerRatio: number;
+	holdingDuration: bigint;
 };
 
 export default function GovernanceVotersTable() {
-	const headers: string[] = ["Address", "Balance", "Voting Power"];
+	const headers: string[] = ["Address", "Balance", "Voting Power", "Holding Duration"];
 	const [tab, setTab] = useState<string>(headers[2]);
 	const [reverse, setReverse] = useState<boolean>(false);
-	const [accountVotes, setAccountVotes] = useState<VoteData>({ fps: 0n, holder: zeroAddress, votingPower: 0n, votingPowerRatio: 0 });
+	const [accountVotes, setAccountVotes] = useState<VoteData>({
+		fps: 0n,
+		holder: zeroAddress,
+		votingPower: 0n,
+		votingPowerRatio: 0,
+		holdingDuration: 0n,
+	});
 	const [list, setList] = useState<VoteData[]>([]);
 
 	const account = useAccount();
@@ -37,6 +45,7 @@ export default function GovernanceVotersTable() {
 			fps: BigInt(vp.fps),
 			votingPower: vp.votingPower as bigint,
 			votingPowerRatio: ratio,
+			holdingDuration: vp.holdingDuration,
 		};
 	});
 
@@ -59,9 +68,22 @@ export default function GovernanceVotersTable() {
 				args: [holder],
 			});
 
+			const holdingDuration = await readContract(WAGMI_CONFIG, {
+				address: ADDRESS[WAGMI_CHAIN.id].equity,
+				abi: EquityABI,
+				functionName: "holdingDuration",
+				args: [holder],
+			});
+
 			const votingPower = votingPowerRatio * votesTotal;
 
-			setAccountVotes({ holder, fps, votingPower, votingPowerRatio: parseFloat(formatUnits(votingPowerRatio, 18)) });
+			setAccountVotes({
+				holder,
+				fps,
+				votingPower,
+				votingPowerRatio: parseFloat(formatUnits(votingPowerRatio, 18)),
+				holdingDuration: holdingDuration,
+			});
 		};
 
 		fetcher();
@@ -136,6 +158,8 @@ function sortVotes(params: SortVotes): VoteData[] {
 		votes.sort((a, b) => parseInt(b.fps.toString()) - parseInt(a.fps.toString()));
 	} else if (tab === headers[2]) {
 		votes.sort((a, b) => b.votingPowerRatio - a.votingPowerRatio);
+	} else if (tab === headers[3]) {
+		votes.sort((a, b) => (b.holdingDuration > a.holdingDuration ? 1 : -1));
 	}
 
 	const considerReverse = reverse ? votes.reverse() : votes;

@@ -1,6 +1,6 @@
 import { Address, formatUnits, zeroAddress } from "viem";
 import TableRow from "../Table/TableRow";
-import { formatCurrency, shortenAddress } from "../../utils/format";
+import { formatCurrency, formatDuration, shortenAddress } from "../../utils/format";
 import { useDelegationQuery } from "@hooks";
 import { AddressLabelSimple } from "@components/AddressLabel";
 import { VoteData } from "./GovernanceVotersTable";
@@ -51,9 +51,22 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 					args: [delegatee],
 				});
 
+				const holdingDuration = await readContract(WAGMI_CONFIG, {
+					address: ADDRESS[WAGMI_CHAIN.id].equity,
+					abi: EquityABI,
+					functionName: "holdingDuration",
+					args: [delegatee],
+				});
+
 				const votingPower = votingPowerRatio * votesTotal;
 
-				setDelegateeVotes({ holder: delegatee, fps, votingPower, votingPowerRatio: parseFloat(formatUnits(votingPowerRatio, 18)) });
+				setDelegateeVotes({
+					holder: delegatee,
+					fps,
+					votingPower,
+					votingPowerRatio: parseFloat(formatUnits(votingPowerRatio, 18)),
+					holdingDuration: holdingDuration,
+				});
 			};
 
 			fetcher();
@@ -104,6 +117,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 				<div className={`flex flex-col ${connectedWallet ? "font-semibold" : ""}`}>
 					{formatCurrency(voter.votingPowerRatio * 100)}%
 				</div>
+				<div className={`flex flex-col ${connectedWallet ? "font-semibold" : ""}`}>{formatDuration(voter.holdingDuration)}</div>
 			</TableRow>
 
 			{connectedWallet && isDelegated && !isRevoked ? (
@@ -123,6 +137,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 					<AppLink label={"Delegate Address"} href={ContractUrl(delegatee)} external={true} className="text-left" />
 					<div className="">{formatCurrency(formatUnits(isDelegateeVotes?.fps || 0n, 18))} FPS</div>
 					<div className="">{formatCurrency((isDelegateeVotes?.votingPowerRatio || 0) * 100)}%</div>
+					<div className="">{formatDuration(isDelegateeVotes?.holdingDuration || 0)}</div>
 				</TableRow>
 			) : null}
 		</>

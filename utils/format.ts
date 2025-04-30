@@ -135,8 +135,8 @@ export const formatDateDuration = (timestamp: number | bigint): string => {
 };
 
 export const formatDuration = (time: number | bigint): string => {
+	if (time > 60 * 60 * 24 * 365 * 20) return "-";
 	const duration = dayjs.duration(Number(time), "seconds").humanize(false);
-
 	return time > 0 ? duration : "-";
 };
 
