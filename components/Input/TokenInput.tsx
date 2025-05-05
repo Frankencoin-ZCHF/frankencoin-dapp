@@ -1,6 +1,7 @@
 import { formatUnits } from "viem";
 import { BigNumberInput } from "./BigNumberInput";
 import dynamic from "next/dynamic";
+import { useRef } from "react";
 const TokenLogo = dynamic(() => import("../TokenLogo"), { ssr: false });
 
 interface Props {
@@ -50,6 +51,14 @@ export default function TokenInput({
 	onReset = () => {},
 	error,
 }: Props) {
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	const handleClick = () => {
+		if (inputRef.current && !disabled) {
+			inputRef.current.focus();
+		}
+	};
+
 	return (
 		<div className="">
 			<div
@@ -58,6 +67,7 @@ export default function TokenInput({
 				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
 				} text-text-secondary border-2 rounded-lg px-3 py-1 ${disabled ? "bg-card-input-disabled" : ""}`}
+				onClick={handleClick}
 			>
 				<div className="flex text-card-input-label my-1">{label}</div>
 
@@ -71,6 +81,7 @@ export default function TokenInput({
 							<div className={`text-xl py-0 bg-transparent`}>{output}</div>
 						) : (
 							<BigNumberInput
+								inputRefChild={inputRef}
 								className={`w-full px-0 py-0 text-xl ${disabled ? "bg-card-input-disabled" : ""}`}
 								decimals={Number(digit)}
 								placeholder={placeholder}

@@ -48,7 +48,7 @@ export default function DateInput({
 }: Props) {
 	const datePickerRef = useRef<any>(null);
 
-	const handleContainerClick = () => {
+	const handleClick = () => {
 		if (datePickerRef.current && !disabled) {
 			datePickerRef.current.setOpen(true);
 		}
@@ -62,10 +62,11 @@ export default function DateInput({
 				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
 				} text-text-secondary border-2 rounded-lg px-3 py-1 ${disabled ? "bg-card-input-disabled" : ""}`}
+				onClick={handleClick}
 			>
 				<div className="flex text-card-input-label my-1">{label}</div>
 
-				<div className="flex items-center" onClick={handleContainerClick}>
+				<div className="flex items-center">
 					<div
 						className={`flex-1 py-2 ${
 							error ? "text-card-input-error" : !!value ? "text-text-primary" : "placeholder:text-card-input-empty"
