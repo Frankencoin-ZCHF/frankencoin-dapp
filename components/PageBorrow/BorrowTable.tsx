@@ -41,12 +41,13 @@ export default function BorrowTable() {
 	const matchingPositions: PositionQueryV2[] = makeUnique(
 		posV2.filter((position) => {
 			const pid: Address = position.position.toLowerCase() as Address;
+			const now = Date.now();
 			if (POSITION_BLACKLISTED(pid)) {
 				return false;
 			} else if (position.closed || position.denied) {
 				return false;
-			} else if (position.cooldown * 1000 > Date.now()) {
-				return false; // under cooldown
+			} else if (position.start * 1000 < now && position.cooldown * 1000 > now) {
+				return false; // under cooldown but active position
 			} else if (BigInt(position.isOriginal ? position.availableForClones : position.availableForMinting) == 0n) {
 				return false;
 			} else if ((challengesPosMap[pid] || []).filter((c) => c.status == "Active").length > 0) {
