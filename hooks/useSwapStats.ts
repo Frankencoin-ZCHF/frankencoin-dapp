@@ -127,7 +127,39 @@ export const useSwapStats = () => {
 				abi: erc20Abi,
 				functionName: "allowance",
 				args: [account, ADDRESS[chainId].bridgeEURS],
-			}
+			},
+			{
+				chainId,
+				address: ADDRESS[chainId].decentralizedEURO,
+				abi: erc20Abi,
+				functionName: "allowance",
+				args: [account, ADDRESS[chainId].bridgeEURR],
+			},
+			{
+				chainId,
+				address: ADDRESS[chainId].decentralizedEURO,
+				abi: erc20Abi,
+				functionName: "allowance",
+				args: [account, ADDRESS[chainId].bridgeEUROP],
+			},
+			{
+				chainId,
+				address: ADDRESS[chainId].decentralizedEURO,
+				abi: erc20Abi,
+				functionName: "allowance",
+				args: [account, ADDRESS[chainId].bridgeEURI],
+			},
+			{
+				chainId,
+				address: ADDRESS[chainId].decentralizedEURO,
+				abi: erc20Abi,
+				functionName: "allowance",
+				args: [account, ADDRESS[chainId].bridgeEURE],
+			},
+			...getTokenContractBasics(chainId, ADDRESS[chainId].eurr, account, ADDRESS[chainId].bridgeEURR),
+			...getTokenContractBasics(chainId, ADDRESS[chainId].europ, account, ADDRESS[chainId].bridgeEUROP),
+			...getTokenContractBasics(chainId, ADDRESS[chainId].euri, account, ADDRESS[chainId].bridgeEURI),
+			...getTokenContractBasics(chainId, ADDRESS[chainId].eure, account, ADDRESS[chainId].bridgeEURE),
 		],
 	});
 
@@ -164,8 +196,36 @@ export const useSwapStats = () => {
 			EURC: data ? decodeBigIntCall(data[32]) : BigInt(0),
 			VEUR: data ? decodeBigIntCall(data[33]) : BigInt(0),
 			EURS: data ? decodeBigIntCall(data[34]) : BigInt(0),
+			EURR: data ? decodeBigIntCall(data[35]) : BigInt(0),
+			EUROP: data ? decodeBigIntCall(data[36]) : BigInt(0),
+			EURI: data ? decodeBigIntCall(data[37]) : BigInt(0),
+			EURE: data ? decodeBigIntCall(data[38]) : BigInt(0),
 		},
 		contractAddress: ADDRESS[chainId].decentralizedEURO,
+	};
+
+	const eurr = {
+		...parseStablecoinStats(data, 39),
+		contractAddress: ADDRESS[chainId].eurr,
+		contractBridgeAddress: ADDRESS[chainId].bridgeEURR,
+	};
+
+	const europ = {
+		...parseStablecoinStats(data, 46),
+		contractAddress: ADDRESS[chainId].europ,
+		contractBridgeAddress: ADDRESS[chainId].bridgeEUROP,
+	};
+
+	const euri = {
+		...parseStablecoinStats(data, 53),
+		contractAddress: ADDRESS[chainId].euri,
+		contractBridgeAddress: ADDRESS[chainId].bridgeEURI,
+	};
+
+	const eure = {
+		...parseStablecoinStats(data, 60),
+		contractAddress: ADDRESS[chainId].eure,
+		contractBridgeAddress: ADDRESS[chainId].bridgeEURE,
 	};
 
 	return {
@@ -176,6 +236,10 @@ export const useSwapStats = () => {
 		veur,
 		eurs,
 		dEuro,
+		eurr,
+		europ,
+		euri,
+		eure,
 		refetch,
 	};
 };
