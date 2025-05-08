@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { formatUnits } from "viem";
 import Select from "react-select";
 import { components } from "react-select";
+import { useRef } from "react";
 
 const TokenLogo = dynamic(() => import("../TokenLogo"), { ssr: false });
 
@@ -57,6 +58,14 @@ export default function TokenInputSelect({
 	onReset = () => {},
 	error,
 }: Props) {
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	const handleClick = () => {
+		if (inputRef.current && !disabled) {
+			inputRef.current.focus();
+		}
+	};
+
 	const options = symbolOptions.map((o) => {
 		return { value: o, label: o };
 	});
@@ -70,6 +79,7 @@ export default function TokenInputSelect({
 				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
 				} text-text-secondary border-2 rounded-lg px-3 py-1 ${disabled ? "bg-card-input-disabled" : ""}`}
+				onClick={handleClick}
 			>
 				<div className="flex text-card-input-label my-1">{label}</div>
 
@@ -83,6 +93,7 @@ export default function TokenInputSelect({
 							<div className={`text-xl py-0 bg-transparent`}>{output}</div>
 						) : (
 							<BigNumberInput
+								inputRefChild={inputRef}
 								className={`w-full px-0 py-0 text-xl bg-transparent`}
 								decimals={Number(digit)}
 								placeholder={placeholder}
@@ -94,7 +105,7 @@ export default function TokenInputSelect({
 						)}
 					</div>
 
-					<div className="px-3 items-center">
+					<div className="px-3 items-center" onClick={(e) => e.stopPropagation()}>
 						<Select
 							className="-mr-3"
 							options={options}

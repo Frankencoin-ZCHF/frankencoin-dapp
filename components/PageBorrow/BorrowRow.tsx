@@ -34,12 +34,14 @@ export default function BorrowRow({ headers, tab, position }: Props) {
 	const effectiveLTV: number = ((price * (1 - reserve / 100)) / collTokenPrice) * zchfPrice * 100;
 	const effectiveInterest: number = interest / (1 - reserve / 100);
 
+	const isPending = position.start * 1000 > Date.now();
+
 	return (
 		<TableRow
 			headers={headers}
 			tab={tab}
 			actionCol={
-				<Button className="h-10" onClick={() => navigate.push(`/mint/${position.position}`)}>
+				<Button className="h-10" onClick={() => navigate.push(`/mint/${position.position}`)} disabled={isPending}>
 					Mint
 				</Button>
 			}
@@ -76,7 +78,9 @@ export default function BorrowRow({ headers, tab, position }: Props) {
 			</div>
 
 			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-md">{expirationString}</div>
+				<div className={`col-span-2 text-md ${isPending ? "font-bold" : ""}`}>
+					{isPending ? "Available Soon" : expirationString}
+				</div>
 			</div>
 		</TableRow>
 	);

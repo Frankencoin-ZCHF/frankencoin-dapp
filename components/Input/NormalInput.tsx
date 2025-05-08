@@ -1,4 +1,4 @@
-import { formatUnits } from "viem";
+import { useRef } from "react";
 import { BigNumberInput } from "./BigNumberInput";
 
 interface Props {
@@ -30,12 +30,21 @@ export default function NormalInput({
 	autoFocus = false,
 	disabled = false,
 }: Props) {
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	const handleClick = () => {
+		if (inputRef.current && !disabled) {
+			inputRef.current.focus();
+		}
+	};
+
 	return (
 		<div className="">
 			<div
 				className={`group border-card-input-border hover:border-card-input-hover focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
 				} text-text-secondary border-2 rounded-lg px-3 py-1 ${disabled ? "bg-card-input-disabled" : ""}`}
+				onClick={handleClick}
 			>
 				<div className="flex text-card-input-label py-1">{label}</div>
 
@@ -49,6 +58,7 @@ export default function NormalInput({
 							<div className={`text-xl py-0 bg-transparent`}>{output}</div>
 						) : (
 							<BigNumberInput
+								inputRefChild={inputRef}
 								className={`w-full px-0 py-0 text-xl text-right ${disabled ? "bg-card-input-disabled" : ""}`}
 								decimals={Number(digit)}
 								placeholder={placeholder}
