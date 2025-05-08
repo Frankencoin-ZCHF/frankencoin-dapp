@@ -18,7 +18,7 @@ export default function TransferPage() {
 
 			<TransferInteractionCard />
 
-			<AppTitle title="View through Transfers">
+			<AppTitle title="Transfer Search">
 				<div className="text-text-secondary">Use the filters to fine tune your results.</div>
 			</AppTitle>
 

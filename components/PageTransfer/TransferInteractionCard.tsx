@@ -97,17 +97,17 @@ export default function TransferInteractionCard() {
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Make a Transfer</div>
+				<div className="mt-4 text-lg font-bold text-center">Frankencoin Transfer</div>
 
 				<AddressInput
 					label="Recipient"
-					placeholder="Enter recipient address here"
+					placeholder="0x1a2b3c..."
 					value={recipient}
 					onChange={setRecipient}
 					error={errorRecipient()}
 				/>
 
-				<AddressInput label="Reference" placeholder="Enter reference comment here" value={reference} onChange={setReference} />
+				<AddressInput label="Public Reference" placeholder="Invoice 123" value={reference} onChange={setReference} />
 
 				<TokenInput symbol="ZCHF" label="Amount" value={amount.toString()} digit={18} onChange={onChangeAmount} />
 
