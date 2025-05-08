@@ -15,7 +15,7 @@ import { ApiTransferReferenceList, TransferReferenceQuery } from "@frankencoin/a
 const RESET_DATE = new Date(new Date().getUTCFullYear().toString());
 
 export default function TransferListTable() {
-	const headers: string[] = ["Date", "Sender", "Recipient", "Amount", "Reference"];
+	const headers: string[] = ["Date", "Sender", "Recipient", "Reference", "Amount"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [fetchedList, setFetchedList] = useState<TransferReferenceQuery[]>([]);
@@ -182,13 +182,12 @@ function sortFunction(params: SortFunctionParams): TransferReferenceQuery[] {
 	} else if (tab === headers[2]) {
 		// Recipient
 		sortingList.sort((a, b) => parseInt(b.to) - parseInt(a.to));
-	} else if (tab === headers[3]) {
-		// Amount
-		sortingList.sort((a, b) => parseInt(b.amount.toString()) - parseInt(a.amount.toString()));
 	} else if (tab === headers[4]) {
 		// Reference
 		sortingList.sort((a, b) => a.ref.localeCompare(b.ref));
+	} else if (tab === headers[3]) {
+		// Amount
+		sortingList.sort((a, b) => parseInt(b.amount.toString()) - parseInt(a.amount.toString()));
 	}
-
 	return reverse ? sortingList.reverse() : sortingList;
 }
