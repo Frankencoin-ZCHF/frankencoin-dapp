@@ -11,7 +11,9 @@ export default function TransferPage() {
 			</Head>
 
 			<AppTitle title="Transfer with Reference">
-				<div className="text-text-secondary">Here you can make a frankencoin transfer and include a reference.</div>
+				<div className="text-text-secondary">
+					Here you can make a frankencoin transfer and include a reference, perfect for things like invoice payments.
+				</div>
 			</AppTitle>
 
 			<TransferInteractionCard />

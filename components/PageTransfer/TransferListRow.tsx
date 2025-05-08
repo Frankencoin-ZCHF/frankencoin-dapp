@@ -1,8 +1,10 @@
 import AppLink from "@components/AppLink";
 import TableRow from "@components/Table/TableRow";
+import { faPiggyBank } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { TransferReferenceQuery } from "@frankencoin/api";
 import { ContractUrl, formatCurrency, shortenAddress, TxUrl } from "@utils";
-import { formatUnits, Hash } from "viem";
+import { formatUnits, Hash, zeroAddress } from "viem";
 
 interface Props {
 	headers: string[];
@@ -25,7 +27,10 @@ export default function TransferListRow({ headers, tab, item }: Props) {
 
 				<AppLink className="" label={shortenAddress(item.to)} href={ContractUrl(item.to)} external={true} />
 
-				<div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.amount), 18))} ZCHF</div>
+				<div className="flex">
+					<div className="flex-1 mr-2">{item.autoSaved != zeroAddress ? <FontAwesomeIcon icon={faPiggyBank} /> : null}</div>
+					<div className="flex justify-end">{formatCurrency(formatUnits(BigInt(item.amount), 18))} ZCHF</div>
+				</div>
 
 				<div className="flex flex-col">{item.ref}</div>
 			</TableRow>
