@@ -154,7 +154,7 @@
         "per_year": "per year",
         "total": "Total",
         "parent_position": "Parent Position",
-        "while_the_maturity_is_fixed": "While the maturity is fixed, you can adjust the liquidation price and the collateral amount later as long as it covers the minted amount. No interest will be refunded when repaying earlier.",
+        "while_the_maturity_is_fixed": "While the maturity is fixed, you can adjust the liquidation price and the collateral amount later as long as it covers the minted amount.",
         "starting_liquidation_price": "Starting liquidation price",
         "liquidation_price_at_expiration": "Liquidation price at expiration",
         "add_new_token": "Add new token",

@@ -285,7 +285,7 @@ export default function InteractionNativePSAndPoolShareToken({
 								{selectedFromToken && (
 									<>
 										<div className="text-text-muted3 text-xs font-medium leading-none">
-											{t("common.balance_label")} {": "}
+											{t("common.balance_label")} {" "}
 											{formatUnits(selectedFromToken.balanceOf || 0n, selectedFromToken.decimals || 18)}{" "}
 											{selectedFromToken.symbol}
 										</div>
@@ -330,7 +330,7 @@ export default function InteractionNativePSAndPoolShareToken({
 								{selectedToToken && (
 									<>
 										<div className="text-text-muted3 text-xs font-medium leading-none">
-											{t("common.balance_label")} {": "}
+											{t("common.balance_label")} {" "}
 											{formatUnits(selectedToToken.balanceOf || 0n, selectedToToken.decimals || 18)}{" "}
 											{selectedFromToken.symbol}
 										</div>

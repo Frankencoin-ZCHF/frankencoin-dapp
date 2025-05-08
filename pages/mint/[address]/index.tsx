@@ -10,14 +10,14 @@ import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/ac
 import { Address } from "viem";
 import { formatBigInt, formatCurrency, min, shortenAddress, TOKEN_SYMBOL, toTimestamp } from "@utils";
 import { toast } from "react-toastify";
-import { TxToast, renderErrorToast, renderErrorTxStackToast, renderErrorTxToast } from "@components/TxToast";
+import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import DateInput from "@components/Input/DateInput";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import Link from "next/link";
-import { ADDRESS, MintingHubGatewayABI, MintingHubV2ABI } from "@deuro/eurocoin";
+import { ADDRESS, MintingHubGatewayABI } from "@deuro/eurocoin";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import { useFrontendCode } from "../../../hooks/useFrontendCode";
@@ -43,7 +43,6 @@ export default function PositionBorrow({}) {
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const position = positions.find((p) => p.position == addressQuery);
-
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
 	const { frontendCode } = useFrontendCode();
@@ -95,7 +94,7 @@ export default function PositionBorrow({}) {
 
 	const price: number = parseFloat(formatUnits(BigInt(position.price), 36 - position.collateralDecimals));
 	const collateralPriceDeuro: number = prices[position.collateral.toLowerCase() as Address]?.price?.eur || 1;
-	const interest: number = position.annualInterestPPM / 10 ** 6;
+	const interest: number = (position.annualInterestPPM / 10 ** 6) + (position.fixedAnnualRatePPM / 10 ** 6);
 	const reserve: number = position.reserveContribution / 10 ** 6;
 	const effectiveLTV: number = (price * (1 - reserve)) / collateralPriceDeuro;
 	const effectiveInterest: number = interest / (1 - reserve);
@@ -113,13 +112,7 @@ export default function PositionBorrow({}) {
 		return new Date(Number(v) * 1000);
 	}
 
-	// max(4 weeks, ((chosen expiration) - (current block))) * position.annualInterestPPM() / (365 days) / 1000000
-	const feePercent =
-		(BigInt(Math.max(60 * 60 * 24 * 30, Math.floor((expirationDate.getTime() - Date.now()) / 1000))) *
-			BigInt(position.annualInterestPPM)) /
-		BigInt(60 * 60 * 24 * 365);
-	const fees = (feePercent * amount) / 1_000_000n;
-	const paidOutToWallet = amount - borrowersReserveContribution - fees;
+	const paidOutToWallet = amount - borrowersReserveContribution;
 	const paidOutToWalletPct = (parseInt(paidOutToWallet.toString()) * 100) / parseInt(amount.toString());
 	const availableAmount = BigInt(position.availableForClones);
 	const userValue = (userBalance * BigInt(position.price)) / BigInt(1e18);
@@ -327,17 +320,6 @@ export default function PositionBorrow({}) {
 									<div className="text-right">
 										<span className="text-xs mr-3">{formatCurrency(position.reserveContribution / 10000, 2, 2)}%</span>
 										<span>{formatCurrency(formatUnits(borrowersReserveContribution, 18))} {TOKEN_SYMBOL}</span>
-									</div>
-								</div>
-
-								<div className="mt-2 flex">
-									<div className="flex-1">
-										<span>{t('mint.upfront_interest')}</span>
-										<div className="text-xs">({position.annualInterestPPM / 10000}% {t('mint.per_year')})</div>
-									</div>
-									<div className="text-right">
-										<span className="text-xs mr-3">{formatBigInt(feePercent, 4)}%</span>
-										<span>{formatCurrency(formatUnits(fees, 18))} {TOKEN_SYMBOL}</span>
 									</div>
 								</div>
 

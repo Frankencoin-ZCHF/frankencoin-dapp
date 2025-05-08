@@ -316,7 +316,7 @@ export default function InteractionStablecoinAndNativePS({
 								{selectedFromToken && (
 									<>
 										<div className="text-text-muted3 text-xs font-medium leading-none">
-											{t("common.balance_label")} {": "}
+											{t("common.balance_label")} {" "}
 											{formatCurrency(
 												formatUnits(selectedFromToken.balanceOf || 0n, selectedFromToken.decimals || 18)
 											)}{" "}

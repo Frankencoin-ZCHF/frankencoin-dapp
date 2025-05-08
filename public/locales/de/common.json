@@ -154,7 +154,7 @@
         "per_year": "pro Jahr",
         "total": "Gesamt",
         "parent_position": "Übergeordnete Position",
-        "while_the_maturity_is_fixed": "Obwohl die Laufzeit festgelegt ist, kannst du den Liquidationspreis und den Besicherungsbetrag später anpassen, solange dieser den geprägten Betrag deckt. Bei vorzeitiger Rückzahlung wird kein Zins erstattet.",
+        "while_the_maturity_is_fixed": "Obwohl die Laufzeit festgelegt ist, kannst du den Liquidationspreis und den Besicherungsbetrag später anpassen, solange dieser den geprägten Betrag deckt.",
         "starting_liquidation_price": "Startliquidationspreis",
         "liquidation_price_at_expiration": "Liquidationspreis bei Ablauf",
         "add_new_token": "Neuen Token hinzufügen",

@@ -410,7 +410,7 @@ export default function Swap() {
 										</div>
 										<div className="h-7 justify-end items-center gap-2.5 flex">
 											<div className="text-text-muted3 text-xs font-medium leading-none">
-												{t("common.balance_label")} {": "}
+												{t("common.balance_label")} {" "}
 												{formatCurrency(
 													formatUnits(fromTokenMeta.userBal || 0n, Number(fromTokenMeta.decimals)),
 													2,
@@ -463,7 +463,7 @@ export default function Swap() {
 										</div>
 										<div className="h-7 justify-end items-center gap-2.5 flex">
 											<div className="text-text-muted3 text-xs font-medium leading-none">
-												{t("common.balance_label")} {": "}
+												{t("common.balance_label")} {" "}
 												{formatCurrency(formatUnits(toTokenMeta.userBal || 0n, Number(toTokenMeta.decimals)), 2, 2)}{" "}
 												{toTokenMeta.symbol}
 											</div>
