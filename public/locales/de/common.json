@@ -489,6 +489,12 @@
         "how_do_i_receive_my_referral_bonus_answer": "Deine vom System ausgezahlten Boni werden gesammelt und stehen dir jederzeit zur Verfügung. Dazu musst du den Bonus aktiv beanspruchen.",
         "if_my_friend_forgets_to_use_the_referral_link_or_code_can_i_still_receive_the_bonus": "Kann ich den Bonus trotzdem erhalten, wenn mein Freund den Empfehlungslink oder -code vergisst?",
         "if_my_friend_forgets_to_use_the_referral_link_or_code_can_i_still_receive_the_bonus_answer": "Leider können wir deinem Konto ohne Verwendung eines Empfehlungscodes oder -links keinen Empfehlungsbonus gutschreiben.",
+        "referral_leaderboard": "Empfehlungsleistung",
+        "ref_name": "Empfehlungsnachname",
+        "loans_volume": "Leihenvolumen",
+        "invest_volume": "Investitionsvolumen",
+        "savings_volume": "Ersparnisvolumen",
+        "total_volume": "Gesamtvolumen",
         "txs": {
             "referral_code": "Empfehlungscodes:",
             "registering_referral_code": "Empfehlungscodes registrieren",

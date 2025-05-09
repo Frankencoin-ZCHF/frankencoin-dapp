@@ -489,6 +489,12 @@
         "how_do_i_receive_my_referral_bonus_answer": "Les bonus versés par le système sont collectés et disponibles à tout moment. Pour cela, vous devez réclamer activement le bonus.",
         "if_my_friend_forgets_to_use_the_referral_link_or_code_can_i_still_receive_the_bonus": "Si mon ami oublie d'utiliser le lien ou le code de parrainage, puis-je quand même recevoir le bonus ?",
         "if_my_friend_forgets_to_use_the_referral_link_or_code_can_i_still_receive_the_bonus_answer": "Malheureusement, sans l'utilisation d'un code ou d'un lien de parrainage, nous ne pouvons pas ajouter de bonus de parrainage à votre compte.",
+        "referral_leaderboard": "Tableau de positions de parrainages",
+        "ref_name": "Nom du parrain",
+        "loans_volume": "Volume des emprunts",
+        "invest_volume": "Volume des investissements",
+        "savings_volume": "Volume des épargnes",
+        "total_volume": "Volume total",
         "txs": {
             "referral_code": "Codes de parrainage:",
             "registering_referral_code": "Enregistrement des codes de parrainage",

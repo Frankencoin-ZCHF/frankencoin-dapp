@@ -12,7 +12,7 @@ import { useTranslation } from "next-i18next";
 export default function GovernanceMintersTable() {
 	const { t } = useTranslation();
 	const headers: string[] = [t("governance.date"), t("governance.minter"), t("governance.comment"), t("governance.state")];
-	const [tab, setTab] = useState<string>(headers[3]);
+	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
 	const minters = useSelector((state: RootState) => state.ecosystem.stablecoinMinters.list);
