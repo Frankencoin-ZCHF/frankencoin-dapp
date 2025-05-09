@@ -70,10 +70,10 @@ export default function Leaderboard() {
 				refCode:
 					getReferralNameFromFrontendCode(item.id) || `${item.id.substring(0, 3)}...${item.id.substring(item.id.length - 7)}`,
 				referrals: item.totalReffered,
-				loansVolume: formatCurrency(formatUnits(BigInt(item.loansVolume), 18)),
-				investVolume: formatCurrency(formatUnits(BigInt(item.investVolume), 18)),
-				savingsVolume: formatCurrency(formatUnits(BigInt(item.savingsVolume), 18)),
-				totalVolume: formatCurrency(formatUnits(totalRevenue, 18)),
+				loansVolume: formatUnits(BigInt(item.loansVolume), 18),
+				investVolume: formatUnits(BigInt(item.investVolume), 18),
+				savingsVolume: formatUnits(BigInt(item.savingsVolume), 18),
+				totalVolume: formatUnits(totalRevenue, 18),
 			};
 		});
 
@@ -93,10 +93,10 @@ export default function Leaderboard() {
 								<TableRow key={i} headers={headers} tab={tab}>
 									<div className="text-base sm:font-medium leading-tight text-left">{row.refCode}</div>
 									<div className="text-base sm:font-medium leading-tight">{row.referrals}</div>
-									<div className="text-base sm:font-medium leading-tight">{row.loansVolume}</div>
-									<div className="text-base sm:font-medium leading-tight">{row.investVolume}</div>
-									<div className="text-base sm:font-medium leading-tight">{row.savingsVolume}</div>
-									<div className="text-base sm:font-medium leading-tight">{row.totalVolume}</div>
+									<div className="text-base sm:font-medium leading-tight">{formatCurrency(row.loansVolume)}</div>
+									<div className="text-base sm:font-medium leading-tight">{formatCurrency(row.investVolume)}</div>
+									<div className="text-base sm:font-medium leading-tight">{formatCurrency(row.savingsVolume)}</div>
+									<div className="text-base sm:font-medium leading-tight">{formatCurrency(row.totalVolume)}</div>
 								</TableRow>
 							))
 						)}
@@ -128,16 +128,16 @@ function sortLeaderboard(params: { leaderboard: LeaderboardData[]; headers: stri
 		leaderboard.sort((a, b) => a.referrals - b.referrals);
 	} else if (tab === headers[2]) {
 		// loansVolume
-		leaderboard.sort((a, b) => Number(b.loansVolume) - Number(a.loansVolume));
+		leaderboard.sort((a, b) => parseFloat(b.loansVolume) - parseFloat(a.loansVolume));
 	} else if (tab === headers[3]) {
 		// investVolume
-		leaderboard.sort((a, b) => Number(b.investVolume) - Number(a.investVolume));
+		leaderboard.sort((a, b) => parseFloat(b.investVolume) - parseFloat(a.investVolume));
 	} else if (tab === headers[4]) {
 		// savingsVolume
-		leaderboard.sort((a, b) => Number(b.savingsVolume) - Number(a.savingsVolume));
+		leaderboard.sort((a, b) => parseFloat(b.savingsVolume) - parseFloat(a.savingsVolume));
 	} else if (tab === headers[5]) {
 		// totalVolume
-		leaderboard.sort((a, b) => Number(b.totalVolume) - Number(a.totalVolume));
+		leaderboard.sort((a, b) => parseFloat(b.totalVolume) - parseFloat(a.totalVolume));
 	}
 
 	return reverse ? leaderboard.reverse() : leaderboard;
