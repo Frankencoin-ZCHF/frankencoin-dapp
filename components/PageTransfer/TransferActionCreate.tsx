@@ -1,13 +1,13 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { formatCurrency, shortenAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount, useChainId } from "wagmi";
 import Button from "@components/Button";
-import { Address, formatUnits } from "viem";
-import { ADDRESS, ReferenceTransferABI } from "@frankencoin/zchf";
+import { Address, formatUnits, maxUint256 } from "viem";
+import { ADDRESS, FrankencoinABI, ReferenceTransferABI } from "@frankencoin/zchf";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 
 interface Props {
@@ -19,14 +19,60 @@ interface Props {
 }
 
 export default function TransferActionCreate({ recipient, reference, amount, disabled, setLoaded }: Props) {
+	const [isApproving, setApproving] = useState<boolean>(false);
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
-	const account = useAccount();
+	const [allowance, setAllowance] = useState(0n);
+	const { address } = useAccount();
 	const chainId = useChainId();
+
+	const handleApprove = async (e: any) => {
+		e.preventDefault();
+		if (!address) return;
+
+		try {
+			setApproving(true);
+
+			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].frankenCoin,
+				abi: FrankencoinABI,
+				functionName: "approve",
+				args: [ADDRESS[chainId].referenceTransfer, maxUint256],
+			});
+
+			const toastContent = [
+				{
+					title: "Amount:",
+					value: "infinite ZCHF",
+				},
+				{
+					title: "Spender: ",
+					value: shortenAddress(ADDRESS[chainId].referenceTransfer),
+				},
+				{
+					title: "Transaction:",
+					hash: approveWriteHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={`Approving ZCHF`} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title={`Successfully Approved ZCHF`} rows={toastContent} />,
+				},
+			});
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
+		} finally {
+			setApproving(false);
+		}
+	};
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
-		if (!account.address) return;
+		if (!address) return;
 
 		try {
 			setAction(true);
@@ -74,11 +120,34 @@ export default function TransferActionCreate({ recipient, reference, amount, dis
 		}
 	};
 
+	useEffect(() => {
+		if (address == undefined) return;
+
+		const fetcher = async () => {
+			const allow = await readContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId].frankenCoin,
+				abi: FrankencoinABI,
+				functionName: "allowance",
+				args: [address, ADDRESS[chainId].referenceTransfer],
+			});
+
+			setAllowance(allow);
+		};
+
+		fetcher();
+	}, [address, chainId]);
+
 	return (
 		<GuardToAllowedChainBtn>
-			<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
-				Transfer
-			</Button>
+			{allowance < amount ? (
+				<Button className="h-10" disabled={isHidden || disabled} isLoading={isApproving} onClick={(e) => handleApprove(e)}>
+					Approve
+				</Button>
+			) : (
+				<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
+					Transfer
+				</Button>
+			)}
 		</GuardToAllowedChainBtn>
 	);
 }

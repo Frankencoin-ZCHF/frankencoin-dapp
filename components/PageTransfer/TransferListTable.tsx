@@ -23,8 +23,8 @@ export default function TransferListTable() {
 	const [list, setList] = useState<TransferReferenceQuery[]>([]);
 
 	const { address } = useAccount();
-	const [sender, setSender] = useState<Address | string>(address || "");
-	const [recipient, setRecipient] = useState<Address | string>("");
+	const [sender, setSender] = useState<Address | string>("");
+	const [recipient, setRecipient] = useState<Address | string>(address || "");
 	const [reference, setReference] = useState<string>("");
 	const [start, setStart] = useState<Date>(RESET_DATE);
 	const [end, setEnd] = useState<Date | string>("Now");
@@ -152,7 +152,7 @@ export default function TransferListTable() {
 							output={end === "Now" ? end : undefined}
 							reset={end === "Now" ? undefined : new Date()}
 							onReset={() => setEnd("Now")}
-							note="Note: Selected date is included from the result."
+							note="Note: Selected date is included in the result."
 							disabled={sender.length == 0 && recipient.length == 0}
 						/>
 					</div>
