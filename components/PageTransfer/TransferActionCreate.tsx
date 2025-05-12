@@ -4,7 +4,7 @@ import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { formatCurrency, shortenAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import Button from "@components/Button";
 import { Address, formatUnits, maxUint256 } from "viem";
 import { ADDRESS, FrankencoinABI, ReferenceTransferABI } from "@frankencoin/zchf";
@@ -25,6 +25,7 @@ export default function TransferActionCreate({ recipient, reference, amount, dis
 	const [allowance, setAllowance] = useState(0n);
 	const { address } = useAccount();
 	const chainId = useChainId();
+	const { data } = useBlockNumber();
 
 	const handleApprove = async (e: any) => {
 		e.preventDefault();
@@ -121,7 +122,7 @@ export default function TransferActionCreate({ recipient, reference, amount, dis
 	};
 
 	useEffect(() => {
-		if (address == undefined) return;
+		if (address == undefined || data == undefined) return;
 
 		const fetcher = async () => {
 			const allow = await readContract(WAGMI_CONFIG, {
@@ -135,7 +136,7 @@ export default function TransferActionCreate({ recipient, reference, amount, dis
 		};
 
 		fetcher();
-	}, [address, chainId]);
+	}, [address, chainId, data]);
 
 	return (
 		<GuardToAllowedChainBtn>
