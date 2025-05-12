@@ -75,7 +75,7 @@ export default function TransferActionCreate({ recipient, reference, amount, dis
 	};
 
 	return (
-		<GuardToAllowedChainBtn label={"Transfer"}>
+		<GuardToAllowedChainBtn>
 			<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
 				Transfer
 			</Button>

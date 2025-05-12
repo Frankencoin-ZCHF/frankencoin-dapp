@@ -87,12 +87,17 @@ export default function TransferInteractionCard() {
 		else return "";
 	};
 
+	const errorAmount = () => {
+		if (amount > balance) return `Not enough ZCHF in your wallet.`;
+		else return "";
+	};
+
 	const onChangeAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
 	};
 
-	const isDisabled = !isAddress(recipient) || reference.length == 0 || amount == 0n;
+	const isDisabled = !isAddress(recipient) || reference.length == 0 || amount == 0n || errorAmount() != "";
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -109,7 +114,19 @@ export default function TransferInteractionCard() {
 
 				<AddressInput label="Public Reference" placeholder="Invoice 123" value={reference} onChange={setReference} />
 
-				<TokenInput symbol="ZCHF" label="Amount" value={amount.toString()} digit={18} onChange={onChangeAmount} />
+				<TokenInput
+					symbol="ZCHF"
+					label="Amount"
+					value={amount.toString()}
+					digit={18}
+					onChange={onChangeAmount}
+					max={balance}
+					reset={0n}
+					limit={balance}
+					limitDigit={18}
+					limitLabel="Balance"
+					error={errorAmount()}
+				/>
 
 				<TransferActionCreate
 					recipient={recipient as Address}
@@ -121,53 +138,33 @@ export default function TransferInteractionCard() {
 			</AppCard>
 
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Outcome</div>
-				<div className="p-4 flex flex-col gap-2">
-					<div className="flex">
-						<div className="flex-1 text-text-secondary">Your current balance</div>
-						<div className="">{formatCurrency(formatUnits(balance, 18))} ZCHF</div>
+				<div className="mt-4 text-lg font-bold text-center">Auto Saver</div>
+
+				<div className="flex my-4">
+					<div className={`flex-1 text-text-secondary`}>
+						You can auto-save incoming funds directly into a savings module.{" "}
+						{autoSave == ADDRESS[WAGMI_CHAIN.id].savings ? (
+							<span className="font-bold">{`You currently auto-save at ${autoSaveRate.savingsV2 / 10_000}%`}</span>
+						) : // ) : autoSave == ADDRESS[WAGMI_CHAIN.id].savingsDetached ? (
+						// 	<span className="font-bold">{`You currently auto-save at ${autoSaveRate.savingsDetached / 10_000}%`}</span>
+						null}
 					</div>
+				</div>
 
-					<div className="flex">
-						<div className="flex-1 text-text-secondary">Amount for transfer</div>
-						<div className="">{formatCurrency(formatUnits(-amount, 18))} ZCHF</div>
-					</div>
+				<div className="grid md:grid-cols-2 gap-4">
+					<TransferActionAutoSave lable="Turn Off - 0%" disabled={autoSave == zeroAddress} target={zeroAddress} />
 
-					<hr className="border-slate-700 border-dashed" />
+					<TransferActionAutoSave
+						lable={`Auto Saver - ${autoSaveRate.savingsV2 / 10_000}%`}
+						disabled={autoSave != zeroAddress && autoSave == ADDRESS[WAGMI_CHAIN.id].savings}
+						target={ADDRESS[WAGMI_CHAIN.id].savings}
+					/>
 
-					<div className="flex font-bold">
-						<div className="flex-1 text-text-secondary">Resulting balance</div>
-						<div className="">{formatCurrency(formatUnits(balance - amount, 18))} ZCHF</div>
-					</div>
-
-					<div className="mt-8 text-lg font-bold text-center">Auto Saver</div>
-
-					<div className="flex my-4">
-						<div className={`flex-1 text-text-secondary`}>
-							You can auto-save incoming funds directly into a savings module.{" "}
-							{autoSave == ADDRESS[WAGMI_CHAIN.id].savings ? (
-								<span className="font-bold">{`You currently auto-save at ${autoSaveRate.savingsV2 / 10_000}%`}</span>
-							) : // ) : autoSave == ADDRESS[WAGMI_CHAIN.id].savingsDetached ? (
-							// 	<span className="font-bold">{`You currently auto-save at ${autoSaveRate.savingsDetached / 10_000}%`}</span>
-							null}
-						</div>
-					</div>
-
-					<div className="flex flex-col gap-4">
-						<TransferActionAutoSave
-							lable={`MintingHubV2 - ${autoSaveRate.savingsV2 / 10_000}%`}
-							disabled={autoSave != zeroAddress && autoSave == ADDRESS[WAGMI_CHAIN.id].savings}
-							target={ADDRESS[WAGMI_CHAIN.id].savings}
-						/>
-
-						{/* <TransferActionAutoSave
+					{/* <TransferActionAutoSave
 						lable={`Detached Module - ${autoSaveRate.savingsDetached / 10_000}%`}
 						disabled={autoSave != zeroAddress && autoSave == ADDRESS[WAGMI_CHAIN.id].savingsDetached}
 						target={ADDRESS[WAGMI_CHAIN.id].savingsDetached}
 						/> */}
-
-						<TransferActionAutoSave lable="Turn Off - 0%" disabled={autoSave == zeroAddress} target={zeroAddress} />
-					</div>
 				</div>
 			</AppCard>
 		</div>

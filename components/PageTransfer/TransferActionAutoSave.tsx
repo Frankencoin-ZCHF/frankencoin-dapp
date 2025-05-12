@@ -66,7 +66,7 @@ export default function TransferActionAutoSave({ lable, target, disabled, setLoa
 	};
 
 	return (
-		<GuardToAllowedChainBtn label={lable}>
+		<GuardToAllowedChainBtn>
 			<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
 				{lable}
 			</Button>

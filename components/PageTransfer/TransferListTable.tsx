@@ -11,6 +11,7 @@ import { Address, isAddress } from "viem";
 import { useAccount } from "wagmi";
 import { FRANKENCOIN_API_CLIENT } from "../../app.config";
 import { ApiTransferReferenceList, TransferReferenceQuery } from "@frankencoin/api";
+import { shortenAddress } from "@utils";
 
 const RESET_DATE = new Date(new Date().getUTCFullYear().toString());
 
@@ -33,7 +34,11 @@ export default function TransferListTable() {
 		if (sender.length == 0 && recipient.length == 0) {
 			const fetcher = async () => {
 				const data = await FRANKENCOIN_API_CLIENT.get<ApiTransferReferenceList>(`/transfer/reference/list`);
-				setFetchedList(data.data.list);
+				if (reference.length == 0) {
+					setFetchedList(data.data.list);
+				} else {
+					setFetchedList(data.data.list.filter((i) => i.ref == reference));
+				}
 			};
 
 			fetcher();
@@ -104,6 +109,9 @@ export default function TransferListTable() {
 							value={sender}
 							onChange={setSender}
 							error={errorSender()}
+							limitLabel={address != undefined ? shortenAddress(address) : undefined}
+							own={address}
+							reset={""}
 						/>
 						<AddressInput
 							label="Recipient"
@@ -111,6 +119,9 @@ export default function TransferListTable() {
 							value={recipient}
 							onChange={setRecipient}
 							error={errorRecipient()}
+							limitLabel={address != undefined ? shortenAddress(address) : undefined}
+							own={address}
+							reset={""}
 						/>
 						<AddressInput
 							label="Reference"
@@ -126,6 +137,7 @@ export default function TransferListTable() {
 							onChange={(d) => d && setStart(d)}
 							reset={RESET_DATE}
 							note="Note: Selected date is included in the result."
+							disabled={sender.length == 0 && recipient.length == 0}
 						/>
 						<DateInput
 							label="End"
@@ -140,7 +152,8 @@ export default function TransferListTable() {
 							output={end === "Now" ? end : undefined}
 							reset={end === "Now" ? undefined : new Date()}
 							onReset={() => setEnd("Now")}
-							note="Note: Selected date is excluded from the result."
+							note="Note: Selected date is included from the result."
+							disabled={sender.length == 0 && recipient.length == 0}
 						/>
 					</div>
 				</div>
@@ -181,13 +194,13 @@ function sortFunction(params: SortFunctionParams): TransferReferenceQuery[] {
 		sortingList.sort((a, b) => a.from.localeCompare(b.from));
 	} else if (tab === headers[2]) {
 		// Recipient
-		sortingList.sort((a, b) => parseInt(b.to) - parseInt(a.to));
-	} else if (tab === headers[4]) {
+		sortingList.sort((a, b) => a.to.localeCompare(b.to));
+	} else if (tab === headers[3]) {
 		// Reference
 		sortingList.sort((a, b) => a.ref.localeCompare(b.ref));
-	} else if (tab === headers[3]) {
+	} else if (tab === headers[4]) {
 		// Amount
-		sortingList.sort((a, b) => parseInt(b.amount.toString()) - parseInt(a.amount.toString()));
+		sortingList.sort((a, b) => (b.amount > a.amount ? 1 : -1));
 	}
 	return reverse ? sortingList.reverse() : sortingList;
 }
