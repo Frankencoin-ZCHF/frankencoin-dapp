@@ -61,12 +61,12 @@ export default function Swap() {
 
 		if (!activeMinter) {
 			setErrorBridge("The swap module has not yet completed the governance process.");
-		} else if (horizon.getTime() < Date.now()) {
+		} else if (horizon.getTime() < Date.now() && direction) {
 			setErrorBridge(`Swap module has expired on ${horizon.toDateString()}`);
 		} else {
 			setErrorBridge("");
 		}
-	}, [activeMinter, swapStats]);
+	}, [activeMinter, swapStats, direction]);
 
 	const handleApprove = async () => {
 		try {
@@ -216,7 +216,7 @@ export default function Swap() {
 						<div className="mt-4 text-lg font-bold text-center">Swap {swapStats.otherSymbol} and ZCHF</div>
 
 						<div className="mt-8">
-							The <AppLink className="" label="swap module" href={bridgeUrl} external={true} /> enables 1:1 converstion
+							The <AppLink className="" label="swap module" href={bridgeUrl} external={true} /> enables 1:1 conversion
 							between other Swiss Franc stablecoins and back, up to certain limits. Currently,{" "}
 							<AppLink className="" label="VNX Swiss Franc (VCHF)" href="https://vnx.li/vchf/" external={true} /> is
 							supported.
