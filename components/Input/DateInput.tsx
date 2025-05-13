@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 import ReactDatePicker from "react-datepicker";
 import { formatDate } from "@utils";
+import { useRef } from "react";
 
 interface Props {
 	className?: string;
@@ -45,6 +46,14 @@ export default function DateInput({
 	disabled,
 	error,
 }: Props) {
+	const datePickerRef = useRef<any>(null);
+
+	const handleClick = () => {
+		if (datePickerRef.current && !disabled) {
+			datePickerRef.current.setOpen(true);
+		}
+	};
+
 	return (
 		<div className={className}>
 			<div
@@ -53,6 +62,7 @@ export default function DateInput({
 				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
 				} text-text-secondary border-2 rounded-lg px-3 py-1 ${disabled ? "bg-card-input-disabled" : ""}`}
+				onClick={handleClick}
 			>
 				<div className="flex text-card-input-label my-1">{label}</div>
 
@@ -62,18 +72,16 @@ export default function DateInput({
 							error ? "text-card-input-error" : !!value ? "text-text-primary" : "placeholder:text-card-input-empty"
 						}`}
 					>
-						{output ? (
-							<div className={`text-xl py-0 bg-transparent`}>{output}</div>
-						) : (
-							<ReactDatePicker
-								className="-ml-2 text-xl bg-transparent"
-								id="expiration-datepicker"
-								selected={value}
-								dateFormat={"yyyy-MM-dd"}
-								onChange={(e) => !disabled && onChange?.(e)}
-								disabled={disabled}
-							/>
-						)}
+						<ReactDatePicker
+							ref={datePickerRef}
+							className={`-ml-2 text-xl bg-transparent`}
+							id="expiration-datepicker"
+							selected={value}
+							dateFormat={"yyyy-MM-dd"}
+							onChange={(e) => !disabled && onChange?.(e)}
+							disabled={disabled}
+							value={output}
+						/>
 					</div>
 
 					<div className="mr-2">
@@ -133,7 +141,11 @@ export default function DateInput({
 				) : null}
 			</div>
 
-			<div className="flex my-2 px-3.5 text-text-warning">{error}</div>
+			{error ? (
+				<div className="flex my-2 px-3.5 text-text-warning">{error}</div>
+			) : (
+				<div className="flex my-2 px-3.5 text-text-secondary">{note}</div>
+			)}
 		</div>
 	);
 }

@@ -6,7 +6,7 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQueryV2, PriceQueryObjectArray } from "@frankencoin/api";
-import { Address, formatUnits } from "viem";
+import { Address, formatUnits, parseEther } from "viem";
 import { useEffect, useState } from "react";
 import { POSITION_BLACKLISTED } from "../../app.config";
 
@@ -22,42 +22,76 @@ export default function BorrowTable() {
 
 	const posV2: PositionQueryV2[] = openPositions.filter((p) => p.version == 2);
 
-	const makeUnique = function (positions: PositionQueryV2[]) {
-		const highestMaturityMap = new Map();
-		positions.forEach((pos) => {
-			const key = pos.original + "-" + pos.price;
-			if (!highestMaturityMap.has(key)) {
-				highestMaturityMap.set(key, pos);
-			} else {
-				const highest = highestMaturityMap.get(key);
-				if (pos.expiration > highest.expiration) {
-					highestMaturityMap.set(key, pos);
-				}
+	const matchingPositions: PositionQueryV2[] = posV2.filter((position) => {
+		const pid: Address = position.position.toLowerCase() as Address;
+		const now = Date.now();
+		if (POSITION_BLACKLISTED(pid)) {
+			return false;
+		} else if (position.closed || position.denied) {
+			return false;
+		} else if (position.start * 1000 < now && position.cooldown * 1000 > now) {
+			return false; // under cooldown but active position
+		} else if (BigInt(position.isOriginal ? position.availableForClones : position.availableForMinting) == 0n) {
+			return false;
+		} else if ((challengesPosMap[pid] || []).filter((c) => c.status == "Active").length > 0) {
+			return false; // active challenges
+		} else {
+			return true;
+		}
+	});
+
+	const sortedByCollateral: { [key: Address]: PositionQueryV2[] } = {};
+	matchingPositions.forEach((pos) => {
+		const coll = pos.collateral.toLowerCase() as Address;
+		if (sortedByCollateral[coll] == undefined) sortedByCollateral[coll] = [];
+		sortedByCollateral[coll].push(pos);
+	});
+
+	const uniqueByCollateral: { [key: Address]: PositionQueryV2[] } = {};
+	Object.keys(sortedByCollateral).forEach((coll) => {
+		uniqueByCollateral[coll as Address] = [];
+		const items = sortedByCollateral[coll as Address];
+
+		// price
+		items.forEach((i) => {
+			const u = uniqueByCollateral[coll as Address];
+			if (u.at(0) == undefined) uniqueByCollateral[coll as Address].push(i);
+			else if (BigInt(i.price) > BigInt(u.at(0)?.price ?? 0n)) {
+				uniqueByCollateral[coll as Address][0] = i;
 			}
 		});
-		return Array.from(highestMaturityMap.values());
-	};
 
-	const matchingPositions: PositionQueryV2[] = makeUnique(
-		posV2.filter((position) => {
-			const pid: Address = position.position.toLowerCase() as Address;
-			if (POSITION_BLACKLISTED(pid)) {
-				return false;
-			} else if (position.closed || position.denied) {
-				return false;
-			} else if (position.cooldown * 1000 > Date.now()) {
-				return false; // under cooldown
-			} else if (BigInt(position.isOriginal ? position.availableForClones : position.availableForMinting) == 0n) {
-				return false;
-			} else if ((challengesPosMap[pid] || []).filter((c) => c.status == "Active").length > 0) {
-				return false; // active challenges
-			} else {
-				return true;
+		// interest
+		items.forEach((i) => {
+			const u = uniqueByCollateral[coll as Address];
+			const c1 = (BigInt(i.annualInterestPPM) * parseEther("1")) / (BigInt(1_000_000) - BigInt(i.reserveContribution));
+			const c2 =
+				(BigInt(u.at(1)?.annualInterestPPM ?? "0") * parseEther("1")) /
+				(BigInt(1_000_000) - BigInt(u.at(1)?.reserveContribution ?? "0"));
+
+			if (c1 < c2 || u.at(1) == undefined) {
+				uniqueByCollateral[coll as Address][1] = i;
 			}
-		})
-	);
+		});
 
-	const sorted: PositionQueryV2[] = sortPositions(matchingPositions, coingecko, headers, tab, reverse);
+		// expiration
+		items.forEach((i) => {
+			const u = uniqueByCollateral[coll as Address];
+
+			if (i.expiration > (u.at(2)?.expiration ?? 0)) {
+				uniqueByCollateral[coll as Address][2] = i;
+			}
+		});
+	});
+
+	const uniquePositions: PositionQueryV2[] = Object.values(uniqueByCollateral)
+		.flat()
+		.reduce<PositionQueryV2[]>((a, b) => {
+			const uids = a.map((i) => i.position);
+			return uids.includes(b.position) ? a : [...a, b];
+		}, []);
+
+	const sorted: PositionQueryV2[] = sortPositions(uniquePositions, coingecko, headers, tab, reverse);
 
 	useEffect(() => {
 		const idList = list.map((l) => l.position).join("_");
