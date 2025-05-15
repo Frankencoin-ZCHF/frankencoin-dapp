@@ -1,21 +1,20 @@
-import { useState } from "react";
-
 interface Props {
 	label: string;
 	enabled?: boolean;
+	disabled?: boolean;
 	onChange?: (enabled: boolean) => void;
 }
 
-export default function AppToggle({ label, enabled = false, onChange = () => {} }: Props) {
+export default function AppToggle({ label, enabled = false, disabled, onChange = () => {} }: Props) {
 	return (
 		<div className="flex gap-4 items-center">
 			<button
-				onClick={() => onChange(!enabled)}
+				onClick={() => !disabled && onChange(!enabled)}
 				role="switch"
 				aria-checked={enabled}
-				className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-					enabled ? "bg-blue-600" : "bg-gray-300"
-				}`}
+				className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
+					disabled ? "bg-card-input-disabled cursor-not-allowed" : "hover:border-card-input-hover cursor-pointer"
+				} ${!disabled && enabled ? "bg-card-input-min" : "bg-card-input-border"}`}
 			>
 				<span
 					className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${
