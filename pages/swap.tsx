@@ -68,6 +68,16 @@ export default function Swap() {
 		}
 	}, [activeMinter, swapStats, direction]);
 
+	useEffect(() => {
+		if (amount > fromBalance) {
+			setError(`Not enough ${fromSymbol} in your wallet.`);
+		} else if (amount > swapLimit) {
+			setError(`Not enough ${toSymbol} available to swap.`);
+		} else {
+			setError("");
+		}
+	}, [amount, direction, fromBalance, fromSymbol, swapLimit, toSymbol]);
+
 	const handleApprove = async () => {
 		try {
 			setApproving(true);
@@ -194,14 +204,6 @@ export default function Swap() {
 	const onChangeAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
-
-		if (valueBigInt > swapLimit) {
-			setError(`Not enough ${toSymbol} available to swap.`);
-		} else if (valueBigInt > fromBalance) {
-			setError(`Not enough ${fromSymbol} in your wallet.`);
-		} else {
-			setError("");
-		}
 	};
 
 	return (
@@ -216,8 +218,8 @@ export default function Swap() {
 						<div className="mt-4 text-lg font-bold text-center">Swap {swapStats.otherSymbol} and ZCHF</div>
 
 						<div className="mt-8">
-							The <AppLink className="" label="swap module" href={bridgeUrl} external={true} /> enables 1:1 conversion
-							between other Swiss Franc stablecoins and back, up to certain limits. Currently,{" "}
+							The <AppLink className="" label="swap module" href={bridgeUrl} external={true} /> enables 1:1 conversion between
+							other Swiss Franc stablecoins and back, up to certain limits. Currently,{" "}
 							<AppLink className="" label="VNX Swiss Franc (VCHF)" href="https://vnx.li/vchf/" external={true} /> is
 							supported.
 						</div>
