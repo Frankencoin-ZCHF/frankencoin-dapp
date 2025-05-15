@@ -4,7 +4,7 @@ import { ADDRESS, FrankencoinABI, SavingsABI } from "@frankencoin/zchf";
 import { useContractUrl } from "@hooks";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { zeroAddress } from "viem";
+import { Address, isAddress, zeroAddress } from "viem";
 import { useEffect, useState } from "react";
 import SavingsDetailsCard from "./SavingsDetailsCard";
 import { readContract } from "wagmi/actions";
@@ -14,6 +14,9 @@ import { RootState } from "../../redux/redux.store";
 import SavingsActionInterest from "./SavingsActionInterest";
 import SavingsActionSave from "./SavingsActionSave";
 import SavingsActionWithdraw from "./SavingsActionWithdraw";
+import AppToggle from "@components/AppToggle";
+import AddressInput from "@components/Input/AddressInput";
+import SavingsActionSaveOnBehalf from "./SavingsActionSaveOnBehalf";
 
 export default function SavingsInteractionCard() {
 	const [amount, setAmount] = useState(0n);
@@ -26,6 +29,9 @@ export default function SavingsInteractionCard() {
 	const [userSavingsInterest, setUserSavingsInterest] = useState(0n);
 	const [userSavingsLocktime, setUserSavingsLocktime] = useState(0n);
 	const [currentTicks, setCurrentTicks] = useState(0n);
+	const [onbehalfToggle, setOnbehalfToggle] = useState(false);
+	const [onbehalfAddress, setOnbehalfAddress] = useState("");
+	const [onbehalfError, setOnbehalfError] = useState("");
 
 	const leadrate = useSelector((state: RootState) => state.savings.savingsInfo.rate);
 
@@ -92,16 +98,27 @@ export default function SavingsInteractionCard() {
 		setLoaded(false);
 	}, [account]);
 
+	useEffect(() => {
+		if (isAddress(onbehalfAddress) || onbehalfAddress == "") {
+			setOnbehalfError("");
+		} else {
+			setOnbehalfError("Address is not valid.");
+		}
+	}, [onbehalfAddress]);
+
+	useEffect(() => {
+		if (amount > userBalance + (!onbehalfToggle ? userSavingsBalance + userSavingsInterest : 0n)) {
+			setError(`Not enough ${fromSymbol} in your wallet.`);
+		} else {
+			setError("");
+		}
+	}, [amount, onbehalfToggle, userBalance, userSavingsBalance, userSavingsInterest]);
+
 	// ---------------------------------------------------------------------------
 
 	const onChangeAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
-		if (valueBigInt > userBalance + userSavingsBalance + userSavingsInterest) {
-			setError(`Not enough ${fromSymbol} in your wallet.`);
-		} else {
-			setError("");
-		}
 	};
 
 	return (
@@ -111,10 +128,10 @@ export default function SavingsInteractionCard() {
 
 				<div className="mt-8">
 					<TokenInput
-						label="Your savings"
-						min={BigInt("0")}
-						max={userBalance + userSavingsBalance + userSavingsInterest}
-						reset={userSavingsBalance}
+						label={!onbehalfToggle ? "Your savings" : "You save"}
+						min={!onbehalfToggle ? BigInt("0") : undefined}
+						max={!onbehalfToggle ? userBalance + userSavingsBalance + userSavingsInterest : userBalance}
+						reset={!onbehalfToggle ? userSavingsBalance : 0n}
 						balanceLabel="Max:"
 						symbol={fromSymbol}
 						placeholder={fromSymbol + " Amount"}
@@ -127,24 +144,47 @@ export default function SavingsInteractionCard() {
 					/>
 				</div>
 
+				<div className="">
+					{onbehalfToggle ? (
+						<AddressInput
+							label="On behalf of"
+							placeholder="0xa1b2c3d4..."
+							error={onbehalfError}
+							value={onbehalfAddress}
+							onChange={setOnbehalfAddress}
+						/>
+					) : null}
+					<AppToggle disabled={false} label="Save on behalf" enabled={onbehalfToggle} onChange={setOnbehalfToggle} />
+				</div>
+
 				<div className="mx-auto my-4 w-72 max-w-full flex-col flex gap-4">
-					<GuardToAllowedChainBtn label={direction ? "Save" : "Withdraw"}>
-						{userSavingsInterest > 0 && amount == userSavingsBalance ? (
-							<SavingsActionInterest disabled={!!error} balance={userSavingsBalance} interest={userSavingsInterest} />
-						) : amount > userSavingsBalance ? (
-							<SavingsActionSave disabled={!!error} amount={amount} interest={userSavingsInterest} />
-						) : (
-							<SavingsActionWithdraw disabled={userSavingsBalance == 0n || !!error} balance={amount} change={change} />
-						)}
-					</GuardToAllowedChainBtn>
+					{onbehalfToggle ? (
+						<GuardToAllowedChainBtn label={"On Behalf"}>
+							<SavingsActionSaveOnBehalf
+								disabled={onbehalfError != "" || onbehalfAddress == ""}
+								amount={amount}
+								onBehalf={onbehalfAddress as Address}
+							/>
+						</GuardToAllowedChainBtn>
+					) : (
+						<GuardToAllowedChainBtn label={direction ? "Save" : "Withdraw"}>
+							{userSavingsInterest > 0 && amount == userSavingsBalance ? (
+								<SavingsActionInterest disabled={!!error} balance={userSavingsBalance} interest={userSavingsInterest} />
+							) : amount > userSavingsBalance ? (
+								<SavingsActionSave disabled={!!error} amount={amount} interest={userSavingsInterest} />
+							) : (
+								<SavingsActionWithdraw disabled={userSavingsBalance == 0n || !!error} balance={amount} change={change} />
+							)}
+						</GuardToAllowedChainBtn>
+					)}
 				</div>
 			</AppCard>
 
 			<SavingsDetailsCard
 				balance={userSavingsBalance}
-				change={isLoaded ? change : 0n}
+				change={isLoaded && !onbehalfToggle ? change : 0n}
 				direction={direction}
-				interest={isLoaded ? userSavingsInterest : 0n}
+				interest={isLoaded && !onbehalfToggle ? userSavingsInterest : 0n}
 				locktime={userSavingsLocktime}
 			/>
 		</section>
