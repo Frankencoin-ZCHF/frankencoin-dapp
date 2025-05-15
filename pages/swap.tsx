@@ -278,6 +278,17 @@ export default function Swap() {
 								)}
 							</GuardToAllowedChainBtn>
 						</div>
+
+						<div className="mt-6">
+							You can also use the{" "}
+							<AppLink
+								className=""
+								label="Uniswap App"
+								href="https://app.uniswap.org/explore/tokens/ethereum/0xb58e61c3098d85632df34eecfb899a1ed80921cb"
+								external={true}
+							/>{" "}
+							to swap other tokens for ZCHF.
+						</div>
 					</AppCard>
 				</section>
 			</div>
