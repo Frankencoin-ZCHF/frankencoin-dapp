@@ -148,7 +148,7 @@ export default function SavingsInteractionCard() {
 					{onbehalfToggle ? (
 						<AddressInput
 							label="On behalf of"
-							placeholder="0xa1b2c3d4..."
+							placeholder="0x1a2b3c..."
 							error={onbehalfError}
 							value={onbehalfAddress}
 							onChange={setOnbehalfAddress}
