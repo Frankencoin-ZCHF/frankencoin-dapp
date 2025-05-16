@@ -147,14 +147,14 @@ export default function SavingsInteractionCard() {
 				<div className="">
 					{onbehalfToggle ? (
 						<AddressInput
-							label="On behalf of"
+							label="To address"
 							placeholder="0x1a2b3c..."
 							error={onbehalfError}
 							value={onbehalfAddress}
 							onChange={setOnbehalfAddress}
 						/>
 					) : null}
-					<AppToggle disabled={false} label="Save on behalf" enabled={onbehalfToggle} onChange={setOnbehalfToggle} />
+					<AppToggle disabled={false} label="Custom target address" enabled={onbehalfToggle} onChange={setOnbehalfToggle} />
 				</div>
 
 				<div className="mx-auto my-4 w-72 max-w-full flex-col flex gap-4">

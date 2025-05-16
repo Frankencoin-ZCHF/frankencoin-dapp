@@ -42,7 +42,7 @@ export default function SavingsActionSaveOnBehalf({ amount, onBehalf, disabled, 
 					value: `${formatCurrency(formatUnits(amount, 18))} ZCHF`,
 				},
 				{
-					title: `On behalf of: `,
+					title: `Target: `,
 					value: shortenAddress(onBehalf),
 				},
 				{
@@ -53,7 +53,7 @@ export default function SavingsActionSaveOnBehalf({ amount, onBehalf, disabled, 
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Save on behalf...`} rows={toastContent} />,
+					render: <TxToast title={`Save to target...`} rows={toastContent} />,
 				},
 				success: {
 					render: <TxToast title="Saved" rows={toastContent} />,
@@ -71,7 +71,7 @@ export default function SavingsActionSaveOnBehalf({ amount, onBehalf, disabled, 
 
 	return (
 		<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
-			Save On Behalf
+			Save to Target
 		</Button>
 	);
 }
