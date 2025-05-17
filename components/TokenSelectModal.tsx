@@ -74,8 +74,8 @@ export function TokenSelectModal({ title, isOpen, setIsOpen, children }: TokenSe
 			>
 				<div className="text-lg font-extrabold leading-tight align-middle">{title}</div>
 			</Modal.Header>
-			<Modal.Body theme={{ base: "flex flex-col px-3 py-2 overflow-y-scroll no-scrollbar" }}>
-				<div className="h-full">{children}</div>
+			<Modal.Body theme={{ base: "flex flex-col py-2" }}>
+				<div className="overflow-y-auto scrollbar-visible px-3 max-h-[70vh]">{children}</div>
 			</Modal.Body>
 		</Modal>
 	);
