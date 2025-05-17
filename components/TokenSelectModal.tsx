@@ -54,10 +54,10 @@ export function TokenSelectModal({ title, isOpen, setIsOpen, children }: TokenSe
 			size="md"
 			theme={{
 				root: {
-					base: "fixed px-2 md:px-0 inset-x-0 top-0 z-50 h-screen overflow-y-auto overflow-x-hidden md:inset-0 md:h-full",
+					base: "fixed px-2 md:px-0 inset-x-0 top-0 z-50 h-screen no-scrollbar overflow-y-auto overflow-x-hidden md:inset-0 md:h-full",
 				},
 				content: {
-					base: "relative max-h-[80%] w-full md:max-h-[80%] overflow-y-auto rounded-lg bg-white shadow dark:bg-gray-700",
+					base: "relative max-h-[80%] w-full md:max-h-[80%] no-scrollbar overflow-y-auto rounded-xl bg-white shadow dark:bg-gray-700",
 					inner: "relative flex h-full flex-col",
 				},
 			}}
@@ -74,7 +74,7 @@ export function TokenSelectModal({ title, isOpen, setIsOpen, children }: TokenSe
 			>
 				<div className="text-lg font-extrabold leading-tight align-middle">{title}</div>
 			</Modal.Header>
-			<Modal.Body theme={{ base: "flex flex-col px-3 py-2 overflow-y-scroll" }}>
+			<Modal.Body theme={{ base: "flex flex-col px-3 py-2 overflow-y-scroll no-scrollbar" }}>
 				<div className="h-full">{children}</div>
 			</Modal.Body>
 		</Modal>
