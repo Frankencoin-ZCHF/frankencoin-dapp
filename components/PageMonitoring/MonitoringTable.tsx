@@ -4,7 +4,7 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { ApiChallengesPositions, PositionQuery, PriceQueryObjectArray } from "@deuro/api";
+import { PositionQuery, PriceQueryObjectArray } from "@deuro/api";
 import { Address, formatUnits } from "viem";
 import MonitoringRow from "./MonitoringRow";
 import { useState } from "react";
@@ -19,7 +19,7 @@ export default function MonitoringTable() {
 		t("monitoring.collateralization"),
 		t("monitoring.expiration"),
 	];
-	const [tab, setTab] = useState<string>(headers[1]);
+	const [tab, setTab] = useState<string>(headers[2]);
 	const [reverse, setReverse] = useState<boolean>(true);
 
 	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
