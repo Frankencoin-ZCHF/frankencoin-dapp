@@ -121,7 +121,8 @@ export const BorrowedManageSection = () => {
 		if (isBorrowMore) {
 			setAmount(maxBeforeAddingMoreCollateral.toString());
 		} else {
-			setAmount(debt.toString());
+			const maxAmount = debt < walletBalance ? debt : walletBalance;
+			setAmount(maxAmount.toString());
 		}
 	};
 

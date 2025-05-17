@@ -4,7 +4,7 @@ import Link from "next/link";
 import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
-import { formatDate, shortenAddress, TOKEN_SYMBOL } from "@utils";
+import { formatDate, getCarryOnQueryParams, shortenAddress, TOKEN_SYMBOL, toQueryString } from "@utils";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { useContractUrl } from "@hooks";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -153,16 +153,25 @@ export default function PositionDetail() {
 								<b>{position.closed ? t("common.closed") : formatDate(position.expiration)}</b>
 							</AppBox>
 						</div>
-						<div className="flex flex-row gap-2 mt-3">
+						<div className="grid grid-cols-2 md:grid-cols-3 gap-2">
 							<SecondaryLinkButton
-								className="h-10 flex-1"
+								className="h-10 order-1 md:order-2"
 								href={`/monitoring/${position.position}/${maturity <= 0 ? "forceSell" : "challenge"}`}
 							>
 								{maturity <= 0 ? t("monitoring.force_sell") : t("monitoring.challenge")}
 							</SecondaryLinkButton>
-							<SecondaryLinkButton className="h-10 flex-1" href={`/mint/${position.position}/`}>
+							<SecondaryLinkButton
+								className="h-10 order-2 md:order-3"
+								href={`/mint/${position.position}/`}
+							>
 								{t("mint.clone")}
 							</SecondaryLinkButton>
+							<Button
+								className="h-10 col-span-2 md:col-span-1 md:col-start-1 order-3 md:order-1"
+								onClick={() => navigate.push(`/mint/${position.position}/manage/collateral${toQueryString(getCarryOnQueryParams(router))}`)}
+							>
+								{t("dashboard.manage")}
+							</Button>
 						</div>
 					</div>
 					<div>
