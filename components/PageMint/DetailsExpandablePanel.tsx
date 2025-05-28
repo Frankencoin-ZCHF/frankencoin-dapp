@@ -1,9 +1,5 @@
-import { useState } from "react";
-import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { formatCurrency, shortenAddress } from "@utils";
+import { formatCurrency } from "@utils";
 import { formatUnits } from "viem";
-import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import { LoanDetails } from "../../utils/loanCalculations";
 import { ExpandablePanel } from "../ExpandablePanel";
@@ -78,10 +74,6 @@ export function DetailsExpandablePanel({
 				<span className="text-right text-sm font-extrabold leading-none tracking-tight">
 					{formatCurrency(loanDetails.effectiveInterest)}%
 				</span>
-			</div>
-			<div className="py-1.5 flex justify-between">
-				<span className="text-base leading-tight">{t("mint.apr")}</span>
-				<span className="text-right text-sm font-extrabold leading-none tracking-tight">{formatCurrency(loanDetails.apr)}%</span>
 			</div>
 			<div className="py-1.5 flex justify-between">
 				<span className="text-base leading-tight">{t("mint.market_price")}</span>
