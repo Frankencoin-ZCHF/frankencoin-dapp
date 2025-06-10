@@ -60,7 +60,7 @@ export default function GuardSupportedChain({ children, label, disabled, chain }
 					setRequestedChange(true);
 				}}
 			>
-				{label ?? `Switch Chain (${chain.name})`}
+				{label ?? `Switch to ${chain.name}`}
 			</Button>
 		);
 
