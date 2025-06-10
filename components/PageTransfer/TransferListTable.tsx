@@ -27,7 +27,7 @@ export default function TransferListTable() {
 	const [recipient, setRecipient] = useState<Address | string>(address || "");
 	const [reference, setReference] = useState<string>("");
 	const [start, setStart] = useState<Date>(RESET_DATE);
-	const [end, setEnd] = useState<Date | string>("Now");
+	const [end, setEnd] = useState<Date | string>("Today");
 
 	useEffect(() => {
 		// load all, if non is selected.
@@ -102,7 +102,6 @@ export default function TransferListTable() {
 		<div className="grid gap-4">
 			<AppCard>
 				<div className="grid md:grid-cols-2 gap-4 -mb-4">
-					<div className="flex flex-col justify-center gap-2">
 						<AddressInput
 							label="Sender"
 							placeholder="Enter sender address here"
@@ -123,25 +122,14 @@ export default function TransferListTable() {
 							own={address}
 							reset={""}
 						/>
-						<AddressInput
-							label="Reference"
-							placeholder="Enter reference comment here"
-							value={reference}
-							onChange={setReference}
-						/>
-					</div>
-					<div className="flex flex-col justify-center gap-2">
 						<DateInput
-							label="Start"
+							label="From"
 							value={start}
 							onChange={(d) => d && setStart(d)}
-							reset={RESET_DATE}
-							note="Note: Selected date is included in the result."
-							disabled={sender.length == 0 && recipient.length == 0}
 						/>
 						<DateInput
-							label="End"
-							value={end === "Now" ? new Date() : (end as Date)}
+							label="To (inclusive)"
+							value={end === "Today" ? new Date() : (end as Date)}
 							onChange={(d) => {
 								if (d) {
 									const dateWithZeroTime = new Date(d);
@@ -149,13 +137,16 @@ export default function TransferListTable() {
 									setEnd(dateWithZeroTime);
 								}
 							}}
-							output={end === "Now" ? end : undefined}
-							reset={end === "Now" ? undefined : new Date()}
-							onReset={() => setEnd("Now")}
-							note="Note: Selected date is included in the result."
-							disabled={sender.length == 0 && recipient.length == 0}
+							output={end === "Today" ? end : undefined}
+							reset={end === "Today" ? undefined : new Date()}
+							onReset={() => setEnd("Today")}
 						/>
-					</div>
+						<AddressInput
+							label="Reference"
+							placeholder="Reference (if any)"
+							value={reference}
+							onChange={setReference}
+						/>
 				</div>
 			</AppCard>
 

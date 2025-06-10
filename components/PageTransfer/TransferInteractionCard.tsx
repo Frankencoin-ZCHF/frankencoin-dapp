@@ -102,7 +102,7 @@ export default function TransferInteractionCard() {
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Frankencoin Transfer</div>
+				<div className="mt-4 text-lg font-bold text-center">Transfer Parameters</div>
 
 				<AddressInput
 					label="Recipient"
@@ -112,7 +112,7 @@ export default function TransferInteractionCard() {
 					error={errorRecipient()}
 				/>
 
-				<AddressInput label="Public Reference" placeholder="Invoice 123" value={reference} onChange={setReference} />
+				<AddressInput label="Reference" placeholder="Invoice 123" value={reference} onChange={setReference} />
 
 				<TokenInput
 					symbol="ZCHF"
@@ -142,7 +142,7 @@ export default function TransferInteractionCard() {
 
 				<div className="flex my-4">
 					<div className={`flex-1 text-text-secondary`}>
-						You can auto-save incoming funds directly into a savings module.{" "}
+						Enable .{" "}
 						{autoSave == ADDRESS[WAGMI_CHAIN.id].savings ? (
 							<span className="font-bold">{`You currently auto-save at ${autoSaveRate.savingsV2 / 10_000}%`}</span>
 						) : // ) : autoSave == ADDRESS[WAGMI_CHAIN.id].savingsDetached ? (

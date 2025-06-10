@@ -10,16 +10,22 @@ export default function TransferPage() {
 				<title>Frankencoin - Transfer</title>
 			</Head>
 
-			<AppTitle title="Transfer with Reference">
+			<AppTitle title="Transfer">
 				<div className="text-text-secondary">
-					Here you can make a frankencoin transfer and include a reference, perfect for things like invoice payments.
+					Transfer Frankencoins with a reference or across chains using the CCIP bridge (https://app.transporter.io/).
 				</div>
 			</AppTitle>
 
 			<TransferInteractionCard />
 
-			<AppTitle title="Transfer Search">
-				<div className="text-text-secondary">Use the filters to fine tune your results.</div>
+			<AppTitle title="Auto Saver">
+				<div className="text-text-secondary">Automatically forward all incoming transfers with reference into the savings module.</div>
+			</AppTitle>
+
+			<TransferInteractionCard />
+
+			<AppTitle title="Transfer Log">
+				<div className="text-text-secondary">Find past transfers, limited to 50 results.</div>
 			</AppTitle>
 
 			<TransferListTable />
