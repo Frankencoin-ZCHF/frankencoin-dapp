@@ -10,6 +10,7 @@ import { WAGMI_CHAIN } from "../../app.config";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import { useContractUrl } from "@hooks";
 import { shortenAddress } from "@utils";
+import { Address } from "viem";
 
 export default function SavingsGlobalCard() {
 	const { totalBalance, totalSaved, totalWithdrawn, totalInterest, rate, ratioOfSupply } = useSelector(
@@ -17,7 +18,7 @@ export default function SavingsGlobalCard() {
 	);
 
 	const frankencoinAddress = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
-	const savings = ADDRESS[WAGMI_CHAIN.id].savings;
+	const savings = "0x27d9AD987BdE08a0d083ef7e0e4043C857A17B38";
 	const link = useContractUrl(savings);
 
 	return (

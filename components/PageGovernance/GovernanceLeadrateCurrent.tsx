@@ -17,6 +17,7 @@ import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import { LeadrateRateQuery } from "@frankencoin/api";
+import { Address } from "viem";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 interface Props {}
@@ -61,7 +62,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 			setHandling(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].savings,
+				address: "0x27d9AD987BdE08a0d083ef7e0e4043C857A17B38",
 				abi: SavingsABI,
 				functionName: "proposeChange",
 				args: [parseInt(String(newRate)), []],

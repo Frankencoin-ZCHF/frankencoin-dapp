@@ -1,4 +1,4 @@
-import { Hash } from "viem";
+import { Address, Hash } from "viem";
 import TableRow from "../Table/TableRow";
 import { formatCurrency, shortenAddress } from "../../utils/format";
 import { useState } from "react";
@@ -42,7 +42,7 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 			setApplying(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].savings,
+				address: "0x27d9AD987BdE08a0d083ef7e0e4043C857A17B38",
 				abi: SavingsABI,
 				functionName: "applyChange",
 				args: [],
@@ -87,7 +87,7 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 			setDenying(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].savings,
+				address: "0x27d9AD987BdE08a0d083ef7e0e4043C857A17B38",
 				abi: SavingsABI,
 				functionName: "proposeChange",
 				args: [info.rate, []],

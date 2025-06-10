@@ -76,6 +76,7 @@ function sortMinters(params: SortMinters): MinterQuery[] {
 	} else if (tab === headers[2]) {
 		minters.sort((a, b) => a.applyMessage.localeCompare(b.applyMessage));
 	} else if (tab === headers[3]) {
+		minters.sort((a, b) => b.applyDate - a.applyDate);
 		minters.sort((a, b) => {
 			const calc = function (m: MinterQuery): number {
 				const vetoUntil = (m.applyDate + m.applicationPeriod) * 1000;

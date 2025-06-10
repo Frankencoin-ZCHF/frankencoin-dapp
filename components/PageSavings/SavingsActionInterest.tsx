@@ -6,7 +6,7 @@ import { formatCurrency } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount, useChainId } from "wagmi";
 import Button from "@components/Button";
-import { formatUnits } from "viem";
+import { Address, formatUnits } from "viem";
 import { ADDRESS, SavingsABI } from "@frankencoin/zchf";
 
 interface Props {
@@ -33,7 +33,7 @@ export default function SavingsActionInterest({ balance, interest, disabled, set
 			 * https://github.com/Frankencoin-ZCHF/frankencoin-dapp/blob/b1356dc0e45157b0e65b20fef019af00e5126653/components/PageSavings/SavingsActionInterest.tsx
 			 */
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].savings,
+				address: "0x27d9AD987BdE08a0d083ef7e0e4043C857A17B38",
 				abi: SavingsABI,
 				functionName: "adjust",
 				args: [balance],
