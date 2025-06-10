@@ -30,7 +30,7 @@ export default function SavingsActionSaveOnBehalf({ amount, onBehalf, disabled, 
 			setAction(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].savings,
+				address: "0x27d9AD987BdE08a0d083ef7e0e4043C857A17B38",
 				abi: SavingsABI,
 				functionName: "save",
 				args: [onBehalf, amount],

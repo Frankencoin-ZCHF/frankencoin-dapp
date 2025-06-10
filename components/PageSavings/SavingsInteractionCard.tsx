@@ -38,7 +38,6 @@ export default function SavingsInteractionCard() {
 	const { data } = useBlockNumber({ watch: true });
 	const { address } = useAccount();
 	const chainId = useChainId();
-	const url = useContractUrl(ADDRESS[chainId].savings);
 	const account = address || zeroAddress;
 	const ADDR = ADDRESS[chainId];
 
@@ -62,7 +61,7 @@ export default function SavingsInteractionCard() {
 			setUserBalance(_balance);
 
 			const [_userSavings, _userTicks] = await readContract(WAGMI_CONFIG, {
-				address: ADDR.savings,
+				address: "0x27d9AD987BdE08a0d083ef7e0e4043C857A17B38",
 				abi: SavingsABI,
 				functionName: "savings",
 				args: [account],
@@ -71,7 +70,7 @@ export default function SavingsInteractionCard() {
 			setUserSavingsTicks(_userTicks);
 
 			const _current = await readContract(WAGMI_CONFIG, {
-				address: ADDR.savings,
+				address: "0x27d9AD987BdE08a0d083ef7e0e4043C857A17B38",
 				abi: SavingsABI,
 				functionName: "currentTicks",
 			});
