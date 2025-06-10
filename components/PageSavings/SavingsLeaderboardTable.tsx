@@ -16,17 +16,33 @@ import { TableShowMoreRow } from "@components/Table/TableShowMoreRow";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { faMinus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Image from "next/image";
 
 interface Props {
 	headers: string[];
 	item: ApiSavingsUserLeaderboard;
 	tab: string;
+	rank: number;
 }
 
-function SavingsLeaderboardRow({ headers, item, tab }: Props) {
+const Rank = ({ rank }: { rank: number }) => {
+	switch (rank) {
+		case 1:
+			return <Image src="/icons/coin-gold.svg" alt="1" width={24} height={24} />
+		case 2:
+			return <Image src="/icons/coin_silver.svg" alt="2" width={24} height={24} />
+		case 3:
+			return <Image src="/icons/coin_bronze.svg" alt="3" width={24} height={24} />
+		default:
+			return <div className="w-[24px] text-center">{rank}</div>;
+	}
+};
+
+function SavingsLeaderboardRow({ headers, item, tab, rank }: Props) {
 	return (
 		<>
 			<TableRow headers={headers} tab={tab}>
+				<Rank rank={rank} />
 				<div className="flex flex-col text-left">
 					<AddressLabelSimple address={item.account} showLink />
 				</div>
@@ -44,9 +60,12 @@ function SavingsLeaderboardRow({ headers, item, tab }: Props) {
 	);
 }
 
+const MAX_DEFAULT_LEADERBOARD_ITEMS = 5;
+
 export default function SavingsLeaderboardTable() {
 	const { t } = useTranslation();
 	const headers: string[] = [
+		t("savings.rank"),
 		t("savings.saver"),
 		t("savings.unrealized_interest"),
 		t("savings.interest_received"),
@@ -59,7 +78,7 @@ export default function SavingsLeaderboardTable() {
 	const leaderboard = useSelector((state: RootState) => state.savings.savingsLeaderboard);
 
 	const sorted = sortSavingsLeaderboard({
-		leaderboard,
+		leaderboard: leaderboard.map((r, index) => ({ ...r, rank: index + 1 })),
 		headers,
 		tab,
 		reverse,
@@ -76,17 +95,17 @@ export default function SavingsLeaderboardTable() {
 
 	return (
 		<Table>
-			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} headerClassNames={["!text-left"]} />
+			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} headerClassNames={["!text-left", "!text-left"]} />
 			<TableBody>
 				<>
 					{sorted.length == 0 ? (
 						<TableRowEmpty>{t("savings.no_withdrawals_yet")}</TableRowEmpty>
 					) : (
 						sorted
-							.slice(0, isShowMore ? sorted.length : 7)
-							.map((r) => <SavingsLeaderboardRow headers={headers} key={r.account} item={r} tab={tab} />)
+							.slice(0, isShowMore ? sorted.length : MAX_DEFAULT_LEADERBOARD_ITEMS)
+							.map((r) => <SavingsLeaderboardRow headers={headers} key={r.account} item={r} tab={tab} rank={r.rank} />)
 					)}
-					{sorted.length > 7 && (
+					{sorted.length > MAX_DEFAULT_LEADERBOARD_ITEMS && (
 						<TableShowMoreRow onShowMoreClick={() => setIsShowMore(!isShowMore)}>
 							<div className="text-table-header-active text-base font-black leading-normal tracking-tight">
 								{isShowMore ? t("referrals.show_less") : t("referrals.show_more")}
@@ -108,6 +127,7 @@ function sortSavingsLeaderboard(params: {
 		amountSaved: string;
 		unrealizedInterest: string;
 		interestReceived: string;
+		rank: number;
 	}[];
 	headers: string[];
 	tab: string;
@@ -117,13 +137,16 @@ function sortSavingsLeaderboard(params: {
 	amountSaved: string;
 	unrealizedInterest: string;
 	interestReceived: string;
+	rank: number;
 }[] {
 	const { leaderboard, headers, tab, reverse } = params;
 	const sortedLeaderboard = [...leaderboard];
 
 	if (tab === headers[0]) {
-		sortedLeaderboard.sort((a, b) => Number(b.amountSaved) - Number(a.amountSaved));
+		sortedLeaderboard.sort((a, b) => a.rank - b.rank);
 	} else if (tab === headers[1]) {
+		sortedLeaderboard.sort((a, b) => Number(b.amountSaved) - Number(a.amountSaved));
+	} else if (tab === headers[2]) {
 		sortedLeaderboard.sort((a, b) => Number(b.unrealizedInterest) - Number(a.unrealizedInterest));
 	} else if (tab === headers[2]) {
 		sortedLeaderboard.sort((a, b) => Number(b.interestReceived) - Number(a.interestReceived));

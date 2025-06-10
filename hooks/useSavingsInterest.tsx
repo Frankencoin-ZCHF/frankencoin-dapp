@@ -21,6 +21,7 @@ export const useSavingsInterest = () => {
 	const [userSavingsInterest, setUserSavingsInterest] = useState(0n);
 	const [interestToBeCollected, setInterestToBeCollected] = useState(0n);
 	const [isClaiming, setIsClaiming] = useState<boolean>(false);
+	const [isReinvesting, setIsReinvesting] = useState<boolean>(false);
 	const leadrate = useSelector((state: RootState) => state.savings.savingsInfo.rate);
 	const [refetchSignal, setRefetchSignal] = useState(0);
 
@@ -147,15 +148,57 @@ export const useSavingsInterest = () => {
 		}
 	};
 
+	const handleReinvest = async () => {
+		if (!address) return;
+
+		try {
+			setIsReinvesting(true);
+
+		const reinvestHash = await writeContract(WAGMI_CONFIG, {
+			address: ADDRESS[chainId].savingsGateway,
+			abi: SavingsGatewayABI,
+			functionName: "save",
+			args: [BigInt(0), frontendCode],
+		});
+
+		const toastContent = [
+			{
+				title: `Reinvested amount: `,
+				value: `${formatCurrency(formatUnits(interestToBeCollected, 18))} ${TOKEN_SYMBOL}`,
+			},
+			{
+				title: "Transaction: ",
+				hash: reinvestHash,
+			},
+		];
+
+		await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: reinvestHash, confirmations: 2 }), {
+			pending: {
+				render: <TxToast title={`Reinvesting...`} rows={toastContent} />,
+			},
+			success: {
+				render: <TxToast title="Successfully reinvested" rows={toastContent} />,
+			},
+		});
+
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
+		} finally {
+			setIsReinvesting(false);
+		}
+	};
+
 	const hasSavingsData = userSavingsBalance > 0n || userSavingsInterest > 0n || change > 0n;
 
 	return {
 		isClaiming,
+		isReinvesting,
 		hasSavingsData,
 		interestToBeCollected,
 		totalEarnedInterest: change,
 		userSavingsBalance,
 		claimInterest,
 		refetchInterest,
+		handleReinvest,
 	};
 };

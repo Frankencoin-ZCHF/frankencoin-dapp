@@ -165,7 +165,7 @@ export default function SavingsInteractionSection() {
 
 			const adjustedAmount =
 				amount === userSavingsBalance.toString()
-					? 2n * BigInt(amount) + interestToBeCollected  // 2X so we can be sure to widhtdraw all the funds
+					? 2n * BigInt(amount) + interestToBeCollected // 2X so we can be sure to widhtdraw all the funds
 					: BigInt(amount) + interestToBeCollected;
 
 			const withdrawHash = await writeContract(WAGMI_CONFIG, {
@@ -219,79 +219,84 @@ export default function SavingsInteractionSection() {
 	}, [amount, isDeposit, userSavingsBalance]);
 
 	return (
-		<div className="flex flex-col gap-y-3">
-			<div className="pb-1 flex flex-row justify-start items-center border-b border-b-borders-dividerLight">
-				<span className="text-text-disabled font-medium text-base leading-tight">{t("savings.current_invest")}</span>
+		<>
+			<div className="w-full self-stretch justify-center items-center gap-1.5 inline-flex flex-col">
+				<div className="text-text-title text-center text-lg sm:text-xl font-black ">{t("savings.earn_yield_on_your_d_euro")}</div>
+				<div className="py-1 px-3 rounded-lg bg-[#E4F0FC] text-[#272B38] flex flex-row items-center gap-x-2 text-sm leading-[0.875rem]">
+					<span className="font-[400]">{t("savings.savings_rate")} (APR)</span>
+					<span className="font-extrabold">{rate / 10_000}%</span>
+				</div>
 			</div>
-			<div className="flex flex-row justify-between items-center">
-				<div className="pl-3 flex flex-row gap-x-2 items-center">
-					<TokenLogo currency={TOKEN_SYMBOL} />
-					<div className="flex flex-col">
-						<span className="text-base font-extrabold leading-tight">
-							<span className="">{formatCurrency(formatUnits(userSavingsBalance, 18))}</span> {TOKEN_SYMBOL}
-						</span>
-						<span className="text-xs font-medium text-text-muted2 leading-[1rem]"></span>
+			<div className="flex flex-col gap-y-3">
+				<div className="pb-1 flex flex-row justify-start items-center border-b border-b-borders-dividerLight">
+					<span className="text-text-disabled font-medium text-base leading-tight">{t("savings.current_invest")}</span>
+				</div>
+				<div className="flex flex-row justify-between items-center">
+					<div className="pl-3 flex flex-row gap-x-2 items-center">
+						<TokenLogo currency={TOKEN_SYMBOL} />
+						<div className="flex flex-col">
+							<span className="text-base font-extrabold leading-tight">
+								<span className="">{formatCurrency(formatUnits(userSavingsBalance, 18))}</span> {TOKEN_SYMBOL}
+							</span>
+							<span className="text-xs font-medium text-text-muted2 leading-[1rem]"></span>
+						</div>
+					</div>
+					<div className="flex flex-col sm:flex-row justify-end items-start sm:items-center">
+						<SvgIconButton isSelected={isDeposit} onClick={() => setIsDeposit(true)} SvgComponent={AddCircleOutlineIcon}>
+							{t("savings.deposit")}
+						</SvgIconButton>
+						<SvgIconButton isSelected={!isDeposit} onClick={() => setIsDeposit(false)} SvgComponent={RemoveCircleOutlineIcon}>
+							{t("savings.withdraw")}
+						</SvgIconButton>
 					</div>
 				</div>
-				<div className="flex flex-col sm:flex-row justify-end items-start sm:items-center">
-					<SvgIconButton isSelected={isDeposit} onClick={() => setIsDeposit(true)} SvgComponent={AddCircleOutlineIcon}>
-						{t("savings.deposit")}
-					</SvgIconButton>
-					<SvgIconButton isSelected={!isDeposit} onClick={() => setIsDeposit(false)} SvgComponent={RemoveCircleOutlineIcon}>
-						{t("savings.withdraw")}
-					</SvgIconButton>
+				<div className="w-full">
+					<NormalInputOutlined
+						showTokenLogo={false}
+						value={amount.toString()}
+						onChange={setAmount}
+						decimals={18}
+						unit={TOKEN_SYMBOL}
+						isError={!!error}
+						adornamentRow={
+							<div className="pl-2 text-xs leading-[1rem] flex flex-row gap-x-2">
+								<span className="font-medium text-text-muted3">
+									{t(isDeposit ? "savings.available_to_deposit" : "savings.available_to_withdraw")}:
+								</span>
+								<button
+									className="text-text-labelButton font-extrabold"
+									onClick={() => setAmount(isDeposit ? userBalance.toString() : userSavingsBalance.toString())}
+								>
+									{formatCurrency(formatUnits(isDeposit ? userBalance : userSavingsBalance, 18))} {TOKEN_SYMBOL}
+								</button>
+							</div>
+						}
+					/>
+					{error && <div className="ml-1 text-text-warning text-sm">{error}</div>}
+				</div>
+				<div className="w-full py-1.5">
+					{userAllowance < BigInt(amount) ? (
+						<Button className="text-lg leading-snug !font-extrabold" onClick={handleApprove} isLoading={isTxOnGoing}>
+							{t("common.approve")}
+						</Button>
+					) : (
+						<Button
+							className="text-lg leading-snug !font-extrabold"
+							onClick={isDeposit ? handleSave : handleWithdraw}
+							isLoading={isTxOnGoing}
+							disabled={!!error || !Boolean(amount)}
+						>
+							{isDeposit
+								? Boolean(amount)
+									? t("savings.start_earning_interest", { rate: rate / 10_000 })
+									: t("savings.enter_amount_to_add_savings")
+								: !Boolean(amount)
+								? t("savings.enter_withdraw_amount")
+								: t("savings.withdraw_to_my_wallet")}
+						</Button>
+					)}
 				</div>
 			</div>
-			<div className="w-full">
-				<NormalInputOutlined
-					showTokenLogo={false}
-					value={amount.toString()}
-					onChange={setAmount}
-					decimals={18}
-					unit={TOKEN_SYMBOL}
-					isError={!!error}
-					adornamentRow={
-						<div className="pl-2 text-xs leading-[1rem] flex flex-row gap-x-2">
-							<span className="font-medium text-text-muted3">
-								{t(isDeposit ? "savings.available_to_deposit" : "savings.available_to_withdraw")}:
-							</span>
-							<button
-								className="text-text-labelButton font-extrabold"
-								onClick={() => setAmount(isDeposit ? userBalance.toString() : userSavingsBalance.toString())}
-							>
-								{formatCurrency(formatUnits(isDeposit ? userBalance : userSavingsBalance, 18))} {TOKEN_SYMBOL}
-							</button>
-						</div>
-					}
-				/>
-				{error && <div className="ml-1 text-text-warning text-sm">{error}</div>}
-			</div>
-			<div className="w-full mt-1.5 px-4 py-2 rounded-xl bg-[#E4F0FC] flex flex-row justify-between items-center text-base font-extrabold text-[#272B38]">
-				<span>{t("savings.savings_rate")} (APR)</span>
-				<span>{rate / 10_000}%</span>
-			</div>
-			<div className="w-full py-1.5">
-				{userAllowance < BigInt(amount) ? (
-					<Button className="text-lg leading-snug !font-extrabold" onClick={handleApprove} isLoading={isTxOnGoing}>
-						{t("common.approve")}
-					</Button>
-				) : (
-					<Button
-						className="text-lg leading-snug !font-extrabold"
-						onClick={isDeposit ? handleSave : handleWithdraw}
-						isLoading={isTxOnGoing}
-						disabled={!!error || !Boolean(amount)}
-					>
-						{isDeposit
-							? Boolean(amount)
-								? t("savings.start_earning_interest", { rate: rate / 10_000 })
-								: t("savings.enter_amount_to_add_savings")
-							: !Boolean(amount)
-							? t("savings.enter_withdraw_amount")
-							: t("savings.withdraw_to_my_wallet")}
-					</Button>
-				)}
-			</div>
-		</div>
+		</>
 	);
 }

@@ -22,6 +22,7 @@ import { ExpertModeToogle } from "@components/ExpertModeToogle";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/redux.store";
 import SavingsLeaderboardTable from "@components/PageSavings/SavingsLeaderboardTable";
+import SavingsOverview from "@components/PageDashboard/SavingsOverview";
 
 const StyledLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
 	<a target="_blank" href={href}>
@@ -55,6 +56,16 @@ export default function Dashboard() {
 							<MyBorrow />
 						</div>
 					</div>
+				</div>
+
+				<div className="flex flex-col gap-4">
+					<SectionTitle className="!mb-1">{t("dashboard.savings_overview")}</SectionTitle>
+					<SavingsOverview />
+				</div>
+
+				<div className="flex flex-col gap-4">
+					<SectionTitle className="!mb-1">{t("savings.savings_leaderboard")}</SectionTitle>
+					<SavingsLeaderboardTable />
 				</div>
 
 				<div className="w-full self-stretch flex-col gap-6 sm:gap-4">
@@ -137,11 +148,6 @@ export default function Dashboard() {
 						<div className="flex flex-col gap-4">
 							<SectionTitle className="!mb-1">{t("dashboard.dEURO_Protocol_Share_Holders_nDEPS_and_DEPS")}</SectionTitle>
 							<GovernanceVotersTable />
-						</div>
-
-						<div className="flex flex-col gap-4">
-							<SectionTitle className="!mb-1">{t("savings.savings_leaderboard")}</SectionTitle>
-							<SavingsLeaderboardTable />
 						</div>
 					</>
 				) : null}
