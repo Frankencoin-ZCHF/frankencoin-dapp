@@ -18,17 +18,19 @@ export default function TransferPage() {
 
 			<TransferInteractionCard />
 
-			<AppTitle title="Auto Saver">
-				<div className="text-text-secondary">Automatically forward all incoming transfers with reference into the savings module.</div>
-			</AppTitle>
+			{/* <AppTitle title="Auto Saver">
+				<div className="text-text-secondary">
+					Automatically forward all incoming transfers with reference into the savings module.
+				</div>
+			</AppTitle> */}
 
-			<TransferInteractionCard />
+			{/* <TransferInteractionCard />
 
 			<AppTitle title="Transfer Log">
 				<div className="text-text-secondary">Find past transfers, limited to 50 results.</div>
-			</AppTitle>
+			</AppTitle> */}
 
-			<TransferListTable />
+			{/* <TransferListTable /> */}
 		</>
 	);
 }
