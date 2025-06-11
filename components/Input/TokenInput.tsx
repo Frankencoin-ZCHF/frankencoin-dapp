@@ -20,6 +20,7 @@ interface Props {
 	output?: string;
 	note?: string;
 	value?: string;
+	chain?: string;
 	onChange?: (value: string) => void;
 	onMin?: () => void;
 	onMax?: () => void;
@@ -43,6 +44,7 @@ export default function TokenInput({
 	output,
 	note,
 	value = "",
+	chain,
 	autoFocus,
 	disabled,
 	onChange = () => {},
@@ -94,7 +96,7 @@ export default function TokenInput({
 					</div>
 
 					<div className="mr-2">
-						<TokenLogo currency={symbol} size={6} />
+						<TokenLogo currency={symbol} size={6} chain={chain} />
 					</div>
 
 					<div className="text-card-input-label text-left">{symbol}</div>

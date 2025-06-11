@@ -14,6 +14,7 @@ interface Props {
 	error?: string;
 	autoFocus?: boolean;
 	disabled?: boolean;
+	isTextLeft?: boolean;
 	note?: string;
 }
 
@@ -31,6 +32,7 @@ export default function AddressInput({
 	reset,
 	autoFocus,
 	disabled,
+	isTextLeft,
 	note,
 }: Props) {
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -53,7 +55,9 @@ export default function AddressInput({
 
 				<input
 					ref={inputRef}
-					className={`w-full py-2 text-lg text-right bg-transparent ${error ? "text-card-input-error" : "text-text-primary"}`}
+					className={`w-full py-2 text-lg ${isTextLeft ? "text-left" : "text-right"} bg-transparent ${
+						error ? "text-card-input-error" : "text-text-primary"
+					}`}
 					placeholder={placeholder}
 					value={value}
 					onChange={(e) => onChange?.(e.target.value)}

@@ -1,15 +1,17 @@
 import { useRef, useState } from "react";
 import ChainBySelect from "./ChainBySelect";
-import { WAGMI_CHAIN, WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
+import { WAGMI_CHAIN, WAGMI_CHAINS } from "../../app.config";
 
 interface Props {
 	label?: string;
 	className?: string;
 	placeholder?: string;
 	value?: string;
+	chain?: string;
 	onChange?: (value: string) => void;
 	onOwn?: () => void;
 	onReset?: () => void;
+	chainOnChange?: (value: string) => void;
 	limitLabel?: string;
 	own?: string;
 	reset?: string;
@@ -24,10 +26,12 @@ export default function AddressInputChain({
 	className,
 	placeholder,
 	value,
+	chain = WAGMI_CHAIN.name,
 	error,
 	onChange = () => {},
 	onOwn = () => {},
 	onReset = () => {},
+	chainOnChange = () => {},
 	limitLabel,
 	own,
 	reset,
@@ -35,7 +39,6 @@ export default function AddressInputChain({
 	disabled,
 	note,
 }: Props) {
-	const [chain, setChain] = useState<string>(WAGMI_CHAIN.name);
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	const handleClick = () => {
@@ -57,7 +60,7 @@ export default function AddressInputChain({
 				<div className="grid md:grid-cols-6" onClick={(e) => e.stopPropagation()}>
 					<input
 						ref={inputRef}
-						className={`md:col-span-4 w-full py-2 text-lg text-right bg-transparent ${
+						className={`md:col-span-4 w-full py-2 text-lg text-left bg-transparent truncate ${
 							error ? "text-card-input-error" : "text-text-primary"
 						}`}
 						placeholder={placeholder}
@@ -68,7 +71,7 @@ export default function AddressInputChain({
 					/>
 
 					<div className="md:col-span-2">
-						<ChainBySelect chains={WAGMI_CHAINS.map((c) => c.name)} chain={chain} chainOnChange={setChain} />
+						<ChainBySelect chains={WAGMI_CHAINS.map((c) => c.name)} chain={chain} chainOnChange={chainOnChange} />
 					</div>
 				</div>
 
