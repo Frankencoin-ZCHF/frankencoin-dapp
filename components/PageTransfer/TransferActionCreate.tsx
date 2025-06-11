@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { WAGMI_CONFIG } from "../../app.config";
+import { WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { formatCurrency, shortenAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
@@ -8,9 +8,10 @@ import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import Button from "@components/Button";
 import { Address, formatUnits, maxUint256 } from "viem";
 import { ADDRESS, FrankencoinABI, ReferenceTransferABI } from "@frankencoin/zchf";
-import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 interface Props {
+	chain: string;
 	recipient: Address;
 	reference: string;
 	amount: bigint;
@@ -18,7 +19,7 @@ interface Props {
 	setLoaded?: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function TransferActionCreate({ recipient, reference, amount, disabled, setLoaded }: Props) {
+export default function TransferActionCreate({ chain, recipient, reference, amount, disabled, setLoaded }: Props) {
 	const [isApproving, setApproving] = useState<boolean>(false);
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
@@ -139,7 +140,7 @@ export default function TransferActionCreate({ recipient, reference, amount, dis
 	}, [address, chainId, data]);
 
 	return (
-		<GuardToAllowedChainBtn>
+		<GuardSupportedChain chain={WAGMI_CHAINS.find((c) => c.name.toLowerCase() == chain.toLowerCase())}>
 			{allowance < amount ? (
 				<Button className="h-10" disabled={isHidden || disabled} isLoading={isApproving} onClick={(e) => handleApprove(e)}>
 					Approve
@@ -149,6 +150,6 @@ export default function TransferActionCreate({ recipient, reference, amount, dis
 					Transfer
 				</Button>
 			)}
-		</GuardToAllowedChainBtn>
+		</GuardSupportedChain>
 	);
 }

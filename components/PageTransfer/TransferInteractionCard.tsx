@@ -16,6 +16,7 @@ export default function TransferInteractionCard() {
 
 	const { data } = useBlockNumber({ watch: true });
 	const { address } = useAccount();
+	const [chain, setChain] = useState<string>(WAGMI_CHAIN.name);
 	const [balance, setBalance] = useState<bigint>(0n);
 	const [recipient, setRecipient] = useState<string>((router.query.recipient as string) ?? "");
 	const [reference, setReference] = useState<string>((router.query.reference as string) ?? "");
@@ -75,13 +76,16 @@ export default function TransferInteractionCard() {
 						value={recipient}
 						onChange={setRecipient}
 						error={errorRecipient()}
+						chain={chain}
+						chainOnChange={setChain}
 					/>
 
-					<AddressInput label="Reference" placeholder="Invoice 123" value={reference} onChange={setReference} />
+					<AddressInput label="Reference" placeholder="Invoice 123" value={reference} onChange={setReference} isTextLeft={true} />
 
 					<TokenInput
 						symbol="ZCHF"
 						label="Amount"
+						chain={chain}
 						value={amount.toString()}
 						digit={18}
 						onChange={onChangeAmount}
@@ -94,6 +98,7 @@ export default function TransferInteractionCard() {
 					/>
 
 					<TransferActionCreate
+						chain={chain}
 						recipient={recipient as Address}
 						reference={reference}
 						amount={amount}
