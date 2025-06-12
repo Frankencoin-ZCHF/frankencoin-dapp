@@ -17,6 +17,7 @@ import SavingsActionWithdraw from "./SavingsActionWithdraw";
 import AppToggle from "@components/AppToggle";
 import AddressInput from "@components/Input/AddressInput";
 import SavingsActionSaveOnBehalf from "./SavingsActionSaveOnBehalf";
+import { mainnet } from "viem/chains";
 
 export default function SavingsInteractionCard() {
 	const [amount, setAmount] = useState(0n);
@@ -37,7 +38,8 @@ export default function SavingsInteractionCard() {
 
 	const { data } = useBlockNumber({ watch: true });
 	const { address } = useAccount();
-	const chainId = useChainId();
+	const chainId = mainnet.id;
+	const url = useContractUrl(ADDRESS[chainId].savingsReferral);
 	const account = address || zeroAddress;
 	const ADDR = ADDRESS[chainId];
 
@@ -53,7 +55,7 @@ export default function SavingsInteractionCard() {
 
 		const fetchAsync = async function () {
 			const _balance = await readContract(WAGMI_CONFIG, {
-				address: ADDR.frankenCoin,
+				address: ADDR.frankencoin,
 				abi: FrankencoinABI,
 				functionName: "balanceOf",
 				args: [account],
@@ -61,7 +63,7 @@ export default function SavingsInteractionCard() {
 			setUserBalance(_balance);
 
 			const [_userSavings, _userTicks] = await readContract(WAGMI_CONFIG, {
-				address: "0x27d9AD987BdE08a0d083ef7e0e4043C857A17B38",
+				address: ADDR.savingsReferral,
 				abi: SavingsABI,
 				functionName: "savings",
 				args: [account],
@@ -70,7 +72,7 @@ export default function SavingsInteractionCard() {
 			setUserSavingsTicks(_userTicks);
 
 			const _current = await readContract(WAGMI_CONFIG, {
-				address: "0x27d9AD987BdE08a0d083ef7e0e4043C857A17B38",
+				address: ADDR.savingsReferral,
 				abi: SavingsABI,
 				functionName: "currentTicks",
 			});

@@ -11,6 +11,7 @@ import { Address } from "viem";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
+import { mainnet } from "viem/chains";
 
 interface Props {
 	challenge: ChallengesQueryItem;
@@ -21,7 +22,7 @@ export default function MyPositionsChallengesCancel({ challenge, hidden }: Props
 	const [isCancelling, setCancelling] = useState<boolean>(false);
 	const positions: PositionsQueryObjectArray = useSelector((state: RootState) => state.positions.mapping.map);
 	const account = useAccount();
-	const chainId = CONFIG.chain.id;
+	const chainId = mainnet.id;
 	const [isHidden, setHidden] = useState<boolean>(
 		hidden == true || challenge.status !== "Active" || account.address !== challenge.challenger
 	);

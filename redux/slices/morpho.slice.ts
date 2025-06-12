@@ -3,6 +3,7 @@ import { DispatchBoolean, DispatchMarketArray, Market, MorphoState } from "./mor
 import { CONFIG, MORPHOGRAPH_CLIENT, WAGMI_CHAIN } from "../../app.config";
 import { gql } from "@apollo/client";
 import { ADDRESS } from "@frankencoin/zchf";
+import { mainnet } from "viem/chains";
 
 // --------------------------------------------------------------------------------
 
@@ -108,7 +109,7 @@ export const fetchMorphoMarkets = () => async (dispatch: Dispatch<DispatchBoolea
 	};
 
 	try {
-		const frankencoin = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
+		const frankencoin = ADDRESS[mainnet.id].frankencoin;
 		const whiteListingMarketIds: string[] = [
 			"0xe3a65a68d203a3e3cbd4a59e4604db431439ee6eeb3f88268d7f57e415df7e94",
 			"0x091756a1ba71f388fd5a959150c255acc55ce1e3714010a069ecb96f51b74235",

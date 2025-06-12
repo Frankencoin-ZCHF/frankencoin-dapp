@@ -10,6 +10,7 @@ import { maxUint256 } from "viem";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { ADDRESS, ERC20ABI } from "@frankencoin/zchf";
 import { PositionQuery } from "@frankencoin/api";
+import { mainnet } from "viem/chains";
 
 interface Props {
 	source: PositionQuery;
@@ -32,13 +33,13 @@ export default function PositionRollerApproveAction({ source, disabled }: Props)
 				address: source.collateral,
 				abi: ERC20ABI,
 				functionName: "approve",
-				args: [ADDRESS[WAGMI_CHAIN.id].roller, maxUint256],
+				args: [ADDRESS[mainnet.id].rollerV2, maxUint256],
 			});
 
 			const toastContent = [
 				{
 					title: `Roller: `,
-					value: shortenAddress(ADDRESS[WAGMI_CHAIN.id].roller),
+					value: shortenAddress(ADDRESS[mainnet.id].rollerV2),
 				},
 				{
 					title: `Collateral: `,

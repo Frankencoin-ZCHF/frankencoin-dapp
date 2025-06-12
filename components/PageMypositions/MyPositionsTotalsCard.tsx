@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import { Address, zeroAddress } from "viem";
 import { ADDRESS } from "@frankencoin/zchf";
 import { WAGMI_CHAIN } from "../../app.config";
+import { mainnet } from "viem/chains";
 
 export default function MyPositionsTotalsCard() {
 	const positions = useSelector((state: RootState) => state.positions.openPositions);
@@ -33,7 +34,7 @@ export default function MyPositionsTotalsCard() {
 
 	const totalOwed: bigint = totalMinted - totalReserves;
 
-	const frankencoin = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
+	const frankencoin = ADDRESS[mainnet.id].frankencoin;
 
 	return (
 		<AppCard>
