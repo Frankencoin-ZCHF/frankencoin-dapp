@@ -20,6 +20,7 @@ import { ADDRESS, MintingHubV2ABI } from "@frankencoin/zchf";
 import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
 import { useRouter as useNavigation } from "next/navigation";
+import { mainnet } from "viem/chains";
 
 export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
@@ -49,7 +50,7 @@ export default function PositionCreate({}) {
 	const account = useAccount();
 	const navigate = useNavigation();
 
-	const chainId = useChainId();
+	const chainId = mainnet.id;
 	const collTokenData = useTokenData(collateralAddress);
 	const userBalance = useUserBalance();
 
@@ -64,13 +65,13 @@ export default function PositionCreate({}) {
 				address: collateralAddress as Address,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [acc, ADDRESS[WAGMI_CHAIN.id].mintingHubV2],
+				args: [acc, ADDRESS[chainId].mintingHubV2],
 			});
 			setUserAllowance(_allowance);
 		};
 
 		fetchAsync();
-	}, [data, account.address, collateralAddress, isConfirming]);
+	}, [data, account.address, collateralAddress, isConfirming, chainId]);
 
 	useEffect(() => {
 		if (isAddress(collateralAddress)) {
