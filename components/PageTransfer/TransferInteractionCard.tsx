@@ -3,23 +3,29 @@ import AddressInput from "@components/Input/AddressInput";
 import TokenInput from "@components/Input/TokenInput";
 import { useEffect, useState } from "react";
 import { Address, isAddress } from "viem";
-import TransferActionCreate from "./TransferActionCreate";
-import { useAccount, useBlockNumber } from "wagmi";
-import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
-import { readContract } from "wagmi/actions";
-import { ADDRESS, FrankencoinABI, TransferReferenceABI } from "@frankencoin/zchf";
+import { useChainId } from "wagmi";
+import { WAGMI_CHAIN, WAGMI_CHAINS } from "../../app.config";
+import { ChainId } from "@frankencoin/zchf";
 import { useRouter } from "next/router";
 import AddressInputChain from "@components/Input/AddressInputChain";
 import { mainnet } from "viem/chains";
+import TransferActionMainnet from "./TransferActionMainnet";
+import TransferActionSidechain from "./TransferActionSidechain";
+import { useUserBalance } from "../../hooks/useUserBalance";
+import AppToggle from "@components/AppToggle";
 
 export default function TransferInteractionCard() {
 	const router = useRouter();
+	const chainId = useChainId();
+	const chain = WAGMI_CHAINS.find((c) => c.id == chainId);
+	const isMainnetChain = chainId == mainnet.id;
 
-	const { data } = useBlockNumber({ watch: true });
-	const { address } = useAccount();
-	const [chain, setChain] = useState<string>(WAGMI_CHAIN.name);
-	const [balance, setBalance] = useState<bigint>(0n);
+	const userBalance = useUserBalance();
+	const balance = userBalance[chainId as ChainId].frankencoin;
+
 	const [recipient, setRecipient] = useState<string>((router.query.recipient as string) ?? "");
+	const [recipientChain, setRecipientChain] = useState<string>((router.query.recipientChain as string) ?? WAGMI_CHAIN.name);
+	const [refToggle, setRefToggle] = useState<boolean>(false);
 	const [reference, setReference] = useState<string>((router.query.reference as string) ?? "");
 	const [amount, setAmount] = useState<bigint>(BigInt((router.query.amount as string) ?? "0"));
 	const [isLoaded, setLoaded] = useState<boolean>(false);
@@ -31,22 +37,6 @@ export default function TransferInteractionCard() {
 			setLoaded(false);
 		}
 	}, [isLoaded]);
-
-	useEffect(() => {
-		if (address == undefined) return;
-
-		const fetcher = async () => {
-			const _bal = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[mainnet.id].frankencoin,
-				abi: FrankencoinABI,
-				functionName: "balanceOf",
-				args: [address],
-			});
-			setBalance(_bal);
-		};
-
-		fetcher();
-	}, [address, data]);
 
 	const errorRecipient = () => {
 		if (recipient != "" && !isAddress(recipient)) return "Invalid recipient address";
@@ -77,16 +67,14 @@ export default function TransferInteractionCard() {
 						value={recipient}
 						onChange={setRecipient}
 						error={errorRecipient()}
-						chain={chain}
-						chainOnChange={setChain}
+						chain={recipientChain}
+						chainOnChange={setRecipientChain}
 					/>
-
-					<AddressInput label="Reference" placeholder="Invoice 123" value={reference} onChange={setReference} isTextLeft={true} />
 
 					<TokenInput
 						symbol="ZCHF"
 						label="Amount"
-						chain={chain}
+						chain={chain?.name || WAGMI_CHAIN.name}
 						value={amount.toString()}
 						digit={18}
 						onChange={onChangeAmount}
@@ -98,14 +86,40 @@ export default function TransferInteractionCard() {
 						error={errorAmount()}
 					/>
 
-					<TransferActionCreate
-						chain={chain}
-						recipient={recipient as Address}
-						reference={reference}
-						amount={amount}
-						disabled={isDisabled}
-						setLoaded={setLoaded}
-					/>
+					<div className="">
+						{refToggle ? (
+							<AddressInput
+								label="Reference"
+								placeholder="Invoice 123"
+								value={reference}
+								onChange={setReference}
+								isTextLeft={true}
+							/>
+						) : null}
+						<AppToggle disabled={false} label="Add Reference" enabled={refToggle} onChange={setRefToggle} />
+					</div>
+
+					{isMainnetChain ? (
+						<TransferActionMainnet
+							recipientChain={recipientChain}
+							recipient={recipient as Address}
+							addReference={refToggle}
+							reference={reference}
+							amount={amount}
+							disabled={isDisabled}
+							setLoaded={setLoaded}
+						/>
+					) : (
+						<TransferActionSidechain
+							recipientChain={recipientChain}
+							addReference={refToggle}
+							recipient={recipient as Address}
+							reference={reference}
+							amount={amount}
+							disabled={isDisabled}
+							setLoaded={setLoaded}
+						/>
+					)}
 				</AppCard>
 			</section>
 		</div>

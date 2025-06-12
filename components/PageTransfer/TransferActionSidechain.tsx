@@ -1,0 +1,133 @@
+import { Dispatch, SetStateAction, useState } from "react";
+import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
+import { toast } from "react-toastify";
+import { formatCurrency, shortenAddress } from "@utils";
+import { renderErrorTxToast, TxToast } from "@components/TxToast";
+import { useAccount, useChainId } from "wagmi";
+import Button from "@components/Button";
+import { Address, formatUnits, Hash } from "viem";
+import { ADDRESS, BridgedFrankencoinABI, ChainIdSide } from "@frankencoin/zchf";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { AppKitNetwork } from "@reown/appkit/networks";
+
+interface Props {
+	recipient: Address;
+	recipientChain: string;
+	addReference?: boolean;
+	reference: string;
+	amount: bigint;
+	disabled?: boolean;
+	setLoaded?: Dispatch<SetStateAction<boolean>>;
+}
+
+export default function TransferActionSidechain({
+	recipientChain,
+	recipient,
+	reference,
+	addReference,
+	amount,
+	disabled,
+	setLoaded,
+}: Props) {
+	const [isAction, setAction] = useState<boolean>(false);
+	const [isHidden, setHidden] = useState<boolean>(false);
+	const { address } = useAccount();
+
+	const chainId = useChainId();
+	const chain = WAGMI_CHAINS.find((c) => c.id == chainId) as AppKitNetwork;
+	const isSameChain = recipientChain.toLowerCase() == chain.name.toLowerCase();
+
+	const handleOnClick = async function (e: any) {
+		e.preventDefault();
+		if (!address) return;
+
+		try {
+			setAction(true);
+
+			let writeHash: Hash;
+
+			if (isSameChain && addReference) {
+				// transfer with reference
+				writeHash = await writeContract(WAGMI_CONFIG, {
+					address: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
+					abi: BridgedFrankencoinABI,
+					functionName: "transfer",
+					args: [recipient, amount, reference],
+				});
+			} else if (isSameChain && !addReference) {
+				// normal ccipBridgedFrankencoin transfer
+				writeHash = await writeContract(WAGMI_CONFIG, {
+					address: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
+					abi: BridgedFrankencoinABI,
+					functionName: "transfer",
+					args: [recipient, amount],
+				});
+			} else if (!isSameChain && addReference) {
+				// cross chain transfer with reference
+				const targetChain = WAGMI_CHAINS.find((c) => c.name.toLowerCase() == recipientChain.toLowerCase());
+				if (!targetChain) throw new Error("targetChain not found");
+
+				writeHash = await writeContract(WAGMI_CONFIG, {
+					address: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
+					abi: BridgedFrankencoinABI,
+					functionName: "transfer",
+					args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, reference],
+				});
+			} else {
+				// cross chain transfer
+				const targetChain = WAGMI_CHAINS.find((c) => c.name.toLowerCase() == recipientChain.toLowerCase());
+				if (!targetChain) throw new Error("targetChain not found");
+
+				writeHash = await writeContract(WAGMI_CONFIG, {
+					address: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
+					abi: BridgedFrankencoinABI,
+					functionName: "transfer",
+					args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount],
+				});
+			}
+
+			const toastContent = [
+				{
+					title: `Recipient: `,
+					value: shortenAddress(recipient),
+				},
+				{
+					title: `Reference: `,
+					value: reference,
+				},
+				{
+					title: `Transfer: `,
+					value: `${formatCurrency(formatUnits(amount, 18))} ZCHF`,
+				},
+				{
+					title: "Transaction: ",
+					hash: writeHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={`Transfer pending...`} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title="Transfer successful" rows={toastContent} />,
+				},
+			});
+
+			if (setLoaded != undefined) setLoaded(true);
+		} catch (error) {
+			toast.error(renderErrorTxToast(error));
+		} finally {
+			setAction(false);
+		}
+	};
+
+	return (
+		<GuardSupportedChain chain={chain}>
+			<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
+				Transfer
+			</Button>
+		</GuardSupportedChain>
+	);
+}
