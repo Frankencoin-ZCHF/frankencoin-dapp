@@ -20,6 +20,7 @@ import { useRouter as useNavigation } from "next/navigation";
 import { ADDRESS, FrankencoinABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import AppLink from "@components/AppLink";
+import { mainnet } from "viem/chains";
 
 export default function MonitoringForceSell() {
 	const [isInit, setInit] = useState(false);
@@ -35,20 +36,20 @@ export default function MonitoringForceSell() {
 	const router = useRouter();
 	const navigate = useNavigation();
 
-	const chainId = useChainId();
+	const chainId = mainnet.id;
 	const queryAddress: Address = (String(router.query.address) as Address) || zeroAddress;
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const position = positions.find((p) => p.position.toLowerCase() == queryAddress.toLowerCase());
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
-		const ADDR = ADDRESS[WAGMI_CHAIN.id];
+		const ADDR = ADDRESS[chainId];
 		if (position === undefined) return;
 
 		const fetchAsync = async function () {
 			if (acc !== undefined) {
 				const _balance = await readContract(WAGMI_CONFIG, {
-					address: ADDR.frankenCoin,
+					address: ADDR.frankencoin,
 					abi: FrankencoinABI,
 					functionName: "balanceOf",
 					args: [acc],
@@ -66,7 +67,7 @@ export default function MonitoringForceSell() {
 		};
 
 		fetchAsync();
-	}, [data, position, account.address]);
+	}, [data, position, account.address, chainId]);
 
 	useEffect(() => {
 		if (isInit) return;
@@ -199,7 +200,7 @@ export default function MonitoringForceSell() {
 								<DisplayAmount
 									amount={auctionPrice}
 									digits={36 - position.collateralDecimals}
-									address={ADDRESS[chainId].frankenCoin}
+									address={ADDRESS[chainId].frankencoin}
 									currency={"ZCHF"}
 									className="mt-4"
 								/>

@@ -16,6 +16,7 @@ import { WAGMI_CONFIG } from "../app.config";
 import AppCard from "@components/AppCard";
 import { ADDRESS, FrankencoinABI, StablecoinBridgeABI } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
+import { mainnet } from "viem/chains";
 
 export default function Swap() {
 	const [amount, setAmount] = useState(0n);
@@ -27,10 +28,10 @@ export default function Swap() {
 	const [isBurning, setBurning] = useState(false);
 	const [isMinter, setMinter] = useState<bigint>(0n);
 
-	const chainId = useChainId();
+	const chainId = mainnet.id;
 	const swapStats = useSwapVCHFStats();
 
-	const other = ADDRESS[chainId].vchf;
+	const other = ADDRESS[chainId].vchfToken;
 	const bridge = ADDRESS[chainId].stablecoinBridgeVCHF;
 	const bridgeUrl = useContractUrl(bridge);
 
@@ -44,7 +45,7 @@ export default function Swap() {
 	useEffect(() => {
 		const fetcher = async () => {
 			const active = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].frankenCoin,
+				address: ADDRESS[chainId].frankencoin,
 				abi: FrankencoinABI,
 				functionName: "minters",
 				args: [bridge],

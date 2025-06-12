@@ -20,6 +20,7 @@ import PositionRollerTable from "@components/PageMypositions/PositionRollerTable
 import AppCard from "@components/AppCard";
 import AppLink from "@components/AppLink";
 import MyPositionsNotFound from "@components/PageMypositions/MyPositionsNotFound";
+import { mainnet } from "viem/chains";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -58,13 +59,13 @@ export default function PositionAdjust() {
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
-		const fc: Address = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
+		const fc: Address = ADDRESS[mainnet.id].frankencoin;
 		if (!position || !position.collateral) return;
 
 		const fetchAsync = async function () {
 			if (acc !== undefined) {
 				const _balanceFranc = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[WAGMI_CHAIN.id].frankenCoin,
+					address: ADDRESS[mainnet.id].frankencoin,
 					abi: erc20Abi,
 					functionName: "balanceOf",
 					args: [acc],

@@ -19,6 +19,7 @@ import { RootState } from "../../../redux/redux.store";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
 import { useRouter as useNavigation } from "next/navigation";
+import { mainnet } from "viem/chains";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
@@ -38,7 +39,7 @@ export default function PositionBorrow({}) {
 	const account = useAccount();
 	const router = useRouter();
 
-	const chainId = useChainId();
+	const chainId = mainnet.id;
 	const addressQuery: Address = router.query.address as Address;
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
@@ -78,13 +79,13 @@ export default function PositionBorrow({}) {
 				address: position.collateral,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [acc, position.version == 1 ? ADDRESS[WAGMI_CHAIN.id].mintingHubV1 : ADDRESS[WAGMI_CHAIN.id].mintingHubV2],
+				args: [acc, position.version == 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2],
 			});
 			setUserAllowance(_allowance);
 		};
 
 		fetchAsync();
-	}, [data, account.address, position]);
+	}, [data, account.address, position, chainId]);
 
 	// ---------------------------------------------------------------------------
 	// dont continue if position not loaded correctly
@@ -133,7 +134,7 @@ export default function PositionBorrow({}) {
 	};
 
 	const onChangeCollateral = (value: string) => {
-		if (BigInt(value) > userBalance){
+		if (BigInt(value) > userBalance) {
 			setErrorColl(`Not enough ${position.collateralSymbol} in your wallet.`);
 		}
 		setAmount((BigInt(value) * BigInt(position.price)) / BigInt(1e18));

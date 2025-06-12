@@ -21,6 +21,7 @@ import { ADDRESS, FrankencoinABI, MintingHubV1ABI, MintingHubV2ABI } from "@fran
 import { ChallengesId } from "@frankencoin/api";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import AppLink from "@components/AppLink";
+import { mainnet } from "viem/chains";
 
 export default function ChallengePlaceBid() {
 	const [isInit, setInit] = useState(false);
@@ -36,7 +37,7 @@ export default function ChallengePlaceBid() {
 	const router = useRouter();
 	const navigate = useNavigation();
 
-	const chainId = useChainId();
+	const chainId = mainnet.id;
 	const addressQuery: Address = (router.query.address as string).toLowerCase() as Address;
 	const indexQuery: string = router.query.index as string;
 	const challengeId: ChallengesId = `${addressQuery ?? zeroAddress}-challenge-${BigInt(indexQuery)}`;
@@ -49,14 +50,14 @@ export default function ChallengePlaceBid() {
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
-		const ADDR = ADDRESS[WAGMI_CHAIN.id];
+		const ADDR = ADDRESS[chainId];
 		if (position === undefined) return;
 		if (challenge === undefined) return;
 
 		const fetchAsync = async function () {
 			if (acc !== undefined) {
 				const _balance = await readContract(WAGMI_CONFIG, {
-					address: ADDR.frankenCoin,
+					address: ADDR.frankencoin,
 					abi: FrankencoinABI,
 					functionName: "balanceOf",
 					args: [acc],
@@ -74,7 +75,7 @@ export default function ChallengePlaceBid() {
 		};
 
 		fetchAsync();
-	}, [data, position, challenge, account.address]);
+	}, [data, position, challenge, account.address, chainId]);
 
 	useEffect(() => {
 		if (isInit) return;
@@ -213,7 +214,7 @@ export default function ChallengePlaceBid() {
 								<DisplayAmount
 									amount={auctionPrice}
 									digits={36 - position.collateralDecimals}
-									address={ADDRESS[chainId].frankenCoin}
+									address={ADDRESS[chainId].frankencoin}
 									currency={"ZCHF"}
 								/>
 							</AppBox>
