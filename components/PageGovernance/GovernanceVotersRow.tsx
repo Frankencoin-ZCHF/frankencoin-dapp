@@ -12,6 +12,7 @@ import { useAccount } from "wagmi";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
 import { ContractUrl } from "@utils";
+import { mainnet } from "viem/chains";
 
 interface Props {
 	headers: string[];
@@ -38,21 +39,21 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 		if (!isDelegateeVotes && isDelegated && !isRevoked) {
 			const fetcher = async function () {
 				const fps = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[WAGMI_CHAIN.id].equity,
+					address: ADDRESS[mainnet.id].equity,
 					abi: EquityABI,
 					functionName: "balanceOf",
 					args: [delegatee],
 				});
 
 				const votingPowerRatio = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[WAGMI_CHAIN.id].equity,
+					address: ADDRESS[mainnet.id].equity,
 					abi: EquityABI,
 					functionName: "relativeVotes",
 					args: [delegatee],
 				});
 
 				const holdingDuration = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[WAGMI_CHAIN.id].equity,
+					address: ADDRESS[mainnet.id].equity,
 					abi: EquityABI,
 					functionName: "holdingDuration",
 					args: [delegatee],

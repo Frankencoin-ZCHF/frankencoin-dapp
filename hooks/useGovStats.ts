@@ -1,14 +1,14 @@
-import { useAccount, useChainId, useReadContracts } from "wagmi";
+import { useAccount, useReadContracts } from "wagmi";
 import { decodeBigIntCall } from "@utils";
-import { Address, zeroAddress, erc20Abi } from "viem";
-import { ADDRESS, EquityABI } from "@frankencoin/zchf";
+import { Address, zeroAddress } from "viem";
+import { EquityABI, ADDRESS } from "@frankencoin/zchf";
+import { mainnet } from "viem/chains";
 
 export const useGovStats = (helpers?: Address[]) => {
-	const chainId = useChainId();
 	const { address } = useAccount();
 
 	const equityContract = {
-		address: ADDRESS[chainId].equity,
+		address: ADDRESS[mainnet.id].equity,
 		abi: EquityABI,
 	};
 

@@ -16,6 +16,7 @@ import AddressInput from "@components/Input/AddressInput";
 import { Address, isAddress, parseEther, parseUnits } from "viem";
 import { useUserBalance } from "@hooks";
 import { SOCIAL } from "@utils";
+import { mainnet } from "viem/chains";
 
 interface Props {}
 
@@ -23,7 +24,7 @@ export default function GovernanceMintersPropose({}: Props) {
 	const userBal = useUserBalance();
 	const [isHandling, setHandling] = useState<boolean>(false);
 	const account = useAccount();
-	const chainId = CONFIG.chain.id;
+	const chainId = mainnet.id;
 	const [period, setPeriod] = useState<string>("14");
 	const [module, setModule] = useState<string>("");
 	const [comment, setComment] = useState<string>("");
@@ -51,7 +52,7 @@ export default function GovernanceMintersPropose({}: Props) {
 			setHandling(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].frankenCoin,
+				address: ADDRESS[chainId].frankencoin,
 				abi: FrankencoinABI,
 				functionName: "suggestMinter",
 				args: [module as Address, BigInt(period) * BigInt(60 * 60 * 24), parseUnits("1000", 18), comment],

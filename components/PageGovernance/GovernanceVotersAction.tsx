@@ -9,6 +9,7 @@ import Button from "@components/Button";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { VoteData } from "./GovernanceVotersTable";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
+import { mainnet } from "viem/chains";
 
 interface Props {
 	voter: VoteData;
@@ -19,7 +20,7 @@ interface Props {
 export default function GovernanceVotersAction({ voter, disabled, connectedWallet }: Props) {
 	const [isDelegating, setDelegating] = useState<boolean>(false);
 	const account = useAccount();
-	const chainId = CONFIG.chain.id;
+	const chainId = mainnet.id;
 	const [isHidden, setHidden] = useState<boolean>(false);
 
 	const handleOnClick = async function (e: any) {

@@ -10,13 +10,14 @@ import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import Button from "@components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
-import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
+import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { ADDRESS, EquityABI, FPSWrapperABI } from "@frankencoin/zchf";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
+import { mainnet } from "viem/chains";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -38,7 +39,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 	const { data } = useBlockNumber({ watch: true });
 	const { address } = useAccount();
 	const poolStats = usePoolStats();
-	const chainId = useChainId();
+	const chainId = mainnet.id;
 	const account = address || zeroAddress;
 	const direction: boolean = true;
 
@@ -67,7 +68,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 				setWfpsBalance(_wfpsBalance);
 
 				const _userBalance = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[chainId].frankenCoin,
+					address: ADDRESS[chainId].frankencoin,
 					abi: erc20Abi,
 					functionName: "balanceOf",
 					args: [account],
@@ -276,7 +277,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 					<DisplayAmount
 						amount={(poolStats.equityPrice * wfpsBalance) / BigInt(1e18)}
 						currency="ZCHF"
-						address={ADDRESS[chainId].frankenCoin}
+						address={ADDRESS[chainId].frankencoin}
 					/>
 				</AppBox>
 				<AppBox>

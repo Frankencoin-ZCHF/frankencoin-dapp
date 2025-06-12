@@ -7,9 +7,10 @@ import TransferActionCreate from "./TransferActionCreate";
 import { useAccount, useBlockNumber } from "wagmi";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { readContract } from "wagmi/actions";
-import { ADDRESS, FrankencoinABI, ReferenceTransferABI } from "@frankencoin/zchf";
+import { ADDRESS, FrankencoinABI, TransferReferenceABI } from "@frankencoin/zchf";
 import { useRouter } from "next/router";
 import AddressInputChain from "@components/Input/AddressInputChain";
+import { mainnet } from "viem/chains";
 
 export default function TransferInteractionCard() {
 	const router = useRouter();
@@ -36,7 +37,7 @@ export default function TransferInteractionCard() {
 
 		const fetcher = async () => {
 			const _bal = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[WAGMI_CHAIN.id].frankenCoin,
+				address: ADDRESS[mainnet.id].frankencoin,
 				abi: FrankencoinABI,
 				functionName: "balanceOf",
 				args: [address],

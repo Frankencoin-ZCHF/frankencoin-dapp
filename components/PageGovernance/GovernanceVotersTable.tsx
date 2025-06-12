@@ -12,6 +12,7 @@ import { useAccount } from "wagmi";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
+import { mainnet } from "viem/chains";
 
 export type VoteData = {
 	holder: Address;
@@ -55,21 +56,21 @@ export default function GovernanceVotersTable() {
 
 		const fetcher = async function () {
 			const fps = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[WAGMI_CHAIN.id].equity,
+				address: ADDRESS[mainnet.id].equity,
 				abi: EquityABI,
 				functionName: "balanceOf",
 				args: [holder],
 			});
 
 			const votingPowerRatio = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[WAGMI_CHAIN.id].equity,
+				address: ADDRESS[mainnet.id].equity,
 				abi: EquityABI,
 				functionName: "relativeVotes",
 				args: [holder],
 			});
 
 			const holdingDuration = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[WAGMI_CHAIN.id].equity,
+				address: ADDRESS[mainnet.id].equity,
 				abi: EquityABI,
 				functionName: "holdingDuration",
 				args: [holder],

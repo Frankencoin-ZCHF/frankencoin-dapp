@@ -8,6 +8,7 @@ import { useAccount, useChainId } from "wagmi";
 import Button from "@components/Button";
 import { Address, formatUnits } from "viem";
 import { ADDRESS, SavingsABI } from "@frankencoin/zchf";
+import { mainnet } from "viem/chains";
 
 interface Props {
 	amount: bigint;
@@ -20,7 +21,7 @@ export default function SavingsActionSaveOnBehalf({ amount, onBehalf, disabled, 
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
 	const account = useAccount();
-	const chainId = useChainId();
+	const chainId = mainnet.id;
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
@@ -30,7 +31,7 @@ export default function SavingsActionSaveOnBehalf({ amount, onBehalf, disabled, 
 			setAction(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: "0x27d9AD987BdE08a0d083ef7e0e4043C857A17B38",
+				address: ADDRESS[chainId].savingsReferral,
 				abi: SavingsABI,
 				functionName: "save",
 				args: [onBehalf, amount],

@@ -7,8 +7,9 @@ import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import Button from "@components/Button";
 import { Address, formatUnits, maxUint256 } from "viem";
-import { ADDRESS, FrankencoinABI, ReferenceTransferABI } from "@frankencoin/zchf";
+import { ADDRESS, FrankencoinABI, TransferReferenceABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { mainnet } from "viem/chains";
 
 interface Props {
 	chain: string;
@@ -25,7 +26,7 @@ export default function TransferActionCreate({ chain, recipient, reference, amou
 	const [isHidden, setHidden] = useState<boolean>(false);
 	const [allowance, setAllowance] = useState(0n);
 	const { address } = useAccount();
-	const chainId = useChainId();
+	const chainId = mainnet.id;
 	const { data } = useBlockNumber();
 
 	const handleApprove = async (e: any) => {
@@ -36,10 +37,10 @@ export default function TransferActionCreate({ chain, recipient, reference, amou
 			setApproving(true);
 
 			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].frankenCoin,
+				address: ADDRESS[chainId].frankencoin,
 				abi: FrankencoinABI,
 				functionName: "approve",
-				args: [ADDRESS[chainId].referenceTransfer, maxUint256],
+				args: [ADDRESS[chainId].transferReference, maxUint256],
 			});
 
 			const toastContent = [
@@ -49,7 +50,7 @@ export default function TransferActionCreate({ chain, recipient, reference, amou
 				},
 				{
 					title: "Spender: ",
-					value: shortenAddress(ADDRESS[chainId].referenceTransfer),
+					value: shortenAddress(ADDRESS[chainId].transferReference),
 				},
 				{
 					title: "Transaction:",
@@ -80,8 +81,8 @@ export default function TransferActionCreate({ chain, recipient, reference, amou
 			setAction(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].referenceTransfer,
-				abi: ReferenceTransferABI,
+				address: ADDRESS[chainId].transferReference,
+				abi: TransferReferenceABI,
 				functionName: "transfer",
 				args: [recipient, amount, reference],
 			});
@@ -127,10 +128,10 @@ export default function TransferActionCreate({ chain, recipient, reference, amou
 
 		const fetcher = async () => {
 			const allow = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].frankenCoin,
+				address: ADDRESS[chainId].frankencoin,
 				abi: FrankencoinABI,
 				functionName: "allowance",
-				args: [address, ADDRESS[chainId].referenceTransfer],
+				args: [address, ADDRESS[chainId].transferReference],
 			});
 
 			setAllowance(allow);
