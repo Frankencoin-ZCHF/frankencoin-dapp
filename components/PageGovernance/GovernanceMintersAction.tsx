@@ -10,6 +10,7 @@ import Button from "@components/Button";
 import { Address } from "viem";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { ADDRESS, EquityABI, FrankencoinABI } from "@frankencoin/zchf";
+import { mainnet } from "viem/chains";
 
 interface Props {
 	minter: MinterQuery;
@@ -19,7 +20,7 @@ interface Props {
 export default function GovernanceMintersAction({ minter, disabled }: Props) {
 	const [isVetoing, setVetoing] = useState<boolean>(false);
 	const account = useAccount();
-	const chainId = CONFIG.chain.id;
+	const chainId = mainnet.id;
 	const [isHidden, setHidden] = useState<boolean>(false);
 
 	const handleOnClick = async function (e: any) {
@@ -34,7 +35,7 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 			setVetoing(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].frankenCoin,
+				address: ADDRESS[chainId].frankencoin,
 				abi: FrankencoinABI,
 				functionName: "denyMinter",
 				args: [m, h, msg],

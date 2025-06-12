@@ -2,19 +2,19 @@ import { useAccount, useChainId, useReadContracts } from "wagmi";
 import { decodeBigIntCall } from "@utils";
 import { zeroAddress } from "viem";
 import { ADDRESS, EquityABI, FrankencoinABI } from "@frankencoin/zchf";
+import { mainnet } from "viem/chains";
 
 export const usePoolStats = () => {
-	const chainId = useChainId();
 	const { address } = useAccount();
 	const account = address || zeroAddress;
 
 	const equityContract = {
-		address: ADDRESS[chainId].equity,
+		address: ADDRESS[mainnet.id].equity,
 		abi: EquityABI,
 	};
 
 	const frankenContract = {
-		address: ADDRESS[chainId].frankenCoin,
+		address: ADDRESS[mainnet.id].frankencoin,
 		abi: FrankencoinABI,
 	};
 
@@ -70,7 +70,7 @@ export const usePoolStats = () => {
 			{
 				...frankenContract,
 				functionName: "allowance",
-				args: [account, ADDRESS[chainId].equity],
+				args: [account, ADDRESS[mainnet.id].equity],
 			},
 		],
 	});

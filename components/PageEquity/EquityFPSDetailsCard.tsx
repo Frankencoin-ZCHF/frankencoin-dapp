@@ -1,15 +1,15 @@
 import AppBox from "@components/AppBox";
 import DisplayAmount from "@components/DisplayAmount";
 import DisplayLabel from "@components/DisplayLabel";
-import { TradeChart, useFPSQuery, usePoolStats, useTradeQuery } from "@hooks";
-import { useChainId } from "wagmi";
+import { usePoolStats } from "@hooks";
 import dynamic from "next/dynamic";
 import { ADDRESS } from "@frankencoin/zchf";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { formatUnits, parseEther, parseUnits } from "viem";
+import { formatUnits, parseEther } from "viem";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
+import { mainnet } from "viem/chains";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const Timeframes = ["All", "1Y", "1Q", "1M", "1W"];
@@ -18,7 +18,7 @@ const TypeCharts = ["FPS Price", "FPS Supply", "ZCHF Supply"];
 export default function EquityFPSDetailsCard() {
 	const [timeframe, setTimeframe] = useState<string>(Timeframes[1]);
 	const [typechart, setTypechart] = useState<string>(TypeCharts[0]);
-	const chainId = useChainId();
+	const chainId = mainnet.id;
 	const poolStats = usePoolStats();
 	const { logs } = useSelector((state: RootState) => state.dashboard.dailyLog);
 
@@ -169,7 +169,7 @@ export default function EquityFPSDetailsCard() {
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
 					<DisplayLabel label="FPS Price" />
-					<DisplayAmount amount={poolStats.equityPrice} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
+					<DisplayAmount amount={poolStats.equityPrice} currency="ZCHF" address={ADDRESS[chainId].frankencoin} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Total Supply" />
@@ -180,16 +180,16 @@ export default function EquityFPSDetailsCard() {
 					<DisplayAmount
 						amount={(poolStats.equitySupply * poolStats.equityPrice) / BigInt(1e18)}
 						currency="ZCHF"
-						address={ADDRESS[chainId].frankenCoin}
+						address={ADDRESS[chainId].frankencoin}
 					/>
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Equity Capital" />
-					<DisplayAmount amount={poolStats.frankenEquity} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
+					<DisplayAmount amount={poolStats.frankenEquity} currency="ZCHF" address={ADDRESS[chainId].frankencoin} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label={"Net Income (" + timeframe + ")"} />
-					<DisplayAmount amount={netIncome} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
+					<DisplayAmount amount={netIncome} currency="ZCHF" address={ADDRESS[chainId].frankencoin} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label={timeframe == "1Y" ? "Return on Equity" : "RoE (annualized from " + timeframe + ")"} />

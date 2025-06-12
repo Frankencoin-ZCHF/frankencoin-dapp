@@ -7,9 +7,10 @@ import { renderErrorTxToast, renderErrorTxToastDecode, TxToast } from "@componen
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { ADDRESS, ERC20ABI, PositionRollerABI, PositionV2ABI } from "@frankencoin/zchf";
+import { ADDRESS, ERC20ABI, PositionRollerV2ABI, PositionV2ABI } from "@frankencoin/zchf";
 import { PositionQuery } from "@frankencoin/api";
 import { zeroAddress } from "viem";
+import { mainnet } from "viem/chains";
 
 interface Props {
 	label?: string;
@@ -34,8 +35,8 @@ export default function PositionRollerFullRollAction({ label = "Roll", source, t
 			setAction(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[WAGMI_CHAIN.id].roller,
-				abi: PositionRollerABI,
+				address: ADDRESS[mainnet.id].rollerV2,
+				abi: PositionRollerV2ABI,
 				functionName: "rollFully",
 				args: [source.position, target.position],
 			});

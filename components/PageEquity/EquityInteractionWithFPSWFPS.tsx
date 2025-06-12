@@ -16,6 +16,7 @@ import { WAGMI_CONFIG } from "../../app.config";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { ADDRESS, EquityABI, FPSWrapperABI } from "@frankencoin/zchf";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
+import { mainnet } from "viem/chains";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -37,7 +38,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 
 	const { data } = useBlockNumber({ watch: true });
 	const { address } = useAccount();
-	const chainId = useChainId();
+	const chainId = mainnet.id;
 	const account = address || zeroAddress;
 	const direction: boolean = tokenFromTo.from === "FPS";
 
