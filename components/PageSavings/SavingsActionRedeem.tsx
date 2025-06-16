@@ -14,7 +14,7 @@ interface Props {
 
 export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
-	const [isHidden, setHidden] = useState<boolean>(false);
+	const [isHidden, setHidden] = useState<boolean>(true);
 	const { address } = useAccount();
 	const chainId = useChainId();
 
