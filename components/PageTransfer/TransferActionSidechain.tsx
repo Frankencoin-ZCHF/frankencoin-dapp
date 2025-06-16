@@ -6,7 +6,7 @@ import { formatCurrency, shortenAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount, useChainId } from "wagmi";
 import Button from "@components/Button";
-import { Address, formatUnits, Hash } from "viem";
+import { Address, formatUnits, Hash, parseEther } from "viem";
 import { ADDRESS, BridgedFrankencoinABI, ChainIdSide } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { AppKitNetwork } from "@reown/appkit/networks";
@@ -63,7 +63,7 @@ export default function TransferActionSidechain({
 					functionName: "transfer",
 					args: [recipient, amount],
 				});
-			} else if (!isSameChain && addReference) {
+			} else {
 				// cross chain transfer with reference
 				const targetChain = WAGMI_CHAINS.find((c) => c.name.toLowerCase() == recipientChain.toLowerCase());
 				if (!targetChain) throw new Error("targetChain not found");
@@ -72,18 +72,16 @@ export default function TransferActionSidechain({
 					address: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
 					abi: BridgedFrankencoinABI,
 					functionName: "transfer",
-					args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, reference],
-				});
-			} else {
-				// cross chain transfer
-				const targetChain = WAGMI_CHAINS.find((c) => c.name.toLowerCase() == recipientChain.toLowerCase());
-				if (!targetChain) throw new Error("targetChain not found");
-
-				writeHash = await writeContract(WAGMI_CONFIG, {
-					address: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
-					abi: BridgedFrankencoinABI,
-					functionName: "transfer",
-					args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount],
+					args: [
+						BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector),
+						recipient,
+						amount,
+						{
+							gasLimit: BigInt(300_000),
+							allowOutOfOrderExecution: true,
+						},
+					],
+					value: parseEther("2"),
 				});
 			}
 

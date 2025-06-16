@@ -2,7 +2,7 @@ import AppCard from "@components/AppCard";
 import AddressInput from "@components/Input/AddressInput";
 import TokenInput from "@components/Input/TokenInput";
 import { useEffect, useState } from "react";
-import { Address, isAddress } from "viem";
+import { Address, encodeAbiParameters, isAddress } from "viem";
 import { useChainId } from "wagmi";
 import { WAGMI_CHAIN, WAGMI_CHAINS } from "../../app.config";
 import { ChainId } from "@frankencoin/zchf";
@@ -53,7 +53,7 @@ export default function TransferInteractionCard() {
 		setAmount(valueBigInt);
 	};
 
-	const isDisabled = !isAddress(recipient) || reference.length == 0 || amount == 0n || errorAmount() != "";
+	const isDisabled = !isAddress(recipient) || (refToggle && reference.length == 0) || amount == 0n || errorAmount() != "";
 
 	return (
 		<div className="md:mt-8">
