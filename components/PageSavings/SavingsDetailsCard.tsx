@@ -1,6 +1,7 @@
 import AppCard from "@components/AppCard";
 import { formatCurrency } from "@utils";
 import { formatUnits } from "viem";
+import SavingsActionRedeem from "./SavingsActionRedeem";
 
 interface Props {
 	balance: bigint;
@@ -37,13 +38,15 @@ export default function SavingsDetailsCard({ balance, change, direction, interes
 
 				<div className="flex mt-8">
 					<div className={`flex-1 text-text-secondary`}>
-							{locktime > 0
-								? `Interest starts to continuously accrue after three days, in your case in ${formatCurrency(
-										(parseFloat(locktime.toString()) / 60 / 60).toString()
-								  )} hours.`
-								: ""}
+						{locktime > 0
+							? `Interest starts to continuously accrue after three days, in your case in ${formatCurrency(
+									(parseFloat(locktime.toString()) / 60 / 60).toString()
+							  )} hours.`
+							: ""}
 					</div>
 				</div>
+
+				<SavingsActionRedeem />
 			</div>
 		</AppCard>
 	);
