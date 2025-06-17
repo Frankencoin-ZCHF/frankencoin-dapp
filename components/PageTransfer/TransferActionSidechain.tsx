@@ -14,6 +14,7 @@ import { AppKitNetwork } from "@reown/appkit/networks";
 interface Props {
 	recipient: Address;
 	recipientChain: string;
+	ccipFee: bigint;
 	addReference?: boolean;
 	reference: string;
 	amount: bigint;
@@ -24,6 +25,7 @@ interface Props {
 export default function TransferActionSidechain({
 	recipientChain,
 	recipient,
+	ccipFee,
 	reference,
 	addReference,
 	amount,
@@ -68,20 +70,49 @@ export default function TransferActionSidechain({
 				const targetChain = WAGMI_CHAINS.find((c) => c.name.toLowerCase() == recipientChain.toLowerCase());
 				if (!targetChain) throw new Error("targetChain not found");
 
+				const overwriteABI = [
+					{
+						inputs: [
+							{
+								internalType: "uint64",
+								name: "targetChain",
+								type: "uint64",
+							},
+							{
+								internalType: "address",
+								name: "recipient",
+								type: "address",
+							},
+							{
+								internalType: "uint256",
+								name: "amount",
+								type: "uint256",
+							},
+							{
+								internalType: "string",
+								name: "ref",
+								type: "string",
+							},
+						],
+						name: "transfer",
+						outputs: [
+							{
+								internalType: "bool",
+								name: "",
+								type: "bool",
+							},
+						],
+						stateMutability: "payable",
+						type: "function",
+					},
+				] as const;
+
 				writeHash = await writeContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
-					abi: BridgedFrankencoinABI,
+					abi: overwriteABI,
 					functionName: "transfer",
-					args: [
-						BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector),
-						recipient,
-						amount,
-						{
-							gasLimit: BigInt(300_000),
-							allowOutOfOrderExecution: true,
-						},
-					],
-					value: parseEther("2"),
+					args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, reference],
+					value: ccipFee,
 				});
 			}
 

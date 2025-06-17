@@ -15,6 +15,7 @@ import { useUserAllowance } from "../../hooks/useUserAllowance";
 interface Props {
 	recipient: Address;
 	recipientChain: string;
+	ccipFee: bigint;
 	addReference?: boolean;
 	reference: string;
 	amount: bigint;
@@ -25,6 +26,7 @@ interface Props {
 export default function TransferActionMainnet({
 	recipientChain,
 	recipient,
+	ccipFee,
 	reference,
 	addReference = false,
 	amount,
@@ -120,6 +122,7 @@ export default function TransferActionMainnet({
 					abi: TransferReferenceABI,
 					functionName: "crossTransfer",
 					args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, addReference ? reference : ""],
+					value: ccipFee,
 				});
 			}
 
