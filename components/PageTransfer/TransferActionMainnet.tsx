@@ -122,7 +122,7 @@ export default function TransferActionMainnet({
 					abi: TransferReferenceABI,
 					functionName: "crossTransfer",
 					args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, addReference ? reference : ""],
-					value: ccipFee,
+					value: (ccipFee * 12n) / 10n, // @dev add 20% more. Low level call will return unused amount.
 				});
 			}
 
