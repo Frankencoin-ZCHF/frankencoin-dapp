@@ -112,7 +112,7 @@ export default function TransferActionSidechain({
 					abi: overwriteABI,
 					functionName: "transfer",
 					args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, reference],
-					value: ccipFee,
+					value: (ccipFee * 12n) / 10n, // @dev add 20% more. Low level call will return unused amount.
 				});
 			}
 

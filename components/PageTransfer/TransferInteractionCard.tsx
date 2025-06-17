@@ -14,6 +14,7 @@ import TransferActionSidechain from "./TransferActionSidechain";
 import { useUserBalance } from "../../hooks/useUserBalance";
 import AppToggle from "@components/AppToggle";
 import { readContract } from "wagmi/actions";
+import TransferDetailsCard from "./TransferDetailsCard";
 
 export default function TransferInteractionCard() {
 	const router = useRouter();
@@ -48,6 +49,11 @@ export default function TransferInteractionCard() {
 			const targetChain = WAGMI_CHAINS.find((c) => c.name.toLowerCase() == recipientChain.toLowerCase());
 			if (!targetChain) throw new Error("targetChain not found");
 
+			if (targetChain.id == chainId) {
+				setCcipFee(0n);
+				return;
+			}
+
 			const getCCIPFee = await readContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
 				abi: BridgedFrankencoinABI,
@@ -79,75 +85,75 @@ export default function TransferInteractionCard() {
 	const isDisabled = !isAddress(recipient) || (refToggle && reference.length == 0) || amount == 0n || errorAmount() != "";
 
 	return (
-		<div className="md:mt-8">
-			<section className="mx-auto max-w-2xl sm:px-8">
-				<AppCard>
-					<div className="mt-4 text-lg font-bold text-center">Transfer Parameters</div>
+		<section className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-auto">
+			<AppCard>
+				<div className="mt-4 text-lg font-bold text-center">Transfer Parameters</div>
 
-					<AddressInputChain
-						label="Recipient"
-						placeholder="0x1a2b3c..."
-						value={recipient}
-						onChange={setRecipient}
-						own={address}
-						error={errorRecipient()}
-						chain={recipientChain}
-						chainOnChange={setRecipientChain}
-					/>
+				<AddressInputChain
+					label="Recipient"
+					placeholder="0x1a2b3c..."
+					value={recipient}
+					onChange={setRecipient}
+					own={address}
+					error={errorRecipient()}
+					chain={recipientChain}
+					chainOnChange={setRecipientChain}
+				/>
 
-					<TokenInput
-						symbol="ZCHF"
-						label="Amount"
-						chain={chain?.name || WAGMI_CHAIN.name}
-						value={amount.toString()}
-						digit={18}
-						onChange={onChangeAmount}
-						max={balance}
-						reset={0n}
-						limit={balance}
-						limitDigit={18}
-						limitLabel="Balance"
-						error={errorAmount()}
-					/>
+				<TokenInput
+					symbol="ZCHF"
+					label="Amount"
+					chain={chain?.name || WAGMI_CHAIN.name}
+					value={amount.toString()}
+					digit={18}
+					onChange={onChangeAmount}
+					max={balance}
+					reset={0n}
+					limit={balance}
+					limitDigit={18}
+					limitLabel="Balance"
+					error={errorAmount()}
+				/>
 
-					<div className="">
-						{refToggle ? (
-							<AddressInput
-								label="Reference"
-								placeholder="Invoice 123"
-								value={reference}
-								onChange={setReference}
-								isTextLeft={true}
-							/>
-						) : null}
-						<AppToggle disabled={false} label="Add Reference" enabled={refToggle} onChange={setRefToggle} />
-					</div>
-
-					{isMainnetChain ? (
-						<TransferActionMainnet
-							recipientChain={recipientChain}
-							recipient={recipient as Address}
-							ccipFee={ccipFee}
-							addReference={refToggle}
-							reference={reference}
-							amount={amount}
-							disabled={isDisabled}
-							setLoaded={setLoaded}
+				<div className="">
+					{refToggle ? (
+						<AddressInput
+							label="Reference"
+							placeholder="Invoice 123"
+							value={reference}
+							onChange={setReference}
+							isTextLeft={true}
 						/>
-					) : (
-						<TransferActionSidechain
-							recipientChain={recipientChain}
-							addReference={refToggle}
-							ccipFee={ccipFee}
-							recipient={recipient as Address}
-							reference={reference}
-							amount={amount}
-							disabled={isDisabled}
-							setLoaded={setLoaded}
-						/>
-					)}
-				</AppCard>
-			</section>
-		</div>
+					) : null}
+					<AppToggle disabled={false} label="Add Reference" enabled={refToggle} onChange={setRefToggle} />
+				</div>
+
+				{isMainnetChain ? (
+					<TransferActionMainnet
+						recipientChain={recipientChain}
+						recipient={recipient as Address}
+						ccipFee={ccipFee}
+						addReference={refToggle}
+						reference={reference}
+						amount={amount}
+						disabled={isDisabled}
+						setLoaded={setLoaded}
+					/>
+				) : (
+					<TransferActionSidechain
+						recipientChain={recipientChain}
+						addReference={refToggle}
+						ccipFee={ccipFee}
+						recipient={recipient as Address}
+						reference={reference}
+						amount={amount}
+						disabled={isDisabled}
+						setLoaded={setLoaded}
+					/>
+				)}
+			</AppCard>
+
+			<TransferDetailsCard chain={chain} recipientChainName={recipientChain} ccipFee={ccipFee} />
+		</section>
 	);
 }
