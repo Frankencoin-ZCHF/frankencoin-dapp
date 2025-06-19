@@ -147,11 +147,11 @@ export default function ReportPage() {
 			</AppTitle>
 
 			<AppCard>
-				<div className="grid md:gap-8 md:grid-cols-2 items-center -mb-4">
+				<div className="grid md:gap-8 md:grid-cols-3 items-center -mb-4">
 					<DateInput className="" label="Current Date" value={new Date()} disabled={true} />
 
 					<AddressInput
-						className=""
+						className="col-span-2"
 						label="Address of Interest"
 						value={reportingAddress}
 						onChange={setReportingAddress}

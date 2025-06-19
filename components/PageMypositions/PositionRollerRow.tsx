@@ -10,6 +10,7 @@ import { useAccount, useBlockNumber } from "wagmi";
 import PositionRollerApproveAction from "./PositionRollerApproveAction";
 import PositionRollerFullRollAction from "./PositionRollerFullRollAction";
 import AppLink from "@components/AppLink";
+import { mainnet } from "viem/chains";
 
 interface Props {
 	headers: string[];
@@ -30,9 +31,10 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 		const fetcher = async function () {
 			const allowance = await readContract(WAGMI_CONFIG, {
 				address: target.collateral,
+				chainId: mainnet.id,
 				abi: ERC20ABI,
 				functionName: "allowance",
-				args: [account, ADDRESS[WAGMI_CHAIN.id].roller],
+				args: [account, ADDRESS[mainnet.id].rollerV2],
 			});
 
 			setUserCollAllowance(allowance);

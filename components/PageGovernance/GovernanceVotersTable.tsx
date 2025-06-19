@@ -8,10 +8,11 @@ import { useFPSHolders } from "@hooks";
 import { useVotingPowers } from "@hooks";
 import GovernanceVotersRow from "./GovernanceVotersRow";
 
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
+import { mainnet } from "viem/chains";
 
 export type VoteData = {
 	holder: Address;
@@ -35,6 +36,7 @@ export default function GovernanceVotersTable() {
 	const [list, setList] = useState<VoteData[]>([]);
 
 	const account = useAccount();
+	const chainId = mainnet.id;
 	const fpsHolders = useFPSHolders();
 	const votingPowersHook = useVotingPowers(fpsHolders.holders);
 	const votesTotal = votingPowersHook.totalVotes;
@@ -55,21 +57,24 @@ export default function GovernanceVotersTable() {
 
 		const fetcher = async function () {
 			const fps = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[WAGMI_CHAIN.id].equity,
+				address: ADDRESS[mainnet.id].equity,
+				chainId: chainId,
 				abi: EquityABI,
 				functionName: "balanceOf",
 				args: [holder],
 			});
 
 			const votingPowerRatio = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[WAGMI_CHAIN.id].equity,
+				address: ADDRESS[mainnet.id].equity,
+				chainId: chainId,
 				abi: EquityABI,
 				functionName: "relativeVotes",
 				args: [holder],
 			});
 
 			const holdingDuration = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[WAGMI_CHAIN.id].equity,
+				address: ADDRESS[mainnet.id].equity,
+				chainId: chainId,
 				abi: EquityABI,
 				functionName: "holdingDuration",
 				args: [holder],
@@ -87,7 +92,7 @@ export default function GovernanceVotersTable() {
 		};
 
 		fetcher();
-	}, [account, votesTotal]);
+	}, [account, votesTotal, chainId]);
 
 	const matchingVotes: VoteData[] = votesData.filter((v) => v.holder.toLowerCase() !== account.address?.toLowerCase());
 	const votesDataSorted: VoteData[] = sortVotes({
