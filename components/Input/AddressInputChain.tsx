@@ -11,7 +11,7 @@ interface Props {
 	onChange?: (value: string) => void;
 	onOwn?: () => void;
 	onReset?: () => void;
-	chainOnChange?: (value: string) => void;
+	onChangeChain?: (value: string) => void;
 	limitLabel?: string;
 	own?: string;
 	reset?: string;
@@ -31,7 +31,7 @@ export default function AddressInputChain({
 	onChange = () => {},
 	onOwn = () => {},
 	onReset = () => {},
-	chainOnChange = () => {},
+	onChangeChain = () => {},
 	limitLabel,
 	own,
 	reset,
@@ -52,7 +52,7 @@ export default function AddressInputChain({
 			<div
 				className={`group border-card-input-border hover:border-card-input-hover focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
-				} text-text-secondary border-2 rounded-lg px-3 py-1`}
+				} text-text-secondary border-2 rounded-lg px-3 py-1 ${disabled ? "bg-card-input-disabled" : ""}`}
 				onClick={handleClick}
 			>
 				<div className="flex text-card-input-label my-1">{label}</div>
@@ -62,7 +62,7 @@ export default function AddressInputChain({
 						ref={inputRef}
 						className={`md:col-span-4 w-full py-2 text-lg text-left bg-transparent truncate ${
 							error ? "text-card-input-error" : "text-text-primary"
-						}`}
+						} ${disabled ? "bg-card-input-disabled" : ""}`}
 						placeholder={placeholder}
 						value={value}
 						onChange={(e) => onChange?.(e.target.value)}
@@ -71,7 +71,12 @@ export default function AddressInputChain({
 					/>
 
 					<div className="md:col-span-2">
-						<ChainBySelect chains={WAGMI_CHAINS.map((c) => c.name)} chain={chain} chainOnChange={chainOnChange} />
+						<ChainBySelect
+							chains={WAGMI_CHAINS.map((c) => c.name)}
+							chain={chain}
+							chainOnChange={onChangeChain}
+							invertColors={disabled}
+						/>
 					</div>
 				</div>
 

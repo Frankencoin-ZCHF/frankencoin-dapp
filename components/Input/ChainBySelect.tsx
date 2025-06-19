@@ -1,7 +1,4 @@
 import ChainLogo from "@components/ChainLogo";
-import TokenLogo from "@components/TokenLogo";
-import { faArrowDownWideShort, faArrowUpShortWide } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Select, { components } from "react-select";
 
 type OptionEntry = {
@@ -15,9 +12,18 @@ interface ChainBySelectProps {
 	chain: string;
 	reverse?: boolean;
 	chainOnChange?: Function;
+	disabled?: boolean;
+	invertColors?: boolean;
 }
 
-export default function ChainBySelect({ chains, chain, reverse = false, chainOnChange }: ChainBySelectProps) {
+export default function ChainBySelect({
+	chains,
+	chain,
+	reverse = false,
+	chainOnChange,
+	disabled = false,
+	invertColors = false,
+}: ChainBySelectProps) {
 	const options = chains.map((o): OptionEntry => {
 		return { value: o, label: o, reverse };
 	});
@@ -47,7 +53,7 @@ export default function ChainBySelect({ chains, chain, reverse = false, chainOnC
 					}),
 					control: (baseStyles, state) => ({
 						...baseStyles,
-						backgroundColor: "#F5F6F9",
+						backgroundColor: invertColors ? "#FFFFFF" : "#F5F6F9",
 						borderRadius: "0.5rem", // This makes the main control rounder
 						borderWidth: "0",
 						boxShadow: "none", // Remove the focus shadow
