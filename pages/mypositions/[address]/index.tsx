@@ -21,6 +21,7 @@ import AppCard from "@components/AppCard";
 import AppLink from "@components/AppLink";
 import MyPositionsNotFound from "@components/PageMypositions/MyPositionsNotFound";
 import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -35,6 +36,7 @@ export default function PositionAdjust() {
 	const { data } = useBlockNumber({ watch: true });
 	const account = useAccount();
 	const router = useRouter();
+	const chainId = mainnet.id;
 
 	const addressQuery: Address = router.query.address as Address;
 
@@ -66,6 +68,7 @@ export default function PositionAdjust() {
 			if (acc !== undefined) {
 				const _balanceFranc = await readContract(WAGMI_CONFIG, {
 					address: ADDRESS[mainnet.id].frankencoin,
+					chainId,
 					abi: erc20Abi,
 					functionName: "balanceOf",
 					args: [acc],
@@ -74,6 +77,7 @@ export default function PositionAdjust() {
 
 				const _balanceColl = await readContract(WAGMI_CONFIG, {
 					address: position.collateral,
+					chainId,
 					abi: erc20Abi,
 					functionName: "balanceOf",
 					args: [acc],
@@ -82,6 +86,7 @@ export default function PositionAdjust() {
 
 				const _allowanceColl = await readContract(WAGMI_CONFIG, {
 					address: position.collateral,
+					chainId,
 					abi: erc20Abi,
 					functionName: "allowance",
 					args: [acc, position.position],
@@ -91,6 +96,7 @@ export default function PositionAdjust() {
 
 			const _balanceChallenge = await readContract(WAGMI_CONFIG, {
 				address: position.position,
+				chainId,
 				abi: position.version === 1 ? PositionV1ABI : PositionV2ABI,
 				functionName: "challengedAmount",
 			});
@@ -98,7 +104,7 @@ export default function PositionAdjust() {
 		};
 
 		fetchAsync();
-	}, [data, account.address, position]);
+	}, [data, account.address, position, chainId]);
 
 	// ---------------------------------------------------------------------------
 	if (!position) return <MyPositionsNotFound query={addressQuery} />;
@@ -198,6 +204,7 @@ export default function PositionAdjust() {
 
 			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: position.collateral as Address,
+				chainId,
 				abi: erc20Abi,
 				functionName: "approve",
 				args: [position.position, maxUint256],
@@ -239,6 +246,7 @@ export default function PositionAdjust() {
 
 			const adjustWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: position.position,
+				chainId,
 				abi: position.version == 2 ? PositionV2ABI : PositionV1ABI,
 				functionName: "adjust",
 				args: [amount, collateralAmount, liqPrice],
@@ -455,7 +463,7 @@ export default function PositionAdjust() {
 							</div>
 
 							<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-								<GuardToAllowedChainBtn>
+								<GuardSupportedChain chain={mainnet}>
 									{collateralAmount - BigInt(position.collateralBalance) > userCollAllowance ? (
 										<Button isLoading={isApproving} onClick={() => handleApprove()}>
 											Approve Collateral
@@ -476,7 +484,7 @@ export default function PositionAdjust() {
 											Adjust Position
 										</Button>
 									)}
-								</GuardToAllowedChainBtn>
+								</GuardSupportedChain>
 							</div>
 						</div>
 					</div>

@@ -17,6 +17,7 @@ import AppCard from "@components/AppCard";
 import { ADDRESS, FrankencoinABI, StablecoinBridgeABI } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
 import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 export default function Swap() {
 	const [amount, setAmount] = useState(0n);
@@ -46,6 +47,7 @@ export default function Swap() {
 		const fetcher = async () => {
 			const active = await readContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].frankencoin,
+				chainId,
 				abi: FrankencoinABI,
 				functionName: "minters",
 				args: [bridge],
@@ -84,6 +86,7 @@ export default function Swap() {
 			setApproving(true);
 			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: other,
+				chainId,
 				abi: erc20Abi,
 				functionName: "approve",
 				args: [bridge, maxUint256],
@@ -123,6 +126,7 @@ export default function Swap() {
 			setMinting(true);
 			const mintWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: bridge,
+				chainId,
 				abi: StablecoinBridgeABI,
 				functionName: "mint",
 				args: [amount],
@@ -163,6 +167,7 @@ export default function Swap() {
 
 			const burnWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: bridge,
+				chainId,
 				abi: StablecoinBridgeABI,
 				functionName: "burn",
 				args: [amount],
@@ -257,7 +262,7 @@ export default function Swap() {
 						/>
 
 						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-							<GuardToAllowedChainBtn>
+							<GuardSupportedChain chain={mainnet}>
 								{direction ? (
 									amount > swapStats.otherUserAllowance ? (
 										<Button disabled={!activeMinter || !!error} isLoading={isApproving} onClick={() => handleApprove()}>
@@ -277,7 +282,7 @@ export default function Swap() {
 										Swap
 									</Button>
 								)}
-							</GuardToAllowedChainBtn>
+							</GuardSupportedChain>
 						</div>
 
 						<div className="mt-6">

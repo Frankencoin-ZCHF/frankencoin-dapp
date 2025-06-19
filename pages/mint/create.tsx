@@ -21,6 +21,7 @@ import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
 import { useRouter as useNavigation } from "next/navigation";
 import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
@@ -63,6 +64,7 @@ export default function PositionCreate({}) {
 		const fetchAsync = async function () {
 			const _allowance = await readContract(WAGMI_CONFIG, {
 				address: collateralAddress as Address,
+				chainId,
 				abi: erc20Abi,
 				functionName: "allowance",
 				args: [acc, ADDRESS[chainId].mintingHubV2],
@@ -222,6 +224,7 @@ export default function PositionCreate({}) {
 
 			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: collTokenData.address,
+				chainId,
 				abi: erc20Abi,
 				functionName: "approve",
 				args: [ADDRESS[chainId].mintingHubV2, maxUint256],
@@ -262,6 +265,7 @@ export default function PositionCreate({}) {
 			setIsConfirming("open");
 			const openWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].mintingHubV2,
+				chainId,
 				abi: MintingHubV2ABI,
 				functionName: "openPosition",
 				args: [
@@ -307,6 +311,7 @@ export default function PositionCreate({}) {
 			});
 
 			const receipt = await waitForTransactionReceipt(WAGMI_CONFIG, {
+				chainId,
 				hash: openWriteHash,
 				confirmations: 1,
 			});
@@ -357,7 +362,7 @@ export default function PositionCreate({}) {
 								value={proposalFee.toString()}
 								onChange={onChangeProposalFee}
 								digit={0}
-								error={userBalance.frankenBalance < BigInt(1000 * 1e18) ? "Not enough ZCHF" : ""}
+								error={userBalance[mainnet.id].frankencoin < BigInt(1000 * 1e18) ? "Not enough ZCHF" : ""}
 								disabled={true}
 								placeholder="Amount"
 							/>
@@ -503,7 +508,7 @@ export default function PositionCreate({}) {
 					</div>
 				</section>
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-					<GuardToAllowedChainBtn label="Propose Position">
+					<GuardSupportedChain label="Propose Position" chain={mainnet}>
 						<Button
 							disabled={minCollAmount == 0n || userAllowance < initialCollAmount || initialCollAmount == 0n || hasFormError()}
 							isLoading={isConfirming == "open"}
@@ -511,7 +516,7 @@ export default function PositionCreate({}) {
 						>
 							Propose Position
 						</Button>
-					</GuardToAllowedChainBtn>
+					</GuardSupportedChain>
 				</div>
 			</div>
 		</>

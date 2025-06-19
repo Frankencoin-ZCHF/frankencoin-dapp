@@ -22,6 +22,7 @@ import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import AppLink from "@components/AppLink";
 import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 export default function PositionChallenge() {
 	const [amount, setAmount] = useState(0n);
@@ -55,6 +56,7 @@ export default function PositionChallenge() {
 		const fetchAsync = async function () {
 			const _balanceColl = await readContract(WAGMI_CONFIG, {
 				address: position.collateral,
+				chainId,
 				abi: erc20Abi,
 				functionName: "balanceOf",
 				args: [acc],
@@ -63,6 +65,7 @@ export default function PositionChallenge() {
 
 			const _allowanceColl = await readContract(WAGMI_CONFIG, {
 				address: position.collateral,
+				chainId,
 				abi: erc20Abi,
 				functionName: "allowance",
 				args: [acc, position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2],
@@ -115,6 +118,7 @@ export default function PositionChallenge() {
 
 			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: position.collateral as Address,
+				chainId,
 				abi: erc20Abi,
 				functionName: "approve",
 				args: [position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2, amount],
@@ -156,6 +160,7 @@ export default function PositionChallenge() {
 
 			const challengeWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2,
+				chainId,
 				abi: position.version === 1 ? MintingHubV1ABI : MintingHubV2ABI,
 				functionName: "challenge",
 				args: [position.position, amount, BigInt(position.price)],
@@ -272,7 +277,7 @@ export default function PositionChallenge() {
 							</AppBox>
 						</div>
 						<div className="mx-auto mt-4 w-[20rem] max-w-full flex-col">
-							<GuardToAllowedChainBtn label={amount > userAllowance ? "Approve" : "Challenge"}>
+							<GuardSupportedChain label={amount > userAllowance ? "Approve" : "Challenge"} chain={mainnet}>
 								{amount > userAllowance ? (
 									<Button isLoading={isApproving} disabled={!!error} onClick={() => handleApprove()}>
 										Approve
@@ -282,7 +287,7 @@ export default function PositionChallenge() {
 										Challenge
 									</Button>
 								)}
-							</GuardToAllowedChainBtn>
+							</GuardSupportedChain>
 						</div>
 					</div>
 					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">

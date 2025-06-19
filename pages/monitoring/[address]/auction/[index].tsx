@@ -22,6 +22,7 @@ import { ChallengesId } from "@frankencoin/api";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import AppLink from "@components/AppLink";
 import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 export default function ChallengePlaceBid() {
 	const [isInit, setInit] = useState(false);
@@ -58,6 +59,7 @@ export default function ChallengePlaceBid() {
 			if (acc !== undefined) {
 				const _balance = await readContract(WAGMI_CONFIG, {
 					address: ADDR.frankencoin,
+					chainId,
 					abi: FrankencoinABI,
 					functionName: "balanceOf",
 					args: [acc],
@@ -67,6 +69,7 @@ export default function ChallengePlaceBid() {
 
 			const _price = await readContract(WAGMI_CONFIG, {
 				address: position.version === 1 ? ADDR.mintingHubV1 : ADDR.mintingHubV2,
+				chainId,
 				abi: position.version === 1 ? MintingHubV1ABI : MintingHubV2ABI,
 				functionName: "price",
 				args: [parseInt(challenge.number.toString())],
@@ -129,6 +132,7 @@ export default function ChallengePlaceBid() {
 
 			const bidWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2,
+				chainId,
 				abi: position.version === 1 ? MintingHubV1ABI : MintingHubV2ABI,
 				functionName: "bid",
 				args: [parseInt(challenge.number.toString()), amount, false],
@@ -261,7 +265,7 @@ export default function ChallengePlaceBid() {
 							</AppBox>
 						</div>
 						<div className="mx-auto mt-4 w-[20rem] max-w-full flex-col">
-							<GuardToAllowedChainBtn label="Buy">
+							<GuardSupportedChain label="Buy" chain={mainnet}>
 								<Button
 									disabled={amount == 0n || expectedZCHF > userBalance || error != ""}
 									isLoading={isBidding}
@@ -269,7 +273,7 @@ export default function ChallengePlaceBid() {
 								>
 									Buy
 								</Button>
-							</GuardToAllowedChainBtn>
+							</GuardSupportedChain>
 						</div>
 					</div>
 				</section>

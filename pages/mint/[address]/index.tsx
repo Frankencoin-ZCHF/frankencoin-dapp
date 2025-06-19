@@ -20,6 +20,7 @@ import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
 import { useRouter as useNavigation } from "next/navigation";
 import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
@@ -69,6 +70,7 @@ export default function PositionBorrow({}) {
 		const fetchAsync = async function () {
 			const _balance = await readContract(WAGMI_CONFIG, {
 				address: position.collateral,
+				chainId,
 				abi: erc20Abi,
 				functionName: "balanceOf",
 				args: [acc],
@@ -77,6 +79,7 @@ export default function PositionBorrow({}) {
 
 			const _allowance = await readContract(WAGMI_CONFIG, {
 				address: position.collateral,
+				chainId,
 				abi: erc20Abi,
 				functionName: "allowance",
 				args: [acc, position.version == 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2],
@@ -208,6 +211,7 @@ export default function PositionBorrow({}) {
 			if (position.version == 1) {
 				cloneWriteHash = await writeContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId].mintingHubV1,
+					chainId,
 					abi: MintingHubV1ABI,
 					functionName: "clone",
 					args: [position.position, requiredColl, amount, BigInt(expirationTime)],
@@ -215,6 +219,7 @@ export default function PositionBorrow({}) {
 			} else if (position.version == 2) {
 				cloneWriteHash = await writeContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId].mintingHubV2,
+					chainId,
 					abi: MintingHubV2ABI,
 					functionName: "clone",
 					args: [position.position, requiredColl, amount, expirationTime],
@@ -246,6 +251,7 @@ export default function PositionBorrow({}) {
 			});
 
 			const receipt = await waitForTransactionReceipt(WAGMI_CONFIG, {
+				chainId,
 				hash: cloneWriteHash,
 				confirmations: 1,
 			});
@@ -330,7 +336,7 @@ export default function PositionBorrow({}) {
 							/>
 						</div>
 						<div className="mx-auto w-72 max-w-full flex-col">
-							<GuardToAllowedChainBtn label={amount > userAllowance ? "Approve" : "Mint"}>
+							<GuardSupportedChain label={amount > userAllowance ? "Approve" : "Mint"} chain={mainnet}>
 								{requiredColl > userAllowance ? (
 									<Button
 										disabled={requiredColl > userBalance || !!error}
@@ -348,7 +354,7 @@ export default function PositionBorrow({}) {
 										Mint
 									</Button>
 								)}
-							</GuardToAllowedChainBtn>
+							</GuardSupportedChain>
 						</div>
 					</div>
 					<div>

@@ -21,6 +21,7 @@ import { ADDRESS, FrankencoinABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import AppLink from "@components/AppLink";
 import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 export default function MonitoringForceSell() {
 	const [isInit, setInit] = useState(false);
@@ -50,6 +51,7 @@ export default function MonitoringForceSell() {
 			if (acc !== undefined) {
 				const _balance = await readContract(WAGMI_CONFIG, {
 					address: ADDR.frankencoin,
+					chainId,
 					abi: FrankencoinABI,
 					functionName: "balanceOf",
 					args: [acc],
@@ -59,6 +61,7 @@ export default function MonitoringForceSell() {
 
 			const _price = await readContract(WAGMI_CONFIG, {
 				address: ADDR.mintingHubV2,
+				chainId,
 				abi: MintingHubV2ABI,
 				functionName: "expiredPurchasePrice",
 				args: [position.position],
@@ -114,6 +117,7 @@ export default function MonitoringForceSell() {
 
 			const bidWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].mintingHubV2,
+				chainId,
 				abi: MintingHubV2ABI,
 				functionName: "buyExpiredCollateral",
 				args: [position.position, amount],
@@ -232,7 +236,7 @@ export default function MonitoringForceSell() {
 						</div>
 						<div className="mx-auto mt-4 w-[20rem] max-w-full flex-col">
 							{/* Override lable here */}
-							<GuardToAllowedChainBtn label="Force Sell">
+							<GuardSupportedChain label="Force Sell" chain={mainnet}>
 								<Button
 									disabled={amount == 0n || expectedZCHF() > userBalance || error != ""}
 									isLoading={isBidding}
@@ -240,7 +244,7 @@ export default function MonitoringForceSell() {
 								>
 									Force Sell
 								</Button>
-							</GuardToAllowedChainBtn>
+							</GuardSupportedChain>
 						</div>
 					</div>
 				</section>

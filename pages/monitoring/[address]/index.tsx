@@ -43,6 +43,7 @@ export default function PositionDetail() {
 		const fetchAsync = async function () {
 			const data = await readContract(WAGMI_CONFIG, {
 				address: position.zchf,
+				chainId,
 				abi: FrankencoinABI,
 				functionName: "calculateAssignedReserve",
 				args: [BigInt(position.minted), position.reserveContribution],
@@ -52,7 +53,7 @@ export default function PositionDetail() {
 		};
 
 		fetchAsync();
-	}, [position]);
+	}, [position, chainId]);
 
 	if (!position) return;
 
