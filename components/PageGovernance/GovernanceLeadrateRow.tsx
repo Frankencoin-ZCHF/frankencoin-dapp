@@ -13,6 +13,7 @@ import { renderErrorTxToast, renderErrorTxToastDecode, TxToast } from "@componen
 import AppLink from "@components/AppLink";
 import { ContractUrl, TxUrl } from "@utils";
 import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 interface Props {
 	headers: string[];
@@ -44,6 +45,7 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].savingsReferral,
+				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "applyChange",
 				args: [],
@@ -89,6 +91,7 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].savingsReferral,
+				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "proposeChange",
 				args: [info.rate, []],
@@ -136,7 +139,7 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 				actionCol={
 					currentProposal && info.isProposal ? (
 						info.isPending ? (
-							<GuardToAllowedChainBtn label="Deny" disabled={!info.isPending || !info.isProposal}>
+							<GuardSupportedChain label="Deny" disabled={!info.isPending || !info.isProposal} chain={mainnet}>
 								<Button
 									className="h-10"
 									disabled={!info.isPending || !info.isProposal || isHidden}
@@ -145,9 +148,9 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 								>
 									Deny
 								</Button>
-							</GuardToAllowedChainBtn>
+							</GuardSupportedChain>
 						) : !info.isPending ? (
-							<GuardToAllowedChainBtn label="Apply" disabled={!info.isProposal}>
+							<GuardSupportedChain label="Apply" disabled={!info.isProposal} chain={mainnet}>
 								<Button
 									className="h-10"
 									disabled={!info.isProposal || isHidden}
@@ -156,7 +159,7 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 								>
 									Apply
 								</Button>
-							</GuardToAllowedChainBtn>
+							</GuardSupportedChain>
 						) : (
 							<></>
 						)

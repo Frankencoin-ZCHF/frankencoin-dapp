@@ -52,6 +52,7 @@ export default function TransferActionMainnet({
 
 			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[mainnet.id].frankencoin,
+				chainId: mainnet.id,
 				abi: FrankencoinABI,
 				functionName: "approve",
 				args: [ADDRESS[mainnet.id].transferReference, maxUint256],
@@ -100,6 +101,7 @@ export default function TransferActionMainnet({
 				// transfer with reference
 				writeHash = await writeContract(WAGMI_CONFIG, {
 					address: ADDRESS[mainnet.id].transferReference,
+					chainId: mainnet.id,
 					abi: TransferReferenceABI,
 					functionName: "transfer",
 					args: [recipient, amount, reference],
@@ -108,6 +110,7 @@ export default function TransferActionMainnet({
 				// normal frankencoin transfer
 				writeHash = await writeContract(WAGMI_CONFIG, {
 					address: ADDRESS[mainnet.id].frankencoin,
+					chainId: mainnet.id,
 					abi: FrankencoinABI,
 					functionName: "transfer",
 					args: [recipient, amount],
@@ -119,6 +122,7 @@ export default function TransferActionMainnet({
 
 				writeHash = await writeContract(WAGMI_CONFIG, {
 					address: ADDRESS[mainnet.id].transferReference,
+					chainId: mainnet.id,
 					abi: TransferReferenceABI,
 					functionName: "crossTransfer",
 					args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, addReference ? reference : ""],

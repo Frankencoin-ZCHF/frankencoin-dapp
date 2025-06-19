@@ -18,6 +18,7 @@ import AppToggle from "@components/AppToggle";
 import AddressInput from "@components/Input/AddressInput";
 import SavingsActionSaveOnBehalf from "./SavingsActionSaveOnBehalf";
 import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 export default function SavingsInteractionCard() {
 	const [amount, setAmount] = useState(0n);
@@ -56,6 +57,7 @@ export default function SavingsInteractionCard() {
 		const fetchAsync = async function () {
 			const _balance = await readContract(WAGMI_CONFIG, {
 				address: ADDR.frankencoin,
+				chainId: chainId,
 				abi: FrankencoinABI,
 				functionName: "balanceOf",
 				args: [account],
@@ -64,6 +66,7 @@ export default function SavingsInteractionCard() {
 
 			const [_userSavings, _userTicks] = await readContract(WAGMI_CONFIG, {
 				address: ADDR.savingsReferral,
+				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "savings",
 				args: [account],
@@ -73,6 +76,7 @@ export default function SavingsInteractionCard() {
 
 			const _current = await readContract(WAGMI_CONFIG, {
 				address: ADDR.savingsReferral,
+				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "currentTicks",
 			});
@@ -93,7 +97,7 @@ export default function SavingsInteractionCard() {
 		};
 
 		fetchAsync();
-	}, [data, account, ADDR, isLoaded, leadrate]);
+	}, [data, account, ADDR, isLoaded, leadrate, chainId]);
 
 	useEffect(() => {
 		setLoaded(false);
@@ -160,15 +164,15 @@ export default function SavingsInteractionCard() {
 
 				<div className="mx-auto my-4 w-72 max-w-full flex-col flex gap-4">
 					{onbehalfToggle ? (
-						<GuardToAllowedChainBtn label={"On Behalf"}>
+						<GuardSupportedChain label={"On Behalf"} chain={mainnet}>
 							<SavingsActionSaveOnBehalf
 								disabled={onbehalfError != "" || onbehalfAddress == ""}
 								amount={amount}
 								onBehalf={onbehalfAddress as Address}
 							/>
-						</GuardToAllowedChainBtn>
+						</GuardSupportedChain>
 					) : (
-						<GuardToAllowedChainBtn label={direction ? "Save" : "Withdraw"}>
+						<GuardSupportedChain label={direction ? "Save" : "Withdraw"} chain={mainnet}>
 							{userSavingsInterest > 0 && amount == userSavingsBalance ? (
 								<SavingsActionInterest disabled={!!error} balance={userSavingsBalance} interest={userSavingsInterest} />
 							) : amount > userSavingsBalance ? (
@@ -176,7 +180,7 @@ export default function SavingsInteractionCard() {
 							) : (
 								<SavingsActionWithdraw disabled={userSavingsBalance == 0n || !!error} balance={amount} change={change} />
 							)}
-						</GuardToAllowedChainBtn>
+						</GuardSupportedChain>
 					)}
 				</div>
 			</AppCard>

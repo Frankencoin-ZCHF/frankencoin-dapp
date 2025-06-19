@@ -18,6 +18,7 @@ import DisplayLabel from "@components/DisplayLabel";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import { LeadrateRateQuery } from "@frankencoin/api";
 import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 interface Props {}
@@ -63,6 +64,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].savingsReferral,
+				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "proposeChange",
 				args: [parseInt(String(newRate)), []],
@@ -223,7 +225,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 						onChange={changeNewRate}
 					/>
 
-					<GuardToAllowedChainBtn label="Propose" disabled={isDisabled || isHidden}>
+					<GuardSupportedChain label="Propose" disabled={isDisabled || isHidden} chain={mainnet}>
 						<Button
 							className="max-md:h-10 md:h-12"
 							disabled={isDisabled || isHidden}
@@ -232,7 +234,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 						>
 							Propose Change
 						</Button>
-					</GuardToAllowedChainBtn>
+					</GuardSupportedChain>
 				</div>
 			</AppCard>
 		</div>

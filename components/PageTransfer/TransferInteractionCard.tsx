@@ -15,11 +15,14 @@ import { useUserBalance } from "../../hooks/useUserBalance";
 import AppToggle from "@components/AppToggle";
 import { readContract } from "wagmi/actions";
 import TransferDetailsCard from "./TransferDetailsCard";
+import { AppKitNetwork } from "@reown/appkit/networks";
+import { useAppKitNetwork } from "@reown/appkit/react";
 
 export default function TransferInteractionCard() {
 	const router = useRouter();
 	const chainId = useChainId();
 	const { address } = useAccount();
+	const AppKitNetwork = useAppKitNetwork();
 	const chain = WAGMI_CHAINS.find((c) => c.id == chainId);
 	const isMainnetChain = chainId == mainnet.id;
 
@@ -82,6 +85,11 @@ export default function TransferInteractionCard() {
 		setAmount(valueBigInt);
 	};
 
+	const onChangeChain = (value: string) => {
+		const chain = WAGMI_CHAINS.find((c) => c.name == value) as AppKitNetwork;
+		if (chain != undefined) AppKitNetwork.switchNetwork(chain);
+	};
+
 	const isDisabled = !isAddress(recipient) || (refToggle && reference.length == 0) || amount == 0n || errorAmount() != "";
 
 	return (
@@ -89,16 +97,7 @@ export default function TransferInteractionCard() {
 			<AppCard>
 				<div className="mt-4 text-lg font-bold text-center">Transfer Parameters</div>
 
-				<AddressInputChain
-					label="Recipient"
-					placeholder="0x1a2b3c..."
-					value={recipient}
-					onChange={setRecipient}
-					own={address}
-					error={errorRecipient()}
-					chain={recipientChain}
-					chainOnChange={setRecipientChain}
-				/>
+				<AddressInputChain label="Sender" disabled={true} value={address} chain={chain?.name} onChangeChain={onChangeChain} />
 
 				<TokenInput
 					symbol="ZCHF"
@@ -115,6 +114,19 @@ export default function TransferInteractionCard() {
 					error={errorAmount()}
 				/>
 
+				<AddressInputChain
+					label="Recipient"
+					placeholder="0x1a2b3c..."
+					value={recipient}
+					onChange={setRecipient}
+					own={address}
+					error={errorRecipient()}
+					chain={recipientChain}
+					onChangeChain={setRecipientChain}
+				/>
+
+				<TokenInput symbol="ZCHF" label="Amount" chain={recipientChain} value={amount.toString()} digit={18} disabled={true} />
+
 				<div className="">
 					{refToggle ? (
 						<AddressInput
@@ -123,6 +135,7 @@ export default function TransferInteractionCard() {
 							value={reference}
 							onChange={setReference}
 							isTextLeft={true}
+							reset=""
 						/>
 					) : null}
 					<AppToggle disabled={false} label="Add Reference" enabled={refToggle} onChange={setRefToggle} />

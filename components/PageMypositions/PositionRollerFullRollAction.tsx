@@ -11,6 +11,7 @@ import { ADDRESS, ERC20ABI, PositionRollerV2ABI, PositionV2ABI } from "@frankenc
 import { PositionQuery } from "@frankencoin/api";
 import { zeroAddress } from "viem";
 import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 interface Props {
 	label?: string;
@@ -36,6 +37,7 @@ export default function PositionRollerFullRollAction({ label = "Roll", source, t
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[mainnet.id].rollerV2,
+				chainId: mainnet.id,
 				abi: PositionRollerV2ABI,
 				functionName: "rollFully",
 				args: [source.position, target.position],
@@ -75,10 +77,10 @@ export default function PositionRollerFullRollAction({ label = "Roll", source, t
 	};
 
 	return (
-		<GuardToAllowedChainBtn label={label} disabled={isHidden || disabled}>
+		<GuardSupportedChain label={label} disabled={isHidden || disabled} chain={mainnet}>
 			<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
 				{label}
 			</Button>
-		</GuardToAllowedChainBtn>
+		</GuardSupportedChain>
 	);
 }

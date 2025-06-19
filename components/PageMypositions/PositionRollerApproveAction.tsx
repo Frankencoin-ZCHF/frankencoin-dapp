@@ -11,6 +11,7 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { ADDRESS, ERC20ABI } from "@frankencoin/zchf";
 import { PositionQuery } from "@frankencoin/api";
 import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 interface Props {
 	source: PositionQuery;
@@ -31,6 +32,7 @@ export default function PositionRollerApproveAction({ source, disabled }: Props)
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: source.collateral,
+				chainId: mainnet.id,
 				abi: ERC20ABI,
 				functionName: "approve",
 				args: [ADDRESS[mainnet.id].rollerV2, maxUint256],
@@ -69,10 +71,10 @@ export default function PositionRollerApproveAction({ source, disabled }: Props)
 	};
 
 	return (
-		<GuardToAllowedChainBtn label="Approve" disabled={isHidden || disabled}>
+		<GuardSupportedChain label="Approve" disabled={isHidden || disabled} chain={mainnet}>
 			<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
 				Approve
 			</Button>
-		</GuardToAllowedChainBtn>
+		</GuardSupportedChain>
 	);
 }

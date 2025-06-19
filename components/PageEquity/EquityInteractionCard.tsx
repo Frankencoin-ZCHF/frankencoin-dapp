@@ -13,7 +13,6 @@ export const EquityTokenSelectorMapping: { [key: string]: string[] } = {
 
 export default function EquityInteractionCard() {
 	const [tokenFromTo, setTokenFromTo] = useState<{ from: string; to: string }>({ from: "ZCHF", to: "FPS" });
-	const { wFPS } = ADDRESS[mainnet.id];
 
 	return (
 		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">

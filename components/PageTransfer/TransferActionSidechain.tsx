@@ -111,7 +111,7 @@ export default function TransferActionSidechain({
 					address: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
 					abi: overwriteABI,
 					functionName: "transfer",
-					args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, reference],
+					args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, addReference ? reference : ""],
 					value: (ccipFee * 12n) / 10n, // @dev add 20% more. Low level call will return unused amount.
 				});
 			}

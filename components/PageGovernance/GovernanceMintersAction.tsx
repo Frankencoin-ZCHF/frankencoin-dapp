@@ -11,6 +11,7 @@ import { Address } from "viem";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { ADDRESS, EquityABI, FrankencoinABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 interface Props {
 	minter: MinterQuery;
@@ -36,6 +37,7 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].frankencoin,
+				chainId: chainId,
 				abi: FrankencoinABI,
 				functionName: "denyMinter",
 				args: [m, h, msg],
@@ -75,11 +77,11 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 
 	return (
 		<div className="">
-			<GuardToAllowedChainBtn label="Veto" disabled={isHidden || disabled}>
+			<GuardSupportedChain label="Veto" disabled={isHidden || disabled} chain={mainnet}>
 				<Button className="h-10" disabled={isHidden || disabled} isLoading={isVetoing} onClick={(e) => handleOnClick(e)}>
 					Veto
 				</Button>
-			</GuardToAllowedChainBtn>
+			</GuardSupportedChain>
 		</div>
 	);
 }

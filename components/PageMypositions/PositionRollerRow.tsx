@@ -31,6 +31,7 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 		const fetcher = async function () {
 			const allowance = await readContract(WAGMI_CONFIG, {
 				address: target.collateral,
+				chainId: mainnet.id,
 				abi: ERC20ABI,
 				functionName: "allowance",
 				args: [account, ADDRESS[mainnet.id].rollerV2],

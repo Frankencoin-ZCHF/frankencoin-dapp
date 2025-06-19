@@ -9,6 +9,7 @@ import Button from "@components/Button";
 import { Address, formatUnits } from "viem";
 import { ADDRESS, SavingsABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 interface Props {
 	balance: bigint;
@@ -35,6 +36,7 @@ export default function SavingsActionInterest({ balance, interest, disabled, set
 			 */
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].savingsReferral,
+				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "adjust",
 				args: [balance],
@@ -74,8 +76,10 @@ export default function SavingsActionInterest({ balance, interest, disabled, set
 	};
 
 	return (
-		<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
-			Adjust
-		</Button>
+		<GuardSupportedChain label="Adjust" chain={mainnet}>
+			<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
+				Adjust
+			</Button>
+		</GuardSupportedChain>
 	);
 }

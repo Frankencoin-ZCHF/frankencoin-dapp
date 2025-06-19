@@ -10,6 +10,7 @@ import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { VoteData } from "./GovernanceVotersTable";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 interface Props {
 	voter: VoteData;
@@ -33,6 +34,7 @@ export default function GovernanceVotersAction({ voter, disabled, connectedWalle
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].equity,
+				chainId: chainId,
 				abi: EquityABI,
 				functionName: "delegateVoteTo",
 				args: [voter.holder],
@@ -72,7 +74,7 @@ export default function GovernanceVotersAction({ voter, disabled, connectedWalle
 
 	return (
 		<div className="">
-			<GuardToAllowedChainBtn label={connectedWallet ? "Revoke" : "Delegate"} disabled={isHidden || disabled}>
+			<GuardSupportedChain label={connectedWallet ? "Revoke" : "Delegate"} disabled={isHidden || disabled} chain={mainnet}>
 				<div className="overflow-hidden">
 					<Button
 						className="h-10 scroll-nopeak"
@@ -83,7 +85,7 @@ export default function GovernanceVotersAction({ voter, disabled, connectedWalle
 						{connectedWallet ? "Revoke" : "Delegate"}
 					</Button>
 				</div>
-			</GuardToAllowedChainBtn>
+			</GuardSupportedChain>
 		</div>
 	);
 }

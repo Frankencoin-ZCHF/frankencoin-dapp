@@ -18,6 +18,7 @@ import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -49,6 +50,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 
 			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].frankencoin,
+				chainId: chainId,
 				abi: erc20Abi,
 				functionName: "approve",
 				args: [ADDRESS[chainId].equity, amount],
@@ -87,6 +89,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 		try {
 			const investWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].equity,
+				chainId: chainId,
 				abi: EquityABI,
 				functionName: "invest",
 				args: [amount, result],
@@ -128,6 +131,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 
 			const redeemWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].equity,
+				chainId: chainId,
 				abi: EquityABI,
 				functionName: "redeem",
 				args: [account, amount],
@@ -166,6 +170,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 
 	const { data: fpsResult, isLoading: shareLoading } = useReadContract({
 		address: ADDRESS[chainId].equity,
+		chainId: chainId,
 		abi: EquityABI,
 		functionName: "calculateShares",
 		args: [amount],
@@ -173,6 +178,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 
 	const { data: frankenResult, isLoading: proceedLoading } = useReadContract({
 		address: ADDRESS[chainId].equity,
+		chainId: chainId,
 		abi: EquityABI,
 		functionName: "calculateProceeds",
 		args: [amount],
@@ -246,7 +252,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 				<div className={`mt-2 px-1 transition-opacity ${(shareLoading || proceedLoading) && "opacity-50"}`}>{conversionNote()}</div>
 
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-					<GuardToAllowedChainBtn label={direction ? "Mint" : "Redeem"}>
+					<GuardSupportedChain label={direction ? "Mint" : "Redeem"} chain={mainnet}>
 						{direction ? (
 							amount > poolStats.frankenAllowance ? (
 								<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>
@@ -266,7 +272,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 								Redeem
 							</Button>
 						)}
-					</GuardToAllowedChainBtn>
+					</GuardSupportedChain>
 				</div>
 			</div>
 

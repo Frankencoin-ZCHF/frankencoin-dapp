@@ -17,6 +17,7 @@ import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { ADDRESS, EquityABI, FPSWrapperABI } from "@frankencoin/zchf";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -51,6 +52,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 			if (account != zeroAddress) {
 				const _fpsAllowance = await readContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId].equity,
+					chainId: chainId,
 					abi: erc20Abi,
 					functionName: "allowance",
 					args: [account, ADDRESS[chainId].wFPS],
@@ -59,6 +61,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 
 				const _fpsBalance = await readContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId].equity,
+					chainId: chainId,
 					abi: erc20Abi,
 					functionName: "balanceOf",
 					args: [account],
@@ -67,6 +70,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 
 				const _fpsHolding = await readContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId].equity,
+					chainId: chainId,
 					abi: EquityABI,
 					functionName: "holdingDuration",
 					args: [account],
@@ -75,6 +79,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 
 				const _wfpsBalance = await readContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId].wFPS,
+					chainId: chainId,
 					abi: erc20Abi,
 					functionName: "balanceOf",
 					args: [account],
@@ -84,6 +89,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 
 			const _wfpsHolding = await readContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].equity,
+				chainId: chainId,
 				abi: EquityABI,
 				functionName: "holdingDuration",
 				args: [ADDRESS[chainId].wFPS],
@@ -100,6 +106,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].equity,
+				chainId: chainId,
 				abi: erc20Abi,
 				functionName: "approve",
 				args: [ADDRESS[chainId].wFPS, amount],
@@ -140,6 +147,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].wFPS,
+				chainId: chainId,
 				abi: FPSWrapperABI,
 				functionName: "depositFor",
 				args: [account, amount],
@@ -181,6 +189,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].wFPS,
+				chainId: chainId,
 				abi: FPSWrapperABI,
 				functionName: "withdrawTo",
 				args: [account, amount],
@@ -273,7 +282,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 				</div>
 
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-					<GuardToAllowedChainBtn label={direction ? "Wrap" : "Unwrap"}>
+					<GuardSupportedChain label={direction ? "Wrap" : "Unwrap"} chain={mainnet}>
 						{direction ? (
 							amount > fpsAllowance ? (
 								<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>
@@ -289,7 +298,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 								Unwrap
 							</Button>
 						)}
-					</GuardToAllowedChainBtn>
+					</GuardSupportedChain>
 				</div>
 			</div>
 
