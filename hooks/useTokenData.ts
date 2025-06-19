@@ -8,6 +8,7 @@ export const useTokenData = (addr: string) => {
 	if (!isAddress(addr)) addr = zeroAddress;
 	const tokenAddress = getAddress(addr);
 	const { address } = useAccount();
+	const chainId = mainnet.id;
 
 	const account = address || zeroAddress;
 	const mintingHub = ADDRESS[mainnet.id].mintingHubV1;
@@ -15,27 +16,32 @@ export const useTokenData = (addr: string) => {
 		contracts: [
 			{
 				address: tokenAddress,
+				chainId,
 				abi: erc20Abi,
 				functionName: "name",
 			},
 			{
 				address: tokenAddress,
+				chainId,
 				abi: erc20Abi,
 				functionName: "symbol",
 			},
 			{
 				address: tokenAddress,
+				chainId,
 				abi: erc20Abi,
 				functionName: "decimals",
 			},
 			{
 				address: tokenAddress,
+				chainId,
 				abi: erc20Abi,
 				functionName: "balanceOf",
 				args: [account],
 			},
 			{
 				address: tokenAddress,
+				chainId,
 				abi: erc20Abi,
 				functionName: "allowance",
 				args: [account, mintingHub],

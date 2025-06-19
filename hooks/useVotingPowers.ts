@@ -17,6 +17,7 @@ export const useVotingPowers = (holders: FPSHolder[]) => {
 	holders.forEach((holder) => {
 		contractCalls.push({
 			address: ADDRESS[mainnet.id].equity,
+			chainId: mainnet.id,
 			abi: EquityABI,
 			functionName: "votes",
 			args: [holder.address],
@@ -26,6 +27,7 @@ export const useVotingPowers = (holders: FPSHolder[]) => {
 	holders.forEach((holder) => {
 		contractCalls.push({
 			address: ADDRESS[mainnet.id].equity,
+			chainId: mainnet.id,
 			abi: EquityABI,
 			functionName: "holdingDuration",
 			args: [holder.address],
@@ -34,6 +36,7 @@ export const useVotingPowers = (holders: FPSHolder[]) => {
 
 	contractCalls.push({
 		address: ADDRESS[mainnet.id].equity,
+		chainId: mainnet.id,
 		abi: EquityABI,
 		functionName: "totalVotes",
 	});

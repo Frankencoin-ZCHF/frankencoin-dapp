@@ -9,6 +9,7 @@ export const useGovStats = (helpers?: Address[]) => {
 
 	const equityContract = {
 		address: ADDRESS[mainnet.id].equity,
+		chainId: mainnet.id,
 		abi: EquityABI,
 	};
 

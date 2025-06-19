@@ -10,11 +10,13 @@ export const usePoolStats = () => {
 
 	const equityContract = {
 		address: ADDRESS[mainnet.id].equity,
+		chainId: mainnet.id,
 		abi: EquityABI,
 	};
 
 	const frankenContract = {
 		address: ADDRESS[mainnet.id].frankencoin,
+		chainId: mainnet.id,
 		abi: FrankencoinABI,
 	};
 
