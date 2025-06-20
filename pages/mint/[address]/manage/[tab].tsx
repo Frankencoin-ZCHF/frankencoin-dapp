@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import { CollateralManageSection } from "@components/PageMint/CollateralManageSection";
 import { BorrowedManageSection } from "@components/PageMint/BorrowedManageSection";
 import { ExpirationManageSection } from "@components/PageMint/ExpirationManageSection";
+import { PriceManageSection } from "@components/PageMint/PriceManageSection";
 import { toQueryString } from "@utils";
 import { getCarryOnQueryParams } from "@utils";
 import AppCard from "@components/AppCard";
@@ -16,6 +17,7 @@ enum Tab {
 	Collateral = "collateral",
 	Borrowed = "borrowed",
 	Expiration = "expiration",
+	Price = "price",
 }
 
 const renderContent = (tab: Tab) => {
@@ -26,11 +28,12 @@ const renderContent = (tab: Tab) => {
 			return <BorrowedManageSection />;
 		case Tab.Expiration:
 			return <ExpirationManageSection />;
+		case Tab.Price:
+			return <PriceManageSection />;
 		default:
 			return null;
 	}
 };
-
 
 export default function PositionManage() {
 	const router = useRouter();
@@ -39,21 +42,26 @@ export default function PositionManage() {
 	const carryOnQueryParams = getCarryOnQueryParams(router);
 	const { t } = useTranslation();
 
-	const tabs = useMemo(() => [
-		{
-			id: Tab.Collateral,
-			label: t("mint.collateral"),
-		},
-		{
-			id: Tab.Borrowed,
-			label: t("mint.borrowed"),
-		},
-		{
-			id: Tab.Expiration,
-			label: t("mint.expiration"),
+	const tabs = useMemo(
+		() => [
+			{
+				id: Tab.Collateral,
+				label: t("mint.collateral"),
+			},
+			{
+				id: Tab.Borrowed,
+				label: t("mint.borrowed"),
+			},
+			{
+				id: Tab.Expiration,
+				label: t("mint.expiration"),
+			},
+			{
+				id: Tab.Price,
+				label: t("mint.price"),
 			},
 		],
-		[t],
+		[t]
 	);
 
 	useEffect(() => {

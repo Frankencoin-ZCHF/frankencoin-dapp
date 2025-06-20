@@ -175,6 +175,9 @@
         "extend_roll_borrowing": "Prolonger/rouler l'emprunt",
         "extend_roll_borrowing_description": "La position doit être remboursée ou prolongée avant la date d'expiration.",
         "clone": "Cloner",
+        "price": "Prix",
+        "current_price": "Prix Actuel",
+        "adjust_price": "Ajuster le Prix",
         "error": {
             "could_not_obtain_token_data": "Impossible d'obtenir les données du token",
             "token_decimals_should_be_less_than_24": "Les décimales du token doivent être inférieures à 24.",
@@ -190,7 +193,9 @@
             "expiration_date_out_of_range": "La date d'expiration doit être comprise entre maintenant et la limite.",
             "amount_greater_than_position_balance": "Le montant est supérieur au solde de la position.",
             "amount_greater_than_max_to_remove": "Le montant est supérieur au montant maximum autorisé compte tenu de la dette actuelle",
-            "amount_greater_than_debt": "Le montant est supérieur à la dette"
+            "amount_greater_than_debt": "Le montant est supérieur à la dette",
+            "price_too_high": "Le prix ne peut pas dépasser le maximum autorisé",
+            "price_too_low": "Le prix ne peut pas être inférieur au minimum requis pour la garantie"
         },
         "txs": {
             "creating_position": "Création d'une nouvelle position",
@@ -204,7 +209,9 @@
             "pay_back": "Remboursement de {{symbol}}",
             "pay_back_success": "Remboursement de {{symbol}} réussi",
             "extending": "Prolongation de la position",
-            "extending_success": "Position prolongée avec succès"
+            "extending_success": "Position prolongée avec succès",
+            "adjusting_price": "Ajustement du prix de la position...",
+            "adjusting_price_success": "Prix de la position ajusté avec succès"
         }
     },
     "my_positions": {

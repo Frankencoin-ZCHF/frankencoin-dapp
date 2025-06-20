@@ -175,6 +175,9 @@
         "extend_roll_borrowing": "Extend/roll lending",
         "extend_roll_borrowing_description": "The position must either be repaid or extended before the expiry date.",
         "clone": "Clone",
+        "price": "Price",
+        "current_price": "Current Price",
+        "adjust_price": "Adjust Price",
         "error": {
             "could_not_obtain_token_data": "Could not obtain token data",
             "token_decimals_should_be_less_than_24": "Token decimals should be less than 24.",
@@ -190,7 +193,9 @@
             "expiration_date_out_of_range": "Expiration Date should be between Now and Limit",
             "amount_greater_than_position_balance": "Amount is greater than the position's balance",
             "amount_greater_than_max_to_remove": "Amount is greater than the max allowed given the current debt",
-            "amount_greater_than_debt": "Amount is greater than the debt"
+            "amount_greater_than_debt": "Amount is greater than the debt",
+            "price_too_high": "Price cannot exceed maximum allowed",
+            "price_too_low": "Price cannot be below minimum required for collateral"
         },
         "txs": {
             "creating_position": "Creating a new position",
@@ -204,7 +209,9 @@
             "pay_back": "Pay back {{symbol}}",
             "pay_back_success": "Successfully payed back {{symbol}}",
             "extending": "Extending position",
-            "extending_success": "Successfully extended position"
+            "extending_success": "Successfully extended position",
+            "adjusting_price": "Adjusting position price...",
+            "adjusting_price_success": "Position price adjusted successfully"
         }
     },
     "my_positions": {

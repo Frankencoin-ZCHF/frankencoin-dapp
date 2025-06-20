@@ -175,6 +175,9 @@
         "extend_roll_borrowing": "Extender préstamo",
         "extend_roll_borrowing_description": "La posición debe ser reembolsada o extendida antes de la fecha de vencimiento.",
         "clone": "Clonar",
+        "price": "Precio",
+        "current_price": "Precio Actual",
+        "adjust_price": "Ajustar Precio",
         "error": {
             "could_not_obtain_token_data": "No se pudieron obtener los datos del token",
             "token_decimals_should_be_less_than_24": "Los decimales del token deben ser inferiores a 24.",
@@ -190,7 +193,9 @@
             "expiration_date_out_of_range": "La fecha de vencimiento debe estar entre ahora y el límite.",
             "amount_greater_than_position_balance": "La cantidad es mayor que el saldo de la posición.",
             "amount_greater_than_max_to_remove": "La cantidad es mayor que el máximo permitido dado el actual deuda",
-            "amount_greater_than_debt": "La cantidad es mayor que la deuda"
+            "amount_greater_than_debt": "La cantidad es mayor que la deuda",
+            "price_too_high": "El precio no puede exceder el máximo permitido",
+            "price_too_low": "El precio no puede ser inferior al mínimo requerido para el colateral"
         },
         "txs": {
             "creating_position": "Creando una nueva posición.",
@@ -204,7 +209,9 @@
             "pay_back": "Pagar {{symbol}}",
             "pay_back_success": "{{symbol}} pagado correctamente",
             "extending": "Extendiendo posición",
-            "extending_success": "Posición extendida correctamente"
+            "extending_success": "Posición extendida correctamente",
+            "adjusting_price": "Ajustando precio de posición...",
+            "adjusting_price_success": "Precio de posición ajustado exitosamente"
         }
     },
     "my_positions": {

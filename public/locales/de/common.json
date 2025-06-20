@@ -175,6 +175,9 @@
         "extend_roll_borrowing": "Verlängern/Neuabschließen",
         "extend_roll_borrowing_description": "Die Position muss vor dem Ablaufdatum zurückgezahlt oder verlängert werden.",
         "clone": "Klonen",
+        "price": "Preis",
+        "current_price": "Aktueller Preis",
+        "adjust_price": "Preis anpassen",
         "error": {
             "could_not_obtain_token_data": "Tokendaten konnten nicht abgerufen werden.",
             "token_decimals_should_be_less_than_24": "Die Nachkommastellen des Tokens sollten kleiner als 24 sein.",
@@ -190,7 +193,9 @@
             "expiration_date_out_of_range": "Das Ablaufdatum sollte zwischen Jetzt und dem Limit liegen.",
             "amount_greater_than_position_balance": "Der Betrag ist größer als der Saldo der Position.",
             "amount_greater_than_max_to_remove": "Der Betrag ist größer als der maximale Betrag, der unter Berücksichtigung der aktuellen Schuld abgezogen werden kann.",
-            "amount_greater_than_debt": "Der Betrag ist größer als die Schuld."
+            "amount_greater_than_debt": "Der Betrag ist größer als die Schuld.",
+            "price_too_high": "Preis kann das zulässige Maximum nicht überschreiten",
+            "price_too_low": "Preis kann nicht unter dem für die Besicherung erforderlichen Minimum liegen"
         },
         "txs": {
             "creating_position": "Erstellung einer neuen Position",
@@ -204,7 +209,9 @@
             "pay_back": "Zurückzahlen von {{symbol}}",
             "pay_back_success": "{{symbol}} erfolgreich zurückgezahlt",
             "extending": "Position verlängern",
-            "extending_success": "Position erfolgreich verlängert"
+            "extending_success": "Position erfolgreich verlängert",
+            "adjusting_price": "Positionspreis wird angepasst...",
+            "adjusting_price_success": "Positionspreis erfolgreich angepasst"
         }
     },
     "my_positions": {
