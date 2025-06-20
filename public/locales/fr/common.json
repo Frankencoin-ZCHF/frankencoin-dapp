@@ -195,7 +195,8 @@
             "amount_greater_than_max_to_remove": "Le montant est supérieur au montant maximum autorisé compte tenu de la dette actuelle",
             "amount_greater_than_debt": "Le montant est supérieur à la dette",
             "price_too_high": "Le prix ne peut pas dépasser le maximum autorisé",
-            "price_too_low": "Le prix ne peut pas être inférieur au minimum requis pour la garantie"
+            "price_too_low": "Le prix ne peut pas être inférieur au minimum requis pour la garantie",
+            "insufficient_collateral_for_requirements": "Garantie insuffisante pour l'ajustement du prix"
         },
         "txs": {
             "creating_position": "Création d'une nouvelle position",

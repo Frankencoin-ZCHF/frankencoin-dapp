@@ -195,7 +195,8 @@
             "amount_greater_than_max_to_remove": "Der Betrag ist größer als der maximale Betrag, der unter Berücksichtigung der aktuellen Schuld abgezogen werden kann.",
             "amount_greater_than_debt": "Der Betrag ist größer als die Schuld.",
             "price_too_high": "Preis kann das zulässige Maximum nicht überschreiten",
-            "price_too_low": "Preis kann nicht unter dem für die Besicherung erforderlichen Minimum liegen"
+            "price_too_low": "Preis kann nicht unter dem für die Besicherung erforderlichen Minimum liegen",
+            "insufficient_collateral_for_requirements": "Unzureichende Besicherung für Preisanpassung"
         },
         "txs": {
             "creating_position": "Erstellung einer neuen Position",

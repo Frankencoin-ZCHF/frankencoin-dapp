@@ -11,15 +11,20 @@ interface SliderInputOutlinedProps {
 	isError?: boolean;
 	errorMessage?: string;
 	usdPrice?: string;
+	disabled?: boolean;
 }
 
-export function SliderInputOutlined({ value, onChange, min, max, decimals, isError, errorMessage, usdPrice }: SliderInputOutlinedProps) {
+export function SliderInputOutlined({ value, onChange, min, max, decimals, isError, errorMessage, usdPrice, disabled }: SliderInputOutlinedProps) {
 	const [isFocused, setIsFocused] = useState(false);
 
 	return (
 		<div className="self-stretch relative pb-1.5">
 			<div className={`self-stretch p-2 rounded-xl border-2 border-transparent relative flex-col justify-center items-start gap-2 flex before:absolute before:inset-0 before:rounded-xl before:border before:pointer-events-none before:transition-colors before:duration-200 ${
-				isFocused ? "before:border-2 before:border-input-borderFocus" : "before:border-input-border hover:before:border-input-borderHover"
+				disabled 
+					? "opacity-50 cursor-not-allowed before:border-input-border" 
+					: isFocused 
+						? "before:border-2 before:border-input-borderFocus" 
+						: "before:border-input-border hover:before:border-input-borderHover"
 			}`}>
 				<div className="h-18 self-stretch justify-between inline-flex flex-col sm:flex-row">
 					<div className="flex-col justify-center items-start inline-flex">
@@ -32,10 +37,11 @@ export function SliderInputOutlined({ value, onChange, min, max, decimals, isErr
 									}`}
 									placeholder="0"
 									value={value}
-									onChange={(e) => onChange(e)}
+									onChange={onChange}
 									decimals={decimals}
 									onFocus={() => setIsFocused(true)}
 									onBlur={() => setIsFocused(false)}
+									disabled={disabled}
 								/>
 							</div>
 						</div>
@@ -63,6 +69,7 @@ export function SliderInputOutlined({ value, onChange, min, max, decimals, isErr
 									className={`w-full min-w-[220px] ${isError ? "!bg-text-warning" : ""}`}
 									onFocus={() => setIsFocused(true)}
 									onBlur={() => setIsFocused(false)}
+									disabled={disabled}
 									{...(min || max
 										? {
 												min: formatUnits(min, decimals),

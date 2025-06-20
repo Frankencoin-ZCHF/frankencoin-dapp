@@ -101,9 +101,11 @@ export const PriceManageSection = () => {
 		positionValueCollateral > 0 ? Math.round((marketValueCollateral / positionValueCollateral) * 10000) / 100 : 0;
 
 	useEffect(() => {
-		const initialPrice = currentPrice > minPrice ? currentPrice : minPrice;
-		setNewPrice(initialPrice.toString());
-	}, [currentPrice, minPrice]);
+		if (minPrice > 0 && minPrice <= maxPrice) {
+			const initialPrice = currentPrice > minPrice ? currentPrice : minPrice;
+			setNewPrice(initialPrice.toString());
+		}
+	}, [currentPrice, minPrice, maxPrice]);
 
 	const handleAdjustPrice = async () => {
 		try {
@@ -140,14 +142,22 @@ export const PriceManageSection = () => {
 	};
 
 	useEffect(() => {
-		if (!newPrice) {
+		if (minPrice > maxPrice) {
+			setNewPrice("");
+			setError(t("mint.error.insufficient_collateral_for_requirements"));
+		} else if (!newPrice) {
 			setError(null);
-		} else if (BigInt(newPrice) > maxPrice) {
-			setError(t("mint.error.price_too_high"));
-		} else if (BigInt(newPrice) < minPrice) {
-			setError(t("mint.error.price_too_low"));
 		} else {
-			setError(null);
+			const priceBigInt = BigInt(newPrice);
+			if (priceBigInt > maxPrice) {
+				setNewPrice(maxPrice.toString());
+				setError(null);
+			} else if (priceBigInt < minPrice) {
+				setNewPrice(minPrice.toString());
+				setError(null);
+			} else {
+				setError(null);
+			}
 		}
 	}, [newPrice, minPrice, maxPrice, t]);
 
@@ -169,6 +179,7 @@ export const PriceManageSection = () => {
 				decimals={priceDecimals}
 				isError={Boolean(error)}
 				errorMessage={error ?? undefined}
+				disabled={minPrice > maxPrice}
 				usdPrice={formatCurrency(
 					parseFloat(formatUnits(BigInt(newPrice || "0"), priceDecimals)) * (eurPrice || 0),
 					2,

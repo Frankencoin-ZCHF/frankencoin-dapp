@@ -195,7 +195,8 @@
             "amount_greater_than_max_to_remove": "Amount is greater than the max allowed given the current debt",
             "amount_greater_than_debt": "Amount is greater than the debt",
             "price_too_high": "Price cannot exceed maximum allowed",
-            "price_too_low": "Price cannot be below minimum required for collateral"
+            "price_too_low": "Price cannot be below minimum required for collateral",
+            "insufficient_collateral_for_requirements": "Insufficient collateral for price adjustment"
         },
         "txs": {
             "creating_position": "Creating a new position",

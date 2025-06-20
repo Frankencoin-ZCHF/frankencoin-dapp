@@ -195,7 +195,8 @@
             "amount_greater_than_max_to_remove": "La cantidad es mayor que el máximo permitido dado el actual deuda",
             "amount_greater_than_debt": "La cantidad es mayor que la deuda",
             "price_too_high": "El precio no puede exceder el máximo permitido",
-            "price_too_low": "El precio no puede ser inferior al mínimo requerido para el colateral"
+            "price_too_low": "El precio no puede ser inferior al mínimo requerido para el colateral",
+            "insufficient_collateral_for_requirements": "Colateral insuficiente para ajuste de precio"
         },
         "txs": {
             "creating_position": "Creando una nueva posición.",
