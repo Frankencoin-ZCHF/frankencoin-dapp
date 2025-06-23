@@ -67,7 +67,7 @@ export default function GuardSupportedChain({ children, label, disabled, chain, 
 					setRequestedChange(true);
 				}}
 			>
-				{label ?? `Switch to ${chain.name}`}
+				<div className="truncate">{label ?? `Switch to ${chain.name}`}</div>
 			</Button>
 		);
 

@@ -26,7 +26,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 	const [isDelegateeVotes, setDelegateeVotes] = useState<VoteData | undefined>(undefined);
 	const delegationData = useDelegationQuery();
 	const account = useAccount();
-	const chainId = useChainId();
+	const chainId = mainnet.id;
 	const sender: Address = account.address || zeroAddress;
 
 	const delegatedFrom = delegationData.delegatees[voter.holder.toLowerCase() as Address] || [];
@@ -40,7 +40,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 		if (!isDelegateeVotes && isDelegated && !isRevoked) {
 			const fetcher = async function () {
 				const fps = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[mainnet.id].equity,
+					address: ADDRESS[chainId].equity,
 					chainId: chainId,
 					abi: EquityABI,
 					functionName: "balanceOf",
@@ -48,7 +48,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 				});
 
 				const votingPowerRatio = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[mainnet.id].equity,
+					address: ADDRESS[chainId].equity,
 					chainId: chainId,
 					abi: EquityABI,
 					functionName: "relativeVotes",
@@ -56,7 +56,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 				});
 
 				const holdingDuration = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[mainnet.id].equity,
+					address: ADDRESS[chainId].equity,
 					chainId: chainId,
 					abi: EquityABI,
 					functionName: "holdingDuration",

@@ -47,7 +47,7 @@ export const useVotingPowers = (holders: FPSHolder[]) => {
 
 	const votesData: VoteDataQuote[] = [];
 	if (data) {
-		for (let i = 0; i < holders.length; i += 2) {
+		for (let i = 0; i < holders.length; i++) {
 			votesData.push({
 				holder: holders[i].address,
 				fps: holders[i].votingPower,
