@@ -51,6 +51,7 @@ export default function TransferInteractionCard() {
 		const fetcher = async () => {
 			const targetChain = WAGMI_CHAINS.find((c) => c.name.toLowerCase() == recipientChain.toLowerCase());
 			if (!targetChain) throw new Error("targetChain not found");
+			setRecipientChain(targetChain.name);
 
 			if (targetChain.id == chainId) {
 				setCcipFee(0n);
