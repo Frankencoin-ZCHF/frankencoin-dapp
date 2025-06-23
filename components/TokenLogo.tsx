@@ -33,7 +33,12 @@ export default function TokenLogo({ currency, size = 8, chain }: Props) {
 			<img src={src} className={`w-${size} h-${size} rounded-full`} alt="token-logo" onError={onImageError} />
 			{chain && (
 				<picture className="absolute -bottom-1 -right-1 p-[1px] rounded-full bg-card-input-border">
-					<img src={`/chain/${chain}.svg`} className={`w-3 h-3 rounded-full`} alt="token-logo" onError={onImageError} />
+					<img
+						src={`/chain/${chain.toLowerCase()}.svg`}
+						className={`w-3 h-3 rounded-full`}
+						alt="token-logo"
+						onError={onImageError}
+					/>
 				</picture>
 			)}
 		</picture>

@@ -31,7 +31,7 @@ export default function TransferInteractionCard() {
 
 	const [recipient, setRecipient] = useState<string>((router.query.recipient as string) ?? "");
 	const [recipientChain, setRecipientChain] = useState<string>((router.query.recipientChain as string) ?? WAGMI_CHAIN.name);
-	const [refToggle, setRefToggle] = useState<boolean>(false);
+	const [refToggle, setRefToggle] = useState<boolean>((router.query.reference as string).length > 0);
 	const [reference, setReference] = useState<string>((router.query.reference as string) ?? "");
 	const [amount, setAmount] = useState<bigint>(BigInt((router.query.amount as string) ?? "0"));
 	const [ccipFee, setCcipFee] = useState<bigint>(0n);
