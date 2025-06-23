@@ -236,7 +236,7 @@ export default function MonitoringForceSell() {
 						</div>
 						<div className="mx-auto mt-4 w-[20rem] max-w-full flex-col">
 							{/* Override lable here */}
-							<GuardSupportedChain label="Force Sell" chain={mainnet}>
+							<GuardSupportedChain chain={mainnet}>
 								<Button
 									disabled={amount == 0n || expectedZCHF() > userBalance || error != ""}
 									isLoading={isBidding}

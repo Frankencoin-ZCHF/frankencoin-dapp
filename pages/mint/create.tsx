@@ -508,7 +508,7 @@ export default function PositionCreate({}) {
 					</div>
 				</section>
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-					<GuardSupportedChain label="Propose Position" chain={mainnet}>
+					<GuardSupportedChain chain={mainnet}>
 						<Button
 							disabled={minCollAmount == 0n || userAllowance < initialCollAmount || initialCollAmount == 0n || hasFormError()}
 							isLoading={isConfirming == "open"}

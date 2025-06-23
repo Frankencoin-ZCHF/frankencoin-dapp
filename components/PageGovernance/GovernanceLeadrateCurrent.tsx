@@ -225,7 +225,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 						onChange={changeNewRate}
 					/>
 
-					<GuardSupportedChain label="Propose" disabled={isDisabled || isHidden} chain={mainnet}>
+					<GuardSupportedChain disabled={isDisabled || isHidden} chain={mainnet}>
 						<Button
 							className="max-md:h-10 md:h-12"
 							disabled={isDisabled || isHidden}

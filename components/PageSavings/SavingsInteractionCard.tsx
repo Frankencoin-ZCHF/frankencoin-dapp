@@ -164,7 +164,7 @@ export default function SavingsInteractionCard() {
 
 				<div className="mx-auto my-4 w-72 max-w-full flex-col flex gap-4">
 					{onbehalfToggle ? (
-						<GuardSupportedChain label={"On Behalf"} chain={mainnet}>
+						<GuardSupportedChain chain={mainnet}>
 							<SavingsActionSaveOnBehalf
 								disabled={onbehalfError != "" || onbehalfAddress == ""}
 								amount={amount}
@@ -172,7 +172,7 @@ export default function SavingsInteractionCard() {
 							/>
 						</GuardSupportedChain>
 					) : (
-						<GuardSupportedChain label={direction ? "Save" : "Withdraw"} chain={mainnet}>
+						<GuardSupportedChain chain={mainnet}>
 							{userSavingsInterest > 0 && amount == userSavingsBalance ? (
 								<SavingsActionInterest disabled={!!error} balance={userSavingsBalance} interest={userSavingsInterest} />
 							) : amount > userSavingsBalance ? (

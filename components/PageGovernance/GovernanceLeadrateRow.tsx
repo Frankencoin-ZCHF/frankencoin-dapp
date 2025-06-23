@@ -139,7 +139,7 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 				actionCol={
 					currentProposal && info.isProposal ? (
 						info.isPending ? (
-							<GuardSupportedChain label="Deny" disabled={!info.isPending || !info.isProposal} chain={mainnet}>
+							<GuardSupportedChain disabled={!info.isPending || !info.isProposal} chain={mainnet}>
 								<Button
 									className="h-10"
 									disabled={!info.isPending || !info.isProposal || isHidden}
@@ -150,7 +150,7 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 								</Button>
 							</GuardSupportedChain>
 						) : !info.isPending ? (
-							<GuardSupportedChain label="Apply" disabled={!info.isProposal} chain={mainnet}>
+							<GuardSupportedChain disabled={!info.isProposal} chain={mainnet}>
 								<Button
 									className="h-10"
 									disabled={!info.isProposal || isHidden}

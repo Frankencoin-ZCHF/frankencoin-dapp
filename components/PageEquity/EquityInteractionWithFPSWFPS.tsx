@@ -282,7 +282,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 				</div>
 
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-					<GuardSupportedChain label={direction ? "Wrap" : "Unwrap"} chain={mainnet}>
+					<GuardSupportedChain chain={mainnet}>
 						{direction ? (
 							amount > fpsAllowance ? (
 								<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>

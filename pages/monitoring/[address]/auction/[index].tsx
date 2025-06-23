@@ -265,7 +265,7 @@ export default function ChallengePlaceBid() {
 							</AppBox>
 						</div>
 						<div className="mx-auto mt-4 w-[20rem] max-w-full flex-col">
-							<GuardSupportedChain label="Buy" chain={mainnet}>
+							<GuardSupportedChain chain={mainnet}>
 								<Button
 									disabled={amount == 0n || expectedZCHF > userBalance || error != ""}
 									isLoading={isBidding}

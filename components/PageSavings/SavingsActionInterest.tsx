@@ -76,7 +76,7 @@ export default function SavingsActionInterest({ balance, interest, disabled, set
 	};
 
 	return (
-		<GuardSupportedChain label="Adjust" chain={mainnet}>
+		<GuardSupportedChain chain={mainnet}>
 			<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
 				Adjust
 			</Button>

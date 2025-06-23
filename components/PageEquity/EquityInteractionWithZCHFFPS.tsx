@@ -252,7 +252,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 				<div className={`mt-2 px-1 transition-opacity ${(shareLoading || proceedLoading) && "opacity-50"}`}>{conversionNote()}</div>
 
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-					<GuardSupportedChain label={direction ? "Mint" : "Redeem"} chain={mainnet}>
+					<GuardSupportedChain chain={mainnet}>
 						{direction ? (
 							amount > poolStats.frankenAllowance ? (
 								<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>

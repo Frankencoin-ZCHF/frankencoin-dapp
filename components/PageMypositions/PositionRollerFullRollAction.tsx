@@ -77,7 +77,7 @@ export default function PositionRollerFullRollAction({ label = "Roll", source, t
 	};
 
 	return (
-		<GuardSupportedChain label={label} disabled={isHidden || disabled} chain={mainnet}>
+		<GuardSupportedChain disabled={isHidden || disabled} chain={mainnet}>
 			<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
 				{label}
 			</Button>

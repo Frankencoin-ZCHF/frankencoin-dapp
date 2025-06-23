@@ -46,7 +46,7 @@ export default function SavingsDetailsCard({ balance, change, direction, interes
 					</div>
 				</div>
 
-				<div className="flex mt-6 md:px-32">
+				<div className="flex mt-6">
 					<SavingsActionRedeem />
 				</div>
 			</div>

@@ -71,7 +71,7 @@ export default function PositionRollerApproveAction({ source, disabled }: Props)
 	};
 
 	return (
-		<GuardSupportedChain label="Approve" disabled={isHidden || disabled} chain={mainnet}>
+		<GuardSupportedChain disabled={isHidden || disabled} chain={mainnet}>
 			<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
 				Approve
 			</Button>

@@ -336,7 +336,7 @@ export default function PositionBorrow({}) {
 							/>
 						</div>
 						<div className="mx-auto w-72 max-w-full flex-col">
-							<GuardSupportedChain label={amount > userAllowance ? "Approve" : "Mint"} chain={mainnet}>
+							<GuardSupportedChain chain={mainnet}>
 								{requiredColl > userAllowance ? (
 									<Button
 										disabled={requiredColl > userBalance || !!error}

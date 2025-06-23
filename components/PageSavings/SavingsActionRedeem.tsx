@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount, useChainId } from "wagmi";
 import Button from "@components/Button";
-import { ADDRESS, SavingsABI } from "@frankencoin/zchf";
+import { ADDRESS, SavingsABI, SavingsV2ABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
@@ -27,10 +27,12 @@ export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 			const [saved, ticks] = await readContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].savingsV2,
 				chainId: chainId,
-				abi: SavingsABI,
+				abi: SavingsV2ABI,
 				functionName: "savings",
 				args: [address],
 			});
+
+			console.log(saved, ticks);
 
 			setHidden(saved == 0n);
 		};
@@ -83,10 +85,17 @@ export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 	};
 
 	return isHidden || !address ? null : (
-		<GuardSupportedChain chain={mainnet}>
-			<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
-				Redeem from older Version
-			</Button>
-		</GuardSupportedChain>
+		<div className="flex flex-col mx-auto max-w-full gap-4 items-center justify-center">
+			<div className="flex-1 text-text-secondary">
+				You have unclaimed savings in an older Savings Module. Click here to claim your savings.
+			</div>
+			<div className="w-72 max-w-full">
+				<GuardSupportedChain chain={mainnet}>
+					<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
+						Redeem from older Version
+					</Button>
+				</GuardSupportedChain>
+			</div>
+		</div>
 	);
 }

@@ -160,7 +160,7 @@ export default function GovernanceMintersPropose({}: Props) {
 
 					<AddressInput label="Comment" placeholder={`Enter the comment here`} value={comment} onChange={setComment} />
 
-					<GuardSupportedChain label="Propose" disabled={isDisabled || isHidden} chain={chain}>
+					<GuardSupportedChain disabled={isDisabled || isHidden} chain={chain}>
 						<Button
 							className="max-md:h-10 md:h-12"
 							disabled={isDisabled || isHidden}
