@@ -1,41 +1,47 @@
 import { erc20Abi, getAddress, isAddress, zeroAddress } from "viem";
 import { useAccount, useReadContracts } from "wagmi";
 import { decodeBigIntCall } from "../utils/format";
-import { WAGMI_CHAIN } from "../app.config";
 import { ADDRESS } from "@frankencoin/zchf";
+import { mainnet } from "viem/chains";
 
 export const useTokenData = (addr: string) => {
 	if (!isAddress(addr)) addr = zeroAddress;
 	const tokenAddress = getAddress(addr);
 	const { address } = useAccount();
+	const chainId = mainnet.id;
 
 	const account = address || zeroAddress;
-	const mintingHub = ADDRESS[WAGMI_CHAIN.id].mintingHubV1;
+	const mintingHub = ADDRESS[mainnet.id].mintingHubV1;
 	const { data } = useReadContracts({
 		contracts: [
 			{
 				address: tokenAddress,
+				chainId,
 				abi: erc20Abi,
 				functionName: "name",
 			},
 			{
 				address: tokenAddress,
+				chainId,
 				abi: erc20Abi,
 				functionName: "symbol",
 			},
 			{
 				address: tokenAddress,
+				chainId,
 				abi: erc20Abi,
 				functionName: "decimals",
 			},
 			{
 				address: tokenAddress,
+				chainId,
 				abi: erc20Abi,
 				functionName: "balanceOf",
 				args: [account],
 			},
 			{
 				address: tokenAddress,
+				chainId,
 				abi: erc20Abi,
 				functionName: "allowance",
 				args: [account, mintingHub],

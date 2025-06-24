@@ -1224,10 +1224,10 @@
     ts-node "^10.9.1"
     typescript "^5.2.2"
 
-"@frankencoin/zchf@^0.2.36":
-  version "0.2.36"
-  resolved "https://registry.yarnpkg.com/@frankencoin/zchf/-/zchf-0.2.36.tgz#41a248530ff55c2ae01835b1ba9e7c3fbee01d04"
-  integrity sha512-cE/L0SggZjyw7Pnrc6MLwyymbEDX8bjBIOfMz2TR3nkFFbjcYlnxg6UPGDLvET2rIsq9WgTke6bCCM1x7W9+Fw==
+"@frankencoin/zchf@^0.3.15":
+  version "0.3.15"
+  resolved "https://registry.yarnpkg.com/@frankencoin/zchf/-/zchf-0.3.15.tgz#a05a611b7167d60e08125608c0e21f6907757362"
+  integrity sha512-RzkTFtEx/jXXwFfm2hsGnZGcqMDX4oqIJAcUDFBu+GtGrCvbb2BsNDywTfUR8PYo5CyQs2X/24Zp4TAYd6gzXg==
   dependencies:
     ts-node "^10.9.1"
     typescript "^5.2.2"

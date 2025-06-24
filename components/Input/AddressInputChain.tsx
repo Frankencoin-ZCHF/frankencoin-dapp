@@ -1,38 +1,42 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import ChainBySelect from "./ChainBySelect";
+import { WAGMI_CHAIN, WAGMI_CHAINS } from "../../app.config";
 
 interface Props {
 	label?: string;
 	className?: string;
 	placeholder?: string;
 	value?: string;
+	chain?: string;
 	onChange?: (value: string) => void;
 	onOwn?: () => void;
 	onReset?: () => void;
+	onChangeChain?: (value: string) => void;
 	limitLabel?: string;
 	own?: string;
 	reset?: string;
 	error?: string;
 	autoFocus?: boolean;
 	disabled?: boolean;
-	isTextLeft?: boolean;
 	note?: string;
 }
 
-export default function AddressInput({
+export default function AddressInputChain({
 	label,
 	className,
 	placeholder,
 	value,
+	chain = WAGMI_CHAIN.name,
 	error,
 	onChange = () => {},
 	onOwn = () => {},
 	onReset = () => {},
+	onChangeChain = () => {},
 	limitLabel,
 	own,
 	reset,
 	autoFocus,
 	disabled,
-	isTextLeft,
 	note,
 }: Props) {
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -48,22 +52,33 @@ export default function AddressInput({
 			<div
 				className={`group border-card-input-border hover:border-card-input-hover focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
-				} text-text-secondary border-2 rounded-lg px-3 py-1`}
+				} text-text-secondary border-2 rounded-lg px-3 py-1 ${disabled ? "bg-card-input-disabled" : ""}`}
 				onClick={handleClick}
 			>
 				<div className="flex text-card-input-label my-1">{label}</div>
 
-				<input
-					ref={inputRef}
-					className={`w-full py-2 text-lg ${isTextLeft ? "text-left" : "text-right"} bg-transparent ${
-						error ? "text-card-input-error" : "text-text-primary"
-					}`}
-					placeholder={placeholder}
-					value={value}
-					onChange={(e) => onChange?.(e.target.value)}
-					disabled={disabled}
-					autoFocus={autoFocus}
-				/>
+				<div className="grid md:grid-cols-6" onClick={(e) => e.stopPropagation()}>
+					<input
+						ref={inputRef}
+						className={`md:col-span-4 w-full py-2 text-lg text-left bg-transparent truncate ${
+							error ? "text-card-input-error" : "text-text-primary"
+						} ${disabled ? "bg-card-input-disabled" : ""}`}
+						placeholder={placeholder}
+						value={value}
+						onChange={(e) => onChange?.(e.target.value)}
+						disabled={disabled}
+						autoFocus={autoFocus}
+					/>
+
+					<div className="md:col-span-2">
+						<ChainBySelect
+							chains={WAGMI_CHAINS.map((c) => c.name)}
+							chain={chain}
+							chainOnChange={onChangeChain}
+							invertColors={disabled}
+						/>
+					</div>
+				</div>
 
 				{limitLabel != undefined || own != undefined || reset != undefined ? (
 					<div className="flex flex-row gap-2 py-1">

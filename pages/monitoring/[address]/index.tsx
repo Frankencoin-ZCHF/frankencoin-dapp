@@ -17,13 +17,14 @@ import Button from "@components/Button";
 import { ADDRESS, FrankencoinABI } from "@frankencoin/zchf";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import AppLink from "@components/AppLink";
+import { mainnet } from "viem/chains";
 
 export default function PositionDetail() {
 	const [reserve, setReserve] = useState<bigint>(0n);
 
 	const router = useRouter();
 	const address = router.query.address as Address;
-	const chainId = CONFIG.chain.id;
+	const chainId = mainnet.id;
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const challengesPositions = useSelector((state: RootState) => state.challenges.positions);
@@ -42,6 +43,7 @@ export default function PositionDetail() {
 		const fetchAsync = async function () {
 			const data = await readContract(WAGMI_CONFIG, {
 				address: position.zchf,
+				chainId,
 				abi: FrankencoinABI,
 				functionName: "calculateAssignedReserve",
 				args: [BigInt(position.minted), position.reserveContribution],
@@ -51,7 +53,7 @@ export default function PositionDetail() {
 		};
 
 		fetchAsync();
-	}, [position]);
+	}, [position, chainId]);
 
 	if (!position) return;
 
@@ -81,7 +83,7 @@ export default function PositionDetail() {
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:col-span-2">
 							<AppBox>
 								<DisplayLabel label="Minted Total" />
-								<DisplayAmount amount={BigInt(position.minted)} currency="ZCHF" address={ADDRESS[chainId].frankenCoin} />
+								<DisplayAmount amount={BigInt(position.minted)} currency="ZCHF" address={ADDRESS[chainId].frankencoin} />
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Collateral" />
@@ -98,19 +100,19 @@ export default function PositionDetail() {
 									amount={BigInt(position.price)}
 									currency={"ZCHF"}
 									digits={36 - position.collateralDecimals}
-									address={ADDRESS[chainId].frankenCoin}
+									address={ADDRESS[chainId].frankencoin}
 								/>
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Retained Reserve" />
-								<DisplayAmount amount={reserve} currency={"ZCHF"} address={ADDRESS[chainId].frankenCoin} />
+								<DisplayAmount amount={reserve} currency={"ZCHF"} address={ADDRESS[chainId].frankencoin} />
 							</AppBox>
 							<AppBox>
 								<DisplayLabel label="Limit" />
 								<DisplayAmount
 									amount={BigInt(position.limitForClones)}
 									currency={"ZCHF"}
-									address={ADDRESS[chainId].frankenCoin}
+									address={ADDRESS[chainId].frankencoin}
 								/>
 							</AppBox>
 							<AppBox>
@@ -118,7 +120,7 @@ export default function PositionDetail() {
 								<DisplayAmount
 									amount={BigInt(position.availableForClones)}
 									currency={"ZCHF"}
-									address={ADDRESS[chainId].frankenCoin}
+									address={ADDRESS[chainId].frankencoin}
 								/>
 							</AppBox>
 							<AppBox>

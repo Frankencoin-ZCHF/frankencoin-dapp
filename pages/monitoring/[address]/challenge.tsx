@@ -21,6 +21,8 @@ import { useRouter as useNavigation } from "next/navigation";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import AppLink from "@components/AppLink";
+import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 export default function PositionChallenge() {
 	const [amount, setAmount] = useState(0n);
@@ -38,7 +40,7 @@ export default function PositionChallenge() {
 	const router = useRouter();
 	const navigate = useNavigation();
 
-	const chainId = useChainId();
+	const chainId = mainnet.id;
 	const addressQuery: Address = router.query.address as Address;
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
@@ -47,13 +49,14 @@ export default function PositionChallenge() {
 	// ---------------------------------------------------------------------------
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
-		const fc: Address = ADDRESS[WAGMI_CHAIN.id].frankenCoin;
+		const fc: Address = ADDRESS[chainId].frankencoin;
 		if (acc === undefined) return;
 		if (!position || !position.collateral) return;
 
 		const fetchAsync = async function () {
 			const _balanceColl = await readContract(WAGMI_CONFIG, {
 				address: position.collateral,
+				chainId,
 				abi: erc20Abi,
 				functionName: "balanceOf",
 				args: [acc],
@@ -62,15 +65,16 @@ export default function PositionChallenge() {
 
 			const _allowanceColl = await readContract(WAGMI_CONFIG, {
 				address: position.collateral,
+				chainId,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [acc, position.version === 1 ? ADDRESS[WAGMI_CHAIN.id].mintingHubV1 : ADDRESS[WAGMI_CHAIN.id].mintingHubV2],
+				args: [acc, position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2],
 			});
 			setUserAllowance(_allowanceColl);
 		};
 
 		fetchAsync();
-	}, [data, account.address, position]);
+	}, [data, account.address, position, chainId]);
 
 	useEffect(() => {
 		if (isNavigating && position?.position) {
@@ -114,6 +118,7 @@ export default function PositionChallenge() {
 
 			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: position.collateral as Address,
+				chainId,
 				abi: erc20Abi,
 				functionName: "approve",
 				args: [position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2, amount],
@@ -155,6 +160,7 @@ export default function PositionChallenge() {
 
 			const challengeWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2,
+				chainId,
 				abi: position.version === 1 ? MintingHubV1ABI : MintingHubV2ABI,
 				functionName: "challenge",
 				args: [position.position, amount, BigInt(position.price)],
@@ -228,7 +234,7 @@ export default function PositionChallenge() {
 									amount={BigInt(position.price)}
 									currency={"ZCHF"}
 									digits={36 - position.collateralDecimals}
-									address={ADDRESS[chainId].frankenCoin}
+									address={ADDRESS[chainId].frankencoin}
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
@@ -237,7 +243,7 @@ export default function PositionChallenge() {
 									amount={(BigInt(position.price) * amount * 2n) / 100n}
 									currency={"ZCHF"}
 									digits={36}
-									address={ADDRESS[chainId].frankenCoin}
+									address={ADDRESS[chainId].frankencoin}
 								/>
 							</AppBox>
 							<AppBox className="col-span-6 sm:col-span-3">
@@ -271,7 +277,7 @@ export default function PositionChallenge() {
 							</AppBox>
 						</div>
 						<div className="mx-auto mt-4 w-[20rem] max-w-full flex-col">
-							<GuardToAllowedChainBtn label={amount > userAllowance ? "Approve" : "Challenge"}>
+							<GuardSupportedChain chain={mainnet}>
 								{amount > userAllowance ? (
 									<Button isLoading={isApproving} disabled={!!error} onClick={() => handleApprove()}>
 										Approve
@@ -281,7 +287,7 @@ export default function PositionChallenge() {
 										Challenge
 									</Button>
 								)}
-							</GuardToAllowedChainBtn>
+							</GuardSupportedChain>
 						</div>
 					</div>
 					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">

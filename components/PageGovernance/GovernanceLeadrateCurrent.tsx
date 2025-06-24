@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
-import { CONFIG, WAGMI_CONFIG } from "../../app.config";
+import { WAGMI_CONFIG } from "../../app.config";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ADDRESS, EquityABI, SavingsABI } from "@frankencoin/zchf";
 import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
@@ -17,7 +17,8 @@ import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import { LeadrateRateQuery } from "@frankencoin/api";
-import { Address } from "viem";
+import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 interface Props {}
@@ -25,7 +26,7 @@ interface Props {}
 export default function GovernanceLeadrateCurrent({}: Props) {
 	const [isHandling, setHandling] = useState<boolean>(false);
 	const account = useAccount();
-	const chainId = CONFIG.chain.id;
+	const chainId = mainnet.id;
 	const info = useSelector((state: RootState) => state.savings.leadrateInfo);
 	const rates = useSelector((state: RootState) => state.savings.leadrateRate.list);
 	const [newRate, setNewRate] = useState<bigint>(BigInt(info.rate));
@@ -62,7 +63,8 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 			setHandling(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: "0x27d9AD987BdE08a0d083ef7e0e4043C857A17B38",
+				address: ADDRESS[chainId].savingsReferral,
+				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "proposeChange",
 				args: [parseInt(String(newRate)), []],
@@ -223,7 +225,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 						onChange={changeNewRate}
 					/>
 
-					<GuardToAllowedChainBtn label="Propose" disabled={isDisabled || isHidden}>
+					<GuardSupportedChain disabled={isDisabled || isHidden} chain={mainnet}>
 						<Button
 							className="max-md:h-10 md:h-12"
 							disabled={isDisabled || isHidden}
@@ -232,7 +234,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 						>
 							Propose Change
 						</Button>
-					</GuardToAllowedChainBtn>
+					</GuardSupportedChain>
 				</div>
 			</AppCard>
 		</div>

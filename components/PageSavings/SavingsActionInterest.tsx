@@ -8,6 +8,8 @@ import { useAccount, useChainId } from "wagmi";
 import Button from "@components/Button";
 import { Address, formatUnits } from "viem";
 import { ADDRESS, SavingsABI } from "@frankencoin/zchf";
+import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 interface Props {
 	balance: bigint;
@@ -20,7 +22,7 @@ export default function SavingsActionInterest({ balance, interest, disabled, set
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
 	const account = useAccount();
-	const chainId = useChainId();
+	const chainId = mainnet.id;
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
@@ -33,7 +35,8 @@ export default function SavingsActionInterest({ balance, interest, disabled, set
 			 * https://github.com/Frankencoin-ZCHF/frankencoin-dapp/blob/b1356dc0e45157b0e65b20fef019af00e5126653/components/PageSavings/SavingsActionInterest.tsx
 			 */
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: "0x27d9AD987BdE08a0d083ef7e0e4043C857A17B38",
+				address: ADDRESS[chainId].savingsReferral,
+				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "adjust",
 				args: [balance],
@@ -73,8 +76,10 @@ export default function SavingsActionInterest({ balance, interest, disabled, set
 	};
 
 	return (
-		<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
-			Adjust
-		</Button>
+		<GuardSupportedChain chain={mainnet}>
+			<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
+				Adjust
+			</Button>
+		</GuardSupportedChain>
 	);
 }

@@ -1,28 +1,40 @@
 import AppCard from "@components/AppCard";
 import AddressInput from "@components/Input/AddressInput";
 import TokenInput from "@components/Input/TokenInput";
-import { formatCurrency } from "@utils";
 import { useEffect, useState } from "react";
-import { Address, formatUnits, isAddress, zeroAddress } from "viem";
-import TransferActionCreate from "./TransferActionCreate";
-import { useAccount, useBlockNumber } from "wagmi";
-import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
-import { readContract } from "wagmi/actions";
-import { ADDRESS, FrankencoinABI, ReferenceTransferABI, SavingsABI } from "@frankencoin/zchf";
+import { Address, isAddress } from "viem";
+import { useAccount, useChainId } from "wagmi";
+import { WAGMI_CHAIN, WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
+import { ADDRESS, BridgedFrankencoinABI, ChainId, ChainIdSide } from "@frankencoin/zchf";
 import { useRouter } from "next/router";
-import TransferActionAutoSave from "./TransferActionAutoSave";
+import AddressInputChain from "@components/Input/AddressInputChain";
+import { mainnet } from "viem/chains";
+import TransferActionMainnet from "./TransferActionMainnet";
+import TransferActionSidechain from "./TransferActionSidechain";
+import { useUserBalance } from "../../hooks/useUserBalance";
+import AppToggle from "@components/AppToggle";
+import { readContract } from "wagmi/actions";
+import TransferDetailsCard from "./TransferDetailsCard";
+import { AppKitNetwork } from "@reown/appkit/networks";
+import { useAppKitNetwork } from "@reown/appkit/react";
 
 export default function TransferInteractionCard() {
 	const router = useRouter();
-
-	const { data } = useBlockNumber({ watch: true });
+	const chainId = useChainId();
 	const { address } = useAccount();
-	const [balance, setBalance] = useState<bigint>(0n);
-	const [autoSave, setAutoSave] = useState<string>("");
-	const [autoSaveRate, setAutoSaveRate] = useState<{ savingsV2: number }>({ savingsV2: 0 });
+	const AppKitNetwork = useAppKitNetwork();
+	const chain = WAGMI_CHAINS.find((c) => c.id == chainId);
+	const isMainnetChain = chainId == mainnet.id;
+
+	const userBalance = useUserBalance();
+	const balance = userBalance[chainId as ChainId].frankencoin;
+
 	const [recipient, setRecipient] = useState<string>((router.query.recipient as string) ?? "");
+	const [recipientChain, setRecipientChain] = useState<string>((router.query.recipientChain as string) ?? WAGMI_CHAIN.name);
+	const [refToggle, setRefToggle] = useState<boolean>(((router.query.reference as string) ?? "").length > 0);
 	const [reference, setReference] = useState<string>((router.query.reference as string) ?? "");
 	const [amount, setAmount] = useState<bigint>(BigInt((router.query.amount as string) ?? "0"));
+	const [ccipFee, setCcipFee] = useState<bigint>(0n);
 	const [isLoaded, setLoaded] = useState<boolean>(false);
 
 	useEffect(() => {
@@ -34,53 +46,30 @@ export default function TransferInteractionCard() {
 	}, [isLoaded]);
 
 	useEffect(() => {
-		if (address == undefined) return;
+		if (!isAddress(recipient)) return;
 
 		const fetcher = async () => {
-			const _bal = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[WAGMI_CHAIN.id].frankenCoin,
-				abi: FrankencoinABI,
-				functionName: "balanceOf",
-				args: [address],
-			});
-			setBalance(_bal);
+			const targetChain = WAGMI_CHAINS.find((c) => c.name.toLowerCase() == recipientChain.toLowerCase());
+			if (!targetChain) throw new Error("targetChain not found");
+			setRecipientChain(targetChain.name);
 
-			const _autoSave = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[WAGMI_CHAIN.id].referenceTransfer,
-				abi: ReferenceTransferABI,
-				functionName: "hasAutoSave",
-				args: [address],
+			if (targetChain.id == chainId) {
+				setCcipFee(0n);
+				return;
+			}
+
+			const getCCIPFee = await readContract(WAGMI_CONFIG, {
+				address: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
+				abi: BridgedFrankencoinABI,
+				functionName: "getCCIPFee",
+				args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, true],
 			});
-			setAutoSave(_autoSave);
+
+			setCcipFee(getCCIPFee);
 		};
 
 		fetcher();
-	}, [address, data]);
-
-	useEffect(() => {
-		const fetcher = async () => {
-			const addr1 = ADDRESS[WAGMI_CHAIN.id].savings;
-			// const addr2 = ADDRESS[WAGMI_CHAIN.id].savingsDetached;
-
-			const rate1 = await readContract(WAGMI_CONFIG, {
-				address: addr1,
-				abi: SavingsABI,
-				functionName: "currentRatePPM",
-			});
-			// const rate2 = await readContract(WAGMI_CONFIG, {
-			// 	address: addr2,
-			// 	abi: SavingsABI,
-			// 	functionName: "currentRatePPM",
-			// });
-
-			setAutoSaveRate({
-				savingsV2: rate1,
-				// savingsDetached: rate2,
-			});
-		};
-
-		fetcher();
-	}, []);
+	}, [amount, chainId, recipient, recipientChain]);
 
 	const errorRecipient = () => {
 		if (recipient != "" && !isAddress(recipient)) return "Invalid recipient address";
@@ -97,26 +86,24 @@ export default function TransferInteractionCard() {
 		setAmount(valueBigInt);
 	};
 
-	const isDisabled = !isAddress(recipient) || reference.length == 0 || amount == 0n || errorAmount() != "";
+	const onChangeChain = (value: string) => {
+		const chain = WAGMI_CHAINS.find((c) => c.name == value) as AppKitNetwork;
+		if (chain != undefined) AppKitNetwork.switchNetwork(chain);
+	};
+
+	const isDisabled = !isAddress(recipient) || (refToggle && reference.length == 0) || amount == 0n || errorAmount() != "";
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+		<section className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-auto">
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Frankencoin Transfer</div>
+				<div className="mt-4 text-lg font-bold text-center">Transfer Parameters</div>
 
-				<AddressInput
-					label="Recipient"
-					placeholder="0x1a2b3c..."
-					value={recipient}
-					onChange={setRecipient}
-					error={errorRecipient()}
-				/>
-
-				<AddressInput label="Public Reference" placeholder="Invoice 123" value={reference} onChange={setReference} />
+				<AddressInputChain label="Sender" disabled={true} value={address} chain={chain?.name} onChangeChain={onChangeChain} />
 
 				<TokenInput
 					symbol="ZCHF"
 					label="Amount"
+					chain={chain?.name || WAGMI_CHAIN.name}
 					value={amount.toString()}
 					digit={18}
 					onChange={onChangeAmount}
@@ -128,45 +115,59 @@ export default function TransferInteractionCard() {
 					error={errorAmount()}
 				/>
 
-				<TransferActionCreate
-					recipient={recipient as Address}
-					reference={reference}
-					amount={amount}
-					disabled={isDisabled}
-					setLoaded={setLoaded}
+				<AddressInputChain
+					label="Recipient"
+					placeholder="0x1a2b3c..."
+					value={recipient}
+					onChange={setRecipient}
+					own={address}
+					error={errorRecipient()}
+					chain={recipientChain}
+					onChangeChain={setRecipientChain}
 				/>
-			</AppCard>
 
-			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Auto Saver</div>
+				<TokenInput symbol="ZCHF" label="Amount" chain={recipientChain} value={amount.toString()} digit={18} disabled={true} />
 
-				<div className="flex my-4">
-					<div className={`flex-1 text-text-secondary`}>
-						You can auto-save incoming funds directly into a savings module.{" "}
-						{autoSave == ADDRESS[WAGMI_CHAIN.id].savings ? (
-							<span className="font-bold">{`You currently auto-save at ${autoSaveRate.savingsV2 / 10_000}%`}</span>
-						) : // ) : autoSave == ADDRESS[WAGMI_CHAIN.id].savingsDetached ? (
-						// 	<span className="font-bold">{`You currently auto-save at ${autoSaveRate.savingsDetached / 10_000}%`}</span>
-						null}
-					</div>
+				<div className="">
+					{refToggle ? (
+						<AddressInput
+							label="Reference"
+							placeholder="Invoice 123"
+							value={reference}
+							onChange={setReference}
+							isTextLeft={true}
+							reset=""
+						/>
+					) : null}
+					<AppToggle disabled={false} label="Add Reference" enabled={refToggle} onChange={setRefToggle} />
 				</div>
 
-				<div className="grid md:grid-cols-2 gap-4">
-					<TransferActionAutoSave lable="Turn Off - 0%" disabled={autoSave == zeroAddress} target={zeroAddress} />
-
-					<TransferActionAutoSave
-						lable={`Auto Saver - ${autoSaveRate.savingsV2 / 10_000}%`}
-						disabled={autoSave != zeroAddress && autoSave == ADDRESS[WAGMI_CHAIN.id].savings}
-						target={ADDRESS[WAGMI_CHAIN.id].savings}
+				{isMainnetChain ? (
+					<TransferActionMainnet
+						recipientChain={recipientChain}
+						recipient={recipient as Address}
+						ccipFee={ccipFee}
+						addReference={refToggle}
+						reference={reference}
+						amount={amount}
+						disabled={isDisabled}
+						setLoaded={setLoaded}
 					/>
-
-					{/* <TransferActionAutoSave
-						lable={`Detached Module - ${autoSaveRate.savingsDetached / 10_000}%`}
-						disabled={autoSave != zeroAddress && autoSave == ADDRESS[WAGMI_CHAIN.id].savingsDetached}
-						target={ADDRESS[WAGMI_CHAIN.id].savingsDetached}
-						/> */}
-				</div>
+				) : (
+					<TransferActionSidechain
+						recipientChain={recipientChain}
+						addReference={refToggle}
+						ccipFee={ccipFee}
+						recipient={recipient as Address}
+						reference={reference}
+						amount={amount}
+						disabled={isDisabled}
+						setLoaded={setLoaded}
+					/>
+				)}
 			</AppCard>
-		</div>
+
+			<TransferDetailsCard chain={chain} recipientChainName={recipientChain} ccipFee={ccipFee} />
+		</section>
 	);
 }

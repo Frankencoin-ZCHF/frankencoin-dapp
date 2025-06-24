@@ -19,6 +19,8 @@ import { RootState } from "../../../redux/redux.store";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
 import { useRouter as useNavigation } from "next/navigation";
+import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
@@ -38,7 +40,7 @@ export default function PositionBorrow({}) {
 	const account = useAccount();
 	const router = useRouter();
 
-	const chainId = useChainId();
+	const chainId = mainnet.id;
 	const addressQuery: Address = router.query.address as Address;
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
@@ -68,6 +70,7 @@ export default function PositionBorrow({}) {
 		const fetchAsync = async function () {
 			const _balance = await readContract(WAGMI_CONFIG, {
 				address: position.collateral,
+				chainId,
 				abi: erc20Abi,
 				functionName: "balanceOf",
 				args: [acc],
@@ -76,15 +79,16 @@ export default function PositionBorrow({}) {
 
 			const _allowance = await readContract(WAGMI_CONFIG, {
 				address: position.collateral,
+				chainId,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [acc, position.version == 1 ? ADDRESS[WAGMI_CHAIN.id].mintingHubV1 : ADDRESS[WAGMI_CHAIN.id].mintingHubV2],
+				args: [acc, position.version == 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2],
 			});
 			setUserAllowance(_allowance);
 		};
 
 		fetchAsync();
-	}, [data, account.address, position]);
+	}, [data, account.address, position, chainId]);
 
 	// ---------------------------------------------------------------------------
 	// dont continue if position not loaded correctly
@@ -133,7 +137,7 @@ export default function PositionBorrow({}) {
 	};
 
 	const onChangeCollateral = (value: string) => {
-		if (BigInt(value) > userBalance){
+		if (BigInt(value) > userBalance) {
 			setErrorColl(`Not enough ${position.collateralSymbol} in your wallet.`);
 		}
 		setAmount((BigInt(value) * BigInt(position.price)) / BigInt(1e18));
@@ -207,6 +211,7 @@ export default function PositionBorrow({}) {
 			if (position.version == 1) {
 				cloneWriteHash = await writeContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId].mintingHubV1,
+					chainId,
 					abi: MintingHubV1ABI,
 					functionName: "clone",
 					args: [position.position, requiredColl, amount, BigInt(expirationTime)],
@@ -214,6 +219,7 @@ export default function PositionBorrow({}) {
 			} else if (position.version == 2) {
 				cloneWriteHash = await writeContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId].mintingHubV2,
+					chainId,
 					abi: MintingHubV2ABI,
 					functionName: "clone",
 					args: [position.position, requiredColl, amount, expirationTime],
@@ -245,6 +251,7 @@ export default function PositionBorrow({}) {
 			});
 
 			const receipt = await waitForTransactionReceipt(WAGMI_CONFIG, {
+				chainId,
 				hash: cloneWriteHash,
 				confirmations: 1,
 			});
@@ -329,7 +336,7 @@ export default function PositionBorrow({}) {
 							/>
 						</div>
 						<div className="mx-auto w-72 max-w-full flex-col">
-							<GuardToAllowedChainBtn label={amount > userAllowance ? "Approve" : "Mint"}>
+							<GuardSupportedChain chain={mainnet}>
 								{requiredColl > userAllowance ? (
 									<Button
 										disabled={requiredColl > userBalance || !!error}
@@ -347,7 +354,7 @@ export default function PositionBorrow({}) {
 										Mint
 									</Button>
 								)}
-							</GuardToAllowedChainBtn>
+							</GuardSupportedChain>
 						</div>
 					</div>
 					<div>

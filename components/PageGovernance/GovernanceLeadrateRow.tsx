@@ -3,7 +3,7 @@ import TableRow from "../Table/TableRow";
 import { formatCurrency, shortenAddress } from "../../utils/format";
 import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { CONFIG, WAGMI_CONFIG } from "../../app.config";
+import { WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, EquityABI, SavingsABI } from "@frankencoin/zchf";
 import { ApiLeadrateInfo, LeadrateProposed } from "@frankencoin/api";
 import Button from "@components/Button";
@@ -12,6 +12,8 @@ import { toast } from "react-toastify";
 import { renderErrorTxToast, renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import AppLink from "@components/AppLink";
 import { ContractUrl, TxUrl } from "@utils";
+import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 interface Props {
 	headers: string[];
@@ -26,7 +28,7 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 	const [isApplying, setApplying] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
 
-	const chainId = CONFIG.chain.id;
+	const chainId = mainnet.id;
 
 	const vetoUntil = proposal.nextChange * 1000;
 	const hoursUntil: number = (vetoUntil - Date.now()) / 1000 / 60 / 60;
@@ -42,7 +44,8 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 			setApplying(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: "0x27d9AD987BdE08a0d083ef7e0e4043C857A17B38",
+				address: ADDRESS[chainId].savingsReferral,
+				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "applyChange",
 				args: [],
@@ -87,7 +90,8 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 			setDenying(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: "0x27d9AD987BdE08a0d083ef7e0e4043C857A17B38",
+				address: ADDRESS[chainId].savingsReferral,
+				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "proposeChange",
 				args: [info.rate, []],
@@ -135,7 +139,7 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 				actionCol={
 					currentProposal && info.isProposal ? (
 						info.isPending ? (
-							<GuardToAllowedChainBtn label="Deny" disabled={!info.isPending || !info.isProposal}>
+							<GuardSupportedChain disabled={!info.isPending || !info.isProposal} chain={mainnet}>
 								<Button
 									className="h-10"
 									disabled={!info.isPending || !info.isProposal || isHidden}
@@ -144,9 +148,9 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 								>
 									Deny
 								</Button>
-							</GuardToAllowedChainBtn>
+							</GuardSupportedChain>
 						) : !info.isPending ? (
-							<GuardToAllowedChainBtn label="Apply" disabled={!info.isProposal}>
+							<GuardSupportedChain disabled={!info.isProposal} chain={mainnet}>
 								<Button
 									className="h-10"
 									disabled={!info.isProposal || isHidden}
@@ -155,7 +159,7 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 								>
 									Apply
 								</Button>
-							</GuardToAllowedChainBtn>
+							</GuardSupportedChain>
 						) : (
 							<></>
 						)

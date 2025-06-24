@@ -5,7 +5,6 @@ import { SOCIAL } from "../utils/constant";
 import { version } from "../package.json";
 import { faCodeCommit } from "@fortawesome/free-solid-svg-icons";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
-import { useIsMainnet } from "@hooks";
 
 export default function LoadingScreen() {
 	return (
@@ -36,7 +35,7 @@ export default function LoadingScreen() {
 }
 
 export function SubmitIssue() {
-	const isMainnet = useIsMainnet();
+	const isTestnet = process.env.NEXT_PUBLIC_PROFILE == "testnet";
 
 	return (
 		<ul className="flex items-center gap-8 text-layout-primary">
@@ -44,7 +43,11 @@ export function SubmitIssue() {
 				<FooterButton link={SOCIAL.Github_dapp_new_issue} text="Submit an Issue" icon={faGithub} />
 			</li>
 			<li>
-				<FooterButton link={SOCIAL.Github_dapp} text={`${version} - ${isMainnet ? "Mainnet" : "Testnet"}`} icon={faCodeCommit} />
+				<FooterButton
+					link={SOCIAL.Github_dapp}
+					text={`${version} - ${isTestnet ? "Development" : "Production"}`}
+					icon={faCodeCommit}
+				/>
 			</li>
 		</ul>
 	);

@@ -1,15 +1,15 @@
 import { useAccount, useReadContracts } from "wagmi";
 import { decodeBigIntCall } from "@utils";
 import { erc20Abi } from "viem";
-import { WAGMI_CHAIN } from "../app.config";
 import { ADDRESS, StablecoinBridgeABI } from "@frankencoin/zchf";
+import { mainnet } from "viem/chains";
 
 export const useSwapXCHFStats = () => {
-	const chainId = WAGMI_CHAIN.id as number;
+	const chainId = mainnet.id;
 	const { address } = useAccount();
 	const account = address || "0x0";
 
-	const other = ADDRESS[chainId].xchf;
+	const other = ADDRESS[chainId].xchfToken;
 	const bridge = ADDRESS[chainId].stablecoinBridgeXCHF;
 
 	const { data, isError, isLoading } = useReadContracts({
@@ -45,20 +45,20 @@ export const useSwapXCHFStats = () => {
 			// Frankencoin Calls
 			{
 				chainId,
-				address: ADDRESS[chainId].frankenCoin,
+				address: ADDRESS[chainId].frankencoin,
 				abi: erc20Abi,
 				functionName: "balanceOf",
 				args: [account],
 			},
 			{
 				chainId,
-				address: ADDRESS[chainId].frankenCoin,
+				address: ADDRESS[chainId].frankencoin,
 				abi: erc20Abi,
 				functionName: "symbol",
 			},
 			{
 				chainId,
-				address: ADDRESS[chainId].frankenCoin,
+				address: ADDRESS[chainId].frankencoin,
 				abi: erc20Abi,
 				functionName: "allowance",
 				args: [account, bridge],

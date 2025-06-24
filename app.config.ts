@@ -3,7 +3,7 @@
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { cookieStorage, createStorage, http } from "@wagmi/core";
 import { injected, coinbaseWallet, walletConnect, safe } from "@wagmi/connectors";
-import { mainnet, polygon, Chain } from "@reown/appkit/networks";
+import { mainnet, polygon, Chain, arbitrum, optimism, avalanche, gnosis, sonic, base, AppKitNetwork } from "@reown/appkit/networks";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import axios from "axios";
 import { Address } from "viem";
@@ -21,10 +21,8 @@ export type ConfigEnv = {
 };
 
 // DEV: Loaded with defaults, not needed for now.
-// if (!process.env.NEXT_PUBLIC_WAGMI_ID) throw new Error("Project ID is not defined");
-// if (!process.env.NEXT_PUBLIC_RPC_URL_MAINNET) throw new Error("RPC URL for at least mainnet, not available");
-// if (process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon" && !process.env.NEXT_PUBLIC_RPC_URL_POLYGON)
-// throw new Error("RPC URL for polygon (testnet), not available");
+// if (!process.env.NEXT_PUBLIC_WAGMI_ID) throw new Error("Project ID is not available");
+// if (!process.env.NEXT_PUBLIC_RPC_KEY) throw new Error("RPC KEY is not available");
 
 // Config
 export const CONFIG: ConfigEnv = {
@@ -35,13 +33,9 @@ export const CONFIG: ConfigEnv = {
 	api: process.env.NEXT_PUBLIC_API_URL || "https://api.frankencoin.com",
 	ponder: process.env.NEXT_PUBLIC_PONDER_URL || "https://ponder.frankencoin.com",
 	morphoGraph: process.env.NEXT_PUBLIC_MORPHOGRAPH_URL || "https://blue-api.morpho.org/graphql",
-	chain: process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon" ? polygon : mainnet,
+	chain: process.env.NEXT_PUBLIC_PROFILE == "testnet" ? polygon : mainnet,
 	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID || "3321ad5a4f22083fe6fe82208a4c9ddc",
-	rpc:
-		process.env.NEXT_PUBLIC_CHAIN_NAME == "polygon"
-			? (process.env.NEXT_PUBLIC_RPC_URL_POLYGON as string) ||
-			  "https://polygon-mainnet.g.alchemy.com/v2/dhaKbi2HDlKYW1JaSHm1i_hGkE2gnA5t"
-			: process.env.NEXT_PUBLIC_RPC_URL_MAINNET || "https://eth-mainnet.g.alchemy.com/v2/dhaKbi2HDlKYW1JaSHm1i_hGkE2gnA5t",
+	rpc: process.env.NEXT_PUBLIC_RPC_KEY || "dhaKbi2HDlKYW1JaSHm1i_hGkE2gnA5t",
 };
 
 console.log("YOU ARE USING THIS CONFIG PROFILE:");
@@ -65,6 +59,7 @@ export const FRANKENCOIN_API_CLIENT = axios.create({
 
 // WAGMI CONFIG
 export const WAGMI_CHAIN = CONFIG.chain;
+export const WAGMI_CHAINS: [AppKitNetwork, ...AppKitNetwork[]] = [mainnet, polygon, arbitrum, optimism, base, avalanche, gnosis, sonic];
 export const WAGMI_METADATA = {
 	name: "Frankencoin",
 	description: "Frankencoin Frontend Application",
@@ -72,9 +67,16 @@ export const WAGMI_METADATA = {
 	icons: ["https://avatars.githubusercontent.com/u/37784886"],
 };
 export const WAGMI_ADAPTER = new WagmiAdapter({
-	networks: [WAGMI_CHAIN],
+	networks: WAGMI_CHAINS,
 	transports: {
-		[CONFIG.chain.id]: http(CONFIG.rpc),
+		[mainnet.id]: http(`https://eth-mainnet.g.alchemy.com/v2/${CONFIG.rpc}`),
+		[polygon.id]: http(`https://polygon-mainnet.g.alchemy.com/v2/${CONFIG.rpc}`),
+		[optimism.id]: http(`https://opt-mainnet.g.alchemy.com/v2/${CONFIG.rpc}`),
+		[arbitrum.id]: http(`https://arb-mainnet.g.alchemy.com/v2/${CONFIG.rpc}`),
+		[base.id]: http(`https://base-mainnet.g.alchemy.com/v2/${CONFIG.rpc}`),
+		[avalanche.id]: http(`https://avax-mainnet.g.alchemy.com/v2/${CONFIG.rpc}`),
+		[gnosis.id]: http(`https://gnosis-mainnet.g.alchemy.com/v2/${CONFIG.rpc}`),
+		[sonic.id]: http(`https://sonic-mainnet.g.alchemy.com/v2/${CONFIG.rpc}`),
 	},
 	batch: {
 		multicall: {

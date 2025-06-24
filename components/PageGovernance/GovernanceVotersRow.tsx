@@ -8,10 +8,11 @@ import GovernanceVotersAction from "./GovernanceVotersAction";
 import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
 import { ContractUrl } from "@utils";
+import { mainnet } from "viem/chains";
 
 interface Props {
 	headers: string[];
@@ -25,6 +26,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 	const [isDelegateeVotes, setDelegateeVotes] = useState<VoteData | undefined>(undefined);
 	const delegationData = useDelegationQuery();
 	const account = useAccount();
+	const chainId = mainnet.id;
 	const sender: Address = account.address || zeroAddress;
 
 	const delegatedFrom = delegationData.delegatees[voter.holder.toLowerCase() as Address] || [];
@@ -38,21 +40,24 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 		if (!isDelegateeVotes && isDelegated && !isRevoked) {
 			const fetcher = async function () {
 				const fps = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[WAGMI_CHAIN.id].equity,
+					address: ADDRESS[chainId].equity,
+					chainId: chainId,
 					abi: EquityABI,
 					functionName: "balanceOf",
 					args: [delegatee],
 				});
 
 				const votingPowerRatio = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[WAGMI_CHAIN.id].equity,
+					address: ADDRESS[chainId].equity,
+					chainId: chainId,
 					abi: EquityABI,
 					functionName: "relativeVotes",
 					args: [delegatee],
 				});
 
 				const holdingDuration = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[WAGMI_CHAIN.id].equity,
+					address: ADDRESS[chainId].equity,
+					chainId: chainId,
 					abi: EquityABI,
 					functionName: "holdingDuration",
 					args: [delegatee],
@@ -71,7 +76,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 
 			fetcher();
 		}
-	}, [isDelegateeVotes, isDelegated, isRevoked, delegatee, voter, votesTotal]);
+	}, [isDelegateeVotes, isDelegated, isRevoked, delegatee, voter, votesTotal, chainId]);
 
 	return (
 		<>

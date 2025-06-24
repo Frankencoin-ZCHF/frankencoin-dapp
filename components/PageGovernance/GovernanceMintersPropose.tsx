@@ -4,10 +4,10 @@ import Button from "@components/Button";
 import NormalInput from "@components/Input/NormalInput";
 import AppCard from "@components/AppCard";
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
-import { CONFIG, WAGMI_CONFIG } from "../../app.config";
+import { useAccount, useChainId } from "wagmi";
+import { CONFIG, WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ADDRESS, EquityABI, FrankencoinABI } from "@frankencoin/zchf";
+import { ADDRESS, ChainId, ChainIdMain, ChainIdSide, EquityABI, FrankencoinABI } from "@frankencoin/zchf";
 import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import TokenInput from "@components/Input/TokenInput";
@@ -16,6 +16,9 @@ import AddressInput from "@components/Input/AddressInput";
 import { Address, isAddress, parseEther, parseUnits } from "viem";
 import { useUserBalance } from "@hooks";
 import { SOCIAL } from "@utils";
+import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { AppKitNetwork } from "@reown/appkit/networks";
 
 interface Props {}
 
@@ -23,7 +26,7 @@ export default function GovernanceMintersPropose({}: Props) {
 	const userBal = useUserBalance();
 	const [isHandling, setHandling] = useState<boolean>(false);
 	const account = useAccount();
-	const chainId = CONFIG.chain.id;
+	const chainId = useChainId();
 	const [period, setPeriod] = useState<string>("14");
 	const [module, setModule] = useState<string>("");
 	const [comment, setComment] = useState<string>("");
@@ -31,11 +34,17 @@ export default function GovernanceMintersPropose({}: Props) {
 	const [isDisabled, setDisabled] = useState<boolean>(true);
 	const [errorAddress, setErrorAddress] = useState<string>("");
 
+	const chain = WAGMI_CHAINS.find((c) => c.id == chainId) as AppKitNetwork;
+
 	useEffect(() => {
-		if (Number(period) < 14 || userBal.frankenBalance < parseEther("1000") || !isAddress(module) || comment.length == 0)
+		if (
+			Number(period) < 14 || chainId == mainnet.id
+				? userBal[chainId as ChainIdMain].frankencoin
+				: userBal[chainId as ChainIdSide].frankencoin < parseEther("1000") || !isAddress(module) || comment.length == 0
+		)
 			setDisabled(true);
 		else setDisabled(false);
-	}, [period, module, comment, userBal.frankenBalance]);
+	}, [period, module, comment, userBal, chainId]);
 
 	const changeAddress = (value: string) => {
 		setModule(value);
@@ -51,7 +60,11 @@ export default function GovernanceMintersPropose({}: Props) {
 			setHandling(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].frankenCoin,
+				address:
+					chainId == mainnet.id
+						? ADDRESS[chainId as ChainIdMain].frankencoin
+						: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
+				chainId: chainId,
 				abi: FrankencoinABI,
 				functionName: "suggestMinter",
 				args: [module as Address, BigInt(period) * BigInt(60 * 60 * 24), parseUnits("1000", 18), comment],
@@ -101,7 +114,11 @@ export default function GovernanceMintersPropose({}: Props) {
 						value={"1000"}
 						onChange={() => {}}
 						digit={0}
-						error={account.address != undefined && userBal.frankenBalance < BigInt(1000 * 1e18) ? "Not enough ZCHF" : ""}
+						error={
+							account.address != undefined && userBal[chainId as ChainId].frankencoin < BigInt(1000 * 1e18)
+								? "Not enough ZCHF"
+								: ""
+						}
 						disabled={true}
 						placeholder="Amount"
 					/>
@@ -143,7 +160,7 @@ export default function GovernanceMintersPropose({}: Props) {
 
 					<AddressInput label="Comment" placeholder={`Enter the comment here`} value={comment} onChange={setComment} />
 
-					<GuardToAllowedChainBtn label="Propose" disabled={isDisabled || isHidden}>
+					<GuardSupportedChain disabled={isDisabled || isHidden} chain={chain}>
 						<Button
 							className="max-md:h-10 md:h-12"
 							disabled={isDisabled || isHidden}
@@ -152,7 +169,7 @@ export default function GovernanceMintersPropose({}: Props) {
 						>
 							Propose Module
 						</Button>
-					</GuardToAllowedChainBtn>
+					</GuardSupportedChain>
 				</div>
 			</AppCard>
 		</div>

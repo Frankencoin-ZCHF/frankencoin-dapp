@@ -10,13 +10,15 @@ import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import Button from "@components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
-import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
+import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { ADDRESS, EquityABI, FPSWrapperABI } from "@frankencoin/zchf";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
+import { mainnet } from "viem/chains";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 interface Props {
 	tokenFromTo: { from: string; to: string };
@@ -38,7 +40,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 	const { data } = useBlockNumber({ watch: true });
 	const { address } = useAccount();
 	const poolStats = usePoolStats();
-	const chainId = useChainId();
+	const chainId = mainnet.id;
 	const account = address || zeroAddress;
 	const direction: boolean = true;
 
@@ -52,6 +54,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 			if (account != zeroAddress) {
 				const _wfpsAllowance = await readContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId].wFPS,
+					chainId: chainId,
 					abi: erc20Abi,
 					functionName: "allowance",
 					args: [account, ADDRESS[chainId].wFPS],
@@ -60,6 +63,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 
 				const _wfpsBalance = await readContract(WAGMI_CONFIG, {
 					address: ADDRESS[chainId].wFPS,
+					chainId: chainId,
 					abi: erc20Abi,
 					functionName: "balanceOf",
 					args: [account],
@@ -67,7 +71,8 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 				setWfpsBalance(_wfpsBalance);
 
 				const _userBalance = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[chainId].frankenCoin,
+					address: ADDRESS[chainId].frankencoin,
+					chainId: chainId,
 					abi: erc20Abi,
 					functionName: "balanceOf",
 					args: [account],
@@ -77,6 +82,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 
 			const _wfpsHolding = await readContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].equity,
+				chainId: chainId,
 				abi: EquityABI,
 				functionName: "holdingDuration",
 				args: [ADDRESS[chainId].wFPS],
@@ -91,6 +97,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 		const fetchAsync = async function () {
 			const _calculateProceeds = await readContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].equity,
+				chainId: chainId,
 				abi: EquityABI,
 				functionName: "calculateProceeds",
 				args: [amount],
@@ -107,6 +114,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 
 			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].wFPS,
+				chainId: chainId,
 				abi: erc20Abi,
 				functionName: "approve",
 				args: [ADDRESS[chainId].wFPS, amount],
@@ -148,6 +156,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].wFPS,
+				chainId: chainId,
 				abi: FPSWrapperABI,
 				functionName: "unwrapAndSell",
 				args: [amount],
@@ -252,7 +261,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 				<div className={`mt-2 px-1 transition-opacity`}>{conversionNote()}</div>
 
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
-					<GuardToAllowedChainBtn label="Unwrap and Redeem">
+					<GuardSupportedChain chain={mainnet}>
 						{amount > wfpsAllowance ? (
 							<Button isLoading={isApproving} disabled={amount == 0n || !!error || !unlocked} onClick={() => handleApprove()}>
 								Approve
@@ -262,7 +271,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 								Unwrap and Redeem
 							</Button>
 						)}
-					</GuardToAllowedChainBtn>
+					</GuardSupportedChain>
 				</div>
 			</div>
 
@@ -276,7 +285,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 					<DisplayAmount
 						amount={(poolStats.equityPrice * wfpsBalance) / BigInt(1e18)}
 						currency="ZCHF"
-						address={ADDRESS[chainId].frankenCoin}
+						address={ADDRESS[chainId].frankencoin}
 					/>
 				</AppBox>
 				<AppBox>

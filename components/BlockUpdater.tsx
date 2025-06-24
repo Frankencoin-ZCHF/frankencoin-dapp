@@ -15,13 +15,14 @@ import { fetchEcosystem } from "../redux/slices/ecosystem.slice";
 import { fetchSavings } from "../redux/slices/savings.slice";
 import { fetchDashboard } from "../redux/slices/dashboard.slice";
 import { fetchMorphoMarkets } from "../redux/slices/morpho.slice";
+import { mainnet } from "viem/chains";
 
 let initializing: boolean = false;
 let initStart: number = 0;
 let loading: boolean = false;
 
 export default function BockUpdater({ children }: { children?: React.ReactElement | React.ReactElement[] }) {
-	const { error, data } = useBlockNumber({ chainId: WAGMI_CHAIN.id, watch: true });
+	const { error, data } = useBlockNumber({ chainId: mainnet.id, watch: true });
 	const { address } = useAccount();
 	const isConnectedToCorrectChain = useIsConnectedToCorrectChain();
 

@@ -1,31 +1,47 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { WAGMI_CONFIG } from "../../app.config";
+import { Dispatch, SetStateAction, useState } from "react";
+import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { formatCurrency, shortenAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
-import { useAccount, useBlockNumber, useChainId } from "wagmi";
+import { useAccount } from "wagmi";
 import Button from "@components/Button";
-import { Address, formatUnits, maxUint256 } from "viem";
-import { ADDRESS, FrankencoinABI, ReferenceTransferABI } from "@frankencoin/zchf";
-import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
+import { Address, formatUnits, Hash, maxUint256 } from "viem";
+import { ADDRESS, ChainIdSide, FrankencoinABI, TransferReferenceABI } from "@frankencoin/zchf";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { mainnet } from "viem/chains";
+import { useUserAllowance } from "../../hooks/useUserAllowance";
 
 interface Props {
 	recipient: Address;
+	recipientChain: string;
+	ccipFee: bigint;
+	addReference?: boolean;
 	reference: string;
 	amount: bigint;
 	disabled?: boolean;
 	setLoaded?: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function TransferActionCreate({ recipient, reference, amount, disabled, setLoaded }: Props) {
+export default function TransferActionMainnet({
+	recipientChain,
+	recipient,
+	ccipFee,
+	reference,
+	addReference = false,
+	amount,
+	disabled,
+	setLoaded,
+}: Props) {
 	const [isApproving, setApproving] = useState<boolean>(false);
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
-	const [allowance, setAllowance] = useState(0n);
 	const { address } = useAccount();
-	const chainId = useChainId();
-	const { data } = useBlockNumber();
+
+	const userAllowance = useUserAllowance([{ spender: ADDRESS[mainnet.id].transferReference, chainId: mainnet.id }]);
+	const allowance = userAllowance[0].allowance;
+
+	const isSameChain = recipientChain.toLowerCase() == mainnet.name.toLowerCase();
 
 	const handleApprove = async (e: any) => {
 		e.preventDefault();
@@ -35,10 +51,11 @@ export default function TransferActionCreate({ recipient, reference, amount, dis
 			setApproving(true);
 
 			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].frankenCoin,
+				address: ADDRESS[mainnet.id].frankencoin,
+				chainId: mainnet.id,
 				abi: FrankencoinABI,
 				functionName: "approve",
-				args: [ADDRESS[chainId].referenceTransfer, maxUint256],
+				args: [ADDRESS[mainnet.id].transferReference, maxUint256],
 			});
 
 			const toastContent = [
@@ -48,7 +65,7 @@ export default function TransferActionCreate({ recipient, reference, amount, dis
 				},
 				{
 					title: "Spender: ",
-					value: shortenAddress(ADDRESS[chainId].referenceTransfer),
+					value: shortenAddress(ADDRESS[mainnet.id].transferReference),
 				},
 				{
 					title: "Transaction:",
@@ -78,12 +95,40 @@ export default function TransferActionCreate({ recipient, reference, amount, dis
 		try {
 			setAction(true);
 
-			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].referenceTransfer,
-				abi: ReferenceTransferABI,
-				functionName: "transfer",
-				args: [recipient, amount, reference],
-			});
+			let writeHash: Hash;
+
+			if (isSameChain && addReference) {
+				// transfer with reference
+				writeHash = await writeContract(WAGMI_CONFIG, {
+					address: ADDRESS[mainnet.id].transferReference,
+					chainId: mainnet.id,
+					abi: TransferReferenceABI,
+					functionName: "transfer",
+					args: [recipient, amount, reference],
+				});
+			} else if (isSameChain && !addReference) {
+				// normal frankencoin transfer
+				writeHash = await writeContract(WAGMI_CONFIG, {
+					address: ADDRESS[mainnet.id].frankencoin,
+					chainId: mainnet.id,
+					abi: FrankencoinABI,
+					functionName: "transfer",
+					args: [recipient, amount],
+				});
+			} else {
+				// from mainnet to sidechain with reference
+				const targetChain = WAGMI_CHAINS.find((c) => c.name.toLowerCase() == recipientChain.toLowerCase());
+				if (!targetChain) throw new Error("targetChain not found");
+
+				writeHash = await writeContract(WAGMI_CONFIG, {
+					address: ADDRESS[mainnet.id].transferReference,
+					chainId: mainnet.id,
+					abi: TransferReferenceABI,
+					functionName: "crossTransfer",
+					args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, addReference ? reference : ""],
+					value: (ccipFee * 12n) / 10n, // @dev add 20% more. Low level call will return unused amount.
+				});
+			}
 
 			const toastContent = [
 				{
@@ -121,25 +166,8 @@ export default function TransferActionCreate({ recipient, reference, amount, dis
 		}
 	};
 
-	useEffect(() => {
-		if (address == undefined || data == undefined) return;
-
-		const fetcher = async () => {
-			const allow = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].frankenCoin,
-				abi: FrankencoinABI,
-				functionName: "allowance",
-				args: [address, ADDRESS[chainId].referenceTransfer],
-			});
-
-			setAllowance(allow);
-		};
-
-		fetcher();
-	}, [address, chainId, data]);
-
 	return (
-		<GuardToAllowedChainBtn>
+		<GuardSupportedChain chain={mainnet}>
 			{allowance < amount ? (
 				<Button className="h-10" disabled={isHidden || disabled} isLoading={isApproving} onClick={(e) => handleApprove(e)}>
 					Approve
@@ -149,6 +177,6 @@ export default function TransferActionCreate({ recipient, reference, amount, dis
 					Transfer
 				</Button>
 			)}
-		</GuardToAllowedChainBtn>
+		</GuardSupportedChain>
 	);
 }

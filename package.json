@@ -25,7 +25,7 @@
 		"@fortawesome/free-solid-svg-icons": "^6.4.2",
 		"@fortawesome/react-fontawesome": "^0.2.0",
 		"@frankencoin/api": "^0.2.19",
-		"@frankencoin/zchf": "^0.2.36",
+		"@frankencoin/zchf": "^0.3.15",
 		"@reduxjs/toolkit": "^2.2.5",
 		"@reown/appkit": "^1.6.4",
 		"@reown/appkit-adapter-wagmi": "^1.6.4",

@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
-import { WAGMI_CHAIN } from "../app.config";
 
 interface Props {
-	currency: string;
+	chain: string;
 	size?: number;
-	chain?: string;
 }
 
-export default function TokenLogo({ currency, size = 8, chain }: Props) {
+export default function ChainLogo({ chain, size = 8 }: Props) {
 	const [imgExist, setImgExist] = useState(true);
-	const [src, setSrc] = useState(`/coin/${currency?.toLowerCase()}.svg`);
+	const [src, setSrc] = useState(`/coin/${chain?.toLowerCase()}.svg`);
 	const onImageError = (e: any) => {
 		const src = e.target.src;
 		if (src.includes(".svg")) {
@@ -24,23 +22,13 @@ export default function TokenLogo({ currency, size = 8, chain }: Props) {
 	};
 
 	useEffect(() => {
-		setSrc(`/coin/${currency?.toLowerCase()}.svg`);
+		setSrc(`/chain/${chain?.toLowerCase()}.svg`);
 		setImgExist(true);
-	}, [currency]);
+	}, [chain]);
 
 	return imgExist ? (
 		<picture className=" relative">
 			<img src={src} className={`w-${size} h-${size} rounded-full`} alt="token-logo" onError={onImageError} />
-			{chain && (
-				<picture className="absolute -bottom-1 -right-1 p-[1px] rounded-full bg-card-input-border">
-					<img
-						src={`/chain/${chain.toLowerCase()}.svg`}
-						className={`w-3 h-3 rounded-full`}
-						alt="token-logo"
-						onError={onImageError}
-					/>
-				</picture>
-			)}
 		</picture>
 	) : (
 		<FontAwesomeIcon icon={faCircleQuestion} className={`w-${size} h-${size} mr-2`} />

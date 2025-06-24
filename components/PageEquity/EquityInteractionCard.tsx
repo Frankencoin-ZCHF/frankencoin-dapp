@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import { ContractUrl, SOCIAL } from "@utils";
 import EquityInteractionWithZCHFFPS from "./EquityInteractionWithZCHFFPS";
 import EquityInteractionWithFPSWFPS from "./EquityInteractionWithFPSWFPS";
 import EquityInteractionWithWFPSRedeem from "./EquityInteractionWithWFPSRedeem";
-import AppLink from "@components/AppLink";
 import { ADDRESS } from "@frankencoin/zchf";
-import { WAGMI_CHAIN } from "../../app.config";
+import { mainnet } from "viem/chains";
 
 export const EquityTokenSelectorMapping: { [key: string]: string[] } = {
 	ZCHF: ["FPS"],
@@ -15,7 +13,6 @@ export const EquityTokenSelectorMapping: { [key: string]: string[] } = {
 
 export default function EquityInteractionCard() {
 	const [tokenFromTo, setTokenFromTo] = useState<{ from: string; to: string }>({ from: "ZCHF", to: "FPS" });
-	const { wFPS } = ADDRESS[WAGMI_CHAIN.id];
 
 	return (
 		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">

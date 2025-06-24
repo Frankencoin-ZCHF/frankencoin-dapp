@@ -1,9 +1,9 @@
 import { useReadContracts } from "wagmi";
 import { FPSHolder } from "./useFPSHolders";
 import { decodeBigIntCall } from "../utils/format";
-import { WAGMI_CHAIN } from "../app.config";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 import { Address } from "viem";
+import { mainnet } from "viem/chains";
 
 export type VoteDataQuote = {
 	holder: Address;
@@ -16,7 +16,8 @@ export const useVotingPowers = (holders: FPSHolder[]) => {
 	let contractCalls: any[] = [];
 	holders.forEach((holder) => {
 		contractCalls.push({
-			address: ADDRESS[WAGMI_CHAIN.id].equity,
+			address: ADDRESS[mainnet.id].equity,
+			chainId: mainnet.id,
 			abi: EquityABI,
 			functionName: "votes",
 			args: [holder.address],
@@ -25,7 +26,8 @@ export const useVotingPowers = (holders: FPSHolder[]) => {
 
 	holders.forEach((holder) => {
 		contractCalls.push({
-			address: ADDRESS[WAGMI_CHAIN.id].equity,
+			address: ADDRESS[mainnet.id].equity,
+			chainId: mainnet.id,
 			abi: EquityABI,
 			functionName: "holdingDuration",
 			args: [holder.address],
@@ -33,7 +35,8 @@ export const useVotingPowers = (holders: FPSHolder[]) => {
 	});
 
 	contractCalls.push({
-		address: ADDRESS[WAGMI_CHAIN.id].equity,
+		address: ADDRESS[mainnet.id].equity,
+		chainId: mainnet.id,
 		abi: EquityABI,
 		functionName: "totalVotes",
 	});
@@ -44,7 +47,7 @@ export const useVotingPowers = (holders: FPSHolder[]) => {
 
 	const votesData: VoteDataQuote[] = [];
 	if (data) {
-		for (let i = 0; i < holders.length; i += 2) {
+		for (let i = 0; i < holders.length; i++) {
 			votesData.push({
 				holder: holders[i].address,
 				fps: holders[i].votingPower,

@@ -115,7 +115,9 @@ export default function BorrowTable() {
 				{list.length == 0 ? (
 					<TableRowEmpty>{"There are no other positions yet."}</TableRowEmpty>
 				) : (
-					list.map((pos) => <BorrowRow headers={headers} tab={tab} position={pos} key={pos.position} />)
+					list.map((pos, idx) => (
+						<BorrowRow headers={headers} tab={tab} position={pos} key={`BorrowRow_${pos.position || idx}`} />
+					))
 				)}
 			</TableBody>
 		</Table>
