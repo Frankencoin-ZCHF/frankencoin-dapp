@@ -107,6 +107,7 @@ export default function EquityFPSDetailsCard() {
 								},
 							},
 							yaxis: {
+								min: 0,
 								labels: {
 									show: true,
 									formatter: (value) => {
