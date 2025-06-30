@@ -176,7 +176,7 @@ export default function EquityNativePoolShareDetailsCard() {
 				<div className="flex flex-row justify-between">
 					<div className="text-sm font-medium leading-relaxed">{t("equity.total_income")}</div>
 					<div className="text-sm font-medium leading-tight ">
-						{formatCurrency(profit + unrealizedProfit - loss, 2, 2)} {TOKEN_SYMBOL}
+						{formatCurrency(profit + unrealizedProfit - loss + 300000, 2, 2)} {TOKEN_SYMBOL} {/* 300k was sent directly to Equity contract */}
 					</div>
 				</div>
 			</div>
