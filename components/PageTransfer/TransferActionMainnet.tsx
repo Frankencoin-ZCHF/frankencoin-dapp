@@ -11,10 +11,11 @@ import { ADDRESS, ChainIdSide, FrankencoinABI, TransferReferenceABI } from "@fra
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { mainnet } from "viem/chains";
 import { useUserAllowance } from "../../hooks/useUserAllowance";
+import { AppKitNetwork } from "@reown/appkit/networks";
 
 interface Props {
 	recipient: Address;
-	recipientChain: string;
+	recipientChain: AppKitNetwork;
 	ccipFee: bigint;
 	addReference?: boolean;
 	reference: string;
@@ -41,7 +42,7 @@ export default function TransferActionMainnet({
 	const userAllowance = useUserAllowance([{ spender: ADDRESS[mainnet.id].transferReference, chainId: mainnet.id }]);
 	const allowance = userAllowance[0].allowance;
 
-	const isSameChain = recipientChain.toLowerCase() == mainnet.name.toLowerCase();
+	const isSameChain = recipientChain.name.toLowerCase() == mainnet.name.toLowerCase();
 
 	const handleApprove = async (e: any) => {
 		e.preventDefault();
@@ -117,15 +118,17 @@ export default function TransferActionMainnet({
 				});
 			} else {
 				// from mainnet to sidechain with reference
-				const targetChain = WAGMI_CHAINS.find((c) => c.name.toLowerCase() == recipientChain.toLowerCase());
-				if (!targetChain) throw new Error("targetChain not found");
-
 				writeHash = await writeContract(WAGMI_CONFIG, {
 					address: ADDRESS[mainnet.id].transferReference,
 					chainId: mainnet.id,
 					abi: TransferReferenceABI,
 					functionName: "crossTransfer",
-					args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, addReference ? reference : ""],
+					args: [
+						BigInt(ADDRESS[recipientChain.id as ChainIdSide].chainSelector),
+						recipient,
+						amount,
+						addReference ? reference : "",
+					],
 					value: (ccipFee * 12n) / 10n, // @dev add 20% more. Low level call will return unused amount.
 				});
 			}

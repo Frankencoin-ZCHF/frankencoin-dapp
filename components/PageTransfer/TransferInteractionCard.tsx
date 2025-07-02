@@ -12,7 +12,6 @@ import { mainnet } from "viem/chains";
 import TransferActionMainnet from "./TransferActionMainnet";
 import TransferActionSidechain from "./TransferActionSidechain";
 import { useUserBalance } from "../../hooks/useUserBalance";
-import AppToggle from "@components/AppToggle";
 import { readContract } from "wagmi/actions";
 import TransferDetailsCard from "./TransferDetailsCard";
 import { AppKitNetwork } from "@reown/appkit/networks";
@@ -30,7 +29,9 @@ export default function TransferInteractionCard() {
 	const balance = userBalance[chainId as ChainId].frankencoin;
 
 	const [recipient, setRecipient] = useState<string>((router.query.recipient as string) ?? "");
-	const [recipientChain, setRecipientChain] = useState<string>((router.query.recipientChain as string) ?? WAGMI_CHAIN.name);
+	const [recipientChainName, setRecipientChainName] = useState<string>((router.query.chain as string) ?? WAGMI_CHAIN.name);
+	const [recipientChain, setRecipientChain] = useState<AppKitNetwork>(WAGMI_CHAIN);
+
 	const [refToggle, setRefToggle] = useState<boolean>(((router.query.reference as string) ?? "").length > 0);
 	const [reference, setReference] = useState<string>((router.query.reference as string) ?? "");
 	const [amount, setAmount] = useState<bigint>(BigInt((router.query.amount as string) ?? "0"));
@@ -46,30 +47,50 @@ export default function TransferInteractionCard() {
 	}, [isLoaded]);
 
 	useEffect(() => {
-		if (!isAddress(recipient)) return;
+		if (reference.length > 0 && !refToggle) setRefToggle(true);
+		else if (reference.length == 0 && refToggle) setRefToggle(false);
+	}, [reference, refToggle]);
+
+	useEffect(() => {
+		let targetChainToCheck = recipientChainName.toLowerCase();
+
+		if (targetChainToCheck == "optimism") {
+			targetChainToCheck = "OP Mainnet";
+		} else if (targetChainToCheck == "arbitrum") {
+			targetChainToCheck = "Arbitrum One";
+		}
+
+		const targetChain = WAGMI_CHAINS.find((c) => c.name.toLowerCase() == targetChainToCheck.toLowerCase());
+		if (!targetChain) {
+			setRecipientChain(WAGMI_CHAIN);
+			setRecipientChainName(WAGMI_CHAIN.name);
+			console.error("targetChain not found");
+			return;
+		} else {
+			setRecipientChain(targetChain);
+			setRecipientChainName(targetChain.name);
+		}
+
+		if (targetChain.id == chainId) {
+			setCcipFee(0n);
+			return;
+		}
 
 		const fetcher = async () => {
-			const targetChain = WAGMI_CHAINS.find((c) => c.name.toLowerCase() == recipientChain.toLowerCase());
-			if (!targetChain) throw new Error("targetChain not found");
-			setRecipientChain(targetChain.name);
+			if (isAddress(recipient) && targetChain) {
+				const getCCIPFee = await readContract(WAGMI_CONFIG, {
+					address: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
+					abi: BridgedFrankencoinABI,
+					functionName: "getCCIPFee",
+					args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, true],
+				});
 
-			if (targetChain.id == chainId) {
-				setCcipFee(0n);
-				return;
+				setCcipFee(getCCIPFee);
 			}
-
-			const getCCIPFee = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
-				abi: BridgedFrankencoinABI,
-				functionName: "getCCIPFee",
-				args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, true],
-			});
-
-			setCcipFee(getCCIPFee);
 		};
 
 		fetcher();
-	}, [amount, chainId, recipient, recipientChain]);
+	}, [amount, chainId, recipient, recipientChainName]);
 
 	const errorRecipient = () => {
 		if (recipient != "" && !isAddress(recipient)) return "Invalid recipient address";
@@ -122,25 +143,18 @@ export default function TransferInteractionCard() {
 					onChange={setRecipient}
 					own={address}
 					error={errorRecipient()}
-					chain={recipientChain}
-					onChangeChain={setRecipientChain}
+					chain={recipientChain?.name}
+					onChangeChain={setRecipientChainName}
 				/>
 
-				<TokenInput symbol="ZCHF" label="Amount" chain={recipientChain} value={amount.toString()} digit={18} disabled={true} />
-
-				<div className="">
-					{refToggle ? (
-						<AddressInput
-							label="Reference"
-							placeholder="Invoice 123"
-							value={reference}
-							onChange={setReference}
-							isTextLeft={true}
-							reset=""
-						/>
-					) : null}
-					<AppToggle disabled={false} label="Add Reference" enabled={refToggle} onChange={setRefToggle} />
-				</div>
+				<AddressInput
+					label="Reference"
+					placeholder="Invoice 123"
+					value={reference}
+					onChange={setReference}
+					isTextLeft={true}
+					reset=""
+				/>
 
 				{isMainnetChain ? (
 					<TransferActionMainnet
@@ -167,7 +181,7 @@ export default function TransferInteractionCard() {
 				)}
 			</AppCard>
 
-			<TransferDetailsCard chain={chain} recipientChainName={recipientChain} ccipFee={ccipFee} />
+			<TransferDetailsCard chain={chain} recipientChain={recipientChain} ccipFee={ccipFee} />
 		</section>
 	);
 }

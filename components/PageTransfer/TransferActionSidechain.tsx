@@ -13,7 +13,7 @@ import { AppKitNetwork } from "@reown/appkit/networks";
 
 interface Props {
 	recipient: Address;
-	recipientChain: string;
+	recipientChain: AppKitNetwork;
 	ccipFee: bigint;
 	addReference?: boolean;
 	reference: string;
@@ -38,7 +38,7 @@ export default function TransferActionSidechain({
 
 	const chainId = useChainId();
 	const chain = WAGMI_CHAINS.find((c) => c.id == chainId) as AppKitNetwork;
-	const isSameChain = recipientChain.toLowerCase() == chain.name.toLowerCase();
+	const isSameChain = recipientChain.name.toLowerCase() == chain.name.toLowerCase();
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
@@ -67,9 +67,6 @@ export default function TransferActionSidechain({
 				});
 			} else {
 				// cross chain transfer with reference
-				const targetChain = WAGMI_CHAINS.find((c) => c.name.toLowerCase() == recipientChain.toLowerCase());
-				if (!targetChain) throw new Error("targetChain not found");
-
 				const overwriteABI = [
 					{
 						inputs: [
@@ -111,7 +108,12 @@ export default function TransferActionSidechain({
 					address: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
 					abi: overwriteABI,
 					functionName: "transfer",
-					args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, addReference ? reference : ""],
+					args: [
+						BigInt(ADDRESS[recipientChain.id as ChainIdSide].chainSelector),
+						recipient,
+						amount,
+						addReference ? reference : "",
+					],
 					value: (ccipFee * 12n) / 10n, // @dev add 20% more. Low level call will return unused amount.
 				});
 			}
