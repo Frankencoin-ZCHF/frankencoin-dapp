@@ -8,17 +8,13 @@ import { useAccount } from "wagmi";
 
 interface Props {
 	chain: AppKitNetwork | undefined;
-	recipientChainName: string;
+	recipientChain: AppKitNetwork | undefined;
 	ccipFee: bigint;
 }
 
-export default function TransferDetailsCard({ chain, recipientChainName, ccipFee }: Props) {
+export default function TransferDetailsCard({ chain, recipientChain, ccipFee }: Props) {
 	const { address } = useAccount();
-
-	const targetChain = WAGMI_CHAINS.find((c) => c.name.toLowerCase() == recipientChainName.toLowerCase());
-	if (!targetChain) throw new Error("targetChain not found");
-
-	const isSameChain = targetChain.id == chain?.id;
+	const isSameChain = recipientChain?.id == chain?.id;
 
 	return (
 		<AppCard>
