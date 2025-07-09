@@ -1,5 +1,5 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
-import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { CONFIG, FRANKENCOIN_API_CLIENT, FRANKENCOIN_API_CLIENT_TEST } from "../../app.config";
 import {
 	DispatchApiEcosystemCollateralPositions,
 	DispatchApiEcosystemCollateralStats,
@@ -27,8 +27,10 @@ export const initialState: EcosystemState = {
 	collateralPositions: {},
 	collateralStats: { num: 0, addresses: [], totalValueLocked: { usd: 0, chf: 0 }, map: {} },
 	fpsInfo: {
+		erc20: { address: zeroAddress, decimals: 0, name: "", symbol: "" },
+		chain: { id: 0, name: "" },
 		reserve: { balance: 0, equity: 0, minter: 0 },
-		values: { fpsMarketCapInChf: 0, price: 0, totalSupply: 0 },
+		token: { marketCap: 0, price: 0, totalSupply: 0 },
 		earnings: { profit: 0, loss: 0 },
 	},
 	frankencoinInfo: {
@@ -42,7 +44,7 @@ export const initialState: EcosystemState = {
 		fps: {
 			price: 0,
 			totalSupply: 0,
-			fpsMarketCapInChf: 0,
+			marketCap: 0,
 		},
 		tvl: { usd: 0, chf: 0 },
 	},
@@ -126,7 +128,7 @@ export const fetchEcosystem =
 		const response4 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/frankencoin/info");
 		dispatch(slice.actions.setFrankencoinInfo(response4.data as ApiEcosystemFrankencoinInfo));
 
-		const response5 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/frankencoin/minter/list");
+		const response5 = await FRANKENCOIN_API_CLIENT_TEST.get("/ecosystem/frankencoin/minter/list");
 		dispatch(slice.actions.setFrankencoinMinters(response5.data as ApiMinterListing));
 
 		// ---------------------------------------------------------------
