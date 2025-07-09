@@ -9,8 +9,8 @@ import { useEffect, useState } from "react";
 import GovernanceMintersRow from "./GovernanceMintersRow";
 
 export default function GovernanceMintersTable() {
-	const headers: string[] = ["Date", "Minter", "Comment", "State"];
-	const [tab, setTab] = useState<string>(headers[3]);
+	const headers: string[] = ["Date", "Minter", "Chain", "Comment", "State"];
+	const [tab, setTab] = useState<string>(headers[4]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<MinterQuery[]>([]);
 
@@ -25,8 +25,8 @@ export default function GovernanceMintersTable() {
 	});
 
 	useEffect(() => {
-		const idList = list.map((l) => l.id).join("_");
-		const idSorted = sorted.map((l) => l.id).join("_");
+		const idList = list.map((l) => `${l.chainId}:${l.minter}`).join("_");
+		const idSorted = sorted.map((l) => `${l.chainId}:${l.minter}`).join("_");
 		if (idList != idSorted) setList(sorted);
 	}, [list, sorted]);
 
@@ -46,7 +46,14 @@ export default function GovernanceMintersTable() {
 				{list.length == 0 ? (
 					<TableRowEmpty>{"There are no proposals yet."}</TableRowEmpty>
 				) : (
-					list.map((m) => <GovernanceMintersRow key={m.id} headers={headers} tab={tab} minter={m} />)
+					list.map((m, idx) => (
+						<GovernanceMintersRow
+							key={`${m.chainId}:${m.minter}` || `GovernanceMintersRow_${idx}`}
+							headers={headers}
+							tab={tab}
+							minter={m}
+						/>
+					))
 				)}
 			</TableBody>
 		</Table>
@@ -74,8 +81,10 @@ function sortMinters(params: SortMinters): MinterQuery[] {
 	} else if (tab === headers[1]) {
 		minters.sort((a, b) => a.minter.localeCompare(b.minter));
 	} else if (tab === headers[2]) {
-		minters.sort((a, b) => a.applyMessage.localeCompare(b.applyMessage));
+		minters.sort((a, b) => b.chainId - a.chainId);
 	} else if (tab === headers[3]) {
+		minters.sort((a, b) => a.applyMessage.localeCompare(b.applyMessage));
+	} else if (tab === headers[4]) {
 		minters.sort((a, b) => b.applyDate - a.applyDate);
 		minters.sort((a, b) => {
 			const calc = function (m: MinterQuery): number {
