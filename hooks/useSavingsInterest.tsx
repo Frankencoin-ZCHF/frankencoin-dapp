@@ -157,8 +157,8 @@ export const useSavingsInterest = () => {
 		const reinvestHash = await writeContract(WAGMI_CONFIG, {
 			address: ADDRESS[chainId].savingsGateway,
 			abi: SavingsGatewayABI,
-			functionName: "save",
-			args: [BigInt(0), frontendCode],
+			functionName: "refreshBalance",
+			args: [address]
 		});
 
 		const toastContent = [
