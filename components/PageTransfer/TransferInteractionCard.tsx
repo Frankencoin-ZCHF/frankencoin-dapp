@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Address, isAddress } from "viem";
 import { useAccount, useChainId } from "wagmi";
 import { WAGMI_CHAIN, WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
-import { ADDRESS, BridgedFrankencoinABI, ChainId, ChainIdSide } from "@frankencoin/zchf";
+import { ADDRESS, BridgedFrankencoinABI, ChainId, ChainIdMain, ChainIdSide, TransferReferenceABI } from "@frankencoin/zchf";
 import { useRouter } from "next/router";
 import AddressInputChain from "@components/Input/AddressInputChain";
 import { mainnet } from "viem/chains";
@@ -78,14 +78,25 @@ export default function TransferInteractionCard() {
 
 		const fetcher = async () => {
 			if (isAddress(recipient) && targetChain) {
-				const getCCIPFee = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
-					abi: BridgedFrankencoinABI,
-					functionName: "getCCIPFee",
-					args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, true],
-				});
+				if (chainId == mainnet.id) {
+					const getCCIPFee = await readContract(WAGMI_CONFIG, {
+						address: ADDRESS[chainId as ChainIdMain].transferReference,
+						abi: TransferReferenceABI,
+						functionName: "getCCIPFee",
+						args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, true],
+					});
 
-				setCcipFee(getCCIPFee);
+					setCcipFee(getCCIPFee);
+				} else {
+					const getCCIPFee = await readContract(WAGMI_CONFIG, {
+						address: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
+						abi: BridgedFrankencoinABI,
+						functionName: "getCCIPFee",
+						args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, true],
+					});
+
+					setCcipFee(getCCIPFee);
+				}
 			}
 		};
 
