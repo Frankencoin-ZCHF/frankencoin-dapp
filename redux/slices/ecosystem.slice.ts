@@ -128,7 +128,7 @@ export const fetchEcosystem =
 		const response4 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/frankencoin/info");
 		dispatch(slice.actions.setFrankencoinInfo(response4.data as ApiEcosystemFrankencoinInfo));
 
-		const response5 = await FRANKENCOIN_API_CLIENT_TEST.get("/ecosystem/frankencoin/minter/list");
+		const response5 = await FRANKENCOIN_API_CLIENT_TEST.get("/ecosystem/minter/list"); // FIXME: Change back to production api
 		dispatch(slice.actions.setFrankencoinMinters(response5.data as ApiMinterListing));
 
 		// ---------------------------------------------------------------
