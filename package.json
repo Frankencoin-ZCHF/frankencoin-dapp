@@ -1,6 +1,6 @@
 {
 	"name": "frankencoin-dapp",
-	"version": "0.2.12",
+	"version": "0.2.13",
 	"private": false,
 	"license": "MIT",
 	"scripts": {
@@ -25,7 +25,7 @@
 		"@fortawesome/free-solid-svg-icons": "^6.4.2",
 		"@fortawesome/react-fontawesome": "^0.2.0",
 		"@frankencoin/api": "^0.3.1",
-		"@frankencoin/zchf": "^0.3.18",
+		"@frankencoin/zchf": "^0.3.19",
 		"@reduxjs/toolkit": "^2.2.5",
 		"@reown/appkit": "^1.6.4",
 		"@reown/appkit-adapter-wagmi": "^1.6.4",

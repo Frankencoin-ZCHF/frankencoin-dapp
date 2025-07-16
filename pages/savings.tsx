@@ -6,7 +6,7 @@ import SavingsWithdrawnTable from "@components/PageSavings/SavingsWithdrawnTable
 import Head from "next/head";
 import { useEffect } from "react";
 import { store } from "../redux/redux.store";
-import { fetchBalance, fetchSavings } from "../redux/slices/savings.slice";
+import { fetchLeadrate, fetchSavings } from "../redux/slices/savings.slice";
 import { useAccount } from "wagmi";
 import AppTitle from "@components/AppTitle";
 import SavingsRankedBalancesTable from "@components/PageSavings/SavingsRankedBalancesTable";
@@ -17,8 +17,8 @@ export default function SavingsPage() {
 	const { address } = useAccount();
 
 	useEffect(() => {
+		store.dispatch(fetchLeadrate());
 		store.dispatch(fetchSavings(address));
-		store.dispatch(fetchBalance());
 	}, [address]);
 
 	return (
@@ -44,29 +44,23 @@ export default function SavingsPage() {
 				.
 			</div>
 
-			<AppTitle title="Yearly Accounts">
+			{/* FIXME: multichain update */}
+
+			{/* <AppTitle title="Yearly Accounts">
 				<div className={`text-text-secondary`}>
 					The yearly interest income of the current account. See also the
 					<AppLink className="" label={" report page"} href={`/report`} />.
 				</div>
 			</AppTitle>
-			<SavingsYearlyTable />
+			<SavingsYearlyTable /> */}
 
-			<AppTitle title="Recent Deposits" />
+			<AppTitle title="Recent Activities" />
 
-			<SavingsSavedTable />
+			{/* <SavingsSavedTable />
 
 			<AppTitle title="Recent Interest Claims" />
 
-			<SavingsInterestTable />
-
-			<AppTitle title="Recent Withdrawals" />
-
-			<SavingsWithdrawnTable />
-
-			<AppTitle title="Top Saver's Accounts" />
-
-			<SavingsRankedBalancesTable />
+			<SavingsRankedBalancesTable /> */}
 		</>
 	);
 }

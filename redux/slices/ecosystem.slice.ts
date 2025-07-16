@@ -16,7 +16,6 @@ import {
 	ApiEcosystemFrankencoinInfo,
 	ApiMinterListing,
 } from "@frankencoin/api";
-import { zeroAddress } from "viem";
 
 // --------------------------------------------------------------------------------
 
@@ -27,20 +26,16 @@ export const initialState: EcosystemState = {
 	collateralPositions: {},
 	collateralStats: { num: 0, addresses: [], totalValueLocked: { usd: 0, chf: 0 }, map: {} },
 	fpsInfo: {
-		erc20: { address: zeroAddress, decimals: 0, name: "", symbol: "" },
-		chain: { id: 0, name: "" },
+		erc20: { decimals: 0, name: "", symbol: "" },
+		chains: {} as ApiEcosystemFpsInfo["chains"],
 		reserve: { balance: 0, equity: 0, minter: 0 },
 		token: { marketCap: 0, price: 0, totalSupply: 0 },
 		earnings: { profit: 0, loss: 0 },
 	},
 	frankencoinInfo: {
-		raw: { mint: "0", burn: "0" },
-		total: { mint: 0, burn: 0, supply: 0 },
-		counter: { mint: 0, burn: 0 },
-
-		erc20: { address: zeroAddress, decimals: 0, name: "", symbol: "" },
-		chain: { id: 0, name: "" },
-		price: { usd: 0 },
+		erc20: { decimals: 0, name: "", symbol: "" },
+		chains: {} as ApiEcosystemFrankencoinInfo["chains"],
+		token: { supply: 0, usd: 0 },
 		fps: {
 			price: 0,
 			totalSupply: 0,

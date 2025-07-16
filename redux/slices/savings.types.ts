@@ -11,12 +11,13 @@ import {
 // --------------------------------------------------------------------------------
 export type SavingsState = {
 	error: string | null;
-	loaded: boolean;
 
+	leadrateLoaded: boolean;
 	leadrateInfo: ApiLeadrateInfo;
 	leadrateRate: ApiLeadrateRate;
 	leadrateProposed: ApiLeadrateProposed;
 
+	savingsLoaded: boolean;
 	savingsInfo: ApiSavingsInfo;
 	savingsBalance: ApiSavingsBalance;
 	savingsRanked: ApiSavingsRanked;

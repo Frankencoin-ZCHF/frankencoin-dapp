@@ -12,7 +12,7 @@ import LoadingScreen from "./LoadingScreen";
 import { fetchChallengesList } from "../redux/slices/challenges.slice";
 import { fetchBidsList } from "../redux/slices/bids.slice";
 import { fetchEcosystem } from "../redux/slices/ecosystem.slice";
-import { fetchSavings } from "../redux/slices/savings.slice";
+import { fetchLeadrate, fetchSavings } from "../redux/slices/savings.slice";
 import { fetchDashboard } from "../redux/slices/dashboard.slice";
 import { fetchMorphoMarkets } from "../redux/slices/morpho.slice";
 import { mainnet } from "viem/chains";
@@ -37,7 +37,8 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	const loadedPrices: boolean = useSelector((state: RootState) => state.prices.loaded);
 	const loadedChallenges: boolean = useSelector((state: RootState) => state.challenges.loaded);
 	const loadedBids: boolean = useSelector((state: RootState) => state.bids.loaded);
-	const loadedSavings: boolean = useSelector((state: RootState) => state.savings.loaded);
+	const loadedLeadrate: boolean = useSelector((state: RootState) => state.savings.leadrateLoaded);
+	const loadedSavings: boolean = useSelector((state: RootState) => state.savings.savingsLoaded);
 
 	// --------------------------------------------------------------------------------
 	// Init
@@ -54,6 +55,7 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		store.dispatch(fetchChallengesList());
 		store.dispatch(fetchBidsList());
 		store.dispatch(fetchSavings(latestAddress));
+		store.dispatch(fetchLeadrate());
 		store.dispatch(fetchDashboard());
 		store.dispatch(fetchMorphoMarkets());
 	}, [initialized, latestAddress]);
@@ -62,11 +64,11 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	// Init done
 	useEffect(() => {
 		if (initialized) return;
-		if (loadedEcosystem && loadedPositions && loadedPrices && loadedChallenges && loadedBids && loadedSavings) {
+		if (loadedEcosystem && loadedPositions && loadedPrices && loadedChallenges && loadedBids && loadedLeadrate && loadedSavings) {
 			console.log(`Init [BlockUpdater]: Done. ${Date.now() - initStart} ms`);
 			setInitialized(true);
 		}
-	}, [initialized, loadedPositions, loadedPrices, loadedEcosystem, loadedChallenges, loadedBids, loadedSavings]);
+	}, [initialized, loadedPositions, loadedPrices, loadedEcosystem, loadedChallenges, loadedBids, loadedLeadrate, loadedSavings]);
 
 	// --------------------------------------------------------------------------------
 	// Bock update policies
@@ -88,8 +90,6 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		store.dispatch(fetchPositionsList());
 		store.dispatch(fetchChallengesList());
 		store.dispatch(fetchBidsList());
-		// store.dispatch(fetchAccount(latestAddress)); // @dev: unused for now
-		// store.dispatch(fetchSavings(latestAddress)); // @dev: auto-updates deactivated, switched to page-updates
 		store.dispatch(fetchPricesList());
 		store.dispatch(fetchEcosystem());
 

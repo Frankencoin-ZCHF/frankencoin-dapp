@@ -1218,14 +1218,6 @@
     rxjs "^7.8.1"
     viem "^2.31.7"
 
-"@frankencoin/zchf@^0.3.18":
-  version "0.3.18"
-  resolved "https://registry.yarnpkg.com/@frankencoin/zchf/-/zchf-0.3.18.tgz#29fbdbf8ff8618108fd22cf56c664cd304131856"
-  integrity sha512-Ipo0SjlMXWm7Tm/MninZXeIDmIBBgAllPzLj5umZ/ylBAhI8ITve8Oi/zG420EiTG1U3lKN9yvxHpm5h26E7Vw==
-  dependencies:
-    ts-node "^10.9.1"
-    typescript "^5.2.2"
-
 "@frankencoin/zchf@^0.3.19":
   version "0.3.19"
   resolved "https://registry.yarnpkg.com/@frankencoin/zchf/-/zchf-0.3.19.tgz#78498977217bc14cbe39ed6e240d9af1e0284445"
