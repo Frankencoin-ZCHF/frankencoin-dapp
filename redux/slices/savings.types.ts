@@ -2,9 +2,10 @@ import {
 	ApiLeadrateInfo,
 	ApiLeadrateProposed,
 	ApiLeadrateRate,
+	ApiSavingsActivity,
 	ApiSavingsBalance,
 	ApiSavingsInfo,
-	ApiSavingsUserTable,
+	ApiSavingsRanked,
 } from "@frankencoin/api";
 
 // --------------------------------------------------------------------------------
@@ -13,14 +14,13 @@ export type SavingsState = {
 	loaded: boolean;
 
 	leadrateInfo: ApiLeadrateInfo;
-	leadrateProposed: ApiLeadrateProposed;
 	leadrateRate: ApiLeadrateRate;
+	leadrateProposed: ApiLeadrateProposed;
 
 	savingsInfo: ApiSavingsInfo;
-
 	savingsBalance: ApiSavingsBalance;
-	savingsUserTable: ApiSavingsUserTable;
-	savingsAllUserTable: ApiSavingsUserTable;
+	savingsRanked: ApiSavingsRanked;
+	savingsActivity: ApiSavingsActivity;
 };
 
 // --------------------------------------------------------------------------------
@@ -34,14 +34,14 @@ export type DispatchApiLeadrateInfo = {
 	payload: ApiLeadrateInfo;
 };
 
-export type DispatchApiLeadrateProposed = {
-	type: string;
-	payload: ApiLeadrateProposed;
-};
-
 export type DispatchApiLeadrateRate = {
 	type: string;
 	payload: ApiLeadrateRate;
+};
+
+export type DispatchApiLeadrateProposed = {
+	type: string;
+	payload: ApiLeadrateProposed;
 };
 
 export type DispatchApiSavingsInfo = {
@@ -49,12 +49,17 @@ export type DispatchApiSavingsInfo = {
 	payload: ApiSavingsInfo;
 };
 
-export type DispatchApiSavingsUserTable = {
-	type: string;
-	payload: ApiSavingsUserTable;
-};
-
 export type DispatchApiSavingsBalance = {
 	type: string;
 	payload: ApiSavingsBalance;
+};
+
+export type DispatchApiSavingsRanked = {
+	type: string;
+	payload: ApiSavingsRanked;
+};
+
+export type DispatchApiSavingsActivity = {
+	type: string;
+	payload: ApiSavingsActivity;
 };

@@ -1,4 +1,4 @@
-import { Address, ContractFunctionZeroDataError, formatUnits } from "viem";
+import { Address, formatUnits } from "viem";
 import TableRow from "../Table/TableRow";
 import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import { formatCurrency, FormatType, shortenAddress } from "../../utils/format";

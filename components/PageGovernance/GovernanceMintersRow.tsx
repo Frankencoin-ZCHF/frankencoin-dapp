@@ -1,6 +1,6 @@
-import { Chain, Hash, zeroAddress } from "viem";
+import { Chain, Hash } from "viem";
 import TableRow from "../Table/TableRow";
-import { ChainId, SupportedChains, SupportedChainsMap } from "@frankencoin/zchf";
+import { ChainId, SupportedChainsMap } from "@frankencoin/zchf";
 import { MinterQuery } from "@frankencoin/api";
 import GovernanceMintersAction from "./GovernanceMintersAction";
 import AppLink from "@components/AppLink";

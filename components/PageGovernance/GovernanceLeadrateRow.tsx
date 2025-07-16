@@ -5,9 +5,8 @@ import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, EquityABI, SavingsABI } from "@frankencoin/zchf";
-import { ApiLeadrateInfo, LeadrateProposed } from "@frankencoin/api";
+import { LeadrateProposedOpen } from "@frankencoin/api";
 import Button from "@components/Button";
-import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { toast } from "react-toastify";
 import { renderErrorTxToast, renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import AppLink from "@components/AppLink";
@@ -15,15 +14,16 @@ import { ContractUrl, TxUrl } from "@utils";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
+const MintModule = ADDRESS[mainnet.id].savingsV2.toLowerCase() as Address;
+const SaveModule = ADDRESS[mainnet.id].savingsReferral.toLowerCase() as Address;
+
 interface Props {
 	headers: string[];
 	tab: string;
-	info: ApiLeadrateInfo;
-	proposal: LeadrateProposed;
-	currentProposal: boolean;
+	proposal: LeadrateProposedOpen;
 }
 
-export default function GovernanceLeadrateRow({ headers, tab, info, proposal, currentProposal }: Props) {
+export default function GovernanceLeadrateRow({ headers, tab, proposal }: Props) {
 	const [isDenying, setDenying] = useState<boolean>(false);
 	const [isApplying, setApplying] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
@@ -34,7 +34,7 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 	const hoursUntil: number = (vetoUntil - Date.now()) / 1000 / 60 / 60;
 	const stateStr: string = `${hoursUntil < 10 && hoursUntil > 0 ? Math.round(hoursUntil * 10) / 10 : Math.round(hoursUntil)} hours left`;
 
-	const dateArr: string[] = new Date(proposal.created * 1000).toDateString().split(" ");
+	const dateArr: string[] = new Date(proposal.details.created * 1000).toDateString().split(" ");
 	const dateStr: string = `${dateArr[2]} ${dateArr[1]} ${dateArr[3]}`;
 
 	const handleOnApply = async function (e: any) {
@@ -44,17 +44,16 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 			setApplying(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].savingsReferral,
+				address: proposal.details.module,
 				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "applyChange",
-				args: [],
 			});
 
 			const toastContent = [
 				{
 					title: `From: `,
-					value: `${formatCurrency(info.rate / 10000)}%`,
+					value: `${formatCurrency(proposal.currentRate / 10000)}%`,
 				},
 				{
 					title: `Applying to: `,
@@ -90,17 +89,17 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 			setDenying(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].savingsReferral,
+				address: proposal.details.module,
 				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "proposeChange",
-				args: [info.rate, []],
+				args: [proposal.currentRate, []],
 			});
 
 			const toastContent = [
 				{
 					title: `Current: `,
-					value: `${formatCurrency(info.rate / 10000)}%`,
+					value: `${formatCurrency(proposal.currentRate / 10000)}%`,
 				},
 				{
 					title: `Denying: `,
@@ -132,57 +131,50 @@ export default function GovernanceLeadrateRow({ headers, tab, info, proposal, cu
 	return (
 		<>
 			<TableRow
-				paddingY={currentProposal && proposal.nextRate != info.rate ? "md:py-0 max-md:py-4" : undefined}
 				headers={headers}
 				tab={tab}
 				rawHeader={true}
 				actionCol={
-					currentProposal && info.isProposal ? (
-						info.isPending ? (
-							<GuardSupportedChain disabled={!info.isPending || !info.isProposal} chain={mainnet}>
-								<Button
-									className="h-10"
-									disabled={!info.isPending || !info.isProposal || isHidden}
-									isLoading={isDenying}
-									onClick={(e) => handleOnDeny(e)}
-								>
-									Deny
-								</Button>
-							</GuardSupportedChain>
-						) : !info.isPending ? (
-							<GuardSupportedChain disabled={!info.isProposal} chain={mainnet}>
-								<Button
-									className="h-10"
-									disabled={!info.isProposal || isHidden}
-									isLoading={isApplying}
-									onClick={(e) => handleOnApply(e)}
-								>
-									Apply
-								</Button>
-							</GuardSupportedChain>
-						) : (
-							<></>
-						)
+					proposal.isPending ? (
+						<GuardSupportedChain chain={mainnet}>
+							<Button className="h-10" disabled={isHidden} isLoading={isDenying} onClick={(e) => handleOnDeny(e)}>
+								Deny
+							</Button>
+						</GuardSupportedChain>
 					) : (
-						<></>
+						<GuardSupportedChain chain={mainnet}>
+							<Button className="h-10" disabled={isHidden} isLoading={isApplying} onClick={(e) => handleOnApply(e)}>
+								Apply
+							</Button>
+						</GuardSupportedChain>
 					)
 				}
 			>
 				<div className="flex flex-col md:text-left max-md:text-right">
-					<AppLink label={dateStr} href={TxUrl(proposal.txHash as Hash)} external={true} className="" />
+					<AppLink label={dateStr} href={TxUrl(proposal.details.txHash as Hash)} external={true} className="" />
 				</div>
 
 				<div className="flex flex-col">
-					<AppLink label={shortenAddress(proposal.proposer)} href={ContractUrl(proposal.proposer)} external={true} className="" />
+					<AppLink
+						label={shortenAddress(proposal.details.proposer)}
+						href={ContractUrl(proposal.details.proposer)}
+						external={true}
+						className=""
+					/>
 				</div>
 
-				<div className={`flex flex-col ${currentProposal && info.isProposal ? "font-semibold" : ""}`}>
-					{proposal.nextRate / 10_000} %
+				<div className="flex flex-col">
+					<AppLink
+						label={proposal.details.module.toLowerCase() == MintModule ? "Mint" : "Save"}
+						href={ContractUrl(proposal.details.module)}
+						external={true}
+						className=""
+					/>
 				</div>
 
-				<div className={`flex flex-col`}>
-					{currentProposal ? (info.rate != proposal.nextRate ? (hoursUntil > 0 ? stateStr : "Ready") : "Passed") : "Inactive"}
-				</div>
+				<div className={`flex flex-col font-semibold`}>{proposal.nextRate / 10_000} %</div>
+
+				<div className={`flex flex-col`}>{hoursUntil > 0 ? stateStr : "Ready"}</div>
 			</TableRow>
 		</>
 	);

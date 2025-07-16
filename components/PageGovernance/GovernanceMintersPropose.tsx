@@ -1,5 +1,4 @@
 import { shortenAddress } from "../../utils/format";
-import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import Button from "@components/Button";
 import NormalInput from "@components/Input/NormalInput";
 import AppCard from "@components/AppCard";
@@ -121,6 +120,7 @@ export default function GovernanceMintersPropose({}: Props) {
 						}
 						disabled={true}
 						placeholder="Amount"
+						chain={chain.name}
 					/>
 					<NormalInput
 						label="Proposal Period"
