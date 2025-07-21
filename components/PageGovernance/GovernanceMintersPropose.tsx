@@ -115,7 +115,7 @@ export default function GovernanceMintersPropose({}: Props) {
 						digit={0}
 						error={
 							account.address != undefined && userBal[chainId as ChainId].frankencoin < BigInt(1000 * 1e18)
-								? "Not enough ZCHF"
+								? `Not enough ZCHF on ${chain.name}`
 								: ""
 						}
 						disabled={true}
@@ -148,7 +148,7 @@ export default function GovernanceMintersPropose({}: Props) {
 
 			<AppCard>
 				<div className="flex flex-col gap-4">
-					<div className="mt-4 text-lg font-bold text-center">Propose a new Module</div>
+					<div className="mt-4 text-lg font-bold text-center">Propose a new Module on {chain.name}</div>
 
 					<AddressInput
 						label="Address"
@@ -167,7 +167,7 @@ export default function GovernanceMintersPropose({}: Props) {
 							isLoading={isHandling}
 							onClick={(e) => handleOnClick(e)}
 						>
-							Propose Module
+							Propose Module on {chain.name}
 						</Button>
 					</GuardSupportedChain>
 				</div>

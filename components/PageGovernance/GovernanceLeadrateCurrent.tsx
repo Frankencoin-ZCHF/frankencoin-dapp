@@ -171,7 +171,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 			<AppCard>
 				<div className="mt-4 text-lg font-bold text-center">Historical Rates</div>
 
-				<div className="-m-4">
+				<div className="-m-4 pr-2">
 					<ApexChart
 						type="line"
 						options={{
