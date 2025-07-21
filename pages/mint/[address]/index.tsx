@@ -318,7 +318,7 @@ export default function PositionBorrow({}) {
 								min={BigInt(position.minimumCollateral)}
 								digit={position.collateralDecimals}
 								onChange={onChangeCollateral}
-								error={errorColl}
+								error={requiredColl > userBalance ? `Not enough ${position.collateralSymbol} in your wallet.` : errorColl}
 								placeholder="Amount required"
 								value={requiredColl.toString()}
 								symbol={position.collateralSymbol}
