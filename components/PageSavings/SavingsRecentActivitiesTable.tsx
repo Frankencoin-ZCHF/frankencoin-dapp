@@ -49,7 +49,7 @@ export default function SavingsRecentActivitiesTable() {
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} />
 			<TableBody>
 				{list.length == 0 ? (
-					<TableRowEmpty>{"There are no savings yet."}</TableRowEmpty>
+					<TableRowEmpty>{"There are no activities yet."}</TableRowEmpty>
 				) : (
 					list.map((r, idx) => (
 						<SavingsRecentActivitiesRow

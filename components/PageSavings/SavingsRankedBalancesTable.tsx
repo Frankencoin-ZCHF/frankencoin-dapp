@@ -38,7 +38,7 @@ export default function SavingsRankedBalancesTable() {
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} />
 			<TableBody>
 				{list.length == 0 ? (
-					<TableRowEmpty>{"There are no saving yet."}</TableRowEmpty>
+					<TableRowEmpty>{"There are no rankings yet."}</TableRowEmpty>
 				) : (
 					list.map((r, idx) => (
 						<SavingsRankedBalancesRow
