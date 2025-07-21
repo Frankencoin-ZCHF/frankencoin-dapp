@@ -278,16 +278,17 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 						onChange={(e) => setNewRateMint(BigInt(e))}
 					/>
 
-					<GuardSupportedChain disabled={isDisabledMint || isHiddenMint} chain={mainnet}>
-						<Button
-							className="max-md:h-10 md:h-12 -mt-4 mb-4"
-							disabled={isDisabledMint || isHiddenMint}
-							isLoading={isHandlingMint}
-							onClick={(e) => handleOnClickMint(e)}
-						>
-							Propose Change
-						</Button>
-					</GuardSupportedChain>
+					<div className="h-10 -mt-4 mb-4">
+						<GuardSupportedChain disabled={isDisabledMint || isHiddenMint} chain={mainnet}>
+							<Button
+								disabled={isDisabledMint || isHiddenMint}
+								isLoading={isHandlingMint}
+								onClick={(e) => handleOnClickMint(e)}
+							>
+								Propose Change
+							</Button>
+						</GuardSupportedChain>
+					</div>
 
 					<NormalInput
 						symbol="%"
@@ -298,16 +299,17 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 						onChange={(e) => setNewRateSave(BigInt(e))}
 					/>
 
-					<GuardSupportedChain disabled={isDisabledSave || isHiddenSave} chain={mainnet}>
-						<Button
-							className="max-md:h-10 md:h-12 -mt-4 mb-4"
-							disabled={isDisabledSave || isHiddenSave}
-							isLoading={isHandlingSave}
-							onClick={(e) => handleOnClickSave(e)}
-						>
-							Propose Change
-						</Button>
-					</GuardSupportedChain>
+					<div className="h-10 -mt-4 mb-4">
+						<GuardSupportedChain disabled={isDisabledSave || isHiddenSave} chain={mainnet}>
+							<Button
+								disabled={isDisabledSave || isHiddenSave}
+								isLoading={isHandlingSave}
+								onClick={(e) => handleOnClickSave(e)}
+							>
+								Propose Change
+							</Button>
+						</GuardSupportedChain>
+					</div>
 				</div>
 			</AppCard>
 		</div>
