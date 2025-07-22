@@ -25,7 +25,7 @@ export default function TransferDetailsCard({ senderAddress, recipientAddress, c
 					<div className="flex-1 text-text-secondary">Sender</div>
 					<AppLink
 						className=""
-						label={senderAddress ? shortenAddress(senderAddress) : ""}
+						label={shortenAddress(senderAddress || zeroAddress)}
 						href={ContractUrl(senderAddress || zeroAddress, chain)}
 						external={true}
 					/>
@@ -42,7 +42,7 @@ export default function TransferDetailsCard({ senderAddress, recipientAddress, c
 					<div className="flex-1 text-text-secondary">Recipient</div>
 					<AppLink
 						className=""
-						label={recipientAddress ? shortenAddress(recipientAddress) : ""}
+						label={shortenAddress(recipientAddress || zeroAddress)}
 						href={ContractUrl(recipientAddress || zeroAddress, recipientChain)}
 						external={true}
 					/>
