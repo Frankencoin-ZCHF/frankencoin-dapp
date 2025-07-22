@@ -15,7 +15,9 @@ import SavingsActionWithdraw from "./SavingsActionWithdraw";
 import AppToggle from "@components/AppToggle";
 import AddressInput from "@components/Input/AddressInput";
 import SavingsActionSaveOnBehalf from "./SavingsActionSaveOnBehalf";
-import { getChain } from "@utils";
+import { ContractUrl, getChain, shortenAddress } from "@utils";
+import { useRouter } from "next/router";
+import AppLink from "@components/AppLink";
 
 export default function SavingsInteractionCard() {
 	const { status } = useSelector((state: RootState) => state.savings.savingsInfo);
@@ -31,6 +33,11 @@ export default function SavingsInteractionCard() {
 	const [userSavingsTicks, setUserSavingsTicks] = useState(0n);
 	const [userSavingsInterest, setUserSavingsInterest] = useState(0n);
 	const [userSavingsLocktime, setUserSavingsLocktime] = useState(0n);
+	const [userSavingsReferrer, setUserSavingsReferrer] = useState<Address>(zeroAddress);
+	const [userSavingsReferralFeePPM, setUserSavingsReferralFeePPM] = useState(0n);
+	const [userSavingsReferralFees, setUserSavingsReferralFees] = useState(0n);
+	const [newReferrer, setNewReferrer] = useState<Address | undefined>(undefined);
+	const [newReferralFeePPM, setNewReferralFeePPM] = useState(0n);
 	const [currentTicks, setCurrentTicks] = useState(0n);
 	const [onbehalfToggle, setOnbehalfToggle] = useState(false);
 	const [onbehalfAddress, setOnbehalfAddress] = useState("");
@@ -48,12 +55,29 @@ export default function SavingsInteractionCard() {
 	const { address } = useAccount();
 	const account = address || zeroAddress;
 
+	const router = useRouter();
+	const queryReferrer: Address = router.query.referrer as Address;
+	const queryReferralFeePPM: string = router.query.referralFeePPM as string;
+
 	const fromSymbol = "ZCHF";
 	const change: bigint = amount - (userSavingsBalance + userSavingsInterest);
 	const direction: boolean = amount >= userSavingsBalance + userSavingsInterest;
 	const claimable: boolean = userSavingsInterest > 0n;
 
 	// ---------------------------------------------------------------------------
+
+	useEffect(() => {
+		if (queryReferrer != undefined && queryReferrer.length != 0) {
+			if (isAddress(queryReferrer)) {
+				setNewReferrer(queryReferrer);
+			}
+		}
+		if (queryReferralFeePPM != undefined && queryReferralFeePPM.length != 0) {
+			if (BigInt(queryReferralFeePPM) > 0n) {
+				setNewReferralFeePPM(BigInt(queryReferralFeePPM));
+			}
+		}
+	}, [queryReferrer, queryReferralFeePPM]);
 
 	useEffect(() => {
 		if (account === zeroAddress) return;
@@ -93,6 +117,20 @@ export default function SavingsInteractionCard() {
 			const _interest = _userTicks == 0n || _locktime > 0 ? 0n : (_tickDiff * _userSavings) / (1_000_000n * 365n * 24n * 60n * 60n);
 
 			setUserSavingsInterest(_interest);
+
+			const [, , _referrer, _referralFeePPM] = await readContract(WAGMI_CONFIG, {
+				address: savingsAdresse,
+				chainId,
+				abi: SavingsABI,
+				functionName: "savings",
+				args: [account],
+			});
+
+			setUserSavingsReferrer(_referrer);
+			setUserSavingsReferralFeePPM(BigInt(_referralFeePPM));
+
+			const _fee = (_interest * BigInt(_referralFeePPM)) / 1_000_000n;
+			setUserSavingsReferralFees(_fee);
 
 			if (!isLoaded) {
 				setAmount(_userSavings);
@@ -181,6 +219,8 @@ export default function SavingsInteractionCard() {
 							savingsModule={savingsAdresse}
 							balance={userSavingsBalance}
 							interest={userSavingsInterest}
+							newReferrer={newReferrer}
+							newReferralFeePPM={newReferralFeePPM}
 						/>
 					) : amount > userSavingsBalance ? (
 						<SavingsActionSave
@@ -188,6 +228,8 @@ export default function SavingsInteractionCard() {
 							savingsModule={savingsAdresse}
 							amount={amount}
 							interest={userSavingsInterest}
+							newReferrer={newReferrer}
+							newReferralFeePPM={newReferralFeePPM}
 						/>
 					) : (
 						<SavingsActionWithdraw
@@ -195,17 +237,40 @@ export default function SavingsInteractionCard() {
 							savingsModule={savingsAdresse}
 							balance={amount}
 							change={change}
+							newReferrer={newReferrer}
+							newReferralFeePPM={newReferralFeePPM}
 						/>
 					)}
 				</div>
+
+				{newReferrer ? (
+					<div className="flex mt-8">
+						<div className={`flex-1 text-text-secondary`}>
+							<span className="font-semibold">Notice: </span>
+							You are about to set a referrer{" "}
+							<AppLink
+								className="pr-2"
+								label={shortenAddress(newReferrer)}
+								href={ContractUrl(newReferrer, chain)}
+								external={true}
+							/>
+							who will receive <span className="font-semibold">{Math.round(Number(newReferralFeePPM / 1000n)) / 10}%</span> of
+							your earned interest.
+						</div>
+					</div>
+				) : null}
 			</AppCard>
 
 			<SavingsDetailsCard
+				chain={chain}
 				balance={userSavingsBalance}
 				change={isLoaded && !onbehalfToggle ? change : 0n}
 				direction={direction}
 				interest={isLoaded && !onbehalfToggle ? userSavingsInterest : 0n}
 				locktime={userSavingsLocktime}
+				referrer={userSavingsReferrer}
+				referralFeePPM={userSavingsReferralFeePPM}
+				referralFees={userSavingsReferralFees}
 			/>
 		</section>
 	);

@@ -16,9 +16,19 @@ interface Props {
 	change: bigint;
 	disabled?: boolean;
 	setLoaded?: (val: boolean) => Dispatch<SetStateAction<boolean>>;
+	newReferrer?: Address | undefined;
+	newReferralFeePPM: bigint;
 }
 
-export default function SavingsActionWithdraw({ savingsModule, balance, change, disabled, setLoaded }: Props) {
+export default function SavingsActionWithdraw({
+	savingsModule,
+	balance,
+	change,
+	disabled,
+	setLoaded,
+	newReferrer,
+	newReferralFeePPM,
+}: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
 	const account = useAccount();
@@ -37,7 +47,7 @@ export default function SavingsActionWithdraw({ savingsModule, balance, change, 
 				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "adjust",
-				args: [balance],
+				args: newReferrer != undefined ? [balance, newReferrer, Number(newReferralFeePPM)] : [balance],
 			});
 
 			const toastContent = [

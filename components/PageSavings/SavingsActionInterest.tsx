@@ -16,9 +16,19 @@ interface Props {
 	interest: bigint;
 	disabled?: boolean;
 	setLoaded?: (val: boolean) => Dispatch<SetStateAction<boolean>>;
+	newReferrer?: Address | undefined;
+	newReferralFeePPM: bigint;
 }
 
-export default function SavingsActionInterest({ savingsModule, balance, interest, disabled, setLoaded }: Props) {
+export default function SavingsActionInterest({
+	savingsModule,
+	balance,
+	interest,
+	disabled,
+	setLoaded,
+	newReferrer,
+	newReferralFeePPM,
+}: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
 	const account = useAccount();
@@ -40,7 +50,7 @@ export default function SavingsActionInterest({ savingsModule, balance, interest
 				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "adjust",
-				args: [balance],
+				args: newReferrer != undefined ? [balance, newReferrer, Number(newReferralFeePPM)] : [balance],
 			});
 
 			const toastContent = [
