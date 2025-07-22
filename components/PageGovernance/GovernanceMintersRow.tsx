@@ -1,6 +1,6 @@
 import { Chain, Hash } from "viem";
 import TableRow from "../Table/TableRow";
-import { ChainId, SupportedChainsMap } from "@frankencoin/zchf";
+import { ChainId, SupportedChain, SupportedChainsMap } from "@frankencoin/zchf";
 import { MinterQuery } from "@frankencoin/api";
 import GovernanceMintersAction from "./GovernanceMintersAction";
 import AppLink from "@components/AppLink";
@@ -42,7 +42,7 @@ export default function GovernanceMintersRow({ headers, tab, minter }: Props) {
 			<div className="flex flex-col md:text-left max-md:text-right">
 				<AppLink
 					label={dateStr}
-					href={TxUrl(minter.txHash as Hash, SupportedChainsMap[minter.chainId as ChainId] as Chain)}
+					href={TxUrl(minter.txHash as Hash, SupportedChainsMap[minter.chainId as ChainId] as SupportedChain)}
 					external={true}
 					className=""
 				/>
@@ -52,7 +52,7 @@ export default function GovernanceMintersRow({ headers, tab, minter }: Props) {
 			<div className="flex flex-col">
 				<AppLink
 					label={shortenAddress(minter.minter)}
-					href={ContractUrl(minter.minter, SupportedChainsMap[minter.chainId as ChainId] as Chain)}
+					href={ContractUrl(minter.minter, SupportedChainsMap[minter.chainId as ChainId] as SupportedChain)}
 					external={true}
 					className=""
 				/>
