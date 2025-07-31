@@ -79,6 +79,7 @@ export const useSwapStats = () => {
 			...getTokenContractBasics(chainId, ADDRESS[chainId].eurc, account, ADDRESS[chainId].bridgeEURC),
 			...getTokenContractBasics(chainId, ADDRESS[chainId].veur, account, ADDRESS[chainId].bridgeVEUR),
 			...getTokenContractBasics(chainId, ADDRESS[chainId].eurs, account, ADDRESS[chainId].bridgeEURS),
+			...getTokenContractBasics(chainId, ADDRESS[chainId].eura, account, ADDRESS[chainId].bridgeEURA),
 
 			// dEURO Calls
 			{
@@ -156,6 +157,13 @@ export const useSwapStats = () => {
 				functionName: "allowance",
 				args: [account, ADDRESS[chainId].bridgeEURE],
 			},
+			{
+				chainId,
+				address: ADDRESS[chainId].decentralizedEURO,
+				abi: erc20Abi,
+				functionName: "allowance",
+				args: [account, ADDRESS[chainId].bridgeEURA],
+			},
 			...getTokenContractBasics(chainId, ADDRESS[chainId].eurr, account, ADDRESS[chainId].bridgeEURR),
 			...getTokenContractBasics(chainId, ADDRESS[chainId].europ, account, ADDRESS[chainId].bridgeEUROP),
 			...getTokenContractBasics(chainId, ADDRESS[chainId].euri, account, ADDRESS[chainId].bridgeEURI),
@@ -187,43 +195,50 @@ export const useSwapStats = () => {
 		contractBridgeAddress: ADDRESS[chainId].bridgeEURS,
 	};
 
+	const eura = {
+		...parseStablecoinStats(data, 28),
+		contractAddress: ADDRESS[chainId].eura,
+		contractBridgeAddress: ADDRESS[chainId].bridgeEURA,
+	};
+
 	const dEuro = {
-		userBal: data ? decodeBigIntCall(data[28]) : BigInt(0),
-		symbol: data ? String(data[29].result) : "",
-		decimals: data ? decodeBigIntCall(data[30]) : BigInt(0),
+		userBal: data ? decodeBigIntCall(data[35]) : BigInt(0),
+		symbol: data ? String(data[36].result) : "",
+		decimals: data ? decodeBigIntCall(data[37]) : BigInt(0),
 		bridgeAllowance: {
-			EURT: data ? decodeBigIntCall(data[31]) : BigInt(0),
-			EURC: data ? decodeBigIntCall(data[32]) : BigInt(0),
-			VEUR: data ? decodeBigIntCall(data[33]) : BigInt(0),
-			EURS: data ? decodeBigIntCall(data[34]) : BigInt(0),
-			EURR: data ? decodeBigIntCall(data[35]) : BigInt(0),
-			EUROP: data ? decodeBigIntCall(data[36]) : BigInt(0),
-			EURI: data ? decodeBigIntCall(data[37]) : BigInt(0),
-			EURE: data ? decodeBigIntCall(data[38]) : BigInt(0),
+			EURT: data ? decodeBigIntCall(data[38]) : BigInt(0),
+			EURC: data ? decodeBigIntCall(data[39]) : BigInt(0),
+			VEUR: data ? decodeBigIntCall(data[40]) : BigInt(0),
+			EURS: data ? decodeBigIntCall(data[41]) : BigInt(0),
+			EURR: data ? decodeBigIntCall(data[42]) : BigInt(0),
+			EUROP: data ? decodeBigIntCall(data[43]) : BigInt(0),
+			EURI: data ? decodeBigIntCall(data[44]) : BigInt(0),
+			EURE: data ? decodeBigIntCall(data[45]) : BigInt(0),
+			EURA: data ? decodeBigIntCall(data[46]) : BigInt(0),
 		},
 		contractAddress: ADDRESS[chainId].decentralizedEURO,
 	};
 
 	const eurr = {
-		...parseStablecoinStats(data, 39),
+		...parseStablecoinStats(data, 47),
 		contractAddress: ADDRESS[chainId].eurr,
 		contractBridgeAddress: ADDRESS[chainId].bridgeEURR,
 	};
 
 	const europ = {
-		...parseStablecoinStats(data, 46),
+		...parseStablecoinStats(data, 54),
 		contractAddress: ADDRESS[chainId].europ,
 		contractBridgeAddress: ADDRESS[chainId].bridgeEUROP,
 	};
 
 	const euri = {
-		...parseStablecoinStats(data, 53),
+		...parseStablecoinStats(data, 61),
 		contractAddress: ADDRESS[chainId].euri,
 		contractBridgeAddress: ADDRESS[chainId].bridgeEURI,
 	};
 
 	const eure = {
-		...parseStablecoinStats(data, 60),
+		...parseStablecoinStats(data, 68),
 		contractAddress: ADDRESS[chainId].eure,
 		contractBridgeAddress: ADDRESS[chainId].bridgeEURE,
 	};
@@ -235,6 +250,7 @@ export const useSwapStats = () => {
 		eurc,
 		veur,
 		eurs,
+		eura,
 		dEuro,
 		eurr,
 		europ,

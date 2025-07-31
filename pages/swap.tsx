@@ -27,7 +27,7 @@ enum TokenInteractionSide {
 	OUTPUT = "output",
 }
 
-const STABLECOIN_SYMBOLS = ["EURC", "VEUR", "EURS", "EURR", "EUROP", "EURI", "EURE"];
+const STABLECOIN_SYMBOLS = ["EURC", "VEUR", "EURS", "EURR", "EUROP", "EURI", "EURE", "EURA"];
 
 const noTokenMeta = {
 	symbol: "",
@@ -101,6 +101,8 @@ export default function Swap() {
 					return swapStats.euri;
 				case "EURE":
 					return swapStats.eure;
+				case "EURA":
+					return swapStats.eura;
 				default:
 					return noTokenMeta;
 			}
@@ -561,6 +563,14 @@ export default function Swap() {
 						balance={formatCurrency(formatUnits(swapStats.eure.userBal, Number(swapStats.eure.decimals))) as string}
 						name={swapStats.eure.symbol}
 						onClick={() => handleSelectToken(swapStats.eure.symbol.toUpperCase())}
+					/>
+					<TokenModalRowButton
+						currency="€"
+						symbol={swapStats.eura.symbol}
+						price={formatCurrency(formatUnits(swapStats.eura.userBal, Number(swapStats.eura.decimals)), 2, 2) as string}
+						balance={formatCurrency(formatUnits(swapStats.eura.userBal, Number(swapStats.eura.decimals))) as string}
+						name={swapStats.eura.symbol}
+						onClick={() => handleSelectToken(swapStats.eura.symbol)}
 					/>
 				</div>
 			</TokenSelectModal>
