@@ -8,9 +8,9 @@ import { useFPSHolders } from "@hooks";
 import { useVotingPowers } from "@hooks";
 import GovernanceVotersRow from "./GovernanceVotersRow";
 
-import { useAccount, useChainId } from "wagmi";
+import { useAccount } from "wagmi";
 import { readContract } from "wagmi/actions";
-import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
+import { WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 

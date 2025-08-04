@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { CONFIG, WAGMI_CONFIG } from "../../app.config";
+import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
-import { renderErrorToast, renderErrorTxToast, TxToast } from "@components/TxToast";
+import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
-import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { VoteData } from "./GovernanceVotersTable";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";

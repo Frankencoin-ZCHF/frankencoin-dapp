@@ -1,16 +1,23 @@
 import { MinterQuery } from "@frankencoin/api";
 import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { CONFIG, WAGMI_CONFIG } from "../../app.config";
+import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
 import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
-import { Address } from "viem";
-import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { ADDRESS, EquityABI, FrankencoinABI } from "@frankencoin/zchf";
-import { mainnet } from "viem/chains";
+import { Address, Chain } from "viem";
+import {
+	ADDRESS,
+	ChainId,
+	ChainIdMain,
+	ChainIdSide,
+	EquityABI,
+	FrankencoinABI,
+	SupportedChains,
+	SupportedChainsMap,
+} from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 interface Props {
@@ -21,7 +28,7 @@ interface Props {
 export default function GovernanceMintersAction({ minter, disabled }: Props) {
 	const [isVetoing, setVetoing] = useState<boolean>(false);
 	const account = useAccount();
-	const chainId = mainnet.id;
+	const chainId = minter.chainId as ChainId;
 	const [isHidden, setHidden] = useState<boolean>(false);
 
 	const handleOnClick = async function (e: any) {
@@ -36,7 +43,8 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 			setVetoing(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].frankencoin,
+				address:
+					chainId == 1 ? ADDRESS[chainId as ChainIdMain].frankencoin : ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
 				chainId: chainId,
 				abi: FrankencoinABI,
 				functionName: "denyMinter",
@@ -77,7 +85,7 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 
 	return (
 		<div className="">
-			<GuardSupportedChain disabled={isHidden || disabled} chain={mainnet}>
+			<GuardSupportedChain disabled={isHidden || disabled} chain={SupportedChainsMap[chainId] as Chain}>
 				<Button className="h-10" disabled={isHidden || disabled} isLoading={isVetoing} onClick={(e) => handleOnClick(e)}>
 					Veto
 				</Button>

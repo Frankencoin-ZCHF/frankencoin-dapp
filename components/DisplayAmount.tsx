@@ -12,6 +12,7 @@ interface Props {
 	unit?: string;
 	digits?: number | bigint;
 	currency?: string;
+	chain?: string;
 	address?: string;
 	hideLogo?: boolean;
 	bold?: boolean;
@@ -24,6 +25,7 @@ export default function DisplayAmount({
 	amount,
 	digits = 18,
 	currency,
+	chain,
 	address,
 	unit,
 	hideLogo,
@@ -48,7 +50,7 @@ export default function DisplayAmount({
 							<div className="flex flex-row">
 								{!hideLogo && currency && (
 									<div className="mr-2">
-										<TokenLogo currency={currency} size={6} />
+										<TokenLogo currency={currency} size={6} chain={chain} />
 									</div>
 								)}
 

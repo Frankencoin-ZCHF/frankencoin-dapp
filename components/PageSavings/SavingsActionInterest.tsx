@@ -2,27 +2,38 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
-import { formatCurrency } from "@utils";
+import { formatCurrency, getChain } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount, useChainId } from "wagmi";
 import Button from "@components/Button";
 import { Address, formatUnits } from "viem";
-import { ADDRESS, SavingsABI } from "@frankencoin/zchf";
-import { mainnet } from "viem/chains";
+import { ChainId, SavingsABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 interface Props {
+	savingsModule: Address;
 	balance: bigint;
 	interest: bigint;
 	disabled?: boolean;
 	setLoaded?: (val: boolean) => Dispatch<SetStateAction<boolean>>;
+	newReferrer?: Address | undefined;
+	newReferralFeePPM: bigint;
 }
 
-export default function SavingsActionInterest({ balance, interest, disabled, setLoaded }: Props) {
+export default function SavingsActionInterest({
+	savingsModule,
+	balance,
+	interest,
+	disabled,
+	setLoaded,
+	newReferrer,
+	newReferralFeePPM,
+}: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
 	const account = useAccount();
-	const chainId = mainnet.id;
+	const chainId = useChainId() as ChainId;
+	const chain = getChain(chainId);
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
@@ -35,11 +46,11 @@ export default function SavingsActionInterest({ balance, interest, disabled, set
 			 * https://github.com/Frankencoin-ZCHF/frankencoin-dapp/blob/b1356dc0e45157b0e65b20fef019af00e5126653/components/PageSavings/SavingsActionInterest.tsx
 			 */
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].savingsReferral,
+				address: savingsModule,
 				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "adjust",
-				args: [balance],
+				args: newReferrer != undefined ? [balance, newReferrer, Number(newReferralFeePPM)] : [balance],
 			});
 
 			const toastContent = [
@@ -76,7 +87,7 @@ export default function SavingsActionInterest({ balance, interest, disabled, set
 	};
 
 	return (
-		<GuardSupportedChain chain={mainnet}>
+		<GuardSupportedChain chain={chain}>
 			<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
 				Adjust
 			</Button>

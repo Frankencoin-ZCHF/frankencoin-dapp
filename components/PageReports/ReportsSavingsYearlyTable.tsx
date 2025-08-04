@@ -3,18 +3,20 @@ import TableBody from "../Table/TableBody";
 import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useEffect, useState } from "react";
-import { SavingsInterestQuery, SavingsSavedQuery, SavingsWithdrawQuery } from "@frankencoin/api";
+// import { SavingsInterestQuery, SavingsSavedQuery, SavingsWithdrawQuery } from "@frankencoin/api";
 import ReportsSavingsYearlyRow from "./ReportsSavingsYearlyRow";
 
 export type AccountYearly = { year: number; collected: bigint; balance: bigint };
 
 interface Props {
-	save: SavingsInterestQuery[];
-	interest: SavingsInterestQuery[];
-	withdraw: SavingsWithdrawQuery[];
+	// save: SavingsInterestQuery[];
+	// interest: SavingsInterestQuery[];
+	// withdraw: SavingsWithdrawQuery[];
 }
 
-export default function ReportsYearlyTable({ save, interest, withdraw }: Props) {
+export default function ReportsYearlyTable() {
+	// export default function ReportsYearlyTable({ save, interest, withdraw }: Props) {
+	/*
 	const headers: string[] = ["Year", "Interest Collected", "Year End Balance"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
@@ -107,6 +109,8 @@ export default function ReportsYearlyTable({ save, interest, withdraw }: Props) 
 			</TableBody>
 		</Table>
 	);
+	*/
+	return;
 }
 
 type SortFunctionParams = {

@@ -1,22 +1,24 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
-import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { CONFIG, FRANKENCOIN_API_CLIENT, FRANKENCOIN_API_CLIENT_TEST } from "../../app.config";
 import {
 	DispatchApiLeadrateInfo,
 	DispatchApiLeadrateProposed,
 	DispatchApiLeadrateRate,
+	DispatchApiSavingsActivity,
 	DispatchApiSavingsBalance,
 	DispatchApiSavingsInfo,
-	DispatchApiSavingsUserTable,
+	DispatchApiSavingsRanked,
 	DispatchBoolean,
 	SavingsState,
 } from "./savings.types";
 import {
 	ApiLeadrateInfo,
-	ApiLeadrateProposed,
 	ApiLeadrateRate,
+	ApiLeadrateProposed,
 	ApiSavingsBalance,
 	ApiSavingsInfo,
-	ApiSavingsUserTable,
+	ApiSavingsRanked,
+	ApiSavingsActivity,
 } from "@frankencoin/api";
 import { Address, zeroAddress } from "viem";
 
@@ -24,55 +26,31 @@ import { Address, zeroAddress } from "viem";
 
 export const initialState: SavingsState = {
 	error: null,
-	loaded: false,
 
+	leadrateLoaded: false,
 	leadrateInfo: {
-		isProposal: false,
-		isPending: false,
-		nextchange: 0,
-		nextRate: 0,
-		rate: 0,
-	},
-	leadrateProposed: {
-		blockheight: 0,
-		created: 0,
-		nextchange: 0,
-		nextRate: 0,
-		num: 0,
-		list: [],
+		rate: {} as ApiLeadrateInfo["rate"],
+		proposed: {} as ApiLeadrateInfo["proposed"],
+		open: {} as ApiLeadrateInfo["open"],
 	},
 	leadrateRate: {
-		blockheight: 0,
-		created: 0,
-		rate: 0,
-		num: 0,
-		list: [],
+		rate: {} as ApiLeadrateRate["rate"],
+		list: {} as ApiLeadrateRate["list"],
+	},
+	leadrateProposed: {
+		proposed: {} as ApiLeadrateProposed["proposed"],
+		list: {} as ApiLeadrateProposed["list"],
 	},
 
+	savingsLoaded: false,
 	savingsInfo: {
-		totalSaved: 0,
-		totalWithdrawn: 0,
-		totalBalance: 0,
-		totalInterest: 0,
-		rate: 0,
+		status: {} as ApiSavingsInfo["status"],
+		totalBalance: {} as ApiSavingsInfo["totalBalance"],
 		ratioOfSupply: 0,
 	},
-
-	savingsBalance: {
-		ranked: [],
-	},
-
-	savingsUserTable: {
-		interest: [],
-		save: [],
-		withdraw: [],
-	},
-
-	savingsAllUserTable: {
-		interest: [],
-		save: [],
-		withdraw: [],
-	},
+	savingsBalance: {} as ApiSavingsBalance,
+	savingsRanked: {} as ApiSavingsRanked,
+	savingsActivity: [],
 };
 
 // --------------------------------------------------------------------------------
@@ -87,10 +65,9 @@ export const slice = createSlice({
 		},
 
 		// SET LOADED
-		setLoaded: (state, action: { payload: boolean }) => {
-			state.loaded = action.payload;
+		setLeadrateLoaded: (state, action: { payload: boolean }) => {
+			state.leadrateLoaded = action.payload;
 		},
-
 		setLeadrateInfo: (state, action: { payload: ApiLeadrateInfo }) => {
 			state.leadrateInfo = action.payload;
 		},
@@ -101,20 +78,20 @@ export const slice = createSlice({
 			state.leadrateRate = action.payload;
 		},
 
+		setSavingsLoaded: (state, action: { payload: boolean }) => {
+			state.savingsLoaded = action.payload;
+		},
 		setSavingsInfo: (state, action: { payload: ApiSavingsInfo }) => {
 			state.savingsInfo = action.payload;
 		},
-
 		setSavingsBalance: (state, action: { payload: ApiSavingsBalance }) => {
 			state.savingsBalance = action.payload;
 		},
-
-		setSavingsUserTable: (state, action: { payload: ApiSavingsUserTable }) => {
-			state.savingsUserTable = action.payload;
+		setSavingsRanked: (state, action: { payload: ApiSavingsRanked }) => {
+			state.savingsRanked = action.payload;
 		},
-
-		setSavingsAllUserTable: (state, action: { payload: ApiSavingsUserTable }) => {
-			state.savingsAllUserTable = action.payload;
+		setSavingsActivity: (state, action: { payload: ApiSavingsActivity }) => {
+			state.savingsActivity = action.payload;
 		},
 	},
 });
@@ -123,16 +100,34 @@ export const reducer = slice.reducer;
 export const actions = slice.actions;
 
 // --------------------------------------------------------------------------------
+export const fetchLeadrate =
+	() => async (dispatch: Dispatch<DispatchBoolean | DispatchApiLeadrateInfo | DispatchApiLeadrateProposed | DispatchApiLeadrateRate>) => {
+		// ---------------------------------------------------------------
+		CONFIG.verbose && console.log("Loading [REDUX]: Leadrate");
+
+		// ---------------------------------------------------------------
+		// Query raw data from backend api
+		// FIXME: replace FRANKENCOIN_API_CLIENT_TEST with FRANKENCOIN_API_CLIENT
+		const response1 = await FRANKENCOIN_API_CLIENT_TEST.get<ApiLeadrateInfo>("/savings/leadrate/info");
+		dispatch(slice.actions.setLeadrateInfo(response1.data));
+
+		const response2 = await FRANKENCOIN_API_CLIENT_TEST.get<ApiLeadrateProposed>("/savings/leadrate/proposals");
+		dispatch(slice.actions.setLeadrateProposed(response2.data));
+
+		const response3 = await FRANKENCOIN_API_CLIENT_TEST.get<ApiLeadrateRate>("/savings/leadrate/rates");
+		dispatch(slice.actions.setLeadrateRate(response3.data));
+
+		// ---------------------------------------------------------------
+		// Finalizing, loaded set to ture
+		dispatch(slice.actions.setLeadrateLoaded(true));
+	};
+
+// --------------------------------------------------------------------------------
 export const fetchSavings =
 	(account: Address | undefined) =>
 	async (
 		dispatch: Dispatch<
-			| DispatchBoolean
-			| DispatchApiLeadrateInfo
-			| DispatchApiLeadrateProposed
-			| DispatchApiLeadrateRate
-			| DispatchApiSavingsInfo
-			| DispatchApiSavingsUserTable
+			DispatchBoolean | DispatchApiSavingsInfo | DispatchApiSavingsBalance | DispatchApiSavingsRanked | DispatchApiSavingsActivity
 		>
 	) => {
 		// ---------------------------------------------------------------
@@ -140,40 +135,23 @@ export const fetchSavings =
 
 		// ---------------------------------------------------------------
 		// Query raw data from backend api
-		const response1 = await FRANKENCOIN_API_CLIENT.get("/savings/leadrate/info");
-		dispatch(slice.actions.setLeadrateInfo(response1.data as ApiLeadrateInfo));
+		const response4 = await FRANKENCOIN_API_CLIENT_TEST.get<ApiSavingsInfo>("/savings/core/info");
+		dispatch(slice.actions.setSavingsInfo(response4.data));
 
-		const response2 = await FRANKENCOIN_API_CLIENT.get("/savings/leadrate/proposals");
-		dispatch(slice.actions.setLeadrateProposed(response2.data as ApiLeadrateProposed));
+		const response5 = await FRANKENCOIN_API_CLIENT_TEST.get<ApiSavingsBalance>(
+			"/savings/core/balance" + (account ? `/${account}` : "")
+		);
+		dispatch(slice.actions.setSavingsBalance(response5.data));
 
-		const response3 = await FRANKENCOIN_API_CLIENT.get("/savings/leadrate/rates");
-		dispatch(slice.actions.setLeadrateRate(response3.data as ApiLeadrateRate));
+		const response6 = await FRANKENCOIN_API_CLIENT_TEST.get<ApiSavingsActivity>(
+			"/savings/core/activity" + (account ? `/${account}` : "")
+		);
+		dispatch(slice.actions.setSavingsActivity(response6.data));
 
-		const response4 = await FRANKENCOIN_API_CLIENT.get("/savings/core/info");
-		dispatch(slice.actions.setSavingsInfo(response4.data as ApiSavingsInfo));
-
-		const response6 = await FRANKENCOIN_API_CLIENT.get(`/savings/core/user/${zeroAddress}`);
-		dispatch(slice.actions.setSavingsAllUserTable(response6.data as ApiSavingsUserTable));
-
-		if (account == undefined) {
-			dispatch(slice.actions.setSavingsUserTable(initialState.savingsUserTable));
-		} else {
-			const response5 = await FRANKENCOIN_API_CLIENT.get(`/savings/core/user/${account}`);
-			dispatch(slice.actions.setSavingsUserTable(response5.data as ApiSavingsUserTable));
-		}
+		const response7 = await FRANKENCOIN_API_CLIENT_TEST.get<ApiSavingsRanked>("/savings/core/ranked");
+		dispatch(slice.actions.setSavingsRanked(response7.data));
 
 		// ---------------------------------------------------------------
 		// Finalizing, loaded set to ture
-		dispatch(slice.actions.setLoaded(true));
+		dispatch(slice.actions.setSavingsLoaded(true));
 	};
-
-// --------------------------------------------------------------------------------
-export const fetchBalance = () => async (dispatch: Dispatch<DispatchApiSavingsBalance>) => {
-	// ---------------------------------------------------------------
-	CONFIG.verbose && console.log("Loading [REDUX]: Savings/balance");
-
-	// ---------------------------------------------------------------
-	// Query raw data from backend api
-	const response1 = await FRANKENCOIN_API_CLIENT.get("/savings/core/balances");
-	dispatch(slice.actions.setSavingsBalance(response1.data as ApiSavingsBalance));
-};
