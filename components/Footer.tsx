@@ -22,6 +22,7 @@ const DynamicDocs = (): string => {
 	else if (p.includes("/savings")) link += "/savings-todo";
 	else if (p.includes("/governance")) link += "/governance";
 	else if (p.includes("/swap")) link += "/swap";
+	else if (p.includes("/transfer")) link += "/transfer";
 
 	return link;
 };

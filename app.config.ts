@@ -7,6 +7,7 @@ import { mainnet, polygon, Chain, arbitrum, optimism, avalanche, gnosis, sonic, 
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import axios from "axios";
 import { Address } from "viem";
+import { SupportedChains } from "@frankencoin/zchf";
 
 export type ConfigEnv = {
 	verbose: boolean;
@@ -17,7 +18,6 @@ export type ConfigEnv = {
 	morphoGraph: string;
 	rpc: string;
 	wagmiId: string;
-	chain: Chain;
 };
 
 // DEV: Loaded with defaults, not needed for now.
@@ -33,7 +33,6 @@ export const CONFIG: ConfigEnv = {
 	api: process.env.NEXT_PUBLIC_API_URL || "https://api.frankencoin.com",
 	ponder: process.env.NEXT_PUBLIC_PONDER_URL || "https://ponder.frankencoin.com",
 	morphoGraph: process.env.NEXT_PUBLIC_MORPHOGRAPH_URL || "https://blue-api.morpho.org/graphql",
-	chain: process.env.NEXT_PUBLIC_PROFILE == "testnet" ? polygon : mainnet,
 	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID || "3321ad5a4f22083fe6fe82208a4c9ddc",
 	rpc: process.env.NEXT_PUBLIC_RPC_KEY || "dhaKbi2HDlKYW1JaSHm1i_hGkE2gnA5t",
 };
@@ -56,10 +55,14 @@ export const MORPHOGRAPH_CLIENT = new ApolloClient({
 export const FRANKENCOIN_API_CLIENT = axios.create({
 	baseURL: CONFIG.api,
 });
+export const FRANKENCOIN_API_CLIENT_TEST = axios.create({
+	// baseURL: "http://localhost:3030",
+	baseURL: "https://api.test.frankencoin.com", // FIXME: replace to old state
+});
 
 // WAGMI CONFIG
-export const WAGMI_CHAIN = CONFIG.chain;
-export const WAGMI_CHAINS: [AppKitNetwork, ...AppKitNetwork[]] = [mainnet, polygon, arbitrum, optimism, base, avalanche, gnosis, sonic];
+export const WAGMI_CHAIN = SupportedChains["mainnet"];
+export const WAGMI_CHAINS = Object.values(SupportedChains);
 export const WAGMI_METADATA = {
 	name: "Frankencoin",
 	description: "Frankencoin Frontend Application",

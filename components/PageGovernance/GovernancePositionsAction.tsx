@@ -7,7 +7,6 @@ import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { useAccount, useChainId } from "wagmi";
 import Button from "@components/Button";
 import { Address } from "viem";
-import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { PositionQuery } from "@frankencoin/api";
 import { EquityABI, PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";

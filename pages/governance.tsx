@@ -45,10 +45,10 @@ export default function Governance() {
 
 			<GovernancePositionsTable />
 
-			<AppTitle title="Base Rate Proposals">
+			<AppTitle title="Interest Rates">
 				<div className="text-text-secondary">
-					This is the base rate that is applied when minting new Frankencoins and the rate at which savers continuously accrue
-					interest. Anyone with veto power can propose a change, which can be applied if there is no counter-proposal within seven
+					Frankencoin has two key rates: the mint rate, applied when new coins are created, and the save rate, earned by savers on
+					deposits. Anyone with veto power can propose a change, which can be applied if there is no counter-proposal within seven
 					days.
 				</div>
 			</AppTitle>

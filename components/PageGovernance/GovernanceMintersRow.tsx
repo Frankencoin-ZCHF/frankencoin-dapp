@@ -1,7 +1,7 @@
-import { Hash, zeroAddress } from "viem";
+import { Chain, Hash } from "viem";
 import TableRow from "../Table/TableRow";
+import { ChainId, SupportedChain, SupportedChainsMap } from "@frankencoin/zchf";
 import { MinterQuery } from "@frankencoin/api";
-import { useContractUrl } from "@hooks";
 import GovernanceMintersAction from "./GovernanceMintersAction";
 import AppLink from "@components/AppLink";
 import { ContractUrl, shortenAddress, TxUrl } from "@utils";
@@ -13,7 +13,6 @@ interface Props {
 }
 
 export default function GovernanceMintersRow({ headers, tab, minter }: Props) {
-	const url = useContractUrl(minter.minter || zeroAddress);
 	if (!minter) return null;
 
 	const vetoUntil = (minter.applyDate + minter.applicationPeriod) * 1000;
@@ -34,18 +33,33 @@ export default function GovernanceMintersRow({ headers, tab, minter }: Props) {
 			tab={tab}
 			actionCol={
 				<div className="">
-					{isDisabled ? null : <GovernanceMintersAction key={minter.id} minter={minter} disabled={isDisabled} />}
+					{isDisabled ? null : (
+						<GovernanceMintersAction key={`${minter.chainId}:${minter.minter}`} minter={minter} disabled={isDisabled} />
+					)}
 				</div>
 			}
 		>
 			<div className="flex flex-col md:text-left max-md:text-right">
-				<AppLink label={dateStr} href={TxUrl(minter.txHash as Hash)} external={true} className="" />
+				<AppLink
+					label={dateStr}
+					href={TxUrl(minter.txHash as Hash, SupportedChainsMap[minter.chainId as ChainId] as SupportedChain)}
+					external={true}
+					className=""
+				/>
 			</div>
 
 			{/* Minter */}
 			<div className="flex flex-col">
-				<AppLink label={shortenAddress(minter.minter)} href={ContractUrl(minter.minter)} external={true} className="" />
+				<AppLink
+					label={shortenAddress(minter.minter)}
+					href={ContractUrl(minter.minter, SupportedChainsMap[minter.chainId as ChainId] as SupportedChain)}
+					external={true}
+					className=""
+				/>
 			</div>
+
+			{/* ChainId */}
+			<div className="flex flex-col">{(SupportedChainsMap[minter.chainId as ChainId] as Chain).name}</div>
 
 			{/* Comment */}
 			<div className="flex flex-col">{minter.applyMessage}</div>

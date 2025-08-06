@@ -9,8 +9,7 @@ import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast, renderErrorTxToastDecode } from "@components/TxToast";
-import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
+import { WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import { PositionQuery } from "@frankencoin/api";
@@ -177,7 +176,7 @@ export default function PositionAdjust() {
 	function getAmountError() {
 		if (isCooldown) {
 			return `This position is ${position.cooldown > 1e30 ? "closed" : "in cooldown, please wait"}`;
-		} else if (amount - BigInt(position.minted) > maxTotalLimit) {
+		} else if (amount > maxTotalLimit) {
 			return `This position is limited to ${formatCurrency(formatUnits(maxTotalLimit, 18), 2, 2)} ZCHF`;
 		} else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
 			return `Can mint at most ${formatUnits((collateralAmount * liqPrice) / 10n ** 36n, 0)} ZCHF given price and collateral.`;

@@ -12,8 +12,7 @@ import { formatBigInt, formatCurrency, min, shortenAddress, toTimestamp } from "
 import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import DateInput from "@components/Input/DateInput";
-import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
-import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
+import { WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
@@ -133,6 +132,10 @@ export default function PositionBorrow({}) {
 			setError("No more than " + formatCurrency(parseInt(availableAmount.toString()) / 1e18, 2, 2) + " ZCHF can be minted");
 		} else {
 			setError("");
+		}
+
+		if (BigInt(requiredColl) > userBalance) {
+			setErrorColl(`Not enough ${position.collateralSymbol} in your wallet.`);
 		}
 	};
 
@@ -315,7 +318,7 @@ export default function PositionBorrow({}) {
 								min={BigInt(position.minimumCollateral)}
 								digit={position.collateralDecimals}
 								onChange={onChangeCollateral}
-								error={errorColl}
+								error={requiredColl > userBalance ? `Not enough ${position.collateralSymbol} in your wallet.` : errorColl}
 								placeholder="Amount required"
 								value={requiredColl.toString()}
 								symbol={position.collateralSymbol}
@@ -339,7 +342,7 @@ export default function PositionBorrow({}) {
 							<GuardSupportedChain chain={mainnet}>
 								{requiredColl > userAllowance ? (
 									<Button
-										disabled={requiredColl > userBalance || !!error}
+										disabled={requiredColl > userBalance || !!errorColl}
 										isLoading={isApproving}
 										onClick={() => handleApprove()}
 									>

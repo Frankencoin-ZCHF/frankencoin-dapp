@@ -14,6 +14,9 @@ export function NavItems() {
 				<NavButton to="/mint" name="Borrow" />
 			</li>
 			<li>
+				<NavButton to="/transfer" name="Transfer" />
+			</li>
+			<li>
 				<NavButton to="/mypositions" name="My Positions" />
 			</li>
 			<li>

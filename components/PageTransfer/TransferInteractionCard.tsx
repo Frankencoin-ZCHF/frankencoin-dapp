@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Address, isAddress } from "viem";
 import { useAccount, useChainId } from "wagmi";
 import { WAGMI_CHAIN, WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
-import { ADDRESS, BridgedFrankencoinABI, ChainId, ChainIdSide } from "@frankencoin/zchf";
+import { ADDRESS, BridgedFrankencoinABI, ChainId, ChainIdMain, ChainIdSide, SupportedChain, TransferReferenceABI } from "@frankencoin/zchf";
 import { useRouter } from "next/router";
 import AddressInputChain from "@components/Input/AddressInputChain";
 import { mainnet } from "viem/chains";
@@ -16,13 +16,14 @@ import { readContract } from "wagmi/actions";
 import TransferDetailsCard from "./TransferDetailsCard";
 import { AppKitNetwork } from "@reown/appkit/networks";
 import { useAppKitNetwork } from "@reown/appkit/react";
+import { getChain } from "@utils";
 
 export default function TransferInteractionCard() {
 	const router = useRouter();
-	const chainId = useChainId();
+	const chainId = useChainId() as ChainId;
 	const { address } = useAccount();
 	const AppKitNetwork = useAppKitNetwork();
-	const chain = WAGMI_CHAINS.find((c) => c.id == chainId);
+	const chain = getChain(chainId);
 	const isMainnetChain = chainId == mainnet.id;
 
 	const userBalance = useUserBalance();
@@ -30,7 +31,7 @@ export default function TransferInteractionCard() {
 
 	const [recipient, setRecipient] = useState<string>((router.query.recipient as string) ?? "");
 	const [recipientChainName, setRecipientChainName] = useState<string>((router.query.chain as string) ?? WAGMI_CHAIN.name);
-	const [recipientChain, setRecipientChain] = useState<AppKitNetwork>(WAGMI_CHAIN);
+	const [recipientChain, setRecipientChain] = useState<SupportedChain>(WAGMI_CHAIN);
 
 	const [refToggle, setRefToggle] = useState<boolean>(((router.query.reference as string) ?? "").length > 0);
 	const [reference, setReference] = useState<string>((router.query.reference as string) ?? "");
@@ -78,14 +79,25 @@ export default function TransferInteractionCard() {
 
 		const fetcher = async () => {
 			if (isAddress(recipient) && targetChain) {
-				const getCCIPFee = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
-					abi: BridgedFrankencoinABI,
-					functionName: "getCCIPFee",
-					args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, true],
-				});
+				if (chainId == mainnet.id) {
+					const getCCIPFee = await readContract(WAGMI_CONFIG, {
+						address: ADDRESS[chainId as ChainIdMain].transferReference,
+						abi: TransferReferenceABI,
+						functionName: "getCCIPFee",
+						args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, true],
+					});
 
-				setCcipFee(getCCIPFee);
+					setCcipFee(getCCIPFee);
+				} else {
+					const getCCIPFee = await readContract(WAGMI_CONFIG, {
+						address: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
+						abi: BridgedFrankencoinABI,
+						functionName: "getCCIPFee",
+						args: [BigInt(ADDRESS[targetChain.id as ChainIdSide].chainSelector), recipient, amount, true],
+					});
+
+					setCcipFee(getCCIPFee);
+				}
 			}
 		};
 
@@ -181,7 +193,13 @@ export default function TransferInteractionCard() {
 				)}
 			</AppCard>
 
-			<TransferDetailsCard chain={chain} recipientChain={recipientChain} ccipFee={ccipFee} />
+			<TransferDetailsCard
+				senderAddress={address}
+				recipientAddress={recipient as Address}
+				chain={chain}
+				recipientChain={recipientChain}
+				ccipFee={ccipFee}
+			/>
 		</section>
 	);
 }

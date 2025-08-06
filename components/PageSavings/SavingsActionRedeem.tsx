@@ -32,8 +32,6 @@ export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 				args: [address],
 			});
 
-			console.log(saved, ticks);
-
 			setHidden(saved == 0n);
 		};
 

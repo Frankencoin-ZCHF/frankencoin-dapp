@@ -1,5 +1,4 @@
 import { formatCurrency } from "../../utils/format";
-import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import Button from "@components/Button";
 import NormalInput from "@components/Input/NormalInput";
 import AppCard from "@components/AppCard";
@@ -13,71 +12,89 @@ import { ADDRESS, EquityABI, SavingsABI } from "@frankencoin/zchf";
 import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import dynamic from "next/dynamic";
-import AppBox from "@components/AppBox";
-import DisplayLabel from "@components/DisplayLabel";
-import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import { LeadrateRateQuery } from "@frankencoin/api";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { Address } from "viem";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
+
+const MintModule = ADDRESS[mainnet.id].savingsV2.toLowerCase() as Address;
+const SaveModule = ADDRESS[mainnet.id].savingsReferral.toLowerCase() as Address;
 
 interface Props {}
 
 export default function GovernanceLeadrateCurrent({}: Props) {
-	const [isHandling, setHandling] = useState<boolean>(false);
 	const account = useAccount();
 	const chainId = mainnet.id;
-	const info = useSelector((state: RootState) => state.savings.leadrateInfo);
-	const rates = useSelector((state: RootState) => state.savings.leadrateRate.list);
-	const [newRate, setNewRate] = useState<bigint>(BigInt(info.rate));
-	const [isHidden, setHidden] = useState<boolean>(false);
-	const [isDisabled, setDisabled] = useState<boolean>(true);
+	const rate = useSelector((state: RootState) => state.savings.leadrateRate.rate[chainId]);
+	const rates = useSelector((state: RootState) => state.savings.leadrateRate.list[chainId]);
+
+	const [newRateMint, setNewRateMint] = useState<bigint>(BigInt(rate[MintModule].approvedRate));
+	const [isHandlingMint, setHandlingMint] = useState<boolean>(false);
+	const [isHiddenMint, setHiddenMint] = useState<boolean>(false);
+	const [isDisabledMint, setDisabledMint] = useState<boolean>(true);
+
+	const [newRateSave, setNewRateSave] = useState<bigint>(BigInt(rate[SaveModule].approvedRate));
+	const [isHandlingSave, setHandlingSave] = useState<boolean>(false);
+	const [isHiddenSave, setHiddenSave] = useState<boolean>(false);
+	const [isDisabledSave, setDisabledSave] = useState<boolean>(true);
 
 	useEffect(() => {
-		if ((String(newRate) != "" && newRate != BigInt(info.rate)) || info.isProposal) setDisabled(false);
-		else setDisabled(true);
-	}, [newRate, info]);
+		if (newRateMint != BigInt(rate[MintModule].approvedRate)) setDisabledMint(false);
+		else setDisabledMint(true);
+	}, [newRateMint, rate]);
 
-	if (!info) return null;
+	useEffect(() => {
+		if (newRateSave != BigInt(rate[SaveModule].approvedRate)) setDisabledSave(false);
+		else setDisabledSave(true);
+	}, [newRateSave, rate]);
 
-	const latestDefaultEntry: LeadrateRateQuery = {
-		approvedRate: info.rate,
-		blockheight: 0,
-		created: Date.now() / 1000,
-		id: "latestDefaultEntry_id",
-		txHash: "latestDefaultEntry_hash",
+	const latestDefaultEntryMint: LeadrateRateQuery = {
+		chainId: mainnet.id,
+		created: Math.floor(Date.now() / 1000),
+		count: 9999999999,
+		blockheight: 9999999999,
+		module: MintModule,
+		approvedRate: rate[MintModule].approvedRate,
+		txHash: "0xlatestDefaultEntryMintHash",
 	};
 
-	const matchingRates = [latestDefaultEntry, ...rates];
-
-	const changeNewRate = (value: string) => {
-		const valueValue = BigInt(value);
-		setNewRate(valueValue);
+	const latestDefaultEntrySave: LeadrateRateQuery = {
+		chainId: mainnet.id,
+		created: Math.floor(Date.now() / 1000),
+		count: 9999999999,
+		blockheight: 9999999999,
+		module: SaveModule,
+		approvedRate: rate[SaveModule].approvedRate,
+		txHash: "0xlatestDefaultEntrySaveHash",
 	};
 
-	const handleOnClick = async function (e: any) {
+	const matchingRatesMint = [latestDefaultEntryMint, ...rates[MintModule]];
+	const matchingRatesSave = [latestDefaultEntrySave, ...rates[SaveModule]];
+
+	const handleOnClickMint = async function (e: any) {
 		e.preventDefault();
 		if (!account.address) return;
 
 		try {
-			setHandling(true);
+			setHandlingMint(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].savingsReferral,
+				address: MintModule,
 				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "proposeChange",
-				args: [parseInt(String(newRate)), []],
+				args: [parseInt(String(newRateMint)), []],
 			});
 
 			const toastContent = [
 				{
 					title: `From: `,
-					value: `${formatCurrency(info.rate / 10000)}%`,
+					value: `${formatCurrency(rate[MintModule].approvedRate / 10000)}%`,
 				},
 				{
 					title: `Proposing to: `,
-					value: `${formatCurrency(parseInt(String(newRate)) / 10000)}%`,
+					value: `${formatCurrency(parseInt(String(newRateMint)) / 10000)}%`,
 				},
 				{
 					title: "Transaction: ",
@@ -87,27 +104,74 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Proposing rate change...`} rows={toastContent} />,
+					render: <TxToast title={`Proposing mint rate change...`} rows={toastContent} />,
 				},
 				success: {
 					render: <TxToast title="Successfully proposed" rows={toastContent} />,
 				},
 			});
 
-			setHidden(true);
+			setHiddenMint(true);
 		} catch (error) {
 			toast.error(renderErrorTxToastDecode(error, EquityABI));
 		} finally {
-			setHandling(false);
+			setHandlingMint(false);
+		}
+	};
+
+	const handleOnClickSave = async function (e: any) {
+		e.preventDefault();
+		if (!account.address) return;
+
+		try {
+			setHandlingSave(true);
+
+			const writeHash = await writeContract(WAGMI_CONFIG, {
+				address: SaveModule,
+				chainId: chainId,
+				abi: SavingsABI,
+				functionName: "proposeChange",
+				args: [parseInt(String(newRateSave)), []],
+			});
+
+			const toastContent = [
+				{
+					title: `From: `,
+					value: `${formatCurrency(rate[SaveModule].approvedRate / 10000)}%`,
+				},
+				{
+					title: `Proposing to: `,
+					value: `${formatCurrency(parseInt(String(newRateSave)) / 10000)}%`,
+				},
+				{
+					title: "Transaction: ",
+					hash: writeHash,
+				},
+			];
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
+				pending: {
+					render: <TxToast title={`Proposing save rate change...`} rows={toastContent} />,
+				},
+				success: {
+					render: <TxToast title="Successfully proposed" rows={toastContent} />,
+				},
+			});
+
+			setHiddenSave(true);
+		} catch (error) {
+			toast.error(renderErrorTxToastDecode(error, EquityABI));
+		} finally {
+			setHandlingSave(false);
 		}
 	};
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Applicable Rates</div>
+				<div className="mt-4 text-lg font-bold text-center">Historical Rates</div>
 
-				<div className="-m-4 mr-4">
+				<div className="-m-4 pr-2">
 					<ApexChart
 						type="line"
 						options={{
@@ -116,7 +180,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 									enabled: false,
 								},
 							},
-							colors: ["#092f62"],
+							colors: ["#092f62", "#0F80F0"],
 							stroke: {
 								curve: "linestep",
 								width: 3,
@@ -173,9 +237,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 								axisTicks: {
 									show: true,
 								},
-								min: (min) => {
-									return min - min * 0.1;
-								},
+								min: 0,
 								max: (max) => {
 									return max + max * 0.1;
 								},
@@ -183,15 +245,21 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 						}}
 						series={[
 							{
-								name: "Rates",
-								data: matchingRates.map((entry) => {
+								name: "Mint",
+								data: matchingRatesMint.map((entry) => {
+									return [entry.created * 1000, Math.round(entry.approvedRate)];
+								}),
+							},
+							{
+								name: "Save",
+								data: matchingRatesSave.map((entry) => {
 									return [entry.created * 1000, Math.round(entry.approvedRate)];
 								}),
 							},
 						]}
 					/>
 
-					{matchingRates.length == 0 ? (
+					{matchingRatesMint.length == 0 || matchingRatesSave.length == 0 ? (
 						<div className="flex justify-center text-text-warning">No data available for selected timeframe.</div>
 					) : null}
 				</div>
@@ -201,40 +269,47 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 				<div className="flex flex-col gap-4">
 					<div className="mt-4 text-lg font-bold text-center">Propose a new Rate</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-						<AppBox>
-							<DisplayLabel label="Current Base Rate" />
-							<DisplayOutputAlignedRight className="" amount={info.rate / 10_000} unit="%" />
-						</AppBox>
-						<AppBox>
-							<DisplayLabel label="Current Proposed Rate" />
-							{info.isProposal ? (
-								<DisplayOutputAlignedRight className="" amount={info.nextRate / 10_000} unit="%" />
-							) : (
-								<DisplayOutputAlignedRight className="" output={"-"} unit="%" />
-							)}
-						</AppBox>
+					<NormalInput
+						symbol="%"
+						label="Mint Rate"
+						placeholder={`Change Rate`}
+						value={newRateMint.toString()}
+						digit={4}
+						onChange={(e) => setNewRateMint(BigInt(e))}
+					/>
+
+					<div className="h-10 -mt-4 mb-4">
+						<GuardSupportedChain disabled={isDisabledMint || isHiddenMint} chain={mainnet}>
+							<Button
+								disabled={isDisabledMint || isHiddenMint}
+								isLoading={isHandlingMint}
+								onClick={(e) => handleOnClickMint(e)}
+							>
+								Propose Change
+							</Button>
+						</GuardSupportedChain>
 					</div>
 
 					<NormalInput
 						symbol="%"
-						label="Change Base Rate"
-						placeholder={`Disable Rate`}
-						value={newRate.toString()}
+						label="Save Rate"
+						placeholder={`Change Rate`}
+						value={newRateSave.toString()}
 						digit={4}
-						onChange={changeNewRate}
+						onChange={(e) => setNewRateSave(BigInt(e))}
 					/>
 
-					<GuardSupportedChain disabled={isDisabled || isHidden} chain={mainnet}>
-						<Button
-							className="max-md:h-10 md:h-12"
-							disabled={isDisabled || isHidden}
-							isLoading={isHandling}
-							onClick={(e) => handleOnClick(e)}
-						>
-							Propose Change
-						</Button>
-					</GuardSupportedChain>
+					<div className="h-10 -mt-4 mb-4">
+						<GuardSupportedChain disabled={isDisabledSave || isHiddenSave} chain={mainnet}>
+							<Button
+								disabled={isDisabledSave || isHiddenSave}
+								isLoading={isHandlingSave}
+								onClick={(e) => handleOnClickSave(e)}
+							>
+								Propose Change
+							</Button>
+						</GuardSupportedChain>
+					</div>
 				</div>
 			</AppCard>
 		</div>
