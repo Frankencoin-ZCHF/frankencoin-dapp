@@ -9,19 +9,20 @@ import AppTitle from "@components/AppTitle";
 import SavingsRankedBalancesTable from "@components/PageSavings/SavingsRankedBalancesTable";
 import AppLink from "@components/AppLink";
 import SavingsRecentActivitiesTable from "@components/PageSavings/SavingsRecentActivitiesTable";
-import { ChainId } from "@frankencoin/zchf";
-import { getChain } from "@utils";
+import { useRouter } from "next/router";
+import { Address } from "viem";
 // import SavingsYearlyTable from "@components/PageSavings/SavingsYearlyTable";
 
 export default function SavingsPage() {
-	const chainId = useChainId() as ChainId;
-	const chain = getChain(chainId);
 	const { address } = useAccount();
+	const router = useRouter();
+	const queryAddress: Address = String(router.query.address).toLowerCase() as Address;
+	const account = queryAddress ?? address;
 
 	useEffect(() => {
 		store.dispatch(fetchLeadrate());
-		store.dispatch(fetchSavings(address));
-	}, [address]);
+		store.dispatch(fetchSavings(account));
+	}, [account]);
 
 	return (
 		<>
@@ -60,7 +61,7 @@ export default function SavingsPage() {
 			</AppTitle>
 			<SavingsYearlyTable /> */}
 
-			<AppTitle title={address == undefined ? "Recent Activities" : "Your latest Activities"} />
+			<AppTitle title={account == undefined ? "Recent Activities" : "Your latest Activities"} />
 
 			<SavingsRecentActivitiesTable />
 

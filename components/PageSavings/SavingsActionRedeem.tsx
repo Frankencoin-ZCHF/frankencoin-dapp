@@ -8,6 +8,8 @@ import Button from "@components/Button";
 import { ADDRESS, SavingsABI, SavingsV2ABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { useRouter } from "next/router";
+import { Address } from "viem";
 
 interface Props {
 	disabled?: boolean;
@@ -20,8 +22,12 @@ export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 	const { address } = useAccount();
 	const chainId = mainnet.id;
 
+	const router = useRouter();
+	const queryAddress: Address = String(router.query.address).toLowerCase() as Address;
+	const account = queryAddress ?? address;
+
 	useEffect(() => {
-		if (address == undefined) return;
+		if (account == undefined) return;
 
 		const fetcher = async () => {
 			const [saved, ticks] = await readContract(WAGMI_CONFIG, {
@@ -29,18 +35,18 @@ export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 				chainId: chainId,
 				abi: SavingsV2ABI,
 				functionName: "savings",
-				args: [address],
+				args: [account],
 			});
 
 			setHidden(saved == 0n);
 		};
 
 		fetcher();
-	}, [address, chainId]);
+	}, [account, chainId]);
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
-		if (!address) return;
+		if (!account) return;
 
 		try {
 			setAction(true);
@@ -82,7 +88,7 @@ export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 		}
 	};
 
-	return isHidden || !address ? null : (
+	return isHidden || !account ? null : (
 		<div className="flex flex-col mx-auto max-w-full gap-4 items-center justify-center">
 			<div className="flex-1 text-text-secondary">
 				You have unclaimed savings in an older Savings Module. Click here to claim your savings.

@@ -56,9 +56,11 @@ export default function SavingsInteractionCard() {
 
 	const { data } = useBlockNumber({ watch: true });
 	const { address } = useAccount();
-	const account = address || zeroAddress;
-
 	const router = useRouter();
+
+	const queryAddress: Address = String(router.query.address).toLowerCase() as Address;
+	const account = queryAddress ?? address ?? zeroAddress;
+
 	const queryReferrer: Address = router.query.referrer as Address;
 	const queryReferralFeePPM: string = router.query.referralFeePPM as string;
 
