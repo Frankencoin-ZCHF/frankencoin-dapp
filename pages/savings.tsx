@@ -29,7 +29,7 @@ export default function SavingsPage() {
 				<title>Frankencoin - Savings</title>
 			</Head>
 
-			<AppTitle title={`Savings on ${chain.name}`}>
+			<AppTitle title={`Savings`}>
 				<div className={`text-text-secondary`}>
 					Earn interest on your Frankencoins - now available across multiple chains. View and manage your account here.
 				</div>

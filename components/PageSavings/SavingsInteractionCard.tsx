@@ -1,12 +1,12 @@
 import AppCard from "@components/AppCard";
-import TokenInput from "@components/Input/TokenInput";
+import TokenInputChain from "@components/Input/TokenInputChain";
 import { ADDRESS, ChainId, ChainIdMain, ChainIdSide, FrankencoinABI, SavingsABI } from "@frankencoin/zchf";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { Address, isAddress, zeroAddress } from "viem";
 import { useEffect, useState } from "react";
 import SavingsDetailsCard from "./SavingsDetailsCard";
 import { readContract } from "wagmi/actions";
-import { WAGMI_CONFIG } from "../../app.config";
+import { WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import SavingsActionInterest from "./SavingsActionInterest";
@@ -18,11 +18,14 @@ import SavingsActionSaveOnBehalf from "./SavingsActionSaveOnBehalf";
 import { ContractUrl, getChain, shortenAddress } from "@utils";
 import { useRouter } from "next/router";
 import AppLink from "@components/AppLink";
+import { AppKitNetwork } from "@reown/appkit/networks";
+import { useAppKitNetwork } from "@reown/appkit/react";
 
 export default function SavingsInteractionCard() {
 	const { status } = useSelector((state: RootState) => state.savings.savingsInfo);
 	const chainId = useChainId() as ChainId;
 	const chain = getChain(chainId);
+	const AppKitNetwork = useAppKitNetwork();
 
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
@@ -163,6 +166,12 @@ export default function SavingsInteractionCard() {
 
 	// ---------------------------------------------------------------------------
 
+	const onChangeChain = (value: string) => {
+		const chain = WAGMI_CHAINS.find((c) => c.name == value) as AppKitNetwork;
+		console.log(value, chain);
+		if (chain != undefined) AppKitNetwork.switchNetwork(chain);
+	};
+
 	const onChangeAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
@@ -174,7 +183,7 @@ export default function SavingsInteractionCard() {
 				<div className="text-lg font-bold text-center">Adjustment</div>
 
 				<div className="mt-8">
-					<TokenInput
+					<TokenInputChain
 						label={!onbehalfToggle ? "Your savings" : "You save"}
 						chain={chain.name}
 						min={!onbehalfToggle ? BigInt("0") : undefined}
@@ -189,6 +198,7 @@ export default function SavingsInteractionCard() {
 						limit={userBalance}
 						limitDigit={18}
 						limitLabel="Balance"
+						onChangeChain={onChangeChain}
 					/>
 				</div>
 
