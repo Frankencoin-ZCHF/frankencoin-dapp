@@ -67,7 +67,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 
 				setDelegateeVotes({
 					holder: delegatee,
-					fps,
+					balance: fps,
 					votingPower,
 					votingPowerRatio: parseFloat(formatUnits(votingPowerRatio, 18)),
 					holdingDuration: holdingDuration,
@@ -117,7 +117,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 				</div>
 
 				<div className={`flex flex-col ${connectedWallet ? "font-semibold" : ""}`}>
-					{formatCurrency(formatUnits(voter.fps, 18))} FPS
+					{formatCurrency(formatUnits(voter.balance, 18))} FPS
 				</div>
 				<div className={`flex flex-col ${connectedWallet ? "font-semibold" : ""}`}>
 					{formatCurrency(voter.votingPowerRatio * 100)}%
@@ -140,7 +140,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 					}
 				>
 					<AppLink label={"Delegate Address"} href={ContractUrl(delegatee)} external={true} className="text-left" />
-					<div className="">{formatCurrency(formatUnits(isDelegateeVotes?.fps || 0n, 18))} FPS</div>
+					<div className="">{formatCurrency(formatUnits(isDelegateeVotes?.balance || 0n, 18))} FPS</div>
 					<div className="">{formatCurrency((isDelegateeVotes?.votingPowerRatio || 0) * 100)}%</div>
 					<div className="">{formatDuration(isDelegateeVotes?.holdingDuration || 0)}</div>
 				</TableRow>

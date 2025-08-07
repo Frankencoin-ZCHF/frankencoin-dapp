@@ -55,10 +55,6 @@ export const MORPHOGRAPH_CLIENT = new ApolloClient({
 export const FRANKENCOIN_API_CLIENT = axios.create({
 	baseURL: CONFIG.api,
 });
-export const FRANKENCOIN_API_CLIENT_TEST = axios.create({
-	// baseURL: "http://localhost:3030",
-	baseURL: "https://api.test.frankencoin.com", // FIXME: replace to old state
-});
 
 // WAGMI CONFIG
 export const WAGMI_CHAIN = SupportedChains["mainnet"];
