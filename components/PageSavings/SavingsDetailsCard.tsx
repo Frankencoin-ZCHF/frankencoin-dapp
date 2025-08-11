@@ -57,17 +57,21 @@ export default function SavingsDetailsCard({
 					<div className="flex-1 text-text-secondary">Your current balance</div>
 					<div className="">{formatCurrency(formatUnits(balance, 18))} ZCHF</div>
 				</div>
+
+				<div className="flex">
+					<div className="flex-1 text-text-secondary">Interest to be collected</div>
+					<div className="">{formatCurrency(formatUnits(interest, 18))} ZCHF</div>
+				</div>
+
 				<div className="flex">
 					<div className="flex-1 text-text-secondary">
 						{direction ? "To be added from your wallet" : "Withdrawn to your wallet"}
 					</div>
 					<div className="">
-						{change < 0n ? "-" : ""} {formatCurrency(formatUnits(change < 0n ? -change : change, 18))} ZCHF
+						{change < 0n ? "-" : ""}{" "}
+						{formatCurrency(formatUnits((change < 0n ? -change : change) - (referrer != zeroAddress ? referralFees : 0n), 18))}{" "}
+						ZCHF
 					</div>
-				</div>
-				<div className="flex">
-					<div className="flex-1 text-text-secondary">Interest to be collected</div>
-					<div className="">{formatCurrency(formatUnits(interest, 18))} ZCHF</div>
 				</div>
 
 				{referrer != zeroAddress ? (
@@ -84,9 +88,7 @@ export default function SavingsDetailsCard({
 
 				<div className="flex font-bold">
 					<div className="flex-1 text-text-secondary">Resulting balance</div>
-					<div className="">
-						{formatCurrency(formatUnits(balance + change + interest - (referrer != zeroAddress ? referralFees : 0n), 18))} ZCHF
-					</div>
+					<div className="">{formatCurrency(formatUnits(balance + change + interest, 18))} ZCHF</div>
 				</div>
 
 				<div className="flex mt-8">
