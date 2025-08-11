@@ -85,7 +85,7 @@ export default function SavingsInteractionCard() {
 	}, [queryReferrer, queryReferralFeePPM]);
 
 	useEffect(() => {
-		if (account === zeroAddress) return;
+		if (!isAddress(account)) return;
 
 		const fetchAsync = async function () {
 			const _balance = await readContract(WAGMI_CONFIG, {

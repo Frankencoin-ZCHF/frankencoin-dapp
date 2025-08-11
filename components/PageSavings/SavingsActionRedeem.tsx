@@ -9,7 +9,7 @@ import { ADDRESS, SavingsABI, SavingsV2ABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { useRouter } from "next/router";
-import { Address } from "viem";
+import { Address, isAddress } from "viem";
 
 interface Props {
 	disabled?: boolean;
@@ -27,7 +27,7 @@ export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 	const account = queryAddress ?? address;
 
 	useEffect(() => {
-		if (account == undefined) return;
+		if (!isAddress(account)) return;
 
 		const fetcher = async () => {
 			const [saved, ticks] = await readContract(WAGMI_CONFIG, {
