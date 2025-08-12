@@ -32,10 +32,10 @@ export default function SavingsGlobalCard() {
 					<DisplayOutputAlignedRight className="" amount={state.rate / 10_000} unit="%" />
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Total Interest Paid" />
+					<DisplayLabel label="Total Savings" />
 					<DisplayAmount
 						className="mt-1"
-						amount={totalInterest}
+						amount={totalBalance}
 						digits={0}
 						currency="ZCHF"
 						address={frankencoinAddress}
@@ -44,10 +44,10 @@ export default function SavingsGlobalCard() {
 					/>
 				</AppBox>
 				<AppBox>
-					<DisplayLabel label="Total Savings" />
+					<DisplayLabel label="Total Interest Paid" />
 					<DisplayAmount
 						className="mt-1"
-						amount={totalBalance}
+						amount={totalInterest}
 						digits={0}
 						currency="ZCHF"
 						address={frankencoinAddress}
