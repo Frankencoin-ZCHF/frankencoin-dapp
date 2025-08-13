@@ -1,8 +1,9 @@
 import AppLink from "@components/AppLink";
+import ChainLogo from "@components/ChainLogo";
 import TableRow from "@components/Table/TableRow";
 import { TransferReferenceQuery } from "@frankencoin/api";
 import { ChainId } from "@frankencoin/zchf";
-import { ContractUrl, formatCurrency, getChain, getChainByChainSelector, shortenAddress, TxUrl } from "@utils";
+import { ContractUrl, formatCurrency, getChain, getChainByChainSelector, shortenAddress, shortenStringAdjust, TxUrl } from "@utils";
 import { formatUnits, Hash } from "viem";
 
 interface Props {
@@ -22,26 +23,30 @@ export default function TransferListRow({ headers, tab, item }: Props) {
 		<>
 			<TableRow headers={headers} tab={tab} rawHeader={true}>
 				<div className="flex flex-col md:text-left max-md:text-right">
-					<AppLink className="" label={dateStr} href={TxUrl(item.txHash as Hash)} external={true} />
+					<AppLink className="" label={dateStr} href={TxUrl(item.txHash as Hash, sourceChain)} external={true} />
 				</div>
 
-				<AppLink
-					className=""
-					label={shortenAddress(item.from)}
-					href={ContractUrl(item.from, sourceChain)}
-					external={true}
-					chain={sourceChain.name}
-				/>
+				<div className="flex items-center justify-end gap-2">
+					<ChainLogo chain={sourceChain.name} size={6} />
+					<AppLink
+						className=""
+						label={shortenAddress(item.from)}
+						href={ContractUrl(item.from, sourceChain)}
+						external={true}
+						/>
+				</div>
 
-				<AppLink
-					className=""
-					label={shortenAddress(item.to)}
-					href={ContractUrl(item.to, targetChain)}
-					external={true}
-					chain={targetChain.name}
-				/>
+				<div className="flex items-center justify-end gap-2">
+					<ChainLogo chain={targetChain.name} size={6} />
+					<AppLink
+						className=""
+						label={shortenAddress(item.to)}
+						href={ContractUrl(item.to, targetChain)}
+						external={true}
+					/>
+				</div>
 
-				<div className="flex flex-col">{item.reference}</div>
+				<div className="flex flex-col">{shortenStringAdjust(item.reference, 8)}</div>
 
 				<div className="">{formatCurrency(formatUnits(BigInt(item.amount), 18))} ZCHF</div>
 			</TableRow>

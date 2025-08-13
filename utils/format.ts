@@ -79,6 +79,11 @@ export const shortenString = (str: string) => {
 	return str.substring(0, 6) + "..." + str.substring(str.length - 4);
 };
 
+export const shortenStringAdjust = (str: string, length: number) => {
+	if (str.length <= 2 * length) return str;
+	return str.substring(0, length) + " ... " + str.substring(str.length - length);
+};
+
 export const shortenAddress = (address: Address): string => {
 	try {
 		const formattedAddress = getAddress(address);
