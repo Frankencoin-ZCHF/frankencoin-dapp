@@ -54,7 +54,7 @@ export default function TransferListTable() {
 			if (recipient.length > 0) params.to = recipient;
 			if (sender.length > 0) params.from = sender;
 
-			if (reference.length > 0) params.ref = reference;
+			if (reference.length > 0) params.reference = reference;
 			if (typeof end != "string") params.end = end.toISOString();
 			params.start = start.toISOString();
 
