@@ -37,7 +37,7 @@ export default function TransferListTable() {
 				if (reference.length == 0) {
 					setFetchedList(data.data.list);
 				} else {
-					setFetchedList(data.data.list.filter((i) => i.ref == reference));
+					setFetchedList(data.data.list.filter((i) => i.reference == reference));
 				}
 			};
 
@@ -74,8 +74,8 @@ export default function TransferListTable() {
 	const sorted: TransferReferenceQuery[] = sortFunction({ list: fetchedList, headers, tab, reverse });
 
 	useEffect(() => {
-		const idList = list.map((l) => l.id).join("_");
-		const idSorted = sorted.map((l) => l.id).join("_");
+		const idList = list.map((l) => `${l.chainId}-${l.count}`).join("_");
+		const idSorted = sorted.map((l) => `${l.chainId}-${l.count}`).join("_");
 		if (idList != idSorted) setList(sorted);
 	}, [list, sorted]);
 
@@ -102,51 +102,42 @@ export default function TransferListTable() {
 		<div className="grid gap-4">
 			<AppCard>
 				<div className="grid md:grid-cols-2 gap-4 -mb-4">
-						<AddressInput
-							label="Sender"
-							placeholder="Enter sender address here"
-							value={sender}
-							onChange={setSender}
-							error={errorSender()}
-							limitLabel={address != undefined ? shortenAddress(address) : undefined}
-							own={address}
-							reset={""}
-						/>
-						<AddressInput
-							label="Recipient"
-							placeholder="Enter recipient address here"
-							value={recipient}
-							onChange={setRecipient}
-							error={errorRecipient()}
-							limitLabel={address != undefined ? shortenAddress(address) : undefined}
-							own={address}
-							reset={""}
-						/>
-						<DateInput
-							label="From"
-							value={start}
-							onChange={(d) => d && setStart(d)}
-						/>
-						<DateInput
-							label="To (inclusive)"
-							value={end === "Today" ? new Date() : (end as Date)}
-							onChange={(d) => {
-								if (d) {
-									const dateWithZeroTime = new Date(d);
-									dateWithZeroTime.setUTCHours(0, 0, 0, 0);
-									setEnd(dateWithZeroTime);
-								}
-							}}
-							output={end === "Today" ? end : undefined}
-							reset={end === "Today" ? undefined : new Date()}
-							onReset={() => setEnd("Today")}
-						/>
-						<AddressInput
-							label="Reference"
-							placeholder="Reference (if any)"
-							value={reference}
-							onChange={setReference}
-						/>
+					<AddressInput
+						label="Sender"
+						placeholder="Enter sender address here"
+						value={sender}
+						onChange={setSender}
+						error={errorSender()}
+						limitLabel={address != undefined ? shortenAddress(address) : undefined}
+						own={address}
+						reset={""}
+					/>
+					<AddressInput
+						label="Recipient"
+						placeholder="Enter recipient address here"
+						value={recipient}
+						onChange={setRecipient}
+						error={errorRecipient()}
+						limitLabel={address != undefined ? shortenAddress(address) : undefined}
+						own={address}
+						reset={""}
+					/>
+					<DateInput label="From" value={start} onChange={(d) => d && setStart(d)} />
+					<DateInput
+						label="To (inclusive)"
+						value={end === "Today" ? new Date() : (end as Date)}
+						onChange={(d) => {
+							if (d) {
+								const dateWithZeroTime = new Date(d);
+								dateWithZeroTime.setUTCHours(0, 0, 0, 0);
+								setEnd(dateWithZeroTime);
+							}
+						}}
+						output={end === "Today" ? end : undefined}
+						reset={end === "Today" ? undefined : new Date()}
+						onReset={() => setEnd("Today")}
+					/>
+					<AddressInput label="Reference" placeholder="Reference (if any)" value={reference} onChange={setReference} />
 				</div>
 			</AppCard>
 
@@ -157,7 +148,12 @@ export default function TransferListTable() {
 						<TableRowEmpty>{"No transfer references found..."}</TableRowEmpty>
 					) : (
 						list.map((i, idx) => (
-							<TransferListRow headers={headers} tab={tab} key={i.id ?? `TransferListRow_${idx}`} item={i} />
+							<TransferListRow
+								headers={headers}
+								tab={tab}
+								key={`${i.chainId}-${i.count}` || `TransferListRow_${idx}`}
+								item={i}
+							/>
 						))
 					)}
 				</TableBody>
@@ -188,7 +184,7 @@ function sortFunction(params: SortFunctionParams): TransferReferenceQuery[] {
 		sortingList.sort((a, b) => a.to.localeCompare(b.to));
 	} else if (tab === headers[3]) {
 		// Reference
-		sortingList.sort((a, b) => a.ref.localeCompare(b.ref));
+		sortingList.sort((a, b) => a.reference.localeCompare(b.reference));
 	} else if (tab === headers[4]) {
 		// Amount
 		sortingList.sort((a, b) => (b.amount > a.amount ? 1 : -1));

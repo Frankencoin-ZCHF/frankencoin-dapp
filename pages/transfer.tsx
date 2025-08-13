@@ -2,6 +2,7 @@ import Head from "next/head";
 import AppTitle from "@components/AppTitle";
 import TransferInteractionCard from "@components/PageTransfer/TransferInteractionCard";
 import AppLink from "@components/AppLink";
+import TransferListTable from "@components/PageTransfer/TransferListTable";
 
 export default function TransferPage() {
 	return (
@@ -13,12 +14,7 @@ export default function TransferPage() {
 			<AppTitle title="Transfer">
 				<div className="text-text-secondary">
 					Transfer Frankencoins with a reference or across chains using the{" "}
-					<AppLink
-						label={"CCIP bridge"}
-						href={"https://app.transporter.io/"}
-						external={true}
-						className=""
-					/>.
+					<AppLink label={"CCIP bridge"} href={"https://app.transporter.io/"} external={true} className="" />.
 				</div>
 			</AppTitle>
 
@@ -26,13 +22,11 @@ export default function TransferPage() {
 				<TransferInteractionCard />
 			</div>
 
-			{/* <TransferInteractionCard />
-
 			<AppTitle title="Transfer Log">
 				<div className="text-text-secondary">Find past transfers, limited to 50 results.</div>
-			</AppTitle> */}
+			</AppTitle>
 
-			{/* <TransferListTable /> */}
+			<TransferListTable />
 		</>
 	);
 }

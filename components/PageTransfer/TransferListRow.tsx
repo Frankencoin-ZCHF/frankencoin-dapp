@@ -1,10 +1,9 @@
 import AppLink from "@components/AppLink";
 import TableRow from "@components/Table/TableRow";
-import { faPiggyBank } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { TransferReferenceQuery } from "@frankencoin/api";
-import { ContractUrl, formatCurrency, shortenAddress, TxUrl } from "@utils";
-import { formatUnits, Hash, zeroAddress } from "viem";
+import { ChainId } from "@frankencoin/zchf";
+import { ContractUrl, formatCurrency, getChain, getChainByChainSelector, shortenAddress, TxUrl } from "@utils";
+import { formatUnits, Hash } from "viem";
 
 interface Props {
 	headers: string[];
@@ -16,6 +15,9 @@ export default function TransferListRow({ headers, tab, item }: Props) {
 	const dateArr: string[] = new Date(item.created * 1000).toDateString().split(" ");
 	const dateStr: string = `${dateArr[2]} ${dateArr[1]} ${dateArr[3]}`;
 
+	const sourceChain = getChain(item.chainId as ChainId);
+	const targetChain = getChainByChainSelector(item.targetChain);
+
 	return (
 		<>
 			<TableRow headers={headers} tab={tab} rawHeader={true}>
@@ -23,16 +25,25 @@ export default function TransferListRow({ headers, tab, item }: Props) {
 					<AppLink className="" label={dateStr} href={TxUrl(item.txHash as Hash)} external={true} />
 				</div>
 
-				<AppLink className="" label={shortenAddress(item.from)} href={ContractUrl(item.from)} external={true} />
+				<AppLink
+					className=""
+					label={shortenAddress(item.from)}
+					href={ContractUrl(item.from, sourceChain)}
+					external={true}
+					chain={sourceChain.name}
+				/>
 
-				<AppLink className="" label={shortenAddress(item.to)} href={ContractUrl(item.to)} external={true} />
+				<AppLink
+					className=""
+					label={shortenAddress(item.to)}
+					href={ContractUrl(item.to, targetChain)}
+					external={true}
+					chain={targetChain.name}
+				/>
 
-				<div className="flex flex-col">{item.ref}</div>
+				<div className="flex flex-col">{item.reference}</div>
 
-				<div className="flex">
-					<div className="flex-1 mr-2">{item.autoSaved != zeroAddress ? <FontAwesomeIcon icon={faPiggyBank} /> : null}</div>
-					<div className="flex justify-end">{formatCurrency(formatUnits(BigInt(item.amount), 18))} ZCHF</div>
-				</div>
+				<div className="">{formatCurrency(formatUnits(BigInt(item.amount), 18))} ZCHF</div>
 			</TableRow>
 		</>
 	);
