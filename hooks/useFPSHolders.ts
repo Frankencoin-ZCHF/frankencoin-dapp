@@ -18,11 +18,11 @@ export const useFPSHolders = (): {
 	}>(
 		gql`
 			query {
-				  eRC20BalanceMappings(
+				eRC20BalanceMappings(
 					orderBy: "balance"
-					limit: 10
+					limit: 20
 					orderDirection: "desc"
-					where: {token: "0x1ba26788dfde592fec8bcb0eaff472a42be341b2"}
+					where: { token: "0x1ba26788dfde592fec8bcb0eaff472a42be341b2" }
 				) {
 					items {
 						account

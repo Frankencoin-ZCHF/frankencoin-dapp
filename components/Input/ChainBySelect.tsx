@@ -1,4 +1,5 @@
 import ChainLogo from "@components/ChainLogo";
+import TokenLogo from "@components/TokenLogo";
 import Select, { components } from "react-select";
 
 type OptionEntry = {
@@ -14,6 +15,8 @@ interface ChainBySelectProps {
 	chainOnChange?: Function;
 	disabled?: boolean;
 	invertColors?: boolean;
+	prefixLabel?: string;
+	tokenLogo?: string;
 }
 
 export default function ChainBySelect({
@@ -23,6 +26,8 @@ export default function ChainBySelect({
 	chainOnChange,
 	disabled = false,
 	invertColors = false,
+	prefixLabel,
+	tokenLogo,
 }: ChainBySelectProps) {
 	const options = chains.map((o): OptionEntry => {
 		return { value: o, label: o, reverse };
@@ -77,7 +82,7 @@ export default function ChainBySelect({
 				components={{
 					Option: ({ children, ...props }) => (
 						<components.Option {...props}>
-							<div className="flex flex-row items-center gap-4">
+							<div className="flex flex-row items-center gap-2">
 								<ChainLogo chain={props.data.label.toLowerCase()} size={4} />
 								<div className={``}>{props.data.label}</div>
 							</div>
@@ -85,9 +90,13 @@ export default function ChainBySelect({
 					),
 					SingleValue: ({ children, ...props }) => (
 						<components.SingleValue {...props}>
-							<div className="flex flex-row items-center gap-4">
-								<ChainLogo chain={props.data.label.toLowerCase()} size={4} />
-								<div className={`truncate md:w-[6rem]`}>{props.data.label}</div>
+							<div className="flex flex-row items-center gap-2">
+								{tokenLogo ? (
+									<TokenLogo currency={tokenLogo} chain={props.data.label} size={5} />
+								) : (
+									<ChainLogo chain={props.data.label.toLowerCase()} size={5} />
+								)}
+								<div className={`truncate w-[8rem]`}>{`${prefixLabel ? prefixLabel + " " : ""}${props.data.label}`}</div>
 							</div>
 						</components.SingleValue>
 					),
