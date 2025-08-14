@@ -31,6 +31,7 @@ interface Props {
 	autoFocus?: boolean;
 	disabled?: boolean;
 	error?: string;
+	prefixLabel?: string;
 }
 
 export default function TokenInputChain({
@@ -56,6 +57,7 @@ export default function TokenInputChain({
 	onReset = () => {},
 	onChangeChain = () => {},
 	error,
+	prefixLabel,
 }: Props) {
 	const inputRef = useRef<HTMLInputElement>(null);
 
@@ -105,6 +107,7 @@ export default function TokenInputChain({
 							chain={chain}
 							chainOnChange={onChangeChain}
 							invertColors={disabled}
+							prefixLabel={prefixLabel}
 						/>
 					</div>
 				</div>

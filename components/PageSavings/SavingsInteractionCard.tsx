@@ -201,6 +201,7 @@ export default function SavingsInteractionCard() {
 						limitDigit={18}
 						limitLabel="Balance"
 						onChangeChain={onChangeChain}
+						prefixLabel={"ZCHF"}
 					/>
 				</div>
 

@@ -27,23 +27,13 @@ export default function TransferListRow({ headers, tab, item }: Props) {
 				</div>
 
 				<div className="flex items-center justify-end gap-2">
-					<ChainLogo chain={sourceChain.name} size={6} />
-					<AppLink
-						className=""
-						label={shortenAddress(item.from)}
-						href={ContractUrl(item.from, sourceChain)}
-						external={true}
-						/>
+					<ChainLogo chain={sourceChain.name} size={4} />
+					<AppLink className="" label={shortenAddress(item.from)} href={ContractUrl(item.from, sourceChain)} external={true} />
 				</div>
 
 				<div className="flex items-center justify-end gap-2">
-					<ChainLogo chain={targetChain.name} size={6} />
-					<AppLink
-						className=""
-						label={shortenAddress(item.to)}
-						href={ContractUrl(item.to, targetChain)}
-						external={true}
-					/>
+					<ChainLogo chain={targetChain.name} size={4} />
+					<AppLink className="" label={shortenAddress(item.to)} href={ContractUrl(item.to, targetChain)} external={true} />
 				</div>
 
 				<div className="flex flex-col">{shortenStringAdjust(item.reference, 8)}</div>

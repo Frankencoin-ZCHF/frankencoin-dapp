@@ -14,6 +14,7 @@ interface ChainBySelectProps {
 	chainOnChange?: Function;
 	disabled?: boolean;
 	invertColors?: boolean;
+	prefixLabel?: string;
 }
 
 export default function ChainBySelect({
@@ -23,6 +24,7 @@ export default function ChainBySelect({
 	chainOnChange,
 	disabled = false,
 	invertColors = false,
+	prefixLabel,
 }: ChainBySelectProps) {
 	const options = chains.map((o): OptionEntry => {
 		return { value: o, label: o, reverse };
@@ -77,7 +79,7 @@ export default function ChainBySelect({
 				components={{
 					Option: ({ children, ...props }) => (
 						<components.Option {...props}>
-							<div className="flex flex-row items-center gap-4">
+							<div className="flex flex-row items-center gap-2">
 								<ChainLogo chain={props.data.label.toLowerCase()} size={4} />
 								<div className={``}>{props.data.label}</div>
 							</div>
@@ -85,9 +87,9 @@ export default function ChainBySelect({
 					),
 					SingleValue: ({ children, ...props }) => (
 						<components.SingleValue {...props}>
-							<div className="flex flex-row items-center gap-4">
+							<div className="flex flex-row items-center gap-2">
 								<ChainLogo chain={props.data.label.toLowerCase()} size={4} />
-								<div className={`truncate md:w-[6rem]`}>{props.data.label}</div>
+								<div className={`truncate w-[8rem]`}>{`${prefixLabel ? prefixLabel + " " : ""}${props.data.label}`}</div>
 							</div>
 						</components.SingleValue>
 					),

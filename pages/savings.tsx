@@ -10,14 +10,14 @@ import SavingsRankedBalancesTable from "@components/PageSavings/SavingsRankedBal
 import AppLink from "@components/AppLink";
 import SavingsRecentActivitiesTable from "@components/PageSavings/SavingsRecentActivitiesTable";
 import { useRouter } from "next/router";
-import { Address } from "viem";
+import { Address, isAddress, zeroAddress } from "viem";
 // import SavingsYearlyTable from "@components/PageSavings/SavingsYearlyTable";
 
 export default function SavingsPage() {
 	const { address } = useAccount();
 	const router = useRouter();
 	const queryAddress: Address = String(router.query.address).toLowerCase() as Address;
-	const account = queryAddress ?? address;
+	const account = isAddress(queryAddress) ? queryAddress : address ?? zeroAddress;
 
 	useEffect(() => {
 		store.dispatch(fetchLeadrate());

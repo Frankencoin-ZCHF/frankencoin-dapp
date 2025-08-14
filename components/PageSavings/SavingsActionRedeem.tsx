@@ -9,7 +9,7 @@ import { ADDRESS, SavingsABI, SavingsV2ABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { useRouter } from "next/router";
-import { Address, isAddress } from "viem";
+import { Address, isAddress, zeroAddress } from "viem";
 
 interface Props {
 	disabled?: boolean;
@@ -24,7 +24,7 @@ export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 
 	const router = useRouter();
 	const queryAddress: Address = String(router.query.address).toLowerCase() as Address;
-	const account = queryAddress ?? address;
+	const account = isAddress(queryAddress) ? queryAddress : address ?? zeroAddress;
 
 	useEffect(() => {
 		if (!isAddress(account)) return;
