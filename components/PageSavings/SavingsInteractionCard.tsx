@@ -170,7 +170,6 @@ export default function SavingsInteractionCard() {
 
 	const onChangeChain = (value: string) => {
 		const chain = WAGMI_CHAINS.find((c) => c.name == value) as AppKitNetwork;
-		console.log(value, chain);
 		if (chain != undefined) AppKitNetwork.switchNetwork(chain);
 	};
 
@@ -202,6 +201,7 @@ export default function SavingsInteractionCard() {
 						limitLabel="Balance"
 						onChangeChain={onChangeChain}
 						prefixLabel={"ZCHF"}
+						tokenLogo={"ZCHF"}
 					/>
 				</div>
 

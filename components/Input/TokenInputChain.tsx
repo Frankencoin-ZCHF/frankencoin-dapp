@@ -32,6 +32,7 @@ interface Props {
 	disabled?: boolean;
 	error?: string;
 	prefixLabel?: string;
+	tokenLogo?: string;
 }
 
 export default function TokenInputChain({
@@ -58,6 +59,7 @@ export default function TokenInputChain({
 	onChangeChain = () => {},
 	error,
 	prefixLabel,
+	tokenLogo,
 }: Props) {
 	const inputRef = useRef<HTMLInputElement>(null);
 
@@ -108,6 +110,7 @@ export default function TokenInputChain({
 							chainOnChange={onChangeChain}
 							invertColors={disabled}
 							prefixLabel={prefixLabel}
+							tokenLogo={tokenLogo}
 						/>
 					</div>
 				</div>
