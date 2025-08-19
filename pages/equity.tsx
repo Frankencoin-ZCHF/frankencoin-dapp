@@ -9,6 +9,9 @@ import { FPSEarningsHistory } from "../hooks/FPSEarningsHistory";
 import ReportsFPSYearlyTable from "@components/PageReports/ReportsFPSYearlyTable";
 import { zeroAddress } from "viem";
 import AppLink from "@components/AppLink";
+import { ContractUrl } from "@utils";
+import { ADDRESS } from "@frankencoin/zchf";
+import { mainnet } from "viem/chains";
 
 export default function Equity() {
 	const { address } = useAccount();
@@ -43,7 +46,18 @@ export default function Equity() {
 				<title>Frankencoin - Equity</title>
 			</Head>
 
-			<AppTitle title={`Equity `}></AppTitle>
+			<AppTitle title={`Equity `}>
+				<div className="text-text-secondary">
+					This page allows you to invest in or redeem your{" "}
+					<AppLink
+						className=""
+						label="Frankencoin Pool Shares"
+						href={ContractUrl(ADDRESS[mainnet.id].equity, mainnet)}
+						external={true}
+					/>
+					, which serve as the governance token for the Frankencoin Ecosystem.
+				</div>
+			</AppTitle>
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">
