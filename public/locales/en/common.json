@@ -166,7 +166,7 @@
         "collateralization": "Collateralization",
         "add_collateral": "Add Collateral",
         "remove_collateral": "Remove Collateral",
-        "borrow_more": "Lending more",
+        "borrow_more": "Lend more",
         "pay_back": "Pay back",
         "pay_back_and_close": "Pay back and close position",
         "available_to_borrow": "Available to lend",

@@ -23,6 +23,7 @@ import { RootState } from "../../redux/redux.store";
 export default function SavingsInteractionSection() {
 	const { userSavingsBalance, interestToBeCollected, refetchInterest } = useSavingsInterest();
 	const [amount, setAmount] = useState("");
+	const [buttonLabel, setButtonLabel] = useState("");
 	const [isDeposit, setIsDeposit] = useState(true);
 	const [isTxOnGoing, setIsTxOnGoing] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -190,31 +191,37 @@ export default function SavingsInteractionSection() {
 	useEffect(() => {
 		if (!isDeposit) return;
 
-		if (!amount) {
+		if (!amount || !BigInt(amount)) {
 			setError(null);
+			setButtonLabel(t("savings.enter_amount_to_add_savings"));
 			return;
 		}
 
 		if (BigInt(amount) > userBalance) {
 			setError(t("savings.error.insufficient_balance"));
+			setButtonLabel(t("savings.enter_amount_to_add_savings"));
 		} else {
 			setError(null);
+			setButtonLabel(t("savings.start_earning_interest", { rate: rate / 10_000 }));
 		}
-	}, [amount, isDeposit, userBalance]);
+	}, [amount, rate, isDeposit, userBalance]);
 
 	// Withdraw validation
 	useEffect(() => {
 		if (isDeposit) return;
 
-		if (!amount) {
+		if (!amount || !BigInt(amount)) {
 			setError(null);
+			setButtonLabel(t("savings.enter_withdraw_amount"));
 			return;
 		}
 
 		if (BigInt(amount) > userSavingsBalance) {
 			setError(t("savings.error.greater_than_savings"));
+			setButtonLabel(t("savings.enter_withdraw_amount"));
 		} else {
 			setError(null);
+			setButtonLabel(t("savings.withdraw_to_my_wallet"));
 		}
 	}, [amount, isDeposit, userSavingsBalance]);
 
@@ -284,15 +291,9 @@ export default function SavingsInteractionSection() {
 							className="text-lg leading-snug !font-extrabold"
 							onClick={isDeposit ? handleSave : handleWithdraw}
 							isLoading={isTxOnGoing}
-							disabled={!!error || !Boolean(amount)}
+							disabled={!!error || !amount || !BigInt(amount)}
 						>
-							{isDeposit
-								? Boolean(amount)
-									? t("savings.start_earning_interest", { rate: rate / 10_000 })
-									: t("savings.enter_amount_to_add_savings")
-								: !Boolean(amount)
-								? t("savings.enter_withdraw_amount")
-								: t("savings.withdraw_to_my_wallet")}
+							{buttonLabel}
 						</Button>
 					)}
 				</div>

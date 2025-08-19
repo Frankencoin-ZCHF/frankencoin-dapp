@@ -365,12 +365,12 @@ export const BorrowedManageSection = () => {
 					className="text-lg leading-snug !font-extrabold"
 					onClick={isBorrowMore ? handleBorrowMore : handlePayBack}
 					isLoading={isTxOnGoing}
-					disabled={!amount}
+					disabled={!amount || !BigInt(amount) || Boolean(error)}
 				>
 					{t(
 						isBorrowMore
 							? "mint.borrow_more"
-							: amount.toString() === debt.toString()
+							: amount && BigInt(amount) && amount.toString() === debt.toString()
 							? "mint.pay_back_and_close"
 							: "mint.pay_back"
 					)}
