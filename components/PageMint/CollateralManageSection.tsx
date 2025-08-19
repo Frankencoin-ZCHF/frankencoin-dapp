@@ -9,8 +9,8 @@ import { useRouter } from "next/router";
 import { RootState, store } from "../../redux/redux.store";
 import { PositionQuery } from "@deuro/api";
 import { useSelector } from "react-redux";
-import { Address, erc20Abi, formatUnits, maxUint256 } from "viem";
-import { formatBigInt, formatCurrency, shortenAddress } from "@utils";
+import { Address, erc20Abi, formatUnits } from "viem";
+import { formatCurrency, shortenAddress } from "@utils";
 import { useWalletERC20Balances } from "../../hooks/useWalletBalances";
 import { useChainId, useReadContracts } from "wagmi";
 import { writeContract } from "wagmi/actions";
@@ -77,6 +77,12 @@ export const CollateralManageSection = () => {
 				address: position.position,
 				functionName: "getDebt",
 			},
+			{
+				chainId,
+				abi: PositionV2ABI,
+				address: position.position,
+				functionName: "getCollateralRequirement",
+			},
 		],
 	});
 
@@ -84,6 +90,7 @@ export const CollateralManageSection = () => {
 	const price = data?.[1]?.result || 1n;
 	const balanceOf = data?.[2]?.result || 0n; // collateral reserve
 	const debt = data?.[3]?.result || 0n;
+	const collateralRequirement = data?.[4]?.result || 0n;
 	const collateralPrice = prices[position.collateral.toLowerCase() as Address]?.price?.eur || 0;
 	const collateralValuation = collateralPrice * Number(formatUnits(balanceOf, position.collateralDecimals));
 	const walletBalance = balancesByAddress[position.collateral as Address]?.balanceOf || 0n;
@@ -98,10 +105,13 @@ export const CollateralManageSection = () => {
 	const positionValueCollateral: number = collBalancePosition * collTokenPricePosition;
 	const collateralizationPercentage: number = Math.round((marketValueCollateral / positionValueCollateral) * 10000) / 100;
 
-	const maxToRemoveThreshold =
-		balanceOf - (debt * 10n ** BigInt(position.collateralDecimals)) / price - BigInt(position.minimumCollateral);
+	const requiredCollateral = (collateralRequirement * 10n ** 18n) / price;
+	const minimumCollateral = BigInt(position.minimumCollateral);
+	const actualRequired = requiredCollateral > minimumCollateral ? requiredCollateral : minimumCollateral;
 
-	const maxToRemove = debt > 0n ? (maxToRemoveThreshold > 0n ? maxToRemoveThreshold : 0n) : balanceOf;
+	const maxToRemove = debt > 0n 
+		? (balanceOf > actualRequired ? balanceOf - actualRequired : 0n)
+		: balanceOf;
 
 	const handleAddMax = () => {
 		setAmount(walletBalance.toString());
@@ -249,7 +259,7 @@ export const CollateralManageSection = () => {
 		} else {
 			setError(null);
 		}
-	}, [isAdd, amount, balanceOf]);
+	}, [isAdd, amount, walletBalance, position.collateralSymbol]);
 
 	// Error validation only for removing collateral
 	useEffect(() => {
@@ -264,9 +274,9 @@ export const CollateralManageSection = () => {
 		} else {
 			setError(null);
 		}
-	}, [isAdd, amount, balanceOf]);
+	}, [isAdd, amount, maxToRemove, balanceOf]);
 
-	const amountToUse = isAdd ? balanceOf + BigInt(amount) : balanceOf - BigInt(amount);
+	const amountToUse = isAdd ? balanceOf + BigInt(amount || 0) : balanceOf - BigInt(amount || 0);
 	const loanDetails = getLoanDetailsByCollateralAndYouGetAmount(position, amountToUse, principal);
 
 	return (
@@ -330,7 +340,7 @@ export const CollateralManageSection = () => {
 				>
 					{t(isAdd ? "mint.add_collateral" : "mint.remove_collateral")}
 				</Button>
-			) : allowance >= BigInt(amount) ? (
+			) : allowance >= BigInt(amount || 0) ? (
 				<Button
 					className="text-lg leading-snug !font-extrabold"
 					onClick={handleAdd}
