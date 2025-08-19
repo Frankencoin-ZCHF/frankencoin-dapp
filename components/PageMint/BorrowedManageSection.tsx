@@ -224,12 +224,20 @@ export const BorrowedManageSection = () => {
 					args: [BigInt(0), BigInt(0), BigInt(position.price)],
 				});
 			} else {
-				const { loanAmount } = getLoanDetailsByCollateralAndYouGetAmount(position, balanceOf, BigInt(amount));
+				// Adjusted for reserve portion => user input equals amount deducted from wallet
+				const userInputAmount = BigInt(amount);
+				const currentInterest = interest;
+				const reserveRatio = BigInt(position.reserveContribution);
+				
+				const adjustedAmount = userInputAmount <= currentInterest
+					? userInputAmount // Interest only - no adjustment needed
+					: currentInterest + ((userInputAmount - currentInterest) * 1_000_000n) / (1_000_000n - reserveRatio);
+				
 				payBackHash = await writeContract(WAGMI_CONFIG, {
 					address: position.position,
 					abi: PositionV2ABI,
 					functionName: "repay",
-					args: [loanAmount],
+					args: [adjustedAmount],
 				});
 			}
 
