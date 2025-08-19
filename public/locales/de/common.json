@@ -572,8 +572,6 @@
         "withdrawn_to_your_wallet": "Auf deine Wallet ausgezahlt",
         "interest_to_be_collected": "Auszahlbare Zinsen",
         "resulting_balance": "Resultierender Kontostand",
-        "when_saving_additional_funds_your_balance_will_be_locked": "Beim Einzahlen weiterer Gelder wird dein Guthaben gesperrt, bis die Zinsen anfallen, was bis zu drei Tage dauern kann. Diese Regel soll verhindern, dass Gelder eingezahlt werden, die für Transaktionen gedacht sind.",
-        "your_funds_are_still_locked_for": "Dein Guthaben ist noch für {{hours}} Stunden gesperrt.",
         "date": "Datum",
         "saver": "Sparer",
         "amount": "Betrag",

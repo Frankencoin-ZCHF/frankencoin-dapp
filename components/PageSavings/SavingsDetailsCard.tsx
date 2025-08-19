@@ -7,10 +7,9 @@ interface Props {
 	change: bigint;
 	direction: boolean;
 	interest: bigint;
-	locktime: bigint;
 }
 
-export default function SavingsDetailsCard({ balance, change, direction, interest, locktime }: Props) {
+export default function SavingsDetailsCard({ balance, change, direction, interest }: Props) {
 	const { t } = useTranslation();
 
 	return (
@@ -33,19 +32,6 @@ export default function SavingsDetailsCard({ balance, change, direction, interes
 				<div className="flex font-bold">
 					<div className="flex-1">{t("savings.resulting_balance")}</div>
 					<div className="">{formatCurrency(formatUnits(balance + change + interest, 18))} {TOKEN_SYMBOL}</div>
-				</div>
-
-				<div className="flex mt-8">
-					<div className={`flex-1`}>
-						{t("savings.when_saving_additional_funds_your_balance_will_be_locked")}
-						<span className="font-semibold">
-							{locktime > 0
-								? `${t("savings.your_funds_are_still_locked_for", { hours: formatCurrency(
-										(parseFloat(locktime.toString()) / 60 / 60).toString()
-								  )})}`
-								: ""}
-						</span>
-					</div>
 				</div>
 			</div>
 		</AppCard>

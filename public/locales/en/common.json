@@ -572,8 +572,6 @@
         "withdrawn_to_your_wallet": "Withdrawn to your wallet",
         "interest_to_be_collected": "Interest to be collected",
         "resulting_balance": "Resulting Balance",
-        "when_saving_additional_funds_your_balance_will_be_locked": "When saving additional funds, your balance will be locked until interest starts accruing, which can take up to three days. This rules serves to disincentivize the saving of funds held for transactional purposes.",
-        "your_funds_are_still_locked_for": "Your funds are still locked for {{hours}} hours.",
         "date": "Date",
         "saver": "Saver",
         "amount": "Amount",

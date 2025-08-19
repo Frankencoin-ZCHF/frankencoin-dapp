@@ -207,7 +207,6 @@ export default function SavingsInteractionCard() {
 				change={isLoaded ? change : 0n}
 				direction={direction}
 				interest={isLoaded ? userSavingsInterest : 0n}
-				locktime={userSavingsLocktime}
 			/>
 		</section>
 	);

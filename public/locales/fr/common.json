@@ -572,8 +572,6 @@
         "withdrawn_to_your_wallet": "Retrait sur votre portefeuille",
         "interest_to_be_collected": "Intérêts à collecter",
         "resulting_balance": "Solde résultant",
-        "when_saving_additional_funds_your_balance_will_be_locked": "Lorsque vous enregistrez des fonds supplémentaires, votre solde sera bloqué jusqu'au début de la capitalisation des intérêts, ce qui peut prendre jusqu'à trois jours. Cette règle vise à décourager l'épargne de fonds détenus à des fins transactionnelles.",
-        "your_funds_are_still_locked_for": "Vos fonds sont encore bloqués pendant {{hours}} heures.",
         "date": "Date",
         "saver": "Épargne",
         "amount": "Montant",

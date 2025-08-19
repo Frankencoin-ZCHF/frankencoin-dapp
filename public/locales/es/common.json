@@ -572,8 +572,6 @@
         "withdrawn_to_your_wallet": "Retirado a su monedero",
         "interest_to_be_collected": "Intereses pendientes de cobro",
         "resulting_balance": "Saldo resultante",
-        "when_saving_additional_funds_your_balance_will_be_locked": "Al guardar fondos adicionales, su saldo quedará bloqueado hasta que comiencen a generarse intereses, lo que puede tardar hasta tres días. Esta norma sirve para desincentivar el ahorro de fondos destinados a transacciones.",
-        "your_funds_are_still_locked_for": "Sus fondos aún están bloqueados durante {{hours}} horas.",
         "date": "Fecha",
         "saver": "Ahorro",
         "amount": "Monto",
