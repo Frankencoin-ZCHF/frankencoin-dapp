@@ -1,6 +1,7 @@
 "use client";
 
-import { ApolloClient, InMemoryCache } from "@apollo/client";
+import { ApolloClient, InMemoryCache, createHttpLink, from } from "@apollo/client";
+import { onError } from "@apollo/client/link/error";
 import { cookieStorage, createConfig, createStorage, http } from "@wagmi/core";
 import { injected, coinbaseWallet, walletConnect } from "@wagmi/connectors";
 import { mainnet, polygon, Chain } from "@wagmi/core/chains";
@@ -12,6 +13,7 @@ export type ConfigEnv = {
 	app: string;
 	api: string;
 	ponder: string;
+	ponderFallback: string;
 	wagmiId: string;
 	alchemyApiKey: string;
 	chain: string;
@@ -33,6 +35,7 @@ export const CONFIG: ConfigEnv = {
 	app: process.env.NEXT_PUBLIC_APP_URL ?? "https://app.deuro.com",
 	api: process.env.NEXT_PUBLIC_API_URL ?? "https://api.deuro.com",
 	ponder: process.env.NEXT_PUBLIC_PONDER_URL ?? "https://ponder.deuro.com",
+	ponderFallback: process.env.NEXT_PUBLIC_PONDER_FALLBACK_URL ?? "https://dev.ponder.deuro.com/",
 	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID ?? "",
 	alchemyApiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY ?? "",
 	chain: process.env.NEXT_PUBLIC_CHAIN_NAME ?? "mainnet",
@@ -74,9 +77,35 @@ export const CONFIG_RPC = (): string => {
 	return CONFIG.chain === "polygon" ? `${CONFIG.network.polygon}/${CONFIG.alchemyApiKey}` : `${CONFIG.network.mainnet}/${CONFIG.alchemyApiKey}`;
 }
 
+// Ponder fallback mechanism
+let fallbackUntil: number | null = null;
+
+function getPonderUrl(): string {
+	if (fallbackUntil && Date.now() < fallbackUntil) return CONFIG.ponderFallback;
+	if (fallbackUntil) fallbackUntil = null;
+	return CONFIG.ponder;
+}
+
+function activateFallback(): void {
+	if (!fallbackUntil) {
+		fallbackUntil = Date.now() + 10 * 60 * 1000; // 10 minutes
+		console.log('[Ponder] Switching to fallback for 10min:', CONFIG.ponderFallback);
+	}
+}
+
 // PONDER CLIENT
+const errorLink = onError(({ networkError }) => {
+	if (networkError && getPonderUrl() === CONFIG.ponder) {
+		activateFallback();
+	}
+});
+
+const httpLink = createHttpLink({
+	uri: () => getPonderUrl(),
+});
+
 export const PONDER_CLIENT = new ApolloClient({
-	uri: CONFIG.ponder,
+	link: from([errorLink, httpLink]),
 	cache: new InMemoryCache(),
 });
 
