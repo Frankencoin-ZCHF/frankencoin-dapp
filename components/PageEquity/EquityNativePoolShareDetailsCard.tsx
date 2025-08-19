@@ -135,6 +135,7 @@ export default function EquityNativePoolShareDetailsCard() {
 			<div className="py-4 flex flex-row justify-center items-center">
 				{Object.values(Timeframe).map((_timeframe) => (
 					<SegmentedControlButton
+						key={_timeframe}
 						selected={_timeframe === timeframe}
 						onClick={() => setTimeframe(_timeframe)}
 					>
