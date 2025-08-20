@@ -25,9 +25,9 @@ export default function MyPositionsBidsRow({ headers, bid, tab }: Props) {
 	const pid = bid.position.toLowerCase() as Address;
 	const cid = `${pid}-challenge-${bid.number}` as ChallengesId;
 
-	const position = positions.map[pid];
-	const challenge = challenges.map[cid];
-	const url = useContractUrl(position.collateral || zeroAddress);
+	const position = positions?.map?.[pid];
+	const challenge = challenges?.map?.[cid];
+	const url = useContractUrl(position?.collateral || zeroAddress);
 	const account = useAccount();
 	const navigate = useNavigation();
 	if (!position || !challenge) return null;

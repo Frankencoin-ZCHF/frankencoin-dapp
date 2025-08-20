@@ -27,15 +27,15 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 	const account = useAccount();
 	const chainId = CONFIG_CHAIN().id;
 	const info = useSelector((state: RootState) => state.savings.leadrateInfo);
-	const [newRate, setNewRate] = useState<number>(info.rate || 0);
+	const [newRate, setNewRate] = useState<number>(info?.rate || 0);
 	const [isHidden, setHidden] = useState<boolean>(false);
 	const [isDisabled, setDisabled] = useState<boolean>(true);
 	const { t } = useTranslation();
 
 	useEffect(() => {
-		if (newRate != info.rate) setDisabled(false);
+		if (newRate != info?.rate) setDisabled(false);
 		else setDisabled(true);
-	}, [newRate, info.rate]);
+	}, [newRate, info?.rate]);
 
 	if (!info) return null;
 

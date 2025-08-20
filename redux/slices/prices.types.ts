@@ -10,11 +10,11 @@ import {
 export type PricesState = {
 	error: string | null;
 	loaded: boolean;
-	coingecko: ApiPriceMapping;
-	eur: PriceQueryCurrencies;
-	mint: ERC20Info | ApiPriceERC20;
-	nativePS: ERC20Info | ApiPriceERC20;
-	collateral: ApiPriceERC20Mapping;
+	coingecko?: ApiPriceMapping;
+	eur?: PriceQueryCurrencies;
+	mint?: ERC20Info | ApiPriceERC20;
+	nativePS?: ERC20Info | ApiPriceERC20;
+	collateral?: ApiPriceERC20Mapping;
 };
 
 // --------------------------------------------------------------------------------
@@ -25,15 +25,20 @@ export type DispatchBoolean = {
 
 export type DispatchApiPriceMapping = {
 	type: string;
-	payload: ApiPriceMapping;
+	payload: ApiPriceMapping | undefined;
 };
 
 export type DispatchApiPriceERC20 = {
 	type: string;
-	payload: ApiPriceERC20;
+	payload: ApiPriceERC20 | undefined;
 };
 
 export type DispatchApiPriceERC20Mapping = {
 	type: string;
-	payload: ApiPriceERC20Mapping;
+	payload: ApiPriceERC20Mapping | undefined;
+};
+
+export type DispatchPriceQueryCurrencies = {
+	type: string;
+	payload: PriceQueryCurrencies | undefined;
 };

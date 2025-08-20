@@ -10,6 +10,7 @@ import {
 	DispatchApiBidsMapping,
 } from "./bids.types";
 import { ApiBidsBidders, ApiBidsChallenges, ApiBidsListing, ApiBidsMapping, ApiBidsPositions } from "@deuro/api";
+import { logApiError } from "../../utils/errorLogger";
 
 // --------------------------------------------------------------------------------
 
@@ -17,12 +18,11 @@ export const initialState: BidsState = {
 	error: null,
 	loaded: false,
 
-	list: { num: 0, list: [] },
-
-	mapping: { num: 0, bidIds: [], map: {} },
-	bidders: { num: 0, bidders: [], map: {} },
-	challenges: { num: 0, challenges: [], map: {} },
-	positions: { num: 0, positions: [], map: {} },
+	list: undefined,
+	mapping: undefined,
+	bidders: undefined,
+	challenges: undefined,
+	positions: undefined,
 };
 
 // --------------------------------------------------------------------------------
@@ -43,31 +43,31 @@ export const slice = createSlice({
 
 		// -------------------------------------
 		// SET Bids LIST
-		setList: (state, action: { payload: ApiBidsListing }) => {
+		setList: (state, action: { payload: ApiBidsListing | undefined }) => {
 			state.list = action.payload;
 		},
 
 		// -------------------------------------
 		// SET Bids mapping
-		setMapping: (state, action: { payload: ApiBidsMapping }) => {
+		setMapping: (state, action: { payload: ApiBidsMapping | undefined }) => {
 			state.mapping = action.payload;
 		},
 
 		// -------------------------------------
 		// SET Bids Bidders
-		setBidders: (state, action: { payload: ApiBidsBidders }) => {
+		setBidders: (state, action: { payload: ApiBidsBidders | undefined }) => {
 			state.bidders = action.payload;
 		},
 
 		// -------------------------------------
 		// SET Bids Challenges
-		setChallenges: (state, action: { payload: ApiBidsChallenges }) => {
+		setChallenges: (state, action: { payload: ApiBidsChallenges | undefined }) => {
 			state.challenges = action.payload;
 		},
 
 		// -------------------------------------
 		// SET Bids Positions
-		setPositions: (state, action: { payload: ApiBidsPositions }) => {
+		setPositions: (state, action: { payload: ApiBidsPositions | undefined }) => {
 			state.positions = action.payload;
 		},
 	},
@@ -92,22 +92,31 @@ export const fetchBidsList =
 		// ---------------------------------------------------------------
 		console.log("Loading [REDUX]: BidsList");
 
-		// ---------------------------------------------------------------
-		// Query raw data from backend api
-		const response1 = await DEURO_API_CLIENT.get("/challenges/bids/list");
-		dispatch(slice.actions.setList(response1.data as ApiBidsListing));
+		try {
+			// ---------------------------------------------------------------
+			// Query raw data from backend api
+			const response1 = await DEURO_API_CLIENT.get("/challenges/bids/list");
+			dispatch(slice.actions.setList(response1.data as ApiBidsListing));
 
-		const responseMapping = await DEURO_API_CLIENT.get("/challenges/bids/mapping");
-		dispatch(slice.actions.setMapping(responseMapping.data as ApiBidsMapping));
+			const responseMapping = await DEURO_API_CLIENT.get("/challenges/bids/mapping");
+			dispatch(slice.actions.setMapping(responseMapping.data as ApiBidsMapping));
 
-		const response2 = await DEURO_API_CLIENT.get("/challenges/bids/bidders");
-		dispatch(slice.actions.setBidders(response2.data as ApiBidsBidders));
+			const response2 = await DEURO_API_CLIENT.get("/challenges/bids/bidders");
+			dispatch(slice.actions.setBidders(response2.data as ApiBidsBidders));
 
-		const response3 = await DEURO_API_CLIENT.get("/challenges/bids/challenges");
-		dispatch(slice.actions.setChallenges(response3.data as ApiBidsChallenges));
+			const response3 = await DEURO_API_CLIENT.get("/challenges/bids/challenges");
+			dispatch(slice.actions.setChallenges(response3.data as ApiBidsChallenges));
 
-		const response4 = await DEURO_API_CLIENT.get("/challenges/bids/positions");
-		dispatch(slice.actions.setPositions(response4.data as ApiBidsPositions));
+			const response4 = await DEURO_API_CLIENT.get("/challenges/bids/positions");
+			dispatch(slice.actions.setPositions(response4.data as ApiBidsPositions));
+		} catch (error) {
+			logApiError(error, "bids data");
+			dispatch(slice.actions.setList(undefined));
+			dispatch(slice.actions.setMapping(undefined));
+			dispatch(slice.actions.setBidders(undefined));
+			dispatch(slice.actions.setChallenges(undefined));
+			dispatch(slice.actions.setPositions(undefined));
+		}
 
 		// ---------------------------------------------------------------
 		// Finalizing, loaded set to ture

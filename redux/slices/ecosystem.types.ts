@@ -11,11 +11,11 @@ export type EcosystemState = {
 	error: string | null;
 	loaded: boolean;
 
-	collateralPositions: ApiEcosystemCollateralPositions;
-	collateralStats: ApiEcosystemCollateralStats;
-	depsInfo: ApiEcosystemDepsInfo;
-	stablecoinInfo: ApiEcosystemStablecoinInfo;
-	stablecoinMinters: ApiMinterListing;
+	collateralPositions: ApiEcosystemCollateralPositions | undefined;
+	collateralStats: ApiEcosystemCollateralStats | undefined;
+	depsInfo: ApiEcosystemDepsInfo | undefined;
+	stablecoinInfo: ApiEcosystemStablecoinInfo | undefined;
+	stablecoinMinters: ApiMinterListing | undefined;
 };
 
 // --------------------------------------------------------------------------------
@@ -26,25 +26,25 @@ export type DispatchBoolean = {
 
 export type DispatchApiEcosystemCollateralPositions = {
 	type: string;
-	payload: ApiEcosystemCollateralPositions;
+	payload: ApiEcosystemCollateralPositions | undefined;
 };
 
 export type DispatchApiEcosystemCollateralStats = {
 	type: string;
-	payload: ApiEcosystemCollateralStats;
+	payload: ApiEcosystemCollateralStats | undefined;
 };
 
 export type DispatchApiEcosystemNativePoolShareInfo = {
 	type: string;
-	payload: ApiEcosystemDepsInfo;
+	payload: ApiEcosystemDepsInfo | undefined;
 };
 
 export type DispatchApiEcosystemStablecoinInfo = {
 	type: string;
-	payload: ApiEcosystemStablecoinInfo;
+	payload: ApiEcosystemStablecoinInfo | undefined;
 };
 
 export type DispatchApiEcosystemStablecoinMinters = {
 	type: string;
-	payload: ApiMinterListing;
+	payload: ApiMinterListing | undefined;
 };

@@ -33,7 +33,7 @@ export function SelectCollateralModal<T extends TokenOption>({
 	options,
 	onTokenSelect,
 }: SelectCollateralModalProps<T>) {
-	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const prices = useSelector((state: RootState) => state.prices.coingecko || {});
 	const { t } = useTranslation();
 
 	const handleTokenSelect = (option: T, index: number, options: T[]) => {

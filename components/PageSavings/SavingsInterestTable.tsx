@@ -15,8 +15,9 @@ export default function SavingsInterestTable() {
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
-	const { interest } = useSelector((state: RootState) => state.savings.savingsAllUserTable);
-	if (!interest) return null;
+	const savingsAllUserTable = useSelector((state: RootState) => state.savings.savingsAllUserTable);
+	const interest = savingsAllUserTable?.interest || [];
+	if (!interest.length) return null;
 
 	const sorted: SavingsInterestQuery[] = interest;
 

@@ -23,7 +23,7 @@ export default function MonitoringRow({ headers, position, tab }: Props) {
 	const router = useRouter();
 	const { t } = useTranslation();
 
-	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const prices = useSelector((state: RootState) => state.prices.coingecko || {});
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const url = useContractUrl(position.collateral || zeroAddress);
 	const maturity: number = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
@@ -38,7 +38,7 @@ export default function MonitoringRow({ headers, position, tab }: Props) {
 	const collateralizationPercentage: number = Math.round((marketValueCollateral / positionValueCollateral) * 10000) / 100;
 
 	const digits: number = position.collateralDecimals;
-	const positionChallenges = challenges.map[position.position.toLowerCase() as Address] ?? [];
+	const positionChallenges = challenges?.map?.[position.position.toLowerCase() as Address] ?? [];
 	const positionChallengesActive = positionChallenges.filter((ch: ChallengesQueryItem) => ch.status == "Active") ?? [];
 	const positionChallengesActiveCollateral =
 		positionChallengesActive.reduce<number>((acc, c) => {

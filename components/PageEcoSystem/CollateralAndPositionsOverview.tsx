@@ -9,9 +9,11 @@ import { TOKEN_SYMBOL } from "@utils";
 export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: PriceQueryObjectArray) {
 	const stats = [];
 	for (let positions of listByCollateral) {
-		const original = positions.at(0) as PositionQuery;
-		const collateral = prices[original!.collateral.toLowerCase() as Address];
-		const mint = prices[original!.deuro.toLowerCase() as Address];
+		const original = positions.at(0);
+		if (!original) continue;
+		
+		const collateral = prices[original.collateral.toLowerCase() as Address];
+		const mint = prices[original.deuro.toLowerCase() as Address];
 
 		if (!collateral || !mint) continue;
 
@@ -72,7 +74,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 export default function CollateralAndPositionsOverview() {
 	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
-	const stats = calcOverviewStats(openPositionsByCollateral, coingecko);
+	const stats = calcOverviewStats(openPositionsByCollateral, coingecko || {});
 
 	return (
 		<div className=" flex flex-col gap-y-4">

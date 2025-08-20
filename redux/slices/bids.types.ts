@@ -5,12 +5,11 @@ export type BidsState = {
 	error: string | null;
 	loaded: boolean;
 
-	list: ApiBidsListing;
-
-	mapping: ApiBidsMapping;
-	bidders: ApiBidsBidders;
-	challenges: ApiBidsChallenges;
-	positions: ApiBidsPositions;
+	list?: ApiBidsListing;
+	mapping?: ApiBidsMapping;
+	bidders?: ApiBidsBidders;
+	challenges?: ApiBidsChallenges;
+	positions?: ApiBidsPositions;
 };
 
 // --------------------------------------------------------------------------------
@@ -21,25 +20,25 @@ export type DispatchBoolean = {
 
 export type DispatchApiBidsListing = {
 	type: string;
-	payload: ApiBidsListing;
+	payload: ApiBidsListing | undefined;
 };
 
 export type DispatchApiBidsMapping = {
 	type: string;
-	payload: ApiBidsMapping;
+	payload: ApiBidsMapping | undefined;
 };
 
 export type DispatchApiBidsBidders = {
 	type: string;
-	payload: ApiBidsBidders;
+	payload: ApiBidsBidders | undefined;
 };
 
 export type DispatchApiBidsChallenges = {
 	type: string;
-	payload: ApiBidsChallenges;
+	payload: ApiBidsChallenges | undefined;
 };
 
 export type DispatchApiBidsPositions = {
 	type: string;
-	payload: ApiBidsPositions;
+	payload: ApiBidsPositions | undefined;
 };

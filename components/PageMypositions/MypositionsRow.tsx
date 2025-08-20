@@ -29,7 +29,7 @@ type ChallengeInfos = {
 export default function MypositionsRow({ headers, subHeaders, position, tab }: Props) {
 	const navigate = useNavigate();
 
-	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const prices = useSelector((state: RootState) => state.prices.coingecko || {});
 	const eurPrice = useSelector((state: RootState) => state.prices.eur?.usd);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
@@ -45,7 +45,7 @@ export default function MypositionsRow({ headers, subHeaders, position, tab }: P
 	const liquidationDEURO: number = parseInt(position.price) / 10 ** (36 - position.collateralDecimals);
 	const liquidationPct: number = (balanceDEURO / (liquidationDEURO * balance)) * 100;
 
-	const positionChallenges = challenges.map[position.position.toLowerCase() as Address] ?? [];
+	const positionChallenges = challenges?.map?.[position.position.toLowerCase() as Address] ?? [];
 	const positionChallengesActive = positionChallenges.filter((ch: ChallengesQueryItem) => ch.status == "Active") ?? [];
 
 	const states: string[] = ["Closed", "Challenged", "New Request", "Cooldown", "Expiring Soon", "Expired", "Open"];

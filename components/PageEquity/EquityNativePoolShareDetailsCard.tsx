@@ -38,111 +38,133 @@ const getStartTimestampByTimeframe = (timeframe: Timeframe) => {
 export default function EquityNativePoolShareDetailsCard() {
 	const [timeframe, setTimeframe] = useState<Timeframe>(Timeframe.ALL);
 	const poolStats = usePoolStats();
-	const { profit, loss, unrealizedProfit } = useSelector((state: RootState) => state.ecosystem.depsInfo.earnings);
+	const earnings = useSelector((state: RootState) => state.ecosystem.depsInfo?.earnings);
+	const profit = earnings?.profit ?? "-";
+	const loss = earnings?.loss ?? "-";
+	const unrealizedProfit = earnings?.unrealizedProfit ?? "-";
 	const { trades } = useTradeQuery();
 	const { t } = useTranslation();
 	const startTrades = getStartTimestampByTimeframe(timeframe);
 
-	const filteredTrades = useMemo(() => trades.filter((trade) => {
-		return parseFloat(trade.time) * 1000 > startTrades;
-	}), [trades, startTrades]);
+	const filteredTrades = useMemo(
+		() =>
+			(trades || []).filter((trade) => {
+				return parseFloat(trade.time) * 1000 > startTrades;
+			}),
+		[trades, startTrades]
+	);
 
-	const maxPrice = useMemo(() => Math.max(...filteredTrades.map((trade) => Math.round(Number(trade.lastPrice) / 10 ** 16) / 100)), [filteredTrades]);
+	const maxPrice = useMemo(
+		() => Math.max(...filteredTrades.map((trade) => Math.round(Number(trade.lastPrice) / 10 ** 16) / 100)),
+		[filteredTrades]
+	);
 
 	return (
-		<div className="bg-layout-primary border border-borders-dividerLight border-offset-1 rounded-xl grid grid-cols-1">
-			<div id="chart-timeline" className="relative">
-				<div className="absolute top-[20px] left-[20px] z-10 gap-2 flex flex-col items-start">
-					<TokenLogo currency={NATIVE_POOL_SHARE_TOKEN_SYMBOL} size={7} />
-					<div>
-						<span className="text-base font-extrabold leading-tight">
-							{formatCurrency(formatUnits(poolStats.equityPrice, 18), 4, 4)}
-						</span>{" "}
-						<span className="text-base font-[350] leading-tight">{TOKEN_SYMBOL}</span>
+		<div className="bg-layout-primary border border-borders-dividerLight border-offset-1 rounded-xl overflow-clip grid grid-cols-1">
+			{trades?.length ? (
+				<div id="chart-timeline" className="relative">
+					<div className="absolute top-[20px] left-[20px] z-10 gap-2 flex flex-col items-start">
+						<TokenLogo currency={NATIVE_POOL_SHARE_TOKEN_SYMBOL} size={7} />
+						<div>
+							<span className="text-base font-extrabold leading-tight">
+								{formatCurrency(formatUnits(poolStats.equityPrice, 18), 4, 4)}
+							</span>{" "}
+							<span className="text-base font-[350] leading-tight">{TOKEN_SYMBOL}</span>
+						</div>
+					</div>
+					<ApexChart
+						type="area"
+						options={{
+							theme: {
+								monochrome: {
+									color: "#0D4E9C",
+									enabled: true,
+								},
+							},
+							chart: {
+								type: "area",
+								height: 300,
+								width: 650,
+								dropShadow: {
+									enabled: false,
+								},
+								toolbar: {
+									show: false,
+								},
+								zoom: {
+									enabled: false,
+								},
+								background: "0",
+							},
+							stroke: {
+								width: 3,
+							},
+							dataLabels: {
+								enabled: false,
+							},
+							grid: {
+								show: false,
+							},
+							xaxis: {
+								type: "datetime",
+								labels: {
+									show: false,
+								},
+								axisBorder: {
+									show: false,
+								},
+								axisTicks: {
+									show: false,
+								},
+							},
+							yaxis: {
+								show: false,
+								min: 0,
+								max: maxPrice * 2,
+							},
+							fill: {
+								colors: ["#0F80F099"],
+								type: "gradient",
+								gradient: {
+									type: "vertical",
+									opacityFrom: 1,
+									opacityTo: 0.95,
+									gradientToColors: ["#F5F6F9"],
+								},
+							},
+						}}
+						series={[
+							{
+								name: `${POOL_SHARE_TOKEN_SYMBOL} Price`,
+								data: filteredTrades.map((trade) => {
+									return [parseFloat(trade.time) * 1000, Number((Number(trade.lastPrice) / 10 ** 16 / 100).toFixed(4))];
+								}),
+							},
+						]}
+					/>
+				</div>
+			) : (
+				<div className="flex items-center justify-center h-[300px] text-text-muted2 bg-zinc-200/50">
+					<div className="text-center">
+						<div className="text-base mb-1">{t("common.chart_unavailable")}</div>
 					</div>
 				</div>
-				<ApexChart
-					type="area"
-					options={{
-						theme: {
-							monochrome: {
-								color: "#0D4E9C",
-								enabled: true,
-							},
-						},
-						chart: {
-							type: "area",
-							height: 300,
-							width: 650,
-							dropShadow: {
-								enabled: false,
-							},
-							toolbar: {
-								show: false,
-							},
-							zoom: {
-								enabled: false,
-							},
-							background: "0",
-						},
-						stroke: {
-							width: 3,
-						},
-						dataLabels: {
-							enabled: false,
-						},
-						grid: {
-							show: false,
-						},
-						xaxis: {
-							type: "datetime",
-							labels: {
-								show: false,
-							},
-							axisBorder: {
-								show: false,
-							},
-							axisTicks: {
-								show: false,
-							},
-						},
-						yaxis: {
-							show: false,
-							min: 0,
-							max: maxPrice * 2,
-						},
-						fill: {
-							colors: ["#0F80F099"],
-							type: "gradient",
-							gradient: {
-								type: "vertical",
-								opacityFrom: 1,
-								opacityTo: 0.95,
-								gradientToColors: ["#F5F6F9"],
-							},
-						},
-					}}
-					series={[
-						{
-							name: `${POOL_SHARE_TOKEN_SYMBOL} Price`,
-							data: filteredTrades.map((trade) => {
-								return [parseFloat(trade.time) * 1000, Number(((Number(trade.lastPrice) / 10 ** 16) / 100).toFixed(4))];
-							}),
-						},
-					]}
-				/>
-			</div>
-			<div className="py-4 flex flex-row justify-center items-center">
-				{Object.values(Timeframe).map((_timeframe) => (
-					<SegmentedControlButton
-						key={_timeframe}
-						selected={_timeframe === timeframe}
-						onClick={() => setTimeframe(_timeframe)}
-					>
-						{_timeframe}
-					</SegmentedControlButton>
-				))}
-			</div>
+			)}
+			{trades?.length ? (
+				<div className="py-4 flex flex-row justify-center items-center">
+					{Object.values(Timeframe).map((_timeframe) => (
+						<SegmentedControlButton
+							key={_timeframe}
+							selected={_timeframe === timeframe}
+							onClick={() => setTimeframe(_timeframe)}
+						>
+							{_timeframe}
+						</SegmentedControlButton>
+					))}
+				</div>
+			) : (
+				<></>
+			)}
 			<div className="flex flex-col justify-start gap-3 py-6 px-5 border-t border-borders-dividerLight border-offset-1">
 				<div className="flex flex-row justify-between">
 					<div className="text-sm font-medium leading-relaxed">{t("equity.supply")}</div>
@@ -153,7 +175,8 @@ export default function EquityNativePoolShareDetailsCard() {
 				<div className="flex flex-row justify-between">
 					<div className="text-sm font-medium leading-relaxed">{t("equity.market_cap")}</div>
 					<div className="text-sm font-medium leading-tight ">
-						{formatCurrency(formatUnits((poolStats.equitySupply * poolStats.equityPrice) / BigInt(1e18), 18), 2, 2)} {TOKEN_SYMBOL}
+						{formatCurrency(formatUnits((poolStats.equitySupply * poolStats.equityPrice) / BigInt(1e18), 18), 2, 2)}{" "}
+						{TOKEN_SYMBOL}
 					</div>
 				</div>
 				<div className="flex flex-row justify-between">
@@ -177,7 +200,10 @@ export default function EquityNativePoolShareDetailsCard() {
 				<div className="flex flex-row justify-between">
 					<div className="text-sm font-medium leading-relaxed">{t("equity.total_income")}</div>
 					<div className="text-sm font-medium leading-tight ">
-						{formatCurrency(profit + unrealizedProfit - loss + 300000, 2, 2)} {TOKEN_SYMBOL} {/* 300k was sent directly to Equity contract */}
+						{typeof profit === "number" && typeof unrealizedProfit === "number" && typeof loss === "number"
+							? formatCurrency(profit + unrealizedProfit - loss + 300000, 2, 2) + ` ${TOKEN_SYMBOL}`
+							: "-"}{" "}
+						{/* 300k was sent directly to Equity contract */}
 					</div>
 				</div>
 			</div>

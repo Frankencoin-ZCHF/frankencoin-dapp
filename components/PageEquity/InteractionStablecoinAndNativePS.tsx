@@ -25,8 +25,8 @@ import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 interface Props {
 	openSelector: (tokenInteractionSide: TokenInteractionSide) => void;
-	selectedFromToken: TokenBalance;
-	selectedToToken: TokenBalance;
+	selectedFromToken: TokenBalance | undefined;
+	selectedToToken: TokenBalance | undefined;
 	refetchBalances: () => void;
 	reverseSelection: () => void;
 }
@@ -50,7 +50,7 @@ export default function InteractionStablecoinAndNativePS({
 	const poolStats = usePoolStats();
 	const eurPrice = useSelector((state: RootState) => state.prices.eur?.usd);
 	const account = address || zeroAddress;
-	const direction: boolean = selectedFromToken.symbol === TOKEN_SYMBOL;
+	const direction: boolean = selectedFromToken?.symbol === TOKEN_SYMBOL;
 
 	const { data: frontendDeuroAllowanceData, refetch: refetchFrontendDeuroAllowance } = useReadContract({
 		address: ADDRESS[chainId].decentralizedEURO,
@@ -71,7 +71,7 @@ export default function InteractionStablecoinAndNativePS({
 	useEffect(() => {
 		setAmount(0n);
 		setError("");
-	}, [selectedFromToken.symbol]);
+	}, [selectedFromToken?.symbol]);
 
 	const handleApproveInvest = async () => {
 		try {
@@ -318,12 +318,12 @@ export default function InteractionStablecoinAndNativePS({
 										<div className="text-text-muted3 text-xs font-medium leading-none">
 											{t("common.balance_label")} {" "}
 											{formatCurrency(
-												formatUnits(selectedFromToken.balanceOf || 0n, selectedFromToken.decimals || 18)
+												formatUnits(selectedFromToken?.balanceOf || 0n, selectedFromToken?.decimals || 18)
 											)}{" "}
-											{selectedFromToken.symbol}
+											{selectedFromToken?.symbol}
 										</div>
 										<MaxButton
-											disabled={BigInt(selectedFromToken.balanceOf || 0n) === BigInt(0)}
+											disabled={BigInt(selectedFromToken?.balanceOf || 0n) === BigInt(0)}
 											onClick={() => onChangeAmount(selectedFromToken?.balanceOf?.toString() || "0")}
 										/>
 									</>
@@ -363,11 +363,11 @@ export default function InteractionStablecoinAndNativePS({
 								{selectedToToken && (
 									<>
 										<div className="text-text-muted2 text-xs font-medium leading-none">
-											{formatUnits(selectedToToken.balanceOf || 0n, selectedToToken.decimals || 18)}{" "}
-											{selectedToToken.symbol}
+											{formatUnits(selectedToToken?.balanceOf || 0n, selectedToToken?.decimals || 18)}{" "}
+											{selectedToToken?.symbol}
 										</div>
 										<MaxButton
-											disabled={BigInt(selectedToToken.balanceOf || 0n) === BigInt(0)}
+											disabled={BigInt(selectedToToken?.balanceOf || 0n) === BigInt(0)}
 											onClick={() => onChangeAmount(selectedToToken?.balanceOf?.toString() || "0")}
 										/>
 									</>

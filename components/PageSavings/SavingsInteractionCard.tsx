@@ -36,7 +36,8 @@ export default function SavingsInteractionCard() {
 	const [currentTicks, setCurrentTicks] = useState(0n);
 	const [isApproving, setIsApproving] = useState(false);
 
-	const leadrate = useSelector((state: RootState) => state.savings.savingsInfo.rate);
+	const savingsInfo = useSelector((state: RootState) => state.savings.savingsInfo);
+	const leadrate = savingsInfo?.rate;
 
 	const { data } = useBlockNumber({ watch: true });
 	const { t } = useTranslation();
@@ -91,7 +92,7 @@ export default function SavingsInteractionCard() {
 			});
 			setCurrentTicks(_current);
 
-			const _locktime = _userTicks >= _current && leadrate > 0 ? (_userTicks - _current) / BigInt(leadrate) : 0n;
+			const _locktime = _userTicks >= _current && leadrate && leadrate > 0 ? (_userTicks - _current) / BigInt(leadrate) : 0n;
 			setUserSavingsLocktime(_locktime);
 
 			const _tickDiff = _current - _userTicks;

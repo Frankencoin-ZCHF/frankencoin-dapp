@@ -75,7 +75,7 @@ export default function SavingsLeaderboardTable() {
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [isShowMore, setIsShowMore] = useState<boolean>(false);
 
-	const leaderboard = useSelector((state: RootState) => state.savings.savingsLeaderboard);
+	const leaderboard = useSelector((state: RootState) => state.savings.savingsLeaderboard) || [];
 
 	const sorted = sortSavingsLeaderboard({
 		leaderboard: leaderboard.map((r, index) => ({ ...r, rank: index + 1 })),

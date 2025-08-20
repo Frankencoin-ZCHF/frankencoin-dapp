@@ -40,6 +40,7 @@
         "temporary_unavailable": "Temporairement non disponible",
         "using_referral_code": "Utilisation du code de parrainage",
         "details": "Détails",
+        "chart_unavailable": "Les données du graphique ne sont pas disponibles actuellement",
         "navbar": {
             "my_referrals": "Mes filleuls",
             "swap": "Swap",

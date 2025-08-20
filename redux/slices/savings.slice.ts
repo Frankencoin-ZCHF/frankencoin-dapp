@@ -12,6 +12,7 @@ import {
 } from "./savings.types";
 import { ApiLeadrateInfo, ApiLeadrateProposed, ApiLeadrateRate, ApiSavingsInfo, ApiSavingsUserTable, ApiSavingsUserLeaderboard } from "@deuro/api";
 import { Address, zeroAddress } from "viem";
+import { logApiError } from "../../utils/errorLogger";
 
 // --------------------------------------------------------------------------------
 
@@ -19,51 +20,13 @@ export const initialState: SavingsState = {
 	error: null,
 	loaded: false,
 
-	leadrateInfo: {
-		isProposal: false,
-		isPending: false,
-		nextchange: 0,
-		nextRate: 0,
-		rate: 0,
-	},
-	leadrateProposed: {
-		blockheight: 0,
-		created: 0,
-		nextchange: 0,
-		nextRate: 0,
-		num: 0,
-		list: [],
-	},
-	leadrateRate: {
-		blockheight: 0,
-		created: 0,
-		rate: 0,
-		num: 0,
-		list: [],
-	},
-
-	savingsInfo: {
-		totalSaved: 0,
-		totalWithdrawn: 0,
-		totalBalance: 0,
-		totalInterest: 0,
-		rate: 0,
-		ratioOfSupply: 0,
-	},
-
-	savingsUserTable: {
-		interest: [],
-		save: [],
-		withdraw: [],
-	},
-
-	savingsAllUserTable: {
-		interest: [],
-		save: [],
-		withdraw: [],
-	},
-
-	savingsLeaderboard: [],
+	leadrateInfo: undefined,
+	leadrateProposed: undefined,
+	leadrateRate: undefined,
+	savingsInfo: undefined,
+	savingsUserTable: undefined,
+	savingsAllUserTable: undefined,
+	savingsLeaderboard: undefined,
 };
 
 // --------------------------------------------------------------------------------
@@ -82,28 +45,28 @@ export const slice = createSlice({
 			state.loaded = action.payload;
 		},
 
-		setLeadrateInfo: (state, action: { payload: ApiLeadrateInfo }) => {
+		setLeadrateInfo: (state, action: { payload: ApiLeadrateInfo | undefined }) => {
 			state.leadrateInfo = action.payload;
 		},
-		setLeadrateProposed: (state, action: { payload: ApiLeadrateProposed }) => {
+		setLeadrateProposed: (state, action: { payload: ApiLeadrateProposed | undefined }) => {
 			state.leadrateProposed = action.payload;
 		},
-		setLeadrateRate: (state, action: { payload: ApiLeadrateRate }) => {
+		setLeadrateRate: (state, action: { payload: ApiLeadrateRate | undefined }) => {
 			state.leadrateRate = action.payload;
 		},
 
-		setSavingsInfo: (state, action: { payload: ApiSavingsInfo }) => {
+		setSavingsInfo: (state, action: { payload: ApiSavingsInfo | undefined }) => {
 			state.savingsInfo = action.payload;
 		},
 
-		setSavingsUserTable: (state, action: { payload: ApiSavingsUserTable }) => {
+		setSavingsUserTable: (state, action: { payload: ApiSavingsUserTable | undefined }) => {
 			state.savingsUserTable = action.payload;
 		},
 
-		setSavingsAllUserTable: (state, action: { payload: ApiSavingsUserTable }) => {
+		setSavingsAllUserTable: (state, action: { payload: ApiSavingsUserTable | undefined }) => {
 			state.savingsAllUserTable = action.payload;
 		},
-		setSavingsLeaderboard: (state, action: { payload: ApiSavingsUserLeaderboard[] }) => {
+		setSavingsLeaderboard: (state, action: { payload: ApiSavingsUserLeaderboard[] | undefined }) => {
 			state.savingsLeaderboard = action.payload;
 		},
 	},
@@ -129,9 +92,10 @@ export const fetchSavings =
 		// ---------------------------------------------------------------
 		console.log("Loading [REDUX]: Savings");
 
-		// ---------------------------------------------------------------
-		// Query raw data from backend api
-		const response1 = await DEURO_API_CLIENT.get("/savings/leadrate/info");
+		try {
+			// ---------------------------------------------------------------
+			// Query raw data from backend api
+			const response1 = await DEURO_API_CLIENT.get("/savings/leadrate/info");
 		dispatch(slice.actions.setLeadrateInfo(response1.data as ApiLeadrateInfo));
 
 		const response2 = await DEURO_API_CLIENT.get("/savings/leadrate/proposals");
@@ -147,18 +111,28 @@ export const fetchSavings =
 		dispatch(slice.actions.setSavingsAllUserTable(response6.data as ApiSavingsUserTable));
 
 		if (account == undefined) {
-			dispatch(slice.actions.setSavingsUserTable(initialState.savingsUserTable));
+			dispatch(slice.actions.setSavingsUserTable(undefined));
 		} else {
 			const response5 = await DEURO_API_CLIENT.get(`/savings/core/user/${account}`);
 			dispatch(slice.actions.setSavingsUserTable(response5.data as ApiSavingsUserTable));
 		}
 
+			const response7 = await DEURO_API_CLIENT.get("/savings/core/info/leaderboard");
+			dispatch(slice.actions.setSavingsLeaderboard(response7.data as ApiSavingsUserLeaderboard[]));
+		} catch (error) {
+			logApiError(error, "savings data");
+			dispatch(slice.actions.setLeadrateInfo(undefined));
+			dispatch(slice.actions.setLeadrateProposed(undefined));
+			dispatch(slice.actions.setLeadrateRate(undefined));
+			dispatch(slice.actions.setSavingsInfo(undefined));
+			dispatch(slice.actions.setSavingsAllUserTable(undefined));
+			dispatch(slice.actions.setSavingsUserTable(undefined));
+			dispatch(slice.actions.setSavingsLeaderboard(undefined));
+		}
+
 		// ---------------------------------------------------------------
 		// Finalizing, loaded set to ture
 		dispatch(slice.actions.setLoaded(true));
-
-		const response7 = await DEURO_API_CLIENT.get("/savings/core/info/leaderboard");
-		dispatch(slice.actions.setSavingsLeaderboard(response7.data as ApiSavingsUserLeaderboard[]));
 	};
 
 export const fetchSavingsCoreInfo = () => async (dispatch: Dispatch<DispatchApiSavingsInfo>) => {

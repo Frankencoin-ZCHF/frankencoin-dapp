@@ -17,8 +17,8 @@ export default function GovernancePositionsTable() {
 	const [tab, setTab] = useState<string>(headers[4]);
 	const [reverse, setReverse] = useState<boolean>(true);
 
-	const positions = useSelector((state: RootState) => state.positions.list.list);
-	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const positions = useSelector((state: RootState) => state.positions.list?.list || []);
+	const prices = useSelector((state: RootState) => state.prices.coingecko || {});
 
 
 	const matchingPositions: PositionQuery[] = positions.filter((p) => !p.closed && !p.denied && p.start * 1000 > Date.now());

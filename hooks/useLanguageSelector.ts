@@ -11,17 +11,20 @@ export const useLanguageSelector = () => {
 		const { pathname, asPath, query } = router;
 		router.push({ pathname, query }, asPath, { locale, scroll: false });
         localStorage.setItem("APP_LOCALE", locale);
-		i18n.changeLanguage(locale);
+		// Only call changeLanguage if i18n is properly initialized
+		if (i18n && typeof i18n.changeLanguage === 'function') {
+			i18n.changeLanguage(locale);
+		}
 	};
 
     useEffect(() => {
-        if(router.isReady) {
+        if(router.isReady && i18n && typeof i18n.changeLanguage === 'function') {
             const locale = localStorage.getItem("APP_LOCALE");
             if(locale && locale !== i18n.language) {
                 handleLanguageChange(locale);
             }
         }
-    }, [router.isReady]);
+    }, [router.isReady, i18n]);
 
-	return { options, selectedLanguage: i18n.language, handleLanguageChange };
+	return { options, selectedLanguage: i18n?.language || 'en', handleLanguageChange };
 };

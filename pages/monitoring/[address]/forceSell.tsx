@@ -41,7 +41,7 @@ export default function MonitoringForceSell() {
 
 	const chainId = useChainId();
 	const queryAddress: Address = (String(router.query.address) as Address) || zeroAddress;
-	const positions = useSelector((state: RootState) => state.positions.list.list);
+	const positions = useSelector((state: RootState) => state.positions.list?.list || []);
 	const position = positions.find((p) => p.position.toLowerCase() == queryAddress.toLowerCase());
 
 	useEffect(() => {

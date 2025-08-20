@@ -16,7 +16,6 @@ import { toast } from "react-toastify";
 import { TxToast } from "@components/TxToast";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { PositionQuery } from "@deuro/api";
 import { useWalletERC20Balances } from "../../hooks/useWalletBalances";
 import Button from "@components/Button";
 import { erc20Abi, maxUint256 } from "viem";
@@ -33,14 +32,15 @@ export const ExpirationManageSection = () => {
 	const router = useRouter();
 	const { address: positionAddress } = router.query;
 
-	const positions = useSelector((state: RootState) => state.positions.list.list);
-	const position = positions.find((p) => p.position == positionAddress) as PositionQuery;
-	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const positions = useSelector((state: RootState) => state.positions.list?.list || []);
+	const position = positions.find((p) => p.position == positionAddress);
+	const prices = useSelector((state: RootState) => state.prices.coingecko || {});
 
-	const challenges = useSelector((state: RootState) => state.challenges.list.list);
+	const challenges = useSelector((state: RootState) => state.challenges.list?.list || []);
 	const challengedPositions = challenges.filter((c) => c.status === "Active").map((c) => c.position);
 
 	const [targetPosition] = useMemo(() => {
+		if (!position) return [];
 		const now = new Date().getTime() / 1000;
 		return positions
 			.filter((p) => p.collateral.toLowerCase() === position.collateral.toLowerCase())
@@ -52,33 +52,43 @@ export const ExpirationManageSection = () => {
 			.filter((p) => BigInt(p.availableForClones) > 0n)
 			.filter((p) => BigInt(p.availableForMinting) > 0n)
 			.sort((a, b) => toTimestamp(toDate(a.expiration)) - toTimestamp(toDate(b.expiration)));
-	}, [positions, challengedPositions]);
+	}, [positions, challengedPositions, position]);
 
-	const { balancesByAddress, refetchBalances } = useWalletERC20Balances([
-		{
-			symbol: position.collateralSymbol,
-			address: position.collateral,
-			name: position.collateralSymbol,
-			allowance: [ADDRESS[chainId].roller],
-		},
-		{
-			symbol: position.deuroSymbol,
-			address: position.deuro,
-			name: position.deuroSymbol,
-			allowance: [ADDRESS[chainId].roller],
-		},
-	]);
+	const { balancesByAddress, refetchBalances } = useWalletERC20Balances(
+		position ? [
+			{
+				symbol: position.collateralSymbol,
+				address: position.collateral,
+				name: position.collateralSymbol,
+				allowance: [ADDRESS[chainId].roller],
+			},
+			{
+				symbol: position.deuroSymbol,
+				address: position.deuro,
+				name: position.deuroSymbol,
+				allowance: [ADDRESS[chainId].roller],
+			},
+		] : []
+	);
 
-	const collateralAllowance = balancesByAddress[position.collateral]?.allowance?.[ADDRESS[chainId].roller];
-	const deuroAllowance = balancesByAddress[position.deuro]?.allowance?.[ADDRESS[chainId].roller];
+	const collateralAllowance = position ? balancesByAddress[position.collateral]?.allowance?.[ADDRESS[chainId].roller] : undefined;
+	const deuroAllowance = position ? balancesByAddress[position.deuro]?.allowance?.[ADDRESS[chainId].roller] : undefined;
 
-	const url = useContractUrl(position.position);
+	const url = useContractUrl(position?.position || "");
 
 	useEffect(() => {
-		setExpirationDate(new Date(position.expiration * 1000));
+		if (position) {
+			setExpirationDate(new Date(position.expiration * 1000));
+		}
 	}, [position]);
 
-	if (!position) return null;
+	if (!position) {
+		return (
+			<div className="flex justify-center items-center h-64">
+				<span className="text-text-muted2">Loading position data...</span>
+			</div>
+		);
+	}
 
 	const handleExtendExpiration = async () => {
 		try {
@@ -187,7 +197,7 @@ export const ExpirationManageSection = () => {
 		}
 	};
 
-	const collateralPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
+	const collateralPrice = prices?.[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
 	const loanDetails = getLoanDetailsByCollateralAndLiqPrice(position, BigInt(position?.collateralBalance), BigInt(position.price));
 
 	return (

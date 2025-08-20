@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import { RootState } from "../../redux/redux.store";
-import { PositionQuery } from "@deuro/api";
 import { useSelector } from "react-redux";
-import { Address, formatUnits } from "viem";
+import { Address, formatUnits, zeroAddress } from "viem";
 import { formatBigInt, formatCurrency, shortenAddress } from "@utils";
 import { useChainId, useReadContracts } from "wagmi";
 import { writeContract } from "wagmi/actions";
@@ -31,13 +30,14 @@ export const PriceManageSection = () => {
 	const chainId = useChainId();
 
 	const { address: addressQuery } = router.query;
-	const positions = useSelector((state: RootState) => state.positions.list.list);
-	const position = positions.find((p) => p.position == addressQuery) as PositionQuery;
-	const prices = useSelector((state: RootState) => state.prices.coingecko);
-	const url = useContractUrl(position.position);
+	const positions = useSelector((state: RootState) => state.positions.list?.list || []);
+	const position = positions.find((p) => p.position == addressQuery);
+	const prices = useSelector((state: RootState) => state.prices.coingecko || {});
+	const eurPrice = useSelector((state: RootState) => state.prices.eur?.usd);
+	const url = useContractUrl(position?.position || zeroAddress as Address);
 
 	const { data, refetch: refetchReadContracts } = useReadContracts({
-		contracts: [
+		contracts: position ? [
 			{
 				chainId,
 				address: position.position,
@@ -69,7 +69,7 @@ export const PriceManageSection = () => {
 				abi: PositionV2ABI,
 				functionName: "getCollateralRequirement",
 			},
-		],
+		] : [],
 	});
 
 	const principal = data?.[0]?.result || 0n;
@@ -77,21 +77,67 @@ export const PriceManageSection = () => {
 	const collateralBalance = data?.[2]?.result || 0n;
 	const startTime = data?.[3]?.result || 0n;
 	const collateralRequirement = data?.[4]?.result || 0n;
-	const availableForMinting = BigInt(position.availableForMinting || "0");
+	const availableForMinting = BigInt(position?.availableForMinting || "0");
 
-	const collateralPrice = prices[position.collateral.toLowerCase() as Address]?.price?.eur || 0;
-	const priceDecimals = 36 - position.collateralDecimals;
+	const collateralPrice = prices[position?.collateral?.toLowerCase() as Address]?.price?.eur || 0;
+	const priceDecimals = 36 - (position?.collateralDecimals || 18);
 
+	// Calculate price bounds for validation (will be 0 if position is undefined)
 	let minPrice = 0n;
-	const minimumCollateral = BigInt(position.minimumCollateral || "0");
-	if (collateralBalance >= minimumCollateral && collateralBalance > 0n) {
-		minPrice = (collateralRequirement * 10n ** 18n) / collateralBalance;
+	let maxPrice = 0n;
+	if (position) {
+		const minimumCollateral = BigInt(position.minimumCollateral || "0");
+		if (collateralBalance >= minimumCollateral && collateralBalance > 0n) {
+			minPrice = (collateralRequirement * 10n ** 18n) / collateralBalance;
+		}
+		
+		const bounds = principal + availableForMinting;
+		const maxByBounds = collateralBalance > 0n ? (bounds * 10n ** 18n) / collateralBalance : 0n;
+		const maxBy2x = startTime > 0n && BigInt(Math.floor(Date.now() / 1000)) >= startTime ? currentPrice * 2n : maxByBounds;
+		maxPrice = maxByBounds < maxBy2x ? maxByBounds : maxBy2x;
 	}
 
-	const bounds = principal + availableForMinting;
-	const maxByBounds = collateralBalance > 0n ? (bounds * 10n ** 18n) / collateralBalance : 0n;
-	const maxBy2x = startTime > 0n && BigInt(Math.floor(Date.now() / 1000)) >= startTime ? currentPrice * 2n : maxByBounds;
-	const maxPrice = maxByBounds < maxBy2x ? maxByBounds : maxBy2x;
+	// Initialize price on position load
+	useEffect(() => {
+		if (!position) return;
+		
+		if (minPrice > 0 && minPrice <= maxPrice) {
+			const initialPrice = currentPrice > minPrice ? currentPrice : minPrice;
+			setNewPrice(initialPrice.toString());
+		}
+	}, [currentPrice, minPrice, maxPrice, position]);
+
+	// Validate price input
+	useEffect(() => {
+		if (!position) return;
+		
+		if (minPrice > maxPrice) {
+			setNewPrice("");
+			setError(t("mint.error.insufficient_collateral_for_requirements"));
+		} else if (!newPrice) {
+			setError(null);
+		} else {
+			const priceBigInt = BigInt(newPrice);
+			if (priceBigInt > maxPrice) {
+				setNewPrice(maxPrice.toString());
+				setError(null);
+			} else if (priceBigInt < minPrice) {
+				setNewPrice(minPrice.toString());
+				setError(null);
+			} else {
+				setError(null);
+			}
+		}
+	}, [newPrice, minPrice, maxPrice, position, t]);
+
+	// Show loading if position not found
+	if (!position) {
+		return (
+			<div className="flex justify-center items-center h-64">
+				<span className="text-text-muted2">Loading position data...</span>
+			</div>
+		);
+	}
 
 	const marketValueCollateral = collateralPrice * Number(formatUnits(collateralBalance, position.collateralDecimals));
 	const positionValueCollateral =
@@ -99,13 +145,6 @@ export const PriceManageSection = () => {
 		Number(formatUnits(BigInt(newPrice || currentPrice.toString()), priceDecimals));
 	const collateralizationPercentage =
 		positionValueCollateral > 0 ? Math.round((marketValueCollateral / positionValueCollateral) * 10000) / 100 : 0;
-
-	useEffect(() => {
-		if (minPrice > 0 && minPrice <= maxPrice) {
-			const initialPrice = currentPrice > minPrice ? currentPrice : minPrice;
-			setNewPrice(initialPrice.toString());
-		}
-	}, [currentPrice, minPrice, maxPrice]);
 
 	const handleAdjustPrice = async () => {
 		try {
@@ -141,28 +180,7 @@ export const PriceManageSection = () => {
 		}
 	};
 
-	useEffect(() => {
-		if (minPrice > maxPrice) {
-			setNewPrice("");
-			setError(t("mint.error.insufficient_collateral_for_requirements"));
-		} else if (!newPrice) {
-			setError(null);
-		} else {
-			const priceBigInt = BigInt(newPrice);
-			if (priceBigInt > maxPrice) {
-				setNewPrice(maxPrice.toString());
-				setError(null);
-			} else if (priceBigInt < minPrice) {
-				setNewPrice(minPrice.toString());
-				setError(null);
-			} else {
-				setError(null);
-			}
-		}
-	}, [newPrice, minPrice, maxPrice, t]);
-
 	const loanDetails = getLoanDetailsByCollateralAndLiqPrice(position, collateralBalance, BigInt(newPrice || currentPrice.toString()));
-	const eurPrice = useSelector((state: RootState) => state.prices.eur?.usd);
 
 	return (
 		<div className="flex flex-col gap-y-3">

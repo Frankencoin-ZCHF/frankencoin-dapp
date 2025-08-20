@@ -51,9 +51,9 @@ export default function PositionCreate({}) {
 	const [isCloneLoading, setIsCloneLoading] = useState(false);
 	const [collateralError, setCollateralError] = useState("");
 
-	const positions = useSelector((state: RootState) => state.positions.list.list);
-	const challenges = useSelector((state: RootState) => state.challenges.list.list);
-	const challengedPositions = challenges.filter((c) => c.status === "Active").map((c) => c.position);
+	const positions = useSelector((state: RootState) => state.positions.list?.list || []);
+	const challenges = useSelector((state: RootState) => state.challenges.list?.list || []);
+	const challengedPositions = (challenges || []).filter((c) => c.status === "Active").map((c) => c.position);
 
 	const { data: latestBlock } = useBlock();
 	const chainId = useChainId();
@@ -115,7 +115,7 @@ export default function PositionCreate({}) {
 			return;
 		}
 
-		const balanceInWallet = balancesByAddress[selectedCollateral?.address] as TokenBalance;
+		const balanceInWallet = balancesByAddress[selectedCollateral?.address];
 		if (BigInt(collateralAmount) < BigInt(selectedPosition.minimumCollateral)) {
 			const minColl = formatBigInt(BigInt(selectedPosition?.minimumCollateral || 0n), selectedPosition?.collateralDecimals || 0);
 			const notTheMinimum = `${t("mint.error.must_be_at_least_the_minimum_amount")} (${minColl} ${
@@ -130,7 +130,7 @@ export default function PositionCreate({}) {
 		}
 	}, [collateralAmount, balancesByAddress, address]);
 
-	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const prices = useSelector((state: RootState) => state.prices.coingecko || {});
 	const eurPrice = useSelector((state: RootState) => state.prices.eur?.usd);
 	const collateralPriceDeuro = prices[selectedPosition?.collateral.toLowerCase() as Address]?.price?.eur || 0;
 

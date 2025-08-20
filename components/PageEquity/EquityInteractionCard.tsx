@@ -81,8 +81,8 @@ export default function EquityInteractionCard() {
 		onTokenFromToChange({ from: tokenFromTo.to, to: tokenFromTo.from });
 	};
 
-	const selectedFromToken = balances.find((balance) => balance.symbol === tokenFromTo.from) as TokenBalance;
-	const selectedToToken = balances.find((balance) => balance.symbol === tokenFromTo.to) as TokenBalance;
+	const selectedFromToken = balances.find((balance) => balance.symbol === tokenFromTo.from);
+	const selectedToToken = balances.find((balance) => balance.symbol === tokenFromTo.to);
 
 	return (
 		<>

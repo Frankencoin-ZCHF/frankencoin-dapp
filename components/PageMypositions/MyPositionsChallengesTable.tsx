@@ -25,10 +25,10 @@ export default function MyPositionsChallengesTable() {
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
-	const challenges = useSelector((state: RootState) => state.challenges.list.list);
-	const positions = useSelector((state: RootState) => state.positions.mapping.map);
-	const prices = useSelector((state: RootState) => state.prices.coingecko);
-	const auction = useSelector((state: RootState) => state.challenges.challengesPrices.map);
+	const challenges = useSelector((state: RootState) => state.challenges.list?.list || []);
+	const positions = useSelector((state: RootState) => state.positions.mapping?.map || {});
+	const prices = useSelector((state: RootState) => state.prices.coingecko || {});
+	const auction = useSelector((state: RootState) => state.challenges.challengesPrices?.map || {});
 
 	const router = useRouter();
 	const overwrite = router.query.address as Address;

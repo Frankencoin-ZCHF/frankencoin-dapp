@@ -15,8 +15,9 @@ export default function GovernanceLeadrateTable() {
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
-	const { save } = useSelector((state: RootState) => state.savings.savingsAllUserTable);
-	if (!save) return null;
+	const savingsAllUserTable = useSelector((state: RootState) => state.savings.savingsAllUserTable);
+	const save = savingsAllUserTable?.save || [];
+	if (!save.length) return null;
 
 	const sorted: SavingsSavedQuery[] = save;
 

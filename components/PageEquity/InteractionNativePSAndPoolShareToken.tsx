@@ -24,8 +24,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 interface Props {
 	openSelector: (tokenInteractionSide: TokenInteractionSide) => void;
-	selectedFromToken: TokenBalance;
-	selectedToToken: TokenBalance;
+	selectedFromToken: TokenBalance | undefined;
+	selectedToToken: TokenBalance | undefined;
 	refetchBalances: () => void;
 	reverseSelection: () => void;
 }
@@ -53,7 +53,7 @@ export default function InteractionNativePSAndPoolShareToken({
 	const chainId = useChainId();
 	const eurPrice = useSelector((state: RootState) => state.prices.eur?.usd);
 	const account = address || zeroAddress;
-	const direction: boolean = selectedFromToken.symbol === NATIVE_POOL_SHARE_TOKEN_SYMBOL;
+	const direction: boolean = selectedFromToken?.symbol === NATIVE_POOL_SHARE_TOKEN_SYMBOL;
 
 	const { data: collateralEurValue = 0n } = useReadContract({
 		address: ADDRESS[chainId].equity,
@@ -64,7 +64,7 @@ export default function InteractionNativePSAndPoolShareToken({
 
 	useEffect(() => {
 		setError("");
-	}, [selectedFromToken.symbol]);
+	}, [selectedFromToken?.symbol]);
 
 	useEffect(() => {
 		const fetchAsync = async function () {
@@ -286,11 +286,11 @@ export default function InteractionNativePSAndPoolShareToken({
 									<>
 										<div className="text-text-muted3 text-xs font-medium leading-none">
 											{t("common.balance_label")} {" "}
-											{formatUnits(selectedFromToken.balanceOf || 0n, selectedFromToken.decimals || 18)}{" "}
-											{selectedFromToken.symbol}
+											{formatUnits(selectedFromToken?.balanceOf || 0n, selectedFromToken?.decimals || 18)}{" "}
+											{selectedFromToken?.symbol}
 										</div>
 										<MaxButton
-											disabled={BigInt(selectedFromToken.balanceOf || 0n) === BigInt(0)}
+											disabled={BigInt(selectedFromToken?.balanceOf || 0n) === BigInt(0)}
 											onClick={() => onChangeAmount(selectedFromToken?.balanceOf?.toString() || "0")}
 										/>
 									</>
@@ -331,11 +331,11 @@ export default function InteractionNativePSAndPoolShareToken({
 									<>
 										<div className="text-text-muted3 text-xs font-medium leading-none">
 											{t("common.balance_label")} {" "}
-											{formatUnits(selectedToToken.balanceOf || 0n, selectedToToken.decimals || 18)}{" "}
-											{selectedFromToken.symbol}
+											{formatUnits(selectedToToken?.balanceOf || 0n, selectedToToken?.decimals || 18)}{" "}
+											{selectedFromToken?.symbol}
 										</div>
 										<MaxButton
-											disabled={BigInt(selectedToToken.balanceOf || 0n) === BigInt(0)}
+											disabled={BigInt(selectedToToken?.balanceOf || 0n) === BigInt(0)}
 											onClick={() => onChangeAmount(selectedToToken?.balanceOf?.toString() || "0")}
 										/>
 									</>

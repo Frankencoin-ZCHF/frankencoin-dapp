@@ -19,9 +19,9 @@ export default function MypositionsTable() {
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
-	const positions = useSelector((state: RootState) => state.positions.list.list);
-	const challenges = useSelector((state: RootState) => state.challenges.positions.map);
-	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const positions = useSelector((state: RootState) => state.positions.list?.list || []);
+	const challenges = useSelector((state: RootState) => state.challenges.positions?.map || {});
+	const prices = useSelector((state: RootState) => state.prices.coingecko || {});
 
 	const router = useRouter();
 	const overwrite = router.query.address as Address;

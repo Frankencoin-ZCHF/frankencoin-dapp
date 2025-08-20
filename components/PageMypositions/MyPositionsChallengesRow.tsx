@@ -19,11 +19,11 @@ export default function MyPositionsChallengesRow({ headers, challenge, tab }: Pr
 	const positions = useSelector((state: RootState) => state.positions.mapping);
 	const challengesPrices = useSelector((state: RootState) => state.challenges.challengesPrices);
 
-	const position = positions.map[challenge.position.toLowerCase() as Address];
-	const url = useContractUrl(position.collateral || zeroAddress);
+	const position = positions?.map[challenge.position.toLowerCase() as Address];
+	const url = useContractUrl(position?.collateral || zeroAddress);
 	if (!position) return null;
 
-	const challengePrice: bigint = BigInt(challengesPrices.map[challenge.id as ChallengesId] ?? parseEther("0"));
+	const challengePrice: bigint = BigInt(challengesPrices?.map?.[challenge.id as ChallengesId] ?? parseEther("0"));
 	const start: number = parseInt(challenge.start.toString()) * 1000; // timestap
 	const duration: number = parseInt(challenge.duration.toString()) * 1000;
 

@@ -40,6 +40,7 @@
         "temporary_unavailable": "Temporalmente no disponible",
         "using_referral_code": "Usando código de referido",
         "details": "Detalles",
+        "chart_unavailable": "Los datos del gráfico no están disponibles actualmente",
         "navbar": {
             "my_referrals": "Mis Referidos",
             "swap": "Intercambiar",

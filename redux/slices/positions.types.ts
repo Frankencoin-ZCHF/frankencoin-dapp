@@ -6,10 +6,10 @@ export type PositionsState = {
 	error: string | null;
 	loaded: boolean;
 
-	list: ApiPositionsListing;
-	mapping: ApiPositionsMapping;
-	requests: ApiPositionsMapping;
-	owners: ApiPositionsOwners;
+	list?: ApiPositionsListing;
+	mapping?: ApiPositionsMapping;
+	requests?: ApiPositionsMapping;
+	owners?: ApiPositionsOwners;
 
 	openPositions: PositionQuery[];
 	closedPositions: PositionQuery[];
@@ -32,17 +32,17 @@ export type DispatchAddressArray = {
 
 export type DispatchApiPositionsOwners = {
 	type: string;
-	payload: ApiPositionsOwners;
+	payload: ApiPositionsOwners | undefined;
 };
 
 export type DispatchApiPositionsListing = {
 	type: string;
-	payload: ApiPositionsListing;
+	payload: ApiPositionsListing | undefined;
 };
 
 export type DispatchApiPositionsMapping = {
 	type: string;
-	payload: ApiPositionsMapping;
+	payload: ApiPositionsMapping | undefined;
 };
 
 export type DispatchPositionQueryArray = {

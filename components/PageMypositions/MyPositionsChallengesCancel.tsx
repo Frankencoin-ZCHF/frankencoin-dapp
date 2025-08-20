@@ -19,7 +19,7 @@ interface Props {
 
 export default function MyPositionsChallengesCancel({ challenge, hidden }: Props) {
 	const [isCancelling, setCancelling] = useState<boolean>(false);
-	const positions: PositionsQueryObjectArray = useSelector((state: RootState) => state.positions.mapping.map);
+	const positions: PositionsQueryObjectArray = useSelector((state: RootState) => state.positions.mapping?.map || {});
 	const account = useAccount();
 	const chainId = CONFIG_CHAIN().id;
 	const [isHidden, setHidden] = useState<boolean>(

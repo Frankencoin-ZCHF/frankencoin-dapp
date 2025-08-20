@@ -41,7 +41,9 @@ const getStartTimestampByTimeframe = (timeframe: Timeframe) => {
 };
 
 export default function SavingsHistoryCard() {
-	const { rate, totalInterest } = useSelector((state: RootState) => state.savings.savingsInfo);
+	const savingsInfo = useSelector((state: RootState) => state.savings.savingsInfo);
+	const rate = savingsInfo?.rate;
+	const totalInterest = savingsInfo?.totalInterest;
 	const [timeframe, setTimeframe] = useState<Timeframe>(Timeframe.ALL);
 	const { totalSavings } = useTotalSavingsQuery();
 	const { t } = useTranslation();
@@ -70,101 +72,117 @@ export default function SavingsHistoryCard() {
 	);
 
 	return (
-		<div className="bg-layout-primary border border-borders-dividerLight border-offset-1 rounded-xl grid grid-cols-1">
-			<div id="chart-timeline" className="relative">
-				<div className="absolute top-[20px] left-[20px] z-10 gap-y-0.5 flex flex-col items-start">
-					<div className="text-base font-[350] leading-tight">{t("savings.total_savings_history")}</div>
-					<div className="text-base font-extrabold leading-tight">
-						<span className="text-base font-extrabold leading-tight">{formatCurrency(formatUnits(current, 18), 2, 2)}</span>{" "}
+		<div className="bg-layout-primary border border-borders-dividerLight border-offset-1 rounded-xl overflow-clip grid grid-cols-1">
+			{totalSavings?.length ? (
+				<div id="chart-timeline" className="relative">
+					<div className="absolute top-[20px] left-[20px] z-10 gap-y-0.5 flex flex-col items-start">
+						<div className="text-base font-[350] leading-tight">{t("savings.total_savings_history")}</div>
+						<div className="text-base font-extrabold leading-tight">
+							<span className="text-base font-extrabold leading-tight">{formatCurrency(formatUnits(current, 18), 2, 2)}</span>{" "}
+						</div>
+					</div>
+					<ApexChart
+						type="area"
+						options={{
+							theme: {
+								monochrome: {
+									color: "#0D4E9C",
+									enabled: true,
+								},
+							},
+							chart: {
+								type: "area",
+								height: 300,
+								width: 650,
+								dropShadow: {
+									enabled: false,
+								},
+								toolbar: {
+									show: false,
+								},
+								zoom: {
+									enabled: false,
+								},
+								background: "0",
+							},
+							stroke: {
+								width: 3,
+							},
+							dataLabels: {
+								enabled: false,
+							},
+							grid: {
+								show: false,
+							},
+							xaxis: {
+								type: "datetime",
+								labels: {
+									show: false,
+								},
+								axisBorder: {
+									show: false,
+								},
+								axisTicks: {
+									show: false,
+								},
+							},
+							yaxis: {
+								show: false,
+								min: 0,
+								max: maxPrice * 2,
+							},
+							fill: {
+								colors: ["#0F80F099"],
+								type: "gradient",
+								gradient: {
+									type: "vertical",
+									opacityFrom: 1,
+									opacityTo: 0.95,
+									gradientToColors: ["#F5F6F9"],
+								},
+							},
+						}}
+						series={[
+							{
+								name: t("savings.total_savings"),
+								data: filteredTrades.map((trade) => {
+									return [parseFloat(trade.id) * 1000, Number((Number(trade.total) / 10 ** 16 / 100).toFixed(4))];
+								}),
+							},
+						]}
+					/>
+				</div>
+			) : (
+				<div className="flex items-center justify-center h-[300px] text-text-muted2 bg-zinc-200/50">
+					<div className="text-center">
+						<div className="text-base mb-1">{t("common.chart_unavailable")}</div>
 					</div>
 				</div>
-				<ApexChart
-					type="area"
-					options={{
-						theme: {
-							monochrome: {
-								color: "#0D4E9C",
-								enabled: true,
-							},
-						},
-						chart: {
-							type: "area",
-							height: 300,
-							width: 650,
-							dropShadow: {
-								enabled: false,
-							},
-							toolbar: {
-								show: false,
-							},
-							zoom: {
-								enabled: false,
-							},
-							background: "0",
-						},
-						stroke: {
-							width: 3,
-						},
-						dataLabels: {
-							enabled: false,
-						},
-						grid: {
-							show: false,
-						},
-						xaxis: {
-							type: "datetime",
-							labels: {
-								show: false,
-							},
-							axisBorder: {
-								show: false,
-							},
-							axisTicks: {
-								show: false,
-							},
-						},
-						yaxis: {
-							show: false,
-							min: 0,
-							max: maxPrice * 2,
-						},
-						fill: {
-							colors: ["#0F80F099"],
-							type: "gradient",
-							gradient: {
-								type: "vertical",
-								opacityFrom: 1,
-								opacityTo: 0.95,
-								gradientToColors: ["#F5F6F9"],
-							},
-						},
-					}}
-					series={[
-						{
-							name: t("savings.total_savings"),
-							data: filteredTrades.map((trade) => {
-								return [parseFloat(trade.id) * 1000, Number((Number(trade.total) / 10 ** 16 / 100).toFixed(4))];
-							}),
-						},
-					]}
-				/>
-			</div>
-			<div className="py-4 flex flex-row justify-center items-center">
-				{Object.values(Timeframe).map((_timeframe) => (
-					<SegmentedControlButton key={_timeframe} selected={_timeframe === timeframe} onClick={() => setTimeframe(_timeframe)}>
-						{_timeframe}
-					</SegmentedControlButton>
-				))}
-			</div>
+			)}
+			{totalSavings?.length ? (
+				<div className="py-4 flex flex-row justify-center items-center">
+					{Object.values(Timeframe).map((_timeframe) => (
+						<SegmentedControlButton
+							key={_timeframe}
+							selected={_timeframe === timeframe}
+							onClick={() => setTimeframe(_timeframe)}
+						>
+							{_timeframe}
+						</SegmentedControlButton>
+					))}
+				</div>
+			) : (
+				<></>
+			)}
 			<div className="flex flex-col justify-start gap-3 py-6 px-5 border-t border-borders-dividerLight border-offset-1">
 				<div className="flex flex-row justify-between">
 					<div className="text-sm font-medium leading-relaxed">{t("savings.interest_rate_apr")}</div>
-					<div className="text-sm font-medium leading-tight ">{rate / 10_000}%</div>
+					<div className="text-sm font-medium leading-tight ">{rate !== undefined ? `${rate / 10_000}%` : "-"}</div>
 				</div>
 				<div className="flex flex-row justify-between">
 					<div className="text-sm font-medium leading-relaxed">{t("savings.total_interest_paid")}</div>
 					<div className="text-sm font-medium leading-tight ">
-						{formatCurrency(totalInterest, 4, 4)} {TOKEN_SYMBOL}
+						{totalInterest !== undefined ? `${formatCurrency(totalInterest)} ${TOKEN_SYMBOL}` : "-"}
 					</div>
 				</div>
 				<div className="flex flex-row justify-between">

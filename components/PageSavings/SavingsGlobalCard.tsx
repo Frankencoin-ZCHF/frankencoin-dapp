@@ -14,9 +14,7 @@ import Link from "next/link";
 import { useTranslation } from "next-i18next";
 
 export default function SavingsGlobalCard() {
-	const { totalBalance, totalSaved, totalWithdrawn, totalInterest, rate, ratioOfSupply } = useSelector(
-		(state: RootState) => state.savings.savingsInfo
-	);
+	const savingsInfo = useSelector((state: RootState) => state.savings.savingsInfo);
 	const { t } = useTranslation();
 
 	const moduleAddress = ADDRESS[useChainId()].savingsGateway;
@@ -27,11 +25,19 @@ export default function SavingsGlobalCard() {
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
 				<AppBox>
 					<DisplayLabel label={t("savings.current_interest_rate")} />
-					<DisplayAmount className="mt-1" amount={rate / 10_000} currency="%" hideLogo />
+					{savingsInfo ? (
+						<DisplayAmount className="mt-1" amount={savingsInfo.rate / 10_000} currency="%" hideLogo />
+					) : (
+						<div className="mt-1 text-base leading-5">-</div>
+					)}
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label={t("savings.total_savings")} />
-					<DisplayAmount className="mt-1" amount={totalBalance} currency={TOKEN_SYMBOL} hideLogo />
+					{savingsInfo ? (
+						<DisplayAmount className="mt-1" amount={savingsInfo.totalBalance} currency={TOKEN_SYMBOL} hideLogo />
+					) : (
+						<div className="mt-1 text-base leading-5">-</div>
+					)}
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label={t("savings.module_contract")} />

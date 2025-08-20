@@ -17,6 +17,7 @@ import USGovSanctionList from "@components/USGovSanctionList";
 import { FrontendCodeProvider } from "@components/FrontendCodeProvider";
 import { appWithTranslation } from "next-i18next";
 import { useLanguageSelector } from "../hooks/useLanguageSelector";
+import ErrorBoundary from "@components/ErrorBoundary";
 
 function App({ Component, pageProps }: AppProps) {
 	useLanguageSelector();
@@ -37,9 +38,11 @@ function App({ Component, pageProps }: AppProps) {
 								closeButton={false}
 							/>
 							<USGovSanctionList />
-							<Layout>
-								<Component {...pageProps} />
-							</Layout>
+							<ErrorBoundary>
+								<Layout>
+									<Component {...pageProps} />
+								</Layout>
+							</ErrorBoundary>
 						</FrontendCodeProvider>
 					</BlockUpdater>
 				</ApolloProvider>

@@ -23,12 +23,12 @@ export default function ChallengesTable() {
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
-	const challenges = useSelector((state: RootState) => state.challenges.list.list);
-	const positions = useSelector((state: RootState) => state.positions.mapping.map);
-	const prices = useSelector((state: RootState) => state.prices.coingecko);
-	const auction = useSelector((state: RootState) => state.challenges.challengesPrices.map);
+	const challenges = useSelector((state: RootState) => state.challenges.list?.list || []);
+	const positions = useSelector((state: RootState) => state.positions.mapping?.map || {});
+	const prices = useSelector((state: RootState) => state.prices.coingecko || {});
+	const auction = useSelector((state: RootState) => state.challenges.challengesPrices?.map || {});
 
-	const matchingChallenges = challenges.filter((c) => {
+	const matchingChallenges = (challenges || []).filter((c) => {
 		// DEV: For displaying "Inactive" challenges
 		// const DIFFINMS: number = 1000 * 60 * 60 * 24 * 3; // show e.g. last 10days
 		// const matching: boolean = Date.now() - parseInt(c.start.toString()) * 1000 < DIFFINMS;

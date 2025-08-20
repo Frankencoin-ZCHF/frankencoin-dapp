@@ -22,7 +22,7 @@ export const useSavingsInterest = () => {
 	const [interestToBeCollected, setInterestToBeCollected] = useState(0n);
 	const [isClaiming, setIsClaiming] = useState<boolean>(false);
 	const [isReinvesting, setIsReinvesting] = useState<boolean>(false);
-	const leadrate = useSelector((state: RootState) => state.savings.savingsInfo.rate);
+	const leadrate = useSelector((state: RootState) => state.savings.savingsInfo?.rate ?? 0);
 	const [refetchSignal, setRefetchSignal] = useState(0);
 
 	const { data } = useBlockNumber({ watch: true });

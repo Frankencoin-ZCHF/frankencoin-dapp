@@ -44,8 +44,8 @@ export default function ChallengePlaceBid() {
 	const chainId = useChainId();
 	const challengeId: ChallengesId = (String(router.query.index) as ChallengesId) || `${zeroAddress}-challenge-0`;
 
-	const challenges = useSelector((state: RootState) => state.challenges.list.list);
-	const positions = useSelector((state: RootState) => state.positions.list.list);
+	const challenges = useSelector((state: RootState) => state.challenges.list?.list || []);
+	const positions = useSelector((state: RootState) => state.positions.list?.list || []);
 
 	const { t } = useTranslation();
 

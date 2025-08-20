@@ -42,8 +42,8 @@ export const LanguageSelectorDropdown = () => {
 		<Select<OptionType>
 			className="flex-1  text-base font-medium leading-tight"
 			options={filteredOptions}
-			defaultValue={{ value: selectedLanguage, label: selectedLanguage.toUpperCase() }}
-			value={{ value: selectedLanguage, label: selectedLanguage.toUpperCase() }}
+			defaultValue={selectedLanguage ? { value: selectedLanguage, label: selectedLanguage.toUpperCase() } : undefined}
+			value={selectedLanguage ? { value: selectedLanguage, label: selectedLanguage.toUpperCase() } : undefined}
 			onChange={(o) => o && handleLanguageChange(o.value)}
 			styles={{
 				indicatorSeparator: () => ({

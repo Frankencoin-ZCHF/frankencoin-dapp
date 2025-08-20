@@ -37,9 +37,11 @@ export function BorrowCollateralCalculate(listByCollateral: PositionQuery[][], p
 	const stats: CollateralItem[] = [];
 	for (let positions of listByCollateral) {
 		const originals: PositionQuery[] = positions.filter((pos) => pos.isOriginal);
-		const original = originals.at(0) as PositionQuery;
-		const collateral = prices[original!.collateral.toLowerCase() as Address];
-		const mint = prices[original!.deuro.toLowerCase() as Address];
+		const original = originals.at(0);
+		if (!original) continue;
+		
+		const collateral = prices[original.collateral.toLowerCase() as Address];
+		const mint = prices[original.deuro.toLowerCase() as Address];
 
 		if (!collateral || !mint) continue;
 
@@ -100,7 +102,7 @@ export function BorrowCollateralCalculate(listByCollateral: PositionQuery[][], p
 
 		stats.push({
 			collateral: {
-				address: original!.collateral,
+				address: original.collateral,
 				name: collateral.name,
 				symbol: collateral.symbol,
 				decimals: collateral.decimals,
@@ -108,7 +110,7 @@ export function BorrowCollateralCalculate(listByCollateral: PositionQuery[][], p
 				valueUsd: valueLockedUsd,
 			},
 			mint: {
-				address: original!.deuro,
+				address: original.deuro,
 				name: mint.name,
 				symbol: mint.symbol,
 				decimals: mint.decimals,
@@ -133,7 +135,7 @@ export function BorrowCollateralCalculate(listByCollateral: PositionQuery[][], p
 export default function BorrowCollateral({ children }: { children?: React.ReactElement | React.ReactElement[] }) {
 	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
-	const stats = BorrowCollateralCalculate(openPositionsByCollateral, coingecko);
+	const stats = BorrowCollateralCalculate(openPositionsByCollateral, coingecko || {});
 
 	if (stats.length === 0) return null;
 

@@ -23,8 +23,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 interface Props {
 	openSelector: (tokenInteractionSide: TokenInteractionSide) => void;
-	selectedFromToken: TokenBalance;
-	selectedToToken: TokenBalance;
+	selectedFromToken: TokenBalance | undefined;
+	selectedToToken: TokenBalance | undefined;
 	refetchBalances: () => void;
 	reverseSelection: () => void;
 }
@@ -57,7 +57,7 @@ export default function InteractionPoolShareTokenRedeem({
 	useEffect(() => {
 		setAmount(0n);
 		setError("");
-	}, [selectedToToken.symbol, selectedFromToken.symbol]);
+	}, [selectedToToken?.symbol, selectedFromToken?.symbol]);
 
 	useEffect(() => {
 		const fetchAsync = async function () {
@@ -239,11 +239,11 @@ export default function InteractionPoolShareTokenRedeem({
 									<>
 										<div className="text-text-muted3 text-xs font-medium leading-none">
 											{t("common.balance_label")} {" "}
-											{formatUnits(selectedFromToken.balanceOf || 0n, selectedFromToken.decimals || 18)}{" "}
-											{selectedFromToken.symbol}
+											{formatUnits(selectedFromToken?.balanceOf || 0n, selectedFromToken?.decimals || 18)}{" "}
+											{selectedFromToken?.symbol}
 										</div>
 										<MaxButton
-											disabled={BigInt(selectedFromToken.balanceOf || 0n) === BigInt(0)}
+											disabled={BigInt(selectedFromToken?.balanceOf || 0n) === BigInt(0)}
 											onClick={() => onChangeAmount(selectedFromToken?.balanceOf?.toString() || "0")}
 										/>
 									</>
@@ -286,11 +286,11 @@ export default function InteractionPoolShareTokenRedeem({
 									<>
 										<div className="text-text-muted3 text-xs font-medium leading-none">
 											{t("common.balance_label")} {" "}
-											{formatUnits(selectedToToken.balanceOf || 0n, selectedToToken.decimals || 18)}{" "}
-											{selectedFromToken.symbol}
+											{formatUnits(selectedToToken?.balanceOf || 0n, selectedToToken?.decimals || 18)}{" "}
+											{selectedFromToken?.symbol}
 										</div>
 										<MaxButton
-											disabled={BigInt(selectedToToken.balanceOf || 0n) === BigInt(0)}
+											disabled={BigInt(selectedToToken?.balanceOf || 0n) === BigInt(0)}
 											onClick={() => onChangeAmount(selectedToToken?.balanceOf?.toString() || "0")}
 										/>
 									</>

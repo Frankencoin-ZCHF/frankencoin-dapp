@@ -18,7 +18,7 @@ export default function BorrowTable() {
 	const [reverse, setReverse] = useState<boolean>(false);
 
 	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
-	const challengesPosMap = useSelector((state: RootState) => state.challenges.positions.map);
+	const challengesPosMap = useSelector((state: RootState) => state.challenges.positions?.map || {});
 	const openPositions: PositionQuery[] = openPositionsByCollateral.flat(1);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 
@@ -38,7 +38,7 @@ export default function BorrowTable() {
 		return !verifyable.includes(false);
 	});
 
-	const sorted: PositionQuery[] = sortPositions(matchingPositions, coingecko, headers, tab, reverse);
+	const sorted: PositionQuery[] = sortPositions(matchingPositions, coingecko || {}, headers, tab, reverse);
 
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {

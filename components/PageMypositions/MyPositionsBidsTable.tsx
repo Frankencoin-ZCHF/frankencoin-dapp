@@ -18,11 +18,9 @@ export default function MyPositionsBidsTable() {
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
-	const bids = useSelector((state: RootState) => state.bids.list.list);
-	const challenges = useSelector((state: RootState) => state.challenges.mapping.map);
-	const positions = useSelector((state: RootState) => state.positions.mapping.map);
-	const prices = useSelector((state: RootState) => state.prices.coingecko);
-	const auction = useSelector((state: RootState) => state.challenges.challengesPrices.map);
+	const bids = useSelector((state: RootState) => state.bids.list?.list || []);
+	const challenges = useSelector((state: RootState) => state.challenges.mapping?.map || {});
+	const positions = useSelector((state: RootState) => state.positions.mapping?.map || {});
 
 	const router = useRouter();
 	const overwrite = router.query.address as Address;

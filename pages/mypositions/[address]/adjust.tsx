@@ -36,12 +36,12 @@ export default function PositionAdjust() {
 	const chainId = useChainId();
 	const addressQuery: Address = router.query.address as Address;
 
-	const positions = useSelector((state: RootState) => state.positions.list.list);
-	const position = positions.find((p) => p.position == addressQuery) as PositionQuery;
+	const positions = useSelector((state: RootState) => state.positions.list?.list || []);
+	const position = positions.find((p) => p.position == addressQuery);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
-	const [amount, setAmount] = useState<bigint>(BigInt(position.principal || 0n));
-	const [collateralAmount, setCollateralAmount] = useState<bigint>(BigInt(position.collateralBalance));
+	const [amount, setAmount] = useState<bigint>(BigInt(position?.principal || 0n));
+	const [collateralAmount, setCollateralAmount] = useState<bigint>(BigInt(position?.collateralBalance || 0n));
 	const [liqPrice, setLiqPrice] = useState<bigint>(BigInt(position?.price ?? 0n));
 
 	// ---------------------------------------------------------------------------
@@ -138,6 +138,7 @@ export default function PositionAdjust() {
 	};
 
 	function getCollateralError() {
+		if (!position) return "";
 		if (collateralAmount - BigInt(position.collateralBalance) > userCollBalance) {
 			return `${t("common.error.insufficient_balance", { symbol: position.collateralSymbol })}`;
 		} else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
@@ -146,6 +147,7 @@ export default function PositionAdjust() {
 	}
 
 	function getAmountError() {
+		if (!position) return "";
 		if (isCooldown) {
 			return position.cooldown > 1e30 ? t("my_positions.is_closed") : t("my_positions.is_in_cooldown");
 		} else if (amount - BigInt(position.principal) > maxTotalLimit) {

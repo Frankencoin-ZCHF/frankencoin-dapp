@@ -11,6 +11,7 @@ import {
 	DispatchApiPositionsOwners,
 	DispatchApiPositionsMapping,
 } from "./positions.types";
+import { logApiError } from "../../utils/errorLogger";
 
 
 const WFP_POSITION_ORIGINAL = "0xca428F192c20a48b23be1408c6fF12212746D866";
@@ -28,10 +29,10 @@ export const initialState: PositionsState = {
 	error: null,
 	loaded: false,
 
-	list: { num: 0, list: [] },
-	mapping: { num: 0, addresses: [], map: {} },
-	requests: { num: 0, addresses: [], map: {} },
-	owners: { num: 0, owners: [], map: {} },
+	list: undefined,
+	mapping: undefined,
+	requests: undefined,
+	owners: undefined,
 
 	openPositions: [],
 	closedPositions: [],
@@ -59,24 +60,24 @@ export const slice = createSlice({
 
 		// -------------------------------------
 		// SET LIST
-		setList: (state, action: { payload: ApiPositionsListing }) => {
+		setList: (state, action: { payload: ApiPositionsListing | undefined }) => {
 			state.list = action.payload;
 		},
 
 		// -------------------------------------
 		// SET LIST Mapping
-		setListMapping: (state, action: { payload: ApiPositionsMapping }) => {
+		setListMapping: (state, action: { payload: ApiPositionsMapping | undefined }) => {
 			state.mapping = action.payload;
 		},
 
 		// -------------------------------------
 		// SET REQUESTS LIST
-		setRequestsList: (state, action: { payload: ApiPositionsMapping }) => {
+		setRequestsList: (state, action: { payload: ApiPositionsMapping | undefined }) => {
 			state.requests = action.payload;
 		},
 
 		// SET OWNERS POSITIOS
-		setOwnersPositions: (state, action: { payload: ApiPositionsOwners }) => {
+		setOwnersPositions: (state, action: { payload: ApiPositionsOwners | undefined }) => {
 			state.owners = action.payload;
 		},
 
@@ -132,45 +133,59 @@ export const fetchPositionsList =
 		// ---------------------------------------------------------------
 		console.log("Loading [REDUX]: PositionsList");
 
-		// ---------------------------------------------------------------
-		// Query raw data from backend api;
-		const response1 = await DEURO_API_CLIENT.get("/positions/list");
-		const listArray = response1.data.list.map(patchWFPPositions) as PositionQuery[];
-		dispatch(slice.actions.setList({ ...response1.data, list: listArray }));
+		try {
+			// ---------------------------------------------------------------
+			// Query raw data from backend api;
+			const response1 = await DEURO_API_CLIENT.get("/positions/list");
+			const listArray = response1.data.list.map(patchWFPPositions) as PositionQuery[];
+			dispatch(slice.actions.setList({ ...response1.data, list: listArray }));
 
-		const responseMapping = await DEURO_API_CLIENT.get("/positions/mapping");
-		const positionsMapping = responseMapping.data as ApiPositionsMapping;
-		const patchedMapping = Object.fromEntries(Object.entries(positionsMapping.map).map(([key, position]) => [key, patchWFPPositions(position)]));
-		dispatch(slice.actions.setListMapping({ ...positionsMapping, map: patchedMapping }));
+			const responseMapping = await DEURO_API_CLIENT.get("/positions/mapping");
+			const positionsMapping = responseMapping.data as ApiPositionsMapping;
+			const patchedMapping = Object.fromEntries(Object.entries(positionsMapping.map).map(([key, position]) => [key, patchWFPPositions(position)]));
+			dispatch(slice.actions.setListMapping({ ...positionsMapping, map: patchedMapping }));
 
-		const response2 = await DEURO_API_CLIENT.get("/positions/owners");
-		const positionsByOwners = response2.data as ApiPositionsOwners;
-		const patchedOwners = Object.fromEntries(Object.entries(positionsByOwners.map).map(([key, positionArray]) => [key, positionArray.map(patchWFPPositions)]));
-		dispatch(slice.actions.setOwnersPositions({ ...positionsByOwners, map: patchedOwners }));
+			const response2 = await DEURO_API_CLIENT.get("/positions/owners");
+			const positionsByOwners = response2.data as ApiPositionsOwners;
+			const patchedOwners = Object.fromEntries(Object.entries(positionsByOwners.map).map(([key, positionArray]) => [key, positionArray.map(patchWFPPositions)]));
+			dispatch(slice.actions.setOwnersPositions({ ...positionsByOwners, map: patchedOwners }));
 
-		const response3 = await DEURO_API_CLIENT.get("/positions/requests");
-		const positionsRequests = response3.data as ApiPositionsMapping;
-		const patchedRequests = Object.fromEntries(Object.entries(positionsRequests.map).map(([key, position]) => [key, patchWFPPositions(position)]));
-		dispatch(slice.actions.setRequestsList({ ...positionsRequests, map: patchedRequests }));
+			const response3 = await DEURO_API_CLIENT.get("/positions/requests");
+			const positionsRequests = response3.data as ApiPositionsMapping;
+			const patchedRequests = Object.fromEntries(Object.entries(positionsRequests.map).map(([key, position]) => [key, patchWFPPositions(position)]));
+			dispatch(slice.actions.setRequestsList({ ...positionsRequests, map: patchedRequests }));
 
-		// ---------------------------------------------------------------
-		// filter positions and dispatch
-		const openPositions = listArray.filter((position) => !position.denied && !position.closed);
-		const collateralAddresses = openPositions.map((position) => position.collateral).filter(uniqueValues);
+			// ---------------------------------------------------------------
+			// filter positions and dispatch
+			const openPositions = listArray.filter((position) => !position.denied && !position.closed);
+			const collateralAddresses = openPositions.map((position) => position.collateral).filter(uniqueValues);
 
-		// const requestedPositions = collateralAddresses.map((con) => listArray.filter((position) => position.collateral == con));
-		const closedPositioins = listArray.filter((position) => position.closed);
-		const deniedPositioins = listArray.filter((position) => position.denied);
-		const originalPositions = openPositions.filter((position) => position.isOriginal);
-		const openPositionsByOriginal = originalPositions.map((o) => openPositions.filter((p) => p.original == o.original));
-		const openPositionsByCollateral = collateralAddresses.map((con) => openPositions.filter((position) => position.collateral == con));
+			// const requestedPositions = collateralAddresses.map((con) => listArray.filter((position) => position.collateral == con));
+			const closedPositioins = listArray.filter((position) => position.closed);
+			const deniedPositioins = listArray.filter((position) => position.denied);
+			const originalPositions = openPositions.filter((position) => position.isOriginal);
+			const openPositionsByOriginal = originalPositions.map((o) => openPositions.filter((p) => p.original == o.original));
+			const openPositionsByCollateral = collateralAddresses.map((con) => openPositions.filter((position) => position.collateral == con));
 
-		dispatch(slice.actions.setOpenPositions(openPositions));
-		dispatch(slice.actions.setClosedPositions(closedPositioins));
-		dispatch(slice.actions.setDeniedPositions(deniedPositioins));
-		dispatch(slice.actions.setOriginalPositions(originalPositions));
-		dispatch(slice.actions.setOpenPositionsByOriginal(openPositionsByOriginal));
-		dispatch(slice.actions.setOpenPositionsByCollateral(openPositionsByCollateral));
+			dispatch(slice.actions.setOpenPositions(openPositions));
+			dispatch(slice.actions.setClosedPositions(closedPositioins));
+			dispatch(slice.actions.setDeniedPositions(deniedPositioins));
+			dispatch(slice.actions.setOriginalPositions(originalPositions));
+			dispatch(slice.actions.setOpenPositionsByOriginal(openPositionsByOriginal));
+			dispatch(slice.actions.setOpenPositionsByCollateral(openPositionsByCollateral));
+		} catch (error) {
+			logApiError(error, "positions data");
+			dispatch(slice.actions.setList(undefined));
+			dispatch(slice.actions.setListMapping(undefined));
+			dispatch(slice.actions.setOwnersPositions(undefined));
+			dispatch(slice.actions.setRequestsList(undefined));
+			dispatch(slice.actions.setOpenPositions([]));
+			dispatch(slice.actions.setClosedPositions([]));
+			dispatch(slice.actions.setDeniedPositions([]));
+			dispatch(slice.actions.setOriginalPositions([]));
+			dispatch(slice.actions.setOpenPositionsByOriginal([]));
+			dispatch(slice.actions.setOpenPositionsByCollateral([]));
+		}
 
 		// ---------------------------------------------------------------
 		// Finalizing, loaded set to true

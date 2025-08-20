@@ -133,8 +133,8 @@ const MobileTable = ({ borrowData }: { borrowData: BorrowData[] }) => {
 };
 
 export const MyBorrow = () => {
-	const positions = useSelector((state: RootState) => state.positions.list.list);
-	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const positions = useSelector((state: RootState) => state.positions.list?.list || []);
+	const prices = useSelector((state: RootState) => state.prices.coingecko || {});
 	const { address } = useAccount();
 	const router = useRouter();
 	const { t } = useTranslation();

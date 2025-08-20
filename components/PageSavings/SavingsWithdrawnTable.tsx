@@ -15,8 +15,9 @@ export default function SavingsWithdrawnTable() {
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
-	const { withdraw } = useSelector((state: RootState) => state.savings.savingsAllUserTable);
-	if (!withdraw) return null;
+	const savingsAllUserTable = useSelector((state: RootState) => state.savings.savingsAllUserTable);
+	const withdraw = savingsAllUserTable?.withdraw || [];
+	if (!withdraw.length) return null;
 
 	const sorted: SavingsWithdrawQuery[] = withdraw;
 

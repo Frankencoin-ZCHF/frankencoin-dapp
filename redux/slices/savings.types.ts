@@ -5,15 +5,15 @@ export type SavingsState = {
 	error: string | null;
 	loaded: boolean;
 
-	leadrateInfo: ApiLeadrateInfo;
-	leadrateProposed: ApiLeadrateProposed;
-	leadrateRate: ApiLeadrateRate;
+	leadrateInfo: ApiLeadrateInfo | undefined;
+	leadrateProposed: ApiLeadrateProposed | undefined;
+	leadrateRate: ApiLeadrateRate | undefined;
 
-	savingsInfo: ApiSavingsInfo;
+	savingsInfo: ApiSavingsInfo | undefined;
 
-	savingsUserTable: ApiSavingsUserTable;
-	savingsAllUserTable: ApiSavingsUserTable;
-	savingsLeaderboard: ApiSavingsUserLeaderboard[];
+	savingsUserTable: ApiSavingsUserTable | undefined;
+	savingsAllUserTable: ApiSavingsUserTable | undefined;
+	savingsLeaderboard: ApiSavingsUserLeaderboard[] | undefined;
 };
 
 // --------------------------------------------------------------------------------
@@ -24,30 +24,30 @@ export type DispatchBoolean = {
 
 export type DispatchApiLeadrateInfo = {
 	type: string;
-	payload: ApiLeadrateInfo;
+	payload: ApiLeadrateInfo | undefined;
 };
 
 export type DispatchApiLeadrateProposed = {
 	type: string;
-	payload: ApiLeadrateProposed;
+	payload: ApiLeadrateProposed | undefined;
 };
 
 export type DispatchApiLeadrateRate = {
 	type: string;
-	payload: ApiLeadrateRate;
+	payload: ApiLeadrateRate | undefined;
 };
 
 export type DispatchApiSavingsInfo = {
 	type: string;
-	payload: ApiSavingsInfo;
+	payload: ApiSavingsInfo | undefined;
 };
 
 export type DispatchApiSavingsUserTable = {
 	type: string;
-	payload: ApiSavingsUserTable;
+	payload: ApiSavingsUserTable | undefined;
 };
 
 export type DispatchApiSavingsLeaderboard = {
 	type: string;
-	payload: ApiSavingsUserLeaderboard[];
+	payload: ApiSavingsUserLeaderboard[] | undefined;
 };

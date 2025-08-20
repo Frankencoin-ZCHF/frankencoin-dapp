@@ -38,7 +38,10 @@ export function TransactionHistoryPanel() {
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
-	const { withdraw, save, interest } = useSelector((state: RootState) => state.savings.savingsUserTable);
+	const savingsUserTable = useSelector((state: RootState) => state.savings.savingsUserTable);
+	const withdraw = savingsUserTable?.withdraw || [];
+	const save = savingsUserTable?.save || [];
+	const interest = savingsUserTable?.interest || [];
 
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
@@ -67,7 +70,7 @@ export function TransactionHistoryPanel() {
 			if (operations.length === 1) return operations;
 
 			const deposit = operations.find((op) => op.type === t("savings.deposit"));
-			const withdraw = operations.find((op) => op.type === t("savings.withdraw")) as TransactionHistoryData;
+			const withdraw = operations.find((op) => op.type === t("savings.withdraw"));
 			const interest = operations.find((op) => op.type === t("savings.claimed_interest"));
 			
 			if (deposit) {

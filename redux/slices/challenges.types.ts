@@ -11,11 +11,11 @@ export type ChallengesState = {
 	error: string | null;
 	loaded: boolean;
 
-	list: ApiChallengesListing;
-	mapping: ApiChallengesMapping;
-	challengers: ApiChallengesChallengers;
-	positions: ApiChallengesPositions;
-	challengesPrices: ApiChallengesPrices;
+	list?: ApiChallengesListing;
+	mapping?: ApiChallengesMapping;
+	challengers?: ApiChallengesChallengers;
+	positions?: ApiChallengesPositions;
+	challengesPrices?: ApiChallengesPrices;
 };
 
 // --------------------------------------------------------------------------------
@@ -26,25 +26,25 @@ export type DispatchBoolean = {
 
 export type DispatchApiChallengesListing = {
 	type: string;
-	payload: ApiChallengesListing;
+	payload: ApiChallengesListing | undefined;
 };
 
 export type DispatchApiChallengesMapping = {
 	type: string;
-	payload: ApiChallengesMapping;
+	payload: ApiChallengesMapping | undefined;
 };
 
 export type DispatchApiChallengesChallengers = {
 	type: string;
-	payload: ApiChallengesChallengers;
+	payload: ApiChallengesChallengers | undefined;
 };
 
 export type DispatchApiChallengesPositions = {
 	type: string;
-	payload: ApiChallengesPositions;
+	payload: ApiChallengesPositions | undefined;
 };
 
 export type DispatchApiChallengesPrices = {
 	type: string;
-	payload: ApiChallengesPrices;
+	payload: ApiChallengesPrices | undefined;
 };

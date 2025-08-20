@@ -15,8 +15,9 @@ export default function GovernanceMintersTable() {
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
-	const minters = useSelector((state: RootState) => state.ecosystem.stablecoinMinters.list);
-	if (!minters) return null;
+	const stablecoinMinters = useSelector((state: RootState) => state.ecosystem.stablecoinMinters);
+	const minters = stablecoinMinters?.list || [];
+	if (!minters.length) return null;
 
 	const sorted: MinterQuery[] = sortMinters({
 		// @dev: somehow it does not transfer a "true array" and causes issues in sorting function

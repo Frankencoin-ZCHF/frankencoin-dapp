@@ -26,7 +26,7 @@ export default function MonitoringTable() {
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 	const matchingPositions = openPositionsByCollateral.flat();
 
-	const sorted: PositionQuery[] = sortPositions(matchingPositions, coingecko, headers, tab, reverse).filter(
+	const sorted: PositionQuery[] = sortPositions(matchingPositions, coingecko || {}, headers, tab, reverse).filter(
 		(p) => !INTERNAL_PROTOCOL_POSITIONS.includes(p.position)
 	);
 

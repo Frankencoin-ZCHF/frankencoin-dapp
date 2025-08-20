@@ -28,11 +28,11 @@ export default function PositionDetail() {
 	const address = router.query.address as Address;
 	const chainId = CONFIG_CHAIN().id;
 
-	const positions = useSelector((state: RootState) => state.positions.list.list);
+	const positions = useSelector((state: RootState) => state.positions.list?.list || []);
 	const challengesPositions = useSelector((state: RootState) => state.challenges.positions);
 
 	const position = positions.find((p) => p.position.toLowerCase() === address.toLowerCase());
-	const challengesActive = (challengesPositions.map[address.toLowerCase() as Address] || []).filter((c) => c.status === "Active");
+	const challengesActive = (challengesPositions?.map[address.toLowerCase() as Address] || []).filter((c) => c.status === "Active");
 	const explorerUrl = useContractUrl(String(address));
 	const ownerLink = useContractUrl(position?.owner || zeroAddress);
 	const navigate = useNavigation();

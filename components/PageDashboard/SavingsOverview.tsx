@@ -24,7 +24,9 @@ const StatsBox = ({ title, value, isLast }: { title: string; value?: string | Re
 };
 
 const SavingsOverview = () => {
-	const { rate, totalInterest } = useSelector((state: RootState) => state.savings.savingsInfo);
+	const savingsInfo = useSelector((state: RootState) => state.savings.savingsInfo);
+	const rate = savingsInfo?.rate;
+	const totalInterest = savingsInfo?.totalInterest;
 	const chainId = useChainId();
 	const addressSavingsGateway = useContractUrl(ADDRESS[chainId].savingsGateway);
 	const { t } = useTranslation();
@@ -40,11 +42,11 @@ const SavingsOverview = () => {
 		<div className="w-full bg-white self-stretch rounded-xl justify-start items-center inline-flex shadow-card">
 			<div className="w-full flex md:flex-row flex-col">
 				<div className="w-full flex-row justify-start items-start flex overflow-hidden">
-					<StatsBox title={t("dashboard.interest_rate_apr")} value={`${rate / 10_000}%`} />
+					<StatsBox title={t("dashboard.interest_rate_apr")} value={rate !== undefined ? `${rate / 10_000}%` : "-"} />
 					<StatsBox title={t("dashboard.total_savings")} value={formatCurrency(formatUnits(totalSavings, 18)) || undefined} />
 				</div>
 				<div className="w-full flex-row justify-start items-start flex overflow-hidden">
-					<StatsBox title={t("dashboard.total_interest_paid")} value={formatCurrency(totalInterest) || undefined} />
+					<StatsBox title={t("dashboard.total_interest_paid")} value={totalInterest !== undefined ? formatCurrency(totalInterest) : "-"} />
 					<StatsBox
 						title={t("dashboard.contract_address")}
 						value={

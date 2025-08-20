@@ -25,12 +25,12 @@ export default function ChallengesRow({ headers, challenge, tab }: Props) {
 	const positions = useSelector((state: RootState) => state.positions.mapping);
 	const challengesPrices = useSelector((state: RootState) => state.challenges.challengesPrices);
 
-	const position = positions.map[challenge.position.toLowerCase() as Address];
-	const url = useContractUrl(position.collateral || zeroAddress);
+	const position = positions?.map[challenge.position.toLowerCase() as Address];
+	const url = useContractUrl(position?.collateral || zeroAddress);
 	if (!position) return null;
 
 
-	const challengePriceSearch: string | undefined = challengesPrices.map[challenge.id as ChallengesId];
+	const challengePriceSearch: string | undefined = challengesPrices?.map[challenge.id as ChallengesId];
 	const challengePrice: string = formatUnits(BigInt(challengePriceSearch ?? "0"), 36 - position.collateralDecimals);
 	const start: number = parseInt(challenge.start.toString()) * 1000; // timestamp
 	const duration: number = parseInt(challenge.duration.toString()) * 1000;
