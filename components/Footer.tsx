@@ -38,7 +38,7 @@ export default function Footer() {
 	const code = marketingCode || parsedFrontendCode;
 
 	return (
-		<div className="md:flex max-md:grid-rows-2 max-md:justify-items-center md:px-12 pb-12 pt-6 bg-layout-footer text-layout-primary">
+		<footer className="md:flex max-md:grid-rows-2 max-md:justify-items-center md:px-12 pb-12 pt-6 bg-layout-footer text-layout-primary mt-auto">
 			<div className="flex-1 justify-start text-center md:text-left">
 				<SubmitIssue />
 				{code && (
@@ -65,7 +65,7 @@ export default function Footer() {
 					<FooterButton link={SOCIAL.Twitter} text="Twitter" icon={faXTwitter} />
 				</li>
 			</ul>
-		</div>
+		</footer>
 	);
 }
 
