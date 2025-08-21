@@ -40,7 +40,7 @@
         "temporary_unavailable": "Temporary Unavailable",
         "using_referral_code": "Using referral code",
         "details": "Details",
-        "chart_unavailable": "Chart data is currently unavailable",
+        "loading": "Loading...",
         "navbar": {
             "my_referrals": "My Referrals",
             "swap": "Swap",

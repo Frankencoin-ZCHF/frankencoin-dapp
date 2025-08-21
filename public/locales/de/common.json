@@ -40,7 +40,7 @@
         "temporary_unavailable": "Temporär nicht verfügbar",
         "using_referral_code": "Mit Referral-Code verwenden",
         "details": "Details",
-        "chart_unavailable": "Diagrammdaten sind derzeit nicht verfügbar",
+        "loading": "Lädt...",
         "navbar": {
             "my_referrals": "Meine Empfehlungen",
             "swap": "Tausch",

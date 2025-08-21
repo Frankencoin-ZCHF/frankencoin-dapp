@@ -144,9 +144,9 @@ export default function EquityNativePoolShareDetailsCard() {
 					/>
 				</div>
 			) : (
-				<div className="flex items-center justify-center h-[300px] text-text-muted2 bg-zinc-200/50">
+				<div className="flex items-center justify-center h-[300px] text-text-muted2 bg-zinc-200/30">
 					<div className="text-center">
-						<div className="text-base mb-1">{t("common.chart_unavailable")}</div>
+						<div className="text-base mb-1">{t("common.loading")}</div>
 					</div>
 				</div>
 			)}
