@@ -173,13 +173,20 @@ export default function PositionCreate({}) {
 		const liqPrice = BigInt(selectedPosition.price);
 
 		setSelectedPosition(selectedPosition);
-		setCollateralAmount(selectedPosition.minimumCollateral);
+		
+		// Use max available balance or minimum collateral, whichever is larger
+		const tokenBalance = balancesByAddress[token.address]?.balanceOf || 0n;
+		const maxAmount = tokenBalance > BigInt(selectedPosition.minimumCollateral) 
+			? tokenBalance.toString() 
+			: selectedPosition.minimumCollateral;
+		
+		setCollateralAmount(maxAmount);
 		setExpirationDate(toDate(selectedPosition.expiration));
 		setLiquidationPrice(liqPrice.toString());
 
 		const loanDetails = getLoanDetailsByCollateralAndStartingLiqPrice(
 			selectedPosition,
-			BigInt(selectedPosition.minimumCollateral),
+			BigInt(maxAmount),
 			liqPrice
 		);
 
