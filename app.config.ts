@@ -94,8 +94,17 @@ function activateFallback(): void {
 }
 
 // PONDER CLIENT
-const errorLink = onError(({ networkError }) => {
+const errorLink = onError(({ networkError, operation, forward }) => {
+	// Explicitly handle 503 Service Unavailable (Ponder syncing)
+	if (networkError && 'statusCode' in networkError && (networkError as any).statusCode === 503) {
+		console.log('[Ponder] 503 Service Unavailable - Ponder is syncing, switching to fallback');
+		activateFallback();
+		return forward(operation);
+	}
+	
+	// Handle general network errors
 	if (networkError && getPonderUrl() === CONFIG.ponder) {
+		console.log('[Ponder] Network error detected, activating fallback');
 		activateFallback();
 	}
 });
