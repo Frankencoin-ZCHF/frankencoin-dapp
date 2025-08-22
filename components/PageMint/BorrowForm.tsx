@@ -133,11 +133,18 @@ export default function PositionCreate({}) {
 				setCollateralAmount(amountToSet.toString());
 				setHasSetInitialAmount(true);
 				
+				// Set expiration date if not already set
+				const dateToUse = expirationDate || toDate(selectedPosition.expiration);
+				if (!expirationDate) {
+					setExpirationDate(dateToUse);
+				}
+				
 				// Recalculate loan details with the new amount
 				const loanDetails = getLoanDetailsByCollateralAndStartingLiqPrice(
 					selectedPosition,
 					amountToSet,
-					BigInt(selectedPosition.price)
+					BigInt(selectedPosition.price),
+					dateToUse
 				);
 				setLoanDetails(loanDetails);
 				setBorrowedAmount(loanDetails.amountToSendToWallet.toString());
@@ -288,14 +295,16 @@ export default function PositionCreate({}) {
 			defaultAmount = cappedAmount > minimumCollateral ? cappedAmount : minimumCollateral;
 		}
 		
+		const newExpirationDate = toDate(selectedPosition.expiration);
 		setCollateralAmount(defaultAmount.toString());
-		setExpirationDate(toDate(selectedPosition.expiration));
+		setExpirationDate(newExpirationDate);
 		setLiquidationPrice(liqPrice.toString());
 
 		const loanDetails = getLoanDetailsByCollateralAndStartingLiqPrice(
 			selectedPosition,
 			defaultAmount,
-			liqPrice
+			liqPrice,
+			newExpirationDate
 		);
 
 		setLoanDetails(loanDetails);
@@ -317,7 +326,8 @@ export default function PositionCreate({}) {
 			const loanDetails = getLoanDetailsByCollateralAndStartingLiqPrice(
 				selectedPosition, 
 				BigInt(value), 
-				BigInt(liquidationPrice)
+				BigInt(liquidationPrice),
+				expirationDate || toDate(selectedPosition.expiration)
 			);
 			setLoanDetails(loanDetails);
 			setBorrowedAmount(loanDetails.amountToSendToWallet.toString());
@@ -337,7 +347,8 @@ export default function PositionCreate({}) {
 			const loanDetails = getLoanDetailsByCollateralAndStartingLiqPrice(
 				selectedPosition, 
 				BigInt(collateralAmount), 
-				BigInt(value)
+				BigInt(value),
+				expirationDate || toDate(selectedPosition.expiration)
 			);
 			
 			setLoanDetails(loanDetails);
@@ -352,14 +363,49 @@ export default function PositionCreate({}) {
 
 		if (!selectedPosition) return;
 
-		const loanDetails = getLoanDetailsByCollateralAndYouGetAmount(selectedPosition, BigInt(collateralAmount), BigInt(value));
+		const loanDetails = getLoanDetailsByCollateralAndYouGetAmount(selectedPosition, BigInt(collateralAmount), BigInt(value), expirationDate || toDate(selectedPosition.expiration));
 		setLoanDetails(loanDetails);
 		setLiquidationPrice(loanDetails.startingLiquidationPrice.toString());
 	};
 
 	const handleMaxExpirationDate = () => {
 		if (selectedPosition?.expiration) {
-			setExpirationDate(toDate(selectedPosition.expiration));
+			const maxDate = toDate(selectedPosition.expiration);
+			setExpirationDate(maxDate);
+			// Recalculate loan details with new expiration date
+			if (collateralAmount && liquidationPrice) {
+				try {
+					const loanDetails = getLoanDetailsByCollateralAndStartingLiqPrice(
+						selectedPosition,
+						BigInt(collateralAmount),
+						BigInt(liquidationPrice),
+						maxDate
+					);
+					setLoanDetails(loanDetails);
+					setBorrowedAmount(loanDetails.amountToSendToWallet.toString());
+				} catch (error) {
+					// Handle error
+				}
+			}
+		}
+	};
+	
+	const handleExpirationDateChange = (date: Date | null) => {
+		setExpirationDate(date);
+		// Recalculate loan details with new expiration date
+		if (selectedPosition && collateralAmount && liquidationPrice && date) {
+			try {
+				const loanDetails = getLoanDetailsByCollateralAndStartingLiqPrice(
+					selectedPosition,
+					BigInt(collateralAmount),
+					BigInt(liquidationPrice),
+					date
+				);
+				setLoanDetails(loanDetails);
+				setBorrowedAmount(loanDetails.amountToSendToWallet.toString());
+			} catch (error) {
+				// Handle error
+			}
 		}
 	};
 
@@ -580,7 +626,7 @@ export default function PositionCreate({}) {
 							value={expirationDate}
 							maxDate={selectedPosition?.expiration ? toDate(selectedPosition?.expiration) : expirationDate}
 							placeholderText="YYYY-MM-DD"
-							onChange={setExpirationDate}
+							onChange={handleExpirationDateChange}
 							rightAdornment={expirationDate ? <MaxButton onClick={handleMaxExpirationDate} /> : null}
 						/>
 						<div className="self-stretch text-xs font-medium leading-normal">{t("mint.expiration_date_description")}</div>
