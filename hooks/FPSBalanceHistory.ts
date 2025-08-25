@@ -1,9 +1,8 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
 import { Address } from "viem";
 import { PONDER_CLIENT } from "../app.config";
 
 export interface FPSBalanceHistory {
-	id: string;
 	count: number;
 	created: number;
 	txHash: string;
@@ -16,13 +15,15 @@ export interface FPSBalanceHistory {
 
 export async function FPSBalanceHistory(address: Address): Promise<FPSBalanceHistory[]> {
 	const { data } = await PONDER_CLIENT.query<{
-		balanceHistorys: { items: FPSBalanceHistory[] };
+		eRC20Balances: { items: FPSBalanceHistory[] };
 	}>({
 		fetchPolicy: "no-cache",
 		query: gql`
 			query {
-				balanceHistorys(
+				eRC20Balances(
 					where: { 
+						chainId: 1,
+						token: "0x1bA26788dfDe592fec8bcB0Eaff472a42BE341B2", 
 						OR: [
 							{ from: "${address.toLowerCase()}" },
 							{ to: "${address.toLowerCase()}" }
@@ -33,7 +34,6 @@ export async function FPSBalanceHistory(address: Address): Promise<FPSBalanceHis
 					limit: 1000
 				) {
 					items {
-						id
 						count
 						created
 						txHash
@@ -48,12 +48,11 @@ export async function FPSBalanceHistory(address: Address): Promise<FPSBalanceHis
 		`,
 	});
 
-	if (!data || !data.balanceHistorys.items) {
+	if (!data || !data.eRC20Balances.items) {
 		return [];
 	}
 
-	const list: FPSBalanceHistory[] = data.balanceHistorys.items.map((i) => ({
-		id: i.id,
+	const list: FPSBalanceHistory[] = data.eRC20Balances.items.map((i) => ({
 		count: Number(i.count),
 		created: Number(i.created),
 		txHash: i.txHash,

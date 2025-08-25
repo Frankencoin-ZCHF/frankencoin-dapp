@@ -12,13 +12,12 @@ export interface FPSEarningsHistory {
 }
 
 export async function FPSEarningsHistory(address: Address): Promise<FPSEarningsHistory[]> {
-	const { data } = await PONDER_CLIENT.query<{ profitLosss: { items: FPSEarningsHistory[] } }>({
+	const { data } = await PONDER_CLIENT.query<{ frankencoinProfitLosss: { items: FPSEarningsHistory[] } }>({
 		fetchPolicy: "no-cache",
 		query: gql`
 			query {
-				profitLosss(orderBy: "count", orderDirection: "desc", limit: 1000) {
+				frankencoinProfitLosss(where: { chainId: 1 }, orderBy: "count", orderDirection: "desc", limit: 1000) {
 					items {
-						id
 						count
 						created
 						kind
@@ -30,11 +29,11 @@ export async function FPSEarningsHistory(address: Address): Promise<FPSEarningsH
 		`,
 	});
 
-	if (!data || !data.profitLosss.items) {
+	if (!data || !data.frankencoinProfitLosss.items) {
 		return [];
 	}
 
-	const list: FPSEarningsHistory[] = data.profitLosss.items.map((i) => ({
+	const list: FPSEarningsHistory[] = data.frankencoinProfitLosss.items.map((i) => ({
 		id: i.id,
 		count: Number(i.count),
 		created: Number(i.created),
