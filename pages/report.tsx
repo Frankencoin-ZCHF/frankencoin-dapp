@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import AppCard from "@components/AppCard";
 import { Address, isAddress } from "viem";
 import { FRANKENCOIN_API_CLIENT } from "../app.config";
-// import { ApiSavingsUserTable } from "@frankencoin/api";
 import ReportsSavingsYearlyTable from "@components/PageReports/ReportsSavingsYearlyTable";
 import { FPSBalanceHistory } from "../hooks/FPSBalanceHistory";
 import { FPSEarningsHistory } from "../hooks/FPSEarningsHistory";
@@ -16,6 +15,7 @@ import { useRef } from "react";
 import generatePDF, { Margin } from "react-to-pdf";
 import { useRouter } from "next/router";
 import DateInput from "@components/Input/DateInput";
+import { ApiSavingsActivity } from "@frankencoin/api";
 
 export type OwnerPositionFees = {
 	t: number;
@@ -38,7 +38,7 @@ export default function ReportPage() {
 	const [error, setError] = useState<string>("");
 	const [ownerPositionFees, setOwnerPositionFees] = useState<OwnerPositionFees[]>([]);
 	const [ownerPositionDebt, setOwnerPositionDebt] = useState<OwnerPositionDebt[]>([]);
-	// const [savings, setSavings] = useState<ApiSavingsUserTable>({ save: [], interest: [], withdraw: [] });
+	const [savings, setSavings] = useState<ApiSavingsActivity>([]);
 	const [fpsHistory, setFpsHistory] = useState<FPSBalanceHistory[]>([]);
 	const [fpsEarnings, setFpsEarnings] = useState<FPSEarningsHistory[]>([]);
 
@@ -60,7 +60,7 @@ export default function ReportPage() {
 
 		if (!isAddress(reportingAddress)) {
 			setOwnerPositionFees([]);
-			// setSavings({ save: [], interest: [], withdraw: [] });
+			setSavings([]);
 			setFpsHistory([]);
 			setFpsEarnings([]);
 			setError("Invalid Address");
@@ -85,8 +85,8 @@ export default function ReportPage() {
 
 				setOwnerPositionDebt(yearly);
 
-				// const responseSavings = await FRANKENCOIN_API_CLIENT.get(`/savings/core/user/${reportingAddress}`);
-				// setSavings(responseSavings.data as ApiSavingsUserTable);
+				const responseSavings = await FRANKENCOIN_API_CLIENT.get(`/savings/core/activity/${reportingAddress}`);
+				setSavings(responseSavings.data as ApiSavingsActivity);
 
 				const responseBalance = await FPSBalanceHistory(reportingAddress);
 				setFpsHistory(responseBalance.reverse());
@@ -175,10 +175,10 @@ export default function ReportPage() {
 				are recorded in the year they are made, even if they cover interest accrued in a different period.
 			</div>
 
-			{/* <AppTitle title="Savings">
+			<AppTitle title="Savings">
 				<div className="text-text-secondary">Interest collected for each period as well as the year end balances.</div>
 			</AppTitle>
-			<ReportsSavingsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} /> */}
+			<ReportsSavingsYearlyTable activity={savings} />
 
 			<AppTitle title="Equity Participation">
 				<div className="text-text-secondary">

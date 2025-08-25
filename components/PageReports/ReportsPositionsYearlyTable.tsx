@@ -39,7 +39,7 @@ export default function ReportsPositionsYearlyTable({ address, ownerPositionFees
 	const accountYearly: AccountYearly[] = [];
 
 	for (const y of accountYears) {
-		const items = entries.filter((e) => e.year == Number(y)) ?? [];
+		const items = entries.filter((e) => e.year == Number(y));
 		const interestPaid = items.reduce<bigint>((a, b) => a + b.fee, 0n);
 
 		const itemsDebt = entriesDebt.filter((e) => e.year == Number(y)) ?? [];
