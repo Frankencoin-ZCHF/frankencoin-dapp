@@ -187,7 +187,8 @@ export default function PositionCreate({}) {
 		const loanDetails = getLoanDetailsByCollateralAndStartingLiqPrice(
 			selectedPosition,
 			BigInt(maxAmount),
-			liqPrice
+			liqPrice,
+			toDate(selectedPosition.expiration)
 		);
 
 		setLoanDetails(loanDetails);
@@ -198,7 +199,7 @@ export default function PositionCreate({}) {
 		setCollateralAmount(value);
 		if (!selectedPosition) return;
 
-		const loanDetails = getLoanDetailsByCollateralAndStartingLiqPrice(selectedPosition, BigInt(value), BigInt(liquidationPrice));
+		const loanDetails = getLoanDetailsByCollateralAndStartingLiqPrice(selectedPosition, BigInt(value), BigInt(liquidationPrice), expirationDate || undefined);
 		setLoanDetails(loanDetails);
 		setBorrowedAmount(loanDetails.amountToSendToWallet.toString());
 	};
@@ -208,7 +209,7 @@ export default function PositionCreate({}) {
 
 		if (!selectedPosition) return;
 
-		const loanDetails = getLoanDetailsByCollateralAndStartingLiqPrice(selectedPosition, BigInt(collateralAmount), BigInt(value));
+		const loanDetails = getLoanDetailsByCollateralAndStartingLiqPrice(selectedPosition, BigInt(collateralAmount), BigInt(value), expirationDate || undefined);
 		setLoanDetails(loanDetails);
 		setBorrowedAmount(loanDetails.amountToSendToWallet.toString());
 	};
@@ -218,10 +219,23 @@ export default function PositionCreate({}) {
 
 		if (!selectedPosition) return;
 
-		const loanDetails = getLoanDetailsByCollateralAndYouGetAmount(selectedPosition, BigInt(collateralAmount), BigInt(value));
+		const loanDetails = getLoanDetailsByCollateralAndYouGetAmount(selectedPosition, BigInt(collateralAmount), BigInt(value), expirationDate || undefined);
 		setLoanDetails(loanDetails);
 		setLiquidationPrice(loanDetails.startingLiquidationPrice.toString());
 	};
+
+	useEffect(() => {
+		if (!selectedPosition || !collateralAmount || !liquidationPrice || !expirationDate) return;
+		
+		const loanDetails = getLoanDetailsByCollateralAndStartingLiqPrice(
+			selectedPosition,
+			BigInt(collateralAmount),
+			BigInt(liquidationPrice),
+			expirationDate
+		);
+		setLoanDetails(loanDetails);
+		setBorrowedAmount(loanDetails.amountToSendToWallet.toString());
+	}, [expirationDate]);
 
 	const handleMaxExpirationDate = () => {
 		if (selectedPosition?.expiration) {

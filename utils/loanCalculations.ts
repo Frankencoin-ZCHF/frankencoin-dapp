@@ -16,16 +16,17 @@ export type LoanDetails = {
 
 const ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
 
-const getLoanDuration = (position: PositionQuery) => {
-	return Math.max(60 * 60 * 24 * 30, Math.floor((toDate(position.expiration).getTime() - toDate(position.start).getTime()) / 1000));
+const getLoanDuration = (position: PositionQuery, customExpirationDate?: Date) => {
+	const expirationDate = customExpirationDate || toDate(position.expiration);
+	return Math.max(60 * 60 * 24 * 30, Math.floor((expirationDate.getTime() - Date.now()) / 1000));
 };
 
-const getMiscelaneousLoanDetails = (position: PositionQuery, loanAmount: bigint, collateralAmount: bigint) => {
+const getMiscelaneousLoanDetails = (position: PositionQuery, loanAmount: bigint, collateralAmount: bigint, customExpirationDate?: Date) => {
 	const { fixedAnnualRatePPM, annualInterestPPM, collateralDecimals, reserveContribution } = position;
 
 	const apr = Number((BigInt(fixedAnnualRatePPM) * 100n) / 1_000_000n);
 	const effectiveInterest = (fixedAnnualRatePPM / 10 ** 6 / (1 - reserveContribution / 10 ** 6)) * 100;
-	const selectedPeriod = getLoanDuration(position);
+	const selectedPeriod = getLoanDuration(position, customExpirationDate);
 	const interestUntilExpiration =
 		(BigInt(selectedPeriod) * BigInt(annualInterestPPM) * BigInt(loanAmount)) / BigInt(ONE_YEAR_IN_SECONDS * 1_000_000);
 	const liquidationPriceAtEnd =
@@ -44,7 +45,8 @@ const getMiscelaneousLoanDetails = (position: PositionQuery, loanAmount: bigint,
 export const getLoanDetailsByCollateralAndLiqPrice = (
 	position: PositionQuery,
 	collateralAmount: bigint,
-	liquidationPriceAtEndOfPeriod: bigint
+	liquidationPriceAtEndOfPeriod: bigint,
+	customExpirationDate?: Date
 ): LoanDetails => {
 	const { reserveContribution, collateralDecimals, original, annualInterestPPM } = position;
 
@@ -52,7 +54,7 @@ export const getLoanDetailsByCollateralAndLiqPrice = (
 	const decimalsAdjustment = collateralDecimals === 0 ? BigInt(1e36) : BigInt(1e18);
 	const loanAmountEndOfPeriod = (BigInt(collateralAmount) * BigInt(liquidationPriceAtEndOfPeriod)) / decimalsAdjustment;
 
-	const selectedPeriod = getLoanDuration(position);
+	const selectedPeriod = getLoanDuration(position, customExpirationDate);
 	const loanAmountAtStartOfPeriod =
 		(loanAmountEndOfPeriod * BigInt(ONE_YEAR_IN_SECONDS * 1_000_000)) /
 		(BigInt(ONE_YEAR_IN_SECONDS * 1_000_000) + BigInt(selectedPeriod) * BigInt(annualInterestPPM));
@@ -61,7 +63,7 @@ export const getLoanDetailsByCollateralAndLiqPrice = (
 	const borrowersReserveContribution = (BigInt(reserveContribution) * loanAmountAtStartOfPeriod) / 1_000_000n;
 	const amountToSendToWallet = loanAmountAtStartOfPeriod - borrowersReserveContribution;
 
-	const { effectiveInterest, apr } = getMiscelaneousLoanDetails(position, loanAmountEndOfPeriod, collateralAmount);
+	const { effectiveInterest, apr } = getMiscelaneousLoanDetails(position, loanAmountEndOfPeriod, collateralAmount, customExpirationDate);
 
 	const startingLiquidationPrice =
 		collateralAmount === 0n ? BigInt(0) : (loanAmountAtStartOfPeriod * decimalsAdjustment) / collateralAmount;
@@ -83,7 +85,8 @@ export const getLoanDetailsByCollateralAndLiqPrice = (
 export const getLoanDetailsByCollateralAndStartingLiqPrice = (
 	position: PositionQuery,
 	collateralAmount: bigint,
-	startingLiquidationPrice: bigint
+	startingLiquidationPrice: bigint,
+	customExpirationDate?: Date
 ): LoanDetails => {
 	const { reserveContribution, collateralDecimals, original, annualInterestPPM } = position;
 
@@ -97,7 +100,8 @@ export const getLoanDetailsByCollateralAndStartingLiqPrice = (
 	const { effectiveInterest, apr, interestUntilExpiration } = getMiscelaneousLoanDetails(
 		position,
 		loanAmountStartOfPeriod,
-		collateralAmount
+		collateralAmount,
+		customExpirationDate
 	);
 
 	const liquidationPriceAtEndOfPeriod =
@@ -122,7 +126,8 @@ export const getLoanDetailsByCollateralAndStartingLiqPrice = (
 export const getLoanDetailsByCollateralAndYouGetAmount = (
 	position: PositionQuery,
 	collateralAmount: bigint,
-	youGet: bigint
+	youGet: bigint,
+	customExpirationDate?: Date
 ): LoanDetails => {
 	const { reserveContribution, collateralDecimals, original, annualInterestPPM } = position;
 
@@ -134,14 +139,11 @@ export const getLoanDetailsByCollateralAndYouGetAmount = (
 		collateralAmount === 0n ? BigInt(0) : (loanAmountStartOfPeriod * decimalsAdjustment) / collateralAmount;
 	const borrowersReserveContribution = (BigInt(reserveContribution) * loanAmountStartOfPeriod) / 1_000_000n;
 
-	const selectedPeriod = getLoanDuration(position);
-	const interestCoefficient = (BigInt(selectedPeriod) * BigInt(annualInterestPPM)) / BigInt(ONE_YEAR_IN_SECONDS * 1_000_000);
-	const loanAmountEndOfPeriod = loanAmountStartOfPeriod + interestCoefficient;
-
 	const { effectiveInterest, apr, interestUntilExpiration, liquidationPriceAtEnd } = getMiscelaneousLoanDetails(
 		position,
-		loanAmountEndOfPeriod,
-		collateralAmount
+		loanAmountStartOfPeriod,
+		collateralAmount,
+		customExpirationDate
 	);
 
 	return {
