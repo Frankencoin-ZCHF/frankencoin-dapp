@@ -191,6 +191,8 @@
             "buffer_too_low": "Buffer should be at least {{amount}}%",
             "duration_too_short": "Duration should be at least {{hours}} hours.",
             "minting_limit_exceeded": "Can not mint more than {{amount}} {{symbol}}.",
+            "global_minting_limit_exceeded": "Global minting limit reached. Maximum {{maxMint}} {{mintSymbol}} can be minted ({{maxCollateral}} {{collateralSymbol}} collateral).",
+            "position_unavailable_limit_exhausted": "Cannot create position. Available capacity ({{available}} {{symbol}}) below minimum requirement ({{minCollateral}} {{collateralSymbol}}).",
             "expiration_date_out_of_range": "Expiration Date should be between Now and Limit",
             "amount_greater_than_position_balance": "Amount is greater than the position's balance",
             "amount_greater_than_max_to_remove": "Amount is greater than the max allowed given the current debt",

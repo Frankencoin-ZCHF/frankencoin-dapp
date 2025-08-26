@@ -66,7 +66,7 @@ export function DetailsExpandablePanel({
 			<div className="py-1.5 flex justify-between">
 				<span className="text-base leading-tight">{t("mint.liquidation_price_at_expiration")}</span>
 				<span className="text-right text-sm font-extrabold leading-none tracking-tight">
-					{formatCurrency(formatUnits(loanDetails.liquidationPrice, 18), 2, 2)} €
+					{formatCurrency(formatUnits(loanDetails.liquidationPrice, 36 - collateralDecimals), 2, 2)} €
 				</span>
 			</div>
 			<div className="py-1.5 flex justify-between">

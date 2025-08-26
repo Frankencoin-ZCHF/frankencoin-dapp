@@ -191,6 +191,8 @@
             "buffer_too_low": "El margen de seguridad debe ser de al menos {{amount}}%",
             "duration_too_short": "La duración debe ser de al menos {{hours}} horas.",
             "minting_limit_exceeded": "No se pueden acuñar más de {{amount}} {{symbol}}.",
+            "global_minting_limit_exceeded": "Límite global de acuñación alcanzado. Máximo {{maxMint}} {{mintSymbol}} pueden ser acuñados ({{maxCollateral}} {{collateralSymbol}} colateral).",
+            "position_unavailable_limit_exhausted": "Posición no disponible. Capacidad disponible ({{available}} {{symbol}}) por debajo del requisito mínimo ({{minCollateral}} {{collateralSymbol}}).",
             "expiration_date_out_of_range": "La fecha de vencimiento debe estar entre ahora y el límite.",
             "amount_greater_than_position_balance": "La cantidad es mayor que el saldo de la posición.",
             "amount_greater_than_max_to_remove": "La cantidad es mayor que el máximo permitido dado el actual deuda",

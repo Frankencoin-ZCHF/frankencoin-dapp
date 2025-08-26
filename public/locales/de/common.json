@@ -191,6 +191,8 @@
             "buffer_too_low": "Der Puffer sollte mindestens {{amount}}% betragen.",
             "duration_too_short": "Die Dauer sollte mindestens {{hours}} Stunden betragen.",
             "minting_limit_exceeded": "Es können nicht mehr als {{amount}} {{symbol}} geprägt werden.",
+            "global_minting_limit_exceeded": "Globales Prägelimit erreicht. Maximal {{maxMint}} {{mintSymbol}} können geprägt werden ({{maxCollateral}} {{collateralSymbol}} Sicherheit).",
+            "position_unavailable_limit_exhausted": "Position nicht verfügbar. Verfügbare Kapazität ({{available}} {{symbol}}) unter Mindestanforderung ({{minCollateral}} {{collateralSymbol}}).",
             "expiration_date_out_of_range": "Das Ablaufdatum sollte zwischen Jetzt und dem Limit liegen.",
             "amount_greater_than_position_balance": "Der Betrag ist größer als der Saldo der Position.",
             "amount_greater_than_max_to_remove": "Der Betrag ist größer als der maximale Betrag, der unter Berücksichtigung der aktuellen Schuld abgezogen werden kann.",

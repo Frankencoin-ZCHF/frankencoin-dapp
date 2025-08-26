@@ -191,6 +191,8 @@
             "buffer_too_low": "La marge de sécurité doit être d'au moins {{amount}}%",
             "duration_too_short": "La durée doit être d'au moins {{hours}} heures.",
             "minting_limit_exceeded": "Impossible d'émettre plus de {{amount}} {{symbol}}.",
+            "global_minting_limit_exceeded": "Limite d'émission globale atteinte. Maximum {{maxMint}} {{mintSymbol}} peuvent être émis ({{maxCollateral}} {{collateralSymbol}} de garantie).",
+            "position_unavailable_limit_exhausted": "Position indisponible. Capacité disponible ({{available}} {{symbol}}) inférieure au minimum requis ({{minCollateral}} {{collateralSymbol}}).",
             "expiration_date_out_of_range": "La date d'expiration doit être comprise entre maintenant et la limite.",
             "amount_greater_than_position_balance": "Le montant est supérieur au solde de la position.",
             "amount_greater_than_max_to_remove": "Le montant est supérieur au montant maximum autorisé compte tenu de la dette actuelle",
