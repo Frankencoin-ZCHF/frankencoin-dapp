@@ -97,7 +97,7 @@ export const ReferralsStats = () => {
 							hasTotalRewards ? "" : "text-menu-wallet-bg"
 						} text-xl sm:text-2xl font-extrabold leading-normal`}
 					>
-						€ {formatCurrency(formatUnits(totalVolume, 18))}
+						€ {formatCurrency(formatUnits(totalVolume, 18), 0, 5)}
 					</div>
 				</div>
 			</div>
@@ -111,7 +111,7 @@ export const ReferralsStats = () => {
 							hasAvailableToClaim ? "" : "text-menu-wallet-bg"
 						} text-xl sm:text-2xl font-extrabold leading-normal`}
 					>
-						€ {formatCurrency(formatUnits(availableToClaim, 18))}
+						€ {formatCurrency(formatUnits(availableToClaim, 18), 0, 5)}
 					</div>
 					<div>
 						<SecondaryButton
