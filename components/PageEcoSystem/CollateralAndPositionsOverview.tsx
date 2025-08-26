@@ -148,7 +148,7 @@ export default function CollateralAndPositionsOverview() {
 						</div>
 
 						<div className="flex">
-							<div className="flex-1 text-text-secondary">Current price</div>
+							<div className="flex-1 text-text-secondary">Lowerst eff. rate</div>
 							<div className="text-text-primary font-semibold">{formatCurrency(stat.lowestInterestRate * 100, 2)} %</div>
 						</div>
 
