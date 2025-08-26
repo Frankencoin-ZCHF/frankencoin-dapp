@@ -43,6 +43,7 @@ export default function TransferInteractionCard() {
 		if (isLoaded) {
 			setReference("");
 			setAmount(0n);
+			setRecipient("");
 			setLoaded(false);
 		}
 	}, [isLoaded]);

@@ -4,6 +4,8 @@ import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import TokenLogo from "../TokenLogo";
 import { formatCurrency } from "../../utils/format";
 import { Address } from "viem/accounts";
+import AppCard from "../AppCard";
+import { formatUnits, parseUnits } from "viem";
 
 export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: PriceQueryObjectArray) {
 	const stats = [];
@@ -14,30 +16,31 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 
 		if (!collateral || !mint) continue;
 
-		let balance = 0;
-		let limitForClones = 0;
-		let availableForClones = 0;
+		let minted = 0n;
+		let balance = 0n;
+		let limitForClones = 0n;
+		let availableForClones = 0n;
 
 		for (let pos of positions) {
-			balance += parseInt(pos.collateralBalance);
+			balance += BigInt(pos.collateralBalance);
+			minted += BigInt(pos.minted);
 			if (pos.isOriginal) {
-				limitForClones += parseInt(pos.limitForClones) / 10 ** pos.zchfDecimals;
-				availableForClones += parseInt(pos.availableForClones) / 10 ** pos.zchfDecimals;
+				limitForClones += BigInt(pos.limitForClones) / 10n ** BigInt(pos.zchfDecimals);
+				availableForClones += BigInt(pos.availableForClones) / 10n ** BigInt(pos.zchfDecimals);
 			}
 		}
 
-		if (!collateral.price.usd || !mint.price.usd) continue;
+		if (!collateral.price.chf || !mint.price.chf) continue;
 
-		balance = balance / 10 ** collateral.decimals;
-		const valueLocked = Math.round(balance * collateral.price.usd);
+		const valueLocked = Math.round(Number(formatUnits(balance, collateral.decimals)) * collateral.price.chf);
 		const highestZCHFPrice =
-			Math.round(Math.max(...positions.map((p) => (parseInt(p.price) * 100) / 10 ** (36 - p.collateralDecimals)))) / 100;
+			Math.round(Math.max(...positions.map((p) => (Number(p.price) * 100) / 10 ** (36 - p.collateralDecimals)))) / 100;
 
-		const collateralizedPct = Math.round((collateral.price.usd / (highestZCHFPrice * mint.price.usd)) * 10000) / 100;
-		const availableForClonesPct = Math.round((availableForClones / limitForClones) * 10000) / 100;
+		const collateralizedPct = Math.round((collateral.price.chf / (highestZCHFPrice * mint.price.chf)) * 10000) / 100;
+		const availableForClonesPct = Math.round((Number(availableForClones) / Number(limitForClones)) * 10000) / 100;
 
-		const minted = Math.round(limitForClones - availableForClones);
-		const collateralPriceInZCHF = Math.round((collateral.price.usd / mint.price.usd) * 100) / 100;
+		// const minted = Math.round(Number(limitForClones) - Number(availableForClones));
+		const collateralPriceInZCHF = Math.round((collateral.price.chf / mint.price.chf) * 100) / 100;
 		const worstStatus =
 			collateralizedPct < 100
 				? `${collateralizedPct}% collaterized`
@@ -74,60 +77,80 @@ export default function CollateralAndPositionsOverview() {
 	const stats = calcOverviewStats(openPositionsByCollateral, coingecko);
 
 	return (
-		<div className=" flex flex-col gap-y-4">
+		<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 			{stats.map((stat) => (
-				<div key={stat.original.position} className="bg-card-body-primary text-text-primary rounded-2xl p-8">
-					<div className="grid grid-cols-3 gap-4">
+				<AppCard key={stat.original.position} className="p-6">
+					<div className="flex items-center gap-4 mb-6 min-h-[4rem]">
 						<TokenLogo currency={stat.collateral.symbol.toLowerCase()} />
-						<div className="col-span-2 text-2xl font-bold mb-10">
-							{stat.collateral.name} ({stat.collateral.symbol})
+						<div className="text-2xl font-bold">{stat.collateral.name}</div>
+					</div>
+
+					<div className="flex flex-col gap-3">
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Total locked ZCHF</div>
+							<div className="text-text-primary font-semibold">{formatCurrency(stat.valueLocked.toString(), 2)} ZCHF</div>
+						</div>
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Total locked balance</div>
+							<div className="text-text-primary font-semibold">
+								{formatCurrency(formatUnits(stat.balance, stat.collateral.decimals))} {stat.collateral.symbol}
+							</div>
+						</div>
+
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Original positions</div>
+							<div className="text-text-primary font-semibold">{stat.originals.length}</div>
+						</div>
+
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Clone positions</div>
+							<div className="text-text-primary font-semibold">{stat.clones.length}</div>
+						</div>
+
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Minting limit</div>
+							<div className="text-text-primary font-semibold">
+								{formatCurrency(stat.limitForClones.toString(), 2)} {stat.mint.symbol}
+							</div>
+						</div>
+
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Already minted</div>
+							<div className="text-text-primary font-semibold">
+								{formatCurrency(formatUnits(stat.minted, 18), 2)} {stat.mint.symbol}
+							</div>
+						</div>
+
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Minting limit used</div>
+							<div className="text-text-primary font-semibold">{Math.round(100 - stat.availableForClonesPct)}%</div>
+						</div>
+
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Highest price</div>
+							<div className="text-text-primary font-semibold">
+								{formatCurrency(stat.highestZCHFPrice.toString(), 2)} ZCHF
+							</div>
+						</div>
+
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Current price</div>
+							<div className="text-text-primary font-semibold">
+								{formatCurrency(stat.collateralPriceInZCHF.toString(), 2)} ZCHF
+							</div>
+						</div>
+
+						<div className="flex mt-4">
+							<div className="flex-1">
+								<div
+									className={`bg-gray-200 rounded-full text-center py-2 px-4 text-gray-900 font-bold ${stat.worstStatusColors}`}
+								>
+									{stat.worstStatus}
+								</div>
+							</div>
 						</div>
 					</div>
-
-					<div className="mb-5">
-						The total locked balance is{" "}
-						<span className="front-bold font-semibold ">
-							{stat.balance} {stat.collateral.symbol}
-						</span>{" "}
-						(= {formatCurrency(stat.valueLocked.toString(), 2)} $). This locked collateral serves as the foundation for minting{" "}
-						{stat.mint.name} ({stat.mint.symbol}) tokens. There are{" "}
-						<span className="front-bold font-semibold ">{stat.originals.length} positions opened as initial positions</span>.
-						These represent the primary original positions created with their combined maximum limit of{" "}
-						<span className="front-bold font-semibold ">
-							{formatCurrency(stat.limitForClones.toString(), 2)} {stat.mint.symbol} to mint
-						</span>
-						. There are <span className="front-bold font-semibold ">{stat.clones.length} positions opened as clones</span> of an
-						original position or one of their clones. There have been already{" "}
-						<span className="front-bold font-semibold ">
-							{formatCurrency(stat.minted.toString(), 2)} {stat.mint.symbol} minted
-						</span>{" "}
-						from all positions, which represents{" "}
-						<span className="front-bold font-semibold ">
-							{Math.round(100 - stat.availableForClonesPct)}% of the maximum minting limit
-						</span>{" "}
-						for this collateral.
-					</div>
-
-					<div className="mb-5">
-						The highest liquidation price from all positions is{" "}
-						<span className="front-bold font-semibold ">
-							{formatCurrency(stat.highestZCHFPrice.toString(), 2)} ZCHF/{stat.collateral.symbol}
-						</span>
-						, which represents the worst{" "}
-						<span className="front-bold font-semibold ">collateralisation of {stat.collateralizedPct}%</span> for this
-						collateral. The current price of {stat.collateral.name} ({stat.collateral.symbol}) on Coingecko is{" "}
-						<span className="front-bold font-semibold ">
-							{formatCurrency(stat.collateralPriceInZCHF.toString(), 2)} ZCHF/{stat.collateral.symbol}
-						</span>{" "}
-						or {formatCurrency((stat.collateral.price.usd ?? "0").toString(), 2)} USD/{stat.collateral.symbol}.
-					</div>
-
-					<div
-						className={`bg-gray-200 rounded-full text-center max-h-7 max-w-[100] text-gray-900 font-bold ${stat.worstStatusColors}`}
-					>
-						{stat.worstStatus}
-					</div>
-				</div>
+				</AppCard>
 			))}
 		</div>
 	);

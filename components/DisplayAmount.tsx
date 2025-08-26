@@ -1,8 +1,9 @@
-import { formatBigInt, formatCurrency } from "@utils";
+import { formatCurrency, getChainByName } from "@utils";
 import dynamic from "next/dynamic";
 import { useContractUrl } from "../hooks/useContractUrl";
-import { formatUnits, zeroAddress } from "viem";
+import { Chain, formatUnits, zeroAddress } from "viem";
 import Link from "next/link";
+import { mainnet } from "viem/chains";
 const TokenLogo = dynamic(() => import("./TokenLogo"), { ssr: false });
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 	digits?: number | bigint;
 	currency?: string;
 	chain?: string;
+	hideChain?: boolean;
 	address?: string;
 	hideLogo?: boolean;
 	bold?: boolean;
@@ -26,13 +28,14 @@ export default function DisplayAmount({
 	digits = 18,
 	currency,
 	chain,
+	hideChain,
 	address,
 	unit,
 	hideLogo,
 	bold = false,
 	big = false,
 }: Props) {
-	const url = useContractUrl(address || zeroAddress);
+	const url = useContractUrl(address || zeroAddress, getChainByName(chain ?? mainnet.name));
 	return (
 		<div className={className || "pt-2"}>
 			<div className="flex items-center gap-2">
@@ -50,7 +53,7 @@ export default function DisplayAmount({
 							<div className="flex flex-row">
 								{!hideLogo && currency && (
 									<div className="mr-2">
-										<TokenLogo currency={currency} size={6} chain={chain} />
+										<TokenLogo currency={currency} size={6} chain={hideChain ? undefined : chain} />
 									</div>
 								)}
 
