@@ -7,7 +7,7 @@ import { mainnet } from "viem/chains";
 
 export type VoteDataQuote = {
 	holder: Address;
-	fps: bigint;
+	balance: bigint;
 	votingPower: bigint;
 	holdingDuration: bigint;
 };
@@ -20,7 +20,7 @@ export const useVotingPowers = (holders: FPSHolder[]) => {
 			chainId: mainnet.id,
 			abi: EquityABI,
 			functionName: "votes",
-			args: [holder.address],
+			args: [holder.account],
 		});
 	});
 
@@ -30,7 +30,7 @@ export const useVotingPowers = (holders: FPSHolder[]) => {
 			chainId: mainnet.id,
 			abi: EquityABI,
 			functionName: "holdingDuration",
-			args: [holder.address],
+			args: [holder.account],
 		});
 	});
 
@@ -49,8 +49,8 @@ export const useVotingPowers = (holders: FPSHolder[]) => {
 	if (data) {
 		for (let i = 0; i < holders.length; i++) {
 			votesData.push({
-				holder: holders[i].address,
-				fps: holders[i].votingPower,
+				holder: holders[i].account,
+				balance: holders[i].balance,
 				votingPower: data[i].result as bigint,
 				holdingDuration: data[holders.length + i].result as bigint,
 			});

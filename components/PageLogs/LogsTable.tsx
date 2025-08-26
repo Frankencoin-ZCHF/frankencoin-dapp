@@ -5,7 +5,7 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function LogsTable() {
 	const headers: string[] = [
@@ -43,7 +43,7 @@ export default function LogsTable() {
 					{logs.length == 0 ? (
 						<TableRowEmpty>{"There are no logs yet."}</TableRowEmpty>
 					) : (
-						logs.map((l, idx) => <LogsRow headers={headers} tab={tab} log={l} key={`${l.id}-${l.amount}-logs_row_${idx}`} />)
+						logs.map((l, idx) => <LogsRow headers={headers} tab={tab} log={l} key={`${l.chainId}-${l.count}-${l.amount}-logs_row_${idx}`} />)
 					)}
 				</div>
 			</TableBody>

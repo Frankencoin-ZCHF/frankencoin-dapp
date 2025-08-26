@@ -1,5 +1,5 @@
 import { Hash } from "viem";
-import { ChainId, SupportedChain, SupportedChains } from "@frankencoin/zchf";
+import { ADDRESS, ChainId, SupportedChain, SupportedChains } from "@frankencoin/zchf";
 import { CONFIG, WAGMI_CHAIN, WAGMI_CHAINS } from "../app.config";
 import path from "path";
 
@@ -21,4 +21,14 @@ export const MorphoMarketUrl = (id: string) => `https://app.morpho.org/ethereum/
 
 export const getChain = (id: ChainId) => {
 	return WAGMI_CHAINS.find((c) => c.id == id) ?? WAGMI_CHAIN;
+};
+
+export const getChainByName = (name: string) => {
+	return WAGMI_CHAINS.find((c) => c.name.toLowerCase() == name.toLowerCase()) ?? WAGMI_CHAIN;
+};
+
+export const getChainByChainSelector = (selector: string | bigint) => {
+	const keys = Object.keys(ADDRESS);
+	const chainId = keys.find((v, idx) => ADDRESS[Number(v) as ChainId].chainSelector == selector);
+	return getChain(Number(chainId) as ChainId);
 };

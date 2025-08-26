@@ -16,7 +16,7 @@ import { mainnet } from "viem/chains";
 
 export type VoteData = {
 	holder: Address;
-	fps: bigint;
+	balance: bigint;
 	votingPower: bigint;
 	votingPowerRatio: number;
 	holdingDuration: bigint;
@@ -27,7 +27,7 @@ export default function GovernanceVotersTable() {
 	const [tab, setTab] = useState<string>(headers[2]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [accountVotes, setAccountVotes] = useState<VoteData>({
-		fps: 0n,
+		balance: 0n,
 		holder: zeroAddress,
 		votingPower: 0n,
 		votingPowerRatio: 0,
@@ -44,7 +44,7 @@ export default function GovernanceVotersTable() {
 		const ratio: number = parseInt(vp.votingPower.toString()) / parseInt(votesTotal.toString());
 		return {
 			holder: vp.holder as Address,
-			fps: BigInt(vp.fps),
+			balance: BigInt(vp.balance),
 			votingPower: vp.votingPower as bigint,
 			votingPowerRatio: ratio,
 			holdingDuration: vp.holdingDuration,
@@ -84,7 +84,7 @@ export default function GovernanceVotersTable() {
 
 			setAccountVotes({
 				holder,
-				fps,
+				balance: fps,
 				votingPower,
 				votingPowerRatio: parseFloat(formatUnits(votingPowerRatio, 18)),
 				holdingDuration: holdingDuration,
@@ -160,9 +160,9 @@ function sortVotes(params: SortVotes): VoteData[] {
 	if (tab === headers[0]) {
 		votes.sort((a, b) => a.holder.localeCompare(b.holder));
 	} else if (tab === headers[1]) {
-		votes.sort((a, b) => parseInt(b.fps.toString()) - parseInt(a.fps.toString()));
+		votes.sort((a, b) => (b.balance > a.balance ? 1 : -1));
 	} else if (tab === headers[2]) {
-		votes.sort((a, b) => b.votingPowerRatio - a.votingPowerRatio);
+		votes.sort((a, b) => (b.votingPower > a.votingPower ? 1 : -1));
 	} else if (tab === headers[3]) {
 		votes.sort((a, b) => (b.holdingDuration > a.holdingDuration ? 1 : -1));
 	}

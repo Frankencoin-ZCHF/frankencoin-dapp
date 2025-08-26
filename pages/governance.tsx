@@ -10,16 +10,13 @@ import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
 import { useEffect } from "react";
 import { store } from "../redux/redux.store";
-import { fetchSavings } from "../redux/slices/savings.slice";
-import { useAccount } from "wagmi";
+import { fetchLeadrate } from "../redux/slices/savings.slice";
 import GovernanceMintersPropose from "@components/PageGovernance/GovernanceMintersPropose";
 
 export default function Governance() {
-	const { address } = useAccount();
-
 	useEffect(() => {
-		store.dispatch(fetchSavings(address));
-	}, [address]);
+		store.dispatch(fetchLeadrate());
+	}, []);
 
 	return (
 		<>

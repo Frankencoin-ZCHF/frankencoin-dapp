@@ -1,5 +1,5 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
-import { CONFIG, FRANKENCOIN_API_CLIENT, FRANKENCOIN_API_CLIENT_TEST } from "../../app.config";
+import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
 import {
 	DispatchApiEcosystemCollateralPositions,
 	DispatchApiEcosystemCollateralStats,
@@ -123,7 +123,7 @@ export const fetchEcosystem =
 		const response4 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/frankencoin/info");
 		dispatch(slice.actions.setFrankencoinInfo(response4.data as ApiEcosystemFrankencoinInfo));
 
-		const response5 = await FRANKENCOIN_API_CLIENT_TEST.get("/ecosystem/minter/list"); // FIXME: Change back to production api
+		const response5 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/minter/list");
 		dispatch(slice.actions.setFrankencoinMinters(response5.data as ApiMinterListing));
 
 		// ---------------------------------------------------------------
