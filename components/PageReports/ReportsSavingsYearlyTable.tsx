@@ -5,6 +5,7 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { useEffect, useState } from "react";
 import { SavingsActivityQuery } from "@frankencoin/api";
 import ReportsSavingsYearlyRow from "./ReportsSavingsYearlyRow";
+import { ChainId, SupportedChainIds } from "@frankencoin/zchf";
 
 export type AccountYearly = { year: number; collected: bigint; balance: bigint };
 
@@ -28,12 +29,21 @@ export default function ReportsYearlyTable({ activity }: Props) {
 
 	for (const y of accountYears) {
 		const items = activity.filter((i) => new Date(i.created * 1000).getFullYear().toString() == y);
+		const itemsUntil = activity.filter((i) => new Date(i.created * 1000).getFullYear() <= Number(y));
+
 		const collected = items
 			.filter((i) => i.kind == "InterestCollected")
 			.reduce<bigint>((a, b) => {
 				return a + BigInt(b.amount);
 			}, 0n);
-		const balance = BigInt(items.at(0)?.balance || 0n);
+
+		const balances: { [k in ChainId]: bigint } = {} as { [k in ChainId]: bigint };
+		SupportedChainIds.forEach((c) => {
+			const itemsChainId = itemsUntil.filter((i) => i.chainId == c);
+			balances[c as ChainId] = BigInt(itemsChainId.at(0)?.balance || 0n);
+		});
+
+		const balance = Object.values(balances).reduce((a, b) => (a += b), 0n);
 
 		accountYearly.push({
 			year: parseInt(y),
