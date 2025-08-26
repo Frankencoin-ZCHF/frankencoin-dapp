@@ -15,7 +15,7 @@ import { useRef } from "react";
 import generatePDF, { Margin } from "react-to-pdf";
 import { useRouter } from "next/router";
 import DateInput from "@components/Input/DateInput";
-import { ApiSavingsActivity } from "@frankencoin/api";
+import { ApiOwnerDebt, ApiOwnerFees, ApiSavingsActivity } from "@frankencoin/api";
 
 export type OwnerPositionFees = {
 	t: number;
@@ -23,10 +23,8 @@ export type OwnerPositionFees = {
 };
 
 export type OwnerPositionDebt = {
-	t: number;
-	p: Address;
-	m: bigint;
-	r: bigint;
+	y: number;
+	d: bigint;
 };
 
 export default function ReportPage() {
@@ -70,18 +68,16 @@ export default function ReportPage() {
 		setLoading(true);
 		const fetcher = async () => {
 			try {
-				const responsePositionsFees = await FRANKENCOIN_API_CLIENT.get(`/positions/mintingupdates/owner/${reportingAddress}/fees`);
-				setOwnerPositionFees((responsePositionsFees.data as { t: number; f: string }[]).map((i) => ({ t: i.t, f: BigInt(i.f) })));
+				const responsePositionsFees = await FRANKENCOIN_API_CLIENT.get(`/positions/owner/${reportingAddress}/fees`);
+				setOwnerPositionFees((responsePositionsFees.data as ApiOwnerFees).map((i) => ({ t: i.t, f: BigInt(i.f) })));
 
-				const responsePositionsDebt = await FRANKENCOIN_API_CLIENT.get(`/positions/mintingupdates/owner/${reportingAddress}/debt`);
-				const debt = responsePositionsDebt.data as {
-					[key: string]: { [key: Address]: { t: number; p: Address; m: string; r: number }[] };
-				};
+				const responsePositionsDebt = await FRANKENCOIN_API_CLIENT.get(`/positions/owner/${reportingAddress}/debt`);
+				const debt = responsePositionsDebt.data as ApiOwnerDebt;
 
-				const yearly: OwnerPositionDebt[] = Object.keys(debt)
-					.map((y) => Object.values(debt[y]).flat())
-					.flat()
-					.map((i) => ({ ...i, m: BigInt(i.m), r: BigInt(i.r) }));
+				const yearly: OwnerPositionDebt[] = Object.keys(debt).map((y) => ({
+					y: Number(y),
+					d: BigInt(debt[Number(y)]),
+				}));
 
 				setOwnerPositionDebt(yearly);
 
@@ -97,6 +93,7 @@ export default function ReportPage() {
 				// clear all errors
 				setError("");
 			} catch (error) {
+				console.log(error);
 				if (typeof error == "string") {
 					setError(error);
 				} else {
@@ -170,9 +167,7 @@ export default function ReportPage() {
 				ownerPositionDebt={ownerPositionDebt}
 			/>
 			<div className="text-text-secondary text-sm -mt-7">
-				Note: &apos;Ownership transfer&apos; events are not tracked. If a position&apos;s ownership changes, the outstanding debt
-				may not be accurately deducted from the previous owner or reflected correctly in this table. Additionally, interest payments
-				are recorded in the year they are made, even if they cover interest accrued in a different period.
+				Note: Interest payments are recorded in the year they are made, even if they cover interest accrued in a different period.
 			</div>
 
 			<AppTitle title="Savings">

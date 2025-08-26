@@ -22,12 +22,7 @@ export default function ReportsPositionsYearlyTable({ address, ownerPositionFees
 	const [list, setList] = useState<AccountYearly[]>([]);
 
 	const entries = ownerPositionFees.map((i) => ({ year: new Date(i.t * 1000).getFullYear(), fee: i.f }));
-	const entriesDebt = ownerPositionDebt.map((i) => ({
-		year: new Date(i.t * 1000).getFullYear(),
-		position: i.p,
-		debt: BigInt(i.m),
-		r: BigInt(i.r),
-	}));
+	const entriesDebt = ownerPositionDebt.map((i) => ({ year: i.y, debt: i.d }));
 
 	const accountYears: string[] = [...entries, ...entriesDebt]
 		.map((e) => String(e.year))
@@ -40,25 +35,9 @@ export default function ReportsPositionsYearlyTable({ address, ownerPositionFees
 
 	for (const y of accountYears) {
 		const items = entries.filter((e) => e.year == Number(y));
+
 		const interestPaid = items.reduce<bigint>((a, b) => a + b.fee, 0n);
-
-		const itemsDebt = entriesDebt.filter((e) => e.year == Number(y)) ?? [];
-
-		// @dev: there are issues with TransferOwnership latest open debt
-		// @dev: there are issues with New Year open debt without minting update (forwarding debt)
-		// however, with ownership we can only track actual minting events
-		// if (accountYears.length >= 2 && y == accountYears.at(-1)) {
-		// 	const prev = entriesDebt.filter((e) => e.year == Number(accountYears.at(-2))) ?? [];
-		// 	const prevPos = prev.filter((i) => i.debt > 0n);
-		// 	const currentPosIds = itemsDebt.map((i) => i.position);
-		// 	const missing = prevPos.filter((i) => !currentPosIds.includes(i.position));
-
-		// 	if (missing.length > 0) {
-		// 		itemsDebt.push(...missing);
-		// 	}
-		// }
-
-		const openDebt = itemsDebt.reduce<bigint>((a, b) => a + (b.debt * (1_000_000n - b.r)) / 1_000_000n, 0n);
+		const openDebt = entriesDebt.find((i) => i.year == Number(y))?.debt || 0n;
 
 		accountYearly.push({
 			year: parseInt(y),
