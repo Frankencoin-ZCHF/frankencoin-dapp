@@ -115,7 +115,7 @@ export default function PositionCreate({}) {
 				handleOnSelectedToken(collateralToken);
 			}
 		}
-	}, [query?.collateral, collateralTokenList.length, !selectedCollateral]);
+	}, [query?.collateral, collateralTokenList.length, selectedCollateral]);
 
 	// Collateral input validation with minting limit check
 	useEffect(() => {
