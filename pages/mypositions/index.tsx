@@ -49,9 +49,7 @@ export default function Positions() {
 		setLoading(true);
 		const fetcher = async () => {
 			try {
-				const responsePositionsFees = await FRANKENCOIN_API_CLIENT.get(
-					`/positions/mintingupdates/owner/${overwrite || address}/fees`
-				);
+				const responsePositionsFees = await FRANKENCOIN_API_CLIENT.get(`/positions/owner/${overwrite || address}/fees`);
 				setOwnerPositionFees((responsePositionsFees.data as { t: number; f: string }[]).map((i) => ({ t: i.t, f: BigInt(i.f) })));
 
 				const responsePositionsDebt = await FRANKENCOIN_API_CLIENT.get(`/positions/owner/${overwrite || address}/debt`);
