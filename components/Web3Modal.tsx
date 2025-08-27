@@ -12,7 +12,7 @@ if (!CONFIG.wagmiId) throw new Error("Project ID is not defined");
 createWeb3Modal({
 	wagmiConfig: WAGMI_CONFIG,
 	projectId: CONFIG.wagmiId,
-	enableAnalytics: true,
+	enableAnalytics: false,
 	themeMode: "light",
 	themeVariables: {
 		"--w3m-color-mix": "#ffffff",
