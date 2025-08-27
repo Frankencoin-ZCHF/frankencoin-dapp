@@ -83,9 +83,9 @@ export const CONFIG_RPC = (): string => {
 let fallbackUntil: number | null = null;
 
 function getPonderUrl(): string {
-	if (fallbackUntil && Date.now() < fallbackUntil) return CONFIG.ponderFallback;
-	if (fallbackUntil) fallbackUntil = null;
-	return CONFIG.ponder;
+	return fallbackUntil && Date.now() < fallbackUntil 
+		? CONFIG.ponderFallback 
+		: CONFIG.ponder;
 }
 
 function activateFallback(): void {
@@ -96,7 +96,18 @@ function activateFallback(): void {
 }
 
 // PONDER CLIENT
-const errorLink = onError(({ networkError, operation, forward }) => {
+const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
+	// Log GraphQL errors for better debugging
+	if (graphQLErrors) {
+		graphQLErrors.forEach((error) => {
+			console.error(`[GraphQL error in operation: ${operation?.operationName || 'unknown'}]`, {
+				message: error.message,
+				locations: error.locations,
+				path: error.path,
+			});
+		});
+	}
+
 	if (!networkError || getPonderUrl() !== CONFIG.ponder) return;
 
 	const is503 =
@@ -112,6 +123,10 @@ const errorLink = onError(({ networkError, operation, forward }) => {
 	}
 
 	// Handle other network errors
+	console.error(`[Network error in operation: ${operation?.operationName || 'unknown'}]`, {
+		message: (networkError as any).message,
+		name: (networkError as any).name,
+	});
 	console.log("[Ponder] Network error detected, activating fallback");
 	activateFallback();
 	return forward(operation);
@@ -119,6 +134,10 @@ const errorLink = onError(({ networkError, operation, forward }) => {
 
 const httpLink = createHttpLink({
 	uri: () => getPonderUrl(),
+	// Add timeout protection for hanging requests
+	fetchOptions: {
+		timeout: 10000, // 10 second timeout
+	},
 });
 
 export const PONDER_CLIENT = new ApolloClient({
