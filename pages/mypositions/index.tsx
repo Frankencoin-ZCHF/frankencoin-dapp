@@ -15,9 +15,9 @@ import AppLink from "@components/AppLink";
 import { useContractUrl } from "@hooks";
 import { useAccount } from "wagmi";
 import ReportsPositionsYearlyTable from "@components/PageReports/ReportsPositionsYearlyTable";
-import { OwnerPositionDebt, OwnerPositionFees } from "../report";
+import { OwnerPositionDebt, OwnerPositionFees, OwnerPositionValueLocked } from "../report";
 import { FRANKENCOIN_API_CLIENT } from "../../app.config";
-import { ApiOwnerDebt } from "@frankencoin/api";
+import { ApiOwnerDebt, ApiOwnerValueLocked } from "@frankencoin/api";
 
 export default function Positions() {
 	const { address } = useAccount();
@@ -30,6 +30,7 @@ export default function Positions() {
 
 	const [ownerPositionFees, setOwnerPositionFees] = useState<OwnerPositionFees[]>([]);
 	const [ownerPositionDebt, setOwnerPositionDebt] = useState<OwnerPositionDebt[]>([]);
+	const [ownerPositionValueLocked, setOwnerPositionValueLocked] = useState<OwnerPositionValueLocked[]>([]);
 
 	useEffect(() => {
 		store.dispatch(fetchPositionsList());
@@ -62,6 +63,16 @@ export default function Positions() {
 				}));
 
 				setOwnerPositionDebt(yearly);
+
+				const responsePositionsValueLocked = await FRANKENCOIN_API_CLIENT.get(`/prices/owner/${overwrite || address}/valueLocked`);
+				const value = responsePositionsValueLocked.data as ApiOwnerValueLocked;
+
+				const yearlyValue: OwnerPositionValueLocked[] = Object.keys(value).map((y) => ({
+					y: Number(y),
+					v: BigInt(value[Number(y)]),
+				}));
+
+				setOwnerPositionValueLocked(yearlyValue);
 
 				// clear all errors
 				setError("");
@@ -104,6 +115,7 @@ export default function Positions() {
 				address={overwrite ?? address ?? zeroAddress}
 				ownerPositionFees={ownerPositionFees}
 				ownerPositionDebt={ownerPositionDebt}
+				ownerPositionValueLocked={ownerPositionValueLocked}
 			/>
 
 			{/* Section Challenges */}

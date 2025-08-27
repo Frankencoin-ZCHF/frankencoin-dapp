@@ -15,7 +15,7 @@ import { useRef } from "react";
 import generatePDF, { Margin } from "react-to-pdf";
 import { useRouter } from "next/router";
 import DateInput from "@components/Input/DateInput";
-import { ApiOwnerDebt, ApiOwnerFees, ApiSavingsActivity } from "@frankencoin/api";
+import { ApiOwnerDebt, ApiOwnerFees, ApiOwnerValueLocked, ApiSavingsActivity } from "@frankencoin/api";
 
 export type OwnerPositionFees = {
 	t: number;
@@ -27,6 +27,11 @@ export type OwnerPositionDebt = {
 	d: bigint;
 };
 
+export type OwnerPositionValueLocked = {
+	y: number;
+	v: bigint;
+};
+
 export default function ReportPage() {
 	const targetRef = useRef<HTMLDivElement>(null); // for pdf print
 	const { address } = useAccount();
@@ -36,6 +41,7 @@ export default function ReportPage() {
 	const [error, setError] = useState<string>("");
 	const [ownerPositionFees, setOwnerPositionFees] = useState<OwnerPositionFees[]>([]);
 	const [ownerPositionDebt, setOwnerPositionDebt] = useState<OwnerPositionDebt[]>([]);
+	const [ownerPositionValueLocked, setOwnerPositionValueLocked] = useState<OwnerPositionValueLocked[]>([]);
 	const [savings, setSavings] = useState<ApiSavingsActivity>([]);
 	const [fpsHistory, setFpsHistory] = useState<FPSBalanceHistory[]>([]);
 	const [fpsEarnings, setFpsEarnings] = useState<FPSEarningsHistory[]>([]);
@@ -80,6 +86,16 @@ export default function ReportPage() {
 				}));
 
 				setOwnerPositionDebt(yearly);
+
+				const responsePositionsValueLocked = await FRANKENCOIN_API_CLIENT.get(`/prices/owner/${reportingAddress}/valueLocked`);
+				const value = responsePositionsValueLocked.data as ApiOwnerValueLocked;
+
+				const yearlyValue: OwnerPositionValueLocked[] = Object.keys(value).map((y) => ({
+					y: Number(y),
+					v: BigInt(value[Number(y)]),
+				}));
+
+				setOwnerPositionValueLocked(yearlyValue);
 
 				const responseSavings = await FRANKENCOIN_API_CLIENT.get(`/savings/core/activity/${reportingAddress}`);
 				setSavings(responseSavings.data as ApiSavingsActivity);
@@ -165,6 +181,7 @@ export default function ReportPage() {
 				address={reportingAddress as Address}
 				ownerPositionFees={ownerPositionFees}
 				ownerPositionDebt={ownerPositionDebt}
+				ownerPositionValueLocked={ownerPositionValueLocked}
 			/>
 			<div className="text-text-secondary text-sm -mt-7">
 				Note: Interest payments are recorded in the year they are made, even if they cover interest accrued in a different period.
