@@ -20,6 +20,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 		let balance = 0n;
 		let limitForClones = 0n;
 		let availableForClones = 0n;
+		let lowestInterestRate = 0;
 
 		for (let pos of positions) {
 			balance += BigInt(pos.collateralBalance);
@@ -27,6 +28,11 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 			if (pos.isOriginal) {
 				limitForClones += BigInt(pos.limitForClones) / 10n ** BigInt(pos.zchfDecimals);
 				availableForClones += BigInt(pos.availableForClones) / 10n ** BigInt(pos.zchfDecimals);
+			}
+
+			const effI = pos.annualInterestPPM / (1_000_000 - pos.reserveContribution);
+			if (lowestInterestRate == 0 || lowestInterestRate > effI) {
+				lowestInterestRate = effI;
 			}
 		}
 
@@ -66,6 +72,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 			collateralPriceInZCHF,
 			worstStatus,
 			worstStatusColors,
+			lowestInterestRate,
 		});
 	}
 	return stats;
@@ -138,6 +145,11 @@ export default function CollateralAndPositionsOverview() {
 							<div className="text-text-primary font-semibold">
 								{formatCurrency(stat.collateralPriceInZCHF.toString(), 2)} ZCHF
 							</div>
+						</div>
+
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Lowerst eff. rate</div>
+							<div className="text-text-primary font-semibold">{formatCurrency(stat.lowestInterestRate * 100, 2)} %</div>
 						</div>
 
 						<div className="flex mt-4">

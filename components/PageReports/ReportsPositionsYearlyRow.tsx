@@ -19,7 +19,7 @@ export default function ReportsPositionsYearlyRow({ headers, tab, item }: Props)
 
 			<div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.openDebt), 18))} ZCHF</div>
 
-			{/* <div className="flex flex-col">{formatCurrency(formatUnits(BigInt(0n), 18))} ZCHF</div> */}
+			<div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.valueLocked), 18))} ZCHF</div>
 		</TableRow>
 	);
 }

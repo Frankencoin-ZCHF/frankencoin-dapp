@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import AppCard from "@components/AppCard";
 import { Address, isAddress } from "viem";
 import { FRANKENCOIN_API_CLIENT } from "../app.config";
-// import { ApiSavingsUserTable } from "@frankencoin/api";
 import ReportsSavingsYearlyTable from "@components/PageReports/ReportsSavingsYearlyTable";
 import { FPSBalanceHistory } from "../hooks/FPSBalanceHistory";
 import { FPSEarningsHistory } from "../hooks/FPSEarningsHistory";
@@ -16,6 +15,7 @@ import { useRef } from "react";
 import generatePDF, { Margin } from "react-to-pdf";
 import { useRouter } from "next/router";
 import DateInput from "@components/Input/DateInput";
+import { ApiOwnerDebt, ApiOwnerFees, ApiOwnerValueLocked, ApiSavingsActivity } from "@frankencoin/api";
 
 export type OwnerPositionFees = {
 	t: number;
@@ -23,10 +23,13 @@ export type OwnerPositionFees = {
 };
 
 export type OwnerPositionDebt = {
-	t: number;
-	p: Address;
-	m: bigint;
-	r: bigint;
+	y: number;
+	d: bigint;
+};
+
+export type OwnerPositionValueLocked = {
+	y: number;
+	v: bigint;
 };
 
 export default function ReportPage() {
@@ -38,7 +41,8 @@ export default function ReportPage() {
 	const [error, setError] = useState<string>("");
 	const [ownerPositionFees, setOwnerPositionFees] = useState<OwnerPositionFees[]>([]);
 	const [ownerPositionDebt, setOwnerPositionDebt] = useState<OwnerPositionDebt[]>([]);
-	// const [savings, setSavings] = useState<ApiSavingsUserTable>({ save: [], interest: [], withdraw: [] });
+	const [ownerPositionValueLocked, setOwnerPositionValueLocked] = useState<OwnerPositionValueLocked[]>([]);
+	const [savings, setSavings] = useState<ApiSavingsActivity>([]);
 	const [fpsHistory, setFpsHistory] = useState<FPSBalanceHistory[]>([]);
 	const [fpsEarnings, setFpsEarnings] = useState<FPSEarningsHistory[]>([]);
 
@@ -60,7 +64,7 @@ export default function ReportPage() {
 
 		if (!isAddress(reportingAddress)) {
 			setOwnerPositionFees([]);
-			// setSavings({ save: [], interest: [], withdraw: [] });
+			setSavings([]);
 			setFpsHistory([]);
 			setFpsEarnings([]);
 			setError("Invalid Address");
@@ -70,23 +74,31 @@ export default function ReportPage() {
 		setLoading(true);
 		const fetcher = async () => {
 			try {
-				const responsePositionsFees = await FRANKENCOIN_API_CLIENT.get(`/positions/mintingupdates/owner/${reportingAddress}/fees`);
-				setOwnerPositionFees((responsePositionsFees.data as { t: number; f: string }[]).map((i) => ({ t: i.t, f: BigInt(i.f) })));
+				const responsePositionsFees = await FRANKENCOIN_API_CLIENT.get(`/positions/owner/${reportingAddress}/fees`);
+				setOwnerPositionFees((responsePositionsFees.data as ApiOwnerFees).map((i) => ({ t: i.t, f: BigInt(i.f) })));
 
-				const responsePositionsDebt = await FRANKENCOIN_API_CLIENT.get(`/positions/mintingupdates/owner/${reportingAddress}/debt`);
-				const debt = responsePositionsDebt.data as {
-					[key: string]: { [key: Address]: { t: number; p: Address; m: string; r: number }[] };
-				};
+				const responsePositionsDebt = await FRANKENCOIN_API_CLIENT.get(`/positions/owner/${reportingAddress}/debt`);
+				const debt = responsePositionsDebt.data as ApiOwnerDebt;
 
-				const yearly: OwnerPositionDebt[] = Object.keys(debt)
-					.map((y) => Object.values(debt[y]).flat())
-					.flat()
-					.map((i) => ({ ...i, m: BigInt(i.m), r: BigInt(i.r) }));
+				const yearly: OwnerPositionDebt[] = Object.keys(debt).map((y) => ({
+					y: Number(y),
+					d: BigInt(debt[Number(y)]),
+				}));
 
 				setOwnerPositionDebt(yearly);
 
-				// const responseSavings = await FRANKENCOIN_API_CLIENT.get(`/savings/core/user/${reportingAddress}`);
-				// setSavings(responseSavings.data as ApiSavingsUserTable);
+				const responsePositionsValueLocked = await FRANKENCOIN_API_CLIENT.get(`/prices/owner/${reportingAddress}/valueLocked`);
+				const value = responsePositionsValueLocked.data as ApiOwnerValueLocked;
+
+				const yearlyValue: OwnerPositionValueLocked[] = Object.keys(value).map((y) => ({
+					y: Number(y),
+					v: BigInt(value[Number(y)]),
+				}));
+
+				setOwnerPositionValueLocked(yearlyValue);
+
+				const responseSavings = await FRANKENCOIN_API_CLIENT.get(`/savings/core/activity/${reportingAddress}`);
+				setSavings(responseSavings.data as ApiSavingsActivity);
 
 				const responseBalance = await FPSBalanceHistory(reportingAddress);
 				setFpsHistory(responseBalance.reverse());
@@ -97,6 +109,7 @@ export default function ReportPage() {
 				// clear all errors
 				setError("");
 			} catch (error) {
+				console.log(error);
 				if (typeof error == "string") {
 					setError(error);
 				} else {
@@ -168,17 +181,16 @@ export default function ReportPage() {
 				address={reportingAddress as Address}
 				ownerPositionFees={ownerPositionFees}
 				ownerPositionDebt={ownerPositionDebt}
+				ownerPositionValueLocked={ownerPositionValueLocked}
 			/>
 			<div className="text-text-secondary text-sm -mt-7">
-				Note: &apos;Ownership transfer&apos; events are not tracked. If a position&apos;s ownership changes, the outstanding debt
-				may not be accurately deducted from the previous owner or reflected correctly in this table. Additionally, interest payments
-				are recorded in the year they are made, even if they cover interest accrued in a different period.
+				Note: Interest payments are recorded in the year they are made, even if they cover interest accrued in a different period.
 			</div>
 
-			{/* <AppTitle title="Savings">
+			<AppTitle title="Savings">
 				<div className="text-text-secondary">Interest collected for each period as well as the year end balances.</div>
 			</AppTitle>
-			<ReportsSavingsYearlyTable save={savings.save} interest={savings.interest} withdraw={savings.withdraw} /> */}
+			<ReportsSavingsYearlyTable activity={savings} />
 
 			<AppTitle title="Equity Participation">
 				<div className="text-text-secondary">

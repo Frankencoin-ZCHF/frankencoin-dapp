@@ -3,78 +3,52 @@ import TableBody from "../Table/TableBody";
 import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useEffect, useState } from "react";
-// import { SavingsInterestQuery, SavingsSavedQuery, SavingsWithdrawQuery } from "@frankencoin/api";
+import { SavingsActivityQuery } from "@frankencoin/api";
 import ReportsSavingsYearlyRow from "./ReportsSavingsYearlyRow";
+import { ChainId, SupportedChainIds } from "@frankencoin/zchf";
 
 export type AccountYearly = { year: number; collected: bigint; balance: bigint };
 
 interface Props {
-	// save: SavingsInterestQuery[];
-	// interest: SavingsInterestQuery[];
-	// withdraw: SavingsWithdrawQuery[];
+	activity: SavingsActivityQuery[];
 }
 
-export default function ReportsYearlyTable() {
-	// export default function ReportsYearlyTable({ save, interest, withdraw }: Props) {
-	/*
+export default function ReportsYearlyTable({ activity }: Props) {
 	const headers: string[] = ["Year", "Interest Collected", "Year End Balance"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<AccountYearly[]>([]);
 
-	const mappedYearlySave: { [key: string]: SavingsSavedQuery[] } = {};
-	const mappedYearlyInterest: { [key: string]: SavingsInterestQuery[] } = {};
-	const mappedYearlyWithdraw: { [key: string]: SavingsWithdrawQuery[] } = {};
-
-	for (const i of save) {
-		const year = new Date(i.created * 1000).getFullYear();
-		if (mappedYearlySave[year] == undefined) mappedYearlySave[year] = [];
-		mappedYearlySave[year].push(i);
-	}
-
-	for (const i of interest) {
-		const year = new Date(i.created * 1000).getFullYear();
-		if (mappedYearlyInterest[year] == undefined) mappedYearlyInterest[year] = [];
-		mappedYearlyInterest[year].push(i);
-	}
-
-	for (const i of withdraw) {
-		const year = new Date(i.created * 1000).getFullYear();
-		if (mappedYearlyWithdraw[year] == undefined) mappedYearlyWithdraw[year] = [];
-		mappedYearlyWithdraw[year].push(i);
-	}
-
-	const accountYears: string[] = [
-		...Object.keys(mappedYearlySave),
-		...Object.keys(mappedYearlyInterest),
-		...Object.keys(mappedYearlyWithdraw),
-	].reduce<string[]>((a, b) => {
-		return a.includes(b) ? a : [...a, b];
-	}, []);
+	const accountYears: string[] = activity
+		.map((i) => new Date(i.created * 1000).getFullYear().toString())
+		.reduce<string[]>((a, b) => {
+			return a.includes(b) ? a : [...a, b];
+		}, []);
 
 	const accountYearly: AccountYearly[] = [];
 
 	for (const y of accountYears) {
-		const items = mappedYearlyInterest[y] ?? [];
-		const saveCreated = mappedYearlySave[y]?.at(0)?.created ?? 0;
-		const withdrawCreated = mappedYearlyWithdraw[y]?.at(0)?.created ?? 0;
-		const interestCreated = items.at(0)?.created ?? 0;
-		const saveBalance = BigInt(mappedYearlySave[y]?.at(0)?.balance ?? 0n);
-		const interestBalance = BigInt(items.at(0)?.balance ?? 0n);
-		const withdrawBalance = BigInt(mappedYearlyWithdraw[y]?.at(0)?.balance ?? 0n);
-		const latestBalance =
-			withdrawCreated > saveCreated && withdrawCreated >= interestCreated
-				? withdrawBalance
-				: saveCreated >= interestCreated
-				? saveBalance
-				: interestBalance;
+		const items = activity.filter((i) => new Date(i.created * 1000).getFullYear().toString() == y);
+		const itemsUntil = activity.filter((i) => new Date(i.created * 1000).getFullYear() <= Number(y));
+
+		const collected = items
+			.filter((i) => i.kind == "InterestCollected")
+			.reduce<bigint>((a, b) => {
+				return a + BigInt(b.amount);
+			}, 0n);
+
+		const balances: { [k in ChainId]: bigint } = {} as { [k in ChainId]: bigint };
+		SupportedChainIds.forEach((c) => {
+			const itemsChainId = itemsUntil.filter((i) => i.chainId == c);
+			balances[c as ChainId] = BigInt(itemsChainId.at(0)?.balance || 0n);
+		});
+
+		const balance = Object.values(balances).reduce((a, b) => (a += b), 0n);
 
 		accountYearly.push({
 			year: parseInt(y),
-			collected: items.reduce<bigint>((a, b) => {
-				return a + BigInt(b.amount);
-			}, 0n),
-			balance: latestBalance,
+			collected,
+			balance,
 		});
 	}
 
@@ -109,8 +83,6 @@ export default function ReportsYearlyTable() {
 			</TableBody>
 		</Table>
 	);
-	*/
-	return;
 }
 
 type SortFunctionParams = {

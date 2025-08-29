@@ -15,8 +15,9 @@ import AppLink from "@components/AppLink";
 import { useContractUrl } from "@hooks";
 import { useAccount } from "wagmi";
 import ReportsPositionsYearlyTable from "@components/PageReports/ReportsPositionsYearlyTable";
-import { OwnerPositionDebt, OwnerPositionFees } from "../report";
+import { OwnerPositionDebt, OwnerPositionFees, OwnerPositionValueLocked } from "../report";
 import { FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { ApiOwnerDebt, ApiOwnerValueLocked } from "@frankencoin/api";
 
 export default function Positions() {
 	const { address } = useAccount();
@@ -29,6 +30,7 @@ export default function Positions() {
 
 	const [ownerPositionFees, setOwnerPositionFees] = useState<OwnerPositionFees[]>([]);
 	const [ownerPositionDebt, setOwnerPositionDebt] = useState<OwnerPositionDebt[]>([]);
+	const [ownerPositionValueLocked, setOwnerPositionValueLocked] = useState<OwnerPositionValueLocked[]>([]);
 
 	useEffect(() => {
 		store.dispatch(fetchPositionsList());
@@ -47,24 +49,28 @@ export default function Positions() {
 		setLoading(true);
 		const fetcher = async () => {
 			try {
-				const responsePositionsFees = await FRANKENCOIN_API_CLIENT.get(
-					`/positions/mintingupdates/owner/${overwrite || address}/fees`
-				);
+				const responsePositionsFees = await FRANKENCOIN_API_CLIENT.get(`/positions/owner/${overwrite || address}/fees`);
 				setOwnerPositionFees((responsePositionsFees.data as { t: number; f: string }[]).map((i) => ({ t: i.t, f: BigInt(i.f) })));
 
-				const responsePositionsDebt = await FRANKENCOIN_API_CLIENT.get(
-					`/positions/mintingupdates/owner/${overwrite || address}/debt`
-				);
-				const debt = responsePositionsDebt.data as {
-					[key: string]: { [key: Address]: { t: number; p: Address; m: string; r: number }[] };
-				};
+				const responsePositionsDebt = await FRANKENCOIN_API_CLIENT.get(`/positions/owner/${overwrite || address}/debt`);
+				const debt = responsePositionsDebt.data as ApiOwnerDebt;
 
-				const yearly: OwnerPositionDebt[] = Object.keys(debt)
-					.map((y) => Object.values(debt[y]).flat())
-					.flat()
-					.map((i) => ({ ...i, m: BigInt(i.m), r: BigInt(i.r) }));
+				const yearly: OwnerPositionDebt[] = Object.keys(debt).map((y) => ({
+					y: Number(y),
+					d: BigInt(debt[Number(y)]),
+				}));
 
 				setOwnerPositionDebt(yearly);
+
+				const responsePositionsValueLocked = await FRANKENCOIN_API_CLIENT.get(`/prices/owner/${overwrite || address}/valueLocked`);
+				const value = responsePositionsValueLocked.data as ApiOwnerValueLocked;
+
+				const yearlyValue: OwnerPositionValueLocked[] = Object.keys(value).map((y) => ({
+					y: Number(y),
+					v: BigInt(value[Number(y)]),
+				}));
+
+				setOwnerPositionValueLocked(yearlyValue);
 
 				// clear all errors
 				setError("");
@@ -107,6 +113,7 @@ export default function Positions() {
 				address={overwrite ?? address ?? zeroAddress}
 				ownerPositionFees={ownerPositionFees}
 				ownerPositionDebt={ownerPositionDebt}
+				ownerPositionValueLocked={ownerPositionValueLocked}
 			/>
 
 			{/* Section Challenges */}

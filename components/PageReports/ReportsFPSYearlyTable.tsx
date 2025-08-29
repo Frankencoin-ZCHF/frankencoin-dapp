@@ -53,7 +53,7 @@ export default function ReportsFPSYearlyTable({ address, fpsHistory, fpsEarnings
 	let latestBalance: bigint = 0n;
 
 	for (const y of accountYears) {
-		const items = entries.filter((e) => e.year == Number(y)) ?? [];
+		const items = entries.filter((e) => e.year == Number(y));
 		const earningsMul = items.reduce<bigint>((a, b) => a + b.balance * b.earnings, 0n);
 		const earnings = earningsMul / BigInt(10 ** 18);
 
