@@ -81,7 +81,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 export default function CollateralAndPositionsOverview() {
 	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
-	const stats = calcOverviewStats(openPositionsByCollateral, coingecko);
+	const stats = calcOverviewStats(openPositionsByCollateral, coingecko).sort((a, b) => b.valueLocked - a.valueLocked);
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
