@@ -40,6 +40,31 @@ export default function DebtAllocation() {
 		percentByLabel.set(label, pct);
 	});
 
+	// Colors to match ApexCharts palette2 for consistent label/slice coloring
+	const colors = [
+		"#33b2df",
+		"#546E7A",
+		"#d4526e",
+		"#13d8aa",
+		"#A5978B",
+		"#2b908f",
+		"#f9a3a4",
+		"#90ee7e",
+		"#f48024",
+		"#69d2e7",
+
+		"#33b2df",
+		"#546E7A",
+		"#d4526e",
+		"#13d8aa",
+		"#A5978B",
+		"#2b908f",
+		"#f9a3a4",
+		"#90ee7e",
+		"#f48024",
+		"#69d2e7",
+	];
+
 	return (
 		<div className="grid md:grid-cols-2 gap-4">
 			<AppCard>
@@ -51,9 +76,8 @@ export default function DebtAllocation() {
 						type="donut"
 						options={{
 							chart: { type: "donut", background: "0" },
-							theme: {
-								palette: "palette2",
-							},
+							colors,
+							theme: { palette: "palette2" },
 							labels,
 							dataLabels: {
 								enabled: true,
@@ -98,13 +122,13 @@ export default function DebtAllocation() {
 				<div className="mt-4 space-y-1">
 					{labels.map((label, idx) => (
 						<div key={`${label}_${idx}`} className="flex justify-between">
-							<div className="text-text-secondary">{label}</div>
+							<div className="text-text-secondary font-semibold" style={{ color: colors[idx % colors.length] }}>{label}</div>
 							<div className="text-text-secondary font-semibold">{formatCurrency(series[idx].toString(), 2)} ZCHF</div>
 						</div>
 					))}
-					<div className="flex justify-between mt-4">
-						<div className="text-text-primary font-semibold">Total debt</div>
-						<div className="text-text-primary font-semibold">{formatCurrency(formatUnits(total, 18), 2)} ZCHF</div>
+					<div className="flex justify-between">
+						<div className="text-text-primary font-semibold mt-2">Total debt</div>
+						<div className="text-text-primary font-semibold mt-2">{formatCurrency(formatUnits(total, 18), 2)} ZCHF</div>
 					</div>
 				</div>
 			</AppCard>
