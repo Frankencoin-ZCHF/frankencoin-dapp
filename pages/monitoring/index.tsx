@@ -20,8 +20,8 @@ export default function Positions() {
 
 			<AppTitle title="Positions">
 				<div className="text-text-secondary">
-					Discover rewards by engaging with undercollateralized positions. Here you will find a broader overview of the{" "}
-					<AppLink label="ecosystem." href="/ecosystem" external={false} className="" />
+					Discover rewards by engaging with undercollateralized positions. Here, you will find a comprehensive overview of the{" "}
+					<AppLink label="ecosystem." href="/monitoring/ecosystem" external={false} className="" />
 				</div>
 			</AppTitle>
 			<div className="md:mt-8">

@@ -43,7 +43,7 @@ export default function DebtOutstanding() {
 		const m = date.getMonth() + 1;
 		const y = date.getFullYear();
 		return `${d}.${m}.${y}`;
-	}
+	};
 
 	return (
 		<div className="grid md:grid-cols-2 gap-4">
@@ -139,12 +139,14 @@ export default function DebtOutstanding() {
 			</AppCard>
 
 			<AppCard>
-			<div className="mt-4 text-lg font-bold text-center">Next Projected Expirations</div>
+				<div className="mt-4 text-lg font-bold text-center">Next Projected Expirations</div>
 				<div className="flex flex-col mt-4 gap-2">
-					{debt.slice(0, 8)
+					{debt
+						.filter((i) => i.debt > 0)
+						.slice(0, 8)
 						.map((d, idx) => (
 							<div key={`${d}_${idx}`} className="flex justify-between">
-								<AppLink className="" href={`/monitoring/${d.pos}`} label={`${dateFormatter(d.exp * 1000)} - ${d.coll}`} /> 
+								<AppLink className="" href={`/monitoring/${d.pos}`} label={`${dateFormatter(d.exp * 1000)} - ${d.coll}`} />
 								<div className="text-text-secondary font-semibold">{formatCurrency(formatUnits(d.debt, 18), 2)} ZCHF</div>
 							</div>
 						))}

@@ -12,7 +12,10 @@ export default function Overview() {
 			</Head>
 
 			<AppTitle title={`Current Debt Allocation`}>
-				<div className="text-text-secondary">Here you will find the open debt of all collaterals</div>
+				<div className="text-text-secondary">
+					Here, you will find the current debt of all collateral positions. The current debt is calculated as the total minted
+					amount of a position minus the reserve contribution, which can be reclaimed by repaying the outstanding debt.
+				</div>
 			</AppTitle>
 
 			<div className="my-[2rem]">
@@ -20,7 +23,11 @@ export default function Overview() {
 			</div>
 
 			<AppTitle title={`Open Debt Projected`}>
-				<div className="text-text-secondary">Here you will find the open debt of all position</div>
+				<div className="text-text-secondary">
+					Here you will find the open debt of all positions projected over the expiration. You can think of how much needs to
+					repaid when or the owner could also roll the debt to a later expiration. Those metric can be useful if you want to get a
+					glance of the future earnings or changes to the total supply.
+				</div>
 			</AppTitle>
 
 			<div className="my-[2rem]">
@@ -28,7 +35,9 @@ export default function Overview() {
 			</div>
 
 			<AppTitle title={`Ecosystem Collateral`}>
-				<div className="text-text-secondary">Here you will find all relevant details of all collateral positions</div>
+				<div className="text-text-secondary">
+					Here, you will find detailed information on all collateral positions, summarized with the most important details.
+				</div>
 			</AppTitle>
 
 			<div className="my-[2rem]">
