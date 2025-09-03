@@ -25,8 +25,8 @@ export default function Overview() {
 			<AppTitle title={`Open Debt Projected`}>
 				<div className="text-text-secondary">
 					Here you will find the open debt of all positions projected over the expiration. You can think of how much needs to
-					repaid when or the owner could also roll the debt to a later expiration. Those metric can be useful if you want to get a
-					glance of the future earnings or changes to the total supply.
+					repaid when. The owner could also roll the debt to a later expiration and pays the upfront interests. Those metric can be useful if you want to get a
+					glance over changes to the total supply of potential future earnings.
 				</div>
 			</AppTitle>
 
