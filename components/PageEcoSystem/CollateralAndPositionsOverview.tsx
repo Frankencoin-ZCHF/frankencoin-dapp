@@ -17,6 +17,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 		if (!collateral || !mint) continue;
 
 		let minted = 0n;
+		let reserve = 0n;
 		let balance = 0n;
 		let limitForClones = 0n;
 		let availableForClones = 0n;
@@ -25,6 +26,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 		for (let pos of positions) {
 			balance += BigInt(pos.collateralBalance);
 			minted += BigInt(pos.minted);
+			reserve += (BigInt(pos.minted) * BigInt(pos.reserveContribution)) / BigInt(1_000_000);
 
 			const effI = pos.annualInterestPPM / (1_000_000 - pos.reserveContribution);
 			if (lowestInterestRate == 0 || lowestInterestRate > effI) {
@@ -68,6 +70,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 			collateral,
 			mint,
 			minted,
+			reserve,
 			limitForClones,
 			availableForClones,
 			valueLocked,
@@ -130,6 +133,13 @@ export default function CollateralAndPositionsOverview() {
 							<div className="flex-1 text-text-secondary">Already minted</div>
 							<div className="text-text-primary font-semibold">
 								{formatCurrency(formatUnits(stat.minted, 18), 2)} {stat.mint.symbol}
+							</div>
+						</div>
+
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Minting reserve</div>
+							<div className="text-text-primary font-semibold">
+								{formatCurrency(formatUnits(stat.reserve, 18), 2)} {stat.mint.symbol}
 							</div>
 						</div>
 
