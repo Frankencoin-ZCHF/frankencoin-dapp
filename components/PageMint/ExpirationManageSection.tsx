@@ -78,9 +78,13 @@ export const ExpirationManageSection = () => {
 
 	useEffect(() => {
 		if (position) {
-			setExpirationDate(new Date(position.expiration * 1000));
+			if (targetPosition?.expiration) {
+				setExpirationDate((date) => date ?? new Date(targetPosition.expiration * 1000));
+			} else {
+				setExpirationDate((date) => date ?? new Date(position.expiration * 1000));
+			}
 		}
-	}, [position]);
+	}, [position, targetPosition]);
 
 	if (!position) {
 		return (
@@ -200,10 +204,28 @@ export const ExpirationManageSection = () => {
 	const collateralPrice = prices?.[position.collateral.toLowerCase() as Address]?.price?.usd || 0;
 	const loanDetails = getLoanDetailsByCollateralAndLiqPrice(position, BigInt(position?.collateralBalance), BigInt(position.price));
 
+	const currentExpirationDate = position ? new Date(position.expiration * 1000) : new Date();
+	const daysUntilExpiration = Math.ceil((currentExpirationDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+
 	return (
 		<div className="flex flex-col gap-y-8">
 			<div className="flex flex-col gap-y-1.5">
 				<div className="text-lg font-extrabold leading-[1.4375rem]">{t("mint.current_expiration_date")}</div>
+				<div className="text-base font-medium">
+					{currentExpirationDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+					{' - '}
+					{daysUntilExpiration > 0 
+						? `${daysUntilExpiration} days until expiration`
+						: daysUntilExpiration === 0 
+						? 'Expires today'
+						: `Expired ${Math.abs(daysUntilExpiration)} days ago`}
+				</div>
+				<div className="text-xs font-medium">
+					{t("mint.extend_roll_borrowing_description")}
+				</div>
+			</div>
+			<div className="flex flex-col gap-y-1.5">
+				<div className="text-lg font-extrabold leading-[1.4375rem]">{t("mint.newly_selected_expiration_date")}</div>
 				<DateInputOutlined
 					maxDate={targetPosition?.expiration ? new Date(targetPosition.expiration * 1000) : undefined}
 					value={expirationDate}
@@ -213,13 +235,12 @@ export const ExpirationManageSection = () => {
 					rightAdornment={
 						<MaxButton
 							className="h-full py-3.5 px-3"
-							onClick={handleExtendExpiration}
-							disabled={isTxOnGoing || !targetPosition}
-							label={t("mint.extend_roll_borrowing")}
+							onClick={() => setExpirationDate(targetPosition?.expiration ? new Date(targetPosition.expiration * 1000) : undefined)}
+							disabled={!targetPosition}
+							label={t("common.max")}
 						/>
 					}
 				/>
-				<span className="text-xs font-medium leading-[1rem]">{t("mint.extend_roll_borrowing_description")}</span>
 			</div>
 			{!collateralAllowance ? (
 				<Button
@@ -239,7 +260,23 @@ export const ExpirationManageSection = () => {
 				>
 					{t("common.approve")} {position.deuroSymbol}
 				</Button>
-			) : null}
+			) : (
+				<>
+					{targetPosition && expirationDate && expirationDate.getTime() > currentExpirationDate.getTime() && (
+						<div className="text-sm font-medium text-center">
+							Extending by {Math.ceil((expirationDate.getTime() - currentExpirationDate.getTime()) / (1000 * 60 * 60 * 24))} days
+						</div>
+					)}
+					<Button
+						className="text-lg leading-snug !font-extrabold"
+						onClick={handleExtendExpiration}
+						isLoading={isTxOnGoing}
+						disabled={isTxOnGoing || !targetPosition || !expirationDate || expirationDate.getTime() <= currentExpirationDate.getTime()}
+					>
+						{t("mint.extend_roll_borrowing")}
+					</Button>
+				</>
+			)}
 
 			<DetailsExpandablePanel
 				loanDetails={loanDetails}
