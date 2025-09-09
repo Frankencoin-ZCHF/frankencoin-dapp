@@ -14,6 +14,7 @@ import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useContractUrl } from "@hooks";
+import { useTotalSavingsUsers } from "../../hooks/useTotalSavingsUsers";
 
 enum Timeframe {
 	WEEK = "1W",
@@ -46,6 +47,7 @@ export default function SavingsHistoryCard() {
 	const totalInterest = savingsInfo?.totalInterest;
 	const [timeframe, setTimeframe] = useState<Timeframe>(Timeframe.ALL);
 	const { totalSavings } = useTotalSavingsQuery();
+	const { totalUsers } = useTotalSavingsUsers();
 	const { t } = useTranslation();
 	const startTrades = getStartTimestampByTimeframe(timeframe);
 	const chainId = useChainId();
@@ -178,6 +180,10 @@ export default function SavingsHistoryCard() {
 				<div className="flex flex-row justify-between">
 					<div className="text-sm font-medium leading-relaxed">{t("savings.interest_rate_apr")}</div>
 					<div className="text-sm font-medium leading-tight ">{rate !== undefined ? `${rate / 10_000}%` : "-"}</div>
+				</div>
+				<div className="flex flex-row justify-between">
+					<div className="text-sm font-medium leading-relaxed">{t("savings.total_savers")}</div>
+					<div className="text-sm font-medium leading-tight ">{totalUsers > 0 ? totalUsers.toLocaleString() : "-"}</div>
 				</div>
 				<div className="flex flex-row justify-between">
 					<div className="text-sm font-medium leading-relaxed">{t("savings.total_interest_paid")}</div>
