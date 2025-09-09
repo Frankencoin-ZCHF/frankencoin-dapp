@@ -174,7 +174,7 @@
         "available_to_borrow": "Disponible à emprunter",
         "pay_back_amount": "Montant à rembourser",
         "current_expiration_date": "Date d'expiration actuelle",
-        "extend_roll_borrowing": "Prolonger/rouler l'emprunt",
+        "extend_roll_borrowing": "Payer les intérêts et prolonger",
         "extend_roll_borrowing_description": "La position doit être remboursée ou prolongée avant la date d'expiration. Un emprunteur ne paie des intérêts que sur le temps effectivement utilisé, les prêts peuvent donc être remboursés de manière anticipée à tout moment avant la date d'expiration réelle. Il est généralement conseillé de toujours choisir la durée de prêt maximale possible.",
         "clone": "Cloner",
         "price": "Prix",

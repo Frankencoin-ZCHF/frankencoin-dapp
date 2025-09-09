@@ -174,7 +174,7 @@
         "available_to_borrow": "Available to lend",
         "pay_back_amount": "Pay back amount",
         "current_expiration_date": "Current expiration date",
-        "extend_roll_borrowing": "Extend Lending",
+        "extend_roll_borrowing": "Pay Interest & Extend Loan",
         "extend_roll_borrowing_description": "The position must either be repaid or extended before the expiry date. A borrower only pays interest on the time actually used, loans can therefore be repaid early at any time before the actual expiry date. It is generally advisable to always choose the maximum possible loan term.",
         "clone": "Clone",
         "price": "Price",
