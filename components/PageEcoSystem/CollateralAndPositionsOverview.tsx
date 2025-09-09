@@ -7,7 +7,7 @@ import { Address } from "viem/accounts";
 import AppCard from "../AppCard";
 import { formatUnits, parseUnits } from "viem";
 
-export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: PriceQueryObjectArray) {
+export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositions: PositionQuery[], prices: PriceQueryObjectArray) {
 	const stats = [];
 	for (let positions of listByCollateral) {
 		const original = positions.at(0) as PositionQuery;
@@ -17,6 +17,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 		if (!collateral || !mint) continue;
 
 		let minted = 0n;
+		let reserve = 0n;
 		let balance = 0n;
 		let limitForClones = 0n;
 		let availableForClones = 0n;
@@ -25,15 +26,21 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 		for (let pos of positions) {
 			balance += BigInt(pos.collateralBalance);
 			minted += BigInt(pos.minted);
-			if (pos.isOriginal) {
-				limitForClones += BigInt(pos.limitForClones) / 10n ** BigInt(pos.zchfDecimals);
-				availableForClones += BigInt(pos.availableForClones) / 10n ** BigInt(pos.zchfDecimals);
-			}
+			reserve += (BigInt(pos.minted) * BigInt(pos.reserveContribution)) / BigInt(1_000_000);
 
 			const effI = pos.annualInterestPPM / (1_000_000 - pos.reserveContribution);
 			if (lowestInterestRate == 0 || lowestInterestRate > effI) {
 				lowestInterestRate = effI;
 			}
+		}
+
+		const allOriginals = positions.map((p) => p.original).reduce((a, b) => (a.includes(b) ? a : [...a, b]), [] as Address[]);
+
+		for (let pos of allOriginals) {
+			const orig = allPositions.find((p) => p.position.toLowerCase() == pos.toLowerCase());
+			if (!orig) continue;
+			limitForClones += BigInt(orig.limitForClones) / 10n ** BigInt(orig.zchfDecimals);
+			availableForClones += BigInt(orig.availableForClones) / 10n ** BigInt(orig.zchfDecimals);
 		}
 
 		if (!collateral.price.chf || !mint.price.chf) continue;
@@ -63,6 +70,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 			collateral,
 			mint,
 			minted,
+			reserve,
 			limitForClones,
 			availableForClones,
 			valueLocked,
@@ -79,9 +87,9 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], prices: P
 }
 
 export default function CollateralAndPositionsOverview() {
-	const { openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
+	const { list, openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
-	const stats = calcOverviewStats(openPositionsByCollateral, coingecko);
+	const stats = calcOverviewStats(openPositionsByCollateral, list.list, coingecko).sort((a, b) => b.valueLocked - a.valueLocked);
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -94,7 +102,7 @@ export default function CollateralAndPositionsOverview() {
 
 					<div className="flex flex-col gap-3">
 						<div className="flex">
-							<div className="flex-1 text-text-secondary">Total locked ZCHF</div>
+							<div className="flex-1 text-text-secondary">Total locked value</div>
 							<div className="text-text-primary font-semibold">{formatCurrency(stat.valueLocked.toString(), 2)} ZCHF</div>
 						</div>
 						<div className="flex">
@@ -129,15 +137,20 @@ export default function CollateralAndPositionsOverview() {
 						</div>
 
 						<div className="flex">
-							<div className="flex-1 text-text-secondary">Minting limit used</div>
-							<div className="text-text-primary font-semibold">{Math.round(100 - stat.availableForClonesPct)}%</div>
+							<div className="flex-1 text-text-secondary">Minting reserve</div>
+							<div className="text-text-primary font-semibold">
+								{formatCurrency(formatUnits(stat.reserve, 18), 2)} {stat.mint.symbol}
+							</div>
 						</div>
 
 						<div className="flex">
-							<div className="flex-1 text-text-secondary">Highest price</div>
-							<div className="text-text-primary font-semibold">
-								{formatCurrency(stat.highestZCHFPrice.toString(), 2)} ZCHF
-							</div>
+							<div className="flex-1 text-text-secondary">Minting utilization</div>
+							<div className="text-text-primary font-semibold">{formatCurrency(100 - stat.availableForClonesPct, 2)}%</div>
+						</div>
+
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Lowerst eff. rate</div>
+							<div className="text-text-primary font-semibold">{formatCurrency(stat.lowestInterestRate * 100, 2)}%</div>
 						</div>
 
 						<div className="flex">
@@ -148,8 +161,10 @@ export default function CollateralAndPositionsOverview() {
 						</div>
 
 						<div className="flex">
-							<div className="flex-1 text-text-secondary">Lowerst eff. rate</div>
-							<div className="text-text-primary font-semibold">{formatCurrency(stat.lowestInterestRate * 100, 2)} %</div>
+							<div className="flex-1 text-text-secondary">Highest price</div>
+							<div className="text-text-primary font-semibold">
+								{formatCurrency(stat.highestZCHFPrice.toString(), 2)} ZCHF
+							</div>
 						</div>
 
 						<div className="flex mt-4">

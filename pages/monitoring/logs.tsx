@@ -1,8 +1,8 @@
 import Head from "next/head";
 import AppTitle from "@components/AppTitle";
 import { useEffect } from "react";
-import { store } from "../redux/redux.store";
-import { fetchTransactionLogs } from "../redux/slices/dashboard.slice";
+import { store } from "../../redux/redux.store";
+import { fetchTransactionLogs } from "../../redux/slices/dashboard.slice";
 import LogsTable from "@components/PageLogs/LogsTable";
 
 export default function LogsPage() {
