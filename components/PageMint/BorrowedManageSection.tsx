@@ -26,6 +26,7 @@ import { DetailsExpandablePanel } from "@components/PageMint/DetailsExpandablePa
 import { SvgIconButton } from "./PlusMinusButtons";
 import Link from "next/link";
 import { useContractUrl } from "../../hooks/useContractUrl";
+import { calculateOptimalRepayAmount, calculateTimeBuffer } from "../../utils/dynamicRepayCalculations";
 
 export const BorrowedManageSection = () => {
 	const [amount, setAmount] = useState("");
@@ -87,6 +88,12 @@ export const BorrowedManageSection = () => {
 				address: position.position,
 				functionName: "getDebt",
 			},
+			{
+				chainId,
+				abi: PositionV2ABI,
+				address: position.position,
+				functionName: "fixedAnnualRatePPM",
+			},
 		] : [],
 	});
 
@@ -98,6 +105,7 @@ export const BorrowedManageSection = () => {
 	const balanceOf = data?.[2]?.result || 0n;
 	const interest = data?.[3]?.result || 0n;
 	const totalDebt = data?.[4]?.result || 0n;
+	const fixedAnnualRatePPM = Number(data?.[5]?.result || 0n);
 	const amountBorrowed = reserveContribution ? BigInt(principal) - (BigInt(principal) * BigInt(reserveContribution)) / 1_000_000n : 0n;
 	const debt = amountBorrowed + interest;
 	const walletBalance = position ? balancesByAddress?.[position.deuro as Address]?.balanceOf || 0n : 0n;
@@ -165,7 +173,9 @@ export const BorrowedManageSection = () => {
 		if (isBorrowMore) {
 			setAmount(maxBeforeAddingMoreCollateral.toString());
 		} else {
-			const maxAmount = debt < walletBalance ? debt : walletBalance;
+			const timeBufferWei = calculateTimeBuffer(principal, fixedAnnualRatePPM);
+			const maxFromWallet = walletBalance > timeBufferWei ? walletBalance - timeBufferWei : 0n;
+			const maxAmount = debt < maxFromWallet ? debt : maxFromWallet;
 			setAmount(maxAmount.toString());
 		}
 	};
@@ -268,20 +278,23 @@ export const BorrowedManageSection = () => {
 					args: [BigInt(0), BigInt(0), BigInt(position.price)],
 				});
 			} else {
-				// Adjusted for reserve portion => user input equals amount deducted from wallet
 				const userInputAmount = BigInt(amount);
 				const currentInterest = interest;
-				const reserveRatio = BigInt(position.reserveContribution);
 				
-				const adjustedAmount = userInputAmount <= currentInterest
-					? userInputAmount // Interest only - no adjustment needed
-					: currentInterest + ((userInputAmount - currentInterest) * 1_000_000n) / (1_000_000n - reserveRatio);
+				const optimalRepayAmount = calculateOptimalRepayAmount({
+					userInputAmount,
+					currentInterest, 
+					walletBalance,
+					reserveContribution: BigInt(position.reserveContribution),
+					principal: principal,
+					fixedAnnualRatePPM: fixedAnnualRatePPM
+				});
 				
 				payBackHash = await writeContract(WAGMI_CONFIG, {
 					address: position.position,
 					abi: PositionV2ABI,
 					functionName: "repay",
-					args: [adjustedAmount],
+					args: [optimalRepayAmount],
 				});
 			}
 
