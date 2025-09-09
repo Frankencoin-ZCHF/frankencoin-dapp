@@ -105,15 +105,20 @@ export const PriceManageSection = () => {
 		}
 	}
 
-	// Initialize price on position load
+	// Initialize price only once per position
+	const [initializedPosition, setInitializedPosition] = useState<string | null>(null);
 	useEffect(() => {
 		if (!position) return;
+		
+		// Only initialize if this is a different position or first load
+		if (initializedPosition === position.position) return;
 		
 		if (minPrice > 0 && minPrice <= maxPrice) {
 			const initialPrice = currentPrice > minPrice ? currentPrice : minPrice;
 			setNewPrice(initialPrice.toString());
+			setInitializedPosition(position.position);
 		}
-	}, [currentPrice, minPrice, maxPrice, position]);
+	}, [currentPrice, minPrice, maxPrice, position, initializedPosition]);
 
 	// Validate price input
 	useEffect(() => {
