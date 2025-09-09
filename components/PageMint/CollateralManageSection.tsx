@@ -99,7 +99,7 @@ export const CollateralManageSection = () => {
 
 	// Calculate maxToRemove for validation (will be 0 if position is undefined)
 	const maxToRemoveThreshold = position
-		? balanceOf - (debt * 10n ** BigInt(position.collateralDecimals)) / price - BigInt(position.minimumCollateral)
+		? balanceOf - (debt * 10n ** 18n) / price - BigInt(position.minimumCollateral)
 		: 0n;
 	const maxToRemove = debt > 0n ? (maxToRemoveThreshold > 0n ? maxToRemoveThreshold : 0n) : balanceOf;
 
