@@ -1,6 +1,12 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
-import { PricesState, DispatchBoolean, DispatchApiPriceMapping, DispatchApiPriceERC20Mapping } from "./prices.types";
-import { ApiPriceERC20, ApiPriceERC20Mapping, ApiPriceMapping } from "@frankencoin/api";
+import {
+	PricesState,
+	DispatchBoolean,
+	DispatchApiPriceMapping,
+	DispatchApiPriceERC20Mapping,
+	DispatchApiPriceMarketChart,
+} from "./prices.types";
+import { ApiPriceERC20, ApiPriceERC20Mapping, ApiPriceMapping, ApiPriceMarketChart } from "@frankencoin/api";
 import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
 import { zeroAddress } from "viem";
 
@@ -24,6 +30,7 @@ export const initialState: PricesState = {
 		decimals: 18,
 	},
 	collateral: {},
+	marketChart: { prices: [], market_caps: [], total_volumes: [] },
 };
 
 // --------------------------------------------------------------------------------
@@ -64,6 +71,12 @@ export const slice = createSlice({
 		setCollateralERC20Info: (state, action: { payload: ApiPriceERC20Mapping }) => {
 			state.collateral = action.payload;
 		},
+
+		// -------------------------------------
+		// SET Market Chart
+		setMarketChart: (state, action: { payload: ApiPriceMarketChart }) => {
+			state.marketChart = action.payload;
+		},
 	},
 });
 
@@ -94,3 +107,14 @@ export const fetchPricesList =
 		// Finalizing, loaded set to ture
 		dispatch(slice.actions.setLoaded(true));
 	};
+
+// --------------------------------------------------------------------------------
+export const fetchMarketChart = () => async (dispatch: Dispatch<DispatchApiPriceMarketChart>) => {
+	// ---------------------------------------------------------------
+	CONFIG.verbose && console.log("Loading [REDUX]: MarketChart");
+
+	// ---------------------------------------------------------------
+	// Query raw data from backend api
+	const response1 = await FRANKENCOIN_API_CLIENT.get("/prices/marketChart");
+	dispatch(slice.actions.setMarketChart(response1.data as ApiPriceMarketChart));
+};
