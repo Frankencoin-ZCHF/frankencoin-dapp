@@ -1,13 +1,4 @@
-import {
-	ERC20Info,
-	PriceQuery,
-	PriceQueryCurrencies,
-	ApiPriceListing,
-	ApiPriceERC20,
-	ApiPriceERC20Mapping,
-	ApiPriceMapping,
-} from "@frankencoin/api";
-import { Address } from "viem";
+import { ERC20Info, ApiPriceERC20, ApiPriceERC20Mapping, ApiPriceMapping, ApiPriceMarketChart } from "@frankencoin/api";
 
 // --------------------------------------------------------------------------------
 export type PricesState = {
@@ -18,6 +9,7 @@ export type PricesState = {
 	mint: ERC20Info | ApiPriceERC20;
 	fps: ERC20Info | ApiPriceERC20;
 	collateral: ApiPriceERC20Mapping;
+	marketChart: ApiPriceMarketChart;
 };
 
 // --------------------------------------------------------------------------------
@@ -39,4 +31,9 @@ export type DispatchApiPriceERC20 = {
 export type DispatchApiPriceERC20Mapping = {
 	type: string;
 	payload: ApiPriceERC20Mapping;
+};
+
+export type DispatchApiPriceMarketChart = {
+	type: string;
+	payload: ApiPriceMarketChart;
 };
