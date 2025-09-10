@@ -2,13 +2,12 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import AppCard from "../AppCard";
 import dynamic from "next/dynamic";
-import { PriceMarketChartObject } from "@frankencoin/api";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function MarketChart() {
 	const { marketChart } = useSelector((state: RootState) => state.prices);
 
-	const date = Date.now() - 90 * 24 * 60 * 60 * 1000;
+	const date = Date.now() - 10 * 24 * 60 * 60 * 1000;
 	const priceList = marketChart.prices.filter((i) => i[0] >= date);
 	const volumeList = marketChart.total_volumes.filter((i) => i[0] >= date);
 
@@ -68,7 +67,8 @@ export default function MarketChart() {
 										const d = date.getDate();
 										const m = date.getMonth() + 1;
 										const y = date.getFullYear();
-										return `${d}.${m}.${y}`;
+										const h = date.getHours();
+										return `${d}.${m}.${y} ${h}:00`;
 									},
 								},
 								axisBorder: {
@@ -135,7 +135,7 @@ export default function MarketChart() {
 							},
 							colors: ["#092f62", "#0F80F0"],
 							stroke: {
-								curve: "smooth",
+								curve: "linestep",
 								width: 3,
 							},
 							chart: {
@@ -167,7 +167,8 @@ export default function MarketChart() {
 										const d = date.getDate();
 										const m = date.getMonth() + 1;
 										const y = date.getFullYear();
-										return `${d}.${m}.${y}`;
+										const h = date.getHours();
+										return `${d}.${m}.${y} ${h}:00`;
 									},
 								},
 								axisBorder: {
