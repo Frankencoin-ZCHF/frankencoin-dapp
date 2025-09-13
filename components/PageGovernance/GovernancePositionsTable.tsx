@@ -8,7 +8,7 @@ import { PositionQuery, PriceQueryObjectArray } from "@deuro/api";
 import { useState } from "react";
 import GovernancePositionsRow from "./GovernancePositionsRow";
 import { useTranslation } from "next-i18next";
-import { INTERNAL_PROTOCOL_POSITIONS } from "@utils/constant";
+import { INTERNAL_PROTOCOL_POSITIONS } from "@utils";
 
 export default function GovernancePositionsTable() {
 	const { t } = useTranslation();
