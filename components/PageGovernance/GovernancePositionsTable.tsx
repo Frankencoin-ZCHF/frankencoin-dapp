@@ -8,6 +8,7 @@ import { PositionQuery, PriceQueryObjectArray } from "@deuro/api";
 import { useState } from "react";
 import GovernancePositionsRow from "./GovernancePositionsRow";
 import { useTranslation } from "next-i18next";
+import { INTERNAL_PROTOCOL_POSITIONS } from "@utils/constant";
 
 export default function GovernancePositionsTable() {
 	const { t } = useTranslation();
@@ -21,7 +22,7 @@ export default function GovernancePositionsTable() {
 	const prices = useSelector((state: RootState) => state.prices.coingecko || {});
 
 
-	const matchingPositions: PositionQuery[] = positions.filter((p) => !p.closed && !p.denied && p.start * 1000 > Date.now());
+	const matchingPositions: PositionQuery[] = positions.filter((p) => !p.closed && !p.denied && p.start * 1000 > Date.now() && !INTERNAL_PROTOCOL_POSITIONS.includes(p.position));
 
 	const sorted: PositionQuery[] = sortPositions({
 		positions: matchingPositions,
