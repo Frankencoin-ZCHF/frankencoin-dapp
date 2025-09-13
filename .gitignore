@@ -46,3 +46,4 @@ next-env.d.ts
 
 # Jira config  
 .jira/
+.claude/settings.local.json

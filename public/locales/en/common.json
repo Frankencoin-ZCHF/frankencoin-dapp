@@ -133,6 +133,7 @@
         "your_collateral": "Your Collateral",
         "liquidation_price": "Liquidation Price",
         "expiration_date": "Expiration Date",
+        "minting_limit_exhausted_info": "The minting limit for this position is exhausted. The price cannot be increased as no additional dEURO can be minted.",
         "confirm_in_wallet": "Confirm in Wallet",
         "initialization_period": "Initialization Period",
         "discuss_recommendation": "It is recommended to <0>discuss</0> new positions before initiating them to increase the probability of passing the decentralized governance process.",

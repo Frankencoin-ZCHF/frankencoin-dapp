@@ -133,6 +133,7 @@
         "your_collateral": "Votre garantie",
         "liquidation_price": "Prix de liquidation",
         "expiration_date": "Date d'expiration",
+        "minting_limit_exhausted_info": "La limite de frappe de cette position est épuisée. Le prix ne peut pas être augmenté car aucun dEURO supplémentaire ne peut être frappé.",
         "confirm_in_wallet": "Confirmation dans le portefeuille",
         "initialization_period": "Période d'initialisation",
         "discuss_recommendation": "Il est recommandé de <0>discuter</0> de nouvelles positions avant de les initier afin d'augmenter la probabilité de succès du processus de gouvernance décentralisée.",

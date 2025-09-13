@@ -133,6 +133,7 @@
         "your_collateral": "Deine Besicherungen",
         "liquidation_price": "Liquidationspreis",
         "expiration_date": "Fälligkeitsdatum",
+        "minting_limit_exhausted_info": "Das Prägelimit dieser Position ist erschöpft. Der Preis kann nicht erhöht werden, da keine zusätzlichen dEURO geprägt werden können.",
         "confirm_in_wallet": "In Wallet bestätigen",
         "initialization_period": "Initialisierungsphase",
         "discuss_recommendation": "Es wird empfohlen, neue Positionen vor deren Erstellung zu <0>besprechen</0>, um die Erfolgswahrscheinlichkeit des dezentralisierten Governance-Prozesses zu erhöhen.",

@@ -133,6 +133,7 @@
         "your_collateral": "Su Colateral",
         "liquidation_price": "Precio de Liquidación",
         "expiration_date": "Fecha de Vencimiento",
+        "minting_limit_exhausted_info": "El límite de acuñación de esta posición está agotado. El precio no se puede aumentar ya que no se pueden acuñar dEURO adicionales.",
         "confirm_in_wallet": "Confirmar en la Cartera",
         "initialization_period": "Período de Inicialización",
         "discuss_recommendation": "Se recomienda <0>discutir</0> las nuevas posiciones antes de iniciarlas para aumentar la probabilidad de aprobar el proceso de gobernanza descentralizada.",
