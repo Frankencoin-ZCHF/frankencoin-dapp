@@ -8,8 +8,8 @@ import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import { RootState, store } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
-import { Address, erc20Abi, formatUnits, maxUint256, zeroAddress } from "viem";
-import { formatBigInt, formatCurrency, shortenAddress } from "@utils";
+import { Address, erc20Abi, formatUnits, zeroAddress } from "viem";
+import { formatCurrency, shortenAddress } from "@utils";
 import { useWalletERC20Balances } from "../../hooks/useWalletBalances";
 import { useChainId, useReadContracts } from "wagmi";
 import { writeContract } from "wagmi/actions";
@@ -98,9 +98,13 @@ export const CollateralManageSection = () => {
 	const allowance = position ? balancesByAddress[position.collateral as Address]?.allowance?.[position.position] || 0n : 0n;
 
 	// Calculate maxToRemove for validation (will be 0 if position is undefined)
-	const maxToRemoveThreshold = position
-		? balanceOf - (debt * 10n ** 18n) / price - BigInt(position.minimumCollateral)
-		: 0n;
+	const debtBasedRequirement = (collateralRequirement * 10n ** 18n) / price;
+	const minimumCollateralBigInt = BigInt(position?.minimumCollateral || 0);
+	const requiredCollateral = debtBasedRequirement > minimumCollateralBigInt
+		? debtBasedRequirement
+		: minimumCollateralBigInt;
+
+	const maxToRemoveThreshold = position ? balanceOf - requiredCollateral : 0n;
 	const maxToRemove = debt > 0n ? (maxToRemoveThreshold > 0n ? maxToRemoveThreshold : 0n) : balanceOf;
 
 	// Error validation only for adding collateral
