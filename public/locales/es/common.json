@@ -186,6 +186,7 @@
         "you_need": "Necesitas: {{amount}} {{symbol}}",
         "extend_roll_borrowing": "Pagar intereses y extender",
         "extend_roll_borrowing_description": "La posición debe ser reembolsada o extendida antes de la fecha de vencimiento. Un prestatario solo paga intereses por el tiempo efectivamente utilizado, los préstamos pueden por lo tanto ser reembolsados anticipadamente en cualquier momento antes de la fecha de vencimiento real. Generalmente es recomendable elegir siempre el plazo máximo posible del préstamo.",
+        "no_extension_target_available": "No hay objetivo de extensión disponible. La posición no se puede extender ya que no existe una posición objetivo adecuada con una fecha de vencimiento posterior.",
         "clone": "Clonar",
         "price": "Precio",
         "current_price": "Precio Actual",

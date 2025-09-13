@@ -186,6 +186,7 @@
         "you_need": "You need: {{amount}} {{symbol}}",
         "extend_roll_borrowing": "Pay Interest & Extend Loan",
         "extend_roll_borrowing_description": "The position must either be repaid or extended before the expiry date. A borrower only pays interest on the time actually used, loans can therefore be repaid early at any time before the actual expiry date. It is generally advisable to always choose the maximum possible loan term.",
+        "no_extension_target_available": "No extension target available. The position cannot be extended as there is no suitable target position with a later expiration date.",
         "clone": "Clone",
         "price": "Price",
         "current_price": "Current Price",

@@ -279,12 +279,19 @@ export const ExpirationManageSection = () => {
 					}
 				/>
 			</div>
+			{!targetPosition && (
+				<div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+					<div className="text-sm text-yellow-800">
+						{t("mint.no_extension_target_available")}
+					</div>
+				</div>
+			)}
 			{!collateralAllowance ? (
 				<Button
 					className="text-lg leading-snug !font-extrabold"
 					onClick={handleApproveCollateral}
 					isLoading={isTxOnGoing}
-					disabled={isTxOnGoing}
+					disabled={isTxOnGoing || !targetPosition}
 				>
 					{t("common.approve")} {position.collateralSymbol}
 				</Button>
@@ -293,7 +300,7 @@ export const ExpirationManageSection = () => {
 					className="text-lg leading-snug !font-extrabold"
 					onClick={handleApproveDeuro}
 					isLoading={isTxOnGoing}
-					disabled={isTxOnGoing}
+					disabled={isTxOnGoing || !targetPosition}
 				>
 					{t("common.approve")} {position.deuroSymbol}
 				</Button>
@@ -336,7 +343,7 @@ export const ExpirationManageSection = () => {
 						className="text-lg leading-snug !font-extrabold"
 						onClick={handleExtendExpiration}
 						isLoading={isTxOnGoing}
-						disabled={isTxOnGoing || !targetPosition || !expirationDate || expirationDate.getTime() <= currentExpirationDate.getTime() || hasInsufficientBalance}
+						disabled={isTxOnGoing || !targetPosition || !expirationDate || (expirationDate && expirationDate.getTime() <= currentExpirationDate.getTime()) || hasInsufficientBalance}
 					>
 						{t("mint.extend_roll_borrowing")}
 					</Button>

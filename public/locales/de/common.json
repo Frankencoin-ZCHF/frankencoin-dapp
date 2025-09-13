@@ -186,6 +186,7 @@
         "you_need": "Du brauchst: {{amount}} {{symbol}}",
         "extend_roll_borrowing": "Zinsen bezahlen & Verlängern",
         "extend_roll_borrowing_description": "Die Position muss vor dem Ablaufdatum zurückgezahlt oder verlängert werden. Ein Kreditnehmer bezahlt nur auf die effektiv genutzte Zeit einen Zins, Kredite können somit jederzeit auch frühzeitig vor dem eigentlichen Ablaufdatum zurückgezahlt werden. In der Regel ist es immer sinnvoll die maximal mögliche Kreditlaufzeit zu wählen.",
+        "no_extension_target_available": "Keine Verlängerungsmöglichkeit verfügbar. Die Position kann nicht verlängert werden, da keine geeignete Zielposition mit einem späteren Ablaufdatum vorhanden ist.",
         "clone": "Klonen",
         "price": "Preis",
         "current_price": "Aktueller Preis",

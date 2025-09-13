@@ -186,6 +186,7 @@
         "you_need": "Vous avez besoin de : {{amount}} {{symbol}}",
         "extend_roll_borrowing": "Payer les intérêts et prolonger",
         "extend_roll_borrowing_description": "La position doit être remboursée ou prolongée avant la date d'expiration. Un emprunteur ne paie des intérêts que sur le temps effectivement utilisé, les prêts peuvent donc être remboursés de manière anticipée à tout moment avant la date d'expiration réelle. Il est généralement conseillé de toujours choisir la durée de prêt maximale possible.",
+        "no_extension_target_available": "Aucune cible d'extension disponible. La position ne peut pas être prolongée car il n'existe pas de position cible appropriée avec une date d'expiration ultérieure.",
         "clone": "Cloner",
         "price": "Prix",
         "current_price": "Prix Actuel",
