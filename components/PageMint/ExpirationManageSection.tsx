@@ -238,7 +238,7 @@ export const ExpirationManageSection = () => {
 	// Format number with commas
 	const formatNumber = (value: bigint, decimals: number = 18): string => {
 		const num = Number(value) / Math.pow(10, decimals);
-		return new Intl.NumberFormat('en-US', { 
+		return new Intl.NumberFormat(router?.locale || 'en', { 
 			minimumFractionDigits: 2, 
 			maximumFractionDigits: 2 
 		}).format(num);
@@ -249,7 +249,7 @@ export const ExpirationManageSection = () => {
 			<div className="flex flex-col gap-y-1.5">
 				<div className="text-lg font-extrabold leading-[1.4375rem]">{t("mint.current_expiration_date")}</div>
 				<div className="text-base font-medium">
-					{currentExpirationDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+					{currentExpirationDate.toLocaleDateString(router?.locale || 'en', { year: 'numeric', month: 'long', day: 'numeric' })}
 					{' - '}
 					{daysUntilExpiration > 0 
 						? t('mint.days_until_expiration', { days: daysUntilExpiration })

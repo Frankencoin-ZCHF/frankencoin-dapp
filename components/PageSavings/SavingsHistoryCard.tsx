@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { formatCurrency, shortenAddress, TOKEN_SYMBOL } from "@utils";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 import { useTranslation } from "next-i18next";
+import { useRouter } from "next/router";
 import { formatUnits } from "viem";
 import { SegmentedControlButton } from "@components/Button";
 import { useTotalSavingsQuery } from "../../hooks/useTotalSavingsQuery";
@@ -49,6 +50,7 @@ export default function SavingsHistoryCard() {
 	const { totalSavings } = useTotalSavingsQuery();
 	const { totalUsers } = useTotalSavingsUsers();
 	const { t } = useTranslation();
+	const router = useRouter();
 	const startTrades = getStartTimestampByTimeframe(timeframe);
 	const chainId = useChainId();
 	const addressSavingsGateway = useContractUrl(ADDRESS[chainId].savingsGateway);
@@ -183,7 +185,7 @@ export default function SavingsHistoryCard() {
 				</div>
 				<div className="flex flex-row justify-between">
 					<div className="text-sm font-medium leading-relaxed">{t("savings.total_savers")}</div>
-					<div className="text-sm font-medium leading-tight ">{totalUsers > 0 ? totalUsers.toLocaleString() : "-"}</div>
+					<div className="text-sm font-medium leading-tight ">{totalUsers > 0 ? totalUsers.toLocaleString(router?.locale || 'en') : "-"}</div>
 				</div>
 				<div className="flex flex-row justify-between">
 					<div className="text-sm font-medium leading-relaxed">{t("savings.total_interest_paid")}</div>
