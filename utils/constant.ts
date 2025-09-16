@@ -28,3 +28,28 @@ export const SOCIAL = {
 	Partner_Ammer: "https://ammer.cash/",
 	Partner_Zipper: "https://zippy.swiss/",
 };
+
+// Colors to match ApexCharts palette2 for consistent label/slice coloring
+export const colors = [
+	"#33b2df",
+	"#546E7A",
+	"#d4526e",
+	"#13d8aa",
+	"#A5978B",
+	"#2b908f",
+	"#f9a3a4",
+	"#90ee7e",
+	"#f48024",
+	"#69d2e7",
+
+	"#33b2df",
+	"#546E7A",
+	"#d4526e",
+	"#13d8aa",
+	"#A5978B",
+	"#2b908f",
+	"#f9a3a4",
+	"#90ee7e",
+	"#f48024",
+	"#69d2e7",
+];

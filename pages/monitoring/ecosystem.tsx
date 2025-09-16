@@ -33,16 +33,6 @@ export default function Overview() {
 			<div className="my-[2rem]">
 				<DebtOutstanding />
 			</div>
-
-			<AppTitle title={`Ecosystem Collateral`}>
-				<div className="text-text-secondary">
-					Here, you will find detailed information on all collateral positions, summarized with the most important details.
-				</div>
-			</AppTitle>
-
-			<div className="my-[2rem]">
-				<CollateralAndPositionsOverview />
-			</div>
 		</div>
 	);
 }

@@ -4,6 +4,7 @@ import AppCard from "../AppCard";
 import { formatUnits } from "viem";
 import dynamic from "next/dynamic";
 import { formatCurrency } from "../../utils/format";
+import { colors } from "../../utils/constant";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function DebtAllocation() {
@@ -39,31 +40,6 @@ export default function DebtAllocation() {
 		const pct = total === 0n ? 0 : Number((v * 10000n) / total) / 100; // 2 decimals
 		percentByLabel.set(label, pct);
 	});
-
-	// Colors to match ApexCharts palette2 for consistent label/slice coloring
-	const colors = [
-		"#33b2df",
-		"#546E7A",
-		"#d4526e",
-		"#13d8aa",
-		"#A5978B",
-		"#2b908f",
-		"#f9a3a4",
-		"#90ee7e",
-		"#f48024",
-		"#69d2e7",
-
-		"#33b2df",
-		"#546E7A",
-		"#d4526e",
-		"#13d8aa",
-		"#A5978B",
-		"#2b908f",
-		"#f9a3a4",
-		"#90ee7e",
-		"#f48024",
-		"#69d2e7",
-	];
 
 	return (
 		<div className="grid md:grid-cols-2 gap-4">
@@ -122,7 +98,9 @@ export default function DebtAllocation() {
 				<div className="mt-4 space-y-1">
 					{labels.map((label, idx) => (
 						<div key={`${label}_${idx}`} className="flex justify-between">
-							<div className="text-text-secondary font-semibold" style={{ color: colors[idx % colors.length] }}>{label}</div>
+							<div className="text-text-secondary font-semibold" style={{ color: colors[idx % colors.length] }}>
+								{label}
+							</div>
 							<div className="text-text-secondary font-semibold">{formatCurrency(series[idx].toString(), 2)} ZCHF</div>
 						</div>
 					))}
