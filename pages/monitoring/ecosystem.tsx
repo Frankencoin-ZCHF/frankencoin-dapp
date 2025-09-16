@@ -14,8 +14,9 @@ export default function Overview() {
 
 			<AppTitle title={`Current Holder Allocation`}>
 				<div className="text-text-secondary">
-					Here, you will find the current debt of all collateral positions. The current debt is calculated as the total minted
-					amount of a position minus the reserve contribution, which can be reclaimed by repaying the outstanding debt.
+					This section provides an overview of how the total ZCHF supply is distributed among different holders. The Public
+					Circulating Supply reflects tokens held directly by users in their wallets, while other portions are allocated to
+					protocol reserves, centralized & decentralized exchanges, and external integrations such as Morpho.
 				</div>
 			</AppTitle>
 
@@ -25,7 +26,7 @@ export default function Overview() {
 
 			<AppTitle title={`Current Mint Allocation`}>
 				<div className="text-text-secondary">
-					Here, you will find the current mint of all collateralized minting positions or any stablecoin swap bridges.
+					Here, you will find the current mint of all collateral positions or any stablecoin swap bridges.
 				</div>
 			</AppTitle>
 
