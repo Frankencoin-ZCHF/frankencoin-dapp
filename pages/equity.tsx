@@ -12,6 +12,7 @@ import AppLink from "@components/AppLink";
 import { ContractUrl } from "@utils";
 import { ADDRESS } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
+import ReserveAllocation from "@components/PageEcoSystem/ReserveAllocation";
 
 export default function Equity() {
 	const { address } = useAccount();
@@ -65,6 +66,19 @@ export default function Equity() {
 					<EquityInteractionCard />
 					<EquityFPSDetailsCard />
 				</section>
+			</div>
+
+			<AppTitle title={`Current Reserve Allocation`}>
+				<div className="text-text-secondary">
+					This section provides an overview of how reserves are allocated in the Frankencoin protocol. Reserves include equity
+					contributions (with profits and losses) and minter’s reserve contributions from ZCHF minting, acting as a safety buffer.
+					Understanding reserve allocation shows the protection available against losses and the stability supporting the
+					circulating supply.
+				</div>
+			</AppTitle>
+
+			<div className="my-[2rem]">
+				<ReserveAllocation />
 			</div>
 
 			<AppTitle title="Attributable Income">

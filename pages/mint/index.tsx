@@ -8,6 +8,7 @@ import AppTitle from "@components/AppTitle";
 import { fetchMorphoMarkets } from "../../redux/slices/morpho.slice";
 import BorrowMorphoTable from "@components/PageBorrow/BorrowMorphoTable";
 import AppLink from "@components/AppLink";
+import MintAllocation from "@components/PageEcoSystem/MintAllocation";
 
 export default function Borrow() {
 	useEffect(() => {
@@ -33,6 +34,16 @@ export default function Borrow() {
 				<Link href={"mint/create"} className="btn bg-layout-primary border-text-primary text-menu-text hover:bg-white m-auto">
 					Propose New Position or Collateral
 				</Link>
+			</div>
+
+			<AppTitle title={`Current Mint Allocation`}>
+				<div className="text-text-secondary">
+					This section provides an overview of the current mint of all collateral positions or any stablecoin swap bridges.
+				</div>
+			</AppTitle>
+
+			<div className="my-[2rem]">
+				<MintAllocation />
 			</div>
 
 			<AppTitle title="Borrow on Morpho">

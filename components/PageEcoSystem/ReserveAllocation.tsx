@@ -1,32 +1,25 @@
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import AppCard from "../AppCard";
-import { formatUnits } from "viem";
+import { formatUnits, parseEther } from "viem";
 import dynamic from "next/dynamic";
 import { formatCurrency } from "../../utils/format";
 import { colors } from "../../utils/constant";
-import { useEffect, useState } from "react";
-import { readContract } from "wagmi/actions";
-import { WAGMI_CONFIG } from "../../app.config";
-import { ADDRESS, StablecoinBridgeABI } from "@frankencoin/zchf";
-import { mainnet } from "viem/chains";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
-export default function DebtAllocation() {
+export default function ReserveAllocation() {
 	const { openPositions } = useSelector((state: RootState) => state.positions);
-	const [swapBridgeVCHF, setSwapBridgeVCHF] = useState(0n);
+	const { fpsInfo } = useSelector((state: RootState) => state.ecosystem);
 
 	// Aggregate collateral
 	const byCollateral = new Map<string, bigint>();
 	(openPositions ?? []).forEach((p) => {
 		const key = String(p.collateralSymbol);
-		const debt = (BigInt(p.minted) * BigInt(1_000_000 - p.reserveContribution)) / BigInt(1_000_000);
-		byCollateral.set(key, (byCollateral.get(key) ?? 0n) + debt);
+		byCollateral.set(key, (byCollateral.get(key) ?? 0n) + (BigInt(p.minted) * BigInt(p.reserveContribution)) / 1_000_000n);
 	});
 
-	// @dev: could be excluded since swap bridges repayments are not enforced to repay.
 	// Aggregate swap bridges
-	byCollateral.set("VCHF", swapBridgeVCHF);
+	byCollateral.set("FPS", parseEther(fpsInfo.reserve.equity.toString()));
 
 	const mapping = [...byCollateral.keys()]
 		.map((label, idx) => {
@@ -41,7 +34,7 @@ export default function DebtAllocation() {
 	const rawValues = mapping.map((m) => m.value);
 
 	// Scale bigints down to safe JS numbers for charting; scale factor doesn't matter for percentages
-	const series = rawValues.map((v) => Math.max(0, Math.floor(parseFloat(formatUnits(v, 18)))));
+	const series = rawValues.map((v) => Math.max(0, Math.round(parseFloat(formatUnits(v, 18)))));
 	const total = rawValues.reduce((a, b) => a + b, 0n);
 
 	const percentByLabel = new Map<string, number>();
@@ -51,22 +44,10 @@ export default function DebtAllocation() {
 		percentByLabel.set(label, pct);
 	});
 
-	useEffect(() => {
-		const fetcher = async () => {
-			const vchf = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[mainnet.id].stablecoinBridgeVCHF,
-				abi: StablecoinBridgeABI,
-				functionName: "minted",
-			});
-			setSwapBridgeVCHF(vchf);
-		};
-		fetcher();
-	}, []);
-
 	return (
 		<div className="grid md:grid-cols-2 gap-4">
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Current debt allocation</div>
+				<div className="mt-4 text-lg font-bold text-center">Current reserve allocation</div>
 
 				<div className="-m-4 pr-2">
 					<ApexChart
@@ -115,7 +96,7 @@ export default function DebtAllocation() {
 			</AppCard>
 
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Current debt by collateral</div>
+				<div className="mt-4 text-lg font-bold text-center">Current reserce by collateral</div>
 
 				<div className="mt-4 space-y-1">
 					{labels.map((label, idx) => (
@@ -128,7 +109,7 @@ export default function DebtAllocation() {
 					))}
 					<div className="flex justify-between">
 						<div className="text-text-primary font-semibold mt-2">
-							Total debt <span className="text-sm">(100%)</span>
+							Total mint <span className="text-sm">(100%)</span>
 						</div>
 						<div className="text-text-primary font-semibold mt-2">{formatCurrency(formatUnits(total, 18), 2)} ZCHF</div>
 					</div>

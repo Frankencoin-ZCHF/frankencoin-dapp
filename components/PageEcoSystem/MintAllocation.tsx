@@ -16,7 +16,7 @@ export default function MintAllocation() {
 	const { openPositions } = useSelector((state: RootState) => state.positions);
 	const [swapBridgeVCHF, setSwapBridgeVCHF] = useState(0n);
 
-	// Aggregate current outstanding debt by collateral
+	// Aggregate collateral
 	const byCollateral = new Map<string, bigint>();
 	(openPositions ?? []).forEach((p) => {
 		const key = String(p.collateralSymbol);
