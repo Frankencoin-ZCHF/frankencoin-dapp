@@ -68,27 +68,27 @@ export default function FrankencoinAllocation() {
 			value: protocols,
 		},
 		{
-			label: "Decentralized Exchanges",
+			label: "Decen. Exchanges",
 			value: dex,
 		},
 		{
-			label: "Centralized Exchanges",
+			label: "Cen. Exchanges",
 			value: cex,
 		},
 		{
-			label: "Public Circulating Supply",
+			label: "Circulating Supply",
 			value: freeFlow,
 		},
 	].sort((a, b) => (a.value > b.value ? -1 : 1));
 
 	const labels = mapping.map((m) => m.label);
-	const series = mapping.map((m) => Math.floor(m.value));
+	const series = mapping.map((m) => Math.round(m.value));
 	const total = series.reduce((a, b) => a + b, 0);
 
 	const percentByLabel = new Map<string, number>();
 	labels.forEach((label, idx) => {
 		const v = series[idx];
-		const pct = total === 0 ? 0 : Math.floor(Number((v * 10000) / total)) / 100; // 2 decimals
+		const pct = total === 0 ? 0 : Math.round(Number((v * 1000) / total)) / 10;
 		percentByLabel.set(label, pct);
 	});
 
@@ -227,14 +227,14 @@ export default function FrankencoinAllocation() {
 					{labels.map((label, idx) => (
 						<div key={`${label}_${idx}`} className="flex justify-between">
 							<div className="text-text-secondary font-semibold" style={{ color: colors[idx % colors.length] }}>
-								{label} <span className="text-sm pl-2">({percentByLabel.get(label)}%)</span>
+								{label} <span className="text-sm">({percentByLabel.get(label)}%)</span>
 							</div>
 							<div className="text-text-secondary font-semibold">{formatCurrency(series[idx].toString(), 2)} ZCHF</div>
 						</div>
 					))}
 					<div className="flex justify-between">
 						<div className="text-text-primary font-semibold mt-2">
-							Total allocation <span className="text-sm pl-2">(100%)</span>
+							Total allocation <span className="text-sm">(100%)</span>
 						</div>
 						<div className="text-text-primary font-semibold mt-2">{formatCurrency(total, 2)} ZCHF</div>
 					</div>
