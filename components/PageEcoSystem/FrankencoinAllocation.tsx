@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, FrankencoinABI, StablecoinBridgeABI } from "@frankencoin/zchf";
-import { mainnet } from "viem/chains";
+import { base, mainnet } from "viem/chains";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function FrankencoinAllocation() {
@@ -19,7 +19,9 @@ export default function FrankencoinAllocation() {
 
 	const [swapBridgeVCHF, setSwapBridgeVCHF] = useState(0n);
 
-	const [uniswapPools, setUniswapPools] = useState(0);
+	const [protocols, setProtocols] = useState(0);
+	const [dex, setDex] = useState(0);
+	const [cex, setCex] = useState(0);
 
 	// Aggregate current outstanding debt by collateral
 	const byCollateral = new Map<string, bigint>();
@@ -46,7 +48,7 @@ export default function FrankencoinAllocation() {
 			18
 		)
 	);
-	const freeFlow = totalMinted - fpsInfo.reserve.equity - fpsInfo.reserve.minter - savingsInfo.totalBalance - uniswapPools;
+	const freeFlow = totalMinted - fpsInfo.reserve.equity - fpsInfo.reserve.minter - savingsInfo.totalBalance - protocols - dex - cex;
 
 	const mapping = [
 		{
@@ -62,14 +64,22 @@ export default function FrankencoinAllocation() {
 			value: savingsInfo.totalBalance,
 		},
 		{
-			label: "DEX (Uniswap, ...)",
-			value: uniswapPools,
+			label: "External Protocols",
+			value: protocols,
 		},
 		{
-			label: "Free",
+			label: "Decentralized Exchanges",
+			value: dex,
+		},
+		{
+			label: "Centralized Exchanges",
+			value: cex,
+		},
+		{
+			label: "Public Circulating Supply",
 			value: freeFlow,
 		},
-	];
+	].sort((a, b) => (a.value > b.value ? -1 : 1));
 
 	const labels = mapping.map((m) => m.label);
 	const series = mapping.map((m) => Math.floor(m.value));
@@ -91,22 +101,70 @@ export default function FrankencoinAllocation() {
 			});
 			setSwapBridgeVCHF(vchf);
 
-			const uni01 = await readContract(WAGMI_CONFIG, {
+			// UniSwap USDT
+			// https://etherscan.io/address/0x8E4318E2cb1ae291254B187001a59a1f8ac78cEF
+			const lp01 = await readContract(WAGMI_CONFIG, {
 				address: ADDRESS[mainnet.id].frankencoin,
 				abi: FrankencoinABI,
 				functionName: "balanceOf",
 				args: ["0x8E4318E2cb1ae291254B187001a59a1f8ac78cEF"],
 			});
 
-			const uni02 = await readContract(WAGMI_CONFIG, {
+			// UniSwap WETH
+			// https://app.uniswap.org/explore/pools/ethereum/0x79DC831D556954FBC37615A711df16B0b61Df083
+			const lp02 = await readContract(WAGMI_CONFIG, {
 				address: ADDRESS[mainnet.id].frankencoin,
 				abi: FrankencoinABI,
 				functionName: "balanceOf",
 				args: ["0x79DC831D556954FBC37615A711df16B0b61Df083"],
 			});
 
-			const uniTotal = uni01 + uni02;
-			setUniswapPools(parseInt(formatUnits(uniTotal, 18)));
+			// Base
+			// https://basescan.org/address/0xc77c42baa1bdf2708c5ef8cfca3533b3e09b058f
+			const lp03 = await readContract(WAGMI_CONFIG, {
+				chainId: base.id,
+				address: ADDRESS[base.id].ccipBridgedFrankencoin,
+				abi: FrankencoinABI,
+				functionName: "balanceOf",
+				args: ["0xc77c42baa1bdf2708c5ef8cfca3533b3e09b058f"],
+			});
+
+			// Base
+			// https://basescan.org/address/0x80891885537e20e240987385490017fc03d9d7ed
+			const lp04 = await readContract(WAGMI_CONFIG, {
+				chainId: base.id,
+				address: ADDRESS[base.id].ccipBridgedFrankencoin,
+				abi: FrankencoinABI,
+				functionName: "balanceOf",
+				args: ["0x80891885537e20e240987385490017fc03d9d7ed"],
+			});
+
+			const totalLP = lp01 + lp02 + lp03 + lp04;
+			setDex(parseInt(formatUnits(totalLP, 18)));
+
+			// Morpho
+			// https://etherscan.io/address/0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb
+			const prot01 = await readContract(WAGMI_CONFIG, {
+				address: ADDRESS[mainnet.id].frankencoin,
+				abi: FrankencoinABI,
+				functionName: "balanceOf",
+				args: ["0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb"],
+			});
+
+			const totalProt = prot01;
+			setProtocols(parseInt(formatUnits(totalProt, 18)));
+
+			// MEXC
+			// https://etherscan.io/address/0x9642b23ed1e01df1092b92641051881a322f5d4e
+			const cex01 = await readContract(WAGMI_CONFIG, {
+				address: ADDRESS[mainnet.id].frankencoin,
+				abi: FrankencoinABI,
+				functionName: "balanceOf",
+				args: ["0x9642b23Ed1E01Df1092B92641051881a322F5D4E"],
+			});
+
+			const totalCex = cex01;
+			setCex(parseInt(formatUnits(totalCex, 18)));
 		};
 		fetcher();
 	}, []);
