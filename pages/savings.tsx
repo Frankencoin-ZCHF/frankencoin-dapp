@@ -1,7 +1,7 @@
 import SavingsGlobalCard from "@components/PageSavings/SavingsGlobalCard";
 import SavingsInteractionCard from "@components/PageSavings/SavingsInteractionCard";
 import Head from "next/head";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { RootState, store } from "../redux/redux.store";
 import { fetchLeadrate, fetchSavings } from "../redux/slices/savings.slice";
 import { useAccount, useChainId } from "wagmi";
@@ -28,6 +28,7 @@ export default function SavingsPage() {
 	const account = isAddress(queryAddress) ? queryAddress : address ?? zeroAddress;
 
 	const queryChain: string = String(router.query.chain).toLowerCase();
+	const [targetChainName, setTargetChainName] = useState("");
 
 	useEffect(() => {
 		store.dispatch(fetchLeadrate());
@@ -35,6 +36,8 @@ export default function SavingsPage() {
 	}, [account]);
 
 	useEffect(() => {
+		if (targetChainName.length > 0) return;
+
 		let targetChainToCheck = queryChain.toLowerCase();
 
 		if (targetChainToCheck == "optimism") {
@@ -48,7 +51,9 @@ export default function SavingsPage() {
 		if (targetChain.id != chainId) {
 			AppKitNetwork.switchNetwork(targetChain);
 		}
-	}, [chainId, queryChain, AppKitNetwork]);
+
+		setTargetChainName(targetChain.name);
+	}, [chainId, queryChain, AppKitNetwork, targetChainName]);
 
 	return (
 		<>
