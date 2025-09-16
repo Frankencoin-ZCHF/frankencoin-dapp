@@ -47,7 +47,7 @@ export default function DebtAllocation() {
 	const percentByLabel = new Map<string, number>();
 	labels.forEach((label, idx) => {
 		const v = rawValues[idx];
-		const pct = total === 0n ? 0 : Number((v * 10000n) / total) / 100; // 2 decimals
+		const pct = total === 0n ? 0 : Number((v * 1000n) / total) / 10;
 		percentByLabel.set(label, pct);
 	});
 
@@ -121,14 +121,14 @@ export default function DebtAllocation() {
 					{labels.map((label, idx) => (
 						<div key={`${label}_${idx}`} className="flex justify-between">
 							<div className="text-text-secondary font-semibold" style={{ color: colors[idx % colors.length] }}>
-								{label} <span className="text-sm pl-2">({percentByLabel.get(label)}%)</span>
+								{label} <span className="text-sm">({percentByLabel.get(label)}%)</span>
 							</div>
 							<div className="text-text-secondary font-semibold">{formatCurrency(series[idx].toString(), 2)} ZCHF</div>
 						</div>
 					))}
 					<div className="flex justify-between">
 						<div className="text-text-primary font-semibold mt-2">
-							Total debt <span className="text-sm pl-2">(100%)</span>
+							Total debt <span className="text-sm">(100%)</span>
 						</div>
 						<div className="text-text-primary font-semibold mt-2">{formatCurrency(formatUnits(total, 18), 2)} ZCHF</div>
 					</div>
