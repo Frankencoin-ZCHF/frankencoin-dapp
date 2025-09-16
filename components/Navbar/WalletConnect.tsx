@@ -1,27 +1,45 @@
 import { getCarryOnQueryParams, shortenAddress, toQueryString } from "@utils";
-import { useWeb3Modal } from "@web3modal/wagmi/react";
 import Link from "next/link";
 import { useAccount } from "wagmi";
 import { useTranslation } from "next-i18next";
 import Button from "@components/Button";
 import { useRouter } from "next/router";
+import { CONFIG } from "../../app.config";
 
 const ConnectButton = () => {
-	const Web3Modal = useWeb3Modal();
 	const { isDisconnected, address } = useAccount();
 	const { t } = useTranslation();
+
+	// Only use Web3Modal if it's initialized
+	let Web3Modal: any = null;
+	if (CONFIG.wagmiId) {
+		try {
+			const { useWeb3Modal } = require("@web3modal/wagmi/react");
+			Web3Modal = useWeb3Modal();
+		} catch (e) {
+			console.warn("Web3Modal not available");
+		}
+	}
+
+	const handleConnect = () => {
+		if (Web3Modal) {
+			Web3Modal.open();
+		} else {
+			console.warn("Wallet connection not available - missing Project ID");
+		}
+	};
 
 	return (
 		<>
 			{isDisconnected || !address ? (
-				<Button className="!py-0.5 !px-0 rounded-full" onClick={() => Web3Modal.open()}>
+				<Button className="!py-0.5 !px-0 rounded-full" onClick={handleConnect}>
 					<span className="px-3 xs:px-8">
 						{t("common.connect_wallet")}
 					</span>
 				</Button>
 			) : (
 				<button
-					onClick={() => Web3Modal.open()}
+					onClick={handleConnect}
 					className="py-0.5 pl-1 pr-2 bg-layout-primary rounded-full border border-menu-wallet-addressborder justify-center items-center gap-2 flex"
 				>
 					<div className="w-6 h-6 rounded-full flex justify-center items-center">
