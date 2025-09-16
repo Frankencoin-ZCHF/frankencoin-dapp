@@ -1,8 +1,9 @@
 import Head from "next/head";
-import CollateralAndPositionsOverview from "@components/PageEcoSystem/CollateralAndPositionsOverview";
 import AppTitle from "@components/AppTitle";
 import DebtOutstanding from "@components/PageEcoSystem/DebtOutstanding";
 import DebtAllocation from "@components/PageEcoSystem/DebtAllocation";
+import MintAllocation from "@components/PageEcoSystem/MintAllocation";
+import FrankencoinAllocation from "@components/PageEcoSystem/FrankencoinAllocation";
 
 export default function Overview() {
 	return (
@@ -10,6 +11,16 @@ export default function Overview() {
 			<Head>
 				<title>Frankencoin - Ecosystem</title>
 			</Head>
+
+			<AppTitle title={`Current Mint Allocation`}>
+				<div className="text-text-secondary">
+					Here, you will find the current mint of all collateralized minting positions or any stablecoin swap bridges.
+				</div>
+			</AppTitle>
+
+			<div className="my-[2rem]">
+				<MintAllocation />
+			</div>
 
 			<AppTitle title={`Current Debt Allocation`}>
 				<div className="text-text-secondary">
@@ -32,6 +43,17 @@ export default function Overview() {
 
 			<div className="my-[2rem]">
 				<DebtOutstanding />
+			</div>
+
+			<AppTitle title={`Current Frankencoin Allocation`}>
+				<div className="text-text-secondary">
+					Here, you will find the current debt of all collateral positions. The current debt is calculated as the total minted
+					amount of a position minus the reserve contribution, which can be reclaimed by repaying the outstanding debt.
+				</div>
+			</AppTitle>
+
+			<div className="my-[2rem]">
+				<FrankencoinAllocation />
 			</div>
 		</div>
 	);

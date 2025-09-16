@@ -12,7 +12,7 @@ import { ADDRESS, StablecoinBridgeABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
-export default function DebtAllocation() {
+export default function MintAllocation() {
 	const { openPositions } = useSelector((state: RootState) => state.positions);
 	const [swapBridgeVCHF, setSwapBridgeVCHF] = useState(0n);
 
@@ -20,11 +20,9 @@ export default function DebtAllocation() {
 	const byCollateral = new Map<string, bigint>();
 	(openPositions ?? []).forEach((p) => {
 		const key = String(p.collateralSymbol);
-		const debt = (BigInt(p.minted) * BigInt(1_000_000 - p.reserveContribution)) / BigInt(1_000_000);
-		byCollateral.set(key, (byCollateral.get(key) ?? 0n) + debt);
+		byCollateral.set(key, (byCollateral.get(key) ?? 0n) + BigInt(p.minted));
 	});
 
-	// @dev: could be excluded since swap bridges repayments are not enforced to repay.
 	// Aggregate swap bridges
 	byCollateral.set("VCHF", swapBridgeVCHF);
 
@@ -66,7 +64,7 @@ export default function DebtAllocation() {
 	return (
 		<div className="grid md:grid-cols-2 gap-4">
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Current debt allocation</div>
+				<div className="mt-4 text-lg font-bold text-center">Current mint allocation</div>
 
 				<div className="-m-4 pr-2">
 					<ApexChart
@@ -115,7 +113,7 @@ export default function DebtAllocation() {
 			</AppCard>
 
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Current debt by collateral</div>
+				<div className="mt-4 text-lg font-bold text-center">Current mint by collateral</div>
 
 				<div className="mt-4 space-y-1">
 					{labels.map((label, idx) => (
