@@ -55,8 +55,8 @@ export default function Equity() {
 						href={ContractUrl(ADDRESS[mainnet.id].equity, mainnet)}
 						external={true}
 					/>
-					, which serve as the governance token for the Frankencoin Ecosystem. Get a glance over the latest changes to the
-					ecosystem and discover the <AppLink className="" label="transaction logs." href={"/monitoring/logs"} external={false} />
+					, which serve as the governance token for the Frankencoin Ecosystem. Get a glance over the latest changes via the{" "}
+					<AppLink className="" label="transaction logs." href={"/monitoring/logs?kind=Equity"} external={false} />
 				</div>
 			</AppTitle>
 
