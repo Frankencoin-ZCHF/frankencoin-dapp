@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import AppCard from "../AppCard";
-import { formatUnits, parseEther } from "viem";
+import { formatUnits, parseEther, parseUnits } from "viem";
 import dynamic from "next/dynamic";
 import { formatCurrency } from "../../utils/format";
 import { colors } from "../../utils/constant";
@@ -12,23 +12,37 @@ export default function ReserveCosts() {
 	const { fpsInfo } = useSelector((state: RootState) => state.ecosystem);
 
 	// Aggregate collateral
-	const byCollateral = new Map<string, bigint>();
+	const mintedByCollateral = new Map<string, bigint>();
 	(openPositions ?? []).forEach((p) => {
 		const key = String(p.collateralSymbol);
-		byCollateral.set(key, (byCollateral.get(key) ?? 0n) + (BigInt(p.minted) * BigInt(p.reserveContribution)) / 1_000_000n);
+		mintedByCollateral.set(key, (mintedByCollateral.get(key) ?? 0n) + BigInt(p.minted));
 	});
 
-	// Aggregate swap bridges
-	byCollateral.set("FPS", parseEther(fpsInfo.reserve.equity.toString()));
+	const reserveByCollateral = new Map<string, bigint>();
+	(openPositions ?? []).forEach((p) => {
+		const key = String(p.collateralSymbol);
+		reserveByCollateral.set(
+			key,
+			(reserveByCollateral.get(key) ?? 0n) + (BigInt(p.minted) * BigInt(p.reserveContribution)) / 1_000_000n
+		);
+	});
 
-	const mapping = [...byCollateral.keys()]
+	// Aggregate FPS
+	mintedByCollateral.set("FPS", parseEther("1"));
+	reserveByCollateral.set("FPS", parseEther("1"));
+
+	const mapping = [...mintedByCollateral.keys()]
 		.map((label, idx) => {
+			const mint = mintedByCollateral.get(label) ?? 0n;
+			const res = reserveByCollateral.get(label) ?? 0n;
 			return {
 				label,
-				value: byCollateral.get(label) ?? 0n,
+				value: (res * parseUnits("1", 18 + 2)) / mint,
 			};
 		})
 		.sort((a, b) => (b.value > a.value ? 1 : -1));
+
+	console.log(mapping);
 
 	const labels = mapping.map((m) => m.label);
 	const rawValues = mapping.map((m) => m.value);
@@ -52,9 +66,9 @@ export default function ReserveCosts() {
 				<div className="-m-4 pr-2">
 					<ApexChart
 						height={"350px"}
-						type="donut"
+						type="bar"
 						options={{
-							chart: { type: "donut", background: "0" },
+							chart: { type: "bar", background: "0" },
 							colors,
 							theme: { palette: "palette2" },
 							labels,
@@ -74,17 +88,15 @@ export default function ReserveCosts() {
 								show: false,
 							},
 							plotOptions: {
-								pie: {
-									donut: {
-										labels: {
-											show: true,
-											total: {
-												show: true,
-												label: "Total",
-												formatter: () => `${labels.length} collaterals`,
-											},
-										},
-									},
+								bar: {
+									// labels: {
+									// 	show: true,
+									// 	total: {
+									// 		show: true,
+									// 		label: "Total",
+									// 		formatter: () => `${labels.length} collaterals`,
+									// 	},
+									// },
 								},
 							},
 						}}
