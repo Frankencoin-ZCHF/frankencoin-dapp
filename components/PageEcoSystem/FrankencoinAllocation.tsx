@@ -8,13 +8,18 @@ import { colors } from "../../utils/constant";
 import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
-import { ADDRESS, StablecoinBridgeABI } from "@frankencoin/zchf";
+import { ADDRESS, FrankencoinABI, StablecoinBridgeABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
-export default function MintAllocation() {
+export default function FrankencoinAllocation() {
 	const { openPositions } = useSelector((state: RootState) => state.positions);
+	const { fpsInfo } = useSelector((state: RootState) => state.ecosystem);
+	const { savingsInfo } = useSelector((state: RootState) => state.savings);
+
 	const [swapBridgeVCHF, setSwapBridgeVCHF] = useState(0n);
+
+	const [uniswapPools, setUniswapPools] = useState(0);
 
 	// Aggregate current outstanding debt by collateral
 	const byCollateral = new Map<string, bigint>();
@@ -26,7 +31,7 @@ export default function MintAllocation() {
 	// Aggregate swap bridges
 	byCollateral.set("VCHF", swapBridgeVCHF);
 
-	const mapping = [...byCollateral.keys()]
+	const mappingMinted = [...byCollateral.keys()]
 		.map((label, idx) => {
 			return {
 				label,
@@ -35,17 +40,45 @@ export default function MintAllocation() {
 		})
 		.sort((a, b) => (b.value > a.value ? 1 : -1));
 
-	const labels = mapping.map((m) => m.label);
-	const rawValues = mapping.map((m) => m.value);
+	const totalMinted = parseFloat(
+		formatUnits(
+			mappingMinted.map((m) => m.value).reduce((a, b) => a + b, 0n),
+			18
+		)
+	);
+	const freeFlow = totalMinted - fpsInfo.reserve.equity - fpsInfo.reserve.minter - savingsInfo.totalBalance - uniswapPools;
 
-	// Scale bigints down to safe JS numbers for charting; scale factor doesn't matter for percentages
-	const series = rawValues.map((v) => Math.max(0, Math.floor(parseFloat(formatUnits(v, 18)))));
-	const total = rawValues.reduce((a, b) => a + b, 0n);
+	const mapping = [
+		{
+			label: "Equity Reserve",
+			value: fpsInfo.reserve.equity,
+		},
+		{
+			label: "Minter Reserve",
+			value: fpsInfo.reserve.minter,
+		},
+		{
+			label: "Savings Modules",
+			value: savingsInfo.totalBalance,
+		},
+		{
+			label: "DEX (Uniswap, ...)",
+			value: uniswapPools,
+		},
+		{
+			label: "Free",
+			value: freeFlow,
+		},
+	];
+
+	const labels = mapping.map((m) => m.label);
+	const series = mapping.map((m) => Math.floor(m.value));
+	const total = series.reduce((a, b) => a + b, 0);
 
 	const percentByLabel = new Map<string, number>();
 	labels.forEach((label, idx) => {
-		const v = rawValues[idx];
-		const pct = total === 0n ? 0 : Number((v * 10000n) / total) / 100; // 2 decimals
+		const v = series[idx];
+		const pct = total === 0 ? 0 : Math.floor(Number((v * 10000) / total)) / 100; // 2 decimals
 		percentByLabel.set(label, pct);
 	});
 
@@ -57,6 +90,23 @@ export default function MintAllocation() {
 				functionName: "minted",
 			});
 			setSwapBridgeVCHF(vchf);
+
+			const uni01 = await readContract(WAGMI_CONFIG, {
+				address: ADDRESS[mainnet.id].frankencoin,
+				abi: FrankencoinABI,
+				functionName: "balanceOf",
+				args: ["0x8E4318E2cb1ae291254B187001a59a1f8ac78cEF"],
+			});
+
+			const uni02 = await readContract(WAGMI_CONFIG, {
+				address: ADDRESS[mainnet.id].frankencoin,
+				abi: FrankencoinABI,
+				functionName: "balanceOf",
+				args: ["0x79DC831D556954FBC37615A711df16B0b61Df083"],
+			});
+
+			const uniTotal = uni01 + uni02;
+			setUniswapPools(parseInt(formatUnits(uniTotal, 18)));
 		};
 		fetcher();
 	}, []);
@@ -64,7 +114,7 @@ export default function MintAllocation() {
 	return (
 		<div className="grid md:grid-cols-2 gap-4">
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Current mint allocation</div>
+				<div className="mt-4 text-lg font-bold text-center">Current holder allocation</div>
 
 				<div className="-m-4 pr-2">
 					<ApexChart
@@ -98,7 +148,7 @@ export default function MintAllocation() {
 											total: {
 												show: true,
 												label: "Total",
-												formatter: () => `${labels.length} collaterals`,
+												formatter: () => `${labels.length} holders`,
 											},
 										},
 									},
@@ -113,7 +163,7 @@ export default function MintAllocation() {
 			</AppCard>
 
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Current mint by collateral</div>
+				<div className="mt-4 text-lg font-bold text-center">Current allocation by holder</div>
 
 				<div className="mt-4 space-y-1">
 					{labels.map((label, idx) => (
@@ -126,9 +176,9 @@ export default function MintAllocation() {
 					))}
 					<div className="flex justify-between">
 						<div className="text-text-primary font-semibold mt-2">
-							Total mint <span className="text-sm pl-2">(100%)</span>
+							Total allocation <span className="text-sm pl-2">(100%)</span>
 						</div>
-						<div className="text-text-primary font-semibold mt-2">{formatCurrency(formatUnits(total, 18), 2)} ZCHF</div>
+						<div className="text-text-primary font-semibold mt-2">{formatCurrency(total, 2)} ZCHF</div>
 					</div>
 				</div>
 			</AppCard>
