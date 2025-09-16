@@ -73,13 +73,13 @@ export default function Overview() {
 				<ReserveAllocation />
 			</div>
 
-			<AppTitle title={`Reserve Costs Projected`}>
+			{/* <AppTitle title={`Reserve Costs Projected`}>
 				<div className="text-text-secondary">This section provides an overview of ...</div>
 			</AppTitle>
 
 			<div className="my-[2rem]">
 				<ReserveCosts />
-			</div>
+			</div> */}
 		</div>
 	);
 }
