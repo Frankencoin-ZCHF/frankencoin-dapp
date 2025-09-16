@@ -34,8 +34,8 @@ export default function Positions() {
 			<AppTitle title="Positions">
 				<div className="text-text-secondary">
 					Discover rewards by engaging with undercollateralized positions. Here, you will find a comprehensive overview of the{" "}
-					<AppLink label="ecosystem" href="/monitoring/ecosystem" external={false} className="" /> or discover the{" "}
-					<AppLink className="" label="transaction logs." href={"/monitoring/logs"} external={false} />
+					<AppLink label="ecosystem" href="/monitoring/ecosystem" external={false} className="" /> or discover the latest changes
+					via the <AppLink className="" label="transaction logs." href={"/monitoring/logs?kind=Frankencoin"} external={false} />
 				</div>
 			</AppTitle>
 			<div className="md:mt-8">

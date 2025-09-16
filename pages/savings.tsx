@@ -63,7 +63,9 @@ export default function SavingsPage() {
 
 			<AppTitle title={`Savings`}>
 				<div className={`text-text-secondary`}>
-					Earn interest on your Frankencoins - now available across multiple chains. View and manage your account here.
+					Earn interest on your Frankencoins - now available across multiple chains. View and manage your account here. Get a
+					glance over the latest changes via the{" "}
+					<AppLink className="" label="transaction logs." href={"/monitoring/logs?kind=Savings"} external={false} />
 				</div>
 			</AppTitle>
 
