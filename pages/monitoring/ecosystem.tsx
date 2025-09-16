@@ -4,6 +4,8 @@ import DebtOutstanding from "@components/PageEcoSystem/DebtOutstanding";
 import DebtAllocation from "@components/PageEcoSystem/DebtAllocation";
 import MintAllocation from "@components/PageEcoSystem/MintAllocation";
 import FrankencoinAllocation from "@components/PageEcoSystem/FrankencoinAllocation";
+import ReserveAllocation from "@components/PageEcoSystem/ReserveAllocation";
+import ReserveCosts from "@components/PageEcoSystem/ReserveCosts";
 
 export default function Overview() {
 	return (
@@ -26,7 +28,7 @@ export default function Overview() {
 
 			<AppTitle title={`Current Mint Allocation`}>
 				<div className="text-text-secondary">
-					Here, you will find the current mint of all collateral positions or any stablecoin swap bridges.
+					This section provides an overview of the current mint of all collateral positions or any stablecoin swap bridges.
 				</div>
 			</AppTitle>
 
@@ -36,8 +38,9 @@ export default function Overview() {
 
 			<AppTitle title={`Current Debt Allocation`}>
 				<div className="text-text-secondary">
-					Here, you will find the current debt of all collateral positions. The current debt is calculated as the total minted
-					amount of a position minus the reserve contribution, which can be reclaimed by repaying the outstanding debt.
+					This section provides an overview of the current debt of all collateral positions. The current debt is calculated as the
+					total minted amount of a position minus the reserve contribution, which can be reclaimed by repaying the outstanding
+					debt.
 				</div>
 			</AppTitle>
 
@@ -47,14 +50,35 @@ export default function Overview() {
 
 			<AppTitle title={`Open Debt Projected`}>
 				<div className="text-text-secondary">
-					Here you will find the open debt of all positions projected over the expiration. You can think of how much needs to
-					repaid when. The owner could also roll the debt to a later expiration and pays the upfront interests. Those metric can
-					be useful if you want to get a glance over changes to the total supply or potential future earnings.
+					This section provides an overview of the open debt of all positions projected over the expiration. You can think of how
+					much needs to repaid when. The owner could also roll the debt to a later expiration and pays the upfront interests.
+					Those metric can be useful if you want to get a glance over changes to the total supply or potential future earnings.
 				</div>
 			</AppTitle>
 
 			<div className="my-[2rem]">
 				<DebtOutstanding />
+			</div>
+
+			<AppTitle title={`Current Reserve Allocation`}>
+				<div className="text-text-secondary">
+					This section provides an overview of how reserves are allocated in the Frankencoin protocol. Reserves include equity
+					contributions (with profits and losses) and minter’s reserve contributions from ZCHF minting, acting as a safety buffer.
+					Understanding reserve allocation shows the protection available against losses and the stability supporting the
+					circulating supply.
+				</div>
+			</AppTitle>
+
+			<div className="my-[2rem]">
+				<ReserveAllocation />
+			</div>
+
+			<AppTitle title={`Reserve Costs Projected`}>
+				<div className="text-text-secondary">This section provides an overview of ...</div>
+			</AppTitle>
+
+			<div className="my-[2rem]">
+				<ReserveCosts />
 			</div>
 		</div>
 	);

@@ -23,7 +23,7 @@ export default function FrankencoinAllocation() {
 	const [dex, setDex] = useState(0);
 	const [cex, setCex] = useState(0);
 
-	// Aggregate current outstanding debt by collateral
+	// Aggregate collateral
 	const byCollateral = new Map<string, bigint>();
 	(openPositions ?? []).forEach((p) => {
 		const key = String(p.collateralSymbol);
