@@ -96,7 +96,7 @@ export default function ReserveAllocation() {
 			</AppCard>
 
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Current reserce by collateral</div>
+				<div className="mt-4 text-lg font-bold text-center">Current reserve by collateral</div>
 
 				<div className="mt-4 space-y-1">
 					{labels.map((label, idx) => (
@@ -109,7 +109,7 @@ export default function ReserveAllocation() {
 					))}
 					<div className="flex justify-between">
 						<div className="text-text-primary font-semibold mt-2">
-							Total mint <span className="text-sm">(100%)</span>
+							Total allocation <span className="text-sm">(100%)</span>
 						</div>
 						<div className="text-text-primary font-semibold mt-2">{formatCurrency(formatUnits(total, 18), 2)} ZCHF</div>
 					</div>
