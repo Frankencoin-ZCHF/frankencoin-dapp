@@ -92,10 +92,10 @@ export default function MarketChart() {
 									show: true,
 								},
 								max: (max) => {
-									return max + max * 0.01;
+									return max;
 								},
 								min: (min) => {
-									return min - min * 0.01;
+									return min;
 								},
 							},
 						}}
