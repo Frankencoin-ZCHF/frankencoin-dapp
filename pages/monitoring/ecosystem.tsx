@@ -12,6 +12,17 @@ export default function Overview() {
 				<title>Frankencoin - Ecosystem</title>
 			</Head>
 
+			<AppTitle title={`Current Holder Allocation`}>
+				<div className="text-text-secondary">
+					Here, you will find the current debt of all collateral positions. The current debt is calculated as the total minted
+					amount of a position minus the reserve contribution, which can be reclaimed by repaying the outstanding debt.
+				</div>
+			</AppTitle>
+
+			<div className="my-[2rem]">
+				<FrankencoinAllocation />
+			</div>
+
 			<AppTitle title={`Current Mint Allocation`}>
 				<div className="text-text-secondary">
 					Here, you will find the current mint of all collateralized minting positions or any stablecoin swap bridges.
@@ -43,17 +54,6 @@ export default function Overview() {
 
 			<div className="my-[2rem]">
 				<DebtOutstanding />
-			</div>
-
-			<AppTitle title={`Current Frankencoin Allocation`}>
-				<div className="text-text-secondary">
-					Here, you will find the current debt of all collateral positions. The current debt is calculated as the total minted
-					amount of a position minus the reserve contribution, which can be reclaimed by repaying the outstanding debt.
-				</div>
-			</AppTitle>
-
-			<div className="my-[2rem]">
-				<FrankencoinAllocation />
 			</div>
 		</div>
 	);
