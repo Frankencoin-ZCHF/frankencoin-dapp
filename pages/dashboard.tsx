@@ -14,7 +14,6 @@ import { TOKEN_SYMBOL } from "@utils";
 import { SOCIAL } from "@utils";
 import GovernancePositionsTable from "@components/PageGovernance/GovernancePositionsTable";
 import GovernanceLeadrateCurrent from "@components/PageGovernance/GovernanceLeadrateCurrent";
-import GovernanceLeadrateTable from "@components/PageSavings/SavingsSavedTable";
 import GovernanceMintersTable from "@components/PageGovernance/GovernanceMintersTable";
 import GovernanceVotersTable from "@components/PageGovernance/GovernanceVotersTable";
 import { SectionTitle } from "@components/SectionTitle";
@@ -137,7 +136,6 @@ export default function Dashboard() {
 								</p>
 							</div>
 							<GovernanceLeadrateCurrent />
-							<GovernanceLeadrateTable />
 						</div>
 
 						<div className="flex flex-col gap-4">
