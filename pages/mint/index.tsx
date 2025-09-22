@@ -36,16 +36,6 @@ export default function Borrow() {
 				</Link>
 			</div>
 
-			<AppTitle title={`Current Mint Allocation`}>
-				<div className="text-text-secondary">
-					This section provides an overview of the current mint of all collateral positions or any stablecoin swap bridges.
-				</div>
-			</AppTitle>
-
-			<div className="my-[2rem]">
-				<MintAllocation />
-			</div>
-
 			<AppTitle title="Borrow on Morpho">
 				<div className="text-text-secondary">
 					Borrow Frankencoins (ZCHF) at variable rates on the lending platform{" "}
