@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, FrankencoinABI, StablecoinBridgeABI } from "@frankencoin/zchf";
-import { base, mainnet } from "viem/chains";
+import { base, gnosis, mainnet } from "viem/chains";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function FrankencoinAllocation() {
@@ -139,7 +139,17 @@ export default function FrankencoinAllocation() {
 				args: ["0x80891885537e20e240987385490017fc03d9d7ed"],
 			});
 
-			const totalLP = lp01 + lp02 + lp03 + lp04;
+			// Gnosis EURe
+			// https://gnosisscan.io/address/0x1bb53efa5523c80b598b561e266dfdc938f80e4f
+			const lp05 = await readContract(WAGMI_CONFIG, {
+				chainId: gnosis.id,
+				address: ADDRESS[gnosis.id].ccipBridgedFrankencoin,
+				abi: FrankencoinABI,
+				functionName: "balanceOf",
+				args: ["0x1bb53efa5523c80b598b561e266dfdc938f80e4f"],
+			});
+
+			const totalLP = lp01 + lp02 + lp03 + lp04 + lp05;
 			setDex(parseInt(formatUnits(totalLP, 18)));
 
 			// Morpho
