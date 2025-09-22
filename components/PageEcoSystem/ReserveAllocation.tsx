@@ -19,7 +19,7 @@ export default function ReserveAllocation() {
 	});
 
 	// Aggregate swap bridges
-	byCollateral.set("FPS", parseEther(fpsInfo.reserve.equity.toString()));
+	byCollateral.set("Equity", parseEther(fpsInfo.reserve.equity.toString()));
 
 	const mapping = [...byCollateral.keys()]
 		.map((label, idx) => {
