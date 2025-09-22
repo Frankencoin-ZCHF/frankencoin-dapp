@@ -60,12 +60,12 @@ export default function Overview() {
 				<DebtOutstanding />
 			</div>
 
-			<AppTitle title={`Current Reserve Allocation`}>
+			<AppTitle title={`Current Reserve Contribution`}>
 				<div className="text-text-secondary">
-					This section provides an overview of how reserves are allocated in the Frankencoin protocol. Reserves include equity
-					contributions (with profits and losses) and minter’s reserve contributions from ZCHF minting, acting as a safety buffer.
-					Understanding reserve allocation shows the protection available against losses and the stability supporting the
-					circulating supply.
+					In the Frankencoin protocol, reserves serve as the foundation of stability and loss protection. They consist of equity
+					contributions from Frankencoin Pool Shares, including accumulated profits and losses, as well as reserve contributions
+					from collateral positions. Together, these reserves form a safety buffer that supports the circulating supply and
+					safeguards the system against potential losses.
 				</div>
 			</AppTitle>
 
