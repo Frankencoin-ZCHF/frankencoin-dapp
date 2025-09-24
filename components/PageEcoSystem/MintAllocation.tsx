@@ -52,6 +52,7 @@ export default function MintAllocation() {
 	useEffect(() => {
 		const fetcher = async () => {
 			const vchf = await readContract(WAGMI_CONFIG, {
+				chainId: mainnet.id,
 				address: ADDRESS[mainnet.id].stablecoinBridgeVCHF,
 				abi: StablecoinBridgeABI,
 				functionName: "minted",

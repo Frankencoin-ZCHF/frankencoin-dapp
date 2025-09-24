@@ -95,6 +95,7 @@ export default function FrankencoinAllocation() {
 	useEffect(() => {
 		const fetcher = async () => {
 			const vchf = await readContract(WAGMI_CONFIG, {
+				chainId: mainnet.id,
 				address: ADDRESS[mainnet.id].stablecoinBridgeVCHF,
 				abi: StablecoinBridgeABI,
 				functionName: "minted",
@@ -104,6 +105,7 @@ export default function FrankencoinAllocation() {
 			// UniSwap USDT
 			// https://etherscan.io/address/0x8E4318E2cb1ae291254B187001a59a1f8ac78cEF
 			const lp01 = await readContract(WAGMI_CONFIG, {
+				chainId: mainnet.id,
 				address: ADDRESS[mainnet.id].frankencoin,
 				abi: FrankencoinABI,
 				functionName: "balanceOf",
@@ -113,6 +115,7 @@ export default function FrankencoinAllocation() {
 			// UniSwap WETH
 			// https://app.uniswap.org/explore/pools/ethereum/0x79DC831D556954FBC37615A711df16B0b61Df083
 			const lp02 = await readContract(WAGMI_CONFIG, {
+				chainId: mainnet.id,
 				address: ADDRESS[mainnet.id].frankencoin,
 				abi: FrankencoinABI,
 				functionName: "balanceOf",
@@ -155,6 +158,7 @@ export default function FrankencoinAllocation() {
 			// Morpho
 			// https://etherscan.io/address/0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb
 			const prot01 = await readContract(WAGMI_CONFIG, {
+				chainId: mainnet.id,
 				address: ADDRESS[mainnet.id].frankencoin,
 				abi: FrankencoinABI,
 				functionName: "balanceOf",
@@ -167,6 +171,7 @@ export default function FrankencoinAllocation() {
 			// MEXC
 			// https://etherscan.io/address/0x9642b23ed1e01df1092b92641051881a322f5d4e
 			const cex01 = await readContract(WAGMI_CONFIG, {
+				chainId: mainnet.id,
 				address: ADDRESS[mainnet.id].frankencoin,
 				abi: FrankencoinABI,
 				functionName: "balanceOf",
