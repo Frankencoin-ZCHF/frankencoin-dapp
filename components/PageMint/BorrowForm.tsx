@@ -35,6 +35,8 @@ import { useFrontendCode } from "../../hooks/useFrontendCode";
 import { MaxButton } from "@components/Input/MaxButton";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { useNativeBalance } from "../../hooks/useNativeBalance";
+import { WETH_ABI, getWethAddress, isWethToken } from "../../utils/wethHelpers";
 
 export default function PositionCreate({}) {
 	const [selectedCollateral, setSelectedCollateral] = useState<TokenBalance | null | undefined>(null);
@@ -51,6 +53,8 @@ export default function PositionCreate({}) {
 	const [isCloneLoading, setIsCloneLoading] = useState(false);
 	const [collateralError, setCollateralError] = useState("");
 	const [isMaxedOut, setIsMaxedOut] = useState(false);
+	const [useNativeEth, setUseNativeEth] = useState(false);
+	const [isWrappingEth, setIsWrappingEth] = useState(false);
 
 	const positions = useSelector((state: RootState) => state.positions.list?.list || []);
 	const challenges = useSelector((state: RootState) => state.challenges.list?.list || []);
@@ -106,11 +110,14 @@ export default function PositionCreate({}) {
 	const { balances, balancesByAddress, refetchBalances } = useWalletERC20Balances(collateralTokenList);
 	const { frontendCode } = useFrontendCode();
 	const { t } = useTranslation();
+	const nativeBalance = useNativeBalance();
 
 	useEffect(() => {
 		if (query?.collateral && collateralTokenList.length > 0 && !selectedCollateral) {
 			const queryCollateral = Array.isArray(query.collateral) ? query.collateral[0] : query.collateral;
-			const collateralToken = collateralTokenList.find((b) => b.symbol.toLowerCase() === queryCollateral?.toLowerCase());
+			// Map ETH to WETH for better UX
+			const mappedCollateral = queryCollateral?.toLowerCase() === 'eth' ? 'weth' : queryCollateral;
+			const collateralToken = collateralTokenList.find((b) => b.symbol.toLowerCase() === mappedCollateral?.toLowerCase());
 			if (collateralToken) {
 				handleOnSelectedToken(collateralToken);
 			}
@@ -124,7 +131,9 @@ export default function PositionCreate({}) {
 		setIsMaxedOut(false);
 		setCollateralError("");
 
-		const balanceInWallet = balancesByAddress[selectedCollateral?.address];
+		const isWeth = selectedPosition && isWethToken(selectedPosition.collateral as Address, chainId);
+		const balanceToUse = (useNativeEth && isWeth) ? nativeBalance.balance : balancesByAddress[selectedCollateral?.address]?.balanceOf;
+		const balanceInWallet = { balanceOf: balanceToUse || 0n };
 
 		const maxFromLimit = getMaxCollateralFromMintLimit(
 			BigInt(selectedPosition.availableForClones),
@@ -279,6 +288,25 @@ export default function PositionCreate({}) {
 
 			let txHash = null;
 
+			// Check if we need to wrap ETH first
+			const wethAddress = getWethAddress(chainId);
+			const isWeth = wethAddress && isWethToken(selectedPosition.collateral as Address, chainId);
+
+			if (isWeth && useNativeEth) {
+				// Wrap ETH to WETH first
+				setIsWrappingEth(true);
+				const wrapTx = await writeContract(WAGMI_CONFIG, {
+					address: wethAddress!,
+					abi: WETH_ABI,
+					functionName: "deposit",
+					value: BigInt(collateralAmount),
+				});
+
+				await waitForTransactionReceipt(WAGMI_CONFIG, { hash: wrapTx, confirmations: 1 });
+				await refetchBalances();
+				setIsWrappingEth(false);
+			}
+
 			const cloneWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].mintingHubGateway,
 				abi: MintingHubGatewayABI,
@@ -420,9 +448,24 @@ export default function PositionCreate({}) {
 						<div className="text-text-title text-xl font-black ">{t("mint.mint_title_2", { symbol: TOKEN_SYMBOL })}</div>
 					</div>
 					<div className="self-stretch flex-col justify-start items-center gap-1 flex">
-						<InputTitle icon={faCircleQuestion}>{t("mint.select_collateral")}</InputTitle>
+						<div className="w-full flex justify-between items-center">
+							<InputTitle icon={faCircleQuestion}>{t("mint.select_collateral")}</InputTitle>
+							{selectedPosition && isWethToken(selectedPosition.collateral as Address, chainId) && (
+								<label className="flex items-center gap-2 text-sm">
+									<input
+										type="checkbox"
+										checked={useNativeEth}
+										onChange={(e) => setUseNativeEth(e.target.checked)}
+										className="w-4 h-4"
+									/>
+									<span>Use ETH (auto-wrap)</span>
+								</label>
+							)}
+						</div>
 						<TokenInputSelectOutlined
-							selectedToken={selectedCollateral}
+							selectedToken={useNativeEth && selectedPosition && isWethToken(selectedPosition.collateral as Address, chainId)
+								? { ...selectedCollateral!, symbol: "ETH", balanceOf: nativeBalance.balance }
+								: selectedCollateral}
 							onSelectTokenClick={() => setIsOpenTokenSelector(true)}
 							value={collateralAmount}
 							onChange={onAmountCollateralChange}
