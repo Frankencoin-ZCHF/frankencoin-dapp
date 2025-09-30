@@ -4,6 +4,7 @@ import MintAllocation from "@components/PageEcoSystem/MintAllocation";
 import FrankencoinAllocation from "@components/PageEcoSystem/FrankencoinAllocation";
 import ReserveAllocation from "@components/PageEcoSystem/ReserveAllocation";
 import MintOutstanding from "@components/PageEcoSystem/MintOutstanding";
+import HealthRatio from "@components/PageEcoSystem/HealthRatio";
 
 export default function Overview() {
 	return (
@@ -71,13 +72,13 @@ export default function Overview() {
 				<ReserveAllocation />
 			</div>
 
-			{/* <AppTitle title={`Reserve Costs Projected`}>
+			<AppTitle title={`Ecosystem Health`}>
 				<div className="text-text-secondary">This section provides an overview of ...</div>
 			</AppTitle>
 
 			<div className="my-[2rem]">
-				<ReserveCosts />
-			</div> */}
+				<HealthRatio />
+			</div>
 		</div>
 	);
 }
