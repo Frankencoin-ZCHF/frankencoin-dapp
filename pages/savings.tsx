@@ -90,7 +90,7 @@ export default function SavingsPage() {
 					<AppLink className="" label={" report page"} href={`/report`} />.
 				</div>
 			</AppTitle>
-			<ReportsYearlyTable activity={activities} />
+			<ReportsYearlyTable activity={account == undefined || account == zeroAddress ? [] : activities} />
 
 			<AppTitle title={account == undefined || account == zeroAddress ? "Recent Activities" : "Your latest Activities"} />
 

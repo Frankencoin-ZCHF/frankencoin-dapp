@@ -20,7 +20,12 @@ export default function SavingsRankedBalancesRow({ headers, tab, item }: Props) 
 			<TableRow headers={headers} tab={tab} rawHeader={true}>
 				<div className="flex flex-col md:text-left max-md:text-right">{dateStr}</div>
 
-				<AppLink className="" label={shortenAddress(item.account)} href={ContractUrl(item.account)} external={true} />
+				<AppLink
+					className=""
+					label={shortenAddress(item.account)}
+					href={ContractUrl(item.account, getChain(item.chainId))}
+					external={true}
+				/>
 				<div className="flex flex-col">{chainName}</div>
 
 				<div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.interest), 18))} ZCHF</div>
