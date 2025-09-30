@@ -275,6 +275,7 @@ export default function SavingsInteractionCard() {
 			</AppCard>
 
 			<SavingsDetailsCard
+				account={account}
 				chain={chain}
 				balance={userSavingsBalance}
 				change={isLoaded && !onbehalfToggle ? change : 0n}
