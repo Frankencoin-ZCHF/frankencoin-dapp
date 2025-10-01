@@ -18,7 +18,7 @@ export default function SavingsRecentActivitiesRow({ headers, tab, item }: Props
 		<>
 			<TableRow headers={headers} tab={tab} rawHeader={true}>
 				<div className="flex flex-col md:text-left max-md:text-right">
-					<AppLink className="" label={dateStr} href={TxUrl(item.txHash as Hash)} external={true} />
+					<AppLink className="" label={dateStr} href={TxUrl(item.txHash as Hash, getChain(item.chainId))} external={true} />
 				</div>
 
 				<AppLink
