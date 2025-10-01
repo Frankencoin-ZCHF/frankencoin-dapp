@@ -13,10 +13,10 @@ export default function Overview() {
 				<title>Frankencoin - Ecosystem</title>
 			</Head>
 
-			<AppTitle title={`Current Holder Allocation`}>
+			<AppTitle title={`Frankencoin Holders`}>
 				<div className="text-text-secondary">
-					This section provides an overview of how the total ZCHF supply is distributed among different holders. The Public
-					Circulating Supply reflects tokens held directly by users in their wallets, while other portions are allocated to
+					This section provides an overview of how the total ZCHF supply is distributed among different holders. The
+					circulating supply reflects tokens held in uncategorized wallets, while other portions are allocated to
 					protocol reserves, centralized & decentralized exchanges, and external integrations such as Morpho.
 				</div>
 			</AppTitle>
@@ -25,9 +25,9 @@ export default function Overview() {
 				<FrankencoinAllocation />
 			</div>
 
-			<AppTitle title={`Current Mint Allocation`}>
+			<AppTitle title={`Origin`}>
 				<div className="text-text-secondary">
-					This section provides an overview of the current mint of all collateral positions or any stablecoin swap bridges.
+					This section shows which collaterals are responsible for securing how much of the Frankencoin supply.
 				</div>
 			</AppTitle>
 
