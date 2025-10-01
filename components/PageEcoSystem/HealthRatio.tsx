@@ -51,7 +51,7 @@ export default function HealthRatio() {
 	return (
 		<div className="grid md:grid-cols-2 gap-4">
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Health of Frankencoin</div>
+				<div className="mt-4 text-lg font-bold text-center">Free Supply Collateralization</div>
 
 				<div className="-m-4 pr-2">
 					<ApexChart
@@ -128,7 +128,7 @@ export default function HealthRatio() {
 						}}
 						series={[
 							{
-								name: "Health",
+								name: "Collateralization",
 								data: chartList.map((entry) => {
 									return [entry.timestamp, Math.round(entry.value * 1000) / 10];
 								}),
@@ -149,26 +149,26 @@ export default function HealthRatio() {
 			</AppCard>
 
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Health Stats</div>
+				<div className="mt-4 text-lg font-bold text-center">Historic Watermarks</div>
 
 				<div className="mt-4 space-y-1">
 					<div className="flex justify-between">
 						<div className="text-text-primary font-semibold">
-							<div>Current Health</div>
+							<div>Current</div>
 							<span className="text-sm font-normal">{dateFormatter(currentEntry?.timestamp || 0)}</span>
 						</div>
 						<div className="text-text-primary font-semibold">{formatCurrency((currentEntry?.value || 0) * 100, 0)}%</div>
 					</div>
 					<div className="flex justify-between">
 						<div className="text-text-secondary font-semibold">
-							<div>Lowest Health</div>
+							<div>Lowest</div>
 							<span className="text-sm font-normal">{dateFormatter(sortedLowest?.timestamp || 0)}</span>
 						</div>
 						<div className="text-text-secondary">{formatCurrency((sortedLowest?.value || 0) * 100, 0)}%</div>
 					</div>
 					<div className="flex justify-between">
 						<div className="text-text-secondary font-semibold">
-							<div>Highest Health</div>
+							<div>Highest</div>
 							<span className="text-sm font-normal">{dateFormatter(sortedHighest?.timestamp || 0)}</span>
 						</div>
 						<div className="text-text-secondary font-normal">{formatCurrency((sortedHighest?.value || 0) * 100, 0)}%</div>

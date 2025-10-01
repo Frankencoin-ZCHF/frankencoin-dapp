@@ -21,9 +21,9 @@ export default function Positions() {
 				<title>Frankencoin - Monitoring</title>
 			</Head>
 
-			<AppTitle title="Markets Metrics">
+			<AppTitle title="Market">
 				<div className="text-text-secondary">
-					Discover markets and arbitrage opportunities. Data provided by{" "}
+					Price and volume data as reported by{" "}
 					<AppLink className="" label="Coingecko" href={"https://www.coingecko.com/en/coins/frankencoin"} external={true} />
 				</div>
 			</AppTitle>
@@ -33,11 +33,7 @@ export default function Positions() {
 
 			<AppTitle title="Positions">
 				<div className="text-text-secondary">
-					Discover rewards by engaging with undercollateralized positions. Here, you will find a comprehensive overview of the{" "}
-					<AppLink label="collaterals" href="/monitoring/collateral" external={false} className="" /> or a overview of the{" "}
-					<AppLink label="ecosystem" href="/monitoring/ecosystem" external={false} className="" />. Get a glance over the latest
-					changes via the{" "}
-					<AppLink className="" label="transaction logs." href={"/monitoring/logs?kind=Frankencoin"} external={false} />
+					Look out for undercollateralized positions and earn a 2% reward for successfully challenging them.
 				</div>
 			</AppTitle>
 			<div className="md:mt-8">
@@ -50,6 +46,14 @@ export default function Positions() {
 			<div className="md:mt-8">
 				<ChallengesTable />
 			</div>
+			<AppTitle title="Further Tools">
+				<div className="text-text-secondary">
+					Have a look at the{" "}
+					<AppLink label="collaterals overview" href="/monitoring/collateral" external={false} className="" />, a{" "}
+					<AppLink label="general system metrics" href="/monitoring/ecosystem" external={false} className="" />, or the{" "}
+					<AppLink className="" label="transaction logbook" href={"/monitoring/logs?kind=Frankencoin"} external={false} />.
+				</div>
+			</AppTitle>
 		</>
 	);
 }

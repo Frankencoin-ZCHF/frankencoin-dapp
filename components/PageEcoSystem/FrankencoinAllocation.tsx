@@ -68,11 +68,11 @@ export default function FrankencoinAllocation() {
 			value: protocols,
 		},
 		{
-			label: "Decen. Exchanges",
+			label: "Decentralized Exchanges",
 			value: dex,
 		},
 		{
-			label: "Cen. Exchanges",
+			label: "Centralized Exchanges",
 			value: cex,
 		},
 		{
@@ -187,7 +187,7 @@ export default function FrankencoinAllocation() {
 	return (
 		<div className="grid md:grid-cols-2 gap-4">
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Current holder allocation</div>
+				<div className="mt-4 text-lg font-bold text-center">Frankencoins by Holder Type</div>
 
 				<div className="-m-4 pr-2">
 					<ApexChart
@@ -236,7 +236,7 @@ export default function FrankencoinAllocation() {
 			</AppCard>
 
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Current allocation by holder</div>
+				<div className="mt-4 text-lg font-bold text-center">Frankencoins by Holder Type</div>
 
 				<div className="mt-4 space-y-1">
 					{labels.map((label, idx) => (
@@ -249,7 +249,7 @@ export default function FrankencoinAllocation() {
 					))}
 					<div className="flex justify-between">
 						<div className="text-text-primary font-semibold mt-2">
-							Total allocation <span className="text-sm">(100%)</span>
+							Total <span className="text-sm">(100%)</span>
 						</div>
 						<div className="text-text-primary font-semibold mt-2">{formatCurrency(total, 2)} ZCHF</div>
 					</div>

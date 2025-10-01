@@ -48,7 +48,7 @@ export default function MintOutstanding() {
 	return (
 		<div className="grid md:grid-cols-2 gap-4">
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Projected over Expiration</div>
+				<div className="mt-4 text-lg font-bold text-center">Frankencoin Supply Expiration</div>
 
 				<div className="-m-4 pr-2">
 					<ApexChart
@@ -139,7 +139,7 @@ export default function MintOutstanding() {
 			</AppCard>
 
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Next Projected Expirations</div>
+				<div className="mt-4 text-lg font-bold text-center">Upcoming Position Expirations</div>
 				<div className="flex flex-col mt-4 gap-2">
 					{mint
 						.filter((i) => i.mint > 0)

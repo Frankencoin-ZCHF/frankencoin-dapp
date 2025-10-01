@@ -22,7 +22,7 @@ export default function MarketChart() {
 	return (
 		<div className="grid md:grid-cols-2 gap-4">
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Market Price of Frankencoin</div>
+				<div className="mt-4 text-lg font-bold text-center">Exchange Rate</div>
 
 				<div className="-m-4 pr-2">
 					<ApexChart
@@ -36,7 +36,7 @@ export default function MarketChart() {
 							colors: ["#092f62", "#0F80F0"],
 							stroke: {
 								curve: "linestep",
-								width: 3,
+								width: 2,
 							},
 							chart: {
 								type: "line",
@@ -92,22 +92,22 @@ export default function MarketChart() {
 									show: true,
 								},
 								max: (max) => {
-									return max;
+									return Math.max(max, 1.02);
 								},
 								min: (min) => {
-									return min;
+									return Math.min(min, 0.98);
 								},
 							},
 						}}
 						series={[
 							{
-								name: "Price",
+								name: "ZCHF Price",
 								data: priceList.map((entry) => {
 									return [entry[0], Math.round(entry[1] * 1000) / 1000];
 								}),
 							},
 							{
-								name: "Target",
+								name: "Parity",
 								data: priceList.map((entry) => {
 									return [entry[0], 1];
 								}),
@@ -122,7 +122,7 @@ export default function MarketChart() {
 			</AppCard>
 
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Volume of Frankencoin</div>
+				<div className="mt-4 text-lg font-bold text-center">24h Trading Volume</div>
 
 				<div className="-m-4 pr-2">
 					<ApexChart
@@ -136,7 +136,7 @@ export default function MarketChart() {
 							colors: ["#092f62", "#0F80F0"],
 							stroke: {
 								curve: "linestep",
-								width: 3,
+								width: 2,
 							},
 							chart: {
 								type: "line",
