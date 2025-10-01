@@ -146,7 +146,13 @@ export default function MintOutstanding() {
 						.slice(0, 8)
 						.map((d, idx) => (
 							<div key={`${d}_${idx}`} className="flex justify-between">
-								<AppLink className="" href={`/monitoring/${d.pos}`} label={`${dateFormatter(d.exp * 1000)} - ${d.coll}`} />
+								<AppLink
+									className=""
+									href={`/monitoring/${d.pos}`}
+									label={`${dateFormatter(d.exp * 1000)} - ${Math.round(
+										(d.exp * 1000 - Date.now()) / (24 * 3600 * 1000)
+									)}d - ${d.coll}`}
+								/>
 								<div className="text-text-secondary font-semibold">{formatCurrency(formatUnits(d.mint, 18), 2)} ZCHF</div>
 							</div>
 						))}

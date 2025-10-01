@@ -64,7 +64,7 @@ export default function HealthRatio() {
 							},
 							colors: ["#092f62", "#0F80F0"],
 							stroke: {
-								curve: "smooth",
+								curve: "stepline",
 								width: 3,
 							},
 							chart: {
@@ -171,7 +171,7 @@ export default function HealthRatio() {
 							<div>Highest Health</div>
 							<span className="text-sm font-normal">{dateFormatter(sortedHighest?.timestamp || 0)}</span>
 						</div>
-						<div className="text-text-secondary font-semibold">{formatCurrency((sortedHighest?.value || 0) * 100, 0)}%</div>
+						<div className="text-text-secondary font-normal">{formatCurrency((sortedHighest?.value || 0) * 100, 0)}%</div>
 					</div>
 				</div>
 			</AppCard>
