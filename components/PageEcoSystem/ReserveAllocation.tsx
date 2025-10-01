@@ -47,7 +47,7 @@ export default function ReserveAllocation() {
 	return (
 		<div className="grid md:grid-cols-2 gap-4">
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Current reserve contribution</div>
+				<div className="mt-4 text-lg font-bold text-center">Reserve Attribution</div>
 
 				<div className="-m-4 pr-2">
 					<ApexChart
@@ -96,7 +96,7 @@ export default function ReserveAllocation() {
 			</AppCard>
 
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Current contribution by collateral</div>
+				<div className="mt-4 text-lg font-bold text-center">Reserve Attribution</div>
 
 				<div className="mt-4 space-y-1">
 					{labels.map((label, idx) => (
@@ -109,7 +109,7 @@ export default function ReserveAllocation() {
 					))}
 					<div className="flex justify-between">
 						<div className="text-text-primary font-semibold mt-2">
-							Total allocation <span className="text-sm">(100%)</span>
+							Total <span className="text-sm">(100%)</span>
 						</div>
 						<div className="text-text-primary font-semibold mt-2">{formatCurrency(formatUnits(total, 18), 2)} ZCHF</div>
 					</div>
