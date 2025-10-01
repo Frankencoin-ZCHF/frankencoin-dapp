@@ -1,10 +1,9 @@
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/redux.store";
 import AppCard from "../AppCard";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { FRANKENCOIN_API_CLIENT } from "../../app.config";
 import { PriceHistoryRatio } from "@frankencoin/api";
+import { formatCurrency } from "@utils";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 type ChartData = {
@@ -32,15 +31,21 @@ export default function HealthRatio() {
 		fetcher();
 	}, []);
 
-	const date = Date.now() - 10 * 24 * 60 * 60 * 1000;
+	const date = Date.now() - 365 * 24 * 60 * 60 * 1000;
 	const chartList = chartData.filter((i) => i.timestamp >= date);
+	const currentEntry = chartList.at(-1);
+
+	const sortedList = chartList.sort((a, b) => a.value - b.value);
+	const sortedLowest = sortedList.at(0);
+	const sortedHighest = sortedList.at(-1);
 
 	const dateFormatter = (value: number) => {
 		const date = new Date(value);
 		const d = date.getDate();
 		const m = date.getMonth() + 1;
 		const y = date.getFullYear();
-		return `${d}.${m}.${y}`;
+		const h = date.getHours();
+		return `${d}.${m}.${y} ${h}:00`;
 	};
 
 	return (
@@ -59,7 +64,7 @@ export default function HealthRatio() {
 							},
 							colors: ["#092f62", "#0F80F0"],
 							stroke: {
-								curve: "linestep",
+								curve: "smooth",
 								width: 3,
 							},
 							chart: {
@@ -140,6 +145,34 @@ export default function HealthRatio() {
 					{chartList.length == 0 ? (
 						<div className="flex justify-center text-text-warning">No data available for selected timeframe.</div>
 					) : null}
+				</div>
+			</AppCard>
+
+			<AppCard>
+				<div className="mt-4 text-lg font-bold text-center">Health Stats</div>
+
+				<div className="mt-4 space-y-1">
+					<div className="flex justify-between">
+						<div className="text-text-primary font-semibold">
+							<div>Current Health</div>
+							<span className="text-sm font-normal">{dateFormatter(currentEntry?.timestamp || 0)}</span>
+						</div>
+						<div className="text-text-primary font-semibold">{formatCurrency((currentEntry?.value || 0) * 100, 0)}%</div>
+					</div>
+					<div className="flex justify-between">
+						<div className="text-text-secondary font-semibold">
+							<div>Lowest Health</div>
+							<span className="text-sm font-normal">{dateFormatter(sortedLowest?.timestamp || 0)}</span>
+						</div>
+						<div className="text-text-secondary">{formatCurrency((sortedLowest?.value || 0) * 100, 0)}%</div>
+					</div>
+					<div className="flex justify-between">
+						<div className="text-text-secondary font-semibold">
+							<div>Highest Health</div>
+							<span className="text-sm font-normal">{dateFormatter(sortedHighest?.timestamp || 0)}</span>
+						</div>
+						<div className="text-text-secondary font-semibold">{formatCurrency((sortedHighest?.value || 0) * 100, 0)}%</div>
+					</div>
 				</div>
 			</AppCard>
 		</div>

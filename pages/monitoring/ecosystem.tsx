@@ -73,7 +73,11 @@ export default function Overview() {
 			</div>
 
 			<AppTitle title={`Ecosystem Health`}>
-				<div className="text-text-secondary">This section provides an overview of ...</div>
+				<div className="text-text-secondary">
+					This section provides an overview of the ecosystem health, measured as the collateralization factor, of the Frankencoin
+					ecosystem. It reflects the sustainability and stability by assessing the adequacy of collateral backing the issued
+					tokens, ensuring that the value or the soft peg is maintained.
+				</div>
 			</AppTitle>
 
 			<div className="my-[2rem]">
