@@ -46,11 +46,11 @@ export default function MintOutstanding() {
 	};
 
 	return (
-		<div className="grid md:grid-cols-2 gap-4">
-			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Frankencoin Supply Expiration</div>
+		<AppCard>
+			<div className="mt-4 text-lg font-bold text-center">Frankencoin Supply Expiration</div>
 
-				<div className="-m-4 pr-2">
+			<div className="grid md:grid-cols-2 gap-4">
+				<div className="pr-2">
 					<ApexChart
 						type="line"
 						options={{
@@ -136,11 +136,8 @@ export default function MintOutstanding() {
 						<div className="flex justify-center text-text-warning">No data available for selected timeframe.</div>
 					) : null}
 				</div>
-			</AppCard>
 
-			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Upcoming Position Expirations</div>
-				<div className="flex flex-col mt-4 gap-2">
+				<div className="mt-8 space-y-1 gap-2">
 					{mint
 						.filter((i) => i.mint > 0)
 						.slice(0, 8)
@@ -157,7 +154,7 @@ export default function MintOutstanding() {
 							</div>
 						))}
 				</div>
-			</AppCard>
-		</div>
+			</div>
+		</AppCard>
 	);
 }
