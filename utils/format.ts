@@ -75,6 +75,10 @@ export const formatBigInt = (value?: bigint, units = 18, displayDec = 2): string
 	return displayNum;
 };
 
+export function formatFloat(value: bigint, digits: number = 18) {
+	return parseInt(value.toString()) / 10 ** digits;
+}
+
 export const shortenString = (str: string) => {
 	return str.substring(0, 6) + "..." + str.substring(str.length - 4);
 };

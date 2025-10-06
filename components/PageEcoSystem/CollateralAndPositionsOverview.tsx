@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import TokenLogo from "../TokenLogo";
-import { formatCurrency } from "../../utils/format";
+import { formatCurrency, formatFloat } from "../../utils/format";
 import { Address } from "viem/accounts";
 import AppCard from "../AppCard";
 import { formatUnits, parseUnits } from "viem";
@@ -47,7 +47,22 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 
 		if (!collateral.price.chf || !mint.price.chf) continue;
 
-		const valueLocked = Math.round(Number(formatUnits(balance, collateral.decimals)) * collateral.price.chf);
+		const positionData = positions.map((p) => {
+			return {
+				minted: formatFloat(BigInt(p.minted), 18),
+				marketPrice: collateral.price?.chf || 0,
+				liqPrice: formatFloat(BigInt(p.price), 36 - p.collateralDecimals),
+			};
+		});
+
+		const collMul = positionData.reduce((a, b) => {
+			if (b.liqPrice == 0) return a;
+			return a + (b.minted * b.marketPrice) / b.liqPrice;
+		}, 0);
+
+		const avgCollateral = minted > 0 ? collMul / formatFloat(minted, 18) : 0;
+
+		const totalValue = Math.round(Number(formatUnits(balance, collateral.decimals)) * collateral.price.chf);
 		const highestZCHFPrice =
 			Math.round(Math.max(...positions.map((p) => (Number(p.price) * 100) / 10 ** (36 - p.collateralDecimals)))) / 100;
 
@@ -61,6 +76,8 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 		const discussionKey = Object.keys(DISCUSSIONS).find((i) => i.toLowerCase() == collateral.address.toLowerCase());
 		const discussionLink = discussionKey ? DISCUSSIONS[discussionKey] : "";
 
+		const lockedValue = parseFloat(formatUnits(minted, 18)) * avgCollateral;
+
 		stats.push({
 			original,
 			originals: positions.filter((pos) => pos.isOriginal),
@@ -72,7 +89,8 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 			reserve,
 			limitForClones,
 			availableForClones,
-			valueLocked,
+			totalValue,
+			avgCollateral,
 			highestZCHFPrice,
 			collateralizedPct,
 			availableForClonesPct,
@@ -80,6 +98,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 			worstStatusColors,
 			lowestInterestRate,
 			discussionLink,
+			lockedValue,
 		});
 	}
 	return stats;
@@ -88,7 +107,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 export default function CollateralAndPositionsOverview() {
 	const { list, openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
-	const stats = calcOverviewStats(openPositionsByCollateral, list.list, coingecko).sort((a, b) => b.valueLocked - a.valueLocked);
+	const stats = calcOverviewStats(openPositionsByCollateral, list.list, coingecko).sort((a, b) => b.totalValue - a.totalValue);
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -107,7 +126,7 @@ export default function CollateralAndPositionsOverview() {
 							</div>
 						</div>
 
-						<div className="flex">
+						<div className="flex mt-3">
 							<div className="flex-1 text-text-secondary">Market price</div>
 							<div className="text-text-primary font-semibold">
 								{formatCurrency(stat.collateralPriceInZCHF.toString(), 2)} ZCHF
@@ -116,7 +135,19 @@ export default function CollateralAndPositionsOverview() {
 
 						<div className="flex">
 							<div className="flex-1 text-text-secondary">Total value</div>
-							<div className="text-text-primary font-semibold">{formatCurrency(stat.valueLocked.toString(), 2)} ZCHF</div>
+							<div className="text-text-primary font-semibold">{formatCurrency(stat.totalValue.toString(), 2)} ZCHF</div>
+						</div>
+
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Locked value</div>
+							<div className="text-text-primary font-semibold">{formatCurrency(stat.lockedValue.toString(), 2)} ZCHF</div>
+						</div>
+
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Locked ratio</div>
+							<div className="text-text-primary font-semibold">
+								{formatCurrency((stat.lockedValue / stat.totalValue) * 100, 2)}%
+							</div>
 						</div>
 
 						<div className="flex mt-3">
@@ -161,6 +192,13 @@ export default function CollateralAndPositionsOverview() {
 							<div className="flex-1 text-text-secondary">Lowest collateralization</div>
 							<div className={`text-${stat.worstStatusColors} font-semibold`}>
 								{formatCurrency(stat.collateralizedPct.toString(), 2)}%
+							</div>
+						</div>
+
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Weighted collateralization</div>
+							<div className={`text-${stat.worstStatusColors} font-semibold`}>
+								{formatCurrency(stat.avgCollateral * 100, 2)}%
 							</div>
 						</div>
 
