@@ -120,7 +120,7 @@ export default function HealthRatio() {
 									show: true,
 								},
 								max: (max) => {
-									return max;
+									return (Math.floor(max / 100) + 1) * 100;
 								},
 								min: 0,
 							},
