@@ -74,7 +74,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 
 		const worstStatusColors = collateralizedPct < 100 ? "red-300" : collateralizedPct < 120 ? "blue-300" : "green-300";
 		const discussionKey = Object.keys(DISCUSSIONS).find((i) => i.toLowerCase() == collateral.address.toLowerCase());
-		const discussionLink = discussionKey ? DISCUSSIONS[discussionKey] : "";
+		const discussionLink = discussionKey ? DISCUSSIONS[discussionKey] : DISCUSSIONS["default"];
 
 		const lockedValue = parseFloat(formatUnits(minted, 18)) * avgCollateral;
 

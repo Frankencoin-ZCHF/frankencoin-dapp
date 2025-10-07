@@ -58,12 +58,13 @@ export const colors = [
 export const DISCUSSIONS: {
 	[key: string]: string;
 } = {
+	default: "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions", // default url
 	"0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/17", // WBTC
 	"0x8c1BEd5b9a0928467c9B1341Da1D7BD5e10b6549": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/15", // LsETH
 	"0x6810e776880C02933D47DB1b9fc05908e5386b96": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/79", // GNO
 	"0x2E880962A9609aA3eab4DEF919FE9E917E99073B": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/13", // BOSS
-	"0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions", // wstETH
-	"0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions", // WETH
-	"0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions", // cbBTC
-	"0xD533a949740bb3306d119CC777fa900bA034cd52": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions", // crv
+	// "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions", // wstETH
+	// "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions", // WETH
+	// "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions", // cbBTC
+	// "0xD533a949740bb3306d119CC777fa900bA034cd52": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions", // crv
 };
