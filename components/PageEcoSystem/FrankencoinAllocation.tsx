@@ -68,11 +68,11 @@ export default function FrankencoinAllocation() {
 			value: protocols,
 		},
 		{
-			label: "Decen. Exchanges",
+			label: "Decentralized Exchanges",
 			value: dex,
 		},
 		{
-			label: "Cen. Exchanges",
+			label: "Centralized Exchanges",
 			value: cex,
 		},
 		{
@@ -94,102 +94,135 @@ export default function FrankencoinAllocation() {
 
 	useEffect(() => {
 		const fetcher = async () => {
-			const vchf = await readContract(WAGMI_CONFIG, {
-				chainId: mainnet.id,
-				address: ADDRESS[mainnet.id].stablecoinBridgeVCHF,
-				abi: StablecoinBridgeABI,
-				functionName: "minted",
-			});
-			setSwapBridgeVCHF(vchf);
+			const bridges: Promise<any>[] = [];
+			const dexes: Promise<any>[] = [];
+			const cexes: Promise<any>[] = [];
+			const protocols: Promise<any>[] = [];
+
+			// SwapBrideVCHF
+			bridges.push(
+				readContract(WAGMI_CONFIG, {
+					chainId: mainnet.id,
+					address: ADDRESS[mainnet.id].stablecoinBridgeVCHF,
+					abi: StablecoinBridgeABI,
+					functionName: "minted",
+				})
+			);
 
 			// UniSwap USDT
 			// https://etherscan.io/address/0x8E4318E2cb1ae291254B187001a59a1f8ac78cEF
-			const lp01 = await readContract(WAGMI_CONFIG, {
-				chainId: mainnet.id,
-				address: ADDRESS[mainnet.id].frankencoin,
-				abi: FrankencoinABI,
-				functionName: "balanceOf",
-				args: ["0x8E4318E2cb1ae291254B187001a59a1f8ac78cEF"],
-			});
+			dexes.push(
+				readContract(WAGMI_CONFIG, {
+					chainId: mainnet.id,
+					address: ADDRESS[mainnet.id].frankencoin,
+					abi: FrankencoinABI,
+					functionName: "balanceOf",
+					args: ["0x8E4318E2cb1ae291254B187001a59a1f8ac78cEF"],
+				})
+			);
 
 			// UniSwap WETH
 			// https://app.uniswap.org/explore/pools/ethereum/0x79DC831D556954FBC37615A711df16B0b61Df083
-			const lp02 = await readContract(WAGMI_CONFIG, {
-				chainId: mainnet.id,
-				address: ADDRESS[mainnet.id].frankencoin,
-				abi: FrankencoinABI,
-				functionName: "balanceOf",
-				args: ["0x79DC831D556954FBC37615A711df16B0b61Df083"],
-			});
+			dexes.push(
+				readContract(WAGMI_CONFIG, {
+					chainId: mainnet.id,
+					address: ADDRESS[mainnet.id].frankencoin,
+					abi: FrankencoinABI,
+					functionName: "balanceOf",
+					args: ["0x79DC831D556954FBC37615A711df16B0b61Df083"],
+				})
+			);
 
 			// Base
 			// https://basescan.org/address/0xc77c42baa1bdf2708c5ef8cfca3533b3e09b058f
-			const lp03 = await readContract(WAGMI_CONFIG, {
-				chainId: base.id,
-				address: ADDRESS[base.id].ccipBridgedFrankencoin,
-				abi: FrankencoinABI,
-				functionName: "balanceOf",
-				args: ["0xc77c42baa1bdf2708c5ef8cfca3533b3e09b058f"],
-			});
+			dexes.push(
+				readContract(WAGMI_CONFIG, {
+					chainId: base.id,
+					address: ADDRESS[base.id].ccipBridgedFrankencoin,
+					abi: FrankencoinABI,
+					functionName: "balanceOf",
+					args: ["0xc77c42baa1bdf2708c5ef8cfca3533b3e09b058f"],
+				})
+			);
 
 			// Base
 			// https://basescan.org/address/0x80891885537e20e240987385490017fc03d9d7ed
-			const lp04 = await readContract(WAGMI_CONFIG, {
-				chainId: base.id,
-				address: ADDRESS[base.id].ccipBridgedFrankencoin,
-				abi: FrankencoinABI,
-				functionName: "balanceOf",
-				args: ["0x80891885537e20e240987385490017fc03d9d7ed"],
-			});
+			dexes.push(
+				readContract(WAGMI_CONFIG, {
+					chainId: base.id,
+					address: ADDRESS[base.id].ccipBridgedFrankencoin,
+					abi: FrankencoinABI,
+					functionName: "balanceOf",
+					args: ["0x80891885537e20e240987385490017fc03d9d7ed"],
+				})
+			);
 
 			// Gnosis EURe
 			// https://gnosisscan.io/address/0x1bb53efa5523c80b598b561e266dfdc938f80e4f
-			const lp05 = await readContract(WAGMI_CONFIG, {
-				chainId: gnosis.id,
-				address: ADDRESS[gnosis.id].ccipBridgedFrankencoin,
-				abi: FrankencoinABI,
-				functionName: "balanceOf",
-				args: ["0x1bb53efa5523c80b598b561e266dfdc938f80e4f"],
-			});
-
-			const totalLP = lp01 + lp02 + lp03 + lp04 + lp05;
-			setDex(parseInt(formatUnits(totalLP, 18)));
-
-			// Morpho
-			// https://etherscan.io/address/0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb
-			const prot01 = await readContract(WAGMI_CONFIG, {
-				chainId: mainnet.id,
-				address: ADDRESS[mainnet.id].frankencoin,
-				abi: FrankencoinABI,
-				functionName: "balanceOf",
-				args: ["0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb"],
-			});
-
-			const totalProt = prot01;
-			setProtocols(parseInt(formatUnits(totalProt, 18)));
+			dexes.push(
+				readContract(WAGMI_CONFIG, {
+					chainId: gnosis.id,
+					address: ADDRESS[gnosis.id].ccipBridgedFrankencoin,
+					abi: FrankencoinABI,
+					functionName: "balanceOf",
+					args: ["0x1bb53efa5523c80b598b561e266dfdc938f80e4f"],
+				})
+			);
 
 			// MEXC
 			// https://etherscan.io/address/0x9642b23ed1e01df1092b92641051881a322f5d4e
-			const cex01 = await readContract(WAGMI_CONFIG, {
-				chainId: mainnet.id,
-				address: ADDRESS[mainnet.id].frankencoin,
-				abi: FrankencoinABI,
-				functionName: "balanceOf",
-				args: ["0x9642b23Ed1E01Df1092B92641051881a322F5D4E"],
-			});
+			cexes.push(
+				readContract(WAGMI_CONFIG, {
+					chainId: mainnet.id,
+					address: ADDRESS[mainnet.id].frankencoin,
+					abi: FrankencoinABI,
+					functionName: "balanceOf",
+					args: ["0x9642b23Ed1E01Df1092B92641051881a322F5D4E"],
+				})
+			);
 
-			const totalCex = cex01;
-			setCex(parseInt(formatUnits(totalCex, 18)));
+			// Morpho
+			// https://etherscan.io/address/0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb
+			protocols.push(
+				readContract(WAGMI_CONFIG, {
+					chainId: mainnet.id,
+					address: ADDRESS[mainnet.id].frankencoin,
+					abi: FrankencoinABI,
+					functionName: "balanceOf",
+					args: ["0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb"],
+				})
+			);
+
+			// helper results
+			const getResults = async (items: Promise<any>[]) => {
+				return (await Promise.allSettled(items)).map((i) => {
+					if (i.status == "fulfilled") return i.value as bigint;
+					return 0n;
+				});
+			};
+
+			// set results
+			const resultBridges = await getResults(bridges);
+			setSwapBridgeVCHF(resultBridges[0]);
+
+			const resultDexes = await getResults(dexes);
+			setDex(resultDexes.reduce((a, b) => a + parseInt(formatUnits(b, 18)), 0));
+
+			const resultCexes = await getResults(cexes);
+			setCex(resultCexes.reduce((a, b) => a + parseInt(formatUnits(b, 18)), 0));
+
+			const resultProtocols = await getResults(protocols);
+			setProtocols(resultProtocols.reduce((a, b) => a + parseInt(formatUnits(b, 18)), 0));
 		};
 		fetcher();
 	}, []);
 
 	return (
-		<div className="grid md:grid-cols-2 gap-4">
-			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Current holder allocation</div>
+		<AppCard>
+			<div className="mt-4 text-lg font-bold text-center">Frankencoins by Holder Type</div>
 
-				<div className="-m-4 pr-2">
+			<div className="grid md:grid-cols-2 gap-4">
+				<div className="pr-2">
 					<ApexChart
 						height={"350px"}
 						type="donut"
@@ -233,12 +266,8 @@ export default function FrankencoinAllocation() {
 
 					{labels.length == 0 ? <div className="flex justify-center text-text-warning">No data available.</div> : null}
 				</div>
-			</AppCard>
 
-			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Current allocation by holder</div>
-
-				<div className="mt-4 space-y-1">
+				<div className="mt-8 space-y-1">
 					{labels.map((label, idx) => (
 						<div key={`${label}_${idx}`} className="flex justify-between">
 							<div className="text-text-secondary font-semibold" style={{ color: colors[idx % colors.length] }}>
@@ -249,12 +278,12 @@ export default function FrankencoinAllocation() {
 					))}
 					<div className="flex justify-between">
 						<div className="text-text-primary font-semibold mt-2">
-							Total allocation <span className="text-sm">(100%)</span>
+							Total <span className="text-sm">(100%)</span>
 						</div>
 						<div className="text-text-primary font-semibold mt-2">{formatCurrency(total, 2)} ZCHF</div>
 					</div>
 				</div>
-			</AppCard>
-		</div>
+			</div>
+		</AppCard>
 	);
 }

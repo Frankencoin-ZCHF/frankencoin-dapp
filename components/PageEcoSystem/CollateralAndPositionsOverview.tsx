@@ -2,10 +2,12 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import TokenLogo from "../TokenLogo";
-import { formatCurrency } from "../../utils/format";
+import { formatCurrency, formatFloat } from "../../utils/format";
 import { Address } from "viem/accounts";
 import AppCard from "../AppCard";
 import { formatUnits, parseUnits } from "viem";
+import AppLink from "@components/AppLink";
+import { DISCUSSIONS } from "@utils";
 
 export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositions: PositionQuery[], prices: PriceQueryObjectArray) {
 	const stats = [];
@@ -45,7 +47,22 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 
 		if (!collateral.price.chf || !mint.price.chf) continue;
 
-		const valueLocked = Math.round(Number(formatUnits(balance, collateral.decimals)) * collateral.price.chf);
+		const positionData = positions.map((p) => {
+			return {
+				minted: formatFloat(BigInt(p.minted), 18),
+				marketPrice: collateral.price?.chf || 0,
+				liqPrice: formatFloat(BigInt(p.price), 36 - p.collateralDecimals),
+			};
+		});
+
+		const collMul = positionData.reduce((a, b) => {
+			if (b.liqPrice == 0) return a;
+			return a + (b.minted * b.marketPrice) / b.liqPrice;
+		}, 0);
+
+		const avgCollateral = minted > 0 ? collMul / formatFloat(minted, 18) : 0;
+
+		const totalValue = Math.round(Number(formatUnits(balance, collateral.decimals)) * collateral.price.chf);
 		const highestZCHFPrice =
 			Math.round(Math.max(...positions.map((p) => (Number(p.price) * 100) / 10 ** (36 - p.collateralDecimals)))) / 100;
 
@@ -54,13 +71,12 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 
 		// const minted = Math.round(Number(limitForClones) - Number(availableForClones));
 		const collateralPriceInZCHF = Math.round((collateral.price.chf / mint.price.chf) * 100) / 100;
-		const worstStatus =
-			collateralizedPct < 100
-				? `${collateralizedPct}% collaterized`
-				: collateralizedPct < 120
-				? `${collateralizedPct}% collaterized`
-				: `${collateralizedPct}% collaterized`;
-		const worstStatusColors = collateralizedPct < 100 ? "bg-red-300" : collateralizedPct < 120 ? "bg-blue-300" : "bg-green-300";
+
+		const worstStatusColors = collateralizedPct < 100 ? "red-300" : collateralizedPct < 120 ? "blue-300" : "green-300";
+		const discussionKey = Object.keys(DISCUSSIONS).find((i) => i.toLowerCase() == collateral.address.toLowerCase());
+		const discussionLink = discussionKey ? DISCUSSIONS[discussionKey] : DISCUSSIONS["default"];
+
+		const lockedValue = parseFloat(formatUnits(minted, 18)) * avgCollateral;
 
 		stats.push({
 			original,
@@ -73,14 +89,16 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 			reserve,
 			limitForClones,
 			availableForClones,
-			valueLocked,
+			totalValue,
+			avgCollateral,
 			highestZCHFPrice,
 			collateralizedPct,
 			availableForClonesPct,
 			collateralPriceInZCHF,
-			worstStatus,
 			worstStatusColors,
 			lowestInterestRate,
+			discussionLink,
+			lockedValue,
 		});
 	}
 	return stats;
@@ -89,7 +107,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 export default function CollateralAndPositionsOverview() {
 	const { list, openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
-	const stats = calcOverviewStats(openPositionsByCollateral, list.list, coingecko).sort((a, b) => b.valueLocked - a.valueLocked);
+	const stats = calcOverviewStats(openPositionsByCollateral, list.list, coingecko).sort((a, b) => b.totalValue - a.totalValue);
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -100,29 +118,39 @@ export default function CollateralAndPositionsOverview() {
 						<div className="text-2xl font-bold">{stat.collateral.name}</div>
 					</div>
 
-					<div className="flex flex-col gap-3">
+					<div className="flex flex-col gap-2">
 						<div className="flex">
-							<div className="flex-1 text-text-secondary">Total locked value</div>
-							<div className="text-text-primary font-semibold">{formatCurrency(stat.valueLocked.toString(), 2)} ZCHF</div>
-						</div>
-						<div className="flex">
-							<div className="flex-1 text-text-secondary">Total locked balance</div>
+							<div className="flex-1 text-text-secondary">Total balance</div>
 							<div className="text-text-primary font-semibold">
 								{formatCurrency(formatUnits(stat.balance, stat.collateral.decimals))} {stat.collateral.symbol}
 							</div>
 						</div>
 
-						<div className="flex">
-							<div className="flex-1 text-text-secondary">Original positions</div>
-							<div className="text-text-primary font-semibold">{stat.originals.length}</div>
+						<div className="flex mt-3">
+							<div className="flex-1 text-text-secondary">Market price</div>
+							<div className="text-text-primary font-semibold">
+								{formatCurrency(stat.collateralPriceInZCHF.toString(), 2)} ZCHF
+							</div>
 						</div>
 
 						<div className="flex">
-							<div className="flex-1 text-text-secondary">Clone positions</div>
-							<div className="text-text-primary font-semibold">{stat.clones.length}</div>
+							<div className="flex-1 text-text-secondary">Total value</div>
+							<div className="text-text-primary font-semibold">{formatCurrency(stat.totalValue.toString(), 2)} ZCHF</div>
 						</div>
 
 						<div className="flex">
+							<div className="flex-1 text-text-secondary">Locked value</div>
+							<div className="text-text-primary font-semibold">{formatCurrency(stat.lockedValue.toString(), 2)} ZCHF</div>
+						</div>
+
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Locked ratio</div>
+							<div className="text-text-primary font-semibold">
+								{formatCurrency((stat.lockedValue / stat.totalValue) * 100, 2)}%
+							</div>
+						</div>
+
+						<div className="flex mt-3">
 							<div className="flex-1 text-text-secondary">Minting limit</div>
 							<div className="text-text-primary font-semibold">
 								{formatCurrency(stat.limitForClones.toString(), 2)} {stat.mint.symbol}
@@ -137,27 +165,20 @@ export default function CollateralAndPositionsOverview() {
 						</div>
 
 						<div className="flex">
+							<div className="flex-1 text-text-secondary">Minting utilization</div>
+							<div className="text-text-primary font-semibold">{formatCurrency(100 - stat.availableForClonesPct, 2)}%</div>
+						</div>
+
+						<div className="flex">
 							<div className="flex-1 text-text-secondary">Minting reserve</div>
 							<div className="text-text-primary font-semibold">
 								{formatCurrency(formatUnits(stat.reserve, 18), 2)} {stat.mint.symbol}
 							</div>
 						</div>
 
-						<div className="flex">
-							<div className="flex-1 text-text-secondary">Minting utilization</div>
-							<div className="text-text-primary font-semibold">{formatCurrency(100 - stat.availableForClonesPct, 2)}%</div>
-						</div>
-
-						<div className="flex">
+						<div className="flex mt-3">
 							<div className="flex-1 text-text-secondary">Lowerst eff. rate</div>
 							<div className="text-text-primary font-semibold">{formatCurrency(stat.lowestInterestRate * 100, 2)}%</div>
-						</div>
-
-						<div className="flex">
-							<div className="flex-1 text-text-secondary">Current price</div>
-							<div className="text-text-primary font-semibold">
-								{formatCurrency(stat.collateralPriceInZCHF.toString(), 2)} ZCHF
-							</div>
 						</div>
 
 						<div className="flex">
@@ -167,14 +188,23 @@ export default function CollateralAndPositionsOverview() {
 							</div>
 						</div>
 
-						<div className="flex mt-4">
-							<div className="flex-1">
-								<div
-									className={`bg-gray-200 rounded-full text-center py-2 px-4 text-gray-900 font-bold ${stat.worstStatusColors}`}
-								>
-									{stat.worstStatus}
-								</div>
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Lowest collateralization</div>
+							<div className={`text-${stat.worstStatusColors} font-semibold`}>
+								{formatCurrency(stat.collateralizedPct.toString(), 2)}%
 							</div>
+						</div>
+
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Weighted collateralization</div>
+							<div className={`text-${stat.worstStatusColors} font-semibold`}>
+								{formatCurrency(stat.avgCollateral * 100, 2)}%
+							</div>
+						</div>
+
+						<div className="flex mt-3">
+							<div className="flex-1 text-text-secondary">Discussion</div>
+							<AppLink className="" label="GitHub" external={true} href={stat.discussionLink} />
 						</div>
 					</div>
 				</AppCard>

@@ -49,11 +49,10 @@ export default function HealthRatio() {
 	};
 
 	return (
-		<div className="grid md:grid-cols-2 gap-4">
-			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Health of Frankencoin</div>
-
-				<div className="-m-4 pr-2">
+		<AppCard>
+			<div className="grid md:grid-cols-2 gap-4">
+				<div className="pr-2">
+					<div className="mt-4 text-lg font-bold text-center">Free Supply Collateralization</div>
 					<ApexChart
 						type="line"
 						options={{
@@ -121,14 +120,14 @@ export default function HealthRatio() {
 									show: true,
 								},
 								max: (max) => {
-									return max;
+									return (Math.floor(max / 100) + 1) * 100;
 								},
 								min: 0,
 							},
 						}}
 						series={[
 							{
-								name: "Health",
+								name: "Collateralization",
 								data: chartList.map((entry) => {
 									return [entry.timestamp, Math.round(entry.value * 1000) / 10];
 								}),
@@ -146,35 +145,32 @@ export default function HealthRatio() {
 						<div className="flex justify-center text-text-warning">No data available for selected timeframe.</div>
 					) : null}
 				</div>
-			</AppCard>
-
-			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Health Stats</div>
 
 				<div className="mt-4 space-y-1">
+					<div className="mb-8 text-lg font-bold text-center">Historic Watermarks</div>
 					<div className="flex justify-between">
 						<div className="text-text-primary font-semibold">
-							<div>Current Health</div>
+							<div>Current</div>
 							<span className="text-sm font-normal">{dateFormatter(currentEntry?.timestamp || 0)}</span>
 						</div>
 						<div className="text-text-primary font-semibold">{formatCurrency((currentEntry?.value || 0) * 100, 0)}%</div>
 					</div>
 					<div className="flex justify-between">
 						<div className="text-text-secondary font-semibold">
-							<div>Lowest Health</div>
+							<div>Lowest</div>
 							<span className="text-sm font-normal">{dateFormatter(sortedLowest?.timestamp || 0)}</span>
 						</div>
 						<div className="text-text-secondary">{formatCurrency((sortedLowest?.value || 0) * 100, 0)}%</div>
 					</div>
 					<div className="flex justify-between">
 						<div className="text-text-secondary font-semibold">
-							<div>Highest Health</div>
+							<div>Highest</div>
 							<span className="text-sm font-normal">{dateFormatter(sortedHighest?.timestamp || 0)}</span>
 						</div>
 						<div className="text-text-secondary font-normal">{formatCurrency((sortedHighest?.value || 0) * 100, 0)}%</div>
 					</div>
 				</div>
-			</AppCard>
-		</div>
+			</div>
+		</AppCard>
 	);
 }

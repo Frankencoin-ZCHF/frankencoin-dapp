@@ -9,9 +9,8 @@ export default function PageCollateral() {
 				<title>Frankencoin - Collaterals</title>
 			</Head>
 
-			<AppTitle title={`Ecosystem Collaterals`}>
+			<AppTitle title={`Accepted Collateral Assets`}>
 				<div className="text-text-secondary">
-					Here, you will find detailed information on all collateral positions, summarized with the most important details.
 				</div>
 			</AppTitle>
 

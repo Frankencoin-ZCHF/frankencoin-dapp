@@ -121,7 +121,7 @@ export default function ReserveCosts() {
 					))}
 					<div className="flex justify-between">
 						<div className="text-text-primary font-semibold mt-2">
-							Total allocation <span className="text-sm">(100%)</span>
+							Total <span className="text-sm">(100%)</span>
 						</div>
 						<div className="text-text-primary font-semibold mt-2">{formatCurrency(formatUnits(total, 18), 2)} ZCHF</div>
 					</div>
