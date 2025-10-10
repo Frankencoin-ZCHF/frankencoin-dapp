@@ -19,23 +19,34 @@ export default function HealthRatio() {
 			const response = await FRANKENCOIN_API_CLIENT.get("/prices/history/ratio");
 			const ratio = response.data as PriceHistoryRatio;
 
-			const keys = Object.keys(ratio.collateralRatioByFreeFloat);
+			const keys = Object.keys(ratio.collateralRatioByFreeFloat).map((i) => parseInt(i));
+
 			const data: ChartData[] = keys.map((i) => ({
-				timestamp: parseInt(i),
-				value: ratio.collateralRatioByFreeFloat[parseInt(i)],
+				timestamp: i,
+				value: ratio.collateralRatioByFreeFloat[i],
 			}));
 
-			setChartData(data);
+			const date = Date.now() - 365 * 24 * 60 * 60 * 1000;
+
+			const chartFiltered = data.filter((i) => {
+				if (i.timestamp < date) return false;
+				else {
+					const d = new Date(i.timestamp);
+					if (d.getHours() % 2 == 0) return true;
+					else return false;
+				}
+			});
+
+			setChartData(chartFiltered);
 		};
 
 		fetcher();
 	}, []);
 
-	const date = Date.now() - 365 * 24 * 60 * 60 * 1000;
-	const chartList = chartData.filter((i) => i.timestamp >= date);
-	const currentEntry = chartList.at(-1);
+	const chartListTimestamp = [...chartData].sort((a, b) => a.timestamp - b.timestamp);
+	const currentEntry = chartListTimestamp.at(-1);
 
-	const sortedList = chartList.sort((a, b) => a.value - b.value);
+	const sortedList = [...chartData].sort((a, b) => a.value - b.value);
 	const sortedLowest = sortedList.at(0);
 	const sortedHighest = sortedList.at(-1);
 
@@ -63,8 +74,8 @@ export default function HealthRatio() {
 							},
 							colors: ["#092f62", "#0F80F0"],
 							stroke: {
-								curve: "stepline",
-								width: 3,
+								curve: "linestep",
+								width: 2,
 							},
 							chart: {
 								type: "line",
@@ -110,7 +121,7 @@ export default function HealthRatio() {
 								labels: {
 									show: true,
 									formatter: (value) => {
-										return `${Math.round(value * 1000) / 1000}%`;
+										return `${Math.round(value * 10) / 10}%`;
 									},
 								},
 								axisBorder: {
@@ -119,29 +130,29 @@ export default function HealthRatio() {
 								axisTicks: {
 									show: true,
 								},
+								min: 0,
 								max: (max) => {
 									return (Math.floor(max / 100) + 1) * 100;
 								},
-								min: 0,
 							},
 						}}
 						series={[
 							{
 								name: "Collateralization",
-								data: chartList.map((entry) => {
+								data: chartListTimestamp.map((entry) => {
 									return [entry.timestamp, Math.round(entry.value * 1000) / 10];
 								}),
 							},
 							{
 								name: "Minimum",
-								data: chartList.map((entry) => {
+								data: chartListTimestamp.map((entry) => {
 									return [entry.timestamp, 100];
 								}),
 							},
 						]}
 					/>
 
-					{chartList.length == 0 ? (
+					{chartListTimestamp.length == 0 ? (
 						<div className="flex justify-center text-text-warning">No data available for selected timeframe.</div>
 					) : null}
 				</div>
