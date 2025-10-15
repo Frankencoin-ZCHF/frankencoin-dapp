@@ -7,7 +7,7 @@ const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 export default function MarketChart() {
 	const { marketChart } = useSelector((state: RootState) => state.prices);
 
-	const date = Date.now() - 10 * 24 * 60 * 60 * 1000;
+	const date = 0; // Date.now() - 10 * 24 * 60 * 60 * 1000;
 	const priceList = marketChart.prices.filter((i) => i[0] >= date);
 	const volumeList = marketChart.total_volumes.filter((i) => i[0] >= date);
 
@@ -92,10 +92,10 @@ export default function MarketChart() {
 									show: true,
 								},
 								max: (max) => {
-									return Math.max(max, 1.02);
+									return Math.max(max, 1.05);
 								},
 								min: (min) => {
-									return Math.min(min, 0.98);
+									return Math.min(min, 0.95);
 								},
 							},
 						}}
