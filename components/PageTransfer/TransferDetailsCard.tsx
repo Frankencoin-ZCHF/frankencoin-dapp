@@ -1,5 +1,5 @@
 import AppCard from "@components/AppCard";
-import { Address, formatUnits, zeroAddress } from "viem";
+import { Address, formatUnits, isAddress, zeroAddress } from "viem";
 import AppLink from "@components/AppLink";
 import { useAccount } from "wagmi";
 import { ContractUrl, shortenAddress } from "@utils";
@@ -17,6 +17,9 @@ export default function TransferDetailsCard({ senderAddress, recipientAddress, c
 	const { address } = useAccount();
 	const isSameChain = recipientChain?.id == chain?.id;
 
+	senderAddress = senderAddress || zeroAddress;
+	recipientAddress = recipientAddress || zeroAddress;
+
 	return (
 		<AppCard>
 			<div className="md:mt-4 text-lg font-bold text-center">Outcome</div>
@@ -25,7 +28,7 @@ export default function TransferDetailsCard({ senderAddress, recipientAddress, c
 					<div className="flex-1 text-text-secondary">Sender</div>
 					<AppLink
 						className=""
-						label={shortenAddress(senderAddress || zeroAddress)}
+						label={isAddress(senderAddress) ? shortenAddress(senderAddress) : "Invalid Input"}
 						href={ContractUrl(senderAddress || zeroAddress, chain)}
 						external={true}
 					/>
@@ -42,7 +45,7 @@ export default function TransferDetailsCard({ senderAddress, recipientAddress, c
 					<div className="flex-1 text-text-secondary">Recipient</div>
 					<AppLink
 						className=""
-						label={shortenAddress(recipientAddress || zeroAddress)}
+						label={isAddress(recipientAddress) ? shortenAddress(recipientAddress) : "Invalid Input"}
 						href={ContractUrl(recipientAddress || zeroAddress, recipientChain)}
 						external={true}
 					/>
