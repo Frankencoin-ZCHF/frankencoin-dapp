@@ -8,7 +8,11 @@ import { MinterQuery } from "@frankencoin/api";
 import { useEffect, useState } from "react";
 import GovernanceMintersRow from "./GovernanceMintersRow";
 
-export default function GovernanceMintersTable() {
+interface Props {
+	length?: number | undefined;
+}
+
+export default function GovernanceMintersTable({ length }: Props) {
 	const headers: string[] = ["Date", "Minter", "Chain", "Comment", "State"];
 	const [tab, setTab] = useState<string>(headers[4]);
 	const [reverse, setReverse] = useState<boolean>(false);
@@ -18,7 +22,7 @@ export default function GovernanceMintersTable() {
 
 	const sorted: MinterQuery[] = sortMinters({
 		// @dev: somehow it does not transfer a "true array" and causes issues in sorting function
-		minters: [...minters],
+		minters: [...minters.slice(0, length)],
 		headers,
 		tab,
 		reverse,
