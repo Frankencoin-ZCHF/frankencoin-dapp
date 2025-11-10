@@ -48,9 +48,7 @@ export default function SavingsDetailsCard({
 	let entries: SavingsBalance[] = [];
 
 	if (account != zeroAddress) {
-		balances = Object.values(savingsBalance)[0];
-
-		entries = Object.values(balances)
+		entries = Object.values(savingsBalance)
 			.map((m) => Object.values(m))
 			.flat()
 			.filter((m) => BigInt(m.balance) > 0n);

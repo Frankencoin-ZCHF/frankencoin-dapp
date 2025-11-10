@@ -124,7 +124,7 @@ export const fetchLeadrate =
 
 // --------------------------------------------------------------------------------
 export const fetchSavings =
-	(account: Address | undefined) =>
+	(account: Address = zeroAddress) =>
 	async (
 		dispatch: Dispatch<
 			DispatchBoolean | DispatchApiSavingsInfo | DispatchApiSavingsBalance | DispatchApiSavingsRanked | DispatchApiSavingsActivity
@@ -138,10 +138,10 @@ export const fetchSavings =
 		const response4 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsInfo>("/savings/core/info");
 		dispatch(slice.actions.setSavingsInfo(response4.data));
 
-		const response5 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsBalance>("/savings/core/balance" + (account ? `/${account}` : ""));
+		const response5 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsBalance>(`/savings/core/balance/${account}`);
 		dispatch(slice.actions.setSavingsBalance(response5.data));
 
-		const response6 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsActivity>("/savings/core/activity" + (account ? `/${account}` : ""));
+		const response6 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsActivity>(`/savings/core/activity/${account}`);
 		dispatch(slice.actions.setSavingsActivity(response6.data));
 
 		const response7 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsRanked>("/savings/core/ranked");
