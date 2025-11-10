@@ -6,6 +6,7 @@ import {
 	DispatchApiEcosystemFpsInfo,
 	DispatchApiEcosystemFrankencoinInfo,
 	DispatchApiEcosystemFrankencoinMinters,
+	DispatchApiEcosystemFrankencoinSupply,
 	DispatchBoolean,
 	EcosystemState,
 } from "./ecosystem.types";
@@ -14,6 +15,7 @@ import {
 	ApiEcosystemCollateralStats,
 	ApiEcosystemFpsInfo,
 	ApiEcosystemFrankencoinInfo,
+	ApiEcosystemFrankencoinSupply,
 	ApiMinterListing,
 } from "@frankencoin/api";
 
@@ -44,6 +46,7 @@ export const initialState: EcosystemState = {
 		tvl: { usd: 0, chf: 0 },
 	},
 	frankencoinMinters: { num: 0, list: [] },
+	frankencoinSupply: {} as ApiEcosystemFrankencoinSupply,
 };
 
 // --------------------------------------------------------------------------------
@@ -87,6 +90,11 @@ export const slice = createSlice({
 		setFrankencoinMinters: (state, action: { payload: ApiMinterListing }) => {
 			state.frankencoinMinters = action.payload;
 		},
+
+		// SET Frankencoin Supply
+		setFrankencoinSupply: (state, action: { payload: ApiEcosystemFrankencoinSupply }) => {
+			state.frankencoinSupply = action.payload;
+		},
 	},
 });
 
@@ -104,6 +112,7 @@ export const fetchEcosystem =
 			| DispatchApiEcosystemFpsInfo
 			| DispatchApiEcosystemFrankencoinInfo
 			| DispatchApiEcosystemFrankencoinMinters
+			| DispatchApiEcosystemFrankencoinSupply
 		>
 	) => {
 		// ---------------------------------------------------------------
@@ -125,6 +134,9 @@ export const fetchEcosystem =
 
 		const response5 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/minter/list");
 		dispatch(slice.actions.setFrankencoinMinters(response5.data as ApiMinterListing));
+
+		const response6 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/frankencoin/totalsupply");
+		dispatch(slice.actions.setFrankencoinSupply(response6.data as ApiEcosystemFrankencoinSupply));
 
 		// ---------------------------------------------------------------
 		// Finalizing, loaded set to ture

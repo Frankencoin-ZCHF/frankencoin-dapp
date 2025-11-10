@@ -3,6 +3,7 @@ import {
 	ApiEcosystemCollateralStats,
 	ApiEcosystemFpsInfo,
 	ApiEcosystemFrankencoinInfo,
+	ApiEcosystemFrankencoinSupply,
 	ApiMinterListing,
 } from "@frankencoin/api";
 
@@ -16,6 +17,7 @@ export type EcosystemState = {
 	fpsInfo: ApiEcosystemFpsInfo;
 	frankencoinInfo: ApiEcosystemFrankencoinInfo;
 	frankencoinMinters: ApiMinterListing;
+	frankencoinSupply: ApiEcosystemFrankencoinSupply;
 };
 
 // --------------------------------------------------------------------------------
@@ -47,4 +49,9 @@ export type DispatchApiEcosystemFrankencoinInfo = {
 export type DispatchApiEcosystemFrankencoinMinters = {
 	type: string;
 	payload: ApiMinterListing;
+};
+
+export type DispatchApiEcosystemFrankencoinSupply = {
+	type: string;
+	payload: ApiEcosystemFrankencoinSupply;
 };

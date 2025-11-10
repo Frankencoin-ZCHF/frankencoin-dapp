@@ -21,6 +21,7 @@ export default function EquityFPSDetailsCard() {
 	const chainId = mainnet.id;
 	const poolStats = usePoolStats();
 	const { logs } = useSelector((state: RootState) => state.dashboard.dailyLog);
+	const supply = useSelector((state: RootState) => state.ecosystem.frankencoinSupply);
 
 	// @dev: show trades since start
 	let startTrades = Date.now();
@@ -33,6 +34,10 @@ export default function EquityFPSDetailsCard() {
 
 	let matchingLogs = logs.filter((t) => {
 		return parseInt(t.timestamp) >= startTrades;
+	});
+
+	let matchingSupply = Object.values(supply).filter((t) => {
+		return parseInt(String(t.created)) * 1000 >= startTrades;
 	});
 
 	const adjustedInflow = BigInt(matchingLogs.at(-1)?.totalInflow || "0") - BigInt(matchingLogs.at(0)?.totalInflow || "0");
@@ -138,23 +143,36 @@ export default function EquityFPSDetailsCard() {
 						series={[
 							{
 								name: typechart,
-								data: matchingLogs.map((entry) => {
-									if (typechart == TypeCharts[0]) {
-										return [parseFloat(entry.timestamp), Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100];
-									} else if (typechart == TypeCharts[1]) {
-										return [
-											parseFloat(entry.timestamp),
-											Math.round(parseFloat(formatUnits(entry.fpsTotalSupply, 16))) / 100,
-										];
-									} else if (typechart == TypeCharts[2]) {
-										return [
-											parseFloat(entry.timestamp),
-											Math.round(parseFloat(formatUnits(entry.totalSupply, 16))) / 100,
-										];
-									} else {
-										return [parseFloat(entry.timestamp), Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100];
-									}
-								}),
+								data:
+									typechart == TypeCharts[2]
+										? // @dev: this is multichain timestamp indexed frankencoin supply
+										  matchingSupply.map((entry) => {
+												return [parseFloat(String(entry.created)), entry.supply];
+										  })
+										: matchingLogs.map((entry) => {
+												if (typechart == TypeCharts[0]) {
+													return [
+														parseFloat(entry.timestamp),
+														Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100,
+													];
+												} else if (typechart == TypeCharts[1]) {
+													return [
+														parseFloat(entry.timestamp),
+														Math.round(parseFloat(formatUnits(entry.fpsTotalSupply, 16))) / 100,
+													];
+													// @dev: this is just mainnet frankencoin supply data
+													// } else if (typechart == TypeCharts[2]) {
+													// 	return [
+													// 		parseFloat(entry.timestamp),
+													// 		Math.round(parseFloat(formatUnits(entry.totalSupply, 16))) / 100,
+													// 	];
+												} else {
+													return [
+														parseFloat(entry.timestamp),
+														Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100,
+													];
+												}
+										  }),
 							},
 						]}
 					/>

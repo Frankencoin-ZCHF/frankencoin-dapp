@@ -35,16 +35,6 @@ export default function SavingsDetailsCard({
 }: Props) {
 	const { savingsBalance } = useSelector((state: RootState) => state.savings);
 
-	let balances: SavingsBalanceChainIdMapping = {
-		1: {},
-		10: {},
-		137: {},
-		42161: {},
-		8453: {},
-		43114: {},
-		100: {},
-		146: {},
-	};
 	let entries: SavingsBalance[] = [];
 
 	if (account != zeroAddress) {
