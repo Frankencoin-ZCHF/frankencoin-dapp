@@ -12,7 +12,6 @@ import AppLink from "@components/AppLink";
 import { ContractUrl } from "@utils";
 import { ADDRESS } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
-import ReserveAllocation from "@components/PageEcoSystem/ReserveAllocation";
 
 export default function Equity() {
 	const { address } = useAccount();

@@ -144,6 +144,10 @@ export default function GovernanceMintersPropose({}: Props) {
 					<AppLink label="community" href={SOCIAL.Telegram} external={true} className="" /> before proposing it to increase the
 					probability of passing the decentralized governance process.
 				</div>
+				<div className="text-text-secondary">
+					Here you can find the list of all{" "}
+					<AppLink label="minting modules." href="/governance/modules" external={false} className="" />
+				</div>
 			</AppCard>
 
 			<AppCard>

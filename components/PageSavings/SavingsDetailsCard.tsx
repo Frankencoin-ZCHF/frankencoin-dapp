@@ -35,22 +35,10 @@ export default function SavingsDetailsCard({
 }: Props) {
 	const { savingsBalance } = useSelector((state: RootState) => state.savings);
 
-	let balances: SavingsBalanceChainIdMapping = {
-		1: {},
-		10: {},
-		137: {},
-		42161: {},
-		8453: {},
-		43114: {},
-		100: {},
-		146: {},
-	};
 	let entries: SavingsBalance[] = [];
 
 	if (account != zeroAddress) {
-		balances = Object.values(savingsBalance)[0];
-
-		entries = Object.values(balances)
+		entries = Object.values(savingsBalance)
 			.map((m) => Object.values(m))
 			.flat()
 			.filter((m) => BigInt(m.balance) > 0n);

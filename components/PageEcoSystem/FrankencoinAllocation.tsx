@@ -121,6 +121,18 @@ export default function FrankencoinAllocation() {
 				})
 			);
 
+			// UniSwap V4 (singletron)
+			// https://app.uniswap.org/explore/pools/ethereum/0x529bd1ea9e2cbd543abab1ce83f16b07c634ee9dd0fd7fb4550f6c393a873d41 ZCHF - ETH
+			dexes.push(
+				readContract(WAGMI_CONFIG, {
+					chainId: mainnet.id,
+					address: ADDRESS[mainnet.id].frankencoin,
+					abi: FrankencoinABI,
+					functionName: "balanceOf",
+					args: ["0x000000000004444c5dc75cB358380D2e3dE08A90"],
+				})
+			);
+
 			// UniSwap WETH
 			// https://app.uniswap.org/explore/pools/ethereum/0x79DC831D556954FBC37615A711df16B0b61Df083
 			dexes.push(
@@ -133,7 +145,31 @@ export default function FrankencoinAllocation() {
 				})
 			);
 
-			// Base
+			// Curve ZCHF - USDT
+			// https://www.curve.finance/dex/ethereum/pools/factory-twocrypto-100
+			dexes.push(
+				readContract(WAGMI_CONFIG, {
+					chainId: mainnet.id,
+					address: ADDRESS[mainnet.id].frankencoin,
+					abi: FrankencoinABI,
+					functionName: "balanceOf",
+					args: ["0x6031bDd613E6A2F587b244e078053Fe7BbaBE3B5"],
+				})
+			);
+
+			// Curve ZCHF - crvUSD
+			// https://www.curve.finance/dex/ethereum/pools/factory-twocrypto-276
+			dexes.push(
+				readContract(WAGMI_CONFIG, {
+					chainId: mainnet.id,
+					address: ADDRESS[mainnet.id].frankencoin,
+					abi: FrankencoinABI,
+					functionName: "balanceOf",
+					args: ["0x027B40F5917FCd0eac57d7015e120096A5F92ca9"],
+				})
+			);
+
+			// Base Curve ZCHF - USDC
 			// https://basescan.org/address/0xc77c42baa1bdf2708c5ef8cfca3533b3e09b058f
 			dexes.push(
 				readContract(WAGMI_CONFIG, {
@@ -145,7 +181,7 @@ export default function FrankencoinAllocation() {
 				})
 			);
 
-			// Base
+			// Base CLPool ZCHF - USDC
 			// https://basescan.org/address/0x80891885537e20e240987385490017fc03d9d7ed
 			dexes.push(
 				readContract(WAGMI_CONFIG, {

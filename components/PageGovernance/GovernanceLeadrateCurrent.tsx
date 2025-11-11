@@ -239,7 +239,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 								},
 								min: 0,
 								max: (max) => {
-									return max + max * 0.1;
+									return (Math.floor(max / 100000) + 1) * 50000;
 								},
 							},
 						}}

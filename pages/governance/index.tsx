@@ -9,8 +9,8 @@ import GovernanceLeadrateCurrent from "@components/PageGovernance/GovernanceLead
 import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
 import { useEffect } from "react";
-import { store } from "../redux/redux.store";
-import { fetchLeadrate } from "../redux/slices/savings.slice";
+import { store } from "../../redux/redux.store";
+import { fetchLeadrate } from "../../redux/slices/savings.slice";
 import GovernanceMintersPropose from "@components/PageGovernance/GovernanceMintersPropose";
 
 export default function Governance() {
@@ -58,7 +58,7 @@ export default function Governance() {
 
 			<GovernanceMintersPropose />
 
-			<GovernanceMintersTable />
+			<GovernanceMintersTable length={8} />
 
 			<AppTitle title="Frankencoin Pool Share Holders" />
 
