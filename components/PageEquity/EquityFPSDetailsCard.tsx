@@ -147,7 +147,7 @@ export default function EquityFPSDetailsCard() {
 									typechart == TypeCharts[2]
 										? // @dev: this is multichain timestamp indexed frankencoin supply
 										  matchingSupply.map((entry) => {
-												return [parseFloat(String(entry.created)), entry.supply];
+												return [parseFloat(String(entry.created)) * 1000, entry.supply];
 										  })
 										: matchingLogs.map((entry) => {
 												if (typechart == TypeCharts[0]) {
