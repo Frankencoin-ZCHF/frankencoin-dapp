@@ -22,7 +22,7 @@ export default function BorrowMorphoRow({ headers, tab, market }: Props) {
 		window.open(link, "_blank");
 	};
 
-	const oraclePrice = Number(formatUnits(BigInt(market.state.price), 36 - market.collateralAsset.decimals + 18));
+	const oraclePrice = Number(formatUnits(BigInt(market.state.price ?? "0"), 36 - market.collateralAsset.decimals + 18));
 	const liquidationPrice = oraclePrice * Number(formatUnits(BigInt(market.lltv), 18));
 
 	return (
