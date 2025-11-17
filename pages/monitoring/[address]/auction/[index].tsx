@@ -41,13 +41,12 @@ export default function ChallengePlaceBid() {
 	const chainId = mainnet.id;
 	const addressQuery: Address = (router.query.address as string).toLowerCase() as Address;
 	const indexQuery: string = router.query.index as string;
-	const challengeId: ChallengesId = `${addressQuery ?? zeroAddress}-challenge-${BigInt(indexQuery)}`;
 
 	const challenges = useSelector((state: RootState) => state.challenges.list.list);
-	const positions = useSelector((state: RootState) => state.positions.list.list);
+	const positions = useSelector((state: RootState) => state.positions.openPositions);
 
-	const challenge = challenges.find((c) => c.id == challengeId);
-	const position = positions.find((p) => p.position == challenge?.position);
+	const challenge = challenges.find((c) => c.position == (addressQuery ?? zeroAddress) && String(c.number) == indexQuery);
+	const position = positions.find((p) => p.position.toLowerCase() == challenge?.position);
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
