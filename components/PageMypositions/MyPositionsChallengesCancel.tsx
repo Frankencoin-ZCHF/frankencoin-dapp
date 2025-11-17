@@ -1,10 +1,10 @@
 import { ChallengesQueryItem, PositionQuery, PositionsQueryObjectArray } from "@frankencoin/api";
 import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { CONFIG, WAGMI_CONFIG } from "../../app.config";
+import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { formatBigInt } from "@utils";
-import { renderErrorToast, renderErrorTxToast, TxToast } from "@components/TxToast";
+import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import { Address } from "viem";
@@ -24,7 +24,7 @@ export default function MyPositionsChallengesCancel({ challenge, hidden }: Props
 	const account = useAccount();
 	const chainId = mainnet.id;
 	const [isHidden, setHidden] = useState<boolean>(
-		hidden == true || challenge.status !== "Active" || account.address !== challenge.challenger
+		hidden == true || challenge.status !== "Active" || account.address?.toLowerCase() !== challenge.challenger.toLowerCase()
 	);
 
 	const handleCancelOnClick = async function () {
@@ -34,7 +34,7 @@ export default function MyPositionsChallengesCancel({ challenge, hidden }: Props
 		const r = challenge.size - challenge.filledSize;
 
 		if (!p) return;
-		if (account.address !== challenge.challenger) return;
+		if (account.address?.toLowerCase() !== challenge.challenger.toLowerCase()) return;
 
 		try {
 			setCancelling(true);
