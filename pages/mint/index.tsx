@@ -8,7 +8,6 @@ import AppTitle from "@components/AppTitle";
 import { fetchMorphoMarkets } from "../../redux/slices/morpho.slice";
 import BorrowMorphoTable from "@components/PageBorrow/BorrowMorphoTable";
 import AppLink from "@components/AppLink";
-import MintAllocation from "@components/PageEcoSystem/MintAllocation";
 
 export default function Borrow() {
 	useEffect(() => {
