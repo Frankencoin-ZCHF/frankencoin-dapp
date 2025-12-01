@@ -17,7 +17,7 @@ type PositionRollerTableParams = {
 export default function PositionRollerTable(params: PositionRollerTableParams) {
 	const { position } = params;
 
-	const headers: string[] = ["Position", "Liquidation Price", "Annual Interest", "Maturity"];
+	const headers: string[] = ["Position", "Liquidation Price", "Annual Interest", "Maturity", "Additional Funds"];
 	const [tab, setTab] = useState<string>(headers[3]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<PositionQuery[]>([]);
@@ -113,6 +113,11 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 		sortingList.sort((a, b) => {
 			return b.expiration - a.expiration;
 		});
+	} else if (tab === headers[4]) {
+		// sort for Additional Funds
+		// sortingList.sort((a, b) => {
+		// 	return b.expiration - a.expiration; // FIXME: correct logic
+		// });
 	}
 
 	return reverse ? sortingList.reverse() : sortingList;

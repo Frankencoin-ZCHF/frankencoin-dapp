@@ -4,13 +4,14 @@ import { PositionQuery } from "@frankencoin/api";
 import { formatCurrency, FormatType, shortenAddress } from "../../utils/format";
 import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
-import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
-import { ADDRESS, ERC20ABI } from "@frankencoin/zchf";
+import { WAGMI_CONFIG } from "../../app.config";
+import { ADDRESS, ERC20ABI, PositionV2ABI } from "@frankencoin/zchf";
 import { useAccount, useBlockNumber } from "wagmi";
 import PositionRollerApproveAction from "./PositionRollerApproveAction";
 import PositionRollerFullRollAction from "./PositionRollerFullRollAction";
 import AppLink from "@components/AppLink";
 import { mainnet } from "viem/chains";
+import { useUserBalance } from "@hooks";
 
 interface Props {
 	headers: string[];
@@ -21,9 +22,11 @@ interface Props {
 
 export default function PositionRollerRow({ headers, tab, source, target }: Props) {
 	const [userCollAllowance, setUserCollAllowance] = useState<bigint>(0n);
+	const [missingFunds, setMissingFunds] = useState<bigint>(0n);
 	const { data } = useBlockNumber({ watch: true });
 	const { address } = useAccount();
 	const account = address || zeroAddress;
+	const userBalance = useUserBalance(account);
 
 	useEffect(() => {
 		if (account == zeroAddress) return;
@@ -42,6 +45,29 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 
 		fetcher();
 	}, [data, account, target.collateral]);
+
+	useEffect(() => {
+		const fetcher = async function () {
+			const mintAmount = await readContract(WAGMI_CONFIG, {
+				address: target.position,
+				chainId: mainnet.id,
+				abi: PositionV2ABI,
+				functionName: "getMintAmount",
+				args: [BigInt(source.minted)],
+			});
+
+			const maxMintByCollateral =
+				(BigInt(source.collateralBalance) * BigInt(target.price)) / BigInt(10 ** (18 - target.collateralDecimals));
+
+			if (mintAmount <= maxMintByCollateral) {
+				setMissingFunds(0n);
+			} else {
+				setMissingFunds(mintAmount - maxMintByCollateral);
+			}
+		};
+
+		fetcher();
+	}, [source, target, userBalance]);
 
 	const cooldownTimestamp = target.cooldown * 1000;
 	const isCooldown = cooldownTimestamp > Date.now();
@@ -64,7 +90,7 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 				) : (
 					<PositionRollerFullRollAction
 						label={isCooldown ? cooldownText : isTargetOwned ? "Merge" : "Roll"}
-						disabled={isCooldown}
+						disabled={isCooldown || missingFunds > userBalance[mainnet.id].frankencoin}
 						source={source}
 						target={target}
 					/>
@@ -89,6 +115,9 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 
 			{/* Maturity */}
 			<div className="flex flex-col">{dateStr}</div>
+
+			{/* Missing Funds */}
+			<div className="flex flex-col">{formatCurrency(formatUnits(missingFunds, 18), 2)} ZCHF</div>
 		</TableRow>
 	);
 }
