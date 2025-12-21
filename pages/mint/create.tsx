@@ -22,6 +22,10 @@ import AppLink from "@components/AppLink";
 import { useRouter as useNavigation } from "next/navigation";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { useRouter } from "next/router";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/redux.store";
+import { PositionQueryV2 } from "@frankencoin/api";
 
 export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
@@ -54,6 +58,31 @@ export default function PositionCreate({}) {
 	const chainId = mainnet.id;
 	const collTokenData = useTokenData(collateralAddress);
 	const userBalance = useUserBalance();
+	const router = useRouter();
+	const queryAddress: Address = String(router.query.source).toLowerCase() as Address;
+	const { list } = useSelector((state: RootState) => state.positions.list);
+
+	useEffect(() => {
+		if (isAddress(queryAddress)) {
+			const getPosition = list.find((i) => i.position.toLowerCase() == queryAddress) as PositionQueryV2;
+			if (getPosition == null) return;
+
+			// Collateral
+			setCollateralAddress(getPosition.collateral);
+			setMinCollAmount(BigInt(getPosition.minimumCollateral));
+			setInitialCollAmount(BigInt(getPosition.minimumCollateral));
+
+			// Financial Terms
+			setLimitAmount(BigInt(getPosition.limitForClones));
+			setInterest(BigInt(getPosition.riskPremiumPPM));
+			// skipping maturity, default: 12M
+
+			// Liquidation
+			setLiqPrice(BigInt(getPosition.price));
+			setBuffer(BigInt(getPosition.reserveContribution));
+			setAuctionDuration(BigInt(getPosition.challengePeriod) / 3600n);
+		}
+	}, [queryAddress, list]);
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;

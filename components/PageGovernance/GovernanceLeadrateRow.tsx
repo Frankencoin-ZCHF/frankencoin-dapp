@@ -1,4 +1,4 @@
-import { Address, erc20Abi, formatUnits, Hash, maxUint256 } from "viem";
+import { Address, erc20Abi, formatUnits, Hash, maxUint256, encodeAbiParameters } from "viem";
 import TableRow from "../Table/TableRow";
 import { formatCurrency, shortenAddress } from "../../utils/format";
 import { useEffect, useState } from "react";
@@ -48,6 +48,8 @@ export default function GovernanceLeadrateRow({ headers, tab, proposal }: Props)
 
 	const dateArr: string[] = new Date(proposal.details.created * 1000).toDateString().split(" ");
 	const dateStr: string = `${dateArr[2]} ${dateArr[1]} ${dateArr[3]}`;
+
+	const leadrateSenderAddress = ADDRESS[mainnet.id].ccipLeadrateSender;
 
 	useEffect(() => {
 		if (address == undefined) return;
@@ -107,7 +109,7 @@ export default function GovernanceLeadrateRow({ headers, tab, proposal }: Props)
 				chainId: chainId,
 				abi: erc20Abi,
 				functionName: "allowance",
-				args: [address, proposal.details.module],
+				args: [address, leadrateSenderAddress],
 			});
 			setUserLinkAllowance(_userLinkAllowance);
 
@@ -135,7 +137,7 @@ export default function GovernanceLeadrateRow({ headers, tab, proposal }: Props)
 		};
 
 		fetcher();
-	}, [address, chainId, proposal]);
+	}, [address, chainId, proposal, leadrateSenderAddress]);
 
 	const handleOnDeny = async function (e: any) {
 		e.preventDefault();
@@ -262,7 +264,7 @@ export default function GovernanceLeadrateRow({ headers, tab, proposal }: Props)
 					chainId: chainId,
 					abi: erc20Abi,
 					functionName: "approve",
-					args: [proposal.details.module, maxUint256],
+					args: [leadrateSenderAddress, maxUint256],
 				});
 
 				const toastContent = [
@@ -272,7 +274,7 @@ export default function GovernanceLeadrateRow({ headers, tab, proposal }: Props)
 					},
 					{
 						title: "Spender: ",
-						value: shortenAddress(proposal.details.module),
+						value: shortenAddress(leadrateSenderAddress),
 					},
 					{
 						title: "Transaction:",
@@ -309,13 +311,15 @@ export default function GovernanceLeadrateRow({ headers, tab, proposal }: Props)
 				},
 			] as const;
 
+			const targetsAsBytes = targets.map((target) => encodeAbiParameters([{ type: "address" }], [target]));
+
 			// needs to be paid in LINK token
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].ccipLeadrateSender,
 				chainId: chainId,
 				abi: overwriteABI,
 				functionName: "pushLeadrate",
-				args: [chainSelectors, targets],
+				args: [chainSelectors, targetsAsBytes],
 			});
 
 			const toastContent = [

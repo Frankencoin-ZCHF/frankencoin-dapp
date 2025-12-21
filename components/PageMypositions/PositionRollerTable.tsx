@@ -8,16 +8,20 @@ import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import { Address, formatUnits } from "viem";
 import { useEffect, useState } from "react";
 import PositionRollerRow from "./PositionRollerRow";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { mainnet } from "viem/chains";
+import Button from "@components/Button";
+import { useRouter as useNavigation } from "next/navigation";
 
 type PositionRollerTableParams = {
 	position: PositionQuery;
 	challengeSize: bigint;
 };
 
-export default function PositionRollerTable(params: PositionRollerTableParams) {
-	const { position } = params;
+export default function PositionRollerTable({ position }: PositionRollerTableParams) {
+	const navigate = useNavigation();
 
-	const headers: string[] = ["Position", "Liquidation Price", "Annual Interest", "Maturity"];
+	const headers: string[] = ["Position", "Liquidation Price", "Annual Interest", "Maturity", "Additional Funds"];
 	const [tab, setTab] = useState<string>(headers[3]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<PositionQuery[]>([]);
@@ -65,12 +69,30 @@ export default function PositionRollerTable(params: PositionRollerTableParams) {
 		}
 	};
 
+	const handleClick = function (position: PositionQuery) {
+		const slug = `?source=${position.position.toLowerCase()}&chain=ethereum`;
+		navigate.push("/mint/create" + slug);
+	};
+
 	return (
 		<Table>
 			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
 				{list.length == 0 ? (
-					<TableRowEmpty>{"No open positions available for rolling."}</TableRowEmpty>
+					<TableRowEmpty>
+						{
+							<div className={`flex flex-col`}>
+								<div className="">No open positions available for rolling.</div>
+								<div className="mt-4">
+									<GuardSupportedChain chain={mainnet}>
+										<Button className="h-10" onClick={() => handleClick(position)}>
+											Propose with new Parameter
+										</Button>
+									</GuardSupportedChain>
+								</div>
+							</div>
+						}
+					</TableRowEmpty>
 				) : (
 					list.map((pos) => <PositionRollerRow headers={headers} tab={tab} source={position} target={pos} key={pos.position} />)
 				)}
@@ -113,6 +135,11 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 		sortingList.sort((a, b) => {
 			return b.expiration - a.expiration;
 		});
+	} else if (tab === headers[4]) {
+		// sort for Additional Funds
+		// sortingList.sort((a, b) => {
+		// 	return b.expiration - a.expiration; // FIXME: correct logic
+		// });
 	}
 
 	return reverse ? sortingList.reverse() : sortingList;
