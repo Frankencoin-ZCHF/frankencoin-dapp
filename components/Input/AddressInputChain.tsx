@@ -65,7 +65,10 @@ export default function AddressInputChain({
 						} ${disabled ? "bg-card-input-disabled" : ""}`}
 						placeholder={placeholder}
 						value={value}
-						onChange={(e) => onChange?.(e.target.value)}
+						onChange={(e) => {
+							const input = e.target.value.split(" ").join("");
+							onChange?.(input);
+						}}
 						disabled={disabled}
 						autoFocus={autoFocus}
 					/>
