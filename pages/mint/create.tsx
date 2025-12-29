@@ -49,6 +49,7 @@ export default function PositionCreate({}) {
 	const [bufferError, setBufferError] = useState("");
 	const [durationError, setDurationError] = useState("");
 	const [isConfirming, setIsConfirming] = useState("");
+	const [isInit, setIsInit] = useState(false);
 
 	const [userAllowance, setUserAllowance] = useState<bigint>(0n);
 	const { data } = useBlockNumber({ watch: true });
@@ -63,6 +64,9 @@ export default function PositionCreate({}) {
 	const { list } = useSelector((state: RootState) => state.positions.list);
 
 	useEffect(() => {
+		if (isInit) return;
+		else setIsInit(true);
+
 		if (isAddress(queryAddress)) {
 			const getPosition = list.find((i) => i.position.toLowerCase() == queryAddress) as PositionQueryV2;
 			if (getPosition == null) return;
@@ -82,7 +86,7 @@ export default function PositionCreate({}) {
 			setBuffer(BigInt(getPosition.reserveContribution));
 			setAuctionDuration(BigInt(getPosition.challengePeriod) / 3600n);
 		}
-	}, [queryAddress, list]);
+	}, [isInit, queryAddress, list]);
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
@@ -122,13 +126,13 @@ export default function PositionCreate({}) {
 		}
 	}, [collateralAddress, collTokenData]);
 
-	useEffect(() => {
-		if (minCollAmount > 0n) {
-			const valueBigInt = parseUnits("5000", 36) / minCollAmount;
-			setLiqPrice(valueBigInt);
-			checkCollateralAmount(minCollAmount, valueBigInt);
-		}
-	}, [minCollAmount]);
+	// useEffect(() => {
+	// 	if (minCollAmount > 0n) {
+	// 		const valueBigInt = parseUnits("5000", 36) / minCollAmount;
+	// 		setLiqPrice(valueBigInt);
+	// 		checkCollateralAmount(minCollAmount, valueBigInt);
+	// 	}
+	// }, [minCollAmount]);
 
 	const onChangeProposalFee = (value: string) => {
 		const valueBigInt = BigInt(value);
