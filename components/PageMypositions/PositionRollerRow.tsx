@@ -53,11 +53,11 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 				chainId: mainnet.id,
 				abi: PositionV2ABI,
 				functionName: "getMintAmount",
-				args: [BigInt(source.minted)],
+				args: [(BigInt(source.minted) * BigInt(1000000 - source.reserveContribution)) / BigInt("1000000")],
 			});
 
 			const maxMintByCollateral =
-				(BigInt(source.collateralBalance) * BigInt(target.price)) / BigInt(10 ** (18 - target.collateralDecimals));
+				(BigInt(source.collateralBalance) * BigInt(target.price)) / BigInt(10 ** (36 - target.collateralDecimals));
 
 			if (mintAmount <= maxMintByCollateral) {
 				setMissingFunds(0n);
