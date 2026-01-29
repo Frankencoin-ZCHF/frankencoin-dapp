@@ -63,7 +63,7 @@ export const fetchDashboard = () => async (dispatch: Dispatch<DispatchBoolean | 
 	try {
 		// ---------------------------------------------------------------
 		// Query raw data from backend api;
-		const response1 = await FRANKENCOIN_API_CLIENT.get("/analytics/dailyLog/jsonn");
+		const response1 = await FRANKENCOIN_API_CLIENT.get("/analytics/dailyLog/json");
 		dispatch(slice.actions.setDailyLog(response1.data as ApiDailyLog));
 
 		// ---------------------------------------------------------------
