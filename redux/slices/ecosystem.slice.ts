@@ -1,5 +1,6 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
 import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { showErrorToast } from "@utils";
 import {
 	DispatchApiEcosystemCollateralPositions,
 	DispatchApiEcosystemCollateralStats,
@@ -118,27 +119,33 @@ export const fetchEcosystem =
 		// ---------------------------------------------------------------
 		CONFIG.verbose && console.log("Loading [REDUX]: Ecosystem");
 
-		// ---------------------------------------------------------------
-		// Query raw data from backend api
-		const response1 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/collateral/positions");
-		dispatch(slice.actions.setCollateralPositions(response1.data as ApiEcosystemCollateralPositions));
+		try {
+			// ---------------------------------------------------------------
+			// Query raw data from backend api
+			const response1 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/collateral/positions");
+			dispatch(slice.actions.setCollateralPositions(response1.data as ApiEcosystemCollateralPositions));
 
-		const response2 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/collateral/stats");
-		dispatch(slice.actions.setCollateralStats(response2.data as ApiEcosystemCollateralStats));
+			const response2 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/collateral/stats");
+			dispatch(slice.actions.setCollateralStats(response2.data as ApiEcosystemCollateralStats));
 
-		const response3 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/fps/info");
-		dispatch(slice.actions.setFpsInfo(response3.data as ApiEcosystemFpsInfo));
+			const response3 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/fps/info");
+			dispatch(slice.actions.setFpsInfo(response3.data as ApiEcosystemFpsInfo));
 
-		const response4 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/frankencoin/info");
-		dispatch(slice.actions.setFrankencoinInfo(response4.data as ApiEcosystemFrankencoinInfo));
+			const response4 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/frankencoin/info");
+			dispatch(slice.actions.setFrankencoinInfo(response4.data as ApiEcosystemFrankencoinInfo));
 
-		const response5 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/minter/list");
-		dispatch(slice.actions.setFrankencoinMinters(response5.data as ApiMinterListing));
+			const response5 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/minter/list");
+			dispatch(slice.actions.setFrankencoinMinters(response5.data as ApiMinterListing));
 
-		const response6 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/frankencoin/totalsupply");
-		dispatch(slice.actions.setFrankencoinSupply(response6.data as ApiEcosystemFrankencoinSupply));
+			const response6 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/frankencoin/totalsupply");
+			dispatch(slice.actions.setFrankencoinSupply(response6.data as ApiEcosystemFrankencoinSupply));
 
-		// ---------------------------------------------------------------
-		// Finalizing, loaded set to ture
-		dispatch(slice.actions.setLoaded(true));
+			// ---------------------------------------------------------------
+			// Finalizing, loaded set to true
+			dispatch(slice.actions.setLoaded(true));
+		} catch (error) {
+			// ---------------------------------------------------------------
+			// Error, show toast message
+			showErrorToast({ message: "Fetching Ecosystem", error });
+		}
 	};

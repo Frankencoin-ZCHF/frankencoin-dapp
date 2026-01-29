@@ -1,6 +1,7 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
 import { DispatchBoolean, DispatchMarketArray, Market, MorphoState } from "./morpho.types";
 import { CONFIG, MORPHOGRAPH_CLIENT, WAGMI_CHAIN } from "../../app.config";
+import { showErrorToast } from "@utils";
 import { gql } from "@apollo/client";
 import { ADDRESS } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
@@ -123,7 +124,7 @@ export const fetchMorphoMarkets = () => async (dispatch: Dispatch<DispatchBoolea
 
 		dispatch(slice.actions.setMarkets(filteredMarkets));
 	} catch (error) {
-		console.error(error);
+		showErrorToast({ message: "Fetching Morpho Markets", error });
 	}
 
 	// ---------------------------------------------------------------

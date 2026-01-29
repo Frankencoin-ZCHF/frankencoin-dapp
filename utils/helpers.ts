@@ -2,6 +2,7 @@ import { Hash } from "viem";
 import { ADDRESS, ChainId, SupportedChain, SupportedChains } from "@frankencoin/zchf";
 import { CONFIG, WAGMI_CHAIN, WAGMI_CHAINS } from "../app.config";
 import path from "path";
+import { toast } from "react-toastify";
 
 export const AppUrl = (url: string) => {
 	return path.join(CONFIG.app, url);
@@ -32,3 +33,7 @@ export const getChainByChainSelector = (selector: string | bigint) => {
 	const chainId = keys.find((v, idx) => ADDRESS[Number(v) as ChainId].chainSelector == selector);
 	return getChain(Number(chainId) as ChainId);
 };
+
+export function showErrorToast({ module, message, error }: { module?: string; message: string; error: unknown }) {
+	toast.error(`${module ?? "API Error:"} ${message}\n${error}`, { position: "bottom-right" });
+}

@@ -1,6 +1,6 @@
 import { PositionQuery, ApiPositionsListing, ApiPositionsOwners, ApiPositionsMapping } from "@frankencoin/api";
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
-import { uniqueValues } from "@utils";
+import { uniqueValues, showErrorToast } from "@utils";
 import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
 import {
 	PositionsState,
@@ -122,43 +122,49 @@ export const fetchPositionsList =
 		// ---------------------------------------------------------------
 		CONFIG.verbose && console.log("Loading [REDUX]: PositionsList");
 
-		// ---------------------------------------------------------------
-		// Query raw data from backend api;
-		const response1 = await FRANKENCOIN_API_CLIENT.get("/positions/list");
-		dispatch(slice.actions.setList(response1.data as ApiPositionsListing));
+		try {
+			// ---------------------------------------------------------------
+			// Query raw data from backend api;
+			const response1 = await FRANKENCOIN_API_CLIENT.get("/positions/list");
+			dispatch(slice.actions.setList(response1.data as ApiPositionsListing));
 
-		const responseMapping = await FRANKENCOIN_API_CLIENT.get("/positions/mapping");
-		dispatch(slice.actions.setListMapping(responseMapping.data as ApiPositionsMapping));
+			const responseMapping = await FRANKENCOIN_API_CLIENT.get("/positions/mapping");
+			dispatch(slice.actions.setListMapping(responseMapping.data as ApiPositionsMapping));
 
-		const response2 = await FRANKENCOIN_API_CLIENT.get("/positions/owners");
-		dispatch(slice.actions.setOwnersPositions(response2.data as ApiPositionsOwners));
+			const response2 = await FRANKENCOIN_API_CLIENT.get("/positions/owners");
+			dispatch(slice.actions.setOwnersPositions(response2.data as ApiPositionsOwners));
 
-		const response3 = await FRANKENCOIN_API_CLIENT.get("/positions/requests");
-		dispatch(slice.actions.setRequestsList(response3.data as ApiPositionsMapping));
+			const response3 = await FRANKENCOIN_API_CLIENT.get("/positions/requests");
+			dispatch(slice.actions.setRequestsList(response3.data as ApiPositionsMapping));
 
-		// ---------------------------------------------------------------
-		// filter positions and dispatch
-		const listArray = response1.data.list as PositionQuery[];
-		const openPositions = listArray.filter(
-			(position) => !position.denied && !position.closed && BigInt(position.collateralBalance) > 0n
-		);
-		const collateralAddresses = openPositions.map((position) => position.collateral).filter(uniqueValues);
+			// ---------------------------------------------------------------
+			// filter positions and dispatch
+			const listArray = response1.data.list as PositionQuery[];
+			const openPositions = listArray.filter(
+				(position) => !position.denied && !position.closed && BigInt(position.collateralBalance) > 0n
+			);
+			const collateralAddresses = openPositions.map((position) => position.collateral).filter(uniqueValues);
 
-		// const requestedPositions = collateralAddresses.map((con) => listArray.filter((position) => position.collateral == con));
-		const closedPositioins = listArray.filter((position) => position.closed);
-		const deniedPositioins = listArray.filter((position) => position.denied);
-		const originalPositions = openPositions.filter((position) => position.isOriginal);
-		const openPositionsByOriginal = originalPositions.map((o) => openPositions.filter((p) => p.original == o.original));
-		const openPositionsByCollateral = collateralAddresses.map((con) => openPositions.filter((position) => position.collateral == con));
+			// const requestedPositions = collateralAddresses.map((con) => listArray.filter((position) => position.collateral == con));
+			const closedPositioins = listArray.filter((position) => position.closed);
+			const deniedPositioins = listArray.filter((position) => position.denied);
+			const originalPositions = openPositions.filter((position) => position.isOriginal);
+			const openPositionsByOriginal = originalPositions.map((o) => openPositions.filter((p) => p.original == o.original));
+			const openPositionsByCollateral = collateralAddresses.map((con) => openPositions.filter((position) => position.collateral == con));
 
-		dispatch(slice.actions.setOpenPositions(openPositions));
-		dispatch(slice.actions.setClosedPositions(closedPositioins));
-		dispatch(slice.actions.setDeniedPositions(deniedPositioins));
-		dispatch(slice.actions.setOriginalPositions(originalPositions));
-		dispatch(slice.actions.setOpenPositionsByOriginal(openPositionsByOriginal));
-		dispatch(slice.actions.setOpenPositionsByCollateral(openPositionsByCollateral));
+			dispatch(slice.actions.setOpenPositions(openPositions));
+			dispatch(slice.actions.setClosedPositions(closedPositioins));
+			dispatch(slice.actions.setDeniedPositions(deniedPositioins));
+			dispatch(slice.actions.setOriginalPositions(originalPositions));
+			dispatch(slice.actions.setOpenPositionsByOriginal(openPositionsByOriginal));
+			dispatch(slice.actions.setOpenPositionsByCollateral(openPositionsByCollateral));
 
-		// ---------------------------------------------------------------
-		// Finalizing, loaded set to true
-		dispatch(slice.actions.setLoaded(true));
+			// ---------------------------------------------------------------
+			// Finalizing, loaded set to true
+			dispatch(slice.actions.setLoaded(true));
+		} catch (error) {
+			// ---------------------------------------------------------------
+			// Error, show toast message
+			showErrorToast({ message: "Fetching PositionsList", error });
+		}
 	};

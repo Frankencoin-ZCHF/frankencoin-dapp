@@ -5,7 +5,6 @@ import { useSelector } from "react-redux";
 import { RootState, store } from "../redux/redux.store";
 import { fetchPositionsList } from "../redux/slices/positions.slice";
 import { fetchPricesList } from "../redux/slices/prices.slice";
-import { fetchAccount, actions as accountActions } from "../redux/slices/account.slice";
 import { useIsConnectedToCorrectChain } from "../hooks/useWalletConnectStats";
 import { CONFIG, WAGMI_CHAIN } from "../app.config";
 import LoadingScreen from "./LoadingScreen";
@@ -87,15 +86,15 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 
 		// Block update policy: EACH BLOCK
 		CONFIG.verbose && console.log(`Policy [BlockUpdater]: EACH BLOCK ${fetchedLatestHeight}`);
-		store.dispatch(fetchPositionsList());
-		store.dispatch(fetchChallengesList());
-		store.dispatch(fetchBidsList());
-		store.dispatch(fetchPricesList());
-		store.dispatch(fetchEcosystem());
 
 		// Block update policy: EACH 10 BLOCKS
 		if (fetchedLatestHeight >= latestHeight10 + 10) {
 			CONFIG.verbose && console.log(`Policy [BlockUpdater]: EACH 10 BLOCKS ${fetchedLatestHeight}`);
+			store.dispatch(fetchPositionsList());
+			store.dispatch(fetchChallengesList());
+			store.dispatch(fetchBidsList());
+			store.dispatch(fetchPricesList());
+			store.dispatch(fetchEcosystem());
 			setLatestHeight10(fetchedLatestHeight);
 		}
 
@@ -118,12 +117,10 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		if (!address && latestAddress) {
 			setLatestAddress(undefined);
 			CONFIG.verbose && console.log(`Policy [BlockUpdater]: Address reset`);
-			store.dispatch(accountActions.resetAccountState());
 			store.dispatch(fetchSavings(undefined));
 		} else if (address && (!latestAddress || address != latestAddress)) {
 			setLatestAddress(address);
 			CONFIG.verbose && console.log(`Policy [BlockUpdater]: Address changed to: ${address}`);
-			store.dispatch(fetchAccount(address));
 			store.dispatch(fetchSavings(address));
 		}
 	}, [address, latestAddress]);
