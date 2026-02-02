@@ -19,7 +19,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 export default function MyPositionsChallengesTable() {
-	const headers: string[] = ["Remaining Size", "Current Price", "State", "Time Left"];
+	const headers: string[] = ["Size", "Averted", "Proceeds", "Succeeded", "Rewards"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<ChallengesQueryItem[]>([]);
@@ -90,33 +90,22 @@ function sortChallenges(params: SortChallenges): ChallengesQueryItem[] {
 	const { challenges, positions, prices, auction, headers, tab, reverse } = params;
 
 	if (tab === headers[0]) {
-		// Remaining challenge size
+		// challenge size
 		challenges.sort((a, b) => {
 			const calc = function (c: ChallengesQueryItem) {
 				const pos: PositionQuery = positions[c.position.toLowerCase() as Address];
 				const size: number = parseFloat(formatUnits(c.size, pos.collateralDecimals));
-				const filled: number = parseFloat(formatUnits(c.filledSize, pos.collateralDecimals));
-				const price: number = prices[pos.collateral.toLowerCase() as Address].price.chf || 1;
-				return (size - filled) * price;
+				return size;
 			};
 			return calc(b) - calc(a);
 		});
 	} else if (tab === headers[1]) {
-		// Prices, auction prices
-		challenges.sort((a, b) => {
-			const calc = function (c: ChallengesQueryItem) {
-				const pos: PositionQuery = positions[c.position.toLowerCase() as Address];
-				const raw: bigint = BigInt(auction[c.id as ChallengesId] ?? 0);
-				const price: number = parseFloat(formatUnits(raw, 36 - pos.collateralDecimals)) || 0;
-				return price;
-			};
-			return calc(b) - calc(a);
-		});
+		// FIXME: unchanged sorting, add feature if needed
 	} else if (tab === headers[2]) {
-		// Phase state
 		// FIXME: unchanged sorting, add feature if needed
 	} else if (tab === headers[3]) {
-		// Ends in
+		// FIXME: unchanged sorting, add feature if needed
+	} else if (tab === headers[4]) {
 		// FIXME: unchanged sorting, add feature if needed
 	}
 
