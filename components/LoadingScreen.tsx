@@ -6,7 +6,18 @@ import { version } from "../package.json";
 import { faCodeCommit } from "@fortawesome/free-solid-svg-icons";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 
-export default function LoadingScreen() {
+export interface Loading {
+	isLoaded: boolean;
+	title: string;
+	id: string;
+}
+
+interface LoadingScreenProps {
+	title?: string;
+	loading?: Loading[];
+}
+
+export default function LoadingScreen({ title = "Frankencoin is loading...", loading = [] }: LoadingScreenProps) {
 	return (
 		<>
 			<div className="flex items-center justify-center gap-4 h-screen">
@@ -15,8 +26,23 @@ export default function LoadingScreen() {
 						<picture>
 							<img className="h-10 mr-4" src="/coin/zchf.png" alt="Logo" />
 						</picture>
-						<h1>Frankencoin is loading...</h1>
+						<h1>{title}</h1>
 					</div>
+
+					{loading.length > 0 && (
+						<ul className="list-none text-left text-sm">
+							{loading.map((item) => (
+								<li key={item.id} className="flex items-center gap-2">
+									<span
+										className={`inline-block w-2 h-2 rounded-full ${
+											item.isLoaded ? "bg-green-500" : "bg-gray-400 animate-pulse"
+										}`}
+									/>
+									<span className={item.isLoaded ? "text-green-500" : "text-text-secondary"}>{item.title}</span>
+								</li>
+							))}
+						</ul>
+					)}
 
 					<div className="absolute bottom-[20%] w-full flex justify-center">
 						<h1 className="px-8 text-center max-w-2xl">

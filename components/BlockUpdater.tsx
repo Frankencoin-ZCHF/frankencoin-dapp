@@ -6,7 +6,7 @@ import { RootState, store } from "../redux/redux.store";
 import { fetchPositionsList } from "../redux/slices/positions.slice";
 import { fetchPricesList } from "../redux/slices/prices.slice";
 import { useIsConnectedToCorrectChain } from "../hooks/useWalletConnectStats";
-import { CONFIG, WAGMI_CHAIN } from "../app.config";
+import { CONFIG } from "../app.config";
 import LoadingScreen from "./LoadingScreen";
 import { fetchChallengesList } from "../redux/slices/challenges.slice";
 import { fetchBidsList } from "../redux/slices/bids.slice";
@@ -130,6 +130,18 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	if (initialized) {
 		return <>{children}</>;
 	} else {
-		return <LoadingScreen />;
+		return (
+			<LoadingScreen
+				loading={[
+					{ id: "ecosystem", title: "Ecosystem", isLoaded: loadedEcosystem },
+					{ id: "positions", title: "Positions", isLoaded: loadedPositions },
+					{ id: "prices", title: "Prices", isLoaded: loadedPrices },
+					{ id: "challenges", title: "Challenges", isLoaded: loadedChallenges },
+					{ id: "bids", title: "Bids", isLoaded: loadedBids },
+					{ id: "leadrate", title: "Leadrate", isLoaded: loadedLeadrate },
+					{ id: "savings", title: "Savings", isLoaded: loadedSavings },
+				]}
+			/>
+		);
 	}
 }
