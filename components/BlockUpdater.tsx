@@ -6,6 +6,7 @@ import { RootState, store } from "../redux/redux.store";
 import { fetchPositionsList } from "../redux/slices/positions.slice";
 import { fetchPricesList } from "../redux/slices/prices.slice";
 import { useIsConnectedToCorrectChain } from "../hooks/useWalletConnectStats";
+import { useServiceStatus } from "../hooks/useServiceStatus";
 import { CONFIG } from "../app.config";
 import LoadingScreen from "./LoadingScreen";
 import { fetchChallengesList } from "../redux/slices/challenges.slice";
@@ -31,6 +32,8 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	const [latestHeight10, setLatestHeight10] = useState<number>(0);
 	const [latestConnectedToChain, setLatestConnectedToChain] = useState<boolean>(false);
 	const [latestAddress, setLatestAddress] = useState<Address | undefined>(undefined);
+
+	const serviceStatus = useServiceStatus();
 
 	const loadedEcosystem: boolean = useSelector((state: RootState) => state.ecosystem.loaded);
 	const loadedPositions: boolean = useSelector((state: RootState) => state.positions.loaded);
@@ -151,6 +154,7 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 			<LoadingScreen
 				breakerMs={initBreakerMS}
 				loading={[
+					...serviceStatus,
 					{ id: "ecosystem", title: "Ecosystem", isLoaded: loadedEcosystem },
 					{ id: "positions", title: "Positions", isLoaded: loadedPositions },
 					{ id: "prices", title: "Prices", isLoaded: loadedPrices },
