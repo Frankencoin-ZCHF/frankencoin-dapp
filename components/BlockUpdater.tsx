@@ -18,6 +18,7 @@ import { mainnet } from "viem/chains";
 
 let initializing: boolean = false;
 let initStart: number = 0;
+let initBreakerMS: number = 12000;
 let loading: boolean = false;
 
 export default function BockUpdater({ children }: { children?: React.ReactElement | React.ReactElement[] }) {
@@ -38,6 +39,11 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	const loadedBids: boolean = useSelector((state: RootState) => state.bids.loaded);
 	const loadedLeadrate: boolean = useSelector((state: RootState) => state.savings.leadrateLoaded);
 	const loadedSavings: boolean = useSelector((state: RootState) => state.savings.savingsLoaded);
+
+	const timeToBreakLoading = () => {
+		const delay = Date.now() - initStart;
+		return delay > initBreakerMS ? 0 : initBreakerMS - delay;
+	};
 
 	// --------------------------------------------------------------------------------
 	// Init
@@ -63,10 +69,21 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	// Init done
 	useEffect(() => {
 		if (initialized) return;
+
 		if (loadedEcosystem && loadedPositions && loadedPrices && loadedChallenges && loadedBids && loadedLeadrate && loadedSavings) {
 			console.log(`Init [BlockUpdater]: Done. ${Date.now() - initStart} ms`);
 			setInitialized(true);
+			return;
 		}
+
+		// Breaker: force initialized after timeout even if not all data loaded
+		const remaining = timeToBreakLoading();
+		const timer = setTimeout(() => {
+			console.warn(`Init [BlockUpdater]: Breaker triggered after ${initBreakerMS} ms. Forcing app to continue.`);
+			setInitialized(true);
+		}, remaining);
+
+		return () => clearTimeout(timer);
 	}, [initialized, loadedPositions, loadedPrices, loadedEcosystem, loadedChallenges, loadedBids, loadedLeadrate, loadedSavings]);
 
 	// --------------------------------------------------------------------------------
@@ -132,6 +149,7 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	} else {
 		return (
 			<LoadingScreen
+				breakerMs={initBreakerMS}
 				loading={[
 					{ id: "ecosystem", title: "Ecosystem", isLoaded: loadedEcosystem },
 					{ id: "positions", title: "Positions", isLoaded: loadedPositions },

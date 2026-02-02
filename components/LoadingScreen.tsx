@@ -5,6 +5,7 @@ import { SOCIAL } from "../utils/constant";
 import { version } from "../package.json";
 import { faCodeCommit } from "@fortawesome/free-solid-svg-icons";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
+import { useEffect, useState } from "react";
 
 export interface Loading {
 	isLoaded: boolean;
@@ -15,9 +16,21 @@ export interface Loading {
 interface LoadingScreenProps {
 	title?: string;
 	loading?: Loading[];
+	breakerMs?: number;
 }
 
-export default function LoadingScreen({ title = "Frankencoin is loading...", loading = [] }: LoadingScreenProps) {
+export default function LoadingScreen({ title = "Frankencoin is loading...", loading = [], breakerMs }: LoadingScreenProps) {
+	const [elapsed, setElapsed] = useState(0);
+
+	useEffect(() => {
+		if (!breakerMs) return;
+		const interval = setInterval(() => setElapsed((prev) => prev + 1000), 1000);
+		return () => clearInterval(interval);
+	}, [breakerMs]);
+
+	const showWarning = breakerMs && elapsed >= 5000;
+	const remainingSeconds = breakerMs ? Math.max(0, Math.ceil((breakerMs - elapsed) / 1000)) : 0;
+
 	return (
 		<>
 			<div className="flex items-center justify-center gap-4 h-screen">
@@ -42,6 +55,12 @@ export default function LoadingScreen({ title = "Frankencoin is loading...", loa
 								</li>
 							))}
 						</ul>
+					)}
+
+					{showWarning && (
+						<p className="text-sm text-text-warning animate-pulse">
+							Loading takes longer than expected. Continuing in {remainingSeconds}s.
+						</p>
 					)}
 
 					<div className="absolute bottom-[20%] w-full flex justify-center">
