@@ -124,7 +124,7 @@ export default function Positions() {
 			<MyPositionsChallengesTable />
 
 			{/* Section Bids */}
-			<AppTitle title="Bought through Bids">
+			<AppTitle title="Your Bids">
 				<DisplayWarningMessage overwrite={overwrite} />
 			</AppTitle>
 
