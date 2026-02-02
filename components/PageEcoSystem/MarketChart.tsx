@@ -11,22 +11,15 @@ export default function MarketChart() {
 	const priceList = marketChart.prices.filter((i) => i[0] >= date);
 	const volumeList = marketChart.total_volumes.filter((i) => i[0] >= date);
 
-	const dateFormatter = (value: number) => {
-		const date = new Date(value);
-		const d = date.getDate();
-		const m = date.getMonth() + 1;
-		const y = date.getFullYear();
-		return `${d}.${m}.${y}`;
-	};
-
 	return (
-		<div className="grid md:grid-cols-2 gap-4">
+		<div className="grid grid-cols-1 gap-4">
 			<AppCard>
 				<div className="mt-4 text-lg font-bold text-center">Exchange Rate</div>
 
 				<div className="-m-4 pr-2">
 					<ApexChart
 						type="line"
+						height={300}
 						options={{
 							theme: {
 								monochrome: {
@@ -40,7 +33,6 @@ export default function MarketChart() {
 							},
 							chart: {
 								type: "line",
-								height: 100,
 								dropShadow: {
 									enabled: false,
 								},
@@ -62,13 +54,9 @@ export default function MarketChart() {
 								type: "datetime",
 								labels: {
 									show: true,
-									formatter: (value) => {
-										const date = new Date(value);
-										const d = date.getDate();
-										const m = date.getMonth() + 1;
-										const y = date.getFullYear();
-										const h = date.getHours();
-										return `${d}.${m}.${y} ${h}:00`;
+									datetimeUTC: false,
+									datetimeFormatter: {
+										month: "MMM yyyy",
 									},
 								},
 								axisBorder: {
@@ -127,6 +115,7 @@ export default function MarketChart() {
 				<div className="-m-4 pr-2">
 					<ApexChart
 						type="line"
+						height={300}
 						options={{
 							theme: {
 								monochrome: {
@@ -140,7 +129,6 @@ export default function MarketChart() {
 							},
 							chart: {
 								type: "line",
-								height: 100,
 								dropShadow: {
 									enabled: false,
 								},
@@ -162,13 +150,9 @@ export default function MarketChart() {
 								type: "datetime",
 								labels: {
 									show: true,
-									formatter: (value) => {
-										const date = new Date(value);
-										const d = date.getDate();
-										const m = date.getMonth() + 1;
-										const y = date.getFullYear();
-										const h = date.getHours();
-										return `${d}.${m}.${y} ${h}:00`;
+									datetimeUTC: false,
+									datetimeFormatter: {
+										month: "MMM yyyy",
 									},
 								},
 								axisBorder: {
@@ -182,7 +166,7 @@ export default function MarketChart() {
 								labels: {
 									show: true,
 									formatter: (value) => {
-										return `${Math.round(value)} CHF`;
+										return `${Math.round(value / 100000) / 10}M CHF`;
 									},
 								},
 								axisBorder: {
@@ -192,11 +176,8 @@ export default function MarketChart() {
 									show: true,
 								},
 								max: (max) => {
-									return max + max * 0.01;
+									return Math.ceil(max / 1_000_000) * 1_000_000;
 								},
-								// min: (min) => {
-								// 	return min - min * 0.01;
-								// },
 								min: 0,
 							},
 						}}
