@@ -299,6 +299,7 @@ export default function PositionCreate({}) {
 			const openWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: ADDRESS[chainId].mintingHubV2,
 				chainId,
+				gas: 3000000n,
 				abi: MintingHubV2ABI,
 				functionName: "openPosition",
 				args: [
