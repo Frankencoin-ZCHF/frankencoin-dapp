@@ -19,7 +19,7 @@ import { mainnet } from "viem/chains";
 
 let initializing: boolean = false;
 let initStart: number = 0;
-let initBreakerMS: number = 12000;
+let initBreakerMS: number = 15000;
 let loading: boolean = false;
 
 export default function BockUpdater({ children }: { children?: React.ReactElement | React.ReactElement[] }) {

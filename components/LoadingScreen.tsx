@@ -2,6 +2,7 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { SOCIAL } from "../utils/constant";
+import AppLink from "./AppLink";
 import { version } from "../package.json";
 import { faCodeCommit } from "@fortawesome/free-solid-svg-icons";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
@@ -58,8 +59,10 @@ export default function LoadingScreen({ title = "Frankencoin is loading...", loa
 					)}
 
 					{showWarning && (
-						<p className="text-sm text-text-warning animate-pulse">
-							Loading takes longer than expected. Continuing in {remainingSeconds}s.
+						<p className="text-sm text-text-warning animate-pulse text-center max-w-md">
+							Loading takes longer than expected. Continuing in {remainingSeconds}s. Please try again at a later point
+							in time or tell us about this error in our{" "}
+							<AppLink className="" label="Telegram channel" href={SOCIAL.Telegram} external />.
 						</p>
 					)}
 
