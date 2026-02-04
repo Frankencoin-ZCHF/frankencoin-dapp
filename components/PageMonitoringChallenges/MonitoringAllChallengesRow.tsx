@@ -8,6 +8,7 @@ import { useContractUrl } from "@hooks";
 import { useRouter as useNavigation } from "next/navigation";
 import Button from "@components/Button";
 import { shortenAddress, TxUrl } from "@utils";
+import { TxLabelSimple } from "@components/AddressLabel";
 
 interface Props {
 	challenge: ChallengesQueryItem;
@@ -85,8 +86,8 @@ export default function MonitoringAllChallengesRow({ challenge, bids }: Props) {
 							Bid
 						</Button>
 					) : (
-						<Button className="h-10" onClick={() => window.open(TxUrl(challenge.txHash), "_blank")}>
-							Tx
+						<Button className="h-10">
+							<TxLabelSimple label="View Tx" tx={challenge.txHash} showLink />
 						</Button>
 					)}
 				</div>
