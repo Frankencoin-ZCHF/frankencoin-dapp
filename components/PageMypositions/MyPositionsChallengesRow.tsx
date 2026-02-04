@@ -1,6 +1,6 @@
 import { Address, formatUnits, parseEther, zeroAddress } from "viem";
 import TableRow from "../Table/TableRow";
-import { ChallengesId, ChallengesQueryItem } from "@frankencoin/api";
+import { BidsQueryType, ChallengesId, ChallengesQueryItem } from "@frankencoin/api";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import TokenLogo from "@components/TokenLogo";
@@ -18,7 +18,7 @@ interface Props {
 export default function MyPositionsChallengesRow({ headers, tab, challenge }: Props) {
 	const positions = useSelector((state: RootState) => state.positions.mapping);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
-	const challengesPrices = useSelector((state: RootState) => state.challenges.challengesPrices);
+	const bids = useSelector((state: RootState) => state.bids.challenges.map[challenge.id]);
 
 	const position = positions.map[challenge.position.toLowerCase() as Address];
 	const url = useContractUrl(position.collateral || zeroAddress);
@@ -28,7 +28,6 @@ export default function MyPositionsChallengesRow({ headers, tab, challenge }: Pr
 	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
 	if (!collTokenPrice || !zchfPrice) return null;
 
-	const challengePrice: bigint = BigInt(challengesPrices.map[challenge.id as ChallengesId] ?? parseEther("0"));
 	const start: number = parseInt(challenge.start.toString()) * 1000; // timestap
 	const duration: number = parseInt(challenge.duration.toString()) * 1000;
 
@@ -38,31 +37,29 @@ export default function MyPositionsChallengesRow({ headers, tab, challenge }: Pr
 	const declineStartTimestamp = start + phase1;
 	const zeroPriceTimestamp = start + phase1 + duration;
 
-	const states: string[] = ["Phase 1", "Phase 2"];
 	let stateIdx: number = 0;
-	let stateTimeLeft: string = "";
 
 	if (zeroPriceTimestamp < Date.now()) {
 		stateIdx = 1;
-		stateTimeLeft = "Matured";
 	} else if (declineStartTimestamp > Date.now()) {
 		stateIdx = 0;
-		const diff: number = declineStartTimestamp - Date.now();
-		const d: number = Math.floor(diff / 1000 / 60 / 60 / 24);
-		const h: number = Math.floor((diff / 1000 / 60 / 60 / 24 - d) * 24);
-		const m: number = Math.floor(diff / 1000 / 60 - d * 24 * 60 - h * 60);
-		stateTimeLeft = `${d}d ${h}h ${m}m`;
 	} else {
 		stateIdx = 1;
-		const diff: number = zeroPriceTimestamp - Date.now();
-		const d: number = Math.floor(diff / 1000 / 60 / 60 / 24);
-		const h: number = Math.floor((diff / 1000 / 60 / 60 / 24 - d) * 24);
-		const m: number = Math.floor(diff / 1000 / 60 - d * 24 * 60 - h * 60);
-		stateTimeLeft = `${d}d ${h}h ${m}m`;
 	}
 
-	const challengeRemainingSize: number =
-		(parseInt(challenge.size.toString()) - parseInt(challenge.filledSize.toString())) / 10 ** position.collateralDecimals;
+	const challengeSize: number = parseInt(challenge.size.toString()) / 10 ** position.collateralDecimals;
+
+	const avertedSize: number =
+		(parseInt(challenge.filledSize.toString()) - parseInt(challenge.acquiredCollateral.toString())) / 10 ** position.collateralDecimals;
+
+	const avertedRatio: number = avertedSize / challengeSize;
+
+	const succeededSize: number = parseInt(challenge.acquiredCollateral.toString()) / 10 ** position.collateralDecimals;
+
+	const succeededRatio: number = succeededSize / challengeSize;
+
+	const allProceeds = bids.reduce((a, b) => (b.bidType == BidsQueryType.Averted ? a + parseFloat(formatUnits(b.bid, 18)) : a), 0);
+	const allRewards = bids.reduce((a, b) => (b.bidType == BidsQueryType.Succeeded ? a + parseFloat(formatUnits(b.bid, 18)) * 0.02 : a), 0);
 
 	const openExplorer = (e: any) => {
 		e.preventDefault();
@@ -82,9 +79,7 @@ export default function MyPositionsChallengesRow({ headers, tab, challenge }: Pr
 					<span className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</span>
-					<span className={`col-span-2 text-md`}>{`${formatCurrency(challengeRemainingSize, 2, 2)} ${
-						position.collateralSymbol
-					}`}</span>
+					<span className={`col-span-2 text-md`}>{`${formatCurrency(challengeSize, 2, 2)} ${position.collateralSymbol}`}</span>
 				</div>
 
 				{/* mobile view */}
@@ -92,23 +87,28 @@ export default function MyPositionsChallengesRow({ headers, tab, challenge }: Pr
 					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</div>
-					<div className={`col-span-2 text-md`}>{`${formatCurrency(challengeRemainingSize)} ${position.collateralSymbol}`}</div>
+					<div className={`col-span-2 text-md`}>{`${formatCurrency(challengeSize)} ${position.collateralSymbol}`}</div>
 				</AppBox>
 			</div>
 
-			{/* Current Price */}
+			{/* Averted Ratio */}
 			<div className="flex flex-col">
-				<div className="text-md">{formatCurrency(formatUnits(challengePrice, 36 - position.collateralDecimals), 2, 2)} ZCHF</div>
+				<div className="text-md">{formatCurrency(avertedRatio * 100, 2, 2)}%</div>
 			</div>
 
-			{/* State */}
+			{/* All Proceeds */}
 			<div className="flex flex-col">
-				<div className="text-md">{states[stateIdx]}</div>
+				<div className="text-md">{formatCurrency(allProceeds, 2, 2)} ZCHF</div>
 			</div>
 
-			{/* Time Left */}
+			{/* Succeeded Ratio */}
 			<div className="flex flex-col">
-				<div className={`text-md`}>{stateTimeLeft}</div>
+				<div className="text-md">{formatCurrency(succeededRatio * 100, 2, 2)}%</div>
+			</div>
+
+			{/* All Rewards */}
+			<div className="flex flex-col">
+				<div className="text-md">{formatCurrency(allRewards, 2, 2)} ZCHF</div>
 			</div>
 		</TableRow>
 	);

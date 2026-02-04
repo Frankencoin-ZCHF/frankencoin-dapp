@@ -10,6 +10,7 @@ import { useRouter as useNavigation } from "next/navigation";
 import Button from "@components/Button";
 import { useAccount } from "wagmi";
 import AppBox from "@components/AppBox";
+import { TxUrl } from "@utils";
 
 interface Props {
 	headers: string[];
@@ -45,7 +46,9 @@ export default function MyPositionsBidsRow({ headers, tab, bid }: Props) {
 			tab={tab}
 			actionCol={
 				isDisabled ? (
-					<></>
+					<Button className="h-10" onClick={() => openExplorer(TxUrl(bid.txHash))}>
+						View
+					</Button>
 				) : (
 					<div className="">
 						<Button

@@ -41,7 +41,11 @@ export default function Positions() {
 			</div>
 
 			<AppTitle title="Auctions">
-				<div className="text-text-secondary">Buy collateral of challenged or expired positions in a Dutch auction.</div>
+				<div className="text-text-secondary">
+					Buy collateral of challenged or expired positions in a Dutch auction. See the{" "}
+					<AppLink label="challenges & bids overview" href="/monitoring/challenges" external={false} className="" /> for a
+					complete track record.
+				</div>
 			</AppTitle>
 			<div className="md:mt-8">
 				<ChallengesTable />
