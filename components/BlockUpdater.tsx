@@ -5,9 +5,9 @@ import { useSelector } from "react-redux";
 import { RootState, store } from "../redux/redux.store";
 import { fetchPositionsList } from "../redux/slices/positions.slice";
 import { fetchPricesList } from "../redux/slices/prices.slice";
-import { fetchAccount, actions as accountActions } from "../redux/slices/account.slice";
 import { useIsConnectedToCorrectChain } from "../hooks/useWalletConnectStats";
-import { CONFIG, WAGMI_CHAIN } from "../app.config";
+import { useServiceStatus } from "../hooks/useServiceStatus";
+import { CONFIG } from "../app.config";
 import LoadingScreen from "./LoadingScreen";
 import { fetchChallengesList } from "../redux/slices/challenges.slice";
 import { fetchBidsList } from "../redux/slices/bids.slice";
@@ -19,6 +19,7 @@ import { mainnet } from "viem/chains";
 
 let initializing: boolean = false;
 let initStart: number = 0;
+let initBreakerMS: number = 15000;
 let loading: boolean = false;
 
 export default function BockUpdater({ children }: { children?: React.ReactElement | React.ReactElement[] }) {
@@ -32,6 +33,8 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	const [latestConnectedToChain, setLatestConnectedToChain] = useState<boolean>(false);
 	const [latestAddress, setLatestAddress] = useState<Address | undefined>(undefined);
 
+	const serviceStatus = useServiceStatus();
+
 	const loadedEcosystem: boolean = useSelector((state: RootState) => state.ecosystem.loaded);
 	const loadedPositions: boolean = useSelector((state: RootState) => state.positions.loaded);
 	const loadedPrices: boolean = useSelector((state: RootState) => state.prices.loaded);
@@ -39,6 +42,11 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	const loadedBids: boolean = useSelector((state: RootState) => state.bids.loaded);
 	const loadedLeadrate: boolean = useSelector((state: RootState) => state.savings.leadrateLoaded);
 	const loadedSavings: boolean = useSelector((state: RootState) => state.savings.savingsLoaded);
+
+	const timeToBreakLoading = () => {
+		const delay = Date.now() - initStart;
+		return delay > initBreakerMS ? 0 : initBreakerMS - delay;
+	};
 
 	// --------------------------------------------------------------------------------
 	// Init
@@ -64,10 +72,21 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	// Init done
 	useEffect(() => {
 		if (initialized) return;
+
 		if (loadedEcosystem && loadedPositions && loadedPrices && loadedChallenges && loadedBids && loadedLeadrate && loadedSavings) {
 			console.log(`Init [BlockUpdater]: Done. ${Date.now() - initStart} ms`);
 			setInitialized(true);
+			return;
 		}
+
+		// Breaker: force initialized after timeout even if not all data loaded
+		const remaining = timeToBreakLoading();
+		const timer = setTimeout(() => {
+			console.warn(`Init [BlockUpdater]: Breaker triggered after ${initBreakerMS} ms. Forcing app to continue.`);
+			setInitialized(true);
+		}, remaining);
+
+		return () => clearTimeout(timer);
 	}, [initialized, loadedPositions, loadedPrices, loadedEcosystem, loadedChallenges, loadedBids, loadedLeadrate, loadedSavings]);
 
 	// --------------------------------------------------------------------------------
@@ -87,15 +106,15 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 
 		// Block update policy: EACH BLOCK
 		CONFIG.verbose && console.log(`Policy [BlockUpdater]: EACH BLOCK ${fetchedLatestHeight}`);
-		store.dispatch(fetchPositionsList());
-		store.dispatch(fetchChallengesList());
-		store.dispatch(fetchBidsList());
-		store.dispatch(fetchPricesList());
-		store.dispatch(fetchEcosystem());
 
 		// Block update policy: EACH 10 BLOCKS
 		if (fetchedLatestHeight >= latestHeight10 + 10) {
 			CONFIG.verbose && console.log(`Policy [BlockUpdater]: EACH 10 BLOCKS ${fetchedLatestHeight}`);
+			store.dispatch(fetchPositionsList());
+			store.dispatch(fetchChallengesList());
+			store.dispatch(fetchBidsList());
+			store.dispatch(fetchPricesList());
+			store.dispatch(fetchEcosystem());
 			setLatestHeight10(fetchedLatestHeight);
 		}
 
@@ -118,12 +137,10 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		if (!address && latestAddress) {
 			setLatestAddress(undefined);
 			CONFIG.verbose && console.log(`Policy [BlockUpdater]: Address reset`);
-			store.dispatch(accountActions.resetAccountState());
 			store.dispatch(fetchSavings(undefined));
 		} else if (address && (!latestAddress || address != latestAddress)) {
 			setLatestAddress(address);
 			CONFIG.verbose && console.log(`Policy [BlockUpdater]: Address changed to: ${address}`);
-			store.dispatch(fetchAccount(address));
 			store.dispatch(fetchSavings(address));
 		}
 	}, [address, latestAddress]);
@@ -133,6 +150,20 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 	if (initialized) {
 		return <>{children}</>;
 	} else {
-		return <LoadingScreen />;
+		return (
+			<LoadingScreen
+				breakerMs={initBreakerMS}
+				loading={[
+					...serviceStatus,
+					{ id: "ecosystem", title: "Ecosystem", isLoaded: loadedEcosystem },
+					{ id: "positions", title: "Positions", isLoaded: loadedPositions },
+					{ id: "prices", title: "Prices", isLoaded: loadedPrices },
+					{ id: "challenges", title: "Challenges", isLoaded: loadedChallenges },
+					{ id: "bids", title: "Bids", isLoaded: loadedBids },
+					{ id: "leadrate", title: "Leadrate", isLoaded: loadedLeadrate },
+					{ id: "savings", title: "Savings", isLoaded: loadedSavings },
+				]}
+			/>
+		);
 	}
 }
