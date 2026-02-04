@@ -1,5 +1,6 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
 import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { showErrorToast } from "@utils";
 import {
 	DispatchApiLeadrateInfo,
 	DispatchApiLeadrateProposed,
@@ -106,20 +107,26 @@ export const fetchLeadrate =
 		// ---------------------------------------------------------------
 		CONFIG.verbose && console.log("Loading [REDUX]: Leadrate");
 
-		// ---------------------------------------------------------------
-		// Query raw data from backend api
-		const response1 = await FRANKENCOIN_API_CLIENT.get<ApiLeadrateInfo>("/savings/leadrate/info");
-		dispatch(slice.actions.setLeadrateInfo(response1.data));
+		try {
+			// ---------------------------------------------------------------
+			// Query raw data from backend api
+			const response1 = await FRANKENCOIN_API_CLIENT.get<ApiLeadrateInfo>("/savings/leadrate/info");
+			dispatch(slice.actions.setLeadrateInfo(response1.data));
 
-		const response2 = await FRANKENCOIN_API_CLIENT.get<ApiLeadrateProposed>("/savings/leadrate/proposals");
-		dispatch(slice.actions.setLeadrateProposed(response2.data));
+			const response2 = await FRANKENCOIN_API_CLIENT.get<ApiLeadrateProposed>("/savings/leadrate/proposals");
+			dispatch(slice.actions.setLeadrateProposed(response2.data));
 
-		const response3 = await FRANKENCOIN_API_CLIENT.get<ApiLeadrateRate>("/savings/leadrate/rates");
-		dispatch(slice.actions.setLeadrateRate(response3.data));
+			const response3 = await FRANKENCOIN_API_CLIENT.get<ApiLeadrateRate>("/savings/leadrate/rates");
+			dispatch(slice.actions.setLeadrateRate(response3.data));
 
-		// ---------------------------------------------------------------
-		// Finalizing, loaded set to ture
-		dispatch(slice.actions.setLeadrateLoaded(true));
+			// ---------------------------------------------------------------
+			// Finalizing, loaded set to true
+			dispatch(slice.actions.setLeadrateLoaded(true));
+		} catch (error) {
+			// ---------------------------------------------------------------
+			// Error, show toast message
+			showErrorToast({ message: "Fetching Leadrate", error });
+		}
 	};
 
 // --------------------------------------------------------------------------------
@@ -133,21 +140,27 @@ export const fetchSavings =
 		// ---------------------------------------------------------------
 		CONFIG.verbose && console.log("Loading [REDUX]: Savings");
 
-		// ---------------------------------------------------------------
-		// Query raw data from backend api
-		const response4 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsInfo>("/savings/core/info");
-		dispatch(slice.actions.setSavingsInfo(response4.data));
+		try {
+			// ---------------------------------------------------------------
+			// Query raw data from backend api
+			const response4 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsInfo>("/savings/core/info");
+			dispatch(slice.actions.setSavingsInfo(response4.data));
 
-		const response5 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsBalance>(`/savings/core/balance/${account}`);
-		dispatch(slice.actions.setSavingsBalance(response5.data));
+			const response5 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsBalance>(`/savings/core/balance/${account}`);
+			dispatch(slice.actions.setSavingsBalance(response5.data));
 
-		const response6 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsActivity>(`/savings/core/activity/${account}`);
-		dispatch(slice.actions.setSavingsActivity(response6.data));
+			const response6 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsActivity>(`/savings/core/activity/${account}`);
+			dispatch(slice.actions.setSavingsActivity(response6.data));
 
-		const response7 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsRanked>("/savings/core/ranked");
-		dispatch(slice.actions.setSavingsRanked(response7.data));
+			const response7 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsRanked>("/savings/core/ranked");
+			dispatch(slice.actions.setSavingsRanked(response7.data));
 
-		// ---------------------------------------------------------------
-		// Finalizing, loaded set to ture
-		dispatch(slice.actions.setSavingsLoaded(true));
+			// ---------------------------------------------------------------
+			// Finalizing, loaded set to true
+			dispatch(slice.actions.setSavingsLoaded(true));
+		} catch (error) {
+			// ---------------------------------------------------------------
+			// Error, show toast message
+			showErrorToast({ message: "Fetching Savings", error });
+		}
 	};

@@ -7,6 +7,7 @@ import {
 	ApiChallengesPrices,
 } from "@frankencoin/api";
 import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { showErrorToast } from "@utils";
 import {
 	ChallengesState,
 	DispatchApiChallengesChallengers,
@@ -96,24 +97,30 @@ export const fetchChallengesList =
 		// ---------------------------------------------------------------
 		CONFIG.verbose && console.log("Loading [REDUX]: ChallengesList");
 
-		// ---------------------------------------------------------------
-		// Query raw data from backend api
-		const response1 = await FRANKENCOIN_API_CLIENT.get("/challenges/list");
-		dispatch(slice.actions.setList(response1.data as ApiChallengesListing));
+		try {
+			// ---------------------------------------------------------------
+			// Query raw data from backend api
+			const response1 = await FRANKENCOIN_API_CLIENT.get("/challenges/list");
+			dispatch(slice.actions.setList(response1.data as ApiChallengesListing));
 
-		const responseMapping = await FRANKENCOIN_API_CLIENT.get("/challenges/mapping");
-		dispatch(slice.actions.setMapping(responseMapping.data as ApiChallengesMapping));
+			const responseMapping = await FRANKENCOIN_API_CLIENT.get("/challenges/mapping");
+			dispatch(slice.actions.setMapping(responseMapping.data as ApiChallengesMapping));
 
-		const response2 = await FRANKENCOIN_API_CLIENT.get("/challenges/challengers");
-		dispatch(slice.actions.setChallengers(response2.data as ApiChallengesChallengers));
+			const response2 = await FRANKENCOIN_API_CLIENT.get("/challenges/challengers");
+			dispatch(slice.actions.setChallengers(response2.data as ApiChallengesChallengers));
 
-		const response3 = await FRANKENCOIN_API_CLIENT.get("/challenges/positions");
-		dispatch(slice.actions.setPositions(response3.data as ApiChallengesPositions));
+			const response3 = await FRANKENCOIN_API_CLIENT.get("/challenges/positions");
+			dispatch(slice.actions.setPositions(response3.data as ApiChallengesPositions));
 
-		const response4 = await FRANKENCOIN_API_CLIENT.get("/challenges/prices");
-		dispatch(slice.actions.setPrices(response4.data as ApiChallengesPrices));
+			const response4 = await FRANKENCOIN_API_CLIENT.get("/challenges/prices");
+			dispatch(slice.actions.setPrices(response4.data as ApiChallengesPrices));
 
-		// ---------------------------------------------------------------
-		// Finalizing, loaded set to ture
-		dispatch(slice.actions.setLoaded(true));
+			// ---------------------------------------------------------------
+			// Finalizing, loaded set to true
+			dispatch(slice.actions.setLoaded(true));
+		} catch (error) {
+			// ---------------------------------------------------------------
+			// Error, show toast message
+			showErrorToast({ message: "Fetching ChallengesList", error });
+		}
 	};

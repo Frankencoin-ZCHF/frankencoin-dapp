@@ -2,7 +2,6 @@ import { configureStore } from "@reduxjs/toolkit";
 import { combineReducers } from "redux";
 
 // splices
-import { reducer as accountReducer } from "./slices/account.slice";
 import { reducer as dashboardReducer } from "./slices/dashboard.slice";
 import { reducer as ecosystemReducer } from "./slices/ecosystem.slice";
 import { reducer as positionReducer } from "./slices/positions.slice";
@@ -15,7 +14,6 @@ import { reducer as morphoReducer } from "./slices/morpho.slice";
 // store with combined reducers
 export const store = configureStore({
 	reducer: combineReducers({
-		account: accountReducer,
 		dashboard: dashboardReducer,
 		ecosystem: ecosystemReducer,
 		positions: positionReducer,

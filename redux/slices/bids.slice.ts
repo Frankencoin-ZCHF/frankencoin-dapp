@@ -1,5 +1,6 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
 import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
+import { showErrorToast } from "@utils";
 import {
 	BidsState,
 	DispatchBoolean,
@@ -92,24 +93,30 @@ export const fetchBidsList =
 		// ---------------------------------------------------------------
 		CONFIG.verbose && console.log("Loading [REDUX]: BidsList");
 
-		// ---------------------------------------------------------------
-		// Query raw data from backend api
-		const response1 = await FRANKENCOIN_API_CLIENT.get("/challenges/bids/list");
-		dispatch(slice.actions.setList(response1.data as ApiBidsListing));
+		try {
+			// ---------------------------------------------------------------
+			// Query raw data from backend api
+			const response1 = await FRANKENCOIN_API_CLIENT.get("/challenges/bids/list");
+			dispatch(slice.actions.setList(response1.data as ApiBidsListing));
 
-		const responseMapping = await FRANKENCOIN_API_CLIENT.get("/challenges/bids/mapping");
-		dispatch(slice.actions.setMapping(responseMapping.data as ApiBidsMapping));
+			const responseMapping = await FRANKENCOIN_API_CLIENT.get("/challenges/bids/mapping");
+			dispatch(slice.actions.setMapping(responseMapping.data as ApiBidsMapping));
 
-		const response2 = await FRANKENCOIN_API_CLIENT.get("/challenges/bids/bidders");
-		dispatch(slice.actions.setBidders(response2.data as ApiBidsBidders));
+			const response2 = await FRANKENCOIN_API_CLIENT.get("/challenges/bids/bidders");
+			dispatch(slice.actions.setBidders(response2.data as ApiBidsBidders));
 
-		const response3 = await FRANKENCOIN_API_CLIENT.get("/challenges/bids/challenges");
-		dispatch(slice.actions.setChallenges(response3.data as ApiBidsChallenges));
+			const response3 = await FRANKENCOIN_API_CLIENT.get("/challenges/bids/challenges");
+			dispatch(slice.actions.setChallenges(response3.data as ApiBidsChallenges));
 
-		const response4 = await FRANKENCOIN_API_CLIENT.get("/challenges/bids/positions");
-		dispatch(slice.actions.setPositions(response4.data as ApiBidsPositions));
+			const response4 = await FRANKENCOIN_API_CLIENT.get("/challenges/bids/positions");
+			dispatch(slice.actions.setPositions(response4.data as ApiBidsPositions));
 
-		// ---------------------------------------------------------------
-		// Finalizing, loaded set to ture
-		dispatch(slice.actions.setLoaded(true));
+			// ---------------------------------------------------------------
+			// Finalizing, loaded set to true
+			dispatch(slice.actions.setLoaded(true));
+		} catch (error) {
+			// ---------------------------------------------------------------
+			// Error, show toast message
+			showErrorToast({ message: "Fetching BidsList", error });
+		}
 	};
