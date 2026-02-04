@@ -60,7 +60,7 @@ export default function MonitoringAllChallengesRow({ challenge, bids }: Props) {
 							isActive ? "text-green-500" : "text-blue-500"
 						}`}
 					>
-						{challenge.status}
+						{isActive ? "Active" : "Ended"}
 					</span>
 				</div>
 
