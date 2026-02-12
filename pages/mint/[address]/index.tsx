@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { formatUnits, maxUint256, erc20Abi, Hash, zeroHash, parseEther, decodeEventLog } from "viem";
+import { formatUnits, maxUint256, erc20Abi, Hash, zeroHash, parseEther, decodeEventLog, parseUnits } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useState } from "react";
 import Button from "@components/Button";
@@ -54,7 +54,7 @@ export default function PositionBorrow({}) {
 		setExpirationDate(toDate(position.expiration));
 
 		if (!amount) {
-			const initMintAmount: bigint = BigInt(formatUnits(BigInt(position.price) * BigInt(position.minimumCollateral), 18));
+			const initMintAmount: bigint = (BigInt(position.price) * BigInt(position.minimumCollateral)) / parseUnits("1", 18);
 			setAmount(initMintAmount);
 		}
 
