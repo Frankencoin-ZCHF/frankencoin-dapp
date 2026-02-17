@@ -6,7 +6,10 @@ import { formatUnits } from "viem";
  */
 export function generateExpirationCalendar(positions: PositionQuery[], ownerAddress: string): string {
 	const now = new Date();
-	const timestamp = now.toISOString().replace(/[:-]/g, "").replace(/\.\d{3}/, "");
+	const timestamp = now
+		.toISOString()
+		.replace(/[:-]/g, "")
+		.replace(/\.\d{3}/, "");
 
 	let icsContent = [
 		"BEGIN:VCALENDAR",
@@ -46,6 +49,12 @@ export function generateExpirationCalendar(positions: PositionQuery[], ownerAddr
 				const eventId = `${position.position}-${interval.days || 0}d-${interval.hours || 0}h-${timestamp}`;
 				const collateralAmount = formatUnits(BigInt(position.collateralBalance), position.collateralDecimals);
 
+				// Calculate Debt and Reserve amounts
+				const totalMinted = parseFloat(formatUnits(BigInt(position.minted), 18)); // ZCHF has 18 decimals
+				const reserveContribution = position.reserveContribution / 1000000; // Convert from PPM
+				const debt = Math.round(totalMinted * (1 - reserveContribution));
+				const reserve = Math.round(totalMinted * reserveContribution);
+
 				icsContent.push(
 					"BEGIN:VEVENT",
 					`UID:${eventId}@frankencoin.com`,
@@ -56,8 +65,10 @@ export function generateExpirationCalendar(positions: PositionQuery[], ownerAddr
 					`DESCRIPTION:Your Frankencoin position is expiring soon!\\n\\n` +
 						`Position: ${position.position}\\n` +
 						`Collateral: ${collateralAmount} ${position.collateralSymbol}\\n` +
+						`Debt: ${debt} ZCHF\\n` +
+						`Reserve: ${reserve} ZCHF\\n` +
 						`Expiration: ${expirationDate.toLocaleString()}\\n\\n` +
-						`Visit: https://app.frankencoin.com/mypositions`,
+						`Visit: https://app.frankencoin.com/mypositions/${position.position}`,
 					"BEGIN:VALARM",
 					"ACTION:DISPLAY",
 					`DESCRIPTION:${interval.title}`,
@@ -78,7 +89,10 @@ export function generateExpirationCalendar(positions: PositionQuery[], ownerAddr
  * Formats a Date object to ICS date-time format (YYYYMMDDTHHMMSSZ)
  */
 function formatDateForICS(date: Date): string {
-	return date.toISOString().replace(/[:-]/g, "").replace(/\.\d{3}/, "");
+	return date
+		.toISOString()
+		.replace(/[:-]/g, "")
+		.replace(/\.\d{3}/, "");
 }
 
 /**
@@ -87,13 +101,13 @@ function formatDateForICS(date: Date): string {
 export function downloadCalendarFile(content: string, filename: string = "frankencoin-position-alerts.ics") {
 	const blob = new Blob([content], { type: "text/calendar;charset=utf-8" });
 	const url = URL.createObjectURL(blob);
-	
+
 	const link = document.createElement("a");
 	link.href = url;
 	link.download = filename;
 	document.body.appendChild(link);
 	link.click();
 	document.body.removeChild(link);
-	
+
 	URL.revokeObjectURL(url);
 }

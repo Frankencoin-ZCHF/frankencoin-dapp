@@ -87,6 +87,25 @@ export default function MypositionsTable() {
 
 	return (
 		<>
+			<Table>
+				<TableHeader
+					headers={headers}
+					subHeaders={subHeaders}
+					tab={tab}
+					reverse={reverse}
+					tabOnChange={handleTabOnChange}
+					actionCol
+				/>
+				<TableBody>
+					{list.length == 0 ? (
+						<TableRowEmpty>{"You do not have any positions yet."}</TableRowEmpty>
+					) : (
+						list.map((pos) => (
+							<MypositionsRow headers={headers} subHeaders={subHeaders} tab={tab} position={pos} key={pos.position} />
+						))
+					)}
+				</TableBody>
+			</Table>
 			{list.length > 0 && (
 				<div className="mb-4 flex justify-end">
 					<button
@@ -99,18 +118,6 @@ export default function MypositionsTable() {
 					</button>
 				</div>
 			)}
-			<Table>
-				<TableHeader headers={headers} subHeaders={subHeaders} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
-				<TableBody>
-					{list.length == 0 ? (
-						<TableRowEmpty>{"You do not have any positions yet."}</TableRowEmpty>
-					) : (
-						list.map((pos) => (
-							<MypositionsRow headers={headers} subHeaders={subHeaders} tab={tab} position={pos} key={pos.position} />
-						))
-					)}
-				</TableBody>
-			</Table>
 		</>
 	);
 }
