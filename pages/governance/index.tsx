@@ -58,7 +58,11 @@ export default function Governance() {
 
 			<GovernanceMintersPropose />
 
-			<GovernanceMintersTable length={8} />
+			<GovernanceMintersTable length={3} />
+
+			<div className="flex justify-left">
+				<AppLink className="text-left" label="See all modules" href="/governance/modules" external={false} />
+			</div>
 
 			<AppTitle title="Frankencoin Pool Share Holders" />
 
