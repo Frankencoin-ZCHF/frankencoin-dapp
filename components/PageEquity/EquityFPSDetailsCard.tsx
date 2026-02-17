@@ -20,7 +20,7 @@ export default function EquityFPSDetailsCard() {
 	const [typechart, setTypechart] = useState<string>(TypeCharts[0]);
 	const chainId = mainnet.id;
 	const poolStats = usePoolStats();
-	const { logs } = useSelector((state: RootState) => state.dashboard.dailyLog);
+	const logs = useSelector((state: RootState) => state.dashboard.dailyLog.logs);
 	const supply = useSelector((state: RootState) => state.ecosystem.frankencoinSupply);
 
 	// @dev: show trades since start
@@ -33,7 +33,7 @@ export default function EquityFPSDetailsCard() {
 	else startTrades = 0; // All
 
 	let matchingLogs = logs.filter((t) => {
-		return parseInt(t.timestamp) >= startTrades;
+		return parseInt(t.timestamp) * 1000 >= startTrades;
 	});
 
 	let matchingSupply = Object.values(supply).filter((t) => {
@@ -44,7 +44,7 @@ export default function EquityFPSDetailsCard() {
 	const adjustedOutflow = BigInt(matchingLogs.at(-1)?.totalOutflow || "0") - BigInt(matchingLogs.at(0)?.totalOutflow || "0");
 	const netIncome = adjustedInflow - adjustedOutflow;
 
-	const timestampBegin = BigInt(matchingLogs.at(0)?.timestamp || "0");
+	const timestampBegin = BigInt(matchingLogs.at(0)?.timestamp || "0") * 1000n;
 	const timestampEnd = BigInt(Date.now());
 	const timestampDiff = timestampEnd - timestampBegin;
 	const oneYearMs = 365n * 24n * 60n * 60n * 1000n;
