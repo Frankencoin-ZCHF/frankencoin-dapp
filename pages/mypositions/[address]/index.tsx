@@ -21,6 +21,9 @@ import AppLink from "@components/AppLink";
 import MyPositionsNotFound from "@components/PageMypositions/MyPositionsNotFound";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { generateExpirationCalendar, downloadCalendarFile } from "../../../utils/calendarGenerator";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -370,6 +373,11 @@ export default function PositionAdjust() {
 		// setCollateralAmount(BigInt(position.collateralBalance) + userCollBalance);
 	};
 
+	const handleDownloadCalendar = () => {
+		const calendarContent = generateExpirationCalendar([position], account.address ?? "");
+		downloadCalendarFile(calendarContent, `frankencoin-position-${position.position.slice(0, 8)}.ics`);
+	};
+
 	return (
 		<>
 			<Head>
@@ -566,6 +574,18 @@ export default function PositionAdjust() {
 								</div>
 							</div>
 						</AppCard>
+						{!position.closed && !position.denied && (
+							<div className="flex justify-end">
+								<button
+									onClick={handleDownloadCalendar}
+									className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-700 transition-colors"
+									title="Download expiration alert calendar for this position"
+								>
+									<FontAwesomeIcon icon={faCalendarDays} className="mr-2" />
+									Expiration Calendar
+								</button>
+							</div>
+						)}
 					</div>
 				</section>
 			</div>

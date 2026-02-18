@@ -10,6 +10,9 @@ import { useAccount } from "wagmi";
 import MypositionsRow from "./MypositionsRow";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { generateExpirationCalendar, downloadCalendarFile } from "../../utils/calendarGenerator";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 
 export default function MypositionsTable() {
 	const headers: string[] = ["Collateral", "Liquidation Price", "Minted", "State"];
@@ -75,19 +78,47 @@ export default function MypositionsTable() {
 		}
 	};
 
+	const handleDownloadCalendar = () => {
+		if (list.length === 0) return;
+
+		const calendarContent = generateExpirationCalendar(list, account);
+		downloadCalendarFile(calendarContent);
+	};
+
 	return (
-		<Table>
-			<TableHeader headers={headers} subHeaders={subHeaders} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
-			<TableBody>
-				{list.length == 0 ? (
-					<TableRowEmpty>{"You do not have any positions yet."}</TableRowEmpty>
-				) : (
-					list.map((pos) => (
-						<MypositionsRow headers={headers} subHeaders={subHeaders} tab={tab} position={pos} key={pos.position} />
-					))
-				)}
-			</TableBody>
-		</Table>
+		<>
+			<Table>
+				<TableHeader
+					headers={headers}
+					subHeaders={subHeaders}
+					tab={tab}
+					reverse={reverse}
+					tabOnChange={handleTabOnChange}
+					actionCol
+				/>
+				<TableBody>
+					{list.length == 0 ? (
+						<TableRowEmpty>{"You do not have any positions yet."}</TableRowEmpty>
+					) : (
+						list.map((pos) => (
+							<MypositionsRow headers={headers} subHeaders={subHeaders} tab={tab} position={pos} key={pos.position} />
+						))
+					)}
+				</TableBody>
+			</Table>
+			{list.length > 0 && (
+				<div className="mb-4 flex justify-end">
+					<button
+						onClick={handleDownloadCalendar}
+						className="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-700 transition-colors"
+						title="Download expiration alerts calendar"
+					>
+						<FontAwesomeIcon icon={faCalendarDays} className="mr-2" />
+						Download Expiration Calendar
+					</button>
+				</div>
+			)}
+		</>
 	);
 }
 
