@@ -3,7 +3,7 @@ import GovernancePositionsTable from "@components/PageGovernance/GovernancePosit
 import GovernanceMintersTable from "@components/PageGovernance/GovernanceMintersTable";
 import GovernanceVotersTable from "@components/PageGovernance/GovernanceVotersTable";
 import GovernanceTelegramBot from "@components/PageGovernance/GovernanceTelegramBot";
-import { SOCIAL } from "@utils";
+import { formatCurrency, formatDuration, SOCIAL } from "@utils";
 import GovernanceLeadrateTable from "@components/PageGovernance/GovernanceLeadrateTable";
 import GovernanceLeadrateCurrent from "@components/PageGovernance/GovernanceLeadrateCurrent";
 import AppTitle from "@components/AppTitle";
@@ -12,8 +12,12 @@ import { useEffect } from "react";
 import { store } from "../../redux/redux.store";
 import { fetchLeadrate } from "../../redux/slices/savings.slice";
 import GovernanceMintersPropose from "@components/PageGovernance/GovernanceMintersPropose";
+import { useHoldingDurationStats } from "@hooks";
+import { formatUnits } from "viem";
 
 export default function Governance() {
+	const stats = useHoldingDurationStats();
+
 	useEffect(() => {
 		store.dispatch(fetchLeadrate());
 	}, []);
@@ -64,7 +68,15 @@ export default function Governance() {
 				<AppLink className="text-left" label="See all modules" href="/governance/modules" external={false} />
 			</div>
 
-			<AppTitle title="Frankencoin Pool Share Holders" />
+			<AppTitle title="Frankencoin Pool Share Holders">
+				<div className="text-text-secondary">
+					Voting power is proportional to both the number of FPS held as the holding duration. The average holding duration is{" "}
+					<span className="font-medium text-text-primary">{formatDuration(stats.avgHoldingDuration)}</span>. Under these
+					conditions, an individual FPS holder with at least{" "}
+					<span className="font-medium text-text-primary">{formatCurrency(formatUnits(stats.fpsForVeto, 18))} FPS</span> held for
+					the average duration would reach the veto threshold.
+				</div>
+			</AppTitle>
 
 			<GovernanceVotersTable />
 
