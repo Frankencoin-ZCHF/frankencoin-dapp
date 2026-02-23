@@ -16,6 +16,7 @@ import { LeadrateRateQuery } from "@frankencoin/api";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { Address } from "viem";
+import { useDelegationHelpers } from "@hooks";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const MintModule = ADDRESS[mainnet.id].savingsV2.toLowerCase() as Address;
@@ -26,6 +27,7 @@ interface Props {}
 export default function GovernanceLeadrateCurrent({}: Props) {
 	const account = useAccount();
 	const chainId = mainnet.id;
+	const { helpers } = useDelegationHelpers(account.address);
 	const rate = useSelector((state: RootState) => state.savings.leadrateRate.rate[chainId]);
 	const rates = useSelector((state: RootState) => state.savings.leadrateRate.list[chainId]);
 
@@ -84,7 +86,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "proposeChange",
-				args: [parseInt(String(newRateMint)), []],
+				args: [parseInt(String(newRateMint)), helpers],
 			});
 
 			const toastContent = [
@@ -131,7 +133,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "proposeChange",
-				args: [parseInt(String(newRateSave)), []],
+				args: [parseInt(String(newRateSave)), helpers],
 			});
 
 			const toastContent = [

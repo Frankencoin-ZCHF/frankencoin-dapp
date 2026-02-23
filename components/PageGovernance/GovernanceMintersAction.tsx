@@ -19,6 +19,7 @@ import {
 	SupportedChainsMap,
 } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { useDelegationHelpers } from "@hooks";
 
 interface Props {
 	minter: MinterQuery;
@@ -30,13 +31,13 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 	const account = useAccount();
 	const chainId = minter.chainId as ChainId;
 	const [isHidden, setHidden] = useState<boolean>(false);
+	const { helpers } = useDelegationHelpers(account.address);
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
 		if (!account.address) return;
 
 		const m = minter.minter;
-		const h = [] as Address[];
 		const msg = "No";
 
 		try {
@@ -48,7 +49,7 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 				chainId: chainId,
 				abi: FrankencoinABI,
 				functionName: "denyMinter",
-				args: [m, h, msg],
+				args: [m, helpers, msg],
 			});
 
 			const toastContent = [

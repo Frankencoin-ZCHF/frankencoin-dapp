@@ -6,25 +6,25 @@ export type PonderDelegationQuery = {
 	delegatedTo: Address;
 };
 
-export type DelegationQueryMappingObject = {
-	[key: Address]: Address[];
-};
-
 export type DelegationQuery = {
-	delegaters: DelegationQueryMappingObject;
-	delegatees: DelegationQueryMappingObject;
+	owners: {
+		[key: Address]: Address;
+	};
+	delegatees: {
+		[key: Address]: Address[];
+	};
 };
 
 export const useDelegationQuery = (): DelegationQuery => {
 	const returnData: DelegationQuery = {
-		delegaters: {},
+		owners: {},
 		delegatees: {},
 	};
 
 	const { data, loading } = useQuery(
 		gql`
-			query {
-				delegations(orderBy: "id", orderDirection: "desc") {
+			{
+				equityDelegations {
 					items {
 						owner
 						delegatedTo
@@ -32,25 +32,23 @@ export const useDelegationQuery = (): DelegationQuery => {
 				}
 			}
 		`,
-		{ fetchPolicy: "no-cache" }
+		{ fetchPolicy: "cache-first" }
 	);
 
-	if (loading || !data || !data.delegations) {
+	if (loading || !data || !data.equityDelegations) {
 		return returnData;
 	}
 
-	const d = data.delegations.items as PonderDelegationQuery[];
+	const items = data.equityDelegations.items as PonderDelegationQuery[];
 
-	for (const dd of d) {
-		// if (dd.owner.toLowerCase() === dd.delegatedTo.toLowerCase()) continue; // revoked
-		const o = dd.owner.toLowerCase() as Address;
-		const t = dd.delegatedTo.toLowerCase() as Address;
+	for (const i of items) {
+		const owner = i.owner.toLowerCase() as Address;
+		const to = i.delegatedTo.toLowerCase() as Address;
 
-		if (!returnData.delegaters[o]) returnData.delegaters[o] = [];
-		returnData.delegaters[o].push(t);
+		returnData.owners[owner] = to;
 
-		if (!returnData.delegatees[t]) returnData.delegatees[t] = [];
-		returnData.delegatees[t].push(o);
+		if (!returnData.delegatees[to]) returnData.delegatees[to] = [];
+		returnData.delegatees[to].push(owner);
 	}
 
 	return returnData;

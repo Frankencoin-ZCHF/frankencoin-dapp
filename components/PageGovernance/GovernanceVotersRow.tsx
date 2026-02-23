@@ -30,10 +30,9 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 	const sender: Address = account.address || zeroAddress;
 
 	const delegatedFrom = delegationData.delegatees[voter.holder.toLowerCase() as Address] || [];
-	const delegatedTo = delegationData.delegaters[voter.holder.toLowerCase() as Address] || [];
-	const delegatee = delegatedTo.at(0) || zeroAddress;
-	const isDelegated: boolean = delegatedTo.length > 0;
-	const isRevoked: boolean = isDelegated && delegatedTo[0].toLowerCase() == voter.holder.toLowerCase();
+	const delegatedTo = delegationData.owners[voter.holder.toLowerCase() as Address] || zeroAddress;
+	const isDelegated: boolean = delegatedTo != zeroAddress;
+	const isRevoked: boolean = isDelegated && delegatedTo.toLowerCase() == voter.holder.toLowerCase();
 	const isAccountDelegatedFrom: boolean = delegatedFrom.includes(sender.toLowerCase() as Address);
 
 	useEffect(() => {
@@ -44,7 +43,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 					chainId: chainId,
 					abi: EquityABI,
 					functionName: "balanceOf",
-					args: [delegatee],
+					args: [delegatedTo],
 				});
 
 				const votingPowerRatio = await readContract(WAGMI_CONFIG, {
@@ -52,7 +51,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 					chainId: chainId,
 					abi: EquityABI,
 					functionName: "relativeVotes",
-					args: [delegatee],
+					args: [delegatedTo],
 				});
 
 				const holdingDuration = await readContract(WAGMI_CONFIG, {
@@ -60,13 +59,13 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 					chainId: chainId,
 					abi: EquityABI,
 					functionName: "holdingDuration",
-					args: [delegatee],
+					args: [delegatedTo],
 				});
 
 				const votingPower = votingPowerRatio * votesTotal;
 
 				setDelegateeVotes({
-					holder: delegatee,
+					holder: delegatedTo,
 					balance: fps,
 					votingPower,
 					votingPowerRatio: parseFloat(formatUnits(votingPowerRatio, 18)),
@@ -76,7 +75,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 
 			fetcher();
 		}
-	}, [isDelegateeVotes, isDelegated, isRevoked, delegatee, voter, votesTotal, chainId]);
+	}, [isDelegateeVotes, isDelegated, isRevoked, delegatedTo, voter, votesTotal, chainId]);
 
 	return (
 		<>
@@ -109,8 +108,8 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 						{isDelegated && !isRevoked ? (
 							<AddressLabelSimple
 								className="text-sm"
-								address={delegatee}
-								label={`Delegating to: ${shortenAddress(delegatee)}`}
+								address={delegatedTo}
+								label={`Delegating to: ${shortenAddress(delegatedTo)}`}
 							/>
 						) : null}
 					</div>
@@ -139,7 +138,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 						/>
 					}
 				>
-					<AppLink label={"Delegate Address"} href={ContractUrl(delegatee)} external={true} className="text-left" />
+					<AppLink label={"Delegate Address"} href={ContractUrl(delegatedTo)} external={true} className="text-left" />
 					<div className="">{formatCurrency(formatUnits(isDelegateeVotes?.balance || 0n, 18))} FPS</div>
 					<div className="">{formatCurrency((isDelegateeVotes?.votingPowerRatio || 0) * 100)}%</div>
 					<div className="">{formatDuration(isDelegateeVotes?.holdingDuration || 0)}</div>

@@ -14,6 +14,7 @@ import { ContractUrl, TxUrl } from "@utils";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { useAccount } from "wagmi";
+import { useDelegationHelpers } from "@hooks";
 
 const MintModule = ADDRESS[mainnet.id].savingsV2.toLowerCase() as Address;
 const SaveModule = ADDRESS[mainnet.id].savingsReferral.toLowerCase() as Address;
@@ -39,6 +40,7 @@ export default function GovernanceLeadrateRow({ headers, tab, proposal }: Props)
 	const [userLinkAllowance, setUserLinkAllowance] = useState<bigint>(0n);
 
 	const { address } = useAccount();
+	const { helpers } = useDelegationHelpers(address);
 
 	const chainId = mainnet.id;
 
@@ -151,7 +153,7 @@ export default function GovernanceLeadrateRow({ headers, tab, proposal }: Props)
 				chainId: chainId,
 				abi: SavingsABI,
 				functionName: "proposeChange",
-				args: [proposal.currentRate, []],
+				args: [proposal.currentRate, helpers],
 			});
 
 			const toastContent = [
