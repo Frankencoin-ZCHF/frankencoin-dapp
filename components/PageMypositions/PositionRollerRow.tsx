@@ -48,16 +48,16 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 
 	useEffect(() => {
 		const fetcher = async function () {
+			const debtAmount = (BigInt(source.minted) * BigInt(1000000 - source.reserveContribution)) / BigInt(1000000);
 			const mintAmount = await readContract(WAGMI_CONFIG, {
 				address: target.position,
 				chainId: mainnet.id,
 				abi: PositionV2ABI,
 				functionName: "getMintAmount",
-				args: [(BigInt(source.minted) * BigInt(1000000 - source.reserveContribution)) / BigInt("1000000")],
+				args: [debtAmount],
 			});
 
-			const maxMintByCollateral =
-				(BigInt(source.collateralBalance) * BigInt(target.price)) / BigInt(10 ** (36 - target.collateralDecimals));
+			const maxMintByCollateral = (BigInt(source.collateralBalance) * BigInt(target.price)) / BigInt(10 ** 18);
 
 			if (mintAmount <= maxMintByCollateral) {
 				setMissingFunds(0n);
