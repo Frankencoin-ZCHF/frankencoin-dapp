@@ -11,6 +11,7 @@ import { PositionQuery } from "@frankencoin/api";
 import { EquityABI, PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { mainnet } from "viem/chains";
+import { useDelegationHelpers } from "@hooks";
 
 interface Props {
 	position: PositionQuery;
@@ -22,12 +23,12 @@ export default function GovernancePositionsAction({ position, disabled }: Props)
 	const [isHidden, setHidden] = useState<boolean>(false);
 	const account = useAccount();
 	const chaindId = useChainId();
+	const { helpers } = useDelegationHelpers(account.address);
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
 		if (!account.address) return;
 
-		const h = [] as Address[];
 		const msg = "No";
 
 		try {
@@ -38,7 +39,7 @@ export default function GovernancePositionsAction({ position, disabled }: Props)
 				chainId: chaindId,
 				abi: position.version == 1 ? PositionV1ABI : PositionV2ABI,
 				functionName: "deny",
-				args: [h, msg],
+				args: [helpers, msg],
 			});
 
 			const toastContent = [

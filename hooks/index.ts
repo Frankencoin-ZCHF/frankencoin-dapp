@@ -15,4 +15,5 @@ export * from "./useZchfPrice";
 export * from "./useTokenData";
 export * from "./useUserBalance";
 export * from "./useWalletConnectStats";
+export * from "./useDelegationHelpers";
 export * from "./useHoldingDurationStats";
