@@ -9,7 +9,6 @@ import Button from "@components/Button";
 import { Address, isAddress } from "viem";
 import { ADDRESS, BridgedGovernanceABI, EquityABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
-import { AppKitNetwork } from "@reown/appkit/networks";
 import { mainnet } from "viem/chains";
 
 interface Props {
@@ -21,7 +20,6 @@ export default function GovernanceDelegationAction({ delegate, disabled }: Props
 	const [isAction, setAction] = useState<boolean>(false);
 	const { address } = useAccount();
 	const chainId = useChainId();
-	const chain = WAGMI_CHAINS.find((c) => c.id === chainId) as AppKitNetwork;
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
@@ -31,9 +29,7 @@ export default function GovernanceDelegationAction({ delegate, disabled }: Props
 			setAction(true);
 
 			const isMainnet = chainId === mainnet.id;
-			const contractAddress = isMainnet
-				? ADDRESS[mainnet.id].equity
-				: (ADDRESS as any)[chainId]?.ccipBridgedGovernance;
+			const contractAddress = isMainnet ? ADDRESS[mainnet.id].equity : (ADDRESS as any)[chainId]?.ccipBridgedGovernance;
 			const abi = isMainnet ? EquityABI : BridgedGovernanceABI;
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
@@ -75,14 +71,9 @@ export default function GovernanceDelegationAction({ delegate, disabled }: Props
 	};
 
 	return (
-		<GuardSupportedChain chain={chain}>
-			<Button
-				className="h-10"
-				disabled={disabled || !isAddress(delegate)}
-				isLoading={isAction}
-				onClick={(e) => handleOnClick(e)}
-			>
-				Delegate Votes on {chain?.name}
+		<GuardSupportedChain chain={mainnet}>
+			<Button className="h-10" disabled={disabled || !isAddress(delegate)} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
+				Delegate Votes
 			</Button>
 		</GuardSupportedChain>
 	);
