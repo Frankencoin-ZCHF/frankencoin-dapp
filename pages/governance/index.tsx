@@ -75,8 +75,8 @@ export default function Governance() {
 					<span className="font-medium text-text-primary">{formatDuration(stats.avgHoldingDuration)}</span>. Under these
 					conditions, an individual FPS holder with at least{" "}
 					<span className="font-medium text-text-primary">{formatCurrency(formatUnits(stats.fpsForVeto, 18))} FPS</span> held for
-					the average duration would reach the veto threshold. If you need voting power on one of the supported
-					multichains, sync your votes first.
+					the average duration would reach the veto threshold of 2%. If you need voting power on one of the supported multichains,
+					sync your votes first.
 				</div>
 			</AppTitle>
 
