@@ -26,7 +26,6 @@ export default function GovernanceDelegation() {
 	// helpers for sync
 	const { helpers } = useDelegationHelpers(account.address);
 	const syncVoters: Address[] = isConnected ? [myAddress, ...helpers] : [];
-	console.log({ syncVoters, myDelegatedTo, helpers });
 
 	// read voting powers from mainnet equity
 	const allAddresses: Address[] = isConnected ? [myAddress, ...helpers] : [];
