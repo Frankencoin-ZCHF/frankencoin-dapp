@@ -134,8 +134,11 @@ export default function GovernanceDelegation() {
 
 				{/* Note */}
 				<div className="text-text-secondary text-sm mt-auto">
-					When syncing votes to another chain, the voting power of all your helpers (addresses that delegated to you, directly or
-					recursively) is included in the sync.{" "}
+					You can group up with other FPS holders by forming a delegation chain or circle to increase the
+					combined voting power of the group. All addresses that have delegated to you — directly or
+					recursively — are your{" "}
+					<span className="text-text-primary font-medium">helpers</span>. When syncing votes to another
+					chain, the voting power of you and all your helpers is included in the sync.{" "}
 					{syncVoters.length > 1 && isConnected && (
 						<span className="text-text-primary font-medium">
 							{syncVoters.length} address{syncVoters.length !== 1 ? "es" : ""} will be synced.
