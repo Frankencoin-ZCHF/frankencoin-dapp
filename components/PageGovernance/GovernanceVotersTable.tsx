@@ -23,7 +23,7 @@ export type VoteData = {
 };
 
 export default function GovernanceVotersTable() {
-	const headers: string[] = ["Address", "Balance", "Voting Power", "Holding Duration"];
+	const headers: string[] = ["Address", "Voting Power"];
 	const [tab, setTab] = useState<string>(headers[2]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [accountVotes, setAccountVotes] = useState<VoteData>({
@@ -120,7 +120,7 @@ export default function GovernanceVotersTable() {
 
 	return (
 		<Table>
-			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
+			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} />
 			<TableBody>
 				<>
 					{account.address ? (
@@ -160,11 +160,7 @@ function sortVotes(params: SortVotes): VoteData[] {
 	if (tab === headers[0]) {
 		votes.sort((a, b) => a.holder.localeCompare(b.holder));
 	} else if (tab === headers[1]) {
-		votes.sort((a, b) => (b.balance > a.balance ? 1 : -1));
-	} else if (tab === headers[2]) {
 		votes.sort((a, b) => (b.votingPower > a.votingPower ? 1 : -1));
-	} else if (tab === headers[3]) {
-		votes.sort((a, b) => (b.holdingDuration > a.holdingDuration ? 1 : -1));
 	}
 
 	const considerReverse = reverse ? votes.reverse() : votes;

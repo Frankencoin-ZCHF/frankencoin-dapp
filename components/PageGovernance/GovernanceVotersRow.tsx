@@ -79,24 +79,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 
 	return (
 		<>
-			<TableRow
-				className={connectedWallet ? "bg-card-content-primary" : undefined}
-				headers={headers}
-				rawHeader={true}
-				tab={tab}
-				actionCol={
-					connectedWallet ? (
-						<></>
-					) : (
-						<GovernanceVotersAction
-							key={voter.holder}
-							voter={voter}
-							connectedWallet={connectedWallet}
-							disabled={(connectedWallet && (!isDelegated || (isDelegated && isRevoked))) || isAccountDelegatedFrom}
-						/>
-					)
-				}
-			>
+			<TableRow className={connectedWallet ? "bg-card-content-primary" : undefined} headers={headers} rawHeader={true} tab={tab}>
 				{/* Owner */}
 				<div className="flex items-center">
 					<div className="flex flex-col md:text-left max-md:text-right max-md:w-full">
@@ -116,12 +99,8 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 				</div>
 
 				<div className={`flex flex-col ${connectedWallet ? "font-semibold" : ""}`}>
-					{formatCurrency(formatUnits(voter.balance, 18))} FPS
-				</div>
-				<div className={`flex flex-col ${connectedWallet ? "font-semibold" : ""}`}>
 					{formatCurrency(voter.votingPowerRatio * 100)}%
 				</div>
-				<div className={`flex flex-col ${connectedWallet ? "font-semibold" : ""}`}>{formatDuration(voter.holdingDuration)}</div>
 			</TableRow>
 
 			{connectedWallet && isDelegated && !isRevoked ? (
@@ -139,9 +118,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 					}
 				>
 					<AppLink label={"Delegate Address"} href={ContractUrl(delegatedTo)} external={true} className="text-left" />
-					<div className="">{formatCurrency(formatUnits(isDelegateeVotes?.balance || 0n, 18))} FPS</div>
 					<div className="">{formatCurrency((isDelegateeVotes?.votingPowerRatio || 0) * 100)}%</div>
-					<div className="">{formatDuration(isDelegateeVotes?.holdingDuration || 0)}</div>
 				</TableRow>
 			) : null}
 		</>
