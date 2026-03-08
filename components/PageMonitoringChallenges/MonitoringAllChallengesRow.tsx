@@ -39,7 +39,7 @@ export default function MonitoringAllChallengesRow({ challenge, bids }: Props) {
 	};
 
 	return (
-		<div className="bg-table-row-primary border border-table-row-hover rounded-xl overflow-hidden">
+		<div className="bg-table-row-primary border border-table-row-hover rounded-lg overflow-hidden">
 			{/* Challenge header */}
 			<div className="px-4 md:px-8 py-4 flex flex-col md:flex-row md:items-center gap-4">
 				{/* Collateral */}

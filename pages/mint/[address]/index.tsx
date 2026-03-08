@@ -20,6 +20,7 @@ import AppLink from "@components/AppLink";
 import { useRouter as useNavigation } from "next/navigation";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import AppCard from "@components/AppCard";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
@@ -294,7 +295,7 @@ export default function PositionBorrow({}) {
 
 			<div className="mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					<AppCard>
 						<div className="text-lg font-bold text-center mt-3">Mint Fresh Frankencoins</div>
 						<div className="space-y-8">
 							<TokenInput
@@ -359,9 +360,10 @@ export default function PositionBorrow({}) {
 								)}
 							</GuardSupportedChain>
 						</div>
-					</div>
-					<div>
-						<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
+					</AppCard>
+
+					<div className="grid gap-4">
+						<AppCard>
 							<div className="text-lg font-bold text-center mt-3">Mint Outcome</div>
 							<div className="flex-1 mt-4">
 								<div className="flex">
@@ -407,8 +409,9 @@ export default function PositionBorrow({}) {
 									</div>
 								</div>
 							</div>
-						</div>
-						<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col mt-4">
+						</AppCard>
+
+						<AppCard>
 							<div className="text-lg font-bold text-center mt-3">Notes</div>
 							<div className="flex-1 mt-4">
 								<div className="mt-2 flex">
@@ -464,7 +467,7 @@ export default function PositionBorrow({}) {
 									long as it covers the minted amount. No interest will be refunded when repaying earlier.
 								</p>
 							</div>
-						</div>
+						</AppCard>
 					</div>
 				</section>
 			</div>

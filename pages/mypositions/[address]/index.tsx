@@ -398,7 +398,7 @@ export default function PositionAdjust() {
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					<AppCard>
 						<div className="text-lg font-bold text-center">Adjustment</div>
 						<div className="space-y-8">
 							<TokenInput
@@ -496,7 +496,7 @@ export default function PositionAdjust() {
 								</GuardSupportedChain>
 							</div>
 						</div>
-					</div>
+					</AppCard>
 
 					<div className="flex flex-col gap-4">
 						<AppCard>

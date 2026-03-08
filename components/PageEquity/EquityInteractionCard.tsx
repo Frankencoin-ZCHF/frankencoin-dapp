@@ -4,6 +4,7 @@ import EquityInteractionWithFPSWFPS from "./EquityInteractionWithFPSWFPS";
 import EquityInteractionWithWFPSRedeem from "./EquityInteractionWithWFPSRedeem";
 import { ADDRESS } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
+import AppCard from "@components/AppCard";
 
 export const EquityTokenSelectorMapping: { [key: string]: string[] } = {
 	ZCHF: ["FPS"],
@@ -15,7 +16,7 @@ export default function EquityInteractionCard() {
 	const [tokenFromTo, setTokenFromTo] = useState<{ from: string; to: string }>({ from: "ZCHF", to: "FPS" });
 
 	return (
-		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
+		<AppCard>
 			<div className="mt-4 text-lg font-bold text-center">Frankencoin Pool Shares (FPS)</div>
 
 			{/* Load modules dynamically */}
@@ -42,6 +43,6 @@ export default function EquityInteractionCard() {
 					selectorMapping={EquityTokenSelectorMapping}
 				/>
 			) : null}
-		</div>
+		</AppCard>
 	);
 }

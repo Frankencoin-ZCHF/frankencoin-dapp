@@ -26,6 +26,7 @@ import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQueryV2 } from "@frankencoin/api";
+import AppCard from "@components/AppCard";
 
 export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
@@ -423,7 +424,7 @@ export default function PositionCreate({}) {
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					<AppCard>
 						<div className="text-lg font-bold justify-center mt-3 flex">Proposal Process</div>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							<TokenInput
@@ -457,10 +458,10 @@ export default function PositionCreate({}) {
 							new positions before initiating them to increase the probability of passing the decentralized governance
 							process.
 						</div>
-					</div>
+					</AppCard>
 
 					{/* Collateral */}
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					<AppCard>
 						<div className="text-lg font-bold justify-center mt-3 flex">Collateral</div>
 
 						<AddressInput
@@ -506,8 +507,9 @@ export default function PositionCreate({}) {
 							digit={collTokenData.decimals}
 							placeholder="Amount"
 						/>
-					</div>
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					</AppCard>
+
+					<AppCard>
 						<div className="text-lg font-bold text-center mt-3">Financial Terms</div>
 						<TokenInput
 							label="Global Minting Limit"
@@ -541,8 +543,9 @@ export default function PositionCreate({}) {
 								placeholder="Number"
 							/>
 						</div>
-					</div>
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					</AppCard>
+
+					<AppCard>
 						<div className="text-lg font-bold text-center mt-3">Liquidation</div>
 						<TokenInput
 							label="Liquidation Price"
@@ -579,8 +582,9 @@ export default function PositionCreate({}) {
 								placeholder="Number"
 							/>
 						</div>
-					</div>
+					</AppCard>
 				</section>
+
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 					<GuardSupportedChain chain={mainnet}>
 						<Button

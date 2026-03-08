@@ -22,8 +22,8 @@ export default function App({ Component, pageProps }: AppProps) {
 				<ApolloProvider client={MORPHOGRAPH_CLIENT}>
 					<ApolloProvider client={PONDER_CLIENT}>
 						<ToastContainer
-							className="border-card-content-primary border-2 bg-card-body-primary rounded-xl"
-							toastClassName={(c) => "bg-card-body-primary text-text-primary rounded-xl"}
+							className="border-card-content-primary border-2 bg-card-body-primary rounded-lg"
+							toastClassName={(c) => "bg-card-body-primary text-text-primary rounded-lg"}
 							position="bottom-right"
 							hideProgressBar={false}
 							rtl={false}

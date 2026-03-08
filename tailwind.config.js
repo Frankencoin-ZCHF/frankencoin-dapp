@@ -30,10 +30,10 @@ module.exports = {
 				menu: {
 					text: "#272B38",
 					textactive: "#272B38",
-					active: "#F0F1F5",
+					active: "#FFFFFF",
 					hover: "#F5F6F9",
-					back: "#FFFFFF",
-					separator: "#EAEBF0",
+					back: "#F0F1F5",
+					separator: "#F0F1F5",
 				},
 				card: {
 					input: {
@@ -76,7 +76,7 @@ module.exports = {
 					row: {
 						primary: "#FFFFFF",
 						secondary: "#F0F1F5",
-						hover: "#F0F1F5",
+						hover: "#F5F6F9",
 					},
 				},
 				button: {
