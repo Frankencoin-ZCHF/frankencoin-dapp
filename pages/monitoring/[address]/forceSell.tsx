@@ -22,6 +22,7 @@ import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import AppLink from "@components/AppLink";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import AppCard from "@components/AppCard";
 
 export default function MonitoringForceSell() {
 	const [isInit, setInit] = useState(false);
@@ -160,95 +161,93 @@ export default function MonitoringForceSell() {
 				<title>Frankencoin - Force Sell</title>
 			</Head>
 
-			<div className="md:mt-8">
-				<section className="mx-auto max-w-2xl sm:px-8">
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center mt-3">Force to Sell and Buy {position.collateralSymbol}</div>
+			<section className="mx-auto max-w-2xl sm:px-8 md:mt-8">
+				<AppCard>
+					<div className="text-lg font-bold text-center mt-3">Force to Sell and Buy {position.collateralSymbol}</div>
 
-						<div className="">
-							<TokenInput
-								label=""
-								min={BigInt(position.minimumCollateral)}
-								max={BigInt(position.collateralBalance)}
-								value={amount.toString()}
-								onChange={onChangeAmount}
-								digit={position.collateralDecimals}
-								symbol={position.collateralSymbol}
-								error={error}
-								placeholder="Collateral Amount"
-								limit={BigInt(position.collateralBalance)}
-								limitDigit={position.collateralDecimals}
-								limitLabel="Available"
-							/>
-							<div className="flex flex-col">
-								<span>Your balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} ZCHF</span>
-							</div>
-							<div className="flex flex-col">
-								<span>Estimated cost: {formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} ZCHF</span>
-							</div>
+					<div className="">
+						<TokenInput
+							label=""
+							min={BigInt(position.minimumCollateral)}
+							max={BigInt(position.collateralBalance)}
+							value={amount.toString()}
+							onChange={onChangeAmount}
+							digit={position.collateralDecimals}
+							symbol={position.collateralSymbol}
+							error={error}
+							placeholder="Collateral Amount"
+							limit={BigInt(position.collateralBalance)}
+							limitDigit={position.collateralDecimals}
+							limitLabel="Available"
+						/>
+						<div className="flex flex-col">
+							<span>Your balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} ZCHF</span>
 						</div>
-
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:col-span-2">
-							<AppBox>
-								<DisplayLabel label="Available" />
-								<DisplayAmount
-									amount={BigInt(position.collateralBalance)}
-									currency={position.collateralSymbol}
-									address={position.collateral}
-									digits={position.collateralDecimals}
-									className="mt-4"
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Price per Unit" />
-								<DisplayAmount
-									amount={auctionPrice}
-									digits={36 - position.collateralDecimals}
-									address={ADDRESS[chainId].frankencoin}
-									currency={"ZCHF"}
-									className="mt-4"
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Owner" />
-								<AppLink
-									label={shortenAddress(position.owner)}
-									href={`/mypositions?address=${position.owner}`}
-									external={false}
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Target Position" />
-								<AppLink
-									label={shortenAddress(position.position || zeroAddress)}
-									href={`/monitoring/${position.position}`}
-									external={false}
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="From 10x price decline until" />
-								<DisplayOutputAlignedRight output={formatDateTime(declineOnePriceTimestamp / 1000) || "-"} />
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Reaching zero at" />
-								<DisplayOutputAlignedRight output={formatDateTime(zeroPriceTimestamp / 1000) || "-"} />
-							</AppBox>
-						</div>
-						<div className="mx-auto mt-4 w-[20rem] max-w-full flex-col">
-							{/* Override lable here */}
-							<GuardSupportedChain chain={mainnet}>
-								<Button
-									disabled={amount == 0n || expectedZCHF() > userBalance || error != ""}
-									isLoading={isBidding}
-									onClick={() => handleBid()}
-								>
-									Force Sell
-								</Button>
-							</GuardSupportedChain>
+						<div className="flex flex-col">
+							<span>Estimated cost: {formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} ZCHF</span>
 						</div>
 					</div>
-				</section>
-			</div>
+
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:col-span-2">
+						<AppBox>
+							<DisplayLabel label="Available" />
+							<DisplayAmount
+								amount={BigInt(position.collateralBalance)}
+								currency={position.collateralSymbol}
+								address={position.collateral}
+								digits={position.collateralDecimals}
+								className="mt-4"
+							/>
+						</AppBox>
+						<AppBox>
+							<DisplayLabel label="Price per Unit" />
+							<DisplayAmount
+								amount={auctionPrice}
+								digits={36 - position.collateralDecimals}
+								address={ADDRESS[chainId].frankencoin}
+								currency={"ZCHF"}
+								className="mt-4"
+							/>
+						</AppBox>
+						<AppBox>
+							<DisplayLabel label="Owner" />
+							<AppLink
+								label={shortenAddress(position.owner)}
+								href={`/mypositions?address=${position.owner}`}
+								external={false}
+							/>
+						</AppBox>
+						<AppBox>
+							<DisplayLabel label="Target Position" />
+							<AppLink
+								label={shortenAddress(position.position || zeroAddress)}
+								href={`/monitoring/${position.position}`}
+								external={false}
+							/>
+						</AppBox>
+						<AppBox>
+							<DisplayLabel label="From 10x price decline until" />
+							<DisplayOutputAlignedRight output={formatDateTime(declineOnePriceTimestamp / 1000) || "-"} />
+						</AppBox>
+						<AppBox>
+							<DisplayLabel label="Reaching zero at" />
+							<DisplayOutputAlignedRight output={formatDateTime(zeroPriceTimestamp / 1000) || "-"} />
+						</AppBox>
+					</div>
+					<div className="mx-auto mt-4 w-[20rem] max-w-full flex-col">
+						{/* Override lable here */}
+						<GuardSupportedChain chain={mainnet}>
+							<Button
+								disabled={amount == 0n || expectedZCHF() > userBalance || error != ""}
+								isLoading={isBidding}
+								onClick={() => handleBid()}
+							>
+								Force Sell
+							</Button>
+						</GuardSupportedChain>
+					</div>
+				</AppCard>
+			</section>
 		</>
 	);
 }

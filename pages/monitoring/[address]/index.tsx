@@ -18,6 +18,7 @@ import { ADDRESS, FrankencoinABI } from "@frankencoin/zchf";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import AppLink from "@components/AppLink";
 import { mainnet } from "viem/chains";
+import AppCard from "@components/AppCard";
 
 export default function PositionDetail() {
 	const [reserve, setReserve] = useState<bigint>(0n);
@@ -77,7 +78,7 @@ export default function PositionDetail() {
 			</Head>
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					<AppCard>
 						<div className="text-lg font-bold text-center">Position Details</div>
 
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:col-span-2">
@@ -167,10 +168,11 @@ export default function PositionDetail() {
 								<AppLink label={parentAddressInfo()} href={parentLink} external={false} />
 							</AppBox>
 						</div>
-					</div>
+					</AppCard>
+
 					<div>
 						{isSubjectToCooldown() && (
-							<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col mb-4">
+							<AppCard>
 								<div className="text-lg font-bold text-center">Cooldown</div>
 								<AppBox className="flex-1 mt-4">
 									<p>
@@ -179,17 +181,17 @@ export default function PositionDetail() {
 										users an opportunity to challenge the position before additional Frankencoins can be minted.
 									</p>
 								</AppBox>
-							</div>
+							</AppCard>
 						)}
 
-						<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col mb-4">
+						<AppCard>
 							<div className="text-lg font-bold text-center">Active Challenges ({challengesActive.length})</div>
 
 							{challengesActive.map((c, idx) => (
 								<ActiveAuctionsRow key={c.id || `ActiveAuctionsRow_${idx}`} position={position} challenge={c} />
 							))}
 							{challengesActive.length === 0 ? <ActiveAuctionsRowEmpty /> : null}
-						</div>
+						</AppCard>
 					</div>
 				</section>
 			</div>

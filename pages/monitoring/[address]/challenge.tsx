@@ -23,6 +23,7 @@ import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import AppLink from "@components/AppLink";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import AppCard from "@components/AppCard";
 
 export default function PositionChallenge() {
 	const [amount, setAmount] = useState(0n);
@@ -210,7 +211,7 @@ export default function PositionChallenge() {
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					<AppCard>
 						<div className="text-lg font-bold text-center mt-3">Launch A Challenge</div>
 						<TokenInput
 							symbol={position.collateralSymbol}
@@ -289,8 +290,9 @@ export default function PositionChallenge() {
 								)}
 							</GuardSupportedChain>
 						</div>
-					</div>
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
+					</AppCard>
+
+					<AppCard>
 						<div className="text-lg font-bold text-center mt-3 text-text-primary">How does it work?</div>
 						<div className="flex-1 mt-4 text-text-secondary">
 							<p>A challenge is divided into two phases:</p>
@@ -307,7 +309,7 @@ export default function PositionChallenge() {
 								</li>
 							</ol>
 						</div>
-					</div>
+					</AppCard>
 				</section>
 			</div>
 		</>

@@ -10,6 +10,8 @@ import { RootState } from "../../redux/redux.store";
 import { formatUnits, parseEther } from "viem";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import { mainnet } from "viem/chains";
+import AppCard from "@components/AppCard";
+import { TabInput } from "@components/Input/TabInput";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const Timeframes = ["All", "1Y", "1Q", "1M", "1W"];
@@ -55,9 +57,9 @@ export default function EquityFPSDetailsCard() {
 	const returnOnEquity = equityAvg > 0n ? (((netIncome * parseEther("1")) / equityAvg) * oneYearMs) / timestampDiff : 0n;
 
 	return (
-		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 grid grid-cols-1 gap-2">
+		<AppCard>
 			<div id="chart-timeline">
-				<TypeTabs tabs={TypeCharts} tab={typechart} setTab={setTypechart} />
+				<TabInput tabs={TypeCharts} tab={typechart} setTab={setTypechart} />
 
 				<div className="-m-2">
 					<ApexChart
@@ -182,7 +184,7 @@ export default function EquityFPSDetailsCard() {
 					<div className="flex justify-center text-text-warning">No data available for selected timeframe.</div>
 				) : null}
 
-				<TimeframeTabs tabs={Timeframes} tab={timeframe} setTab={setTimeframe} />
+				<TabInput tabs={Timeframes} tab={timeframe} setTab={setTimeframe} />
 			</div>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -215,62 +217,6 @@ export default function EquityFPSDetailsCard() {
 					<DisplayOutputAlignedRight amount={returnOnEquity * 100n} unit="%" />
 				</AppBox>
 			</div>
-		</div>
-	);
-}
-
-interface TimeframeTabsInterface {
-	tabs: string[];
-	tab: string;
-	setTab: Dispatch<SetStateAction<string>>;
-}
-
-function TimeframeTabs(params: TimeframeTabsInterface) {
-	const { tabs, tab, setTab } = params;
-	if (tabs.length == 0) return null;
-
-	return (
-		<div className="bg-card-content-primary mb-5 rounded-2xl">
-			<div className="flex flex-row justify-between px-6 text-text-secondary">
-				{tabs.map((ts) => (
-					<div
-						key={"key_" + ts}
-						className={`px-6 max-md:px-2 py-2 ${ts == tab ? "text-text-primary font-semibold" : "cursor-pointer"}`}
-						onClick={() => setTab(ts)}
-					>
-						{ts}
-					</div>
-				))}
-			</div>
-		</div>
-	);
-}
-
-interface TypeTabsInterface {
-	tabs: string[];
-	tab: string;
-	setTab: Dispatch<SetStateAction<string>>;
-}
-
-function TypeTabs(params: TypeTabsInterface) {
-	const { tabs, tab, setTab } = params;
-	if (tabs.length == 0) return null;
-
-	return (
-		<div className="bg-card-content-primary mb-5 rounded-2xl">
-			<div className="flex flex-row justify-between px-6 text-text-secondary">
-				{tabs.map((ts) => (
-					<div
-						key={"key_" + ts}
-						className={`px-6 max-md:px-2 py-2 text-sm text-center ${
-							ts == tab ? "text-text-primary font-semibold" : "cursor-pointer"
-						}`}
-						onClick={() => setTab(ts)}
-					>
-						{ts}
-					</div>
-				))}
-			</div>
-		</div>
+		</AppCard>
 	);
 }

@@ -39,7 +39,7 @@ export default function Navbar() {
 	const [isNavBarOpen, setIsNavBarOpen] = useState(false);
 
 	return (
-		<div className="fixed top-0 left-0 right-0 z-10 backdrop-blur border-b-2 border-menu-separator bg-menu-back">
+		<div className="fixed top-0 left-0 right-0 z-10 backdrop-blur border-b-2 border-menu-separator/80 bg-menu-back/80">
 			<header className="flex items-center md:py-4 px-4 md:gap-x-4 relative w-full">
 				<Link className="pl-6 pr-4" href={CONFIG.landing}>
 					<picture>
@@ -51,7 +51,7 @@ export default function Navbar() {
 					<NavItems />
 				</ul>
 
-				<div className="flex flex-1 justify-end items-center max-md:pr-4">
+				<div className="flex flex-1 justify-end items-center">
 					<WalletConnect />
 				</div>
 
@@ -84,7 +84,7 @@ export default function Navbar() {
 									isNavBarOpen ? "translate-x-0" : "translate-x-full"
 								}`}
 							>
-								<div className="min-h-full w-full bg-menu-back rounded-l-xl backdrop-blur px-[16px] pt-[20px] shadow-xl relative">
+								<div className="min-h-full w-full bg-menu-back backdrop-blur px-[16px] pt-[20px] relative">
 									<button className="absolute top-0 right-0 p-6" onClick={() => setIsNavBarOpen(false)}>
 										<svg
 											xmlns="http://www.w3.org/2000/svg"
