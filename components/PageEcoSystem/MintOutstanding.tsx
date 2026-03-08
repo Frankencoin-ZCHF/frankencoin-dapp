@@ -140,7 +140,7 @@ export default function MintOutstanding() {
 				<div className="mt-8 space-y-1 gap-2">
 					{mint
 						.filter((i) => i.mint > 0)
-						.slice(0, 8)
+						.slice(0, 10)
 						.map((d, idx) => (
 							<div key={`${d}_${idx}`} className="flex justify-between">
 								<AppLink
