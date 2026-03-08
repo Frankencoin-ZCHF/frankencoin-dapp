@@ -258,7 +258,7 @@ export default function FrankencoinAllocation() {
 			<div className="mt-4 text-lg font-bold text-center">Frankencoins by Holder Type</div>
 
 			<div className="grid md:grid-cols-2 gap-4">
-				<div className="pr-2">
+				<div className="pr-2 my-auto">
 					<ApexChart
 						height={"350px"}
 						type="donut"
