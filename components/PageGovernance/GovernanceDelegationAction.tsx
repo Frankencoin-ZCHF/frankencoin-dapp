@@ -57,10 +57,10 @@ export default function GovernanceDelegationAction({ delegate, disabled }: Props
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title="Delegating votes..." rows={toastContent} />,
+					render: <TxToast title="Supporting votes..." rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Successfully delegated votes" rows={toastContent} />,
+					render: <TxToast title="Successfully supported votes" rows={toastContent} />,
 				},
 			});
 		} catch (error) {
@@ -73,7 +73,7 @@ export default function GovernanceDelegationAction({ delegate, disabled }: Props
 	return (
 		<GuardSupportedChain chain={mainnet}>
 			<Button className="h-10" disabled={disabled || !isAddress(delegate)} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
-				Delegate Votes
+				Support Votes
 			</Button>
 		</GuardSupportedChain>
 	);

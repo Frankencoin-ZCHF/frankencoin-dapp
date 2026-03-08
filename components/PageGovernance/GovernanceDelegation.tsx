@@ -89,9 +89,9 @@ export default function GovernanceDelegation() {
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-			{/* Left Card — Delegation List */}
+			{/* Left Card — Support List */}
 			<AppCard>
-				<div className="mt-2 text-lg font-bold text-center">Voting Delegation</div>
+				<div className="mt-2 text-lg font-bold text-center">Voting Support</div>
 
 				{/* Header */}
 				<div className="grid grid-cols-2 text-sm font-semibold text-text-secondary border-b border-card-input-border pb-1">
@@ -100,7 +100,7 @@ export default function GovernanceDelegation() {
 				</div>
 
 				{!isConnected ? (
-					<div className="text-text-secondary text-sm text-center py-4">Connect wallet to see your delegation</div>
+					<div className="text-text-secondary text-sm text-center py-4">Connect wallet to see your supporters</div>
 				) : (
 					<>
 						{/* Own row */}
@@ -110,7 +110,7 @@ export default function GovernanceDelegation() {
 								{myDelegatedTo !== zeroAddress ? (
 									<span className="text-text-secondary text-xs truncate">→ {shortenAddress(myDelegatedTo)}</span>
 								) : (
-									<span className="text-text-secondary text-xs">no delegation</span>
+									<span className="text-text-secondary text-xs">no supporters</span>
 								)}
 							</div>
 							<div className="text-right text-sm font-semibold text-text-primary">{formatPct(myVotes)}</div>
@@ -126,7 +126,7 @@ export default function GovernanceDelegation() {
 
 						{/* Total row */}
 						<div className="grid grid-cols-2 items-center pt-2">
-							<div className="text-sm font-semibold text-text-secondary">Total delegated</div>
+							<div className="text-sm font-semibold text-text-secondary">Total</div>
 							<div className="text-right text-sm font-bold text-text-primary">{formatPct(totalDelegated)}</div>
 						</div>
 					</>
@@ -134,11 +134,10 @@ export default function GovernanceDelegation() {
 
 				{/* Note */}
 				<div className="text-text-secondary text-sm mt-auto">
-					You can group up with other FPS holders by forming a delegation chain or circle to increase the
-					combined voting power of the group. All addresses that have delegated to you — directly or
-					recursively — are your{" "}
-					<span className="text-text-primary font-medium">helpers</span>. When syncing votes to another
-					chain, the voting power of you and all your helpers is included in the sync.{" "}
+					You can group up with other FPS holders by forming a supporter chain or circle to increase the combined voting power of
+					the group. All addresses that have supported to you — directly or recursively — are your{" "}
+					<span className="text-text-primary font-medium">supporters</span>. When syncing votes to another chain, the voting power
+					of you and all your supporters is included in the sync.{" "}
 					{syncVoters.length > 1 && isConnected && (
 						<span className="text-text-primary font-medium">
 							{syncVoters.length} address{syncVoters.length !== 1 ? "es" : ""} will be synced.
@@ -151,11 +150,11 @@ export default function GovernanceDelegation() {
 			<AppCard>
 				<div className="flex flex-col gap-4">
 					{/* Delegate to address */}
-					<div className="mt-2 text-lg font-bold text-center">Delegate Votes</div>
+					<div className="mt-2 text-lg font-bold text-center">Support an Address</div>
 
 					<AddressInput
-						label="Delegate to Address"
-						placeholder="0x..."
+						label="Supported Address"
+						placeholder="Enter the address here"
 						value={delegateAddr}
 						onChange={handleDelegateChange}
 						error={delegateError}
