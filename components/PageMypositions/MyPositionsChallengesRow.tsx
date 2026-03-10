@@ -18,7 +18,7 @@ interface Props {
 export default function MyPositionsChallengesRow({ headers, tab, challenge }: Props) {
 	const positions = useSelector((state: RootState) => state.positions.mapping);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
-	const bids = useSelector((state: RootState) => state.bids.challenges.map[challenge.id]);
+	const bids = useSelector((state: RootState) => state.bids.challenges.map[challenge.id] || []);
 
 	const position = positions.map[challenge.position.toLowerCase() as Address];
 	const url = useContractUrl(position.collateral || zeroAddress);
