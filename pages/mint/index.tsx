@@ -8,6 +8,7 @@ import AppTitle from "@components/AppTitle";
 import { fetchMorphoMarkets } from "../../redux/slices/morpho.slice";
 import BorrowMorphoTable from "@components/PageBorrow/BorrowMorphoTable";
 import AppLink from "@components/AppLink";
+import AppHeroSteps from "@components/AppHeroSteps";
 
 export default function Borrow() {
 	useEffect(() => {
@@ -21,9 +22,34 @@ export default function Borrow() {
 				<title>Frankencoin - Borrow</title>
 			</Head>
 
-			<AppTitle title="Mint fresh Frankencoins">
-				<div className="text-text-secondary">Mint Frankencoins (ZCHF) at a fixed rate for your duration of choice.</div>
+			<AppTitle title="Borrow Frankencoins">
+				<div className="text-text-secondary">
+					Deposit your crypto as collateral and borrow Frankencoins (ZCHF) — a Swiss Franc stablecoin.
+				</div>
+				<div className="text-text-secondary">
+					You keep your crypto; you get liquid cash. Repay any time to get your collateral back.
+				</div>
 			</AppTitle>
+
+			<AppHeroSteps
+				steps={[
+					{
+						icon: 1,
+						title: "Choose a collateral",
+						description: "Pick which crypto token you want to use as collateral from the options below.",
+					},
+					{
+						icon: 2,
+						title: "Set your terms",
+						description: "Decide how much ZCHF to borrow, review the interest rate and fees upfront.",
+					},
+					{
+						icon: 3,
+						title: "Receive ZCHF",
+						description: "Your ZCHF is sent directly to your wallet. Repay anytime to unlock your collateral.",
+					},
+				]}
+			/>
 
 			<div className="mt-8">
 				<BorrowTable />

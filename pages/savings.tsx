@@ -8,6 +8,7 @@ import { useAccount, useChainId } from "wagmi";
 import AppTitle from "@components/AppTitle";
 import SavingsRankedBalancesTable from "@components/PageSavings/SavingsRankedBalancesTable";
 import AppLink from "@components/AppLink";
+import AppHeroSteps from "@components/AppHeroSteps";
 import SavingsRecentActivitiesTable from "@components/PageSavings/SavingsRecentActivitiesTable";
 import { useRouter } from "next/router";
 import { Address, isAddress, zeroAddress } from "viem";
@@ -58,16 +59,38 @@ export default function SavingsPage() {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Savings</title>
+				<title>Frankencoin - Earn</title>
 			</Head>
 
-			<AppTitle title={`Savings`}>
+			<AppTitle title={`Earn`}>
 				<div className={`text-text-secondary`}>
-					Earn interest on your Frankencoins - now available across multiple chains. View and manage your account here. Get a
-					glance over the latest changes via the{" "}
+					Earn interest on your Frankencoins — now available across multiple chains. View and manage your account here.
+				</div>
+				<div className={`text-text-secondary`}>
+					Get a glance over the latest changes via the{" "}
 					<AppLink className="" label="transaction logs." href={"/monitoring/logs?kind=Savings"} external={false} />
 				</div>
 			</AppTitle>
+
+			<AppHeroSteps
+				steps={[
+					{
+						icon: 1,
+						title: "Deposit ZCHF",
+						description: "Send your Frankencoins into the savings module on any supported chain.",
+					},
+					{
+						icon: 2,
+						title: "Earn interest",
+						description: "Your balance accrues interest automatically based on the current lead rate.",
+					},
+					{
+						icon: 3,
+						title: "Withdraw anytime",
+						description: "Redeem your ZCHF plus earned interest whenever you want — no lock-up period.",
+					},
+				]}
+			/>
 
 			<SavingsGlobalCard />
 
@@ -92,7 +115,7 @@ export default function SavingsPage() {
 			</AppTitle>
 			<ReportsYearlyTable activity={account == undefined || account == zeroAddress ? [] : activities} />
 
-			<AppTitle title={account == undefined || account == zeroAddress ? "Recent Activities" : "Your latest Activities"} />
+			<AppTitle title={"Your latest Activities"} />
 
 			<SavingsRecentActivitiesTable />
 

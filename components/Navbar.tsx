@@ -2,35 +2,81 @@ import Link from "next/link";
 import WalletConnect from "./WalletConnect";
 import NavButton from "./NavButton";
 import { CONFIG } from "../app.config";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/router";
+
+const MAIN_ITEMS = [
+	{ to: "/mint", name: "Borrow" },
+	{ to: "/savings", name: "Earn" },
+	{ to: "/equity", name: "Invest" },
+];
+
+const MORE_ITEMS = [
+	{ to: "/transfer", name: "Transfer" },
+	{ to: "/mypositions", name: "My Positions" },
+	{ to: "/monitoring", name: "Monitoring" },
+	{ to: "/governance", name: "Governance" },
+];
+
+const ALL_ITEMS = [...MAIN_ITEMS, ...MORE_ITEMS];
+
+function MoreDropdown() {
+	const [open, setOpen] = useState(false);
+	const ref = useRef<HTMLDivElement>(null);
+	const router = useRouter();
+	const isActive = MORE_ITEMS.some((item) => router.pathname.includes(item.to));
+
+	useEffect(() => {
+		function handleClickOutside(e: MouseEvent) {
+			if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+		}
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => document.removeEventListener("mousedown", handleClickOutside);
+	}, []);
+
+	return (
+		<div ref={ref} className="relative">
+			<button
+				onClick={() => setOpen((v) => !v)}
+				className={`flex items-center gap-1 md:btn md:btn-nav md:py-2 font-medium hover:bg-menu-hover hover:text-menu-text rounded-lg px-3 ${
+					isActive ? "text-menu-textactive bg-menu-active font-semibold" : "text-menu-text"
+				}`}
+			>
+				More
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 20 20"
+					fill="currentColor"
+					className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`}
+				>
+					<path
+						fillRule="evenodd"
+						d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+						clipRule="evenodd"
+					/>
+				</svg>
+			</button>
+			{open && (
+				<div className="absolute top-full left-0 mt-1 rounded-lg bg-menu-back border border-menu-separator shadow-md py-1 z-50">
+					{MORE_ITEMS.map((item) => (
+						<div key={item.to} onClick={() => setOpen(false)}>
+							<NavButton to={item.to} name={item.name} />
+						</div>
+					))}
+				</div>
+			)}
+		</div>
+	);
+}
 
 export function NavItems() {
 	return (
 		<>
-			<li>
-				<NavButton to="/transfer" name="Transfer" />
-			</li>
-			<li>
-				<NavButton to="/swap" name="Swap" />
-			</li>
-			<li>
-				<NavButton to="/mint" name="Borrow" />
-			</li>
-			<li>
-				<NavButton to="/mypositions" name="My Positions" />
-			</li>
-			<li>
-				<NavButton to="/monitoring" name="Monitoring" />
-			</li>
-			<li>
-				<NavButton to="/savings" name="Savings" />
-			</li>
-			<li>
-				<NavButton to="/equity" name="Equity" />
-			</li>
-			<li>
-				<NavButton to="/governance" name="Governance" />
-			</li>
+			{ALL_ITEMS.map((item) => (
+				<li key={item.to}>
+					<NavButton to={item.to} name={item.name} />
+				</li>
+			))}
 		</>
 	);
 }
@@ -39,72 +85,78 @@ export default function Navbar() {
 	const [isNavBarOpen, setIsNavBarOpen] = useState(false);
 
 	return (
-		<div className="fixed top-0 left-0 right-0 z-10 backdrop-blur border-b-2 border-menu-separator/80 bg-menu-back/80">
-			<header className="flex items-center md:py-4 px-4 md:gap-x-4 relative w-full">
-				<Link className="pl-6 pr-4" href={CONFIG.landing}>
-					<picture>
-						<img className="h-9 transition" src="/coin/zchf.png" alt="Logo" />
-					</picture>
-				</Link>
+		<>
+			<div className="fixed top-0 left-0 right-0 z-10 backdrop-blur border-b-2 border-menu-separator/80 bg-menu-back/80">
+				<header className="grid grid-cols-[1fr,auto,1fr] items-center md:py-4 py-3 px-4 w-full">
+					{/* Left: logo */}
+					<div className="flex items-center md:pl-4">
+						<Link href={CONFIG.landing}>
+							<picture>
+								<img className="h-9 transition" src="/coin/zchf.png" alt="Logo" />
+							</picture>
+						</Link>
+					</div>
 
-				<ul className={`justify-left hidden flex-1 gap-2 md:flex lg:gap-3`}>
-					<NavItems />
-				</ul>
+					{/* Center: desktop nav / mobile wallet */}
+					<div className="flex justify-center">
+						<ul className="hidden md:flex gap-2 lg:gap-3">
+							{MAIN_ITEMS.map((item) => (
+								<li key={item.to}>
+									<NavButton to={item.to} name={item.name} />
+								</li>
+							))}
+							<li>
+								<MoreDropdown />
+							</li>
+						</ul>
+						<div className="md:hidden">
+							<WalletConnect />
+						</div>
+					</div>
 
-				<div className="flex flex-1 justify-end items-center">
-					<WalletConnect />
-				</div>
+					{/* Right: desktop wallet / mobile hamburger */}
+					<div className="flex justify-end items-center">
+						<div className="hidden md:flex">
+							<WalletConnect />
+						</div>
+						<button onClick={() => setIsNavBarOpen(true)} className="md:hidden p-2 cursor-pointer flex items-center">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								className="w-7 h-7"
+							>
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+							</svg>
+						</button>
+					</div>
+				</header>
+			</div>
 
-				<div className="md:hidden">
-					<button onClick={() => setIsNavBarOpen(!isNavBarOpen)} className="-mr-4 p-5 cursor-pointer flex items-center">
+			{/* Mobile sidebar */}
+			<div
+				className={`md:hidden fixed inset-0 z-20 h-screen w-full bg-black/70 backdrop-blur-sm transition-opacity ${
+					isNavBarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+				}`}
+				onClick={() => setIsNavBarOpen(false)}
+			/>
+			<div
+				className={`md:hidden fixed top-0 right-0 z-30 h-screen w-64 overflow-y-auto transition-transform duration-200 ${
+					isNavBarOpen ? "translate-x-0" : "translate-x-full"
+				}`}
+			>
+				<div className="min-h-full w-full bg-menu-back backdrop-blur px-[16px] pt-[20px] relative">
+					<button className="absolute top-0 right-0 p-6" onClick={() => setIsNavBarOpen(false)}>
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-8 h-8">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
 						</svg>
 					</button>
+					<menu className="grid grid-cols-1 gap-2 mt-12" onClick={() => setIsNavBarOpen(false)}>
+						<NavItems />
+					</menu>
 				</div>
-
-				<aside className="flex md:hidden">
-					<div className="flex items-center md:block">
-						<label className="absolute z-20 cursor-pointer px-3 py-6 right-0 md:right-4" htmlFor="ss-mobile-menu">
-							<input className="peer hidden" type="checkbox" id="ss-mobile-menu" />
-
-							<div className="hidden peer-checked:block">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-								</svg>
-							</div>
-							<div
-								className={`fixed inset-0 h-screen w-full bg-black/70 backdrop-blur-sm ${
-									isNavBarOpen ? "block" : "hidden"
-								}`}
-								onClick={() => setIsNavBarOpen(false)}
-							></div>
-							<div
-								className={`fixed top-0 right-0 h-screen w-64 overflow-y-auto overscroll-y-auto transition-transform duration-200 ${
-									isNavBarOpen ? "translate-x-0" : "translate-x-full"
-								}`}
-							>
-								<div className="min-h-full w-full bg-menu-back backdrop-blur px-[16px] pt-[20px] relative">
-									<button className="absolute top-0 right-0 p-6" onClick={() => setIsNavBarOpen(false)}>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke="currentColor"
-											className="w-8 h-8"
-										>
-											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-										</svg>
-									</button>
-									<menu className="grid grid-cols-1 gap-2 mt-12" onClick={() => setIsNavBarOpen(false)}>
-										<NavItems />
-									</menu>
-								</div>
-							</div>
-						</label>
-					</div>
-				</aside>
-			</header>
-		</div>
+			</div>
+		</>
 	);
 }
