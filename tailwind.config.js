@@ -23,17 +23,17 @@ module.exports = {
 			},
 			colors: {
 				layout: {
-					primary: "#F0F1F5",
+					primary: "#F7F7F7",
 					secondary: "#FFFFFF",
 					footer: "#272B38",
 				},
 				menu: {
 					text: "#272B38",
 					textactive: "#272B38",
-					active: "#FFFFFF",
-					hover: "#F5F6F9",
-					back: "#F0F1F5",
-					separator: "#F0F1F5",
+					active: "#EEEEEE",
+					hover: "#E0E0E0",
+					back: "#F7F7F7",
+					separator: "#F7F7F7",
 				},
 				card: {
 					input: {
@@ -60,11 +60,11 @@ module.exports = {
 					},
 				},
 				text: {
-					header: "#8B92A8",
-					subheader: "#8B92A8",
+					header: "#5D647B",
+					subheader: "#5D647B",
 					active: "#092F62",
 					primary: "#272B38",
-					secondary: "#8B92A8",
+					secondary: "#5D647B",
 					warning: "#ef4444",
 					success: "#22c55e",
 				},
