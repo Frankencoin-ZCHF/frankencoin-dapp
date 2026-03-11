@@ -187,7 +187,7 @@ export default function EquityFPSDetailsCard() {
 				<TabInput tabs={Timeframes} tab={timeframe} setTab={setTimeframe} />
 			</div>
 
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-auto">
 				<AppBox>
 					<DisplayLabel label="FPS Price" />
 					<DisplayAmount amount={poolStats.equityPrice} currency="ZCHF" address={ADDRESS[chainId].frankencoin} />
