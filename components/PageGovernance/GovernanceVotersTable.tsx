@@ -101,7 +101,7 @@ export default function GovernanceVotersTable() {
 		headers,
 		reverse,
 		tab,
-	});
+	}).slice(0, 15);
 
 	useEffect(() => {
 		const idList = list.map((l) => l.holder).join("_");
