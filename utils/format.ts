@@ -158,3 +158,15 @@ export const isDateUpcoming = (timestamp: number | bigint): boolean => {
 	const date = dayjs(Number(timestamp) * 1000);
 	return date.isAfter();
 };
+
+export function normalizeAddress(addr: string): Address {
+	return addr.toLowerCase() as Address;
+}
+
+export function timestampToSeconds(ms: number | string) {
+	return String(Math.floor(Number(ms) / 1000));
+}
+
+export function timestampStartOfDay(ms: number | string) {
+	return String(Number(ms) - (Number(ms) % 86_400_000));
+}
