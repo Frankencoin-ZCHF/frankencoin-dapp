@@ -6,9 +6,10 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQueryV2, PriceQueryObjectArray } from "@frankencoin/api";
-import { Address, formatUnits, parseEther } from "viem";
+import { Address, formatUnits, parseEther, zeroAddress } from "viem";
 import { useEffect, useState } from "react";
 import { POSITION_BLACKLISTED } from "../../app.config";
+import { normalizeAddress } from "@utils";
 
 export default function BorrowTable() {
 	const headers: string[] = ["Collateral", "Loan-to-Value", "Effective Interest", "Liquidation Price", "Max. Maturity"];
@@ -49,39 +50,67 @@ export default function BorrowTable() {
 
 	const uniqueByCollateral: { [key: Address]: PositionQueryV2[] } = {};
 	Object.keys(sortedByCollateral).forEach((coll) => {
-		uniqueByCollateral[coll as Address] = [];
 		const items = sortedByCollateral[coll as Address];
 
-		// price
+		// Find best position for each criterion
+		let bestPrice: PositionQueryV2 | undefined;
+		let bestInterest: PositionQueryV2 | undefined;
+		let bestExpiration: PositionQueryV2 | undefined;
+
 		items.forEach((i) => {
-			const u = uniqueByCollateral[coll as Address];
-			if (u.at(0) == undefined) uniqueByCollateral[coll as Address].push(i);
-			else if (BigInt(i.price) > BigInt(u.at(0)?.price ?? 0n)) {
-				uniqueByCollateral[coll as Address][0] = i;
+			// Best price (highest)
+			if (!bestPrice || BigInt(i.price) > BigInt(bestPrice.price)) {
+				bestPrice = i;
+			}
+
+			// Best interest (lowest effective rate)
+			const effectiveRate = (BigInt(i.annualInterestPPM) * parseEther("1")) / (BigInt(1_000_000) - BigInt(i.reserveContribution));
+			const bestEffectiveRate = bestInterest
+				? (BigInt(bestInterest.annualInterestPPM) * parseEther("1")) /
+				  (BigInt(1_000_000) - BigInt(bestInterest.reserveContribution))
+				: undefined;
+			if (!bestEffectiveRate || effectiveRate < bestEffectiveRate) {
+				bestInterest = i;
+			}
+
+			// Best expiration (longest)
+			if (!bestExpiration || i.expiration > bestExpiration.expiration) {
+				bestExpiration = i;
 			}
 		});
 
-		// interest
-		items.forEach((i) => {
-			const u = uniqueByCollateral[coll as Address];
-			const c1 = (BigInt(i.annualInterestPPM) * parseEther("1")) / (BigInt(1_000_000) - BigInt(i.reserveContribution));
-			const c2 =
-				(BigInt(u.at(1)?.annualInterestPPM ?? "0") * parseEther("1")) /
-				(BigInt(1_000_000) - BigInt(u.at(1)?.reserveContribution ?? "0"));
-
-			if (c1 < c2 || u.at(1) == undefined) {
-				uniqueByCollateral[coll as Address][1] = i;
+		// Collect unique candidates
+		const candidates: PositionQueryV2[] = [];
+		[bestPrice, bestInterest, bestExpiration].forEach((pos) => {
+			if (pos && !candidates.some((u) => u.position === pos.position)) {
+				candidates.push(pos);
 			}
 		});
 
-		// expiration
-		items.forEach((i) => {
-			const u = uniqueByCollateral[coll as Address];
+		// Helper to calculate effective interest rate
+		const getEffectiveRate = (p: PositionQueryV2) =>
+			(BigInt(p.annualInterestPPM) * parseEther("1")) / (BigInt(1_000_000) - BigInt(p.reserveContribution));
 
-			if (i.expiration > (u.at(2)?.expiration ?? 0)) {
-				uniqueByCollateral[coll as Address][2] = i;
-			}
-		});
+		// Check if position A dominates position B (A is >= in all criteria and > in at least one)
+		const dominates = (a: PositionQueryV2, b: PositionQueryV2): boolean => {
+			const aPrice = BigInt(a.price);
+			const bPrice = BigInt(b.price);
+			const aRate = getEffectiveRate(a);
+			const bRate = getEffectiveRate(b);
+			const aExp = a.expiration;
+			const bExp = b.expiration;
+
+			// A must be >= B in all criteria
+			if (aPrice < bPrice || aRate > bRate || aExp < bExp) return false;
+
+			// A must be strictly better in at least one
+			return aPrice > bPrice || aRate < bRate || aExp > bExp;
+		};
+
+		// Remove dominated positions
+		const unique = candidates.filter((pos) => !candidates.some((other) => other.position !== pos.position && dominates(other, pos)));
+
+		uniqueByCollateral[coll as Address] = unique;
 	});
 
 	const uniquePositions: PositionQueryV2[] = Object.values(uniqueByCollateral)
@@ -91,7 +120,46 @@ export default function BorrowTable() {
 			return uids.includes(b.position) ? a : [...a, b];
 		}, []);
 
-	const sorted: PositionQueryV2[] = sortPositions(uniquePositions, coingecko, headers, tab, reverse);
+	const VCHF_Address: Address = normalizeAddress("0x79d4f0232A66c4c91b89c76362016A1707CFBF4f");
+	const VCHF_Price: number = coingecko[VCHF_Address].price.chf || 0;
+	const VCHF_Bridge: PositionQueryV2 = {
+		version: 2,
+		position: "0x3b71ba73299f925a837836160c3e1fec74340403",
+		owner: zeroAddress,
+		zchf: "0xB58E61C3098d85632Df34EecfB899A1Ed80921cB",
+		collateral: VCHF_Address,
+		price: String(VCHF_Price * 10 ** 18),
+		created: 0,
+		isOriginal: true,
+		isClone: false,
+		denied: false,
+		closed: false,
+		original: "0x3b71ba73299f925a837836160c3e1fec74340403",
+		parent: "0x3b71ba73299f925a837836160c3e1fec74340403",
+		minimumCollateral: "0",
+		annualInterestPPM: 0,
+		riskPremiumPPM: 0,
+		reserveContribution: 0,
+		start: 0,
+		cooldown: 0,
+		expiration: 1776276731,
+		challengePeriod: 0,
+		zchfName: "Frankencoin",
+		zchfSymbol: "ZCHF",
+		zchfDecimals: 18,
+		collateralName: "VNX Franc",
+		collateralSymbol: "VCHF",
+		collateralDecimals: 18,
+		collateralBalance: "0",
+		limitForPosition: "0",
+		limitForClones: "0",
+		availableForClones: "0",
+		availableForMinting: "0",
+		availableForPosition: "0",
+		minted: "0",
+	};
+
+	const sorted: PositionQueryV2[] = sortPositions([...uniquePositions, VCHF_Bridge], coingecko, headers, tab, reverse);
 
 	useEffect(() => {
 		const idList = list.map((l) => l.position).join("_");
@@ -159,7 +227,12 @@ function sortPositions(
 		});
 	} else if (tab === headers[3]) {
 		// sort for liq price
-		sorting.sort((a, b) => parseInt(b.price) - parseInt(a.price)); // default: decrease
+		sorting.sort((a, b) => {
+			const calc = function (p: PositionQueryV2) {
+				return parseFloat(formatUnits(BigInt(p.price), 36 - p.collateralDecimals));
+			};
+			return calc(b) - calc(a); // default: decrease
+		});
 	} else if (tab === headers[4]) {
 		// sort for Maturity
 		sorting.sort((a, b) => b.expiration - a.expiration); // default: decrease

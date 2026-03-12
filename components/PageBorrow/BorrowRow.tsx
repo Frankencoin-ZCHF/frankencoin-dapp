@@ -1,9 +1,8 @@
-import { Address, formatUnits, parseUnits } from "viem";
 import TableRow from "../Table/TableRow";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import { useRouter as useNavigation } from "next/navigation";
-import { formatCurrency } from "../../utils/format";
+import { formatCurrency, normalizeAddress } from "../../utils/format";
 import { PositionQueryV2 } from "@frankencoin/api";
 import DisplayCollateralBorrowTable from "./DisplayCollateralBorrowTable";
 import Button from "@components/Button";
@@ -19,8 +18,8 @@ export default function BorrowRow({ headers, tab, position }: Props) {
 	const navigate = useNavigation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
-	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
-	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
+	const collTokenPrice = prices[normalizeAddress(position.collateral)]?.price?.usd || 0;
+	const zchfPrice = prices[normalizeAddress(position.zchf)]?.price?.usd || 0;
 	if (!collTokenPrice || !zchfPrice) return null;
 
 	const interest: number = position.annualInterestPPM / 10 ** 4;
@@ -36,13 +35,19 @@ export default function BorrowRow({ headers, tab, position }: Props) {
 
 	const isPending = position.start * 1000 > Date.now();
 
+	const isVCHF = normalizeAddress(position.collateral) == normalizeAddress("0x79d4f0232A66c4c91b89c76362016A1707CFBF4f");
+
 	return (
 		<TableRow
 			headers={headers}
 			tab={tab}
 			actionCol={
-				<Button className="h-10" onClick={() => navigate.push(`/mint/${position.position}`)} disabled={isPending}>
-					Mint
+				<Button
+					className="h-10"
+					onClick={() => navigate.push(isVCHF ? "/swap" : `/mint/${position.position}`)}
+					disabled={isPending}
+				>
+					Borrow
 				</Button>
 			}
 		>
