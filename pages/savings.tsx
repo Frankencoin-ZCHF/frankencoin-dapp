@@ -14,11 +14,13 @@ import { useRouter } from "next/router";
 import { Address, isAddress, zeroAddress } from "viem";
 import ReportsYearlyTable from "@components/PageReports/ReportsSavingsYearlyTable";
 import { useSelector } from "react-redux";
-import { getChainByName } from "@utils";
+import { formatCurrency, getChainByName, normalizeAddress } from "@utils";
 import { useAppKitNetwork } from "@reown/appkit/react";
-import { ChainId } from "@frankencoin/zchf";
+import { ADDRESS, ChainId } from "@frankencoin/zchf";
+import { mainnet } from "viem/chains";
 
 export default function SavingsPage() {
+	const { status } = useSelector((state: RootState) => state.savings.savingsInfo);
 	const activities = useSelector((state: RootState) => state.savings.savingsActivity);
 	const { address } = useAccount();
 	const router = useRouter();
@@ -30,6 +32,9 @@ export default function SavingsPage() {
 
 	const queryChain: string = String(router.query.chain).toLowerCase();
 	const [targetChainName, setTargetChainName] = useState("");
+
+	const savingsAddress = normalizeAddress(ADDRESS[mainnet.id].savingsReferral);
+	const saveRate = status[mainnet.id][savingsAddress].rate / 10000;
 
 	useEffect(() => {
 		store.dispatch(fetchLeadrate());
@@ -81,7 +86,7 @@ export default function SavingsPage() {
 					},
 					{
 						icon: 2,
-						title: "Earn interest",
+						title: `Earn ${formatCurrency(saveRate)}% interest`,
 						description: "Your balance accrues interest automatically based on the current lead rate.",
 					},
 					{
@@ -91,8 +96,6 @@ export default function SavingsPage() {
 					},
 				]}
 			/>
-
-			<SavingsGlobalCard />
 
 			<SavingsInteractionCard />
 

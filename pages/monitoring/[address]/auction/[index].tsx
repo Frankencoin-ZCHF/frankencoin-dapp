@@ -94,6 +94,23 @@ export default function ChallengePlaceBid() {
 		}
 	}, [isNavigating, navigate, position]);
 
+	// Validate after data is fetched
+	useEffect(() => {
+		if (!isInit) return;
+		if (!challenge || !position) return;
+
+		const remaining = BigInt(challenge.size) - BigInt(challenge.filledSize);
+		const expected = (BigInt(amount) * auctionPrice) / parseEther("1");
+
+		if (expected > userBalance) {
+			setError("Not enough ZCHF in your wallet to cover the expected costs.");
+		} else if (amount > remaining) {
+			setError("Expected winning collateral should be lower than remaining collateral.");
+		} else {
+			setError("");
+		}
+	}, [isInit, amount, auctionPrice, userBalance, challenge, position]);
+
 	if (!challenge) return null;
 	if (!position) return null;
 
@@ -115,11 +132,12 @@ export default function ChallengePlaceBid() {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
 
-		if (expectedZCHF > userBalance) {
+		const newExpectedZCHF = (BigInt(valueBigInt) * auctionPrice) / parseEther("1");
+		if (newExpectedZCHF > userBalance) {
 			setError("Not enough ZCHF in your wallet to cover the expected costs.");
-		} else if (valueBigInt > remainingSize) {
+		} else if (amount > remainingSize) {
 			setError("Expected winning collateral should be lower than remaining collateral.");
-		} else {
+		} else if (error.length > 0) {
 			setError("");
 		}
 	};

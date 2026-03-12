@@ -20,8 +20,8 @@ export default function PageChallengesOverview() {
 
 			<AppTitle title="Challenges & Bids">
 				<div className="text-text-secondary">
-					A complete overview of all challenges that have occurred, both successful and unsuccessful, along with their bids. This
-					track record helps market participants assess the protocol&apos;s history and resilience.
+					A complete overview of all challenges that have occurred, both averted and succeeded, along with their bids. This track
+					record helps market participants assess the protocol&apos;s history and resilience.
 				</div>
 			</AppTitle>
 
