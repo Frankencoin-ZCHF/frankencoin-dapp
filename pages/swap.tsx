@@ -9,7 +9,7 @@ import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/ac
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
-import { formatBigInt, shortenAddress } from "@utils";
+import { formatBigInt, formatDate, shortenAddress } from "@utils";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../app.config";
@@ -229,6 +229,13 @@ export default function Swap() {
 							<AppLink className="" label="VNX Swiss Franc (VCHF)" href="https://vnx.li/vchf/" external={true} /> is
 							supported.
 						</div>
+
+						{swapStats.bridgeHorizon > 0n && (
+							<div className="mt-4 text-text-warning">
+								This bridge expires on {formatDate(swapStats.bridgeHorizon)}. After that date, you can still swap ZCHF
+								back into VCHF, but swapping from VCHF to ZCHF will not be possible any longer.
+							</div>
+						)}
 
 						<div className="mt-8">
 							<TokenInput
