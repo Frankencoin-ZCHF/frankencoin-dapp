@@ -2,10 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarDays, faChevronDown, faDownload } from "@fortawesome/free-solid-svg-icons";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
+import { AlertInterval } from "../utils/calendarGenerator";
 
 interface CalendarDropdownProps {
 	onDownloadICS: () => void;
-	onGoogleCalendar: () => void;
+	onGoogleCalendar: (interval: AlertInterval) => void;
 	label?: string;
 	title?: string;
 }
@@ -46,18 +47,34 @@ export default function CalendarDropdown({
 			</button>
 
 			{isOpen && (
-				<div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-lg z-50">
+				<div className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-lg shadow-lg z-50">
 					<div className="py-1">
+						<div className="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
+							Google Calendar
+						</div>
 						<button
 							onClick={() => {
-								onGoogleCalendar();
+								onGoogleCalendar("7d");
 								setIsOpen(false);
 							}}
 							className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center"
 						>
 							<FontAwesomeIcon icon={faGoogle} className="mr-3 w-4 text-[#4285F4]" />
-							Add to Google Calendar
+							7-day reminder
 						</button>
+						<button
+							onClick={() => {
+								onGoogleCalendar("24h");
+								setIsOpen(false);
+							}}
+							className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center"
+						>
+							<FontAwesomeIcon icon={faGoogle} className="mr-3 w-4 text-[#4285F4]" />
+							24-hour reminder
+						</button>
+						<div className="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider border-t border-b border-slate-100">
+							Download
+						</div>
 						<button
 							onClick={() => {
 								onDownloadICS();
@@ -66,7 +83,7 @@ export default function CalendarDropdown({
 							className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center"
 						>
 							<FontAwesomeIcon icon={faDownload} className="mr-3 w-4 text-slate-500" />
-							Download ICS file
+							ICS file (all reminders)
 						</button>
 					</div>
 				</div>

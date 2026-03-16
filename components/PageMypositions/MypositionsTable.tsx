@@ -10,7 +10,7 @@ import { useAccount } from "wagmi";
 import MypositionsRow from "./MypositionsRow";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { generateExpirationCalendar, downloadCalendarFile, generateGoogleCalendarUrls } from "../../utils/calendarGenerator";
+import { generateExpirationCalendar, downloadCalendarFile, generateGoogleCalendarUrls, AlertInterval } from "../../utils/calendarGenerator";
 import CalendarDropdown from "../CalendarDropdown";
 
 export default function MypositionsTable() {
@@ -84,14 +84,16 @@ export default function MypositionsTable() {
 		downloadCalendarFile(calendarContent);
 	};
 
-	const handleGoogleCalendar = () => {
+	const handleGoogleCalendar = (interval: AlertInterval) => {
 		if (list.length === 0) return;
 
 		const googleUrls = generateGoogleCalendarUrls(list);
-		if (googleUrls.length > 0) {
-			// Open the first position's Google Calendar URL
+		const filteredUrls = googleUrls.filter((u) => u.interval === interval);
+
+		if (filteredUrls.length > 0) {
+			// Open the first position's Google Calendar URL for the selected interval
 			// For multiple positions, users can add them one by one
-			window.open(googleUrls[0].url, "_blank");
+			window.open(filteredUrls[0].url, "_blank");
 		}
 	};
 
