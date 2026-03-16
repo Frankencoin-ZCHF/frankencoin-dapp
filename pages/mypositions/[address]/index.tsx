@@ -21,9 +21,8 @@ import AppLink from "@components/AppLink";
 import MyPositionsNotFound from "@components/PageMypositions/MyPositionsNotFound";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
-import { generateExpirationCalendar, downloadCalendarFile } from "../../../utils/calendarGenerator";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
+import { generateExpirationCalendar, downloadCalendarFile, generateGoogleCalendarUrl } from "../../../utils/calendarGenerator";
+import CalendarDropdown from "@components/CalendarDropdown";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -378,6 +377,11 @@ export default function PositionAdjust() {
 		downloadCalendarFile(calendarContent, `frankencoin-position-${position.position.slice(0, 8)}.ics`);
 	};
 
+	const handleGoogleCalendar = () => {
+		const googleUrl = generateGoogleCalendarUrl(position);
+		window.open(googleUrl, "_blank");
+	};
+
 	return (
 		<>
 			<Head>
@@ -576,14 +580,12 @@ export default function PositionAdjust() {
 						</AppCard>
 						{!position.closed && !position.denied && (
 							<div className="flex justify-end">
-								<button
-									onClick={handleDownloadCalendar}
-									className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-700 transition-colors"
-									title="Download expiration alert calendar for this position"
-								>
-									<FontAwesomeIcon icon={faCalendarDays} className="mr-2" />
-									Expiration Calendar
-								</button>
+								<CalendarDropdown
+									onDownloadICS={handleDownloadCalendar}
+									onGoogleCalendar={handleGoogleCalendar}
+									label="Expiration Calendar"
+									title="Add expiration alert to your calendar"
+								/>
 							</div>
 						)}
 					</div>

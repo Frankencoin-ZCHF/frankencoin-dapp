@@ -10,9 +10,8 @@ import { useAccount } from "wagmi";
 import MypositionsRow from "./MypositionsRow";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { generateExpirationCalendar, downloadCalendarFile } from "../../utils/calendarGenerator";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
+import { generateExpirationCalendar, downloadCalendarFile, generateGoogleCalendarUrls } from "../../utils/calendarGenerator";
+import CalendarDropdown from "../CalendarDropdown";
 
 export default function MypositionsTable() {
 	const headers: string[] = ["Collateral", "Liquidation Price", "Minted", "State"];
@@ -85,6 +84,17 @@ export default function MypositionsTable() {
 		downloadCalendarFile(calendarContent);
 	};
 
+	const handleGoogleCalendar = () => {
+		if (list.length === 0) return;
+
+		const googleUrls = generateGoogleCalendarUrls(list);
+		if (googleUrls.length > 0) {
+			// Open the first position's Google Calendar URL
+			// For multiple positions, users can add them one by one
+			window.open(googleUrls[0].url, "_blank");
+		}
+	};
+
 	return (
 		<>
 			<Table>
@@ -108,14 +118,12 @@ export default function MypositionsTable() {
 			</Table>
 			{list.length > 0 && (
 				<div className="mb-4 flex justify-end">
-					<button
-						onClick={handleDownloadCalendar}
-						className="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-700 transition-colors"
-						title="Download expiration alerts calendar"
-					>
-						<FontAwesomeIcon icon={faCalendarDays} className="mr-2" />
-						Download Expiration Calendar
-					</button>
+					<CalendarDropdown
+						onDownloadICS={handleDownloadCalendar}
+						onGoogleCalendar={handleGoogleCalendar}
+						label="Expiration Calendar"
+						title="Add expiration alerts to your calendar"
+					/>
 				</div>
 			)}
 		</>

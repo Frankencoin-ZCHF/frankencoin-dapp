@@ -111,3 +111,70 @@ export function downloadCalendarFile(content: string, filename: string = "franke
 
 	URL.revokeObjectURL(url);
 }
+
+/**
+ * Generates a Google Calendar URL for a single position's expiration alerts
+ * Uses the 7-day warning as the primary event
+ */
+export function generateGoogleCalendarUrl(position: PositionQuery): string {
+	const expirationDate = new Date(position.expiration * 1000);
+	// Create event 7 days before expiration
+	const alertDate = new Date(expirationDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+	const endDate = new Date(alertDate.getTime() + 60 * 60 * 1000); // 1 hour duration
+
+	const collateralAmount = formatUnits(BigInt(position.collateralBalance), position.collateralDecimals);
+	const totalMinted = parseFloat(formatUnits(BigInt(position.minted), 18));
+	const reserveContribution = position.reserveContribution / 1000000;
+	const debt = Math.round(totalMinted * (1 - reserveContribution));
+	const reserve = Math.round(totalMinted * reserveContribution);
+
+	const title = "🔔 Frankencoin: Position expires in 7 days";
+	const description =
+		`Your Frankencoin position is expiring soon!\n\n` +
+		`Position: ${position.position}\n` +
+		`Collateral: ${collateralAmount} ${position.collateralSymbol}\n` +
+		`Debt: ${debt} ZCHF\n` +
+		`Reserve: ${reserve} ZCHF\n` +
+		`Expiration: ${expirationDate.toLocaleString()}\n\n` +
+		`Visit: https://app.frankencoin.com/mypositions/${position.position}`;
+
+	const params = new URLSearchParams({
+		action: "TEMPLATE",
+		text: title,
+		dates: `${formatDateForGoogleCalendar(alertDate)}/${formatDateForGoogleCalendar(endDate)}`,
+		details: description,
+		sf: "true",
+	});
+
+	return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+/**
+ * Generates Google Calendar URLs for multiple positions
+ * Returns an array of URLs (one per position with 7-day warning)
+ */
+export function generateGoogleCalendarUrls(positions: PositionQuery[]): { position: PositionQuery; url: string }[] {
+	const now = new Date();
+	const activePositions = positions.filter((p) => !p.closed && !p.denied);
+
+	return activePositions
+		.filter((position) => {
+			const expirationDate = new Date(position.expiration * 1000);
+			const alertDate = new Date(expirationDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+			return alertDate > now;
+		})
+		.map((position) => ({
+			position,
+			url: generateGoogleCalendarUrl(position),
+		}));
+}
+
+/**
+ * Formats a Date object for Google Calendar URL (YYYYMMDDTHHMMSSZ)
+ */
+function formatDateForGoogleCalendar(date: Date): string {
+	return date
+		.toISOString()
+		.replace(/[:-]/g, "")
+		.replace(/\.\d{3}/, "");
+}
