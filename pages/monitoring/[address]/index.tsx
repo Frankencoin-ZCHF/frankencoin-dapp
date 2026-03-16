@@ -124,6 +124,15 @@ export default function PositionDetail() {
 								/>
 							</AppBox>
 							<AppBox>
+								<DisplayLabel label="Minimum Collateral" />
+								<DisplayAmount
+									amount={BigInt(position.minimumCollateral)}
+									currency={position.collateralSymbol}
+									digits={position.collateralDecimals}
+									address={position.collateral}
+								/>
+							</AppBox>
+							<AppBox>
 								<DisplayLabel label="Auction Duration" />
 								<DisplayOutputAlignedRight amount={position.challengePeriod / 60 / 60} unit={"hours"} />
 							</AppBox>
