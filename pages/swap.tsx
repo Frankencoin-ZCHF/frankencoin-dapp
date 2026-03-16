@@ -61,11 +61,17 @@ export default function Swap() {
 
 	useEffect(() => {
 		const horizon = new Date(Number(swapStats.bridgeHorizon * 1000n));
+		const now = Date.now();
+		const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+		const timeRemaining = horizon.getTime() - now;
 
 		if (!activeMinter) {
 			setErrorBridge("The swap module has not yet completed the governance process.");
-		} else if (horizon.getTime() < Date.now() && direction) {
+		} else if (horizon.getTime() < now && direction) {
 			setErrorBridge(`Swap module has expired on ${horizon.toDateString()}`);
+		} else if (timeRemaining < thirtyDaysMs && timeRemaining > 0 && direction) {
+			const daysRemaining = Math.ceil(timeRemaining / (24 * 60 * 60 * 1000));
+			setErrorBridge(`Warning: Swap module expires in ${daysRemaining} day${daysRemaining === 1 ? "" : "s"} (${horizon.toDateString()})`);
 		} else {
 			setErrorBridge("");
 		}

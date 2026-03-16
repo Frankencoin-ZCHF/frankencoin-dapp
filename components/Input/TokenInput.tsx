@@ -28,6 +28,7 @@ interface Props {
 	autoFocus?: boolean;
 	disabled?: boolean;
 	error?: string;
+	warning?: string;
 }
 
 export default function TokenInput({
@@ -52,6 +53,7 @@ export default function TokenInput({
 	onMax = () => {},
 	onReset = () => {},
 	error,
+	warning,
 }: Props) {
 	const inputRef = useRef<HTMLInputElement>(null);
 
@@ -158,7 +160,13 @@ export default function TokenInput({
 				) : null}
 			</div>
 
-			{error ? <div className="flex my-2 px-3.5 text-text-warning">{error}</div> : <div className="flex my-2 px-3.5">{note}</div>}
+			{error ? (
+				<div className="flex my-2 px-3.5 text-text-warning">{error}</div>
+			) : warning ? (
+				<div className="flex my-2 px-3.5 text-amber-500">{warning}</div>
+			) : (
+				<div className="flex my-2 px-3.5">{note}</div>
+			)}
 		</div>
 	);
 }
