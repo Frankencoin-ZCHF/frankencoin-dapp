@@ -48,6 +48,12 @@ export default function PositionCreate({}) {
 	const [liqPriceError, setLiqPriceError] = useState("");
 	const [bufferError, setBufferError] = useState("");
 	const [durationError, setDurationError] = useState("");
+
+	// Soft limit warnings (non-blocking)
+	const [limitWarning, setLimitWarning] = useState("");
+	const [bufferWarning, setBufferWarning] = useState("");
+	const [durationWarning, setDurationWarning] = useState("");
+	const [minCollWarning, setMinCollWarning] = useState("");
 	const [isConfirming, setIsConfirming] = useState("");
 	const [isInit, setIsInit] = useState(false);
 
@@ -164,6 +170,13 @@ export default function PositionCreate({}) {
 	const onChangeLimitAmount = (value: string) => {
 		const valueBigInt = BigInt(value);
 		setLimitAmount(valueBigInt);
+
+		// Soft limit: warn if limit exceeds 2.5 million ZCHF
+		if (valueBigInt > parseUnits("2500000", 18)) {
+			setLimitWarning("Recommended: limit should not exceed 2.5 million ZCHF");
+		} else {
+			setLimitWarning("");
+		}
 	};
 
 	const onChangeCollateralAddress = (addr: string) => {
@@ -206,12 +219,21 @@ export default function PositionCreate({}) {
 	};
 
 	function checkCollateralAmount(coll: bigint, price: bigint) {
-		if (coll * price < parseUnits("5000", 36)) {
+		const collValue = coll * price;
+		if (collValue < parseUnits("5000", 36)) {
 			setLiqPriceError("The liquidation value of the collateral must be at least 5000 ZCHF");
 			setMinCollAmountError("The collateral must be worth at least 5000 ZCHF");
+			setMinCollWarning("");
 		} else {
 			setLiqPriceError("");
 			setMinCollAmountError("");
+
+			// Soft limit: warn if minimum collateral is below 7500 ZCHF
+			if (collValue < parseUnits("7500", 36)) {
+				setMinCollWarning("Recommended: minimum collateral should be worth at least 7500 ZCHF");
+			} else {
+				setMinCollWarning("");
+			}
 		}
 	}
 
@@ -225,6 +247,13 @@ export default function PositionCreate({}) {
 		} else {
 			setBufferError("");
 		}
+
+		// Soft limit: warn if reserve ratio is below 20%
+		if (valueBigInt < 200_000n && valueBigInt >= 100_000n) {
+			setBufferWarning("Recommended: reserve ratio should be at least 20%");
+		} else {
+			setBufferWarning("");
+		}
 	};
 
 	const onChangeAuctionDuration = (value: string) => {
@@ -234,6 +263,13 @@ export default function PositionCreate({}) {
 			setDurationError("Duration must be at least 12h");
 		} else {
 			setDurationError("");
+		}
+
+		// Soft limit: warn if auction duration is below 24 hours
+		if (valueBigInt < 24n && valueBigInt >= 12n) {
+			setDurationWarning("Recommended: auction duration should be at least 24 hours");
+		} else {
+			setDurationWarning("");
 		}
 	};
 
@@ -452,6 +488,7 @@ export default function PositionCreate({}) {
 							label="Minimum Collateral"
 							symbol={collTokenData.symbol}
 							error={minCollAmountError}
+							warning={minCollWarning}
 							hideMaxLabel
 							value={minCollAmount.toString()}
 							onChange={onChangeMinCollAmount}
@@ -477,6 +514,7 @@ export default function PositionCreate({}) {
 							hideMaxLabel
 							symbol="ZCHF"
 							error={limitAmountError}
+							warning={limitWarning}
 							// min={parseEther("200000")}
 							// max={parseEther("10000000")}
 							// reset={parseEther("1000000")}
@@ -524,6 +562,7 @@ export default function PositionCreate({}) {
 								label="Retained Reserve"
 								symbol="%"
 								error={bufferError}
+								warning={bufferWarning}
 								digit={4}
 								value={buffer.toString()}
 								onChange={onChangeBuffer}
@@ -533,6 +572,7 @@ export default function PositionCreate({}) {
 								label="Auction Duration"
 								symbol="hours"
 								error={durationError}
+								warning={durationWarning}
 								digit={0}
 								value={auctionDuration.toString()}
 								onChange={onChangeAuctionDuration}
