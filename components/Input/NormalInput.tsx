@@ -7,6 +7,7 @@ interface Props {
 	value?: string;
 	onChange?: (value: string) => void;
 	error?: string;
+	warning?: string;
 
 	symbol: string;
 	digit?: bigint | number;
@@ -23,6 +24,7 @@ export default function NormalInput({
 	value = "",
 	onChange,
 	error,
+	warning,
 	symbol,
 	digit = 18,
 	output,
@@ -74,7 +76,13 @@ export default function NormalInput({
 				</div>
 			</div>
 
-			<div className="flex my-2 px-3.5 text-text-warning">{error}</div>
+			{error ? (
+				<div className="flex my-2 px-3.5 text-text-warning">{error}</div>
+			) : warning ? (
+				<div className="flex my-2 px-3.5 text-amber-500">{warning}</div>
+			) : (
+				<div className="flex my-2 px-3.5">{note}</div>
+			)}
 		</div>
 	);
 }
