@@ -170,7 +170,7 @@ export default function GovernanceDelegation() {
 					<div className="text-lg font-bold text-center">Sync Votes to Chain</div>
 
 					<div className={`border-card-input-border hover:border-card-input-hover border-2 rounded-lg px-3 py-1`}>
-						<div className="flex text-card-input-label my-1 text-sm text-text-secondary">Target Chain</div>
+						<div className="flex my-1 text-sm text-text-secondary">Target Chain</div>
 						<div className="flex justify-end">
 							<ChainBySelect
 								chains={sideChains.map((c) => c.name)}
