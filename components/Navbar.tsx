@@ -4,21 +4,20 @@ import NavButton from "./NavButton";
 import { CONFIG } from "../app.config";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
+import { useAccount } from "wagmi";
 
 const MAIN_ITEMS = [
 	{ to: "/mint", name: "Borrow" },
 	{ to: "/savings", name: "Earn" },
 	{ to: "/equity", name: "Invest" },
+	{ to: "/mypositions", name: "My Positions" },
 ];
 
 const MORE_ITEMS = [
 	{ to: "/transfer", name: "Transfer" },
-	{ to: "/mypositions", name: "My Positions" },
 	{ to: "/monitoring", name: "Monitoring" },
 	{ to: "/governance", name: "Governance" },
 ];
-
-const ALL_ITEMS = [...MAIN_ITEMS, ...MORE_ITEMS];
 
 function MoreDropdown() {
 	const [open, setOpen] = useState(false);
@@ -69,10 +68,10 @@ function MoreDropdown() {
 	);
 }
 
-export function NavItems() {
+export function NavItems({ items }: { items: typeof MAIN_ITEMS }) {
 	return (
 		<>
-			{ALL_ITEMS.map((item) => (
+			{items.map((item) => (
 				<li key={item.to}>
 					<NavButton to={item.to} name={item.name} />
 				</li>
@@ -83,6 +82,14 @@ export function NavItems() {
 
 export default function Navbar() {
 	const [isNavBarOpen, setIsNavBarOpen] = useState(false);
+	const { address } = useAccount();
+
+	let mainItems = MAIN_ITEMS;
+	if (!address) {
+		mainItems = mainItems.filter((i) => i.to != "/mypositions");
+	}
+
+	let allItems = [...mainItems, ...MORE_ITEMS];
 
 	return (
 		<>
@@ -100,7 +107,7 @@ export default function Navbar() {
 					{/* Center: desktop nav / mobile wallet */}
 					<div className="flex justify-center">
 						<ul className="hidden md:flex gap-2 lg:gap-3">
-							{MAIN_ITEMS.map((item) => (
+							{mainItems.map((item) => (
 								<li key={item.to}>
 									<NavButton to={item.to} name={item.name} />
 								</li>
@@ -153,7 +160,7 @@ export default function Navbar() {
 						</svg>
 					</button>
 					<menu className="grid grid-cols-1 gap-2 mt-12" onClick={() => setIsNavBarOpen(false)}>
-						<NavItems />
+						<NavItems items={allItems} />
 					</menu>
 				</div>
 			</div>
