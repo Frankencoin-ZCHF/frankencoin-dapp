@@ -71,10 +71,6 @@ export default function SavingsPage() {
 				<div className={`text-text-secondary`}>
 					Earn interest on your Frankencoins — now available across multiple chains. View and manage your account here.
 				</div>
-				<div className={`text-text-secondary`}>
-					Get a glance over the latest changes via the{" "}
-					<AppLink className="" label="transaction logs." href={"/monitoring/logs?kind=Savings"} external={false} />
-				</div>
 			</AppTitle>
 
 			<AppHeroSteps
@@ -121,10 +117,6 @@ export default function SavingsPage() {
 			<AppTitle title={"Your latest Activities"} />
 
 			<SavingsRecentActivitiesTable />
-
-			<AppTitle title="Top Saver's Accounts" />
-
-			<SavingsRankedBalancesTable />
 		</>
 	);
 }

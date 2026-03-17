@@ -50,17 +50,8 @@ export default function Equity() {
 			<AppTitle title={`Invest`}>
 				<div className="text-text-secondary">
 					Invest in or redeem your{" "}
-					<AppLink
-						className=""
-						label="Frankencoin Pool Shares"
-						href={ContractUrl(ADDRESS[mainnet.id].equity, mainnet)}
-						external={true}
-					/>{" "}
+					<AppLink className="" label="Frankencoin Pool Shares" href={ContractUrl(ADDRESS[mainnet.id].equity)} external={true} />{" "}
 					(FPS) — the governance token of the Frankencoin Ecosystem.
-				</div>
-				<div className="text-text-secondary">
-					Get a glance over the latest changes via the{" "}
-					<AppLink className="" label="transaction logs." href={"/monitoring/logs?kind=Equity"} external={false} />
 				</div>
 			</AppTitle>
 

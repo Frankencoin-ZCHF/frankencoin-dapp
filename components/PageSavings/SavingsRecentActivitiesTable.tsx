@@ -12,7 +12,7 @@ import { ADDRESS, ChainId } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 
 export default function SavingsRecentActivitiesTable() {
-	const headers: string[] = ["Date", "Saver", "Kind", "Amount", "Balance"];
+	const headers: string[] = ["Date", "Kind", "Amount", "Balance"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<SavingsActivityQuery[]>([]);
@@ -80,15 +80,12 @@ function sortFunction(params: SortFunctionParams): SavingsActivityQuery[] {
 		// Date
 		sortingList.sort((a, b) => b.created - a.created);
 	} else if (tab === headers[1]) {
-		// Saver
-		sortingList.sort((a, b) => a.account.localeCompare(b.account));
-	} else if (tab === headers[2]) {
 		// Kind
 		sortingList.sort((a, b) => a.kind.localeCompare(b.kind));
-	} else if (tab === headers[3]) {
+	} else if (tab === headers[2]) {
 		// Amount
 		sortingList.sort((a, b) => parseInt(b.amount) - parseInt(a.amount));
-	} else if (tab === headers[4]) {
+	} else if (tab === headers[3]) {
 		// Balance
 		sortingList.sort((a, b) => parseInt(b.balance) - parseInt(a.balance));
 	}
