@@ -106,11 +106,24 @@ export function generateGoogleCalendarUrl(position: PositionQuery): string {
 	const expirationDate = new Date(position.expiration * 1000);
 	const endDate = new Date(expirationDate.getTime() + 60 * 60 * 1000); // 1 hour duration
 
+	const collateralAmount = formatUnits(BigInt(position.collateralBalance), position.collateralDecimals);
+	const totalMinted = parseFloat(formatUnits(BigInt(position.minted), 18));
+	const reserveContribution = position.reserveContribution / 1000000;
+	const debt = Math.round(totalMinted * (1 - reserveContribution));
+	const reserve = Math.round(totalMinted * reserveContribution);
+
+	const details =
+		`One of your Frankencoin positions is expiring. Please renew or close it before it is too late.\n\n` +
+		`Collateral: ${collateralAmount} ${position.collateralSymbol}\n` +
+		`Debt: ${debt} ZCHF\n` +
+		`Reserve: ${reserve} ZCHF\n\n` +
+		`Manage position: https://app.frankencoin.com/mypositions/${position.position}`;
+
 	const params = new URLSearchParams({
 		action: "TEMPLATE",
 		text: `🔔 ${position.collateralSymbol} position expires`,
 		dates: `${formatDateForICS(expirationDate)}/${formatDateForICS(endDate)}`,
-		details: "One of your Frankencoin positions is expiring. Please renew or close it before it is too late.",
+		details,
 	});
 
 	return `https://calendar.google.com/calendar/render?${params.toString()}`;
