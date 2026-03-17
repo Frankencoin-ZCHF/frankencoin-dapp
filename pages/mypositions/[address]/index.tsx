@@ -22,7 +22,8 @@ import MyPositionsNotFound from "@components/PageMypositions/MyPositionsNotFound
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { generateExpirationCalendar, downloadCalendarFile, generateGoogleCalendarUrl } from "../../../utils/calendarGenerator";
-import CalendarDropdown from "@components/CalendarDropdown";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalendarDays, faCalendarPlus } from "@fortawesome/free-solid-svg-icons";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -579,13 +580,23 @@ export default function PositionAdjust() {
 							</div>
 						</AppCard>
 						{!position.closed && !position.denied && (
-							<div className="flex justify-end">
-								<CalendarDropdown
-									onDownloadICS={handleDownloadCalendar}
-									onGoogleCalendar={handleGoogleCalendar}
-									label="Expiration Calendar"
-									title="Add expiration alert to your calendar"
-								/>
+							<div className="flex justify-end gap-2">
+								<button
+									onClick={handleGoogleCalendar}
+									className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-700 transition-colors"
+									title="Add expiration reminder to Google Calendar"
+								>
+									<FontAwesomeIcon icon={faCalendarPlus} className="mr-2" />
+									Add to Google Calendar
+								</button>
+								<button
+									onClick={handleDownloadCalendar}
+									className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-700 transition-colors"
+									title="Download expiration alert calendar for this position"
+								>
+									<FontAwesomeIcon icon={faCalendarDays} className="mr-2" />
+									Download Calendar
+								</button>
 							</div>
 						)}
 					</div>
