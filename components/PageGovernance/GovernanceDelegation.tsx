@@ -72,7 +72,7 @@ export default function GovernanceDelegation() {
 	};
 
 	// actions state
-	const [delegateAddr, setDelegateAddr] = useState<string>("");
+	const [delegateAddr, setDelegateAddr] = useState<string>(myDelegatedTo != zeroAddress ? myDelegatedTo : "");
 	const [delegateError, setDelegateError] = useState<string>("");
 
 	const handleDelegateChange = (value: string) => {
@@ -156,6 +156,7 @@ export default function GovernanceDelegation() {
 						label="Supported Address"
 						placeholder="Enter the address here"
 						value={delegateAddr}
+						reset={myDelegatedTo != zeroAddress ? zeroAddress : undefined}
 						onChange={handleDelegateChange}
 						error={delegateError}
 					/>
