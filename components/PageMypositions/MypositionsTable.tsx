@@ -10,8 +10,9 @@ import { useAccount } from "wagmi";
 import MypositionsRow from "./MypositionsRow";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { generateExpirationCalendar, downloadCalendarFile, generateGoogleCalendarUrls, AlertInterval } from "../../utils/calendarGenerator";
-import CalendarDropdown from "../CalendarDropdown";
+import { generateExpirationCalendar, downloadCalendarFile, generateGoogleCalendarUrl } from "../../utils/calendarGenerator";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalendarDays, faCalendarPlus } from "@fortawesome/free-solid-svg-icons";
 
 export default function MypositionsTable() {
 	const headers: string[] = ["Collateral", "Liquidation Price", "Minted", "State"];
@@ -79,22 +80,15 @@ export default function MypositionsTable() {
 
 	const handleDownloadCalendar = () => {
 		if (list.length === 0) return;
-
-		const calendarContent = generateExpirationCalendar(list, account);
-		downloadCalendarFile(calendarContent);
+		downloadCalendarFile(generateExpirationCalendar(list, account));
 	};
 
-	const handleGoogleCalendar = (interval: AlertInterval) => {
-		if (list.length === 0) return;
-
-		const googleUrls = generateGoogleCalendarUrls(list);
-		const filteredUrls = googleUrls.filter((u) => u.interval === interval);
-
-		if (filteredUrls.length > 0) {
-			// Open the first position's Google Calendar URL for the selected interval
-			// For multiple positions, users can add them one by one
-			window.open(filteredUrls[0].url, "_blank");
-		}
+	const handleGoogleCalendar = () => {
+		const activePositions = list.filter((p) => !p.closed && !p.denied);
+		if (activePositions.length === 0) return;
+		// Pick the position with the soonest expiration
+		const soonest = activePositions.slice().sort((a, b) => a.expiration - b.expiration)[0];
+		window.open(generateGoogleCalendarUrl(soonest), "_blank");
 	};
 
 	return (
@@ -119,13 +113,23 @@ export default function MypositionsTable() {
 				</TableBody>
 			</Table>
 			{list.length > 0 && (
-				<div className="mb-4 flex justify-end">
-					<CalendarDropdown
-						onDownloadICS={handleDownloadCalendar}
-						onGoogleCalendar={handleGoogleCalendar}
-						label="Expiration Calendar"
-						title="Add expiration alerts to your calendar"
-					/>
+				<div className="mb-4 flex justify-end gap-2">
+					<button
+						onClick={handleGoogleCalendar}
+						className="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-700 transition-colors"
+						title="Add expiration reminder to Google Calendar"
+					>
+						<FontAwesomeIcon icon={faCalendarPlus} className="mr-2" />
+						Add to Google Calendar
+					</button>
+					<button
+						onClick={handleDownloadCalendar}
+						className="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-700 transition-colors"
+						title="Download expiration alerts calendar"
+					>
+						<FontAwesomeIcon icon={faCalendarDays} className="mr-2" />
+						Download Calendar
+					</button>
 				</div>
 			)}
 		</>
