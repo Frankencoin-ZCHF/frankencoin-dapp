@@ -10,7 +10,7 @@ import MonitoringRow from "./MonitoringRow";
 import { useEffect, useState } from "react";
 
 export default function MonitoringTable() {
-	const headers: string[] = ["Collateral", "Collateralization", "Expiration", "Challenged"];
+	const headers: string[] = ["Asset", "Collateralization", "Expiration", "Challenged"];
 	const [tab, setTab] = useState<string>(headers[1]);
 	const [reverse, setReverse] = useState<boolean>(true);
 	const [list, setList] = useState<PositionQuery[]>([]);

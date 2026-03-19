@@ -16,8 +16,8 @@ import { useSwapVCHFStats } from "@hooks";
 const FILTER_OPTIONS: FilterOption[] = ALL_CATEGORIES.map((c) => ({ label: c, value: c }));
 
 export default function BorrowTable() {
-	const headers: string[] = ["Assets", "Max LTV", "Effective Interest", "Available to Borrow"];
-	const [tab, setTab] = useState<string>(headers[0]);
+	const headers: string[] = ["Assets", "Max LTV", "Effective Interest", "Available", "Max Maturity"];
+	const [tab, setTab] = useState<string>(headers[3]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<PositionQueryV2[]>([]);
 	const [searchQuery, setSearchQuery] = useState<string>("");
@@ -297,6 +297,9 @@ function sortPositions(
 	} else if (tab === headers[3]) {
 		// sort for available
 		sorting.sort((a, b) => Number(BigInt(b.availableForClones) - BigInt(a.availableForClones))); // default: decrease
+	} else if (tab === headers[4]) {
+		// sort for maturity
+		sorting.sort((a, b) => b.expiration - a.expiration); // default: decrease
 	}
 
 	return reverse ? sorting.reverse() : sorting;
