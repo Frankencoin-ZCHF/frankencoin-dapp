@@ -4,7 +4,21 @@ import { erc20Abi } from "viem";
 import { ADDRESS, StablecoinBridgeABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 
-export const useSwapVCHFStats = () => {
+export type SwapVCHFStatsReturn = {
+	isError: boolean;
+	isLoading: boolean;
+	otherUserBal: bigint;
+	otherSymbol: string;
+	otherUserAllowance: bigint;
+	otherBridgeBal: bigint;
+	zchfUserBal: bigint;
+	zchfSymbol: string;
+	zchfUserAllowance: bigint;
+	bridgeLimit: bigint;
+	bridgeHorizon: bigint;
+};
+
+export const useSwapVCHFStats = (): SwapVCHFStatsReturn => {
 	const chainId = mainnet.id;
 	const { address } = useAccount();
 	const account = address || "0x0";
