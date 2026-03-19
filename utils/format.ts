@@ -13,6 +13,7 @@ export const toTimestamp = (value: Date) => {
 export enum FormatType {
 	"us",
 	"tiny",
+	"symbol",
 }
 
 export const formatCurrency = (value: string | number, minimumFractionDigits = 0, maximumFractionDigits = 2, format = FormatType.tiny) => {
@@ -40,6 +41,36 @@ export const formatCurrency = (value: string | number, minimumFractionDigits = 0
 			minimumFractionDigits: amount < 1000 && amount > -1000 ? 2 : 0,
 		});
 		return formatter.format(amount).split(",").join(" ");
+	}
+
+	// symbol (k, M, B, T)
+	if (format === FormatType.symbol) {
+		const absAmount = Math.abs(amount);
+		let scaledAmount: number;
+		let suffix: string;
+
+		if (absAmount >= 1_000_000_000_000) {
+			scaledAmount = amount / 1_000_000_000_000;
+			suffix = "T";
+		} else if (absAmount >= 1_000_000_000) {
+			scaledAmount = amount / 1_000_000_000;
+			suffix = "B";
+		} else if (absAmount >= 1_000_000) {
+			scaledAmount = amount / 1_000_000;
+			suffix = "M";
+		} else if (absAmount >= 1_000) {
+			scaledAmount = amount / 1_000;
+			suffix = "k";
+		} else {
+			scaledAmount = amount;
+			suffix = "";
+		}
+
+		const formatter = new Intl.NumberFormat("en-US", {
+			minimumFractionDigits,
+			maximumFractionDigits,
+		});
+		return formatter.format(scaledAmount).split(",").join(" ") + suffix;
 	}
 };
 

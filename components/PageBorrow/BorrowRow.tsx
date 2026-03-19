@@ -2,19 +2,22 @@ import TableRow from "../Table/TableRow";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import { useRouter as useNavigation } from "next/navigation";
-import { formatCurrency, normalizeAddress } from "../../utils/format";
+import { formatCurrency, FormatType, normalizeAddress } from "../../utils/format";
 import { PositionQueryV2 } from "@frankencoin/api";
 import DisplayCollateralBorrowTable from "./DisplayCollateralBorrowTable";
 import Button from "@components/Button";
 import AppBox from "@components/AppBox";
+import { formatUnits } from "viem";
+import { SwapVCHFStatsReturn } from "@hooks";
 
 interface Props {
 	headers: string[];
 	tab: string;
 	position: PositionQueryV2;
+	vchfBridge: SwapVCHFStatsReturn;
 }
 
-export default function BorrowRow({ headers, tab, position }: Props) {
+export default function BorrowRow({ headers, tab, position, vchfBridge }: Props) {
 	const navigate = useNavigation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
@@ -27,15 +30,16 @@ export default function BorrowRow({ headers, tab, position }: Props) {
 
 	const price: number = parseInt(position.price) / 10 ** (36 - position.collateralDecimals);
 
-	const expirationStr = new Date(position.expiration * 1000).toDateString().split(" ");
-	const expirationString: string = `${expirationStr[2]} ${expirationStr[1]} ${expirationStr[3]}`;
-
 	const effectiveLTV: number = ((price * (1 - reserve / 100)) / collTokenPrice) * zchfPrice * 100;
 	const effectiveInterest: number = interest / (1 - reserve / 100);
 
 	const isPending = position.start * 1000 > Date.now();
 
 	const isVCHF = normalizeAddress(position.collateral) == normalizeAddress("0x79d4f0232A66c4c91b89c76362016A1707CFBF4f");
+
+	const mintable = isVCHF
+		? formatUnits(vchfBridge.bridgeLimit - vchfBridge.otherBridgeBal, 18)
+		: formatUnits(BigInt(position.availableForClones), 18);
 
 	return (
 		<TableRow
@@ -79,13 +83,7 @@ export default function BorrowRow({ headers, tab, position }: Props) {
 			</div>
 
 			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-md">{formatCurrency(price, 2, 2)} ZCHF</div>
-			</div>
-
-			<div className="flex flex-col gap-2">
-				<div className={`col-span-2 text-md ${isPending ? "font-bold" : ""}`}>
-					{isPending ? "Available Soon" : expirationString}
-				</div>
+				<div className="col-span-2 text-md">{formatCurrency(mintable, 2, 2, FormatType.symbol)}</div>
 			</div>
 		</TableRow>
 	);
