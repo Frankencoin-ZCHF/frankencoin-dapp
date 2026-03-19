@@ -1,14 +1,15 @@
-import TableRow from "../Table/TableRow";
+import TableRowSearchable from "../Table/TableRowSearchable";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import { useRouter as useNavigation } from "next/navigation";
 import { formatCurrency, FormatType, normalizeAddress } from "../../utils/format";
 import { PositionQueryV2 } from "@frankencoin/api";
 import DisplayCollateralBorrowTable from "./DisplayCollateralBorrowTable";
-import Button from "@components/Button";
 import AppBox from "@components/AppBox";
 import { formatUnits } from "viem";
 import { SwapVCHFStatsReturn } from "@hooks";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
 	headers: string[];
@@ -30,6 +31,9 @@ export default function BorrowRow({ headers, tab, position, vchfBridge }: Props)
 
 	const price: number = parseInt(position.price) / 10 ** (36 - position.collateralDecimals);
 
+	const expirationStr = new Date(position.expiration * 1000).toDateString().split(" ");
+	const expirationString: string = `${expirationStr[2]} ${expirationStr[1]} ${expirationStr[3]}`;
+
 	const effectiveLTV: number = ((price * (1 - reserve / 100)) / collTokenPrice) * zchfPrice * 100;
 	const effectiveInterest: number = interest / (1 - reserve / 100);
 
@@ -42,17 +46,25 @@ export default function BorrowRow({ headers, tab, position, vchfBridge }: Props)
 		: formatUnits(BigInt(position.availableForClones), 18);
 
 	return (
-		<TableRow
+		<TableRowSearchable
 			headers={headers}
 			tab={tab}
 			actionCol={
-				<Button
-					className="h-10"
+				<div
+					className="flex items-center justify-end h-full cursor-pointer hover:text-button-hover"
 					onClick={() => navigate.push(isVCHF ? "/swap" : `/mint/${position.position}`)}
-					disabled={isPending}
 				>
-					Borrow
-				</Button>
+					<FontAwesomeIcon className="flex md:-mr-2" icon={faAngleRight} />
+				</div>
+
+				// <Button
+				// 	className="h-10"
+				// 	onClick={() => navigate.push(isVCHF ? "/swap" : `/mint/${position.position}`)}
+				// 	disabled={isPending}
+				// >
+				// 	<
+				// 	Borrow
+				// </Button>
 			}
 		>
 			<div className="flex flex-col max-md:mb-5">
@@ -62,6 +74,7 @@ export default function BorrowRow({ headers, tab, position, vchfBridge }: Props)
 						symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
+						price={collTokenPrice}
 					/>
 				</AppBox>
 				<div className="max-md:hidden">
@@ -70,6 +83,7 @@ export default function BorrowRow({ headers, tab, position, vchfBridge }: Props)
 						symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
+						price={collTokenPrice}
 					/>
 				</div>
 			</div>
@@ -85,6 +99,12 @@ export default function BorrowRow({ headers, tab, position, vchfBridge }: Props)
 			<div className="flex flex-col gap-2">
 				<div className="col-span-2 text-md">{formatCurrency(mintable, 2, 2, FormatType.symbol)}</div>
 			</div>
-		</TableRow>
+
+			<div className="flex flex-col gap-2">
+				<div className={`col-span-2 text-md ${isPending ? "font-bold" : ""}`}>
+					{isPending ? "Available Soon" : expirationString}
+				</div>
+			</div>
+		</TableRowSearchable>
 	);
 }

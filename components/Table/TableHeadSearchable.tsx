@@ -93,7 +93,7 @@ export default function TableHeadSearchable({
 				</div>
 
 				{/* Right controls */}
-				<div className="flex items-center justify-end gap-4">
+				<div className="flex items-center justify-end gap-5">
 					{/* In my wallet toggle */}
 					<div className="flex items-center gap-2">
 						<button
@@ -189,7 +189,7 @@ export default function TableHeadSearchable({
 				</div>
 				{actionCol && (
 					<div className="max-md:hidden">
-						<div className={`text-text-header text-right w-40 flex-shrink-0 ${subHeaders ? "items-center" : ""}`}></div>
+						<div className={`text-text-header text-right w-10 flex-shrink-0 ${subHeaders ? "items-center" : ""}`}></div>
 						{subHeaders ? <span> </span> : null}
 					</div>
 				)}
