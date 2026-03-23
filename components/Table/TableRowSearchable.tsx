@@ -45,7 +45,7 @@ export default function TableRow({
 				</TableRowMobile>
 
 				{/* @dev: this is desktop/mobile action view */}
-				{actionCol && <div className="flex-shrink-0 md:w-10 max-md:w-full my-2">{actionCol}</div>}
+				{actionCol && <div className="flex-shrink-0 md:w-[8rem] md:ml-[2rem] max-md:w-full my-2">{actionCol}</div>}
 			</div>
 		</div>
 	);

@@ -60,17 +60,6 @@ export default function Borrow() {
 					Propose New Position or Collateral
 				</Link>
 			</div>
-
-			<AppTitle title="Borrow on Morpho">
-				<div className="text-text-secondary">
-					Borrow Frankencoins (ZCHF) at variable rates on the lending platform{" "}
-					<AppLink href="https://morpho.org/" label="Morpho" className="" external={true} />.
-				</div>
-			</AppTitle>
-
-			<div className="mt-8">
-				<BorrowMorphoTable />
-			</div>
 		</>
 	);
 }

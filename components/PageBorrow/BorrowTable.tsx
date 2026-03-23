@@ -16,13 +16,13 @@ import { useSwapVCHFStats } from "@hooks";
 const FILTER_OPTIONS: FilterOption[] = ALL_CATEGORIES.map((c) => ({ label: c, value: c }));
 
 export default function BorrowTable() {
-	const headers: string[] = ["Assets", "Max LTV", "Effective Interest", "Available", "Max Maturity"];
+	const headers: string[] = ["Collateral", "LTV", "Interest", "Maturity"];
 	const [tab, setTab] = useState<string>(headers[3]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<PositionQueryV2[]>([]);
 	const [searchQuery, setSearchQuery] = useState<string>("");
 	const [activeCategories, setActiveCategories] = useState<string[]>([]);
-	const [inMyWallet, setInMyWallet] = useState<boolean>(false);
+	const [inMyWallet, setInMyWallet] = useState<boolean>(true);
 
 	const { address: walletAddress } = useAccount();
 	const vchfBridge = useSwapVCHFStats();
@@ -236,6 +236,7 @@ export default function BorrowTable() {
 				searchPlaceholder="Search Positions"
 				searchValue={searchQuery}
 				onSearchChange={setSearchQuery}
+				hideMyWallet={!walletAddress}
 				inMyWallet={inMyWallet}
 				onInMyWalletChange={setInMyWallet}
 				filterOptions={FILTER_OPTIONS}
@@ -252,6 +253,8 @@ export default function BorrowTable() {
 							tab={tab}
 							position={pos}
 							vchfBridge={vchfBridge}
+							hideMyWallet={!walletAddress}
+							walletBalance={walletBalanceMap}
 							key={`BorrowRow_${pos.position || idx}`}
 						/>
 					))
@@ -295,9 +298,6 @@ function sortPositions(
 			return calc(b) - calc(a);
 		});
 	} else if (tab === headers[3]) {
-		// sort for available
-		sorting.sort((a, b) => Number(BigInt(b.availableForClones) - BigInt(a.availableForClones))); // default: decrease
-	} else if (tab === headers[4]) {
 		// sort for maturity
 		sorting.sort((a, b) => b.expiration - a.expiration); // default: decrease
 	}
