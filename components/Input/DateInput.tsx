@@ -56,16 +56,16 @@ export default function DateInput({
 
 	return (
 		<div className={className}>
+			{label && <div className="flex text-card-input-label mb-1">{label}</div>}
+
 			<div
 				className={`group border-card-input-border ${
-					disabled ? "" : "hover:border-card-input-hover"
+					disabled ? "bg-card-input-disabled" : "hover:border-card-input-hover"
 				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
-				} text-text-secondary border-2 rounded-lg px-3 py-1 ${disabled ? "bg-card-input-disabled" : ""}`}
+				} text-text-secondary border-2 rounded-lg px-3 py-1`}
 				onClick={handleClick}
 			>
-				<div className="flex text-card-input-label my-1">{label}</div>
-
 				<div className="flex items-center">
 					<div
 						className={`flex-1 py-2 ${
@@ -88,63 +88,63 @@ export default function DateInput({
 						<FontAwesomeIcon icon={faCalendarDays} className="w-6 h-6 ml-2" />
 					</div>
 				</div>
-
-				{limitLabel != undefined || max != undefined || min != undefined || reset != undefined ? (
-					<div className="flex flex-row gap-2 py-1">
-						<div className="flex-1">
-							<div className="flex flex-row gap-2">
-								{limitLabel != undefined && <div className="text-text-secondary">{limitLabel}</div>}
-								{limitLabel != undefined && <div className="text-text-primary truncate">{formatDate(limit)}</div>}
-							</div>
-						</div>
-
-						{!disabled && max != undefined && max.getDate() != value.getDate() && (
-							<div
-								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
-								onClick={() => {
-									if (max !== undefined) {
-										onChange(max);
-										onMax();
-									}
-								}}
-							>
-								Max
-							</div>
-						)}
-						{!disabled && min != undefined && min.getDate() != value.getDate() && (
-							<div
-								className="text-card-input-min cursor-pointer hover:text-card-input-focus font-extrabold"
-								onClick={() => {
-									if (min !== undefined) {
-										onChange(min);
-										onMin();
-									}
-								}}
-							>
-								Min
-							</div>
-						)}
-						{!disabled && reset != undefined && reset != value && reset != min && reset != max && (
-							<div
-								className="text-card-input-reset cursor-pointer hover:text-card-input-focus font-extrabold"
-								onClick={() => {
-									if (reset !== undefined) {
-										onChange(reset);
-										onReset();
-									}
-								}}
-							>
-								Reset
-							</div>
-						)}
-					</div>
-				) : null}
 			</div>
 
+			{limitLabel != undefined || max != undefined || min != undefined || reset != undefined ? (
+				<div className="flex flex-row gap-2 py-1 px-1">
+					<div className="flex-1">
+						<div className="flex flex-row gap-2">
+							{limitLabel != undefined && <div className="text-text-secondary">{limitLabel}</div>}
+							{limitLabel != undefined && <div className="text-text-primary truncate">{formatDate(limit)}</div>}
+						</div>
+					</div>
+
+					{!disabled && max != undefined && max.getDate() != value.getDate() && (
+						<div
+							className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
+							onClick={() => {
+								if (max !== undefined) {
+									onChange(max);
+									onMax();
+								}
+							}}
+						>
+							Max
+						</div>
+					)}
+					{!disabled && min != undefined && min.getDate() != value.getDate() && (
+						<div
+							className="text-card-input-min cursor-pointer hover:text-card-input-focus font-extrabold"
+							onClick={() => {
+								if (min !== undefined) {
+									onChange(min);
+									onMin();
+								}
+							}}
+						>
+							Min
+						</div>
+					)}
+					{!disabled && reset != undefined && reset != value && reset != min && reset != max && (
+						<div
+							className="text-card-input-reset cursor-pointer hover:text-card-input-focus font-extrabold"
+							onClick={() => {
+								if (reset !== undefined) {
+									onChange(reset);
+									onReset();
+								}
+							}}
+						>
+							Reset
+						</div>
+					)}
+				</div>
+			) : null}
+
 			{error ? (
-				<div className="flex my-2 px-3.5 text-text-warning">{error}</div>
+				<div className="flex px-1 text-text-warning">{error}</div>
 			) : (
-				<div className="flex my-2 px-3.5 text-text-secondary">{note}</div>
+				<div className="flex px-1 text-text-secondary">{note}</div>
 			)}
 		</div>
 	);
