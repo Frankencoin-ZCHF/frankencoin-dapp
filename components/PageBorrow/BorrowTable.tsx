@@ -6,18 +6,17 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQueryV2, PriceQueryObjectArray } from "@frankencoin/api";
-import { Address, erc20Abi, formatUnits, parseEther, zeroAddress } from "viem";
+import { Address, erc20Abi, formatUnits, zeroAddress } from "viem";
 import { useEffect, useMemo, useState } from "react";
 import { useAccount, useReadContracts } from "wagmi";
-import { POSITION_BLACKLISTED } from "../../app.config";
 import { ALL_CATEGORIES, CollateralCategory, collateralMatchesCategories, normalizeAddress } from "@utils";
-import { useSwapVCHFStats } from "@hooks";
+import { useBorrowPositions, useSwapVCHFStats } from "@hooks";
 
 const FILTER_OPTIONS: FilterOption[] = ALL_CATEGORIES.map((c) => ({ label: c, value: c }));
 
 export default function BorrowTable() {
 	const headers: string[] = ["Collateral", "LTV", "Interest", "Maturity"];
-	const [tab, setTab] = useState<string>(headers[3]);
+	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<PositionQueryV2[]>([]);
 	const [searchQuery, setSearchQuery] = useState<string>("");
@@ -26,109 +25,11 @@ export default function BorrowTable() {
 
 	const { address: walletAddress } = useAccount();
 	const vchfBridge = useSwapVCHFStats();
+	const { uniqueByCollateral } = useBorrowPositions();
 
-	const { openPositions } = useSelector((state: RootState) => state.positions);
-	const challengesPosMap = useSelector((state: RootState) => state.challenges.positions.map);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 
-	const posV2: PositionQueryV2[] = openPositions.filter((p) => p.version == 2);
-
-	const matchingPositions: PositionQueryV2[] = posV2.filter((position) => {
-		const pid: Address = position.position.toLowerCase() as Address;
-		const now = Date.now();
-		if (POSITION_BLACKLISTED(pid)) {
-			return false;
-		} else if (position.closed || position.denied) {
-			return false;
-		} else if (position.start * 1000 < now && position.cooldown * 1000 > now) {
-			return false; // under cooldown but active position
-		} else if (BigInt(position.isOriginal ? position.availableForClones : position.availableForMinting) == 0n) {
-			return false;
-		} else if ((challengesPosMap[pid] || []).filter((c) => c.status == "Active").length > 0) {
-			return false; // active challenges
-		} else {
-			return true;
-		}
-	});
-
-	const sortedByCollateral: { [key: Address]: PositionQueryV2[] } = {};
-	matchingPositions.forEach((pos) => {
-		const coll = pos.collateral.toLowerCase() as Address;
-		if (sortedByCollateral[coll] == undefined) sortedByCollateral[coll] = [];
-		sortedByCollateral[coll].push(pos);
-	});
-
-	const uniqueByCollateral: { [key: Address]: PositionQueryV2[] } = {};
-	Object.keys(sortedByCollateral).forEach((coll) => {
-		const items = sortedByCollateral[coll as Address];
-
-		// Find best position for each criterion
-		let bestPrice: PositionQueryV2 | undefined;
-		let bestInterest: PositionQueryV2 | undefined;
-		let bestExpiration: PositionQueryV2 | undefined;
-
-		items.forEach((i) => {
-			// Best price (highest)
-			if (!bestPrice || BigInt(i.price) > BigInt(bestPrice.price)) {
-				bestPrice = i;
-			}
-
-			// Best interest (lowest effective rate)
-			const effectiveRate = (BigInt(i.annualInterestPPM) * parseEther("1")) / (BigInt(1_000_000) - BigInt(i.reserveContribution));
-			const bestEffectiveRate = bestInterest
-				? (BigInt(bestInterest.annualInterestPPM) * parseEther("1")) /
-				  (BigInt(1_000_000) - BigInt(bestInterest.reserveContribution))
-				: undefined;
-			if (!bestEffectiveRate || effectiveRate < bestEffectiveRate) {
-				bestInterest = i;
-			}
-
-			// Best expiration (longest)
-			if (!bestExpiration || i.expiration > bestExpiration.expiration) {
-				bestExpiration = i;
-			}
-		});
-
-		// Collect unique candidates
-		const candidates: PositionQueryV2[] = [];
-		[bestPrice, bestInterest, bestExpiration].forEach((pos) => {
-			if (pos && !candidates.some((u) => u.position === pos.position)) {
-				candidates.push(pos);
-			}
-		});
-
-		// Helper to calculate effective interest rate
-		const getEffectiveRate = (p: PositionQueryV2) =>
-			(BigInt(p.annualInterestPPM) * parseEther("1")) / (BigInt(1_000_000) - BigInt(p.reserveContribution));
-
-		// Check if position A dominates position B (A is >= in all criteria and > in at least one)
-		const dominates = (a: PositionQueryV2, b: PositionQueryV2): boolean => {
-			const aPrice = BigInt(a.price);
-			const bPrice = BigInt(b.price);
-			const aRate = getEffectiveRate(a);
-			const bRate = getEffectiveRate(b);
-			const aExp = a.expiration;
-			const bExp = b.expiration;
-
-			// A must be >= B in all criteria
-			if (aPrice < bPrice || aRate > bRate || aExp < bExp) return false;
-
-			// A must be strictly better in at least one
-			return aPrice > bPrice || aRate < bRate || aExp > bExp;
-		};
-
-		// Remove dominated positions
-		const unique = candidates.filter((pos) => !candidates.some((other) => other.position !== pos.position && dominates(other, pos)));
-
-		uniqueByCollateral[coll as Address] = unique;
-	});
-
-	const uniquePositions: PositionQueryV2[] = Object.values(uniqueByCollateral)
-		.flat()
-		.reduce<PositionQueryV2[]>((a, b) => {
-			const uids = a.map((i) => i.position);
-			return uids.includes(b.position) ? a : [...a, b];
-		}, []);
+	const uniquePositions: PositionQueryV2[] = Object.values(uniqueByCollateral);
 
 	const VCHF_Address: Address = normalizeAddress("0x79d4f0232A66c4c91b89c76362016A1707CFBF4f");
 	const VCHF_Price: number = coingecko[VCHF_Address].price.chf || 0;
