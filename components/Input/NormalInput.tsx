@@ -42,14 +42,16 @@ export default function NormalInput({
 
 	return (
 		<div className="">
+			{label && <div className="flex text-card-input-label mb-1">{label}</div>}
+
 			<div
-				className={`group border-card-input-border hover:border-card-input-hover focus-within:!border-card-input-focus ${
+				className={`group border-card-input-border ${
+					disabled ? "bg-card-input-disabled" : "hover:border-card-input-hover"
+				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
-				} text-text-secondary border-2 rounded-lg px-3 py-1 ${disabled ? "bg-card-input-disabled" : ""}`}
+				} text-text-secondary border-2 rounded-lg px-3 py-1`}
 				onClick={handleClick}
 			>
-				<div className="flex text-card-input-label py-1">{label}</div>
-
 				<div className="flex items-center gap-1">
 					<div
 						className={`flex-1 py-2 ${
@@ -77,11 +79,11 @@ export default function NormalInput({
 			</div>
 
 			{error ? (
-				<div className="flex my-2 px-3.5 text-text-warning">{error}</div>
+				<div className="flex px-1 text-text-warning">{error}</div>
 			) : warning ? (
-				<div className="flex my-2 px-3.5 text-amber-500">{warning}</div>
+				<div className="flex px-1 text-amber-500">{warning}</div>
 			) : (
-				<div className="flex my-2 px-3.5">{note}</div>
+				<div className="flex px-1">{note}</div>
 			)}
 		</div>
 	);
