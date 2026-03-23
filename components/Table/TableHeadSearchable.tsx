@@ -15,6 +15,7 @@ interface Props {
 	onSearchChange: (value: string) => void;
 
 	// In my wallet toggle
+	hideMyWallet?: boolean;
 	inMyWallet: boolean;
 	onInMyWalletChange: (value: boolean) => void;
 
@@ -37,6 +38,7 @@ export default function TableHeadSearchable({
 	searchPlaceholder = "Search",
 	searchValue,
 	onSearchChange,
+	hideMyWallet,
 	inMyWallet,
 	onInMyWalletChange,
 	filterOptions,
@@ -95,7 +97,7 @@ export default function TableHeadSearchable({
 				{/* Right controls */}
 				<div className="flex items-center justify-end gap-5">
 					{/* In my wallet toggle */}
-					<div className="flex items-center gap-2">
+					<div className={`flex items-center gap-2 ${hideMyWallet ? "hidden" : ""}`}>
 						<button
 							role="switch"
 							aria-checked={inMyWallet}
@@ -189,7 +191,7 @@ export default function TableHeadSearchable({
 				</div>
 				{actionCol && (
 					<div className="max-md:hidden">
-						<div className={`text-text-header text-right w-10 flex-shrink-0 ${subHeaders ? "items-center" : ""}`}></div>
+						<div className={`text-text-header text-right w-40 flex-shrink-0 ${subHeaders ? "items-center" : ""}`}></div>
 						{subHeaders ? <span> </span> : null}
 					</div>
 				)}

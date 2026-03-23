@@ -14,9 +14,10 @@ interface Props {
 	className?: string;
 	balance?: number;
 	price: number;
+	hideMyWallet?: boolean;
 }
 
-export default function DisplayCollateralBorrowTable({ symbol, symbolTiny = "", name, address, className, balance, price }: Props) {
+export default function DisplayCollateralBorrowTable({ symbol, symbolTiny = "", name, address, className, balance, price, hideMyWallet }: Props) {
 	const url = useContractUrl(address || zeroAddress);
 
 	const openExplorer = (e: any) => {
@@ -36,9 +37,11 @@ export default function DisplayCollateralBorrowTable({ symbol, symbolTiny = "", 
 						<span className="">{`${name}`}</span>
 						<span className="text-xs font-normal">{` ${symbolTiny}`}</span>
 					</span>
-					<span className="text-text-subheader text-left max-lg:w-[8rem] lg:w-[10rem] max-sm:w-[12rem] text-xs text-nowrap">
-						100.00 {symbol} • {formatCurrency(price)} ZCHF
-					</span>
+					{!hideMyWallet && (
+						<span className="text-text-subheader text-left max-lg:w-[8rem] lg:w-[10rem] max-sm:w-[12rem] text-xs text-nowrap">
+							{formatCurrency(balance ?? 0, 2, 2)} {symbol} • {formatCurrency((balance ?? 0) * price)} ZCHF
+						</span>
+					)}
 				</div>
 			</div>
 		</Link>

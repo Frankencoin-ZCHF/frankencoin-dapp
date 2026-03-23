@@ -8,17 +8,18 @@ import DisplayCollateralBorrowTable from "./DisplayCollateralBorrowTable";
 import AppBox from "@components/AppBox";
 import { formatUnits } from "viem";
 import { SwapVCHFStatsReturn } from "@hooks";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import Button from "@components/Button";
 
 interface Props {
 	headers: string[];
 	tab: string;
 	position: PositionQueryV2;
 	vchfBridge: SwapVCHFStatsReturn;
+	hideMyWallet?: boolean;
+	walletBalance?: Record<string, bigint>;
 }
 
-export default function BorrowRow({ headers, tab, position, vchfBridge }: Props) {
+export default function BorrowRow({ headers, tab, position, vchfBridge, hideMyWallet, walletBalance }: Props) {
 	const navigate = useNavigation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
@@ -41,6 +42,10 @@ export default function BorrowRow({ headers, tab, position, vchfBridge }: Props)
 
 	const isVCHF = normalizeAddress(position.collateral) == normalizeAddress("0x79d4f0232A66c4c91b89c76362016A1707CFBF4f");
 
+	const collateralBalance = parseFloat(
+		formatUnits(walletBalance?.[normalizeAddress(position.collateral)] ?? 0n, position.collateralDecimals)
+	);
+
 	const mintable = isVCHF
 		? formatUnits(vchfBridge.bridgeLimit - vchfBridge.otherBridgeBal, 18)
 		: formatUnits(BigInt(position.availableForClones), 18);
@@ -50,21 +55,13 @@ export default function BorrowRow({ headers, tab, position, vchfBridge }: Props)
 			headers={headers}
 			tab={tab}
 			actionCol={
-				<div
-					className="flex items-center justify-end h-full cursor-pointer hover:text-button-hover"
+				<Button
+					className="h-10"
 					onClick={() => navigate.push(isVCHF ? "/swap" : `/mint/${position.position}`)}
+					disabled={isPending}
 				>
-					<FontAwesomeIcon className="flex md:-mr-2" icon={faAngleRight} />
-				</div>
-
-				// <Button
-				// 	className="h-10"
-				// 	onClick={() => navigate.push(isVCHF ? "/swap" : `/mint/${position.position}`)}
-				// 	disabled={isPending}
-				// >
-				// 	<
-				// 	Borrow
-				// </Button>
+					{isVCHF ? "Swap" : "Borrow"}
+				</Button>
 			}
 		>
 			<div className="flex flex-col max-md:mb-5">
@@ -75,6 +72,8 @@ export default function BorrowRow({ headers, tab, position, vchfBridge }: Props)
 						name={position.collateralName}
 						address={position.collateral}
 						price={collTokenPrice}
+						hideMyWallet={hideMyWallet}
+						balance={collateralBalance}
 					/>
 				</AppBox>
 				<div className="max-md:hidden">
@@ -84,6 +83,8 @@ export default function BorrowRow({ headers, tab, position, vchfBridge }: Props)
 						name={position.collateralName}
 						address={position.collateral}
 						price={collTokenPrice}
+						hideMyWallet={hideMyWallet}
+						balance={collateralBalance}
 					/>
 				</div>
 			</div>
@@ -93,11 +94,7 @@ export default function BorrowRow({ headers, tab, position, vchfBridge }: Props)
 			</div>
 
 			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-md">{formatCurrency(effectiveInterest, 2, 2)}%</div>
-			</div>
-
-			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-md">{formatCurrency(mintable, 2, 2, FormatType.symbol)}</div>
+				<div className="col-span-2 text-md">{isVCHF ? "Swap 1:1" : `${formatCurrency(effectiveInterest, 2, 2)}%`}</div>
 			</div>
 
 			<div className="flex flex-col gap-2">
