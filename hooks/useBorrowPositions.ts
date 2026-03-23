@@ -60,8 +60,8 @@ export const useBorrowPositions = () => {
 		});
 
 		uniqueByCollateral[coll as Address] = {
-			...bestExpiration,
-			price: bestLTV.price,
+			...bestLTV,
+			expiration: bestExpiration.expiration,
 			annualInterestPPM: bestInterest.annualInterestPPM,
 			reserveContribution: bestInterest.reserveContribution,
 			availableForClones: String(totalAvailable),

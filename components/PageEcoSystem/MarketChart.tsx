@@ -4,12 +4,22 @@ import AppCard from "../AppCard";
 import dynamic from "next/dynamic";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
+const toDailyValues = (data: [number, number][]) => {
+	const dailyMap = new Map<string, [number, number]>();
+	data.forEach((entry) => {
+		const dateKey = new Date(entry[0]).toDateString();
+		if (!dailyMap.has(dateKey)) {
+			dailyMap.set(dateKey, entry);
+		}
+	});
+	return [...dailyMap.values()];
+};
+
 export default function MarketChart() {
 	const { marketChart } = useSelector((state: RootState) => state.prices);
 
-	const date = 0; // Date.now() - 10 * 24 * 60 * 60 * 1000;
-	const priceList = marketChart.prices.filter((i) => i[0] >= date);
-	const volumeList = marketChart.total_volumes.filter((i) => i[0] >= date);
+	const priceList = toDailyValues(marketChart.prices);
+	const volumeList = toDailyValues(marketChart.total_volumes);
 
 	return (
 		<div className="grid grid-cols-1 gap-4">
@@ -114,7 +124,7 @@ export default function MarketChart() {
 
 				<div className="-m-4 pr-2">
 					<ApexChart
-						type="line"
+						type="bar"
 						height={300}
 						options={{
 							theme: {
@@ -124,11 +134,10 @@ export default function MarketChart() {
 							},
 							colors: ["#092f62", "#0F80F0"],
 							stroke: {
-								curve: "linestep",
 								width: 2,
 							},
 							chart: {
-								type: "line",
+								type: "bar",
 								dropShadow: {
 									enabled: false,
 								},
