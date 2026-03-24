@@ -52,12 +52,12 @@ export default function AddressInput({
 					disabled ? "bg-card-input-disabled" : "hover:border-card-input-hover"
 				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
-				} text-text-secondary border-2 rounded-lg px-3 py-1`}
+				} text-text-secondary border-2 rounded-lg px-3 py-5`}
 				onClick={handleClick}
 			>
 				<input
 					ref={inputRef}
-					className={`w-full py-2 text-lg ${isTextLeft ? "text-left" : "text-right"} bg-transparent ${
+					className={`w-full py-2 text-3xl ${isTextLeft ? "text-left" : "text-right"} bg-transparent ${
 						error ? "text-card-input-error" : "text-text-primary"
 					}`}
 					placeholder={placeholder}
