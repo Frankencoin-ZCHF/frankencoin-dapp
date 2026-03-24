@@ -63,7 +63,7 @@ export default function DateInput({
 					disabled ? "bg-card-input-disabled" : "hover:border-card-input-hover"
 				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
-				} text-text-secondary border-2 rounded-lg px-3 py-1`}
+				} text-text-secondary border-2 rounded-lg px-3 py-5`}
 				onClick={handleClick}
 			>
 				<div className="flex items-center">
@@ -74,7 +74,7 @@ export default function DateInput({
 					>
 						<ReactDatePicker
 							ref={datePickerRef}
-							className={`-ml-2 text-xl bg-transparent`}
+							className={`-ml-2 text-3xl bg-transparent`}
 							id="expiration-datepicker"
 							selected={value}
 							dateFormat={"yyyy-MM-dd"}

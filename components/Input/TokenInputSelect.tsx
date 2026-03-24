@@ -80,7 +80,7 @@ export default function TokenInputSelect({
 					disabled ? "bg-card-input-disabled" : "hover:border-card-input-hover"
 				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
-				} text-text-secondary border-2 rounded-lg px-3 py-1`}
+				} text-text-secondary border-2 rounded-lg px-3 py-5`}
 				onClick={handleClick}
 			>
 				<div className="flex items-center pb-2">
@@ -90,11 +90,11 @@ export default function TokenInputSelect({
 						}`}
 					>
 						{output ? (
-							<div className={`text-xl py-0 bg-transparent`}>{output}</div>
+							<div className={`text-3xl py-0 bg-transparent`}>{output}</div>
 						) : (
 							<BigNumberInput
 								inputRefChild={inputRef}
-								className={`w-full px-0 py-0 text-xl bg-transparent`}
+								className={`w-full px-0 py-0 text-3xl bg-transparent`}
 								decimals={Number(digit)}
 								placeholder={placeholder}
 								value={value || ""}
