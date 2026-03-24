@@ -62,7 +62,7 @@ export default function AddressInputChain({
 				<div className="grid md:grid-cols-6" onClick={(e) => e.stopPropagation()}>
 					<input
 						ref={inputRef}
-						className={`md:col-span-4 w-full py-2 text-3xl text-left bg-transparent truncate ${
+						className={`md:col-span-4 w-full py-2 text-lg text-left bg-transparent truncate ${
 							error ? "text-card-input-error" : "text-text-primary"
 						} ${disabled ? "bg-card-input-disabled" : ""}`}
 						placeholder={placeholder}

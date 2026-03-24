@@ -467,7 +467,7 @@ export default function PositionCreate({}) {
 						<AddressInput
 							label="Contract Address"
 							error={collTokenAddrError}
-							placeholder="0x..."
+							placeholder="Enter address here..."
 							value={collateralAddress}
 							onChange={onChangeCollateralAddress}
 							autoFocus={true}

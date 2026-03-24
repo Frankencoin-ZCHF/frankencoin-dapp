@@ -57,7 +57,7 @@ export default function AddressInput({
 			>
 				<input
 					ref={inputRef}
-					className={`w-full py-2 text-3xl ${isTextLeft ? "text-left" : "text-right"} bg-transparent ${
+					className={`w-full py-2 text-lg ${isTextLeft ? "text-left" : "text-right"} bg-transparent ${
 						error ? "text-card-input-error" : "text-text-primary"
 					}`}
 					placeholder={placeholder}

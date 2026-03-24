@@ -68,7 +68,7 @@ export default function BorrowRow({ headers, tab, position, vchfBridge, hideMyWa
 				<AppBox className="md:hidden">
 					<DisplayCollateralBorrowTable
 						symbol={position.collateralSymbol}
-						symbolTiny={`v${position.version}`}
+						// symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
 						price={collTokenPrice}
@@ -79,7 +79,7 @@ export default function BorrowRow({ headers, tab, position, vchfBridge, hideMyWa
 				<div className="max-md:hidden">
 					<DisplayCollateralBorrowTable
 						symbol={position.collateralSymbol}
-						symbolTiny={`v${position.version}`}
+						// symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
 						price={collTokenPrice}
