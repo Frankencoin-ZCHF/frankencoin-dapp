@@ -280,7 +280,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 						onChange={(e) => setNewRateMint(BigInt(e))}
 					/>
 
-					<div className="h-10 -mt-4 mb-4">
+					<div className="h-10 mb-4">
 						<GuardSupportedChain disabled={isDisabledMint || isHiddenMint} chain={mainnet}>
 							<Button
 								disabled={isDisabledMint || isHiddenMint}
@@ -301,7 +301,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 						onChange={(e) => setNewRateSave(BigInt(e))}
 					/>
 
-					<div className="h-10 -mt-4 mb-4">
+					<div className="h-10 mb-4">
 						<GuardSupportedChain disabled={isDisabledSave || isHiddenSave} chain={mainnet}>
 							<Button
 								disabled={isDisabledSave || isHiddenSave}

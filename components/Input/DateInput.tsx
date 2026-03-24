@@ -47,6 +47,7 @@ export default function DateInput({
 	error,
 }: Props) {
 	const datePickerRef = useRef<any>(null);
+	const inputRef = useRef<HTMLInputElement>(null);
 
 	const handleClick = () => {
 		if (datePickerRef.current && !disabled) {
@@ -74,7 +75,7 @@ export default function DateInput({
 					>
 						<ReactDatePicker
 							ref={datePickerRef}
-							className={`-ml-2 text-3xl bg-transparent`}
+							customInput={<input ref={inputRef} className="-ml-2 w-full bg-transparent" style={{ fontSize: "1.875rem" }} />}
 							id="expiration-datepicker"
 							selected={value}
 							dateFormat={"yyyy-MM-dd"}
