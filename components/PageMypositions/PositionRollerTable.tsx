@@ -84,11 +84,9 @@ export default function PositionRollerTable({ position }: PositionRollerTablePar
 							<div className={`flex flex-col`}>
 								<div className="">No open positions available for rolling.</div>
 								<div className="mt-4">
-									<GuardSupportedChain chain={mainnet}>
-										<Button className="h-10" onClick={() => handleClick(position)}>
-											Propose with new Parameter
-										</Button>
-									</GuardSupportedChain>
+									<Button className="h-10" onClick={() => handleClick(position)}>
+										Propose with new Parameter
+									</Button>
 								</div>
 							</div>
 						}

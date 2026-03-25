@@ -216,7 +216,7 @@ export default function SavingsInteractionCard() {
 					<AppToggle disabled={false} label="Custom target address" enabled={onbehalfToggle} onChange={setOnbehalfToggle} />
 				</div>
 
-				<div className="mx-auto my-4 w-72 max-w-full flex-col flex gap-4">
+				<div className="mx-auto my-4 w-full flex-col flex gap-4">
 					{onbehalfToggle ? (
 						<SavingsActionSaveOnBehalf
 							disabled={onbehalfError != "" || onbehalfAddress == ""}

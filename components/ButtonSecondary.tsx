@@ -21,7 +21,7 @@ export default function ButtonSecondary({ size = "md", width, className, onClick
 				className={`btn ${sizeClass} ${className} ${
 					disabled || isLoading
 						? "cursor-not-allowed bg-button-disabled text-button-textdisabled"
-						: "bg-transparent border-2 border-button-disabled text-text-primary hover:border-button-default hover:bg-button-default hover:text-white"
+						: "bg-transparent border-2 border-button-disabled text-text-primary hover:border-button-hover hover:bg-button-hover hover:text-white"
 				} ${width ?? "w-full"}`}
 				onClick={(e) => !disabled && !isLoading && onClick?.(e)}
 			>

@@ -45,7 +45,6 @@ export default function GuardSupportedChain({ children, label, disabled, chain, 
 	if (Account.isDisconnected)
 		return (
 			<Button
-				className="h-10"
 				disabled={disabled}
 				onClick={() => {
 					AppKit.open();
@@ -60,7 +59,6 @@ export default function GuardSupportedChain({ children, label, disabled, chain, 
 	if (!isCorrectChain)
 		return (
 			<Button
-				className="h-10"
 				disabled={disabled}
 				onClick={() => {
 					AppKitNetwork.switchNetwork(chain);
