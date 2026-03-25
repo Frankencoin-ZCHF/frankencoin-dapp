@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useRef } from "react";
 import { WAGMI_CHAIN, WAGMI_CHAINS } from "../../app.config";
 import ChainBySelect from "./ChainBySelect";
+import { formatCurrency } from "@utils";
 const TokenLogo = dynamic(() => import("../TokenLogo"), { ssr: false });
 
 interface Props {
@@ -122,7 +123,7 @@ export default function TokenInputChain({
 								<div className="flex flex-row gap-2 w-full">
 									<div className="text-text-secondary flex-shrink-0">{limitLabel}</div>
 									<div className="text-text-primary truncate min-w-0 overflow-hidden">
-										{formatUnits(limit, Number(limitDigit))}
+										{formatCurrency(formatUnits(limit, Number(limitDigit)))}
 									</div>
 								</div>
 							)}

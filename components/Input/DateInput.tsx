@@ -17,6 +17,10 @@ interface Props {
 	output?: string;
 	note?: string;
 	value: Date;
+	tabs?: string[];
+	tabDates?: Record<string, Date>;
+	tab?: string;
+	onTab?: (tab: string) => void;
 	onChange?: (date: Date | null) => void;
 	onMin?: () => void;
 	onMax?: () => void;
@@ -38,9 +42,11 @@ export default function DateInput({
 	value,
 	output,
 	note,
+	tabs,
+	tabDates,
+	tab,
+	onTab = () => {},
 	onChange = () => {},
-	onMin = () => {},
-	onMax = () => {},
 	onReset = () => {},
 	autoFocus,
 	disabled,
@@ -90,8 +96,8 @@ export default function DateInput({
 					</div>
 				</div>
 
-				{limitLabel != undefined || max != undefined || min != undefined || reset != undefined ? (
-					<div className="flex flex-row gap-2 py-1">
+				{limitLabel != undefined || max != undefined || min != undefined || reset != undefined || tabs != undefined ? (
+					<div className="flex flex-row gap-4 py-1">
 						<div className="flex-1">
 							<div className="flex flex-row gap-2">
 								{limitLabel != undefined && <div className="text-text-secondary">{limitLabel}</div>}
@@ -99,7 +105,7 @@ export default function DateInput({
 							</div>
 						</div>
 
-						{!disabled && max != undefined && max.getDate() != value.getDate() && (
+						{/* {!disabled && max != undefined && max.getDate() != value.getDate() && (
 							<div
 								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
@@ -124,7 +130,31 @@ export default function DateInput({
 							>
 								Min
 							</div>
-						)}
+						)} */}
+						{!disabled &&
+							tabs != undefined &&
+							tabs.map((t) => {
+								const tabDate = tabDates?.[t];
+								const now = new Date();
+								if (tabDate && tabDate < now) return null;
+								if (tabDate && max && tabDate > max) return null;
+								return (
+									<div
+										key={t}
+										className={`font-extrabold ${
+											t === tab
+												? "text-card-input-min"
+												: "cursor-pointer text-card-input-label hover:text-card-input-focus"
+										}`}
+										onClick={(e) => {
+											e.stopPropagation();
+											onTab(t);
+										}}
+									>
+										{t}
+									</div>
+								);
+							})}
 						{!disabled && reset != undefined && reset != value && reset != min && reset != max && (
 							<div
 								className="text-card-input-reset cursor-pointer hover:text-card-input-focus font-extrabold"
