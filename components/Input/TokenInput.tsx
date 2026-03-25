@@ -65,16 +65,16 @@ export default function TokenInput({
 
 	return (
 		<div className="">
-			{label && <div className="flex text-card-input-label mb-1">{label}</div>}
-
 			<div
 				className={`group border-card-input-border ${
 					disabled ? "bg-card-input-disabled" : "hover:border-card-input-hover"
 				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
-				} text-text-secondary border-2 rounded-lg px-3 py-5`}
+				} text-text-secondary border-2 rounded-lg px-3 py-1`}
 				onClick={handleClick}
 			>
+				{label && <div className="flex text-card-input-label my-1">{label}</div>}
+
 				<div className="flex items-center">
 					<div
 						className={`flex-1 py-2 ${
@@ -103,69 +103,69 @@ export default function TokenInput({
 
 					<div className="text-card-input-label text-left">{symbol}</div>
 				</div>
-			</div>
 
-			{limitLabel != undefined || max != undefined || min != undefined || reset != undefined ? (
-				<div className="flex flex-row gap-2 py-1 px-1">
-					<div className="flex-1 min-w-0">
-						{limitLabel != undefined && (
-							<div className="flex flex-row gap-2 w-full">
-								<div className="text-text-secondary flex-shrink-0">{limitLabel}</div>
-								<div className="text-text-primary truncate min-w-0 overflow-hidden">
-									{formatUnits(limit, Number(limitDigit))}
+				{limitLabel != undefined || max != undefined || min != undefined || reset != undefined ? (
+					<div className="flex flex-row gap-2 py-1">
+						<div className="flex-1 min-w-0">
+							{limitLabel != undefined && (
+								<div className="flex flex-row gap-2 w-full">
+									<div className="text-text-secondary flex-shrink-0">{limitLabel}</div>
+									<div className="text-text-primary truncate min-w-0 overflow-hidden">
+										{formatUnits(limit, Number(limitDigit))}
+									</div>
 								</div>
+							)}
+						</div>
+
+						{!disabled && max != undefined && max != BigInt(value) && (
+							<div
+								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
+								onClick={() => {
+									if (max !== undefined) {
+										onChange(max.toString());
+										onMax();
+									}
+								}}
+							>
+								Max
+							</div>
+						)}
+						{!disabled && min != undefined && min != BigInt(value) && min != max && (
+							<div
+								className="text-card-input-min cursor-pointer hover:text-card-input-focus font-extrabold"
+								onClick={() => {
+									if (min !== undefined) {
+										onChange(min.toString());
+										onMin();
+									}
+								}}
+							>
+								Min
+							</div>
+						)}
+						{!disabled && reset != undefined && reset != BigInt(value) && reset != min && reset != max && (
+							<div
+								className="text-card-input-reset cursor-pointer hover:text-card-input-focus font-extrabold"
+								onClick={() => {
+									if (reset !== undefined) {
+										onChange(reset.toString());
+										onReset();
+									}
+								}}
+							>
+								Reset
 							</div>
 						)}
 					</div>
-
-					{!disabled && max != undefined && max != BigInt(value) && (
-						<div
-							className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
-							onClick={() => {
-								if (max !== undefined) {
-									onChange(max.toString());
-									onMax();
-								}
-							}}
-						>
-							Max
-						</div>
-					)}
-					{!disabled && min != undefined && min != BigInt(value) && min != max && (
-						<div
-							className="text-card-input-min cursor-pointer hover:text-card-input-focus font-extrabold"
-							onClick={() => {
-								if (min !== undefined) {
-									onChange(min.toString());
-									onMin();
-								}
-							}}
-						>
-							Min
-						</div>
-					)}
-					{!disabled && reset != undefined && reset != BigInt(value) && reset != min && reset != max && (
-						<div
-							className="text-card-input-reset cursor-pointer hover:text-card-input-focus font-extrabold"
-							onClick={() => {
-								if (reset !== undefined) {
-									onChange(reset.toString());
-									onReset();
-								}
-							}}
-						>
-							Reset
-						</div>
-					)}
-				</div>
-			) : null}
+				) : null}
+			</div>
 
 			{error ? (
-				<div className="flex px-1 text-text-warning">{error}</div>
+				<div className="flex my-2 px-3.5 text-text-warning">{error}</div>
 			) : warning ? (
-				<div className="flex px-1 text-amber-500">{warning}</div>
+				<div className="flex my-2 px-3.5 text-amber-500">{warning}</div>
 			) : (
-				<div className="flex px-1">{note}</div>
+				<div className="flex my-2 px-3.5">{note}</div>
 			)}
 		</div>
 	);

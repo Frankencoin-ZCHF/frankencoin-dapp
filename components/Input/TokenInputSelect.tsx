@@ -73,17 +73,17 @@ export default function TokenInputSelect({
 
 	return (
 		<div className="">
-			{label && <div className="flex text-card-input-label mb-1">{label}</div>}
-
 			<div
 				className={`group border-card-input-border ${
 					disabled ? "bg-card-input-disabled" : "hover:border-card-input-hover"
 				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
-				} text-text-secondary border-2 rounded-lg px-3 py-5`}
+				} text-text-secondary border-2 rounded-lg px-3 py-1`}
 				onClick={handleClick}
 			>
-				<div className="flex items-center pb-2">
+				{label && <div className="flex text-card-input-label my-1">{label}</div>}
+
+				<div className="flex items-center">
 					<div
 						className={`flex-1 ${
 							error ? "text-card-input-error" : !!value ? "text-text-primary" : "placeholder:text-card-input-empty"
@@ -172,64 +172,64 @@ export default function TokenInputSelect({
 						/>
 					</div>
 				</div>
-			</div>
 
-			{limitLabel != undefined || max != undefined || min != undefined || reset != undefined ? (
-				<div className="flex flex-row gap-2 py-1 px-1">
-					<div className="flex-1 min-w-0">
-						{limitLabel != undefined && (
-							<div className="flex flex-row gap-2 w-full">
-								<div className="text-text-secondary flex-shrink-0">{limitLabel}</div>
-								<div className="text-text-primary truncate min-w-0 overflow-hidden">
-									{formatUnits(limit, Number(limitDigit))}
+				{limitLabel != undefined || max != undefined || min != undefined || reset != undefined ? (
+					<div className="flex flex-row gap-2 py-1">
+						<div className="flex-1 min-w-0">
+							{limitLabel != undefined && (
+								<div className="flex flex-row gap-2 w-full">
+									<div className="text-text-secondary flex-shrink-0">{limitLabel}</div>
+									<div className="text-text-primary truncate min-w-0 overflow-hidden">
+										{formatUnits(limit, Number(limitDigit))}
+									</div>
 								</div>
+							)}
+						</div>
+
+						{!disabled && max != undefined && (
+							<div
+								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
+								onClick={() => {
+									if (max !== undefined) {
+										onChange(max.toString());
+										onMax();
+									}
+								}}
+							>
+								Max
+							</div>
+						)}
+						{!disabled && min != undefined && (
+							<div
+								className="text-card-input-min cursor-pointer hover:text-card-input-focus font-extrabold"
+								onClick={() => {
+									if (min !== undefined) {
+										onChange(min.toString());
+										onMin();
+									}
+								}}
+							>
+								Min
+							</div>
+						)}
+						{!disabled && reset != undefined && reset != BigInt(value) && (
+							<div
+								className="text-card-input-reset cursor-pointer hover:text-card-input-focus font-extrabold"
+								onClick={() => {
+									if (reset !== undefined) {
+										onChange(reset.toString());
+										onReset();
+									}
+								}}
+							>
+								Reset
 							</div>
 						)}
 					</div>
+				) : null}
+			</div>
 
-					{!disabled && max != undefined && (
-						<div
-							className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
-							onClick={() => {
-								if (max !== undefined) {
-									onChange(max.toString());
-									onMax();
-								}
-							}}
-						>
-							Max
-						</div>
-					)}
-					{!disabled && min != undefined && (
-						<div
-							className="text-card-input-min cursor-pointer hover:text-card-input-focus font-extrabold"
-							onClick={() => {
-								if (min !== undefined) {
-									onChange(min.toString());
-									onMin();
-								}
-							}}
-						>
-							Min
-						</div>
-					)}
-					{!disabled && reset != undefined && reset != BigInt(value) && (
-						<div
-							className="text-card-input-reset cursor-pointer hover:text-card-input-focus font-extrabold"
-							onClick={() => {
-								if (reset !== undefined) {
-									onChange(reset.toString());
-									onReset();
-								}
-							}}
-						>
-							Reset
-						</div>
-					)}
-				</div>
-			) : null}
-
-			{error && <div className="flex px-1 text-text-warning">{error}</div>}
+			{error && <div className="flex my-2 px-3.5 text-text-warning">{error}</div>}
 		</div>
 	);
 }

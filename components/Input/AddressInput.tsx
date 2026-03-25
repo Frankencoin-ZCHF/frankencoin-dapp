@@ -45,16 +45,16 @@ export default function AddressInput({
 
 	return (
 		<div className={className}>
-			{label && <div className="flex text-card-input-label mb-1">{label}</div>}
-
 			<div
 				className={`group border-card-input-border ${
 					disabled ? "bg-card-input-disabled" : "hover:border-card-input-hover"
 				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
-				} text-text-secondary border-2 rounded-lg px-3 py-5`}
+				} text-text-secondary border-2 rounded-lg px-3 py-1`}
 				onClick={handleClick}
 			>
+				{label && <div className="flex text-card-input-label my-1">{label}</div>}
+
 				<input
 					ref={inputRef}
 					className={`w-full py-2 text-lg ${isTextLeft ? "text-left" : "text-right"} bg-transparent ${
@@ -66,48 +66,48 @@ export default function AddressInput({
 					disabled={disabled}
 					autoFocus={autoFocus}
 				/>
-			</div>
 
-			{limitLabel != undefined || own != undefined || reset != undefined ? (
-				<div className="flex flex-row gap-2 py-1 px-1">
-					<div className="flex-1 min-w-0">
-						{limitLabel != undefined && (
-							<div className="flex flex-row gap-2 w-full">
-								<div className="text-text-secondary flex-shrink-0">Own: {limitLabel}</div>
+				{limitLabel != undefined || own != undefined || reset != undefined ? (
+					<div className="flex flex-row gap-2 py-1">
+						<div className="flex-1 min-w-0">
+							{limitLabel != undefined && (
+								<div className="flex flex-row gap-2 w-full">
+									<div className="text-text-secondary flex-shrink-0">Own: {limitLabel}</div>
+								</div>
+							)}
+						</div>
+
+						{!disabled && own != undefined && own != value && (
+							<div
+								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
+								onClick={() => {
+									if (own !== undefined) {
+										onChange(own.toString());
+										onOwn();
+									}
+								}}
+							>
+								Own
+							</div>
+						)}
+						{!disabled && reset != undefined && reset != value && reset != own && (
+							<div
+								className="text-card-input-reset cursor-pointer hover:text-card-input-focus font-extrabold"
+								onClick={() => {
+									if (reset !== undefined) {
+										onChange(reset.toString());
+										onReset();
+									}
+								}}
+							>
+								Reset
 							</div>
 						)}
 					</div>
+				) : null}
+			</div>
 
-					{!disabled && own != undefined && own != value && (
-						<div
-							className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
-							onClick={() => {
-								if (own !== undefined) {
-									onChange(own.toString());
-									onOwn();
-								}
-							}}
-						>
-							Own
-						</div>
-					)}
-					{!disabled && reset != undefined && reset != value && reset != own && (
-						<div
-							className="text-card-input-reset cursor-pointer hover:text-card-input-focus font-extrabold"
-							onClick={() => {
-								if (reset !== undefined) {
-									onChange(reset.toString());
-									onReset();
-								}
-							}}
-						>
-							Reset
-						</div>
-					)}
-				</div>
-			) : null}
-
-			{error ? <div className="flex px-1 text-text-warning">{error}</div> : <div className="flex px-1">{note}</div>}
+			{error ? <div className="flex my-2 px-3.5 text-text-warning">{error}</div> : <div className="flex my-2 px-3.5">{note}</div>}
 		</div>
 	);
 }
