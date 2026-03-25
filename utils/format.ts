@@ -201,3 +201,7 @@ export function timestampToSeconds(ms: number | string) {
 export function timestampStartOfDay(ms: number | string) {
 	return String(Number(ms) - (Number(ms) % 86_400_000));
 }
+
+export function formatDateFromSecs(secs: number): string {
+	return dayjs(secs * 1000).format("DD MMM YYYY");
+}

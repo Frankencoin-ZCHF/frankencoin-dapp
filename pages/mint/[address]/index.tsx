@@ -5,10 +5,11 @@ import { formatUnits, maxUint256, erc20Abi, Hash, zeroHash, parseEther, decodeEv
 import TokenInput from "@components/Input/TokenInput";
 import { useState } from "react";
 import Button from "@components/Button";
-import { useAccount, useBlockNumber, useChainId } from "wagmi";
+import ButtonSecondary from "@components/ButtonSecondary";
+import { useAccount, useBlockNumber } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { Address } from "viem";
-import { formatBigInt, formatCurrency, min, shortenAddress, toTimestamp } from "@utils";
+import { formatBigInt, formatCurrency, formatDateFromSecs, min, shortenAddress, toTimestamp } from "@utils";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import DateInput from "@components/Input/DateInput";
@@ -21,16 +22,22 @@ import { useRouter as useNavigation } from "next/navigation";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import AppCard from "@components/AppCard";
+import AppTitle from "@components/AppTitle";
+import LiquidationSlider from "@components/Input/LiquidationSlider";
+import { useBorrowPositions } from "../../../hooks/useBorrowPositions";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
-	const [errorColl, setErrorColl] = useState("");
 	const [errorDate, setErrorDate] = useState("");
 	const [isInit, setInit] = useState<boolean>(false);
 	const [isApproving, setApproving] = useState(false);
 	const [isCloning, setCloning] = useState(false);
 	const [expirationDate, setExpirationDate] = useState<Date>(new Date(0));
+	const [expirationTab, setExpirationTab] = useState<string>("Max");
+
+	const [collAmount, setCollAmount] = useState(0n);
+	const [liqPrice, setLiqPrice] = useState(0);
 
 	const [userAllowance, setUserAllowance] = useState(0n);
 	const [userBalance, setUserBalance] = useState(0n);
@@ -45,6 +52,10 @@ export default function PositionBorrow({}) {
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const position = positions.find((p) => p.position == addressQuery);
+	const { bestPriceByCollateral, bestInterestByCollateral, bestExpirationByCollateral, bestAvailabilityByCollateral } =
+		useBorrowPositions();
+	const originalPosition = position?.isClone ? positions.find((p) => p.position === position.original) : position;
+	const originalExpiration = originalPosition?.expiration ?? position?.expiration;
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
@@ -52,10 +63,14 @@ export default function PositionBorrow({}) {
 	useEffect(() => {
 		if (isInit) return;
 		if (!position || position.expiration == 0) return;
-		setExpirationDate(toDate(position.expiration));
+		setExpirationDate(toDate(originalExpiration ?? position.expiration));
 
 		if (!amount) {
-			const initMintAmount: bigint = (BigInt(position.price) * BigInt(position.minimumCollateral)) / parseUnits("1", 18);
+			const initColl = BigInt(position.minimumCollateral);
+			const initPrice = parseFloat(formatUnits(BigInt(position.price), 36 - position.collateralDecimals));
+			const initMintAmount: bigint = (BigInt(position.price) * initColl) / parseUnits("1", 18);
+			setCollAmount(initColl);
+			setLiqPrice(initPrice);
 			setAmount(initMintAmount);
 		}
 
@@ -101,11 +116,24 @@ export default function PositionBorrow({}) {
 	const effectiveLTV: number = (price * (1 - reserve)) / collateralPriceZchf;
 	const effectiveInterest: number = interest / (1 - reserve);
 
-	const requiredColl =
-		BigInt(position.price) > 0 &&
-		(BigInt(1e18) * amount + BigInt(position.price) - 1n) / BigInt(position.price) > BigInt(position.minimumCollateral)
-			? (BigInt(1e18) * amount + BigInt(position.price) - 1n) / BigInt(position.price)
-			: BigInt(position.minimumCollateral);
+	const requiredColl = collAmount > BigInt(position.minimumCollateral) ? collAmount : BigInt(position.minimumCollateral);
+	const expirationMax = toDate(originalExpiration ?? position.expiration);
+	const _now = new Date();
+	const expirationTabDates: Record<string, Date> = {
+		"1M": new Date(_now.getFullYear(), _now.getMonth() + 1, _now.getDate()),
+		"3M": new Date(_now.getFullYear(), _now.getMonth() + 3, _now.getDate()),
+		"6M": new Date(_now.getFullYear(), _now.getMonth() + 6, _now.getDate()),
+		"1Y": new Date(_now.getFullYear() + 1, _now.getMonth(), _now.getDate()),
+		Max: expirationMax,
+	};
+	const errorColl =
+		collAmount < BigInt(position.minimumCollateral)
+			? `Minimum ${formatCurrency(formatUnits(BigInt(position.minimumCollateral), position.collateralDecimals))} ${
+					position.collateralSymbol
+			  } required`
+			: account.address && collAmount > userBalance
+			? `Not enough ${position.collateralSymbol} in your wallet.`
+			: "";
 
 	const borrowersReserveContribution = (BigInt(position.reserveContribution) * amount) / 1_000_000n;
 
@@ -119,39 +147,44 @@ export default function PositionBorrow({}) {
 		(BigInt(Math.max(60 * 60 * 24 * 30, Math.floor((expirationDate.getTime() - Date.now()) / 1000))) *
 			BigInt(position.annualInterestPPM)) /
 		BigInt(60 * 60 * 24 * 365);
+	const availableAmount = BigInt(position.availableForClones);
 	const fees = (feePercent * amount) / 1_000_000n;
 	const paidOutToWallet = amount - borrowersReserveContribution - fees;
+	const maxPaidOut =
+		availableAmount -
+		(BigInt(position.reserveContribution) * availableAmount) / 1_000_000n -
+		(feePercent * availableAmount) / 1_000_000n;
 	const paidOutToWalletPct = (parseInt(paidOutToWallet.toString()) * 100) / parseInt(amount.toString());
-	const availableAmount = BigInt(position.availableForClones);
 	const userValue = (userBalance * BigInt(position.price)) / BigInt(1e18);
 	const borrowingLimit = min(availableAmount, userValue);
 
-	const onChangeAmount = (value: string) => {
-		const valueBigInt = BigInt(value);
-		setAmount(valueBigInt);
-		if (valueBigInt > availableAmount) {
-			setError("No more than " + formatCurrency(parseInt(availableAmount.toString()) / 1e18, 2, 2) + " ZCHF can be minted");
-		} else {
-			setError("");
-		}
+	const errorReceive =
+		amount > availableAmount ? `No more than ${formatCurrency(formatUnits(availableAmount, 18))} ZCHF can be borrowed in total` : "";
 
-		if (BigInt(requiredColl) > userBalance) {
-			setErrorColl(`Not enough ${position.collateralSymbol} in your wallet.`);
-		}
+	const onMaxReceive = () => {
+		const collNeeded = BigInt(Math.ceil((parseFloat(formatUnits(availableAmount, 18)) / liqPrice) * 10 ** position.collateralDecimals));
+		setCollAmount(collNeeded);
+		setAmount(availableAmount);
 	};
 
 	const onChangeCollateral = (value: string) => {
-		if (BigInt(value) > userBalance) {
-			setErrorColl(`Not enough ${position.collateralSymbol} in your wallet.`);
-		}
-		setAmount((BigInt(value) * BigInt(position.price)) / BigInt(1e18));
+		const collBigInt = BigInt(value);
+		setCollAmount(collBigInt);
+		const newAmount = BigInt(Math.floor(parseFloat(formatUnits(collBigInt, position.collateralDecimals)) * liqPrice * 1e18));
+		setAmount(newAmount);
+	};
+
+	const onChangeLiqPrice = (newPrice: number) => {
+		setLiqPrice(newPrice);
+		const newAmount = BigInt(Math.floor(parseFloat(formatUnits(requiredColl, position.collateralDecimals)) * newPrice * 1e18));
+		setAmount(newAmount);
 	};
 
 	const onChangeExpiration = (value: Date | null) => {
 		if (!value) value = new Date();
 		const newTimestamp = toTimestamp(value);
 		const bottomLimit = toTimestamp(new Date());
-		const uppperLimit = position.expiration;
+		const uppperLimit = originalExpiration ?? position.expiration;
 
 		if (newTimestamp < bottomLimit || newTimestamp > uppperLimit) {
 			setErrorDate("Expiration Date should be between Now and Limit");
@@ -162,7 +195,13 @@ export default function PositionBorrow({}) {
 	};
 
 	const onMaxExpiration = () => {
-		setExpirationDate(toDate(position.expiration));
+		setExpirationDate(expirationMax);
+	};
+
+	const onTabExpiration = (t: string) => {
+		const date = expirationTabDates[t] ?? expirationMax;
+		setExpirationTab(t);
+		onChangeExpiration(date);
 	};
 
 	const handleApprove = async () => {
@@ -293,53 +332,107 @@ export default function PositionBorrow({}) {
 				<title>Frankencoin - Borrow</title>
 			</Head>
 
+			<AppTitle title={position.collateralName} symbol={position.collateralSymbol} />
+
 			<div className="mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<AppCard>
 						<div className="text-lg font-bold text-center mt-3">Borrow Fresh Frankencoins</div>
-						<div className="space-y-8">
+						<div className="grid md:grid-cols-2 gap-4">
 							<TokenInput
-								label="Borrow Amount"
-								balanceLabel="Limit:"
-								symbol="ZCHF"
-								min={(BigInt(position.minimumCollateral) * BigInt(position.price)) / parseEther("1")}
-								max={availableAmount}
-								value={amount.toString()}
-								onChange={onChangeAmount}
-								placeholder="Amount to be borrowed"
-								error={error}
-								limit={availableAmount}
-								limitDigit={18}
-								limitLabel="Available"
-							/>
-							<TokenInput
-								label="Collateral Required"
-								balanceLabel="Your balance:"
-								max={userBalance > requiredColl ? userBalance : requiredColl}
-								min={BigInt(position.minimumCollateral)}
+								label="Deposit"
+								max={userBalance}
 								digit={position.collateralDecimals}
 								onChange={onChangeCollateral}
-								error={requiredColl > userBalance ? `Not enough ${position.collateralSymbol} in your wallet.` : errorColl}
-								placeholder="Amount required"
-								value={requiredColl.toString()}
+								error={errorColl}
+								placeholder="Amount"
+								value={String(collAmount)}
 								symbol={position.collateralSymbol}
 								limit={userBalance}
 								limitDigit={position.collateralDecimals}
 								limitLabel="Balance"
 							/>
-							<DateInput
-								label="Expiration"
-								min={new Date(Date.now() + 1000 * 60 * 60 * 24 * 7)}
-								max={new Date(position.expiration * 1000)}
-								value={expirationDate}
-								onChange={onChangeExpiration}
-								error={errorDate}
-								/* limit={BigInt(position.expiration)}
-								limitDigit={position.collateralDecimals}
-								limitLabel="Until" */
+							<TokenInput
+								label="Receive"
+								symbol="ZCHF"
+								value={paidOutToWallet.toString()}
+								output={String(formatCurrency(formatUnits(paidOutToWallet, 18)))}
+								max={maxPaidOut}
+								onMax={onMaxReceive}
+								error={errorReceive}
+								disabled={true}
+								showButtons={true}
+								limit={maxPaidOut}
+								limitDigit={18}
+								limitLabel="Available"
 							/>
 						</div>
-						<div className="mx-auto w-72 max-w-full flex-col">
+
+						<LiquidationSlider
+							label="Liquidation Price"
+							value={liqPrice}
+							min={collateralPriceZchf * 0.1}
+							max={price}
+							marketPrice={collateralPriceZchf}
+							onChange={onChangeLiqPrice}
+							limit={BigInt(position.price)}
+							limitDigit={36 - position.collateralDecimals}
+							limitLabel="Max"
+						/>
+
+						<DateInput
+							label="Repay by"
+							value={expirationDate}
+							onChange={onChangeExpiration}
+							error={errorDate}
+							max={expirationMax}
+							tabs={["1M", "3M", "6M", "1Y", "Max"]}
+							tabDates={expirationTabDates}
+							tab={expirationTab}
+							onTab={onTabExpiration}
+						/>
+
+						<div className="flex-1 mb-4">
+							<div className="flex">
+								<div className="flex-1 text-text-secondary">
+									<span>Total borrow</span>
+								</div>
+								<div className="text-right">
+									<span>{formatCurrency(formatUnits(amount, 18))} ZCHF</span>
+								</div>
+							</div>
+
+							<div className="mt-2 flex">
+								<div className="flex-1 text-text-secondary">
+									<span>Retained reserve</span>
+									<span className="text-xs ml-1">({formatCurrency(position.reserveContribution / 10000)}%)</span>
+								</div>
+								<div className="text-right">
+									<span>{formatCurrency(formatUnits(borrowersReserveContribution, 18))} ZCHF</span>
+								</div>
+							</div>
+
+							<div className="mt-2 flex">
+								<div className="flex-1 text-text-secondary">
+									<span>Upfront interest</span>
+									<span className="text-xs ml-1">({position.annualInterestPPM / 10000}%)</span>
+								</div>
+								<div className="text-right">
+									<span>{formatCurrency(formatUnits(fees, 18))} ZCHF</span>
+								</div>
+							</div>
+
+							<div className="mt-4 flex font-extrabold">
+								<div className="flex-1 text-text-secondary">
+									<span>Sent to your wallet</span>
+								</div>
+								<div className="text-right">
+									<span>{formatCurrency(formatUnits(paidOutToWallet, 18))} ZCHF</span>
+								</div>
+							</div>
+						</div>
+
+						<div className="mx-auto w-full flex-col">
 							<GuardSupportedChain chain={mainnet}>
 								{requiredColl > userAllowance ? (
 									<Button
@@ -364,57 +457,9 @@ export default function PositionBorrow({}) {
 
 					<div className="grid gap-4">
 						<AppCard>
-							<div className="text-lg font-bold text-center mt-3">Borrow Outcome</div>
-							<div className="flex-1 mt-4">
+							<div className="text-lg font-bold text-center mt-3">Position Details</div>
+							<div className="flex-1">
 								<div className="flex">
-									<div className="flex-1 text-text-secondary">
-										<span>Sent to your wallet</span>
-									</div>
-									<div className="text-right">
-										<span className="text-xs mr-3">{formatCurrency(paidOutToWalletPct)}%</span>
-										<span>{formatCurrency(formatUnits(paidOutToWallet, 18))} ZCHF</span>
-									</div>
-								</div>
-
-								<div className="mt-2 flex">
-									<div className="flex-1 text-text-secondary">
-										<span>Retained Reserve</span>
-									</div>
-									<div className="text-right">
-										<span className="text-xs mr-3">{formatCurrency(position.reserveContribution / 10000, 2, 2)}%</span>
-										<span>{formatCurrency(formatUnits(borrowersReserveContribution, 18))} ZCHF</span>
-									</div>
-								</div>
-
-								<div className="mt-2 flex">
-									<div className="flex-1 text-text-secondary">
-										<span>Upfront interest</span>
-										<div className="text-xs">({position.annualInterestPPM / 10000}% per year)</div>
-									</div>
-									<div className="text-right">
-										<span className="text-xs mr-3">{formatBigInt(feePercent, 4)}%</span>
-										<span>{formatCurrency(formatUnits(fees, 18))} ZCHF</span>
-									</div>
-								</div>
-
-								<hr className="mt-4 border-text-active border-dashed" />
-
-								<div className="mt-2 flex font-extrabold">
-									<div className="flex-1 text-text-secondary">
-										<span>Total</span>
-									</div>
-									<div className="text-right">
-										<span className="text-xs mr-3">100%</span>
-										<span>{formatCurrency(formatUnits(amount, 18))} ZCHF</span>
-									</div>
-								</div>
-							</div>
-						</AppCard>
-
-						<AppCard>
-							<div className="text-lg font-bold text-center mt-3">Notes</div>
-							<div className="flex-1 mt-4">
-								<div className="mt-2 flex">
 									<div className="flex-1 text-text-secondary">Available to Borrow</div>
 									<div className="">{formatCurrency(formatUnits(availableAmount, 18))} ZCHF</div>
 								</div>
@@ -436,7 +481,7 @@ export default function PositionBorrow({}) {
 									<div className="">{formatCurrency(effectiveLTV * 100)}%</div>
 								</div>
 
-								<div className="mt-2 flex">
+								<div className="mt-2 pb-2 flex">
 									<div className="flex-1 text-text-secondary">Effective Annual Interest</div>
 									<div className="">{formatCurrency(effectiveInterest * 100)}%</div>
 								</div>
@@ -445,6 +490,7 @@ export default function PositionBorrow({}) {
 									<div className="mt-2 flex">
 										<div className="flex-1 text-text-secondary">Parent Position</div>
 										<AppLink
+											className=""
 											label={shortenAddress(position.version == 2 ? position.parent : position.original)}
 											href={`/monitoring/${position.version == 2 ? position.parent : position.original}`}
 										></AppLink>
@@ -462,10 +508,101 @@ export default function PositionBorrow({}) {
 									</div>
 								)}
 
-								<p className="mt-4 text-text-secondary">
+								<p className="mt-4 text-text-secondary text-sm">
 									While the maturity is fixed, you can adjust the liquidation price and the collateral amount later as
 									long as it covers the minted amount. No interest will be refunded when repaying earlier.
 								</p>
+							</div>
+						</AppCard>
+
+						<AppCard>
+							<div className="text-lg font-bold text-center mt-3">Alternative Terms</div>
+							<div className="flex-1 mt-4">
+								<div className="grid grid-cols-3 text-xs text-text-secondary pb-1 border-b border-gray-200 mb-1">
+									<div>Term</div>
+									<div className="text-center">Value</div>
+									<div className="text-right">Best</div>
+								</div>
+								{(() => {
+									const collKey = position.collateral.toLowerCase() as Address;
+									const bestRatePos = bestInterestByCollateral[collKey];
+									const bestRateValue = bestRatePos
+										? `${formatCurrency(
+												(bestRatePos.annualInterestPPM / (1_000_000 - bestRatePos.reserveContribution)) * 100
+										  )}%`
+										: "";
+									const posEffectiveRate = position.annualInterestPPM / (1_000_000 - position.reserveContribution);
+									const bestEffectiveRate = bestRatePos
+										? bestRatePos.annualInterestPPM / (1_000_000 - bestRatePos.reserveContribution)
+										: Infinity;
+									const rows = [
+										{
+											label: "Best Price",
+											pos: bestPriceByCollateral[collKey],
+											value: `${formatCurrency(
+												parseFloat(
+													formatUnits(
+														BigInt(bestPriceByCollateral[collKey]?.price ?? 0),
+														36 - position.collateralDecimals
+													)
+												)
+											)} ZCHF`,
+											isBest: BigInt(position.price) >= BigInt(bestPriceByCollateral[collKey]?.price ?? 0),
+										},
+										{
+											label: "Best Rate",
+											pos: bestRatePos,
+											value: bestRateValue,
+											isBest: posEffectiveRate <= bestEffectiveRate,
+										},
+										{
+											label: "Best Expiry",
+											pos: bestExpirationByCollateral[collKey],
+											value: formatDateFromSecs(bestExpirationByCollateral[collKey]?.expiration ?? 0),
+											isBest: (originalExpiration ?? 0) >= (bestExpirationByCollateral[collKey]?.expiration ?? 0),
+										},
+										{
+											label: "Best Availability",
+											pos: bestAvailabilityByCollateral[collKey],
+											value: `${formatCurrency(
+												formatUnits(BigInt(bestAvailabilityByCollateral[collKey]?.availableForClones ?? 0), 18)
+											)} ZCHF`,
+											isBest:
+												BigInt(position.availableForClones) >=
+												BigInt(bestAvailabilityByCollateral[collKey]?.availableForClones ?? 0),
+										},
+									];
+									return rows.map(({ label, pos, value, isBest }) => {
+										if (!pos) return null;
+										const isCurrent = isBest;
+										return (
+											<div
+												key={label}
+												className={`grid grid-cols-3 py-2 text-sm border-b border-gray-100 last:border-0 ${
+													isCurrent ? "text-text-secondary" : "cursor-pointer"
+												}`}
+												onClick={() => !isCurrent && navigate.push(`/mint/${pos.position}`)}
+											>
+												<div className="text-text-secondary">{label}</div>
+												<div className="text-center font-medium text-text-primary">{value}</div>
+												<div className="text-right">
+													{isCurrent ? (
+														<span className="font-bold text-green-500">✓</span>
+													) : (
+														<span className="inline-block text-xs px-2 py-0.5 rounded-full bg-button-default hover:bg-button-hover text-white font-medium">
+															Select
+														</span>
+													)}
+												</div>
+											</div>
+										);
+									});
+								})()}
+							</div>
+							<div className="mt-2">
+								<ButtonSecondary onClick={() => navigate.push(`/mint/create?source=${addressQuery}`)}>
+									Need different terms?
+								</ButtonSecondary>
 							</div>
 						</AppCard>
 					</div>

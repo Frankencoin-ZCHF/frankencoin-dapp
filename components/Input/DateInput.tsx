@@ -84,7 +84,7 @@ export default function DateInput({
 							customInput={<input ref={inputRef} className="-ml-2 w-full bg-transparent" style={{ fontSize: "1.875rem" }} />}
 							id="expiration-datepicker"
 							selected={value}
-							dateFormat={"yyyy-MM-dd"}
+							dateFormat={"dd MMM yyyy"}
 							onChange={(e) => !disabled && onChange?.(e)}
 							disabled={disabled}
 							value={output}
