@@ -476,7 +476,7 @@ export default function PositionAdjust() {
 								</div>
 							</div>
 
-							<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+							<div className="mx-auto mt-8 full flex-col">
 								<GuardSupportedChain chain={mainnet}>
 									{collateralAmount - BigInt(position.collateralBalance) > userCollAllowance ? (
 										<Button isLoading={isApproving} onClick={() => handleApprove()}>
