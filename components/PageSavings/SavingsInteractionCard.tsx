@@ -190,7 +190,6 @@ export default function SavingsInteractionCard() {
 						min={!onbehalfToggle ? BigInt("0") : undefined}
 						max={!onbehalfToggle ? userBalance + userSavingsBalance + userSavingsInterest : userBalance}
 						reset={!onbehalfToggle ? userSavingsBalance : 0n}
-						balanceLabel="Max:"
 						symbol={fromSymbol}
 						placeholder={fromSymbol + " Amount"}
 						value={amount.toString()}
@@ -200,7 +199,6 @@ export default function SavingsInteractionCard() {
 						limitDigit={18}
 						limitLabel="Balance"
 						onChangeChain={onChangeChain}
-						prefixLabel={"ZCHF"}
 						tokenLogo={"ZCHF"}
 					/>
 				</div>
