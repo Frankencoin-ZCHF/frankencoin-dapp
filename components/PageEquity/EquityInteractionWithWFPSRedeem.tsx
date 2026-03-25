@@ -260,7 +260,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 				/>
 				<div className={`mt-2 px-1 transition-opacity`}>{conversionNote()}</div>
 
-				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+				<div className="mx-auto mt-8 w-full flex-col">
 					<GuardSupportedChain chain={mainnet}>
 						{amount > wfpsAllowance ? (
 							<Button isLoading={isApproving} disabled={amount == 0n || !!error || !unlocked} onClick={() => handleApprove()}>

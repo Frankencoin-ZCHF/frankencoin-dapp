@@ -251,7 +251,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 
 				<div className={`mt-2 px-1 transition-opacity ${(shareLoading || proceedLoading) && "opacity-50"}`}>{conversionNote()}</div>
 
-				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+				<div className="mx-auto mt-8 w-full flex-col">
 					<GuardSupportedChain chain={mainnet}>
 						{direction ? (
 							amount > poolStats.frankenAllowance ? (

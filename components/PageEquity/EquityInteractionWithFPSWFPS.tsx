@@ -281,7 +281,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 					1 {fromSymbol} = 1 {toSymbol}
 				</div>
 
-				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+				<div className="mx-auto mt-8 w-full flex-col">
 					<GuardSupportedChain chain={mainnet}>
 						{direction ? (
 							amount > fpsAllowance ? (
