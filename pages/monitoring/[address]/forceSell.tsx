@@ -234,7 +234,7 @@ export default function MonitoringForceSell() {
 							<DisplayOutputAlignedRight output={formatDateTime(zeroPriceTimestamp / 1000) || "-"} />
 						</AppBox>
 					</div>
-					<div className="mx-auto mt-4 w-[20rem] max-w-full flex-col">
+					<div className="mx-auto mt-4 w-full flex-col">
 						{/* Override lable here */}
 						<GuardSupportedChain chain={mainnet}>
 							<Button

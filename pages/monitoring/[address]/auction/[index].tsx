@@ -280,7 +280,7 @@ export default function ChallengePlaceBid() {
 								<DisplayOutputAlignedRight output={formatDateTime(zeroPriceTimestamp / 1000) || "---"} />
 							</AppBox>
 						</div>
-						<div className="mx-auto mt-4 w-[20rem] max-w-full flex-col">
+						<div className="mx-auto mt-4 w-full flex-col">
 							<GuardSupportedChain chain={mainnet}>
 								<Button
 									disabled={amount == 0n || expectedZCHF > userBalance || error != ""}
