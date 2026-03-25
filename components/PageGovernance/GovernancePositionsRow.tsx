@@ -43,6 +43,8 @@ export default function GovernancePositionsRow({ headers, subHeaders, tab, posit
 						symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
+						price={price.price.usd ?? 0}
+						hideMyWallet={true}
 					/>
 				</div>
 
@@ -53,6 +55,8 @@ export default function GovernancePositionsRow({ headers, subHeaders, tab, posit
 						symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
+						price={price.price.usd ?? 0}
+						hideMyWallet={true}
 					/>
 				</AppBox>
 			</div>

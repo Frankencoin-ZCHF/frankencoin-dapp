@@ -75,7 +75,7 @@ export default function PositionBorrow({}) {
 		}
 
 		setInit(true);
-	}, [position, amount, expirationDate, isInit]);
+	}, [position, amount, expirationDate, isInit, originalExpiration]);
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
