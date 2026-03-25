@@ -2,6 +2,7 @@ import { formatUnits } from "viem";
 import { BigNumberInput } from "./BigNumberInput";
 import dynamic from "next/dynamic";
 import { useRef } from "react";
+import { formatCurrency } from "@utils";
 const TokenLogo = dynamic(() => import("../TokenLogo"), { ssr: false });
 
 interface Props {
@@ -27,6 +28,7 @@ interface Props {
 	onReset?: () => void;
 	autoFocus?: boolean;
 	disabled?: boolean;
+	showButtons?: boolean;
 	error?: string;
 	warning?: string;
 }
@@ -48,6 +50,7 @@ export default function TokenInput({
 	chain,
 	autoFocus,
 	disabled,
+	showButtons,
 	onChange = () => {},
 	onMin = () => {},
 	onMax = () => {},
@@ -56,6 +59,7 @@ export default function TokenInput({
 	warning,
 }: Props) {
 	const inputRef = useRef<HTMLInputElement>(null);
+	const canShowButtons = showButtons ?? !disabled;
 
 	const handleClick = () => {
 		if (inputRef.current && !disabled) {
@@ -111,13 +115,13 @@ export default function TokenInput({
 								<div className="flex flex-row gap-2 w-full">
 									<div className="text-text-secondary flex-shrink-0">{limitLabel}</div>
 									<div className="text-text-primary truncate min-w-0 overflow-hidden">
-										{formatUnits(limit, Number(limitDigit))}
+										{formatCurrency(formatUnits(limit, Number(limitDigit)))}
 									</div>
 								</div>
 							)}
 						</div>
 
-						{!disabled && max != undefined && max != BigInt(value) && (
+						{canShowButtons && max != undefined && max != BigInt(value) && (
 							<div
 								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
@@ -130,7 +134,7 @@ export default function TokenInput({
 								Max
 							</div>
 						)}
-						{!disabled && min != undefined && min != BigInt(value) && min != max && (
+						{canShowButtons && min != undefined && min != BigInt(value) && min != max && (
 							<div
 								className="text-card-input-min cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
@@ -143,7 +147,7 @@ export default function TokenInput({
 								Min
 							</div>
 						)}
-						{!disabled && reset != undefined && reset != BigInt(value) && reset != min && reset != max && (
+						{canShowButtons && reset != undefined && reset != BigInt(value) && reset != min && reset != max && (
 							<div
 								className="text-card-input-reset cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
