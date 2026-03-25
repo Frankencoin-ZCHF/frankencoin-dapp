@@ -5,14 +5,12 @@ import { useEffect } from "react";
 import { store } from "../../redux/redux.store";
 import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import AppTitle from "@components/AppTitle";
-import { fetchMorphoMarkets } from "../../redux/slices/morpho.slice";
 import AppHeroSteps from "@components/AppHeroSteps";
 import ButtonSecondary from "@components/ButtonSecondary";
 
 export default function Borrow() {
 	useEffect(() => {
 		store.dispatch(fetchPositionsList());
-		store.dispatch(fetchMorphoMarkets());
 	}, []);
 
 	return (
