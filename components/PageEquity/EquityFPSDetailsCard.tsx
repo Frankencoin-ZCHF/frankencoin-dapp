@@ -65,10 +65,11 @@ export default function EquityFPSDetailsCard() {
 					<ApexChart
 						type="area"
 						options={{
+							colors: typechart == TypeCharts[0] || typechart == TypeCharts[2] ? ["#092f62", "#9ca3af"] : ["#092f62"],
 							theme: {
 								monochrome: {
 									color: "#092f62",
-									enabled: true,
+									enabled: false,
 								},
 							},
 							chart: {
@@ -147,35 +148,41 @@ export default function EquityFPSDetailsCard() {
 								name: typechart,
 								data:
 									typechart == TypeCharts[2]
-										? // @dev: this is multichain timestamp indexed frankencoin supply
-										  matchingSupply.map((entry) => {
+										? matchingSupply.map((entry) => {
 												return [parseFloat(String(entry.created)) * 1000, entry.supply];
 										  })
-										: matchingLogs.map((entry) => {
-												if (typechart == TypeCharts[0]) {
-													return [
-														parseFloat(entry.timestamp),
-														Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100,
-													];
-												} else if (typechart == TypeCharts[1]) {
-													return [
-														parseFloat(entry.timestamp),
-														Math.round(parseFloat(formatUnits(entry.fpsTotalSupply, 16))) / 100,
-													];
-													// @dev: this is just mainnet frankencoin supply data
-													// } else if (typechart == TypeCharts[2]) {
-													// 	return [
-													// 		parseFloat(entry.timestamp),
-													// 		Math.round(parseFloat(formatUnits(entry.totalSupply, 16))) / 100,
-													// 	];
-												} else {
-													return [
-														parseFloat(entry.timestamp),
-														Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100,
-													];
-												}
-										  }),
+										: typechart == TypeCharts[1]
+										? matchingLogs.map((entry) => [
+												parseFloat(entry.timestamp),
+												Math.round(parseFloat(formatUnits(entry.fpsTotalSupply, 16))) / 100,
+										  ])
+										: matchingLogs.map((entry) => [
+												parseFloat(entry.timestamp),
+												Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100,
+										  ]),
 							},
+							...(typechart == TypeCharts[0]
+								? [
+										{
+											name: "Earning-implied Value",
+											data: matchingLogs.map((entry) => [
+												parseFloat(entry.timestamp),
+												Math.round(parseFloat(formatUnits(BigInt(entry.earningsPerFPS) * 3n, 16))) / 100,
+											]),
+										},
+								  ]
+								: []),
+							...(typechart == TypeCharts[2]
+								? [
+										{
+											name: "ZCHF Equity",
+											data: matchingLogs.map((entry) => [
+												parseFloat(entry.timestamp),
+												Math.round(parseFloat(formatUnits(entry.totalEquity, 16))) / 100,
+											]),
+										},
+								  ]
+								: []),
 						]}
 					/>
 				</div>

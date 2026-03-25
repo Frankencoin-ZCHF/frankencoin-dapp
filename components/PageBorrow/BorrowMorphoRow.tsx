@@ -44,6 +44,8 @@ export default function BorrowMorphoRow({ headers, tab, market }: Props) {
 						symbol={market.collateralAsset.symbol}
 						name={market.collateralAsset.name}
 						address={market.collateralAsset.address}
+						price={0}
+						hideMyWallet
 					/>
 				</AppBox>
 				<div className="max-md:hidden">
@@ -51,6 +53,8 @@ export default function BorrowMorphoRow({ headers, tab, market }: Props) {
 						symbol={market.collateralAsset.symbol}
 						name={market.collateralAsset.name}
 						address={market.collateralAsset.address}
+						price={0}
+						hideMyWallet
 					/>
 				</div>
 			</div>

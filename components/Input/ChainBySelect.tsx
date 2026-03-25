@@ -96,7 +96,7 @@ export default function ChainBySelect({
 								) : (
 									<ChainLogo chain={props.data.label.toLowerCase()} size={5} />
 								)}
-								<div className={`truncate w-[8rem]`}>{`${prefixLabel ? prefixLabel + " " : ""}${props.data.label}`}</div>
+								<div className={`truncate w-[6rem]`}>{`${prefixLabel ? prefixLabel + " " : ""}${props.data.label}`}</div>
 							</div>
 						</components.SingleValue>
 					),
