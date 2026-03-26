@@ -4,10 +4,16 @@ import { formatUnits } from "viem";
 interface Props {
 	label?: string;
 	value: number; // current liquidation price (ZCHF per collateral token, float)
-	min: number; // minimum selectable price
-	max: number; // maximum allowed price (position's price limit)
-	marketPrice: number; // market price shown as reference
+	sliderMin: number; // left edge of the slider track
+	sliderMax: number; // right edge of the slider track
+	sliderSource: number; // "source" marker position (true value)
+	min?: number; // "Min" button target value
+	max?: number; // "Max" button target value
+	reset?: number; // "Reset" button target value
 	onChange: (value: number) => void;
+	onMin?: () => void;
+	onMax?: () => void;
+	onReset?: () => void;
 	symbol?: string;
 	disabled?: boolean;
 	error?: string;
@@ -21,10 +27,16 @@ interface Props {
 export default function LiquidationSlider({
 	label,
 	value,
+	sliderMin,
+	sliderMax,
+	sliderSource,
 	min,
 	max,
-	marketPrice,
+	reset,
 	onChange,
+	onMin = () => {},
+	onMax = () => {},
+	onReset = () => {},
 	symbol = "ZCHF",
 	disabled,
 	error,
@@ -34,11 +46,11 @@ export default function LiquidationSlider({
 	limitDigit = 18n,
 	limitLabel,
 }: Props) {
-	// Pin the "Max" marker at 80% of the track; derive the track's right-end accordingly
-	const trackEnd = (max - min) / 0.8 + min;
-	const scale = Math.max(trackEnd - min, 1);
-	const valuePct = Math.min(100, Math.max(0, ((value - min) / scale) * 100));
-	const maxPct = 80;
+	const scale = Math.max(sliderMax - sliderMin, 1);
+	const valuePct = Math.min(100, Math.max(0, ((value - sliderMin) / scale) * 100));
+	const sourcePct = Math.min(100, Math.max(0, ((sliderSource - sliderMin) / scale) * 100));
+
+	const canShowButtons = !disabled;
 
 	return (
 		<div>
@@ -50,16 +62,16 @@ export default function LiquidationSlider({
 				{/* Label row */}
 				<div className="flex items-center my-1">
 					<span className="flex-1 text-card-input-label">{label ?? "Liquidation price"}</span>
-					<span className="font-bold text-text-primary">
+					<span className="font-bold text-lg text-text-primary">
 						{formatCurrency(value)} {symbol}
 					</span>
 				</div>
 
 				{/* Slider area */}
-				<div className="relative" style={{ paddingTop: "1rem", paddingBottom: "0.5rem" }}>
-					{/* Max marker label above track */}
-					<div className="absolute top-2 text-xs font-bold text-red-500 -translate-x-1/2" style={{ left: `${maxPct}%` }}>
-						Max
+				<div className="relative" style={{ paddingTop: "0.5rem", paddingBottom: "0.5rem" }}>
+					{/* Source marker label above track */}
+					<div className="absolute -top-1 text-xs font-bold text-orange-400 -translate-x-1/2" style={{ left: `${sourcePct}%` }}>
+						Source
 					</div>
 
 					{/* Track + thumb container */}
@@ -68,11 +80,11 @@ export default function LiquidationSlider({
 						<div
 							className="absolute inset-x-0 h-3 rounded-full"
 							style={{
-								background: `linear-gradient(to right, #22c55e 0%, #eab308 40%, #f97316 ${maxPct}%, #d1d5db ${maxPct}%, #d1d5db 100%)`,
+								background: `linear-gradient(to right, #22c55e 0%, #ff5a1f ${sourcePct}%, #d1d5db ${sourcePct}%, #d1d5db 100%)`,
 							}}
 						>
-							{/* Max line marker */}
-							<div className="absolute top-0 bottom-0 w-0.5 bg-white/70" style={{ left: `${maxPct}%` }} />
+							{/* Source line marker */}
+							<div className="absolute top-0 bottom-0 w-0.5 bg-white/70" style={{ left: `${sourcePct}%` }} />
 						</div>
 
 						{/* Thumb */}
@@ -85,15 +97,12 @@ export default function LiquidationSlider({
 						<input
 							type="range"
 							className="absolute inset-0 w-full opacity-0 cursor-pointer"
-							min={min}
-							max={trackEnd}
-							step={(trackEnd - min) / 1000}
+							min={sliderMin}
+							max={sliderMax}
+							step={(sliderMax - sliderMin) / 1000}
 							value={value}
 							disabled={disabled}
-							onChange={(e) => {
-								const v = Math.min(parseFloat(e.target.value), max);
-								onChange(v);
-							}}
+							onChange={(e) => onChange(parseFloat(e.target.value))}
 						/>
 					</div>
 				</div>
@@ -111,8 +120,39 @@ export default function LiquidationSlider({
 						)}
 					</div>
 					<div className="flex flex-row gap-2">
-						<span className="text-text-secondary flex-shrink-0">Market</span>
-						<span className="text-text-primary">{formatCurrency(marketPrice)}</span>
+						{canShowButtons && max != undefined && max !== value && (
+							<div
+								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
+								onClick={() => {
+									onChange(max);
+									onMax();
+								}}
+							>
+								Max
+							</div>
+						)}
+						{canShowButtons && min != undefined && min !== value && min !== max && (
+							<div
+								className="text-card-input-min cursor-pointer hover:text-card-input-focus font-extrabold"
+								onClick={() => {
+									onChange(min);
+									onMin();
+								}}
+							>
+								Min
+							</div>
+						)}
+						{canShowButtons && reset != undefined && reset !== value && reset !== min && reset !== max && (
+							<div
+								className="text-card-input-reset cursor-pointer hover:text-card-input-focus font-extrabold"
+								onClick={() => {
+									onChange(reset);
+									onReset();
+								}}
+							>
+								Reset
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
