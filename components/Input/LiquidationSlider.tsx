@@ -46,7 +46,7 @@ export default function LiquidationSlider({
 	limitDigit = 18n,
 	limitLabel,
 }: Props) {
-	const scale = Math.max(sliderMax - sliderMin, 1);
+	const scale = Math.max(sliderMax - sliderMin, 1e-10);
 	const valuePct = Math.min(100, Math.max(0, ((value - sliderMin) / scale) * 100));
 	const sourcePct = Math.min(100, Math.max(0, ((sliderSource - sliderMin) / scale) * 100));
 
@@ -71,18 +71,20 @@ export default function LiquidationSlider({
 				<div className="relative" style={{ paddingTop: "0.5rem", paddingBottom: "0.5rem" }}>
 					{/* Source marker label above track */}
 					<div className="absolute -top-1 text-xs font-bold text-orange-400 -translate-x-1/2" style={{ left: `${sourcePct}%` }}>
-						Source
+						Reference
 					</div>
 
 					{/* Track + thumb container */}
 					<div className="relative h-8 flex items-center">
 						{/* Gradient track */}
-						<div
-							className="absolute inset-x-0 h-3 rounded-full"
-							style={{
-								background: `linear-gradient(to right, #22c55e 0%, #f97316 ${sourcePct}%, #d1d5db ${sourcePct}%, #d1d5db 100%)`,
-							}}
-						>
+						<div className="absolute inset-x-0 h-3 rounded-full overflow-hidden">
+							{/* Full risk gradient spanning 0–100% of track */}
+							<div
+								className="absolute inset-0"
+								style={{ background: `linear-gradient(to right, #22c55e 0%, #eab308 50%, #f97316 100%)` }}
+							/>
+							{/* Grey cover from source marker to end */}
+							<div className="absolute top-0 bottom-0 bg-gray-300" style={{ left: `${sourcePct}%`, right: 0 }} />
 							{/* Source line marker */}
 							<div className="absolute top-0 bottom-0 w-0.5 bg-white/70" style={{ left: `${sourcePct}%` }} />
 						</div>
