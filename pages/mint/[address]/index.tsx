@@ -37,7 +37,8 @@ export default function PositionBorrow({}) {
 	const [expirationTab, setExpirationTab] = useState<string>("Max");
 
 	const [collAmount, setCollAmount] = useState(0n);
-	const [liqPrice, setLiqPrice] = useState(0);
+	const [newPrice, setNewPrice] = useState(0);
+	const [mintPrice, setMintPrice] = useState(0);
 
 	const [userAllowance, setUserAllowance] = useState(0n);
 	const [userBalance, setUserBalance] = useState(0n);
@@ -70,7 +71,8 @@ export default function PositionBorrow({}) {
 			const initPrice = parseFloat(formatUnits(BigInt(position.price), 36 - position.collateralDecimals));
 			const initMintAmount: bigint = (BigInt(position.price) * initColl) / parseUnits("1", 18);
 			setCollAmount(initColl);
-			setLiqPrice(initPrice);
+			setNewPrice(initPrice);
+			setMintPrice(initPrice);
 			setAmount(initMintAmount);
 		}
 
@@ -162,7 +164,9 @@ export default function PositionBorrow({}) {
 		amount > availableAmount ? `No more than ${formatCurrency(formatUnits(maxPaidOut, 18))} ZCHF can be received in total` : "";
 
 	const onMaxReceive = () => {
-		const collNeeded = BigInt(Math.ceil((parseFloat(formatUnits(availableAmount, 18)) / liqPrice) * 10 ** position.collateralDecimals));
+		const collNeeded = BigInt(
+			Math.ceil((parseFloat(formatUnits(availableAmount, 18)) / mintPrice) * 10 ** position.collateralDecimals)
+		);
 		setCollAmount(collNeeded);
 		setAmount(availableAmount);
 	};
@@ -170,14 +174,16 @@ export default function PositionBorrow({}) {
 	const onChangeCollateral = (value: string) => {
 		const collBigInt = BigInt(value);
 		setCollAmount(collBigInt);
-		const newAmount = BigInt(Math.floor(parseFloat(formatUnits(collBigInt, position.collateralDecimals)) * liqPrice * 1e18));
+		const newAmount = BigInt(Math.floor(parseFloat(formatUnits(collBigInt, position.collateralDecimals)) * mintPrice * 1e18));
 		setAmount(newAmount);
 	};
 
-	const onChangeLiqPrice = (newPrice: number) => {
-		setLiqPrice(newPrice);
-		const newAmount = BigInt(Math.floor(parseFloat(formatUnits(requiredColl, position.collateralDecimals)) * newPrice * 1e18));
-		setAmount(newAmount);
+	const onChangeLiqPrice = (v: number) => {
+		setNewPrice(v);
+		if (v <= mintPrice) {
+			const newAmount = BigInt(Math.floor(parseFloat(formatUnits(requiredColl, position.collateralDecimals)) * v * 1e18));
+			setAmount(newAmount);
+		}
 	};
 
 	const onChangeExpiration = (value: Date | null) => {
@@ -370,18 +376,18 @@ export default function PositionBorrow({}) {
 
 						<LiquidationSlider
 							label="Liquidation Price"
-							value={liqPrice}
+							value={newPrice}
 							sliderMin={collateralPriceZchf * 0.1}
 							sliderMax={collateralPriceZchf}
-							sliderSource={price}
+							sliderSource={mintPrice}
 							max={collateralPriceZchf}
-							reset={price}
+							reset={mintPrice}
 							onChange={onChangeLiqPrice}
 							limit={parseUnits(String(collateralPriceZchf), 18)}
 							limitDigit={18}
 							limitLabel="Market"
 							warning={
-								liqPrice > price
+								newPrice > mintPrice
 									? "Minting at a higher liquidation price requires a 3-day cooldown phase before it takes effect."
 									: undefined
 							}
@@ -472,15 +478,15 @@ export default function PositionBorrow({}) {
 								</div>
 
 								<div className="mt-2 flex">
-									<div className="flex-1 text-text-secondary">Market Price</div>
-									<div className="">{formatCurrency(collateralPriceZchf)} ZCHF</div>
-								</div>
-
-								<div className="mt-2 flex">
 									<div className="flex-1 text-text-secondary">Liquidation Price</div>
 									<div className="">
 										{formatCurrency(formatUnits(BigInt(position.price), 36 - position.collateralDecimals))} ZCHF
 									</div>
+								</div>
+
+								<div className="mt-2 flex">
+									<div className="flex-1 text-text-secondary">Market Price</div>
+									<div className="">{formatCurrency(collateralPriceZchf)} ZCHF</div>
 								</div>
 
 								<div className="mt-2 flex">
