@@ -16,13 +16,14 @@ const toDailyValues = (data: [number, number][]) => {
 };
 
 export default function MarketChart() {
+	const timestamp = Date.now() - 20 * 24 * 3600 * 1000;
 	const { marketChart } = useSelector((state: RootState) => state.prices);
 
-	const priceList = toDailyValues(marketChart.prices);
-	const volumeList = toDailyValues(marketChart.total_volumes);
+	const priceList = toDailyValues(marketChart.prices).filter((i) => i["0"] > timestamp);
+	const volumeList = toDailyValues(marketChart.total_volumes).filter((i) => i["0"] > timestamp);
 
 	return (
-		<div className="grid grid-cols-1 gap-4">
+		<div className="grid grid-cols-2 gap-4">
 			<AppCard>
 				<div className="mt-4 text-lg font-bold text-center">Exchange Rate</div>
 
@@ -38,7 +39,7 @@ export default function MarketChart() {
 							},
 							colors: ["#092f62", "#0F80F0"],
 							stroke: {
-								curve: "linestep",
+								curve: "smooth",
 								width: 2,
 							},
 							chart: {
@@ -90,10 +91,10 @@ export default function MarketChart() {
 									show: true,
 								},
 								max: (max) => {
-									return Math.max(max, 1.05);
+									return Math.max(max, 1.02);
 								},
 								min: (min) => {
-									return Math.min(min, 0.95);
+									return Math.min(min, 0.98);
 								},
 							},
 						}}
