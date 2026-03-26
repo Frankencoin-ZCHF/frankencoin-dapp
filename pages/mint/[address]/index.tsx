@@ -388,7 +388,7 @@ export default function PositionBorrow({}) {
 							limitLabel="Market"
 							warning={
 								newPrice > mintPrice
-									? "Minting at a higher liquidation price requires a 3-day cooldown phase before it takes effect."
+									? "Minting at a higher liquidation price requires a 3-day cooldown phase before any new loans are possible."
 									: undefined
 							}
 						/>
