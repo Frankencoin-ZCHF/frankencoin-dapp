@@ -80,7 +80,7 @@ export default function LiquidationSlider({
 						<div
 							className="absolute inset-x-0 h-3 rounded-full"
 							style={{
-								background: `linear-gradient(to right, #22c55e 0%, #ff5a1f ${sourcePct}%, #d1d5db ${sourcePct}%, #d1d5db 100%)`,
+								background: `linear-gradient(to right, #22c55e 0%, #f97316 ${sourcePct}%, #d1d5db ${sourcePct}%, #d1d5db 100%)`,
 							}}
 						>
 							{/* Source line marker */}
