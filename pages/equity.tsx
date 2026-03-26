@@ -76,7 +76,7 @@ export default function Equity() {
 			/>
 
 			<div className="md:mt-8">
-				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">
+				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-auto">
 					<EquityInteractionCard />
 					<EquityFPSDetailsCard />
 				</section>

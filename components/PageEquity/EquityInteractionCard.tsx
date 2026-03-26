@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import EquityInteractionWithZCHFFPS from "./EquityInteractionWithZCHFFPS";
 import EquityInteractionWithFPSWFPS from "./EquityInteractionWithFPSWFPS";
 import EquityInteractionWithWFPSRedeem from "./EquityInteractionWithWFPSRedeem";
-import { ADDRESS } from "@frankencoin/zchf";
-import { mainnet } from "viem/chains";
 import AppCard from "@components/AppCard";
 
 export const EquityTokenSelectorMapping: { [key: string]: string[] } = {

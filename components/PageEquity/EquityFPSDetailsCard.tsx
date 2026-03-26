@@ -58,6 +58,8 @@ export default function EquityFPSDetailsCard() {
 
 	return (
 		<AppCard>
+			<div className="mt-4 text-lg font-bold text-center">FPS & ZCHF Analytics</div>
+
 			<div id="chart-timeline">
 				<TabInput tabs={TypeCharts} tab={typechart} setTab={setTypechart} />
 

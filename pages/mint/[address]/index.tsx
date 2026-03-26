@@ -457,7 +457,7 @@ export default function PositionBorrow({}) {
 
 					<div className="grid gap-4">
 						<AppCard>
-							<div className="text-lg font-bold text-center mt-3">Position Details</div>
+							<div className="text-lg font-bold text-center mt-3">Position Source</div>
 							<div className="flex-1">
 								<div className="flex">
 									<div className="flex-1 text-text-secondary">Available to Borrow</div>
