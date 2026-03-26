@@ -135,7 +135,7 @@ export default function MarketChart() {
 							},
 							colors: ["#092f62", "#0F80F0"],
 							stroke: {
-								width: 2,
+								width: 0,
 							},
 							chart: {
 								type: "bar",
