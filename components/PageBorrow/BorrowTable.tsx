@@ -146,7 +146,9 @@ export default function BorrowTable() {
 			/>
 			<TableBody>
 				{list.length == 0 ? (
-					<TableRowEmpty>{"There are no other positions yet."}</TableRowEmpty>
+					<TableRowEmpty>
+						{!walletAddress ? "There are no other positions yet." : "You don't have any available collaterals in your wallet."}
+					</TableRowEmpty>
 				) : (
 					list.map((pos, idx) => (
 						<BorrowRow
