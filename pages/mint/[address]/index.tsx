@@ -159,7 +159,7 @@ export default function PositionBorrow({}) {
 	const borrowingLimit = min(availableAmount, userValue);
 
 	const errorReceive =
-		amount > availableAmount ? `No more than ${formatCurrency(formatUnits(availableAmount, 18))} ZCHF can be borrowed in total` : "";
+		amount > availableAmount ? `No more than ${formatCurrency(formatUnits(maxPaidOut, 18))} ZCHF can be received in total` : "";
 
 	const onMaxReceive = () => {
 		const collNeeded = BigInt(Math.ceil((parseFloat(formatUnits(availableAmount, 18)) / liqPrice) * 10 ** position.collateralDecimals));
@@ -371,13 +371,20 @@ export default function PositionBorrow({}) {
 						<LiquidationSlider
 							label="Liquidation Price"
 							value={liqPrice}
-							min={collateralPriceZchf * 0.1}
-							max={price}
-							marketPrice={collateralPriceZchf}
+							sliderMin={collateralPriceZchf * 0.1}
+							sliderMax={collateralPriceZchf}
+							sliderSource={price}
+							max={collateralPriceZchf}
+							reset={price}
 							onChange={onChangeLiqPrice}
-							limit={BigInt(position.price)}
-							limitDigit={36 - position.collateralDecimals}
-							limitLabel="Max"
+							limit={parseUnits(String(collateralPriceZchf), 18)}
+							limitDigit={18}
+							limitLabel="Market"
+							warning={
+								liqPrice > price
+									? "Minting at a higher liquidation price requires a 3-day cooldown phase before it takes effect."
+									: undefined
+							}
 						/>
 
 						<DateInput
@@ -507,12 +514,11 @@ export default function PositionBorrow({}) {
 										></AppLink>
 									</div>
 								)}
-
-								<p className="mt-4 text-text-secondary text-sm">
-									While the maturity is fixed, you can adjust the liquidation price and the collateral amount later as
-									long as it covers the minted amount. No interest will be refunded when repaying earlier.
-								</p>
 							</div>
+							<p className="mt-auto text-text-secondary text-sm">
+								While the maturity is fixed, you can adjust the liquidation price and the collateral amount later as long as
+								it covers the minted amount. No interest will be refunded when repaying earlier.
+							</p>
 						</AppCard>
 
 						<AppCard>
