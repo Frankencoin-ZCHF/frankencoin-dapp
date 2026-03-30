@@ -9,7 +9,7 @@ import ButtonSecondary from "@components/ButtonSecondary";
 import { useAccount, useBlockNumber } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { Address } from "viem";
-import { formatBigInt, formatCurrency, formatDateFromSecs, min, shortenAddress, toTimestamp } from "@utils";
+import { formatBigInt, formatCurrency, formatDateFromSecs, formatFloat, min, shortenAddress, toTimestamp } from "@utils";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import DateInput from "@components/Input/DateInput";
@@ -157,11 +157,15 @@ export default function PositionBorrow({}) {
 		(BigInt(position.reserveContribution) * availableAmount) / 1_000_000n -
 		(feePercent * availableAmount) / 1_000_000n;
 	const paidOutToWalletPct = (parseInt(paidOutToWallet.toString()) * 100) / parseInt(amount.toString());
-	const userValue = (userBalance * BigInt(position.price)) / BigInt(1e18);
-	const borrowingLimit = min(availableAmount, userValue);
+	const availableByCollateralPrice = (collAmount * parseUnits(String(mintPrice), 36 - position.collateralDecimals)) / BigInt(1e18);
+	const borrowingLimit = min(availableAmount, availableByCollateralPrice);
 
-	const errorReceive =
-		amount > availableAmount ? `No more than ${formatCurrency(formatUnits(maxPaidOut, 18))} ZCHF can be received in total` : "";
+	const errorBorrow =
+		amount > availableAmount
+			? `No more than ${formatCurrency(formatUnits(availableAmount, 18))} ZCHF can be received in total`
+			: amount > borrowingLimit
+			? "Mint amount exceeds your collateral's value at the price"
+			: "";
 
 	const onMaxReceive = () => {
 		const collNeeded = BigInt(
@@ -174,15 +178,20 @@ export default function PositionBorrow({}) {
 	const onChangeCollateral = (value: string) => {
 		const collBigInt = BigInt(value);
 		setCollAmount(collBigInt);
-		const newAmount = BigInt(Math.floor(parseFloat(formatUnits(collBigInt, position.collateralDecimals)) * mintPrice * 1e18));
-		setAmount(newAmount);
+		// const newAmount = BigInt(Math.floor(parseFloat(formatUnits(collBigInt, position.collateralDecimals)) * mintPrice * 1e18));
+		// setAmount(newAmount);
+	};
+
+	const onChangeAmount = (value: string) => {
+		const amountBigInt = BigInt(value);
+		// const newAmount = (amountBigInt * BigInt(100 - position.reserveContribution / 10000)) / 100n;
+		setAmount(amountBigInt);
 	};
 
 	const onChangeLiqPrice = (v: number) => {
 		setNewPrice(v);
-		if (v <= mintPrice) {
-			const newAmount = BigInt(Math.floor(parseFloat(formatUnits(requiredColl, position.collateralDecimals)) * v * 1e18));
-			setAmount(newAmount);
+		if (v <= price) {
+			setMintPrice(v);
 		}
 	};
 
@@ -341,7 +350,7 @@ export default function PositionBorrow({}) {
 			<AppTitle title={position.collateralName} symbol={position.collateralSymbol} />
 
 			<div className="mt-8">
-				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<section className="grid grid-cols-1 md:grid-cols-1 gap-4">
 					<AppCard>
 						<div className="text-lg font-bold text-center mt-3">Borrow Fresh Frankencoins</div>
 						<div className="grid md:grid-cols-2 gap-4">
@@ -359,83 +368,116 @@ export default function PositionBorrow({}) {
 								limitLabel="Balance"
 							/>
 							<TokenInput
-								label="Receive"
+								label="Borrow"
 								symbol="ZCHF"
-								value={paidOutToWallet.toString()}
-								output={String(formatCurrency(formatUnits(paidOutToWallet, 18)))}
-								max={maxPaidOut}
-								onMax={onMaxReceive}
-								error={errorReceive}
-								disabled={true}
+								value={amount.toString()}
+								onChange={onChangeAmount}
+								max={borrowingLimit}
+								onMax={() => setAmount(borrowingLimit)}
+								error={errorBorrow}
+								// disabled={true}
 								showButtons={true}
-								limit={maxPaidOut}
+								limit={borrowingLimit}
 								limitDigit={18}
 								limitLabel="Available"
 							/>
 						</div>
 
-						<LiquidationSlider
-							label="Liquidation Price"
-							value={newPrice}
-							sliderMin={collateralPriceZchf * 0.1}
-							sliderMax={collateralPriceZchf}
-							sliderSource={mintPrice}
-							max={collateralPriceZchf}
-							reset={mintPrice}
-							onChange={onChangeLiqPrice}
-							limit={parseUnits(String(collateralPriceZchf), 18)}
-							limitDigit={18}
-							limitLabel="Market"
-							warning={
-								newPrice > mintPrice
-									? "Minting at a higher liquidation price requires a 3-day cooldown phase before any new loans are possible."
-									: undefined
-							}
-						/>
+						<div className="grid md:grid-cols-2 gap-4">
+							<LiquidationSlider
+								label="Liquidation Price"
+								value={newPrice}
+								sliderMin={collateralPriceZchf * 0.1}
+								sliderMax={collateralPriceZchf}
+								sliderSource={price}
+								min={
+									collAmount > 0n
+										? formatFloat(amount, 18) / formatFloat(collAmount, position.collateralDecimals)
+										: undefined
+								}
+								max={collateralPriceZchf}
+								reset={price}
+								onChange={onChangeLiqPrice}
+								limit={parseUnits(String(collateralPriceZchf), 18)}
+								limitDigit={18}
+								limitLabel="Market"
+								warning={
+									newPrice > price
+										? "Liquidation prices above the reference become effective after a 3-day cooldown."
+										: undefined
+								}
+							/>
 
-						<DateInput
-							label="Repay by"
-							value={expirationDate}
-							onChange={onChangeExpiration}
-							error={errorDate}
-							max={expirationMax}
-							tabs={["1M", "3M", "6M", "1Y", "Max"]}
-							tabDates={expirationTabDates}
-							tab={expirationTab}
-							onTab={onTabExpiration}
-						/>
+							<DateInput
+								label="Repay by"
+								value={expirationDate}
+								onChange={onChangeExpiration}
+								error={errorDate}
+								max={expirationMax}
+								tabs={["1M", "3M", "6M", "1Y", "Max"]}
+								tabDates={expirationTabDates}
+								tab={expirationTab}
+								onTab={onTabExpiration}
+							/>
+						</div>
 
 						<div className="flex-1 mb-4">
 							<div className="flex">
 								<div className="flex-1 text-text-secondary">
-									<span>Total borrow</span>
+									<span>Total Minted</span>
+									<span className="text-xs ml-1">(100%)</span>
 								</div>
 								<div className="text-right">
 									<span>{formatCurrency(formatUnits(amount, 18))} ZCHF</span>
 								</div>
 							</div>
 
-							<div className="mt-2 flex">
+							<div className="mt-0 flex">
 								<div className="flex-1 text-text-secondary">
-									<span>Retained reserve</span>
+									<span>Retained Reserve</span>
 									<span className="text-xs ml-1">({formatCurrency(position.reserveContribution / 10000)}%)</span>
 								</div>
 								<div className="text-right">
-									<span>{formatCurrency(formatUnits(borrowersReserveContribution, 18))} ZCHF</span>
+									<span>
+										{amount > 0n ? "-" : ""}
+										{formatCurrency(formatUnits(borrowersReserveContribution, 18))} ZCHF
+									</span>
 								</div>
 							</div>
+
+							{/* <div className="mt-1 bg-card-input-empty w-full h-[1px]"></div> */}
 
 							<div className="mt-2 flex">
 								<div className="flex-1 text-text-secondary">
-									<span>Upfront interest</span>
-									<span className="text-xs ml-1">({position.annualInterestPPM / 10000}%)</span>
+									<span>To Repay</span>
+									<span className="text-xs ml-1">({formatCurrency(100 - position.reserveContribution / 10000)}%)</span>
 								</div>
 								<div className="text-right">
-									<span>{formatCurrency(formatUnits(fees, 18))} ZCHF</span>
+									<span>
+										{formatCurrency(
+											formatUnits((amount * BigInt(100 - position.reserveContribution / 10000)) / 100n, 18)
+										)}{" "}
+										ZCHF
+									</span>
 								</div>
 							</div>
 
-							<div className="mt-4 flex font-extrabold">
+							<div className="mt-0 flex">
+								<div className="flex-1 text-text-secondary">
+									<span>Upfront Interest</span>
+									<span className="text-xs ml-1">({formatCurrency(effectiveInterest * 100)}%)</span>
+								</div>
+								<div className="text-right">
+									<span>
+										{amount > 0n ? "-" : ""}
+										{formatCurrency(formatUnits(fees, 18))} ZCHF
+									</span>
+								</div>
+							</div>
+
+							{/* <div className="mt-1 bg-card-input-empty w-full h-[1px]"></div> */}
+
+							<div className="mt-2 flex font-extrabold">
 								<div className="flex-1 text-text-secondary">
 									<span>Sent to your wallet</span>
 								</div>
@@ -470,7 +512,7 @@ export default function PositionBorrow({}) {
 
 					<div className="grid gap-4">
 						<AppCard>
-							<div className="text-lg font-bold text-center mt-3">Position Source</div>
+							<div className="text-lg font-bold text-center mt-3">Position Reference</div>
 							<div className="flex-1">
 								<div className="flex">
 									<div className="flex-1 text-text-secondary">Available to Borrow</div>

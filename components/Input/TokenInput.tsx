@@ -35,7 +35,7 @@ interface Props {
 
 export default function TokenInput({
 	label = "Send",
-	placeholder = "Input Amount",
+	placeholder = "Amount",
 	symbol,
 	min,
 	max,

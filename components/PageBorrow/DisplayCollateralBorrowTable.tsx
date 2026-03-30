@@ -17,7 +17,16 @@ interface Props {
 	hideMyWallet?: boolean;
 }
 
-export default function DisplayCollateralBorrowTable({ symbol, symbolTiny = "", name, address, className, balance, price, hideMyWallet }: Props) {
+export default function DisplayCollateralBorrowTable({
+	symbol,
+	symbolTiny = "",
+	name,
+	address,
+	className,
+	balance,
+	price,
+	hideMyWallet,
+}: Props) {
 	const url = useContractUrl(address || zeroAddress);
 
 	const openExplorer = (e: any) => {
@@ -26,24 +35,22 @@ export default function DisplayCollateralBorrowTable({ symbol, symbolTiny = "", 
 	};
 
 	return (
-		<Link href={url} onClick={openExplorer}>
-			<div className={`md:-ml-12 flex items-center ${className}`}>
-				<div className="mr-4">
-					<TokenLogo currency={symbol} />
-				</div>
-
-				<div className="flex flex-col">
-					<span className="text-left font-bold max-lg:w-[8rem] lg:w-[10rem] max-sm:w-[12rem] text-sm md:text-nowrap max-md:truncate">
-						<span className="">{`${name}`}</span>
-						<span className="text-xs font-normal">{` ${symbolTiny}`}</span>
-					</span>
-					{!hideMyWallet && (
-						<span className="text-text-subheader text-left max-lg:w-[8rem] lg:w-[10rem] max-sm:w-[12rem] text-xs text-nowrap">
-							{formatCurrency(balance ?? 0, 2, 2)} {symbol} • {formatCurrency((balance ?? 0) * price)} ZCHF
-						</span>
-					)}
-				</div>
+		<div className={`md:-ml-12 flex items-center ${className}`}>
+			<div className="mr-4">
+				<TokenLogo currency={symbol} />
 			</div>
-		</Link>
+
+			<div className="flex flex-col">
+				<span className="text-left font-bold max-lg:w-[8rem] lg:w-[10rem] max-sm:w-[12rem] text-sm md:text-nowrap max-md:truncate">
+					<span className="">{`${name}`}</span>
+					<span className="text-xs font-normal">{` ${symbolTiny}`}</span>
+				</span>
+				{!hideMyWallet && (
+					<span className="text-text-subheader text-left max-lg:w-[8rem] lg:w-[10rem] max-sm:w-[12rem] text-xs text-nowrap">
+						{formatCurrency(balance ?? 0, 2, 2)} {symbol} • {formatCurrency((balance ?? 0) * price)} ZCHF
+					</span>
+				)}
+			</div>
+		</div>
 	);
 }
