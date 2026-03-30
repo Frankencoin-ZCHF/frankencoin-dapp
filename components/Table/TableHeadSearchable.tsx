@@ -83,14 +83,14 @@ export default function TableHeadSearchable({
 			{/* Search / toggle / filter bar */}
 			<div className="grid grid-cols-1 md:flex md:items-center md:justify-between px-7 xl:px-11 py-4 border-b border-gray-100 dark:border-gray-700 gap-3">
 				{/* Search input */}
-				<div className="flex items-center gap-2 text-text-secondary">
+				<div className="flex flex-1 items-center gap-2 text-text-secondary">
 					<FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4 text-text-secondary" />
 					<input
 						type="text"
 						value={searchValue}
 						onChange={(e) => onSearchChange(e.target.value)}
 						placeholder={searchPlaceholder}
-						className="bg-transparent outline-none text-sm text-text-primary placeholder:text-text-secondary w-full md:w-64"
+						className="bg-transparent outline-none text-sm text-text-primary placeholder:text-text-secondary w-full"
 					/>
 				</div>
 
