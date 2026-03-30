@@ -42,11 +42,11 @@ export default function DisplayCollateralBorrowTable({
 
 			<div className="flex flex-col">
 				<span className="text-left font-bold max-lg:w-[8rem] lg:w-[10rem] max-sm:w-[12rem] text-sm md:text-nowrap max-md:truncate">
-					<span className="">{`${name}`}</span>
+					<span className="text-lg">{`${name}`}</span>
 					<span className="text-xs font-normal">{` ${symbolTiny}`}</span>
 				</span>
 				{!hideMyWallet && (
-					<span className="text-text-subheader text-left max-lg:w-[8rem] lg:w-[10rem] max-sm:w-[12rem] text-xs text-nowrap">
+					<span className="text-text-subheader text-left max-lg:w-[8rem] lg:w-[10rem] max-sm:w-[12rem] text-nowrap">
 						{formatCurrency(balance ?? 0, 2, 2)} {symbol} • {formatCurrency((balance ?? 0) * price)} ZCHF
 					</span>
 				)}
