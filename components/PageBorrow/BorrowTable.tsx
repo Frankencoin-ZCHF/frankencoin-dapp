@@ -15,7 +15,7 @@ import { useBorrowPositions, useSwapVCHFStats } from "@hooks";
 const FILTER_OPTIONS: FilterOption[] = ALL_CATEGORIES.map((c) => ({ label: c, value: c }));
 
 export default function BorrowTable() {
-	const headers: string[] = ["Collateral", "LTV", "Interest", "Maturity"];
+	const headers: string[] = ["Collateral", "Loan-to-Value", "Interest", "Maturity"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<PositionQueryV2[]>([]);

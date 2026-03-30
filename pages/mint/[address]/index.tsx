@@ -8,7 +8,7 @@ import ButtonSecondary from "@components/ButtonSecondary";
 import { useAccount, useBlockNumber } from "wagmi";
 import { readContract } from "wagmi/actions";
 import { Address } from "viem";
-import { formatCurrency, formatDateFromSecs, min, shortenAddress, toTimestamp } from "@utils";
+import { formatCurrency, formatDateFromSecs, min, shortenAddress, toTimestamp, DISCUSSIONS } from "@utils";
 import DateInput from "@components/Input/DateInput";
 import { WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
@@ -24,7 +24,7 @@ import { useBorrowPositions } from "../../../hooks/useBorrowPositions";
 import BorrowCloneAction from "@components/PageBorrow/BorrowCloneAction";
 import BorrowClonePriceAction from "@components/PageBorrow/BorrowClonePriceAction";
 
-export default function PositionBorrow({}) {
+export default function PositionBorrow({ }) {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [errorDate, setErrorDate] = useState("");
@@ -139,12 +139,11 @@ export default function PositionBorrow({}) {
 	};
 	const errorColl =
 		collAmount < BigInt(position.minimumCollateral)
-			? `Minimum ${formatCurrency(formatUnits(BigInt(position.minimumCollateral), position.collateralDecimals))} ${
-					position.collateralSymbol
-			  } required`
+			? `Minimum ${formatCurrency(formatUnits(BigInt(position.minimumCollateral), position.collateralDecimals))} ${position.collateralSymbol
+			} required`
 			: account.address && collAmount > userBalance
-			? `Not enough ${position.collateralSymbol} in your wallet.`
-			: "";
+				? `Not enough ${position.collateralSymbol} in your wallet.`
+				: "";
 
 	const borrowersReserveContribution = (BigInt(position.reserveContribution) * amount) / 1_000_000n;
 
@@ -173,8 +172,8 @@ export default function PositionBorrow({}) {
 		amount > availableAmount
 			? `No more than ${formatCurrency(formatUnits(availableAmount, 18))} ZCHF can be received in total`
 			: amount > borrowingLimit
-			? "Mint amount exceeds your collateral's value at the price"
-			: "";
+				? "Mint amount exceeds your collateral's value at the price"
+				: "";
 
 	const onChangeCollateral = (value: string) => {
 		const collBigInt = BigInt(value);
@@ -221,12 +220,23 @@ export default function PositionBorrow({}) {
 				<title>Frankencoin - Borrow</title>
 			</Head>
 
-			<AppTitle title={position.collateralName} symbol={position.collateralSymbol} />
+			<AppTitle title="Borrow Frankencoins">
+				<div className="text-text-secondary">
+					Deposit {' '}
+					{DISCUSSIONS[position.collateral] ? (
+						<AppLink className="" label={`${position.collateralName} (${position.collateralSymbol})`} href={DISCUSSIONS[position.collateral]} external={true} />
+					) : (
+						<span>{position.collateralName} ({position.collateralSymbol})</span>
+					)}  {' '}
+					as collateral and mint new Frankencoins against it, cloning the terms from position {' '}
+					<AppLink className="" label={shortenAddress(position.position)} href={`/monitoring/${position.parent}`} external={false} />.
+				</div>
+			</AppTitle>
 
 			<div className="mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-1 gap-4">
 					<AppCard>
-						<div className="text-lg font-bold text-center mt-3">Borrow Fresh Frankencoins</div>
+						<div className="text-lg font-bold text-center mt-3">Borrow Frankencoins</div>
 						<div className="grid md:grid-cols-2 gap-4">
 							<TokenInput
 								label="Deposit"
@@ -242,7 +252,7 @@ export default function PositionBorrow({}) {
 								limitLabel="Balance"
 							/>
 							<TokenInput
-								label="Borrow"
+								label="Mint"
 								symbol="ZCHF"
 								value={amount.toString()}
 								onChange={onChangeAmount}
@@ -296,8 +306,7 @@ export default function PositionBorrow({}) {
 						<div className="flex-1 mb-4">
 							<div className="flex">
 								<div className="flex-1 text-text-secondary">
-									<span>Total Minted</span>
-									<span className="text-xs ml-1">(100%)</span>
+									<span>Minted</span>
 								</div>
 								<div className="text-right">
 									<span>{formatCurrency(formatUnits(amount, 18))} ZCHF</span>
@@ -306,7 +315,7 @@ export default function PositionBorrow({}) {
 
 							<div className="mt-0 flex">
 								<div className="flex-1 text-text-secondary">
-									<span>Retained Reserve</span>
+									<span>Retained reserve</span>
 									<span className="text-xs ml-1">({formatCurrency(position.reserveContribution / 10000)}%)</span>
 								</div>
 								<div className="text-right">
@@ -317,9 +326,9 @@ export default function PositionBorrow({}) {
 								</div>
 							</div>
 
-							<div className="mt-2 flex">
+							<div className="mt-1 flex">
 								<div className="flex-1 text-text-secondary">
-									<span>To Repay</span>
+									<span>To be repaid in the end</span>
 									<span className="text-xs ml-1">({formatCurrency(100 - position.reserveContribution / 10000)}%)</span>
 								</div>
 								<div className="text-right">
@@ -334,8 +343,8 @@ export default function PositionBorrow({}) {
 
 							<div className="mt-0 flex">
 								<div className="flex-1 text-text-secondary">
-									<span>Upfront Interest</span>
-									<span className="text-xs ml-1">({formatCurrency(effectiveInterest * 100)}%)</span>
+									<span>Upfront interest</span>
+									<span className="text-xs ml-1">({formatCurrency(effectiveInterest * 100)}% per year)</span>
 								</div>
 								<div className="text-right">
 									<span>
@@ -384,7 +393,7 @@ export default function PositionBorrow({}) {
 					</AppCard>
 
 					<div className="grid gap-4">
-						<AppCard>
+						{/* 						<AppCard>
 							<div className="text-lg font-bold text-center mt-3">Position Reference</div>
 							<div className="flex-1">
 								<div className="flex">
@@ -440,9 +449,9 @@ export default function PositionBorrow({}) {
 								While the maturity is fixed, you can adjust the liquidation price and the collateral amount later as long as
 								it covers the minted amount. No interest will be refunded when repaying earlier.
 							</p>
-						</AppCard>
+						</AppCard> */}
 
-						<AppCard>
+						{/* 						<AppCard>
 							<div className="text-lg font-bold text-center mt-3">Alternative Terms</div>
 							<div className="flex-1 mt-4">
 								<div className="grid grid-cols-3 text-xs text-text-secondary pb-1 border-b border-gray-200 mb-1">
@@ -531,7 +540,7 @@ export default function PositionBorrow({}) {
 									Need different terms?
 								</ButtonSecondary>
 							</div>
-						</AppCard>
+						</AppCard> */}
 					</div>
 				</section>
 			</div>
