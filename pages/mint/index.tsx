@@ -21,10 +21,7 @@ export default function Borrow() {
 
 			<AppTitle title="Borrow Frankencoins">
 				<div className="text-text-secondary">
-					Deposit your crypto as collateral and borrow Frankencoins (ZCHF) — a Swiss Franc stablecoin.
-				</div>
-				<div className="text-text-secondary">
-					You keep your crypto; you get liquid cash. Repay any time to get your collateral back.
+					Deposit a collateral and mint new Frankencoins against it. The collateral stays locked until you return the minted coins.
 				</div>
 			</AppTitle>
 
@@ -33,17 +30,17 @@ export default function Borrow() {
 					{
 						icon: 1,
 						title: "Choose a collateral",
-						description: "Pick which crypto token you want to use as collateral from the options below.",
+						description: "Choose a crypto asset to use as collateral.",
 					},
 					{
 						icon: 2,
-						title: "Set your terms",
-						description: "Decide how much ZCHF to borrow, review the interest rate and fees upfront.",
+						title: "Define terms",
+						description: "Adjust amount, maturity, and liquidation price to your liking.",
 					},
 					{
 						icon: 3,
-						title: "Receive ZCHF",
-						description: "Your ZCHF is sent directly to your wallet. Repay anytime to unlock your collateral.",
+						title: "Receive Frankencoins",
+						description: "Fresh Frankencoins are minted directly into your wallet.",
 					},
 				]}
 			/>

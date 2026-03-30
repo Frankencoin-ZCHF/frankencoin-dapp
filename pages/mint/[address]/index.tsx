@@ -23,6 +23,7 @@ import LiquidationSlider from "@components/Input/LiquidationSlider";
 import { useBorrowPositions } from "../../../hooks/useBorrowPositions";
 import BorrowCloneAction from "@components/PageBorrow/BorrowCloneAction";
 import BorrowClonePriceAction from "@components/PageBorrow/BorrowClonePriceAction";
+import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);

@@ -205,10 +205,10 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 
 	const conversionNote = () => {
 		if (amount != 0n && result != 0n) {
-			const ratio = (result * BigInt(1e18)) / amount;
-			return `1 ${fromSymbol} = ${formatUnits(ratio, 18)} ${toSymbol}`;
+			const ratio = 100n * amount / result;
+			return `1 ${toSymbol} = ${formatUnits(ratio, 2)} ${fromSymbol}`;
 		} else {
-			return `${toSymbol} price is calculated dynamically.\n`;
+			return ``;
 		}
 	};
 

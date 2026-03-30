@@ -213,7 +213,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 			const ratio = (calculateProceeds * BigInt(1e18)) / amount;
 			return `1 ${fromSymbol} = ${formatUnits(ratio, 18)} ${toSymbol}`;
 		} else {
-			return `${toSymbol} price is calculated dynamically.\n`;
+			return ``;
 		}
 	};
 
