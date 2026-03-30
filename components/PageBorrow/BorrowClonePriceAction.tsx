@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { erc20Abi, maxUint256, decodeEventLog, parseUnits } from "viem";
+import { erc20Abi, maxUint256, decodeEventLog } from "viem";
 import { Address } from "viem";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { useChainId } from "wagmi";
@@ -20,7 +20,7 @@ interface Props {
 	requiredColl: bigint;
 	amount: bigint;
 	expirationDate: Date;
-	newPrice: number;
+	newPrice: bigint;
 	userAllowance: bigint;
 	userBalance: bigint;
 	disabled?: boolean;
@@ -90,14 +90,13 @@ export default function BorrowClonePriceAction({
 			setCloning(true);
 
 			const expirationTime = toTimestamp(expirationDate);
-			const priceBigInt = parseUnits(String(newPrice), 36 - position.collateralDecimals);
 
 			const cloneWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: cloneHelper,
 				chainId: mainnet.id,
 				abi: CloneHelperABI,
 				functionName: "cloneWithPrice",
-				args: [position.position, requiredColl, amount, expirationTime, priceBigInt],
+				args: [position.position, requiredColl, amount, expirationTime, newPrice],
 			});
 
 			const toastContent = [

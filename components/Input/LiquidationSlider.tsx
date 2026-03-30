@@ -1,16 +1,17 @@
 import { formatCurrency } from "@utils";
-import { formatUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 
 interface Props {
 	label?: string;
-	value: number; // current liquidation price (ZCHF per collateral token, float)
-	sliderMin: number; // left edge of the slider track
-	sliderMax: number; // right edge of the slider track
-	sliderSource: number; // "source" marker position (true value)
-	min?: number; // "Min" button target value
-	max?: number; // "Max" button target value
-	reset?: number; // "Reset" button target value
-	onChange: (value: number) => void;
+	value: bigint; // current liquidation price as bigint
+	digit?: number; // decimals for value, sliderMin/Max/Source, min/max/reset
+	sliderMin: bigint; // left edge of the slider track
+	sliderMax: bigint; // right edge of the slider track
+	sliderSource: bigint; // "source" marker position (true value)
+	min?: bigint; // "Min" button target value
+	max?: bigint; // "Max" button target value
+	reset?: bigint; // "Reset" button target value
+	onChange: (value: bigint) => void;
 	onMin?: () => void;
 	onMax?: () => void;
 	onReset?: () => void;
@@ -27,6 +28,7 @@ interface Props {
 export default function LiquidationSlider({
 	label,
 	value,
+	digit = 18,
 	sliderMin,
 	sliderMax,
 	sliderSource,
@@ -46,9 +48,14 @@ export default function LiquidationSlider({
 	limitDigit = 18n,
 	limitLabel,
 }: Props) {
-	const scale = Math.max(sliderMax - sliderMin, 1e-10);
-	const valuePct = Math.min(100, Math.max(0, ((value - sliderMin) / scale) * 100));
-	const sourcePct = Math.min(100, Math.max(0, ((sliderSource - sliderMin) / scale) * 100));
+	const valueNum = Number(formatUnits(value, digit));
+	const sliderMinNum = Number(formatUnits(sliderMin, digit));
+	const sliderMaxNum = Number(formatUnits(sliderMax, digit));
+	const sliderSourceNum = Number(formatUnits(sliderSource, digit));
+
+	const scale = Math.max(sliderMaxNum - sliderMinNum, 1e-10);
+	const valuePct = Math.min(100, Math.max(0, ((valueNum - sliderMinNum) / scale) * 100));
+	const sourcePct = Math.min(100, Math.max(0, ((sliderSourceNum - sliderMinNum) / scale) * 100));
 
 	const canShowButtons = !disabled;
 
@@ -63,7 +70,7 @@ export default function LiquidationSlider({
 				<div className="flex items-center my-1">
 					<span className="flex-1 text-card-input-label">{label ?? "Liquidation price"}</span>
 					<span className="font-bold text-lg text-text-primary">
-						{formatCurrency(value)} {symbol}
+						{formatCurrency(formatUnits(value, digit))} {symbol}
 					</span>
 				</div>
 
@@ -104,12 +111,17 @@ export default function LiquidationSlider({
 						<input
 							type="range"
 							className="absolute inset-0 w-full opacity-0 cursor-pointer"
-							min={sliderMin}
-							max={sliderMax}
-							step={(sliderMax - sliderMin) / 1000}
-							value={value}
+							min={sliderMinNum}
+							max={sliderMaxNum}
+							step={(sliderMaxNum - sliderMinNum) / 1000}
+							value={valueNum}
 							disabled={disabled}
-							onChange={(e) => onChange(parseFloat(e.target.value))}
+							onChange={(e) => {
+								const raw = e.target.value;
+								const [intPart, fracPart = ""] = raw.split(".");
+								const trimmed = fracPart ? `${intPart}.${fracPart.slice(0, digit)}` : intPart;
+								onChange(parseUnits(trimmed, digit));
+							}}
 						/>
 					</div>
 				</div>

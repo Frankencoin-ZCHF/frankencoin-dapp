@@ -8,7 +8,7 @@ import ButtonSecondary from "@components/ButtonSecondary";
 import { useAccount, useBlockNumber } from "wagmi";
 import { readContract } from "wagmi/actions";
 import { Address } from "viem";
-import { formatCurrency, formatDateFromSecs, formatFloat, min, shortenAddress, toTimestamp } from "@utils";
+import { formatCurrency, formatDateFromSecs, min, shortenAddress, toTimestamp } from "@utils";
 import DateInput from "@components/Input/DateInput";
 import { WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
@@ -23,7 +23,6 @@ import LiquidationSlider from "@components/Input/LiquidationSlider";
 import { useBorrowPositions } from "../../../hooks/useBorrowPositions";
 import BorrowCloneAction from "@components/PageBorrow/BorrowCloneAction";
 import BorrowClonePriceAction from "@components/PageBorrow/BorrowClonePriceAction";
-import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
@@ -34,8 +33,8 @@ export default function PositionBorrow({}) {
 	const [expirationTab, setExpirationTab] = useState<string>("Max");
 
 	const [collAmount, setCollAmount] = useState(0n);
-	const [newPrice, setNewPrice] = useState(0);
-	const [mintPrice, setMintPrice] = useState(0);
+	const [newPrice, setNewPrice] = useState(0n);
+	const [mintPrice, setMintPrice] = useState(0n);
 
 	const [userAllowance, setUserAllowance] = useState(0n);
 	const [userAllowanceHelper, setUserAllowanceHelper] = useState(0n);
@@ -66,8 +65,9 @@ export default function PositionBorrow({}) {
 
 		if (!amount) {
 			const initColl = BigInt(position.minimumCollateral);
-			const initPrice = parseFloat(formatUnits(BigInt(position.price), 36 - position.collateralDecimals));
-			const initMintAmount: bigint = (BigInt(position.price) * initColl) / parseUnits("1", 18);
+			const initPrice = BigInt(position.price);
+			const initMintAmount: bigint = (initPrice * initColl) / parseUnits("1", 18);
+
 			setCollAmount(initColl);
 			setNewPrice(initPrice);
 			setMintPrice(initPrice);
@@ -166,7 +166,7 @@ export default function PositionBorrow({}) {
 		(BigInt(position.reserveContribution) * availableAmount) / 1_000_000n -
 		(feePercent * availableAmount) / 1_000_000n;
 	const paidOutToWalletPct = (parseInt(paidOutToWallet.toString()) * 100) / parseInt(amount.toString());
-	const availableByCollateralPrice = (collAmount * parseUnits(String(mintPrice), 36 - position.collateralDecimals)) / BigInt(1e18);
+	const availableByCollateralPrice = (collAmount * mintPrice) / parseUnits("1", 18);
 	const borrowingLimit = min(availableAmount, availableByCollateralPrice);
 
 	const errorBorrow =
@@ -176,33 +176,22 @@ export default function PositionBorrow({}) {
 			? "Mint amount exceeds your collateral's value at the price"
 			: "";
 
-	const onMaxReceive = () => {
-		const collNeeded = BigInt(
-			Math.ceil((parseFloat(formatUnits(availableAmount, 18)) / mintPrice) * 10 ** position.collateralDecimals)
-		);
-		setCollAmount(collNeeded);
-		setAmount(availableAmount);
-	};
-
 	const onChangeCollateral = (value: string) => {
 		const collBigInt = BigInt(value);
 		setCollAmount(collBigInt);
-		// const newAmount = BigInt(Math.floor(parseFloat(formatUnits(collBigInt, position.collateralDecimals)) * mintPrice * 1e18));
-		// setAmount(newAmount);
 	};
 
 	const onChangeAmount = (value: string) => {
 		const amountBigInt = BigInt(value);
-		// const newAmount = (amountBigInt * BigInt(100 - position.reserveContribution / 10000)) / 100n;
 		setAmount(amountBigInt);
 	};
 
-	const onChangeLiqPrice = (v: number) => {
+	const onChangeLiqPrice = (v: bigint) => {
 		setNewPrice(v);
-		if (v <= price) {
+		if (v <= BigInt(position.price)) {
 			setMintPrice(v);
 		} else {
-			setMintPrice(price);
+			setMintPrice(BigInt(position.price));
 		}
 	};
 
@@ -218,10 +207,6 @@ export default function PositionBorrow({}) {
 			setErrorDate("");
 		}
 		setExpirationDate(value);
-	};
-
-	const onMaxExpiration = () => {
-		setExpirationDate(expirationMax);
 	};
 
 	const onTabExpiration = (t: string) => {
@@ -276,23 +261,20 @@ export default function PositionBorrow({}) {
 							<LiquidationSlider
 								label="Liquidation Price"
 								value={newPrice}
-								sliderMin={collateralPriceZchf * 0.1}
-								sliderMax={collateralPriceZchf}
-								sliderSource={price}
-								min={
-									collAmount > 0n
-										? formatFloat(amount, 18) / formatFloat(collAmount, position.collateralDecimals)
-										: undefined
-								}
-								max={collateralPriceZchf}
-								reset={price}
+								digit={36 - position.collateralDecimals}
+								sliderMin={parseUnits(String(collateralPriceZchf * 0.1), 36 - position.collateralDecimals)}
+								sliderMax={parseUnits(String(collateralPriceZchf), 36 - position.collateralDecimals)}
+								sliderSource={BigInt(position.price)}
+								min={collAmount > 0n ? (amount * parseUnits("1", 18)) / collAmount : undefined}
+								max={parseUnits(String(collateralPriceZchf), 36 - position.collateralDecimals)}
+								reset={BigInt(position.price)}
 								onChange={onChangeLiqPrice}
 								limit={parseUnits(String(collateralPriceZchf), 18)}
 								limitDigit={18}
 								limitLabel="Market"
-								error={newPrice == 0 ? "Needs to be greater then zero" : ""}
+								error={newPrice == 0n ? "Needs to be greater then zero" : ""}
 								warning={
-									newPrice > price
+									newPrice > BigInt(position.price)
 										? "Liquidation prices above the reference become effective after a 3-day cooldown."
 										: undefined
 								}
@@ -335,8 +317,6 @@ export default function PositionBorrow({}) {
 								</div>
 							</div>
 
-							{/* <div className="mt-1 bg-card-input-empty w-full h-[1px]"></div> */}
-
 							<div className="mt-2 flex">
 								<div className="flex-1 text-text-secondary">
 									<span>To Repay</span>
@@ -365,8 +345,6 @@ export default function PositionBorrow({}) {
 								</div>
 							</div>
 
-							{/* <div className="mt-1 bg-card-input-empty w-full h-[1px]"></div> */}
-
 							<div className="mt-2 flex font-extrabold">
 								<div className="flex-1 text-text-secondary">
 									<span>Sent to your wallet</span>
@@ -378,7 +356,7 @@ export default function PositionBorrow({}) {
 						</div>
 
 						<div className="mx-auto w-full flex-col">
-							{position.version == 2 && newPrice !== price ? (
+							{position.version == 2 && newPrice !== BigInt(position.price) ? (
 								<BorrowClonePriceAction
 									position={position}
 									collAmount={collAmount}
