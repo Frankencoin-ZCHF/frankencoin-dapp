@@ -96,6 +96,7 @@ export function downloadCalendarFile(content: string, filename: string = "franke
 	document.body.removeChild(link);
 
 	URL.revokeObjectURL(url);
+	
 }
 
 /**
