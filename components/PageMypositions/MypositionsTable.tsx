@@ -10,9 +10,9 @@ import { useAccount } from "wagmi";
 import MypositionsRow from "./MypositionsRow";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { generateExpirationCalendar, downloadCalendarFile } from "../../utils/calendarGenerator";
+import { generateExpirationCalendar, downloadCalendarFile, generateGoogleCalendarUrl } from "../../utils/calendarGenerator";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
+import { faCalendarDays, faCalendarPlus } from "@fortawesome/free-solid-svg-icons";
 
 export default function MypositionsTable() {
 	const headers: string[] = ["Collateral", "Liquidation Price", "Minted", "State"];
@@ -80,9 +80,15 @@ export default function MypositionsTable() {
 
 	const handleDownloadCalendar = () => {
 		if (list.length === 0) return;
+		downloadCalendarFile(generateExpirationCalendar(list, account));
+	};
 
-		const calendarContent = generateExpirationCalendar(list, account);
-		downloadCalendarFile(calendarContent);
+	const handleGoogleCalendar = () => {
+		const activePositions = list.filter((p) => !p.closed && !p.denied);
+		if (activePositions.length === 0) return;
+		// Pick the position with the soonest expiration
+		const soonest = activePositions.slice().sort((a, b) => a.expiration - b.expiration)[0];
+		window.open(generateGoogleCalendarUrl(soonest), "_blank");
 	};
 
 	return (
@@ -107,14 +113,22 @@ export default function MypositionsTable() {
 				</TableBody>
 			</Table>
 			{list.length > 0 && (
-				<div className="mb-4 flex justify-end">
+				<div className="mb-4 flex justify-end gap-2">
+					<button
+						onClick={handleGoogleCalendar}
+						className="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-700 transition-colors"
+						title="Add expiration reminder to Google Calendar"
+					>
+						<FontAwesomeIcon icon={faCalendarPlus} className="mr-2" />
+						Add to Google Calendar
+					</button>
 					<button
 						onClick={handleDownloadCalendar}
 						className="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-700 transition-colors"
 						title="Download expiration alerts calendar"
 					>
 						<FontAwesomeIcon icon={faCalendarDays} className="mr-2" />
-						Download Expiration Calendar
+						Download Calendar
 					</button>
 				</div>
 			)}
