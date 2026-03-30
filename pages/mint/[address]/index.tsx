@@ -1,38 +1,34 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { formatUnits, maxUint256, erc20Abi, Hash, zeroHash, parseEther, decodeEventLog, parseUnits } from "viem";
+import { formatUnits, parseUnits, erc20Abi } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useState } from "react";
-import Button from "@components/Button";
 import ButtonSecondary from "@components/ButtonSecondary";
 import { useAccount, useBlockNumber } from "wagmi";
-import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { readContract } from "wagmi/actions";
 import { Address } from "viem";
-import { formatBigInt, formatCurrency, formatDateFromSecs, formatFloat, min, shortenAddress, toTimestamp } from "@utils";
-import { toast } from "react-toastify";
-import { TxToast, renderErrorTxToast } from "@components/TxToast";
+import { formatCurrency, formatDateFromSecs, formatFloat, min, shortenAddress, toTimestamp } from "@utils";
 import DateInput from "@components/Input/DateInput";
 import { WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
-import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
+import { ADDRESS } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
 import { useRouter as useNavigation } from "next/navigation";
 import { mainnet } from "viem/chains";
-import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import AppCard from "@components/AppCard";
 import AppTitle from "@components/AppTitle";
 import LiquidationSlider from "@components/Input/LiquidationSlider";
 import { useBorrowPositions } from "../../../hooks/useBorrowPositions";
+import BorrowCloneAction from "@components/PageBorrow/BorrowCloneAction";
+import BorrowClonePriceAction from "@components/PageBorrow/BorrowClonePriceAction";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
 	const [error, setError] = useState("");
 	const [errorDate, setErrorDate] = useState("");
 	const [isInit, setInit] = useState<boolean>(false);
-	const [isApproving, setApproving] = useState(false);
-	const [isCloning, setCloning] = useState(false);
 	const [expirationDate, setExpirationDate] = useState<Date>(new Date(0));
 	const [expirationTab, setExpirationTab] = useState<string>("Max");
 
@@ -41,6 +37,7 @@ export default function PositionBorrow({}) {
 	const [mintPrice, setMintPrice] = useState(0);
 
 	const [userAllowance, setUserAllowance] = useState(0n);
+	const [userAllowanceHelper, setUserAllowanceHelper] = useState(0n);
 	const [userBalance, setUserBalance] = useState(0n);
 
 	const { data } = useBlockNumber({ watch: true });
@@ -102,6 +99,17 @@ export default function PositionBorrow({}) {
 				args: [acc, position.version == 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2],
 			});
 			setUserAllowance(_allowance);
+
+			if (position.version == 2) {
+				const _allowanceHelper = await readContract(WAGMI_CONFIG, {
+					address: position.collateral,
+					chainId,
+					abi: erc20Abi,
+					functionName: "allowance",
+					args: [acc, ADDRESS[chainId].cloneHelper],
+				});
+				setUserAllowanceHelper(_allowanceHelper);
+			}
 		};
 
 		fetchAsync();
@@ -192,6 +200,8 @@ export default function PositionBorrow({}) {
 		setNewPrice(v);
 		if (v <= price) {
 			setMintPrice(v);
+		} else {
+			setMintPrice(price);
 		}
 	};
 
@@ -217,128 +227,6 @@ export default function PositionBorrow({}) {
 		const date = expirationTabDates[t] ?? expirationMax;
 		setExpirationTab(t);
 		onChangeExpiration(date);
-	};
-
-	const handleApprove = async () => {
-		try {
-			setApproving(true);
-
-			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: position.collateral as Address,
-				abi: erc20Abi,
-				functionName: "approve",
-				args: [position.version == 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2, maxUint256],
-			});
-
-			const toastContent = [
-				{
-					title: "Amount:",
-					value: "infinite " + position.collateralSymbol,
-				},
-				{
-					title: "Spender: ",
-					value: shortenAddress(ADDRESS[chainId].mintingHubV1),
-				},
-				{
-					title: "Transaction:",
-					hash: approveWriteHash,
-				},
-			];
-
-			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
-				pending: {
-					render: <TxToast title={`Approving ${position.collateralSymbol}`} rows={toastContent} />,
-				},
-				success: {
-					render: <TxToast title={`Successfully Approved ${position.collateralSymbol}`} rows={toastContent} />,
-				},
-			});
-		} catch (error) {
-			toast.error(renderErrorTxToast(error));
-		} finally {
-			setApproving(false);
-		}
-	};
-
-	const handleClone = async () => {
-		try {
-			setCloning(true);
-			const expirationTime = toTimestamp(expirationDate);
-			let cloneWriteHash: Hash = zeroHash;
-
-			if (position.version == 1) {
-				cloneWriteHash = await writeContract(WAGMI_CONFIG, {
-					address: ADDRESS[chainId].mintingHubV1,
-					chainId,
-					abi: MintingHubV1ABI,
-					functionName: "clone",
-					args: [position.position, requiredColl, amount, BigInt(expirationTime)],
-				});
-			} else if (position.version == 2) {
-				cloneWriteHash = await writeContract(WAGMI_CONFIG, {
-					address: ADDRESS[chainId].mintingHubV2,
-					chainId,
-					abi: MintingHubV2ABI,
-					functionName: "clone",
-					args: [position.position, requiredColl, amount, expirationTime],
-				});
-			}
-
-			const toastContent = [
-				{
-					title: `Amount: `,
-					value: formatBigInt(amount) + " ZCHF",
-				},
-				{
-					title: `Collateral: `,
-					value: formatBigInt(requiredColl, position.collateralDecimals) + " " + position.collateralSymbol,
-				},
-				{
-					title: "Transaction:",
-					hash: cloneWriteHash,
-				},
-			];
-
-			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: cloneWriteHash, confirmations: 1 }), {
-				pending: {
-					render: <TxToast title={`Minting ZCHF`} rows={toastContent} />,
-				},
-				success: {
-					render: <TxToast title="Successfully Minted ZCHF" rows={toastContent} />,
-				},
-			});
-
-			const receipt = await waitForTransactionReceipt(WAGMI_CONFIG, {
-				chainId,
-				hash: cloneWriteHash,
-				confirmations: 1,
-			});
-
-			const targetEvents = receipt.logs
-				.map((log) => {
-					try {
-						// Try to decode each log using your ABI
-						return decodeEventLog({
-							abi: position.version == 1 ? MintingHubV1ABI : MintingHubV2ABI,
-							data: log.data,
-							topics: log.topics,
-						});
-					} catch (error) {
-						// If decoding fails, it's not an event from your contract
-						return null;
-					}
-				})
-				.filter((event) => event !== null && event.eventName === "PositionOpened");
-
-			if (targetEvents.length > 0) {
-				const position = targetEvents[0].args.position;
-				navigate.push(`/mypositions/${position}`);
-			}
-		} catch (error) {
-			toast.error(renderErrorTxToast(error));
-		} finally {
-			setCloning(false);
-		}
 	};
 
 	return (
@@ -401,6 +289,7 @@ export default function PositionBorrow({}) {
 								limit={parseUnits(String(collateralPriceZchf), 18)}
 								limitDigit={18}
 								limitLabel="Market"
+								error={newPrice == 0 ? "Needs to be greater then zero" : ""}
 								warning={
 									newPrice > price
 										? "Liquidation prices above the reference become effective after a 3-day cooldown."
@@ -488,25 +377,30 @@ export default function PositionBorrow({}) {
 						</div>
 
 						<div className="mx-auto w-full flex-col">
-							<GuardSupportedChain chain={mainnet}>
-								{requiredColl > userAllowance ? (
-									<Button
-										disabled={requiredColl > userBalance || !!errorColl}
-										isLoading={isApproving}
-										onClick={() => handleApprove()}
-									>
-										Approve
-									</Button>
-								) : (
-									<Button
-										disabled={requiredColl > userBalance || !!error}
-										isLoading={isCloning}
-										onClick={() => handleClone()}
-									>
-										Borrow
-									</Button>
-								)}
-							</GuardSupportedChain>
+							{position.version == 2 && newPrice !== price ? (
+								<BorrowClonePriceAction
+									position={position}
+									collAmount={collAmount}
+									requiredColl={requiredColl}
+									amount={amount}
+									expirationDate={expirationDate}
+									newPrice={newPrice}
+									userAllowance={userAllowanceHelper}
+									userBalance={userBalance}
+									disabled={!!errorColl || !!errorBorrow}
+								/>
+							) : (
+								<BorrowCloneAction
+									position={position}
+									collAmount={collAmount}
+									requiredColl={requiredColl}
+									amount={amount}
+									expirationDate={expirationDate}
+									userAllowance={userAllowance}
+									userBalance={userBalance}
+									disabled={!!errorColl || !!errorBorrow}
+								/>
+							)}
 						</div>
 					</AppCard>
 
