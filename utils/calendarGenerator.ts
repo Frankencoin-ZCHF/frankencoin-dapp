@@ -43,7 +43,7 @@ export function generateExpirationCalendar(positions: PositionQuery[], ownerAddr
 			`DTSTART:${formatDateForICS(expirationDate)}`,
 			`DTEND:${formatDateForICS(new Date(expirationDate.getTime() + 60 * 60 * 1000))}`,
 			`SUMMARY:🔔 ${position.collateralSymbol} position expires`,
-			`DESCRIPTION:One of your Frankencoin positions is expiring. Please renew or close it before it is too late.\\n\\n` +
+			`DESCRIPTION:Expiration of a ${position.collateralSymbol} position.\\n\\n` +
 				`Position: ${position.position}\\n` +
 				`Collateral: ${collateralAmount} ${position.collateralSymbol}\\n` +
 				`Debt: ${debt} ZCHF\\n` +
@@ -123,7 +123,7 @@ export function generateGoogleCalendarUrl(position: PositionQuery): string {
 		action: "TEMPLATE",
 		text: `🔔 ${position.collateralSymbol} position expires`,
 		dates: `${formatDateForICS(expirationDate)}/${formatDateForICS(endDate)}`,
-		details,
+		details: `One of your <a href="https://app.frankencoin.com/mypositions/${position.position}"> ${position.collateralSymbol} positions</a> in the Frankencoin system expires.`,
 	});
 
 	return `https://calendar.google.com/calendar/render?${params.toString()}`;
