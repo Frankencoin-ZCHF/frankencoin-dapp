@@ -33,8 +33,9 @@ export default function SavingsPage() {
 	const queryChain: string = String(router.query.chain).toLowerCase();
 	const [targetChainName, setTargetChainName] = useState("");
 
+	const totalBalance = useSelector((state: RootState) => state.savings.savingsInfo.totalBalance);
 	const savingsAddress = normalizeAddress(ADDRESS[mainnet.id].savingsReferral);
-	const saveRate = status[mainnet.id][savingsAddress].rate / 10000;
+	const saveRate = (status[mainnet.id]?.[savingsAddress]?.rate ?? 0) / 10000;
 
 	useEffect(() => {
 		store.dispatch(fetchLeadrate());
@@ -69,7 +70,8 @@ export default function SavingsPage() {
 
 			<AppTitle title={`Earn`}>
 				<div className={`text-text-secondary`}>
-					Earn interest on your Frankencoins — now available across multiple chains. View and manage your account here.
+					Earn interest on your Frankencoins - supported on all eight chains. Already more than {" "}
+					{Math.floor(totalBalance / 1000000)} million ZCHF saved.
 				</div>
 			</AppTitle>
 
@@ -77,18 +79,18 @@ export default function SavingsPage() {
 				steps={[
 					{
 						icon: 1,
-						title: "Deposit ZCHF",
-						description: "Send your Frankencoins into the savings module on any supported chain.",
+						title: "Deposit Frankencoins",
+						description: "Your Frankencoins stay in the savings module.",
 					},
 					{
 						icon: 2,
-						title: `Earn ${formatCurrency(saveRate)}% interest`,
-						description: "Your balance accrues interest automatically based on the current lead rate.",
+						title: `${formatCurrency(saveRate)}% interest`,
+						description: "Interest accrues as time passes.",
 					},
 					{
 						icon: 3,
 						title: "Withdraw anytime",
-						description: "Redeem your ZCHF plus earned interest whenever you want — no lock-up period.",
+						description: "Withdraw your balance at any time.",
 					},
 				]}
 			/>
