@@ -10,7 +10,6 @@ import { RootState } from "../../redux/redux.store";
 import { formatUnits, parseEther } from "viem";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import { mainnet } from "viem/chains";
-import AppCard from "@components/AppCard";
 import { TabInput } from "@components/Input/TabInput";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -57,7 +56,7 @@ export default function EquityFPSDetailsCard() {
 	const returnOnEquity = equityAvg > 0n ? (((netIncome * parseEther("1")) / equityAvg) * oneYearMs) / timestampDiff : 0n;
 
 	return (
-		<AppCard>
+		<div className="bg-card-body-primary rounded-lg p-4 grid grid-cols-1 gap-2">
 			<div id="chart-timeline">
 				<TabInput tabs={TypeCharts} tab={typechart} setTab={setTypechart} />
 
@@ -187,7 +186,7 @@ export default function EquityFPSDetailsCard() {
 				<TabInput tabs={Timeframes} tab={timeframe} setTab={setTimeframe} />
 			</div>
 
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-auto">
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
 					<DisplayLabel label="FPS Price" />
 					<DisplayAmount amount={poolStats.equityPrice} currency="ZCHF" address={ADDRESS[chainId].frankencoin} />
@@ -217,6 +216,6 @@ export default function EquityFPSDetailsCard() {
 					<DisplayOutputAlignedRight amount={returnOnEquity * 100n} unit="%" />
 				</AppBox>
 			</div>
-		</AppCard>
+		</div>
 	);
 }
