@@ -70,7 +70,12 @@ export default function LiquidationSlider({
 				{/* Slider area */}
 				<div className="relative" style={{ paddingTop: "0.5rem", paddingBottom: "0.5rem" }}>
 					{/* Source marker label above track */}
-					<div className="absolute -top-1 text-xs font-bold text-orange-400 -translate-x-1/2" style={{ left: `${sourcePct}%` }}>
+					<div
+						className={`absolute -top-1 text-xs font-bold -translate-x-1/2 ${
+							sourcePct < 38 ? "text-green-500" : "text-orange-400"
+						}`}
+						style={{ left: `${sourcePct}%` }}
+					>
 						Reference
 					</div>
 
