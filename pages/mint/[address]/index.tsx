@@ -164,6 +164,9 @@ export default function PositionBorrow({}) {
 			? "Mint amount exceeds your collateral's value at the price"
 			: "";
 
+	const now = Date.now();
+	const isPositionBlocked = position.start * 1000 > now || (position.start * 1000 < now && position.cooldown > now);
+
 	const collKey = position.collateral.toLowerCase() as Address;
 	const bestRatePos = bestInterestByCollateral[collKey];
 	const posEffectiveRate = position.annualInterestPPM / (1_000_000 - position.reserveContribution);
@@ -410,7 +413,7 @@ export default function PositionBorrow({}) {
 									newPrice={newPrice}
 									userAllowance={userAllowanceHelper}
 									userBalance={userBalance}
-									disabled={!!errorColl || !!errorBorrow}
+									disabled={!!errorColl || !!errorBorrow || isPositionBlocked}
 								/>
 							) : (
 								<BorrowCloneAction
@@ -421,10 +424,18 @@ export default function PositionBorrow({}) {
 									expirationDate={expirationDate}
 									userAllowance={userAllowance}
 									userBalance={userBalance}
-									disabled={!!errorColl || !!errorBorrow}
+									disabled={!!errorColl || !!errorBorrow || isPositionBlocked}
 								/>
 							)}
 						</div>
+
+						{isPositionBlocked && (
+							<div className="flex my-2 px-2 text-amber-500">
+								{position.start * 1000 > now
+									? "This position is pending governance approval."
+									: "This position is in a cooldown period."}
+							</div>
+						)}
 					</AppCard>
 
 					<div className="grid gap-4">
