@@ -41,7 +41,7 @@ export default function ChallengePlaceBid() {
 	const indexQuery: string = router.query.index as string;
 
 	const challenges = useSelector((state: RootState) => state.challenges.list.list);
-	const positions = useSelector((state: RootState) => state.positions.openPositions);
+	const positions = useSelector((state: RootState) => state.positions.list.list);
 
 	const challenge = challenges.find((c) => c.position == (addressQuery ?? zeroAddress) && String(c.number) == indexQuery);
 	const position = positions.find((p) => p.position.toLowerCase() == challenge?.position);
