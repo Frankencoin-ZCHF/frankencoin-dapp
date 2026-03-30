@@ -4,13 +4,12 @@ import DisplayLabel from "@components/DisplayLabel";
 import { usePoolStats } from "@hooks";
 import dynamic from "next/dynamic";
 import { ADDRESS } from "@frankencoin/zchf";
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { formatUnits, parseEther } from "viem";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import { mainnet } from "viem/chains";
-import AppCard from "@components/AppCard";
 import { TabInput } from "@components/Input/TabInput";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -57,9 +56,7 @@ export default function EquityFPSDetailsCard() {
 	const returnOnEquity = equityAvg > 0n ? (((netIncome * parseEther("1")) / equityAvg) * oneYearMs) / timestampDiff : 0n;
 
 	return (
-		<AppCard>
-			<div className="mt-4 text-lg font-bold text-center">FPS & ZCHF Analytics</div>
-
+		<div className="bg-card-body-primary rounded-lg p-4 grid grid-cols-1 gap-2">
 			<div id="chart-timeline">
 				<TabInput tabs={TypeCharts} tab={typechart} setTab={setTypechart} />
 
@@ -67,11 +64,10 @@ export default function EquityFPSDetailsCard() {
 					<ApexChart
 						type="area"
 						options={{
-							colors: typechart == TypeCharts[0] || typechart == TypeCharts[2] ? ["#092f62", "#9ca3af"] : ["#092f62"],
 							theme: {
 								monochrome: {
 									color: "#092f62",
-									enabled: false,
+									enabled: true,
 								},
 							},
 							chart: {
@@ -150,41 +146,35 @@ export default function EquityFPSDetailsCard() {
 								name: typechart,
 								data:
 									typechart == TypeCharts[2]
-										? matchingSupply.map((entry) => {
+										? // @dev: this is multichain timestamp indexed frankencoin supply
+										  matchingSupply.map((entry) => {
 												return [parseFloat(String(entry.created)) * 1000, entry.supply];
 										  })
-										: typechart == TypeCharts[1]
-										? matchingLogs.map((entry) => [
-												parseFloat(entry.timestamp),
-												Math.round(parseFloat(formatUnits(entry.fpsTotalSupply, 16))) / 100,
-										  ])
-										: matchingLogs.map((entry) => [
-												parseFloat(entry.timestamp),
-												Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100,
-										  ]),
+										: matchingLogs.map((entry) => {
+												if (typechart == TypeCharts[0]) {
+													return [
+														parseFloat(entry.timestamp),
+														Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100,
+													];
+												} else if (typechart == TypeCharts[1]) {
+													return [
+														parseFloat(entry.timestamp),
+														Math.round(parseFloat(formatUnits(entry.fpsTotalSupply, 16))) / 100,
+													];
+													// @dev: this is just mainnet frankencoin supply data
+													// } else if (typechart == TypeCharts[2]) {
+													// 	return [
+													// 		parseFloat(entry.timestamp),
+													// 		Math.round(parseFloat(formatUnits(entry.totalSupply, 16))) / 100,
+													// 	];
+												} else {
+													return [
+														parseFloat(entry.timestamp),
+														Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100,
+													];
+												}
+										  }),
 							},
-							...(typechart == TypeCharts[0]
-								? [
-										{
-											name: "Earning-implied Value",
-											data: matchingLogs.map((entry) => [
-												parseFloat(entry.timestamp),
-												Math.round(parseFloat(formatUnits(BigInt(entry.earningsPerFPS) * 3n, 16))) / 100,
-											]),
-										},
-								  ]
-								: []),
-							...(typechart == TypeCharts[2]
-								? [
-										{
-											name: "ZCHF Equity",
-											data: matchingLogs.map((entry) => [
-												parseFloat(entry.timestamp),
-												Math.round(parseFloat(formatUnits(entry.totalEquity, 16))) / 100,
-											]),
-										},
-								  ]
-								: []),
 						]}
 					/>
 				</div>
@@ -196,7 +186,7 @@ export default function EquityFPSDetailsCard() {
 				<TabInput tabs={Timeframes} tab={timeframe} setTab={setTimeframe} />
 			</div>
 
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-auto">
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 				<AppBox>
 					<DisplayLabel label="FPS Price" />
 					<DisplayAmount amount={poolStats.equityPrice} currency="ZCHF" address={ADDRESS[chainId].frankencoin} />
@@ -226,6 +216,6 @@ export default function EquityFPSDetailsCard() {
 					<DisplayOutputAlignedRight amount={returnOnEquity * 100n} unit="%" />
 				</AppBox>
 			</div>
-		</AppCard>
+		</div>
 	);
 }
