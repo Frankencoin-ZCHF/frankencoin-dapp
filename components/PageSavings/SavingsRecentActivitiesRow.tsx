@@ -21,13 +21,6 @@ export default function SavingsRecentActivitiesRow({ headers, tab, item }: Props
 					<AppLink className="" label={dateStr} href={TxUrl(item.txHash as Hash, getChain(item.chainId))} external={true} />
 				</div>
 
-				<AppLink
-					className=""
-					label={shortenAddress(item.account)}
-					href={ContractUrl(item.account, getChain(item.chainId))}
-					external={true}
-				/>
-
 				<div className="flex flex-col">{item.kind == "InterestCollected" ? "Interest Collected" : item.kind}</div>
 
 				<div className="flex flex-col">{formatCurrency(formatUnits(BigInt(item.amount), 18))} ZCHF</div>

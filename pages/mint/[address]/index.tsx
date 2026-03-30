@@ -20,6 +20,7 @@ import AppLink from "@components/AppLink";
 import { useRouter as useNavigation } from "next/navigation";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import AppCard from "@components/AppCard";
 
 export default function PositionBorrow({}) {
 	const [amount, setAmount] = useState(0n);
@@ -289,23 +290,23 @@ export default function PositionBorrow({}) {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Mint</title>
+				<title>Frankencoin - Borrow</title>
 			</Head>
 
 			<div className="mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
-						<div className="text-lg font-bold text-center mt-3">Mint Fresh Frankencoins</div>
+					<AppCard>
+						<div className="text-lg font-bold text-center mt-3">Borrow Fresh Frankencoins</div>
 						<div className="space-y-8">
 							<TokenInput
-								label="Mint Amount"
+								label="Borrow Amount"
 								balanceLabel="Limit:"
 								symbol="ZCHF"
 								min={(BigInt(position.minimumCollateral) * BigInt(position.price)) / parseEther("1")}
 								max={availableAmount}
 								value={amount.toString()}
 								onChange={onChangeAmount}
-								placeholder="Amount to be minted"
+								placeholder="Amount to be borrowed"
 								error={error}
 								limit={availableAmount}
 								limitDigit={18}
@@ -354,15 +355,16 @@ export default function PositionBorrow({}) {
 										isLoading={isCloning}
 										onClick={() => handleClone()}
 									>
-										Mint
+										Borrow
 									</Button>
 								)}
 							</GuardSupportedChain>
 						</div>
-					</div>
-					<div>
-						<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col">
-							<div className="text-lg font-bold text-center mt-3">Mint Outcome</div>
+					</AppCard>
+
+					<div className="grid gap-4">
+						<AppCard>
+							<div className="text-lg font-bold text-center mt-3">Borrow Outcome</div>
 							<div className="flex-1 mt-4">
 								<div className="flex">
 									<div className="flex-1 text-text-secondary">
@@ -407,12 +409,13 @@ export default function PositionBorrow({}) {
 									</div>
 								</div>
 							</div>
-						</div>
-						<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col mt-4">
+						</AppCard>
+
+						<AppCard>
 							<div className="text-lg font-bold text-center mt-3">Notes</div>
 							<div className="flex-1 mt-4">
 								<div className="mt-2 flex">
-									<div className="flex-1 text-text-secondary">Available to Mint</div>
+									<div className="flex-1 text-text-secondary">Available to Borrow</div>
 									<div className="">{formatCurrency(formatUnits(availableAmount, 18))} ZCHF</div>
 								</div>
 
@@ -464,7 +467,7 @@ export default function PositionBorrow({}) {
 									long as it covers the minted amount. No interest will be refunded when repaying earlier.
 								</p>
 							</div>
-						</div>
+						</AppCard>
 					</div>
 				</section>
 			</div>

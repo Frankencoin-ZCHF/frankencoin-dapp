@@ -21,6 +21,7 @@ import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import AppLink from "@components/AppLink";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import AppCard from "@components/AppCard";
 
 export default function ChallengePlaceBid() {
 	const [isInit, setInit] = useState(false);
@@ -93,6 +94,23 @@ export default function ChallengePlaceBid() {
 		}
 	}, [isNavigating, navigate, position]);
 
+	// Validate after data is fetched
+	useEffect(() => {
+		if (!isInit) return;
+		if (!challenge || !position) return;
+
+		const remaining = BigInt(challenge.size) - BigInt(challenge.filledSize);
+		const expected = (BigInt(amount) * auctionPrice) / parseEther("1");
+
+		if (expected > userBalance) {
+			setError("Not enough ZCHF in your wallet to cover the expected costs.");
+		} else if (amount > remaining) {
+			setError("Expected winning collateral should be lower than remaining collateral.");
+		} else {
+			setError("");
+		}
+	}, [isInit, amount, auctionPrice, userBalance, challenge, position]);
+
 	if (!challenge) return null;
 	if (!position) return null;
 
@@ -114,11 +132,12 @@ export default function ChallengePlaceBid() {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
 
-		if (expectedZCHF > userBalance) {
+		const newExpectedZCHF = (BigInt(valueBigInt) * auctionPrice) / parseEther("1");
+		if (newExpectedZCHF > userBalance) {
 			setError("Not enough ZCHF in your wallet to cover the expected costs.");
-		} else if (valueBigInt > remainingSize) {
+		} else if (amount > remainingSize) {
 			setError("Expected winning collateral should be lower than remaining collateral.");
-		} else {
+		} else if (error.length > 0) {
 			setError("");
 		}
 	};
@@ -174,7 +193,7 @@ export default function ChallengePlaceBid() {
 
 			<div className="md:mt-8">
 				<section className="mx-auto max-w-2xl sm:px-8">
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					<AppCard>
 						<div className="text-lg font-bold text-center mt-3">Buy {position.collateralSymbol} in Auction</div>
 
 						<div className="">
@@ -272,7 +291,7 @@ export default function ChallengePlaceBid() {
 								</Button>
 							</GuardSupportedChain>
 						</div>
-					</div>
+					</AppCard>
 				</section>
 			</div>
 		</>

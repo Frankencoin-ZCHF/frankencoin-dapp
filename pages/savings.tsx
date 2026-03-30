@@ -8,16 +8,19 @@ import { useAccount, useChainId } from "wagmi";
 import AppTitle from "@components/AppTitle";
 import SavingsRankedBalancesTable from "@components/PageSavings/SavingsRankedBalancesTable";
 import AppLink from "@components/AppLink";
+import AppHeroSteps from "@components/AppHeroSteps";
 import SavingsRecentActivitiesTable from "@components/PageSavings/SavingsRecentActivitiesTable";
 import { useRouter } from "next/router";
 import { Address, isAddress, zeroAddress } from "viem";
 import ReportsYearlyTable from "@components/PageReports/ReportsSavingsYearlyTable";
 import { useSelector } from "react-redux";
-import { getChainByName } from "@utils";
+import { formatCurrency, getChainByName, normalizeAddress } from "@utils";
 import { useAppKitNetwork } from "@reown/appkit/react";
-import { ChainId } from "@frankencoin/zchf";
+import { ADDRESS, ChainId } from "@frankencoin/zchf";
+import { mainnet } from "viem/chains";
 
 export default function SavingsPage() {
+	const { status } = useSelector((state: RootState) => state.savings.savingsInfo);
 	const activities = useSelector((state: RootState) => state.savings.savingsActivity);
 	const { address } = useAccount();
 	const router = useRouter();
@@ -29,6 +32,10 @@ export default function SavingsPage() {
 
 	const queryChain: string = String(router.query.chain).toLowerCase();
 	const [targetChainName, setTargetChainName] = useState("");
+
+	const totalBalance = useSelector((state: RootState) => state.savings.savingsInfo.totalBalance);
+	const savingsAddress = normalizeAddress(ADDRESS[mainnet.id].savingsReferral);
+	const saveRate = (status[mainnet.id]?.[savingsAddress]?.rate ?? 0) / 10000;
 
 	useEffect(() => {
 		store.dispatch(fetchLeadrate());
@@ -58,18 +65,35 @@ export default function SavingsPage() {
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Savings</title>
+				<title>Frankencoin - Earn</title>
 			</Head>
 
-			<AppTitle title={`Savings`}>
+			<AppTitle title={`Earn`}>
 				<div className={`text-text-secondary`}>
-					Earn interest on your Frankencoins - now available across multiple chains. View and manage your account here. Get a
-					glance over the latest changes via the{" "}
-					<AppLink className="" label="transaction logs." href={"/monitoring/logs?kind=Savings"} external={false} />
+					Earn interest on your Frankencoins - supported on all eight chains. Already more than {" "}
+					{Math.floor(totalBalance / 1000000)} million ZCHF saved.
 				</div>
 			</AppTitle>
 
-			<SavingsGlobalCard />
+			<AppHeroSteps
+				steps={[
+					{
+						icon: 1,
+						title: "Deposit Frankencoins",
+						description: "Your Frankencoins stay in the savings module.",
+					},
+					{
+						icon: 2,
+						title: `${formatCurrency(saveRate)}% interest`,
+						description: "Interest accrues as time passes.",
+					},
+					{
+						icon: 3,
+						title: "Withdraw anytime",
+						description: "Withdraw your balance at any time.",
+					},
+				]}
+			/>
 
 			<SavingsInteractionCard />
 
@@ -92,13 +116,9 @@ export default function SavingsPage() {
 			</AppTitle>
 			<ReportsYearlyTable activity={account == undefined || account == zeroAddress ? [] : activities} />
 
-			<AppTitle title={account == undefined || account == zeroAddress ? "Recent Activities" : "Your latest Activities"} />
+			<AppTitle title={"Your latest Activities"} />
 
 			<SavingsRecentActivitiesTable />
-
-			<AppTitle title="Top Saver's Accounts" />
-
-			<SavingsRankedBalancesTable />
 		</>
 	);
 }
