@@ -1226,6 +1226,14 @@
     ts-node "^10.9.1"
     typescript "^5.2.2"
 
+"@frankencoin/zchf@^0.3.21":
+  version "0.3.21"
+  resolved "https://registry.yarnpkg.com/@frankencoin/zchf/-/zchf-0.3.21.tgz#22efc655a51d9bc1f0356996b3a8233e11fdcaf0"
+  integrity sha512-U7FSpL2EUjF7PP+1B6q1QZK7uDifblBQERatmAOGp2M9Sbk1U3aQR7fXJQ7F/KV0I79o+dJZpyvwgzBu9MAUhQ==
+  dependencies:
+    ts-node "^10.9.1"
+    typescript "^5.2.2"
+
 "@graphql-typed-document-node/core@^3.1.1":
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.2.0.tgz#5f3d96ec6b2354ad6d8a28bf216a1d97b5426861"
