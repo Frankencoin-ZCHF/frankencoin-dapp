@@ -23,7 +23,7 @@ export default function MarketChart() {
 	const volumeList = toDailyValues(marketChart.total_volumes).filter((i) => i["0"] > timestamp);
 
 	return (
-		<div className="grid grid-cols-2 gap-4">
+		<div className="grid md:grid-cols-2 gap-4">
 			<AppCard>
 				<div className="mt-4 text-lg font-bold text-center">Exchange Rate</div>
 
