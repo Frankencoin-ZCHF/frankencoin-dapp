@@ -101,7 +101,7 @@ export default function TransferListTable() {
 	return (
 		<div className="grid gap-4">
 			<AppCard>
-				<div className="grid md:grid-cols-2 gap-4 -mb-4">
+				<div className="grid md:grid-cols-2 gap-4">
 					<AddressInput
 						label="Sender"
 						placeholder="Enter sender address here"

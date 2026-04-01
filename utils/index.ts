@@ -1,3 +1,4 @@
+export * from "./collateralCategories";
 export * from "./constant";
 export * from "./format-array";
 export * from "./format";

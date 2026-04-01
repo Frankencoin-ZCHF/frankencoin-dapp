@@ -5,15 +5,12 @@ import { useEffect } from "react";
 import { store } from "../../redux/redux.store";
 import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import AppTitle from "@components/AppTitle";
-import { fetchMorphoMarkets } from "../../redux/slices/morpho.slice";
-import BorrowMorphoTable from "@components/PageBorrow/BorrowMorphoTable";
-import AppLink from "@components/AppLink";
 import AppHeroSteps from "@components/AppHeroSteps";
+import ButtonSecondary from "@components/ButtonSecondary";
 
 export default function Borrow() {
 	useEffect(() => {
 		store.dispatch(fetchPositionsList());
-		store.dispatch(fetchMorphoMarkets());
 	}, []);
 
 	return (
@@ -52,21 +49,10 @@ export default function Borrow() {
 				<BorrowTable />
 			</div>
 
-			<div className="flex">
-				<Link href={"mint/create"} className="btn bg-layout-primary border-text-primary text-menu-text hover:bg-white m-auto">
-					Propose New Position or Collateral
+			<div className="flex items-center justify-center">
+				<Link href={"mint/create"}>
+					<ButtonSecondary>Propose New Position or Collateral</ButtonSecondary>
 				</Link>
-			</div>
-
-			<AppTitle title="Borrow on Morpho">
-				<div className="text-text-secondary">
-					Borrow Frankencoins (ZCHF) at variable rates on the lending platform{" "}
-					<AppLink href="https://morpho.org/" label="Morpho" className="" external={true} />.
-				</div>
-			</AppTitle>
-
-			<div className="mt-8">
-				<BorrowMorphoTable />
 			</div>
 		</>
 	);

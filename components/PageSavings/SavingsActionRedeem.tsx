@@ -93,7 +93,7 @@ export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 			<div className="flex-1 text-text-secondary">
 				You have unclaimed savings in an older Savings Module. Click here to claim your savings.
 			</div>
-			<div className="w-72 max-w-full">
+			<div className="w-full">
 				<GuardSupportedChain chain={mainnet}>
 					<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
 						Redeem from older Version

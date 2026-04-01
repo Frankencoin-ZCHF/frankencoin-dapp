@@ -43,12 +43,14 @@ export default function NormalInput({
 	return (
 		<div className="">
 			<div
-				className={`group border-card-input-border hover:border-card-input-hover focus-within:!border-card-input-focus ${
+				className={`group border-card-input-border ${
+					disabled ? "bg-card-input-disabled" : "hover:border-card-input-hover"
+				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
-				} text-text-secondary border-2 rounded-lg px-3 py-1 ${disabled ? "bg-card-input-disabled" : ""}`}
+				} text-text-secondary border-2 rounded-lg px-3 py-1`}
 				onClick={handleClick}
 			>
-				<div className="flex text-card-input-label py-1">{label}</div>
+				{label && <div className="flex text-card-input-label my-1">{label}</div>}
 
 				<div className="flex items-center gap-1">
 					<div
@@ -57,11 +59,11 @@ export default function NormalInput({
 						}`}
 					>
 						{output ? (
-							<div className={`text-xl py-0 bg-transparent`}>{output}</div>
+							<div className={`text-3xl py-0 bg-transparent`}>{output}</div>
 						) : (
 							<BigNumberInput
 								inputRefChild={inputRef}
-								className={`w-full px-0 py-0 text-xl text-right ${disabled ? "bg-card-input-disabled" : ""}`}
+								className={`w-full px-0 py-0 text-3xl text-right ${disabled ? "bg-card-input-disabled" : ""}`}
 								decimals={Number(digit)}
 								placeholder={placeholder}
 								value={value || ""}

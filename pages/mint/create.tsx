@@ -467,13 +467,14 @@ export default function PositionCreate({}) {
 						<AddressInput
 							label="Contract Address"
 							error={collTokenAddrError}
-							placeholder="0x..."
+							placeholder="Enter address here..."
 							value={collateralAddress}
 							onChange={onChangeCollateralAddress}
 							autoFocus={true}
 						/>
 						{collTokenData.symbol != "NaN" && initialCollAmount > userAllowance ? (
 							<Button
+								className="-mt-4"
 								isLoading={isConfirming == "approve"}
 								disabled={
 									collTokenData.symbol == "NaN" || (userAllowance > minCollAmount && userAllowance > initialCollAmount)

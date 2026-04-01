@@ -50,12 +50,14 @@ export default function AddressInputChain({
 	return (
 		<div className={className}>
 			<div
-				className={`group border-card-input-border hover:border-card-input-hover focus-within:!border-card-input-focus ${
+				className={`group border-card-input-border ${
+					disabled ? "bg-card-input-disabled" : "hover:border-card-input-hover"
+				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
-				} text-text-secondary border-2 rounded-lg px-3 py-1 ${disabled ? "bg-card-input-disabled" : ""}`}
+				} text-text-secondary border-2 rounded-lg px-3 py-1`}
 				onClick={handleClick}
 			>
-				<div className="flex text-card-input-label my-1">{label}</div>
+				{label && <div className="flex text-card-input-label my-1">{label}</div>}
 
 				<div className="grid md:grid-cols-6" onClick={(e) => e.stopPropagation()}>
 					<input

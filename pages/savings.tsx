@@ -90,7 +90,7 @@ export default function SavingsPage() {
 					{
 						icon: 3,
 						title: "Withdraw anytime",
-						description: "Withdraw your balance at any time.",
+						description: "Withdraw your Frankencoins plus interest at any time.",
 					},
 				]}
 			/>

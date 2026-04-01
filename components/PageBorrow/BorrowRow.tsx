@@ -1,20 +1,25 @@
-import TableRow from "../Table/TableRow";
+import TableRowSearchable from "../Table/TableRowSearchable";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import { useRouter as useNavigation } from "next/navigation";
-import { formatCurrency, normalizeAddress } from "../../utils/format";
+import { formatCurrency, FormatType, normalizeAddress } from "../../utils/format";
 import { PositionQueryV2 } from "@frankencoin/api";
 import DisplayCollateralBorrowTable from "./DisplayCollateralBorrowTable";
-import Button from "@components/Button";
 import AppBox from "@components/AppBox";
+import { formatUnits } from "viem";
+import { SwapVCHFStatsReturn } from "@hooks";
+import Button from "@components/Button";
 
 interface Props {
 	headers: string[];
 	tab: string;
 	position: PositionQueryV2;
+	vchfBridge: SwapVCHFStatsReturn;
+	hideMyWallet?: boolean;
+	walletBalance?: Record<string, bigint>;
 }
 
-export default function BorrowRow({ headers, tab, position }: Props) {
+export default function BorrowRow({ headers, tab, position, vchfBridge, hideMyWallet, walletBalance }: Props) {
 	const navigate = useNavigation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
@@ -37,8 +42,16 @@ export default function BorrowRow({ headers, tab, position }: Props) {
 
 	const isVCHF = normalizeAddress(position.collateral) == normalizeAddress("0x79d4f0232A66c4c91b89c76362016A1707CFBF4f");
 
+	const collateralBalance = parseFloat(
+		formatUnits(walletBalance?.[normalizeAddress(position.collateral)] ?? 0n, position.collateralDecimals)
+	);
+
+	const mintable = isVCHF
+		? formatUnits(vchfBridge.bridgeLimit - vchfBridge.otherBridgeBal, 18)
+		: formatUnits(BigInt(position.availableForClones), 18);
+
 	return (
-		<TableRow
+		<TableRowSearchable
 			headers={headers}
 			tab={tab}
 			actionCol={
@@ -47,7 +60,7 @@ export default function BorrowRow({ headers, tab, position }: Props) {
 					onClick={() => navigate.push(isVCHF ? "/swap" : `/mint/${position.position}`)}
 					disabled={isPending}
 				>
-					Borrow
+					{isVCHF ? "Swap" : "Borrow"}
 				</Button>
 			}
 		>
@@ -55,31 +68,33 @@ export default function BorrowRow({ headers, tab, position }: Props) {
 				<AppBox className="md:hidden">
 					<DisplayCollateralBorrowTable
 						symbol={position.collateralSymbol}
-						symbolTiny={`v${position.version}`}
+						// symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
+						price={collTokenPrice}
+						hideMyWallet={hideMyWallet}
+						balance={collateralBalance}
 					/>
 				</AppBox>
 				<div className="max-md:hidden">
 					<DisplayCollateralBorrowTable
 						symbol={position.collateralSymbol}
-						symbolTiny={`v${position.version}`}
+						// symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
+						price={collTokenPrice}
+						hideMyWallet={hideMyWallet}
+						balance={collateralBalance}
 					/>
 				</div>
 			</div>
 
 			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-md">{formatCurrency(effectiveLTV, 2, 2)}%</div>
+				<div className="col-span-2 text-md">{isVCHF ? "Swap 1:1" : `${formatCurrency(effectiveLTV, 2, 2)}%`}</div>
 			</div>
 
 			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-md">{formatCurrency(effectiveInterest, 2, 2)}%</div>
-			</div>
-
-			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-md">{formatCurrency(price, 2, 2)} ZCHF</div>
+				<div className="col-span-2 text-md">{`${formatCurrency(effectiveInterest, 2, 2)}%`}</div>
 			</div>
 
 			<div className="flex flex-col gap-2">
@@ -87,6 +102,6 @@ export default function BorrowRow({ headers, tab, position }: Props) {
 					{isPending ? "Available Soon" : expirationString}
 				</div>
 			</div>
-		</TableRow>
+		</TableRowSearchable>
 	);
 }

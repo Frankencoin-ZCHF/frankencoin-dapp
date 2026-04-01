@@ -63,8 +63,14 @@ export const DISCUSSIONS: {
 	"0x8c1BEd5b9a0928467c9B1341Da1D7BD5e10b6549": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/15", // LsETH
 	"0x6810e776880C02933D47DB1b9fc05908e5386b96": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/79", // GNO
 	"0x2E880962A9609aA3eab4DEF919FE9E917E99073B": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/13", // BOSS
-	// "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions", // wstETH
-	// "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions", // WETH
-	// "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions", // cbBTC
-	// "0xD533a949740bb3306d119CC777fa900bA034cd52": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions", // crv
+	"0x343324F53CBEEE3Ee6d171f2a20F005964C98047": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/80", // LENDS
+	"0x23346B04a7f55b8760E5860AA5A77383D63491cD": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/94", // ysyBOLD
+	"0x45804880De22913dAFE09f4980848ECE6EcbAf78": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/82", // PAXG
+	"0x553C7f9C780316FC1D34b8e14ac2465Ab22a090B": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/14", // REALU
+	"0x68749665FF8D2d112Fa859AA293F07A622782F38": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/83", // XAUt
+    "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0": "https://coinmarketcap.com/currencies/lido-finance-wsteth/", // wstETH
+	"0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2": "https://coinmarketcap.com/currencies/weth/", // WETH
+	"0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/17", // cbBTC
+    "0xD533a949740bb3306d119CC777fa900bA034cd52": "https://coinmarketcap.com/currencies/curve-dao-token/", // crv
+	"0xFeDC5f4a6c38211c1338aa411018DFAf26612c08": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/84", // SPYon
 };

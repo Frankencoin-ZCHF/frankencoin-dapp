@@ -5,6 +5,7 @@ import FrankencoinAllocation from "@components/PageEcoSystem/FrankencoinAllocati
 import ReserveAllocation from "@components/PageEcoSystem/ReserveAllocation";
 import MintOutstanding from "@components/PageEcoSystem/MintOutstanding";
 import HealthRatio from "@components/PageEcoSystem/HealthRatio";
+import DebtAllocation from "@components/PageEcoSystem/DebtAllocation";
 
 export default function Overview() {
 	return (
@@ -15,9 +16,9 @@ export default function Overview() {
 
 			<AppTitle title={`Frankencoin Holders`}>
 				<div className="text-text-secondary">
-					This section provides an overview of how the total ZCHF supply is distributed among different holders. The
-					circulating supply reflects tokens held in uncategorized wallets, while other portions are allocated to
-					protocol reserves, centralized & decentralized exchanges, and external integrations such as Morpho.
+					This section provides an overview of how the total ZCHF supply is distributed among different holders. The circulating
+					supply reflects tokens held in uncategorized wallets, while other portions are allocated to protocol reserves,
+					centralized & decentralized exchanges, and external integrations such as Morpho.
 				</div>
 			</AppTitle>
 
@@ -25,7 +26,7 @@ export default function Overview() {
 				<FrankencoinAllocation />
 			</div>
 
-			<AppTitle title={`Origin`}>
+			{/* <AppTitle title={`Origin`}>
 				<div className="text-text-secondary">
 					This section shows which collaterals are responsible for securing how much of the Frankencoin supply.
 				</div>
@@ -33,9 +34,9 @@ export default function Overview() {
 
 			<div className="my-[2rem]">
 				<MintAllocation />
-			</div>
+			</div> */}
 
-			{/* <AppTitle title={`Current Debt Allocation`}>
+			<AppTitle title={`Current Debt`}>
 				<div className="text-text-secondary">
 					This section provides an overview of the current debt of all collateral positions. The current debt is calculated as the
 					total minted amount of a position minus the reserve contribution, which can be reclaimed by repaying the outstanding
@@ -45,7 +46,7 @@ export default function Overview() {
 
 			<div className="my-[2rem]">
 				<DebtAllocation />
-			</div> */}
+			</div>
 
 			<AppTitle title={`Expiration Trajectory`}>
 				<div className="text-text-secondary">
@@ -59,11 +60,11 @@ export default function Overview() {
 
 			<AppTitle title={`Reserves`}>
 				<div className="text-text-secondary">
-					In case a position has to be liquidated because it is not well-collateralized any more, the losses are covered by
-					three layers of reserves in the following order: first the minter reserve of the liquidated position is used.
-					If that does not suffice, equity capital is burned. If that does not suffice either, the reserves of all other
-					positions are proportionally reduced. After all the reserves have been burned, a furher loss would reduce the 
-					fundamental value of the Frankencoin below the peg.
+					In case a position has to be liquidated because it is not well-collateralized any more, the losses are covered by three
+					layers of reserves in the following order: first the minter reserve of the liquidated position is used. If that does not
+					suffice, equity capital is burned. If that does not suffice either, the reserves of all other positions are
+					proportionally reduced. After all the reserves have been burned, a furher loss would reduce the fundamental value of the
+					Frankencoin below the peg.
 				</div>
 			</AppTitle>
 
@@ -73,10 +74,10 @@ export default function Overview() {
 
 			<AppTitle title={`System Health`}>
 				<div className="text-text-secondary">
-					This chart shows how well the Frankencoins in free circulation are backed by collateral assets. All Frankencoins that are
-					not in the reserve pool are considered in free circulation. To the extent this value falls below 100%, the fundamental value of 
-					falls below below the peg. As long as the value is above 100%, all Frankencoins in free circulation are backed by collateral.
-					The recording of historic watermarks started in September 2025.
+					This chart shows how well the Frankencoins in free circulation are backed by collateral assets. All Frankencoins that
+					are not in the reserve pool are considered in free circulation. To the extent this value falls below 100%, the
+					fundamental value of falls below below the peg. As long as the value is above 100%, all Frankencoins in free circulation
+					are backed by collateral. The recording of historic watermarks started in September 2025.
 				</div>
 			</AppTitle>
 

@@ -24,6 +24,8 @@ export default function GovernancePositionsRow({ headers, subHeaders, tab, posit
 	const maturity = (position.expiration - position.start) / 60 / 60 / 24 / 30;
 	const denyUntil = (position.start * 1000 - Date.now()) / 1000 / 60 / 60;
 
+	const balance = parseFloat(formatUnits(BigInt(position.collateralBalance), position.collateralDecimals));
+
 	return (
 		<TableRow
 			headers={headers}
@@ -43,6 +45,8 @@ export default function GovernancePositionsRow({ headers, subHeaders, tab, posit
 						symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
+						price={price.price.usd ?? 0}
+						balance={balance}
 					/>
 				</div>
 
@@ -53,6 +57,8 @@ export default function GovernancePositionsRow({ headers, subHeaders, tab, posit
 						symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
+						price={price.price.usd ?? 0}
+						balance={balance}
 					/>
 				</AppBox>
 			</div>
@@ -69,7 +75,7 @@ export default function GovernancePositionsRow({ headers, subHeaders, tab, posit
 
 			<div className="flex flex-col">
 				<span className="">
-					{formatCurrency(limit)} <span className="">ZCHF</span>
+					{formatCurrency(limit, 2, 2, FormatType.symbol)} <span className="">ZCHF</span>
 				</span>
 				<div className="text-sm text-text-subheader font-normal">
 					{formatCurrency(position.reserveContribution / 10_000, 0, 0, 0)}%

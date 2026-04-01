@@ -4,15 +4,26 @@ import AppCard from "../AppCard";
 import dynamic from "next/dynamic";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
+const toDailyValues = (data: [number, number][]) => {
+	const dailyMap = new Map<string, [number, number]>();
+	data.forEach((entry) => {
+		const dateKey = new Date(entry[0]).toDateString();
+		if (!dailyMap.has(dateKey)) {
+			dailyMap.set(dateKey, entry);
+		}
+	});
+	return [...dailyMap.values()];
+};
+
 export default function MarketChart() {
+	const timestamp = Date.now() - 20 * 24 * 3600 * 1000;
 	const { marketChart } = useSelector((state: RootState) => state.prices);
 
-	const date = 0; // Date.now() - 10 * 24 * 60 * 60 * 1000;
-	const priceList = marketChart.prices.filter((i) => i[0] >= date);
-	const volumeList = marketChart.total_volumes.filter((i) => i[0] >= date);
+	const priceList = toDailyValues(marketChart.prices).filter((i) => i["0"] > timestamp);
+	const volumeList = toDailyValues(marketChart.total_volumes).filter((i) => i["0"] > timestamp);
 
 	return (
-		<div className="grid grid-cols-1 gap-4">
+		<div className="grid md:grid-cols-2 gap-4">
 			<AppCard>
 				<div className="mt-4 text-lg font-bold text-center">Exchange Rate</div>
 
@@ -28,7 +39,7 @@ export default function MarketChart() {
 							},
 							colors: ["#092f62", "#0F80F0"],
 							stroke: {
-								curve: "linestep",
+								curve: "smooth",
 								width: 2,
 							},
 							chart: {
@@ -80,10 +91,10 @@ export default function MarketChart() {
 									show: true,
 								},
 								max: (max) => {
-									return Math.max(max, 1.05);
+									return Math.max(max, 1.02);
 								},
 								min: (min) => {
-									return Math.min(min, 0.95);
+									return Math.min(min, 0.98);
 								},
 							},
 						}}
@@ -114,7 +125,7 @@ export default function MarketChart() {
 
 				<div className="-m-4 pr-2">
 					<ApexChart
-						type="line"
+						type="bar"
 						height={300}
 						options={{
 							theme: {
@@ -124,11 +135,10 @@ export default function MarketChart() {
 							},
 							colors: ["#092f62", "#0F80F0"],
 							stroke: {
-								curve: "linestep",
-								width: 2,
+								width: 0,
 							},
 							chart: {
-								type: "line",
+								type: "bar",
 								dropShadow: {
 									enabled: false,
 								},

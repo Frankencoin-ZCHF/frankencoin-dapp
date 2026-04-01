@@ -277,7 +277,7 @@ export default function PositionChallenge() {
 								/>
 							</AppBox>
 						</div>
-						<div className="mx-auto mt-4 w-[20rem] max-w-full flex-col">
+						<div className="mx-auto mt-4 w-full flex-col">
 							<GuardSupportedChain chain={mainnet}>
 								{amount > userAllowance ? (
 									<Button isLoading={isApproving} disabled={!!error} onClick={() => handleApprove()}>

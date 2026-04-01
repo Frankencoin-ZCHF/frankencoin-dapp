@@ -17,3 +17,4 @@ export * from "./useUserBalance";
 export * from "./useWalletConnectStats";
 export * from "./useDelegationHelpers";
 export * from "./useHoldingDurationStats";
+export * from "./useBorrowPositions";

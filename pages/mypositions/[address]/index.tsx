@@ -327,7 +327,7 @@ export default function PositionAdjust() {
 	};
 
 	// Minted Max
-	const mintedMax = bigIntMin(maxTotalLimit, (liqPrice * (BigInt(position.collateralBalance) + userCollBalance)) / parseEther("1"));
+	const mintedMax = bigIntMin(maxTotalLimit, (liqPrice * BigInt(position.collateralBalance)) / parseEther("1"));
 
 	const mintedMaxCallback = () => {
 		/* Disabled: I think the user should click max separately on the collateral field if he also wants to have the collateral returned
@@ -476,7 +476,7 @@ export default function PositionAdjust() {
 								</div>
 							</div>
 
-							<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+							<div className="mx-auto mt-8 full flex-col">
 								<GuardSupportedChain chain={mainnet}>
 									{collateralAmount - BigInt(position.collateralBalance) > userCollAllowance ? (
 										<Button isLoading={isApproving} onClick={() => handleApprove()}>
