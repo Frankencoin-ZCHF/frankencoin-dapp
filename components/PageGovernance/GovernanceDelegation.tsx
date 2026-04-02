@@ -4,10 +4,10 @@ import { useAccount, useChainId, useReadContracts } from "wagmi";
 import { Address, isAddress, zeroAddress } from "viem";
 import { mainnet } from "viem/chains";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
-import { useDelegationQuery, useDelegationHelpers } from "@hooks";
+import { useDelegationQuery, useDelegationHelpers, useVotesSynced } from "@hooks";
 import { formatCurrency, shortenAddress } from "@utils";
 import AddressInput from "@components/Input/AddressInput";
-import ChainBySelect from "@components/Input/ChainBySelect";
+import ChainSyncedVotes from "@components/Input/ChainSyncedVotes";
 import { WAGMI_CHAINS } from "../../app.config";
 import GovernanceDelegationAction from "./GovernanceDelegationAction";
 import GovernanceSyncAction from "./GovernanceSyncAction";
@@ -82,6 +82,11 @@ export default function GovernanceDelegation() {
 	const sideChains = WAGMI_CHAINS.filter((c) => c.id !== mainnet.id);
 	const [syncChain, setSyncChain] = useState<string>(sideChains[0]?.name ?? "");
 	const syncChainId = WAGMI_CHAINS.find((c) => c.name === syncChain)?.id ?? sideChains[0]?.id ?? 0;
+
+	// synced votes on the selected target chain
+	const { syncedVotes, totalVotes: syncTotalVotes } = useVotesSynced(myAddress, helpers, syncChainId);
+	const syncedPct =
+		syncTotalVotes > 0n ? `${formatCurrency((Number(syncedVotes) / Number(syncTotalVotes)) * 100)}%` : "—";
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -169,16 +174,13 @@ export default function GovernanceDelegation() {
 					{/* Sync votes to chain */}
 					<div className="text-lg font-bold text-center">Sync Votes to Chain</div>
 
-					<div className={`border-card-input-border hover:border-card-input-hover border-2 rounded-lg px-3 py-1`}>
-						<div className="flex my-1 text-sm text-text-secondary">Target Chain</div>
-						<div className="flex justify-end">
-							<ChainBySelect
-								chains={sideChains.map((c) => c.name)}
-								chain={syncChain}
-								chainOnChange={(name: string) => setSyncChain(name)}
-							/>
-						</div>
-					</div>
+					<ChainSyncedVotes
+						label="Votes on Target Chain"
+						chains={sideChains.map((c) => c.name)}
+						chain={syncChain}
+						onChangeChain={(name: string) => setSyncChain(name)}
+						pct={syncedPct}
+					/>
 
 					<GovernanceSyncAction
 						targetChainId={syncChainId}
