@@ -46,6 +46,9 @@ export default function MypositionsRow({ headers, tab, subHeaders, position }: P
 	const loanAvailableV2: number = parseFloat(formatUnits(position.version == 2 ? BigInt(position.availableForMinting) : 0n, 18));
 
 	const liquidationZCHF: number = parseInt(position.price) / 10 ** (36 - position.collateralDecimals);
+	const collateralCapacity: number = balance * liquidationZCHF - loanZCHF;
+	const personalizedAvailableV1: number = Math.max(0, Math.min(loanAvailableV1, collateralCapacity));
+	const personalizedAvailableV2: number = Math.max(0, Math.min(loanAvailableV2, collateralCapacity));
 	const liquidationPct: number = (balanceZCHF / (liquidationZCHF * balance)) * 100;
 
 	const positionChallenges = challenges.map[position.position.toLowerCase() as Address] ?? [];
@@ -172,7 +175,7 @@ export default function MypositionsRow({ headers, tab, subHeaders, position }: P
 			<div className="flex flex-col">
 				<span className="text-md">{formatCurrency(loanZCHF, 2, 2)} ZCHF</span>
 				<span className="text-sm text-text-subheader font-normal">
-					{formatCurrency(position.version == 2 ? loanAvailableV2 : loanAvailableV1, 2, 2)} ZCHF
+					{formatCurrency(position.version == 2 ? personalizedAvailableV2 : personalizedAvailableV1, 2, 2)} ZCHF
 				</span>
 			</div>
 
