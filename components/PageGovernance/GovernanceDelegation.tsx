@@ -1,10 +1,9 @@
 import AppCard from "@components/AppCard";
-import { useEffect, useState } from "react";
-import { useAccount, useChainId } from "wagmi";
-import { Address, formatUnits, isAddress, zeroAddress } from "viem";
+import { useState } from "react";
+import { useAccount, useChainId, useReadContracts } from "wagmi";
+import { Address, isAddress, zeroAddress } from "viem";
 import { mainnet } from "viem/chains";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
-import { useReadContracts } from "wagmi";
 import { useDelegationQuery, useDelegationHelpers } from "@hooks";
 import { formatCurrency, shortenAddress } from "@utils";
 import AddressInput from "@components/Input/AddressInput";
@@ -15,7 +14,7 @@ import GovernanceSyncAction from "./GovernanceSyncAction";
 
 export default function GovernanceDelegation() {
 	const account = useAccount();
-	const chainId = useChainId();
+	useChainId();
 	const myAddress: Address = account.address ?? zeroAddress;
 	const isConnected = !!account.address;
 
@@ -23,14 +22,13 @@ export default function GovernanceDelegation() {
 	const delegationData = useDelegationQuery();
 	const myDelegatedTo: Address = (delegationData.owners[myAddress.toLowerCase() as Address] ?? zeroAddress) as Address;
 
-	// helpers for sync
-	const { helpers } = useDelegationHelpers(account.address);
-	const syncVoters: Address[] = isConnected ? [myAddress, ...helpers] : [];
+	// helpers (supporters) for sync and display
+	const { helpers, supporterCount } = useDelegationHelpers(account.address);
+	const voters: Address[] = isConnected ? [myAddress, ...helpers] : [];
 
 	// read voting powers from mainnet equity
-	const allAddresses: Address[] = isConnected ? [myAddress, ...helpers] : [];
 	const contractReads = [
-		...allAddresses.map((addr) => ({
+		...voters.map((addr) => ({
 			address: ADDRESS[mainnet.id].equity,
 			chainId: mainnet.id,
 			abi: EquityABI,
@@ -55,10 +53,9 @@ export default function GovernanceDelegation() {
 
 	const { data: readData } = useReadContracts({ contracts: contractReads as any });
 
-	const totalVotes: bigint = readData ? (readData[allAddresses.length + 1]?.result as bigint) ?? 0n : 0n;
-	const totalDelegated: bigint = readData ? (readData[allAddresses.length]?.result as bigint) ?? 0n : 0n;
-
-	const votingPowers: bigint[] = allAddresses.map((_, i) => (readData ? (readData[i]?.result as bigint) ?? 0n : 0n));
+	const totalVotes: bigint = readData ? ((readData[voters.length + 1]?.result as bigint) ?? 0n) : 0n;
+	const totalDelegated: bigint = readData ? ((readData[voters.length]?.result as bigint) ?? 0n) : 0n;
+	const votingPowers: bigint[] = voters.map((_, i) => (readData ? ((readData[i]?.result as bigint) ?? 0n) : 0n));
 
 	const myVotes = votingPowers[0] ?? 0n;
 	const delegatorVotes: { address: Address; votes: bigint }[] = helpers
@@ -67,12 +64,11 @@ export default function GovernanceDelegation() {
 
 	const formatPct = (v: bigint) => {
 		if (!totalVotes || totalVotes === 0n) return "0.00%";
-		const pct = (Number(v) / Number(totalVotes)) * 100;
-		return `${formatCurrency(pct)}%`;
+		return `${formatCurrency((Number(v) / Number(totalVotes)) * 100)}%`;
 	};
 
-	// actions state
-	const [delegateAddr, setDelegateAddr] = useState<string>(myDelegatedTo != zeroAddress ? myDelegatedTo : "");
+	// delegate address input
+	const [delegateAddr, setDelegateAddr] = useState<string>(myDelegatedTo !== zeroAddress ? myDelegatedTo : "");
 	const [delegateError, setDelegateError] = useState<string>("");
 
 	const handleDelegateChange = (value: string) => {
@@ -109,14 +105,18 @@ export default function GovernanceDelegation() {
 								<span className="font-semibold text-text-primary">You</span>
 								{myDelegatedTo !== zeroAddress ? (
 									<span className="text-text-secondary text-xs truncate">→ {shortenAddress(myDelegatedTo)}</span>
+								) : supporterCount > 0 ? (
+									<span className="text-text-secondary text-xs">
+										{supporterCount} supporter{supporterCount !== 1 ? "s" : ""}
+									</span>
 								) : (
-									<span className="text-text-secondary text-xs">no supporters</span>
+									<span className="text-text-secondary text-xs">no supporters yet</span>
 								)}
 							</div>
 							<div className="text-right text-sm font-semibold text-text-primary">{formatPct(myVotes)}</div>
 						</div>
 
-						{/* Delegator rows */}
+						{/* Supporter rows */}
 						{delegatorVotes.map(({ address: addr, votes: vp }) => (
 							<div key={addr} className="grid grid-cols-2 items-center py-1 border-b border-card-input-border">
 								<div className="text-sm text-text-primary truncate">{shortenAddress(addr)}</div>
@@ -138,9 +138,9 @@ export default function GovernanceDelegation() {
 					the group. All addresses that have supported to you — directly or recursively — are your{" "}
 					<span className="text-text-primary font-medium">supporters</span>. When syncing votes to another chain, the voting power
 					of you and all your supporters is included in the sync.{" "}
-					{syncVoters.length > 1 && isConnected && (
+					{voters.length > 1 && isConnected && (
 						<span className="text-text-primary font-medium">
-							{syncVoters.length} address{syncVoters.length !== 1 ? "es" : ""} will be synced.
+							{voters.length} address{voters.length !== 1 ? "es" : ""} will be synced.
 						</span>
 					)}
 				</div>
@@ -156,7 +156,7 @@ export default function GovernanceDelegation() {
 						label="Supported Address"
 						placeholder="Enter the address here"
 						value={delegateAddr}
-						reset={myDelegatedTo != zeroAddress ? zeroAddress : undefined}
+						reset={myDelegatedTo !== zeroAddress ? zeroAddress : undefined}
 						onChange={handleDelegateChange}
 						error={delegateError}
 					/>
@@ -182,8 +182,8 @@ export default function GovernanceDelegation() {
 
 					<GovernanceSyncAction
 						targetChainId={syncChainId}
-						voters={syncVoters}
-						disabled={!isConnected || syncVoters.length === 0}
+						voters={voters}
+						disabled={!isConnected || voters.length === 0}
 					/>
 				</div>
 			</AppCard>
