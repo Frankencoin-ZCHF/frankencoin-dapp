@@ -5,6 +5,7 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { useEffect, useState } from "react";
 import { useFPSHolders, useDelegationQuery, computeSupporterCount } from "@hooks";
+import type { FPSHolder } from "@hooks";
 import { useVotingPowers } from "@hooks";
 import GovernanceVotersRow from "./GovernanceVotersRow";
 
@@ -41,7 +42,14 @@ export default function GovernanceVotersTable() {
 	const chainId = mainnet.id;
 	const { delegatees } = useDelegationQuery();
 	const fpsHolders = useFPSHolders();
-	const votingPowersHook = useVotingPowers(fpsHolders.holders);
+
+	const existingAccounts = new Set(fpsHolders.holders.map((h) => h.account.toLowerCase()));
+	const delegateeHolders: FPSHolder[] = Object.keys(delegatees)
+		.filter((addr) => !existingAccounts.has(addr.toLowerCase()))
+		.map((addr) => ({ account: addr as Address, balance: 0n, updated: 0 }));
+	const allHolders = [...fpsHolders.holders, ...delegateeHolders];
+
+	const votingPowersHook = useVotingPowers(allHolders);
 	const votesTotal = votingPowersHook.totalVotes;
 	const votesData: VoteData[] = votingPowersHook.votesData.map((vp) => {
 		const ratio: number = parseInt(vp.votingPower.toString()) / parseInt(votesTotal.toString());
