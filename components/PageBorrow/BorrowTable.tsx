@@ -45,6 +45,7 @@ export default function BorrowTable() {
 		isOriginal: true,
 		isClone: false,
 		denied: false,
+		denyDate: 0,
 		closed: false,
 		original: "0x3b71ba73299f925a837836160c3e1fec74340403",
 		parent: "0x3b71ba73299f925a837836160c3e1fec74340403",

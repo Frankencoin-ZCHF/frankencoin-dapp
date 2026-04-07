@@ -10,6 +10,7 @@ import { ApiPriceERC20, ApiPriceERC20Mapping, ApiPriceMapping, ApiPriceMarketCha
 import { CONFIG, FRANKENCOIN_API_CLIENT } from "../../app.config";
 import { showErrorToast } from "@utils";
 import { zeroAddress } from "viem";
+import { ChainId } from "@frankencoin/zchf";
 
 // --------------------------------------------------------------------------------
 
@@ -19,12 +20,14 @@ export const initialState: PricesState = {
 
 	coingecko: {},
 	mint: {
+		chainId: 1 as ChainId,
 		address: zeroAddress,
 		name: "Frankencoin",
 		symbol: "ZCHF",
 		decimals: 18,
 	},
 	fps: {
+		chainId: 1 as ChainId,
 		address: zeroAddress,
 		name: "Frankencoin Pool Share",
 		symbol: "FPS",
