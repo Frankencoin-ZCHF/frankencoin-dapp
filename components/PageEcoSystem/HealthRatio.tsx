@@ -28,14 +28,7 @@ export default function HealthRatio() {
 
 			const date = Date.now() - 365 * 24 * 60 * 60 * 1000;
 
-			const chartFiltered = data.filter((i) => {
-				if (i.timestamp < date) return false;
-				else {
-					const d = new Date(i.timestamp);
-					if (d.getHours() % 2 == 0) return true;
-					else return false;
-				}
-			});
+			const chartFiltered = data.filter((i) => (i.timestamp < date ? false : true));
 
 			setChartData(chartFiltered);
 		};

@@ -21,7 +21,7 @@ export default function EquityFPSDetailsCard() {
 	const [typechart, setTypechart] = useState<string>(TypeCharts[0]);
 	const chainId = mainnet.id;
 	const poolStats = usePoolStats();
-	const { logs } = useSelector((state: RootState) => state.dashboard.dailyLog);
+	const logs = useSelector((state: RootState) => state.dashboard.dailyLog.logs);
 	const supply = useSelector((state: RootState) => state.ecosystem.frankencoinSupply);
 
 	// @dev: show trades since start
@@ -34,7 +34,7 @@ export default function EquityFPSDetailsCard() {
 	else startTrades = 0; // All
 
 	let matchingLogs = logs.filter((t) => {
-		return parseInt(t.timestamp) >= startTrades;
+		return parseInt(t.timestamp) * 1000 >= startTrades;
 	});
 
 	let matchingSupply = Object.values(supply).filter((t) => {
@@ -45,7 +45,7 @@ export default function EquityFPSDetailsCard() {
 	const adjustedOutflow = BigInt(matchingLogs.at(-1)?.totalOutflow || "0") - BigInt(matchingLogs.at(0)?.totalOutflow || "0");
 	const netIncome = adjustedInflow - adjustedOutflow;
 
-	const timestampBegin = BigInt(matchingLogs.at(0)?.timestamp || "0");
+	const timestampBegin = BigInt(matchingLogs.at(0)?.timestamp || "0") * 1000n;
 	const timestampEnd = BigInt(Date.now());
 	const timestampDiff = timestampEnd - timestampBegin;
 	const oneYearMs = 365n * 24n * 60n * 60n * 1000n;
@@ -151,14 +151,9 @@ export default function EquityFPSDetailsCard() {
 												return [parseFloat(String(entry.created)) * 1000, entry.supply];
 										  })
 										: matchingLogs.map((entry) => {
-												if (typechart == TypeCharts[0]) {
+												if (typechart == TypeCharts[1]) {
 													return [
-														parseFloat(entry.timestamp),
-														Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100,
-													];
-												} else if (typechart == TypeCharts[1]) {
-													return [
-														parseFloat(entry.timestamp),
+														parseFloat(entry.timestamp) * 1000,
 														Math.round(parseFloat(formatUnits(entry.fpsTotalSupply, 16))) / 100,
 													];
 													// @dev: this is just mainnet frankencoin supply data
@@ -168,8 +163,9 @@ export default function EquityFPSDetailsCard() {
 													// 		Math.round(parseFloat(formatUnits(entry.totalSupply, 16))) / 100,
 													// 	];
 												} else {
+													// typechart == TypeCharts[0]
 													return [
-														parseFloat(entry.timestamp),
+														parseFloat(entry.timestamp) * 1000,
 														Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100,
 													];
 												}
