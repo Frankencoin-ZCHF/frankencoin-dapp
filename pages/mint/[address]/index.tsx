@@ -6,7 +6,7 @@ import TokenInput from "@components/Input/TokenInput";
 import ButtonSecondary from "@components/ButtonSecondary";
 import { useAccount, useBlockNumber } from "wagmi";
 import { readContract } from "wagmi/actions";
-import { formatCurrency, formatDateFromSecs, min, shortenAddress, toTimestamp, DISCUSSIONS } from "@utils";
+import { formatCurrency, formatDateFromSecs, min, normalizeAddress, shortenAddress, toTimestamp, DISCUSSIONS } from "@utils";
 import DateInput from "@components/Input/DateInput";
 import { WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
@@ -121,7 +121,7 @@ export default function PositionBorrow({}) {
 
 	const priceBigInt = BigInt(position.price);
 	const priceFloat = parseFloat(formatUnits(priceBigInt, 36 - position.collateralDecimals));
-	const collateralPriceZchf = prices[position.collateral.toLowerCase() as Address].price.chf || 1;
+	const collateralPriceZchf = prices[normalizeAddress(position.collateral)].price.chf || 1;
 	const reserve = position.reserveContribution / 10 ** 6;
 	const effectiveLTV = (priceFloat * (1 - reserve)) / collateralPriceZchf;
 	const effectiveInterest = position.annualInterestPPM / 10 ** 6 / (1 - reserve);
@@ -167,7 +167,7 @@ export default function PositionBorrow({}) {
 	const now = Date.now();
 	const isPositionBlocked = position.start * 1000 > now || (position.start * 1000 < now && position.cooldown > now);
 
-	const collKey = position.collateral.toLowerCase() as Address;
+	const collKey = normalizeAddress(position.collateral);
 	const bestRatePos = bestInterestByCollateral[collKey];
 	const posEffectiveRate = position.annualInterestPPM / (1_000_000 - position.reserveContribution);
 	const bestEffectiveRate = bestRatePos ? bestRatePos.annualInterestPPM / (1_000_000 - bestRatePos.reserveContribution) : Infinity;

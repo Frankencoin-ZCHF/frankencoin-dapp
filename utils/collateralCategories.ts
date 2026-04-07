@@ -1,3 +1,5 @@
+import { normalizeAddress } from "./format";
+
 export type CollateralCategory = "Bitcoin" | "Crypto" | "DeFi" | "Natural Resources" | "Stablecoins" | "Tokenized Securities";
 
 export const ALL_CATEGORIES: CollateralCategory[] = [
@@ -39,7 +41,7 @@ const COLLATERAL_CATEGORIES: Record<string, CollateralCategory[]> = {
 };
 
 export function getCategoriesForCollateral(address: string): CollateralCategory[] {
-	return COLLATERAL_CATEGORIES[address.toLowerCase()] ?? ["Crypto"];
+	return COLLATERAL_CATEGORIES[normalizeAddress(address)] ?? ["Crypto"];
 }
 
 export function collateralMatchesCategories(address: string, activeCategories: CollateralCategory[]): boolean {

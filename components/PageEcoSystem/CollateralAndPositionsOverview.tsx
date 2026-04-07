@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import TokenLogo from "../TokenLogo";
-import { formatCurrency, formatFloat } from "../../utils/format";
+import { formatCurrency, formatFloat, normalizeAddress } from "../../utils/format";
 import { Address } from "viem/accounts";
 import AppCard from "../AppCard";
 import { formatUnits, parseUnits } from "viem";
@@ -13,8 +13,8 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 	const stats = [];
 	for (let positions of listByCollateral) {
 		const original = positions.at(0) as PositionQuery;
-		const collateral = prices[original!.collateral.toLowerCase() as Address];
-		const mint = prices[original!.zchf.toLowerCase() as Address];
+		const collateral = prices[normalizeAddress(original!.collateral)];
+		const mint = prices[normalizeAddress(original!.zchf)];
 
 		if (!collateral || !mint) continue;
 
@@ -39,7 +39,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 		const allOriginals = positions.map((p) => p.original).reduce((a, b) => (a.includes(b) ? a : [...a, b]), [] as Address[]);
 
 		for (let pos of allOriginals) {
-			const orig = allPositions.find((p) => p.position.toLowerCase() == pos.toLowerCase());
+			const orig = allPositions.find((p) => normalizeAddress(p.position) === normalizeAddress(pos));
 			if (!orig) continue;
 			limitForClones += BigInt(orig.limitForClones) / 10n ** BigInt(orig.zchfDecimals);
 			availableForClones += BigInt(orig.availableForClones) / 10n ** BigInt(orig.zchfDecimals);
@@ -73,7 +73,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 		const collateralPriceInZCHF = Math.round((collateral.price.chf / mint.price.chf) * 100) / 100;
 
 		const worstStatusColors = collateralizedPct < 100 ? "red-300" : collateralizedPct < 120 ? "blue-300" : "green-300";
-		const discussionKey = Object.keys(DISCUSSIONS).find((i) => i.toLowerCase() == collateral.address.toLowerCase());
+		const discussionKey = Object.keys(DISCUSSIONS).find((i) => normalizeAddress(i) === normalizeAddress(collateral.address));
 		const discussionLink = discussionKey ? DISCUSSIONS[discussionKey] : DISCUSSIONS["default"];
 
 		const lockedValue = parseFloat(formatUnits(minted, 18)) * avgCollateral;

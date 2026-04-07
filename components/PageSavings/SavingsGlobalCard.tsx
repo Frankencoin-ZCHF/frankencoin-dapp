@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { ADDRESS, ChainId, ChainIdMain, ChainIdSide } from "@frankencoin/zchf";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
-import { getChain } from "@utils";
+import { getChain, normalizeAddress } from "@utils";
 import { useChainId } from "wagmi";
 import { Address } from "viem";
 
@@ -18,9 +18,9 @@ export default function SavingsGlobalCard() {
 
 	const frankencoinAddress =
 		chainId == 1 ? ADDRESS[chainId as ChainIdMain].frankencoin : ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin;
-	const savings = (
+	const savings = normalizeAddress(
 		chainId == 1 ? ADDRESS[chainId as ChainIdMain].savingsReferral : ADDRESS[chainId as ChainIdSide].ccipBridgedSavings
-	).toLowerCase() as Address;
+	);
 
 	const state = status[chainId][savings];
 

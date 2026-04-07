@@ -185,7 +185,7 @@ function sortPositions(
 			const calc = function (p: PositionQueryV2) {
 				const liqPrice: number = parseFloat(formatUnits(BigInt(p.price), 36 - p.collateralDecimals));
 				const reserve: number = p.reserveContribution / 1000000;
-				const price: number = prices[p.collateral.toLowerCase() as Address].price.chf || 1;
+				const price: number = prices[normalizeAddress(p.collateral)].price.chf || 1;
 				return (liqPrice * (1 - reserve)) / price;
 			};
 			return calc(b) - calc(a); // default: decrease

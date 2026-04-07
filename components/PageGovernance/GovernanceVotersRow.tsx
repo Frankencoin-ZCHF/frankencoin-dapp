@@ -1,6 +1,6 @@
 import { Address, zeroAddress } from "viem";
 import TableRow from "../Table/TableRow";
-import { formatCurrency, shortenAddress } from "../../utils/format";
+import { formatCurrency, normalizeAddress, shortenAddress } from "../../utils/format";
 import { useDelegationHelpers, useDelegationQuery } from "@hooks";
 import { VoteData } from "./GovernanceVotersTable";
 import GovernanceVotersAction from "./GovernanceVotersAction";
@@ -23,9 +23,9 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 	const { helpers } = useDelegationHelpers(voter.holder);
 	const supporterCount = voter.supporterCount;
 
-	const delegatedTo = (delegationData.owners[voter.holder.toLowerCase() as Address] ?? zeroAddress) as Address;
+	const delegatedTo = (delegationData.owners[normalizeAddress(voter.holder)] ?? zeroAddress) as Address;
 	const isDelegated = delegatedTo !== zeroAddress;
-	const isRevoked = isDelegated && delegatedTo.toLowerCase() === voter.holder.toLowerCase();
+	const isRevoked = isDelegated && normalizeAddress(delegatedTo) === normalizeAddress(voter.holder);
 
 	// Only fetch votesDelegated when there are helpers — otherwise fall back to own votes
 	const { data: contractData } = useReadContracts({

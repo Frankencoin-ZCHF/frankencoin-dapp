@@ -5,7 +5,7 @@ import AppBox from "@components/AppBox";
 import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
 import { Address, formatUnits, zeroAddress } from "viem";
-import { formatBigInt, formatCurrency, formatDateTime, shortenAddress } from "@utils";
+import { formatBigInt, formatCurrency, formatDateTime, normalizeAddress, shortenAddress } from "@utils";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -41,7 +41,7 @@ export default function MonitoringForceSell() {
 	const chainId = mainnet.id;
 	const queryAddress: Address = (String(router.query.address) as Address) || zeroAddress;
 	const positions = useSelector((state: RootState) => state.positions.list.list);
-	const position = positions.find((p) => p.position.toLowerCase() == queryAddress.toLowerCase());
+	const position = positions.find((p) => normalizeAddress(p.position) === normalizeAddress(queryAddress));
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;

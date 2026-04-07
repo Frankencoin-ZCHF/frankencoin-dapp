@@ -1,6 +1,6 @@
 import { Address, erc20Abi, formatUnits, Hash, maxUint256, encodeAbiParameters } from "viem";
 import TableRow from "../Table/TableRow";
-import { formatCurrency, shortenAddress } from "../../utils/format";
+import { formatCurrency, normalizeAddress, shortenAddress } from "../../utils/format";
 import { useEffect, useState } from "react";
 import { waitForTransactionReceipt, writeContract, readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
@@ -16,8 +16,8 @@ import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { useAccount } from "wagmi";
 import { useDelegationHelpers } from "@hooks";
 
-const MintModule = ADDRESS[mainnet.id].savingsV2.toLowerCase() as Address;
-const SaveModule = ADDRESS[mainnet.id].savingsReferral.toLowerCase() as Address;
+const MintModule = normalizeAddress(ADDRESS[mainnet.id].savingsV2);
+const SaveModule = normalizeAddress(ADDRESS[mainnet.id].savingsReferral);
 
 interface Props {
 	headers: string[];
@@ -402,7 +402,7 @@ export default function GovernanceLeadrateRow({ headers, tab, proposal }: Props)
 
 				<div className="flex flex-col">
 					<AppLink
-						label={proposal.details.module.toLowerCase() == MintModule ? "Mint" : "Save"}
+						label={normalizeAddress(proposal.details.module) === MintModule ? "Mint" : "Save"}
 						href={ContractUrl(proposal.details.module)}
 						external={true}
 						className=""

@@ -1,5 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
 import { Address, zeroAddress } from "viem";
+import { normalizeAddress } from "../utils/format";
 
 export type PonderDelegationQuery = {
 	owner: Address;
@@ -42,8 +43,8 @@ export const useDelegationQuery = (): DelegationQuery => {
 	const items = data.equityDelegations.items as PonderDelegationQuery[];
 
 	for (const i of items) {
-		const owner = i.owner.toLowerCase() as Address;
-		const to = i.delegatedTo.toLowerCase() as Address;
+		const owner = normalizeAddress(i.owner);
+		const to = normalizeAddress(i.delegatedTo);
 
 		returnData.owners[owner] = to;
 

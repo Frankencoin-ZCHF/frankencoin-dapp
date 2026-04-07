@@ -2,7 +2,7 @@ import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
-import { shortenAddress } from "@utils";
+import { normalizeAddress, shortenAddress } from "@utils";
 import { renderErrorTxToast, renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
 import Button from "@components/Button";
@@ -26,7 +26,7 @@ export default function PositionRollerFullRollAction({ label = "Roll", source, t
 	const { address } = useAccount();
 	const account = address || zeroAddress;
 
-	const isTargetOwned = target.owner.toLowerCase() === account.toLowerCase();
+	const isTargetOwned = normalizeAddress(target.owner) === normalizeAddress(account);
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();

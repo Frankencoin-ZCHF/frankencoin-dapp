@@ -1,5 +1,6 @@
 import { useSelector } from "react-redux";
 import { Address, parseEther } from "viem";
+import { normalizeAddress } from "../utils/format";
 import { PositionQueryV2 } from "@frankencoin/api";
 import { RootState } from "../redux/redux.store";
 import { POSITION_BLACKLISTED } from "../app.config";
@@ -11,7 +12,7 @@ export const useBorrowPositions = () => {
 	const posV2: PositionQueryV2[] = list.filter((p) => p.version == 2);
 
 	const matchingPositions: PositionQueryV2[] = posV2.filter((position) => {
-		const pid: Address = position.position.toLowerCase() as Address;
+		const pid: Address = normalizeAddress(position.position);
 		const now = Date.now();
 		if (POSITION_BLACKLISTED(pid)) {
 			return false;
@@ -32,7 +33,7 @@ export const useBorrowPositions = () => {
 
 	const sortedByCollateral: { [key: Address]: PositionQueryV2[] } = {};
 	matchingPositions.forEach((pos) => {
-		const coll = pos.collateral.toLowerCase() as Address;
+		const coll = normalizeAddress(pos.collateral);
 		if (sortedByCollateral[coll] == undefined) sortedByCollateral[coll] = [];
 		sortedByCollateral[coll].push(pos);
 	});

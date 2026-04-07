@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
-import { formatDateTime, shortenAddress } from "@utils";
+import { formatDateTime, normalizeAddress, shortenAddress } from "@utils";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { useContractUrl } from "@hooks";
 import { useSelector } from "react-redux";
@@ -30,8 +30,8 @@ export default function PositionDetail() {
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const challengesPositions = useSelector((state: RootState) => state.challenges.positions);
 
-	const position = positions.find((p) => p.position.toLowerCase() === address.toLowerCase());
-	const challengesActive = (challengesPositions.map[address.toLowerCase() as Address] || []).filter((c) => c.status === "Active");
+	const position = positions.find((p) => normalizeAddress(p.position) === normalizeAddress(address));
+	const challengesActive = (challengesPositions.map[normalizeAddress(address)] || []).filter((c) => c.status === "Active");
 
 	const positionExplorerUrl = useContractUrl(String(address));
 	const ownerExplorerLink = useContractUrl(position?.owner || zeroAddress);
@@ -222,7 +222,7 @@ function ActiveAuctionsRow({ position, challenge }: Props) {
 
 				<Button
 					className="h-10 mt-6"
-					onClick={() => navigate.push(`/monitoring/${challenge.position.toLowerCase()}/auction/${challenge.number}`)}
+					onClick={() => navigate.push(`/monitoring/${normalizeAddress(challenge.position)}/auction/${challenge.number}`)}
 				>
 					Bid
 				</Button>

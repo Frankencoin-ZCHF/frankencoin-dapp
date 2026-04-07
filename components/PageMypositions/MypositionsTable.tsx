@@ -39,9 +39,9 @@ export default function MypositionsTable() {
 	const sortedByCollateral: { [key: Address]: PositionQuery[] } = {};
 	const closedPositions: { [key: Address]: PositionQuery[] } = {};
 	for (const p of positions) {
-		const k: Address = p.collateral.toLowerCase() as Address;
+		const k: Address = normalizeAddress(p.collateral);
 
-		if (p.owner.toLowerCase() !== account.toLowerCase()) continue;
+		if (normalizeAddress(p.owner) !== normalizeAddress(account)) continue;
 
 		if (p.closed || p.denied) {
 			if (BigInt(p.collateralBalance) < BigInt(p.minimumCollateral)) continue;
@@ -193,7 +193,7 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 		sortingList.sort((a, b) => {
 			const calc = function (p: PositionQuery) {
 				const size: number = parseFloat(formatUnits(BigInt(p.collateralBalance), p.collateralDecimals));
-				const price: number = prices[p.collateral.toLowerCase() as Address]?.price?.chf || 1;
+				const price: number = prices[normalizeAddress(p.collateral)]?.price?.chf || 1;
 				return size * price;
 			};
 			return calc(b) - calc(a);
@@ -203,7 +203,7 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 		sortingList.sort((a, b) => {
 			const calc = function (p: PositionQuery) {
 				const liqPrice: number = parseFloat(formatUnits(BigInt(p.price), 36 - p.collateralDecimals));
-				const price: number = prices[p.collateral.toLowerCase() as Address]?.price?.chf || 1;
+				const price: number = prices[normalizeAddress(p.collateral)]?.price?.chf || 1;
 				return price / liqPrice;
 			};
 			return calc(b) - calc(a);
@@ -220,7 +220,7 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 		// sort for state
 		sortingList.sort((a, b) => {
 			const calc = function (p: PositionQuery): number {
-				const pid: Address = p.position.toLowerCase() as Address;
+				const pid: Address = normalizeAddress(p.position);
 				const cPos = challenges[pid] ?? [];
 				const cPosActive = cPos.filter((c) => c.status == "Active") ?? [];
 				const maturity: number = (p.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;

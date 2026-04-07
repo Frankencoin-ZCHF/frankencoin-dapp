@@ -1,7 +1,7 @@
 import { formatUnits, zeroAddress } from "viem";
 import TableRow from "../Table/TableRow";
 import { PositionQuery } from "@frankencoin/api";
-import { formatCurrency, FormatType, shortenAddress } from "../../utils/format";
+import { formatCurrency, FormatType, normalizeAddress, shortenAddress } from "../../utils/format";
 import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
@@ -74,7 +74,7 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 	const timeLeft = isCooldown ? (cooldownTimestamp - Date.now()) / 1000 / 60 / 60 : 0;
 	const cooldownText = formatCurrency(timeLeft, 1, 1, FormatType.us) + "h Cooldown";
 
-	const isTargetOwned = target.owner.toLowerCase() === source.owner.toLowerCase();
+	const isTargetOwned = normalizeAddress(target.owner) === normalizeAddress(source.owner);
 
 	const dateArr: string[] = new Date(target.expiration * 1000).toDateString().split(" ");
 	const dateStr: string = `${dateArr[2]} ${dateArr[1]} ${dateArr[3]}`;

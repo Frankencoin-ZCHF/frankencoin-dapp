@@ -15,7 +15,7 @@ export const collectHelpers = (address: Address, delegatees: DelegateeMap): Addr
 	const helpers: Address[] = [];
 	const collect = (current: Address) => {
 		for (let addr of delegatees[current] || []) {
-			addr = addr.toLowerCase() as Address;
+			addr = normalizeAddress(addr);
 			if (visited.has(addr)) continue;
 			visited.add(addr);
 			helpers.push(addr);

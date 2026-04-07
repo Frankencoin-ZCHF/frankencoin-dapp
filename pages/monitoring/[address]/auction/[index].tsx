@@ -5,7 +5,7 @@ import AppBox from "@components/AppBox";
 import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
 import { Address, formatUnits, parseEther, zeroAddress } from "viem";
-import { ContractUrl, formatBigInt, formatCurrency, formatDateTime, shortenAddress } from "@utils";
+import { ContractUrl, formatBigInt, formatCurrency, formatDateTime, normalizeAddress, shortenAddress } from "@utils";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -38,14 +38,14 @@ export default function ChallengePlaceBid() {
 	const navigate = useNavigation();
 
 	const chainId = mainnet.id;
-	const addressQuery: Address = (router.query.address as string).toLowerCase() as Address;
+	const addressQuery: Address = normalizeAddress(router.query.address as string);
 	const indexQuery: string = router.query.index as string;
 
 	const challenges = useSelector((state: RootState) => state.challenges.list.list);
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 
 	const challenge = challenges.find((c) => c.position == (addressQuery ?? zeroAddress) && String(c.number) == indexQuery);
-	const position = positions.find((p) => p.position.toLowerCase() == challenge?.position);
+	const position = positions.find((p) => normalizeAddress(p.position) === challenge?.position);
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;

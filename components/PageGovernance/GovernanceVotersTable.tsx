@@ -13,6 +13,7 @@ import { useAccount } from "wagmi";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
+import { normalizeAddress } from "../../utils/format";
 import { mainnet } from "viem/chains";
 
 export type VoteData = {
@@ -43,9 +44,9 @@ export default function GovernanceVotersTable() {
 	const { delegatees } = useDelegationQuery();
 	const fpsHolders = useFPSHolders();
 
-	const existingAccounts = new Set(fpsHolders.holders.map((h) => h.account.toLowerCase()));
+	const existingAccounts = new Set(fpsHolders.holders.map((h) => normalizeAddress(h.account)));
 	const delegateeHolders: FPSHolder[] = Object.keys(delegatees)
-		.filter((addr) => !existingAccounts.has(addr.toLowerCase()))
+		.filter((addr) => !existingAccounts.has(normalizeAddress(addr)))
 		.map((addr) => ({ account: addr as Address, balance: 0n, updated: 0 }));
 	const allHolders = [...fpsHolders.holders, ...delegateeHolders];
 
@@ -107,7 +108,7 @@ export default function GovernanceVotersTable() {
 		fetcher();
 	}, [account, votesTotal, chainId, delegatees]);
 
-	const matchingVotes: VoteData[] = votesData.filter((v) => v.holder.toLowerCase() !== account.address?.toLowerCase());
+	const matchingVotes: VoteData[] = votesData.filter((v) => normalizeAddress(v.holder) !== account.address?.toLowerCase());
 	const votesDataSorted: VoteData[] = sortVotes({
 		votes: matchingVotes,
 		account: account.address,
@@ -181,7 +182,7 @@ function sortVotes(params: SortVotes): VoteData[] {
 	const considerReverse = reverse ? votes.reverse() : votes;
 
 	if (!!account) {
-		considerReverse.sort((a, b) => (a.holder.toLowerCase() === account.toLowerCase() ? -1 : 1));
+		considerReverse.sort((a, b) => (normalizeAddress(a.holder) === normalizeAddress(account) ? -1 : 1));
 	}
 
 	return considerReverse;

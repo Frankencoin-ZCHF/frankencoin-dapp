@@ -9,6 +9,7 @@ import { SavingsActivityQuery } from "@frankencoin/api";
 import SavingsRecentActivitiesRow from "./SavingsRecentActivitiesRow";
 import { useAccount, useChainId } from "wagmi";
 import { ADDRESS, ChainId } from "@frankencoin/zchf";
+import { normalizeAddress } from "../../utils/format";
 import { mainnet } from "viem/chains";
 
 export default function SavingsRecentActivitiesTable() {
@@ -20,8 +21,8 @@ export default function SavingsRecentActivitiesTable() {
 	const { address } = useAccount();
 
 	const activities = useSelector((state: RootState) => state.savings.savingsActivity);
-	const ignoreModule = ADDRESS[mainnet.id].savingsV2.toLowerCase();
-	const matching = activities.filter((l) => l.chainId == chainId && l.module.toLowerCase() != ignoreModule).slice(0, 20);
+	const ignoreModule = normalizeAddress(ADDRESS[mainnet.id].savingsV2);
+	const matching = activities.filter((l) => l.chainId == chainId && normalizeAddress(l.module) !== ignoreModule).slice(0, 20);
 
 	const sorted: SavingsActivityQuery[] = sortFunction({ list: matching, headers, tab, reverse });
 
