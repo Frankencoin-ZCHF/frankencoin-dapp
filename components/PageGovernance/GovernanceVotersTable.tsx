@@ -4,7 +4,7 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { useEffect, useState } from "react";
-import { useFPSHolders } from "@hooks";
+import { useFPSHolders, useDelegationQuery, computeSupporterCount } from "@hooks";
 import { useVotingPowers } from "@hooks";
 import GovernanceVotersRow from "./GovernanceVotersRow";
 
@@ -20,11 +20,12 @@ export type VoteData = {
 	votingPower: bigint;
 	votingPowerRatio: number;
 	holdingDuration: bigint;
+	supporterCount: number;
 };
 
 export default function GovernanceVotersTable() {
-	const headers: string[] = ["Address", "Voting Power"];
-	const [tab, setTab] = useState<string>(headers[2]);
+	const headers: string[] = ["Address", "Supporters", "Voting Power"];
+	const [tab, setTab] = useState<string>(headers[2]); // default sort: Voting Power
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [accountVotes, setAccountVotes] = useState<VoteData>({
 		balance: 0n,
@@ -32,11 +33,13 @@ export default function GovernanceVotersTable() {
 		votingPower: 0n,
 		votingPowerRatio: 0,
 		holdingDuration: 0n,
+		supporterCount: 0,
 	});
 	const [list, setList] = useState<VoteData[]>([]);
 
 	const account = useAccount();
 	const chainId = mainnet.id;
+	const { delegatees } = useDelegationQuery();
 	const fpsHolders = useFPSHolders();
 	const votingPowersHook = useVotingPowers(fpsHolders.holders);
 	const votesTotal = votingPowersHook.totalVotes;
@@ -48,6 +51,7 @@ export default function GovernanceVotersTable() {
 			votingPower: vp.votingPower as bigint,
 			votingPowerRatio: ratio,
 			holdingDuration: vp.holdingDuration,
+			supporterCount: computeSupporterCount(vp.holder as Address, delegatees),
 		};
 	});
 
@@ -88,11 +92,12 @@ export default function GovernanceVotersTable() {
 				votingPower,
 				votingPowerRatio: parseFloat(formatUnits(votingPowerRatio, 18)),
 				holdingDuration: holdingDuration,
+				supporterCount: computeSupporterCount(holder as Address, delegatees),
 			});
 		};
 
 		fetcher();
-	}, [account, votesTotal, chainId]);
+	}, [account, votesTotal, chainId, delegatees]);
 
 	const matchingVotes: VoteData[] = votesData.filter((v) => v.holder.toLowerCase() !== account.address?.toLowerCase());
 	const votesDataSorted: VoteData[] = sortVotes({
@@ -160,6 +165,8 @@ function sortVotes(params: SortVotes): VoteData[] {
 	if (tab === headers[0]) {
 		votes.sort((a, b) => a.holder.localeCompare(b.holder));
 	} else if (tab === headers[1]) {
+		votes.sort((a, b) => b.supporterCount - a.supporterCount);
+	} else if (tab === headers[2]) {
 		votes.sort((a, b) => (b.votingPower > a.votingPower ? 1 : -1));
 	}
 
