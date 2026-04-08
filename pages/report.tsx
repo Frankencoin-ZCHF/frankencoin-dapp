@@ -4,11 +4,10 @@ import AppTitle from "@components/AppTitle";
 import AddressInput from "@components/Input/AddressInput";
 import { useEffect, useState } from "react";
 import AppCard from "@components/AppCard";
-import { Address, isAddress } from "viem";
+import { Address, isAddress, zeroAddress } from "viem";
 import { FRANKENCOIN_API_CLIENT } from "../app.config";
 import ReportsSavingsYearlyTable from "@components/PageReports/ReportsSavingsYearlyTable";
-import { FPSBalanceHistory } from "../hooks/useFPSBalanceHistory";
-import { FPSEarningsHistory } from "../hooks/useFPSEarningsHistory";
+import { useFPSBalanceHistory, useFPSEarningsHistory } from "@hooks";
 import ReportsFPSYearlyTable from "@components/PageReports/ReportsFPSYearlyTable";
 import ReportsPositionsYearlyTable from "@components/PageReports/ReportsPositionsYearlyTable";
 import { useRef } from "react";
@@ -16,6 +15,7 @@ import generatePDF, { Margin } from "react-to-pdf";
 import { useRouter } from "next/router";
 import DateInput from "@components/Input/DateInput";
 import { ApiOwnerDebt, ApiOwnerFees, ApiOwnerValueLocked, ApiSavingsActivity } from "@frankencoin/api";
+import { normalizeAddress } from "@utils";
 
 export type OwnerPositionFees = {
 	t: number;
@@ -43,11 +43,13 @@ export default function ReportPage() {
 	const [ownerPositionDebt, setOwnerPositionDebt] = useState<OwnerPositionDebt[]>([]);
 	const [ownerPositionValueLocked, setOwnerPositionValueLocked] = useState<OwnerPositionValueLocked[]>([]);
 	const [savings, setSavings] = useState<ApiSavingsActivity>([]);
-	const [fpsHistory, setFpsHistory] = useState<FPSBalanceHistory[]>([]);
-	const [fpsEarnings, setFpsEarnings] = useState<FPSEarningsHistory[]>([]);
 
 	const router = useRouter();
 	const overwrite: Address = router.query.address as Address;
+
+	const resolvedAddress = isAddress(reportingAddress) ? normalizeAddress(reportingAddress) : zeroAddress;
+	const fpsHistory = useFPSBalanceHistory(resolvedAddress);
+	const fpsEarnings = useFPSEarningsHistory(resolvedAddress);
 
 	useEffect(() => {
 		if (overwrite == undefined || overwrite.length == 0) return;
@@ -65,8 +67,6 @@ export default function ReportPage() {
 		if (!isAddress(reportingAddress)) {
 			setOwnerPositionFees([]);
 			setSavings([]);
-			setFpsHistory([]);
-			setFpsEarnings([]);
 			setError("Invalid Address");
 			return;
 		}
@@ -99,12 +99,6 @@ export default function ReportPage() {
 
 				const responseSavings = await FRANKENCOIN_API_CLIENT.get(`/savings/core/activity/${reportingAddress}`);
 				setSavings(responseSavings.data as ApiSavingsActivity);
-
-				const responseBalance = await FPSBalanceHistory(reportingAddress);
-				setFpsHistory(responseBalance.reverse());
-
-				const responseEarnings = await FPSEarningsHistory(reportingAddress);
-				setFpsEarnings(responseEarnings.reverse());
 
 				// clear all errors
 				setError("");

@@ -66,7 +66,7 @@ export default function ReportsFPSYearlyTable({ address, fpsHistory, fpsEarnings
 
 		// get fps price
 		const yearNew = new Date(`${Number(y) + 1}-01-01`).getTime();
-		const filteredLogs = logs.filter((l) => Number(l.timestamp) < yearNew);
+		const filteredLogs = logs.filter((l) => Number(l.timestamp) * 1000 < yearNew);
 		const price = BigInt(filteredLogs.at(-1)?.fpsPrice || "0");
 		const value = (latestBalance * price) / BigInt(10 ** 18);
 
