@@ -14,12 +14,16 @@ export type DelegationQuery = {
 	delegatees: {
 		[key: Address]: Address[];
 	};
+	allOwners: Address[];
+	allDelegatees: Address[];
 };
 
 export const useDelegationQuery = (): DelegationQuery => {
 	const returnData: DelegationQuery = {
 		owners: {},
 		delegatees: {},
+		allOwners: [],
+		allDelegatees: [],
 	};
 
 	const { data, loading } = useQuery(
@@ -47,9 +51,12 @@ export const useDelegationQuery = (): DelegationQuery => {
 		const to = normalizeAddress(i.delegatedTo);
 
 		returnData.owners[owner] = to;
+		returnData.allOwners.push(owner);
 
 		if (!returnData.delegatees[to]) returnData.delegatees[to] = [];
 		returnData.delegatees[to].push(owner);
+
+		if (!returnData.allDelegatees.includes(to)) returnData.allDelegatees.push(to);
 	}
 
 	return returnData;
