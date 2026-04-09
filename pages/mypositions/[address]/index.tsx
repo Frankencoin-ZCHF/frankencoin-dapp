@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { formatUnits, maxUint256, erc20Abi, Address, parseEther, parseUnits } from "viem";
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
-import { abs, bigIntMax, bigIntMin, ContractUrl, formatBigInt, formatCurrency, formatDuration, shortenAddress } from "@utils";
+import { abs, bigIntMax, bigIntMin, ContractUrl, formatBigInt, formatCurrency, formatDuration, normalizeAddress, shortenAddress } from "@utils";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -111,7 +111,7 @@ export default function PositionAdjust() {
 	// ---------------------------------------------------------------------------
 	if (!position) return <MyPositionsNotFound query={addressQuery} />;
 
-	const priceQuery = prices[position.collateral.toLowerCase() as Address];
+	const priceQuery = prices[normalizeAddress(position.collateral)];
 	if (!priceQuery) return <AppCard>Market Price of position not found</AppCard>;
 
 	const marketPriceDec = priceQuery.price.chf != undefined ? Math.round(priceQuery.price.chf * 80) / 100 : 1;

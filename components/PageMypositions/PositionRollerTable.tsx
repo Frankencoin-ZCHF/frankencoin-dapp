@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import { Address, formatUnits } from "viem";
+import { normalizeAddress } from "../../utils/format";
 import { useEffect, useState } from "react";
 import PositionRollerRow from "./PositionRollerRow";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
@@ -31,11 +32,11 @@ export default function PositionRollerTable({ position }: PositionRollerTablePar
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
 	const matchingPositions = positions.filter((p) => {
-		const pid: Address = p.position.toLowerCase() as Address;
+		const pid: Address = normalizeAddress(p.position);
 		const isChallenged: boolean = (challengesPosMap[pid] || []).filter((c) => c.status == "Active").length > 0;
 		return (
 			p.version == 2 &&
-			p.collateral.toLowerCase() == position.collateral.toLowerCase() &&
+			normalizeAddress(p.collateral) === normalizeAddress(position.collateral) &&
 			p.expiration > position.expiration && // also excludes same position
 			!p.closed &&
 			!p.denied &&
@@ -70,7 +71,7 @@ export default function PositionRollerTable({ position }: PositionRollerTablePar
 	};
 
 	const handleClick = function (position: PositionQuery) {
-		const slug = `?source=${position.position.toLowerCase()}&chain=ethereum`;
+		const slug = `?source=${normalizeAddress(position.position)}&chain=ethereum`;
 		navigate.push("/mint/create" + slug);
 	};
 

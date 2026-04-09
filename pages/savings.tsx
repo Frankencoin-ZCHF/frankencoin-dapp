@@ -27,7 +27,7 @@ export default function SavingsPage() {
 	const AppKitNetwork = useAppKitNetwork();
 	const chainId = useChainId() as ChainId;
 
-	const queryAddress: Address = String(router.query.address).toLowerCase() as Address;
+	const queryAddress: Address = normalizeAddress(String(router.query.address));
 	const account = isAddress(queryAddress) ? queryAddress : address ?? zeroAddress;
 
 	const queryChain: string = String(router.query.chain).toLowerCase();

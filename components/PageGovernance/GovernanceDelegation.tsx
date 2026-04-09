@@ -5,7 +5,7 @@ import { Address, isAddress, zeroAddress } from "viem";
 import { mainnet } from "viem/chains";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 import { useDelegationQuery, useDelegationHelpers, useVotesSynced } from "@hooks";
-import { formatCurrency, shortenAddress } from "@utils";
+import { formatCurrency, normalizeAddress, shortenAddress } from "@utils";
 import AddressInput from "@components/Input/AddressInput";
 import ChainSyncedVotes from "@components/Input/ChainSyncedVotes";
 import { WAGMI_CHAINS } from "../../app.config";
@@ -20,7 +20,7 @@ export default function GovernanceDelegation() {
 
 	// delegation graph
 	const delegationData = useDelegationQuery();
-	const myDelegatedTo: Address = (delegationData.owners[myAddress.toLowerCase() as Address] ?? zeroAddress) as Address;
+	const myDelegatedTo: Address = (delegationData.owners[normalizeAddress(myAddress)] ?? zeroAddress) as Address;
 
 	// helpers (supporters) for sync and display
 	const { helpers, supporterCount } = useDelegationHelpers(account.address);

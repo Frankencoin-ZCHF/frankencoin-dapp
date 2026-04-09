@@ -9,7 +9,7 @@ import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { erc20Abi } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { formatBigInt, shortenAddress } from "@utils";
+import { formatBigInt, normalizeAddress, shortenAddress } from "@utils";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import NormalInput from "@components/Input/NormalInput";
@@ -67,7 +67,7 @@ export default function PositionCreate({}) {
 	const collTokenData = useTokenData(collateralAddress);
 	const userBalance = useUserBalance();
 	const router = useRouter();
-	const queryAddress: Address = String(router.query.source).toLowerCase() as Address;
+	const queryAddress: Address = normalizeAddress(String(router.query.source));
 	const { list } = useSelector((state: RootState) => state.positions.list);
 
 	useEffect(() => {
@@ -75,7 +75,7 @@ export default function PositionCreate({}) {
 		else setIsInit(true);
 
 		if (isAddress(queryAddress)) {
-			const getPosition = list.find((i) => i.position.toLowerCase() == queryAddress) as PositionQueryV2;
+			const getPosition = list.find((i) => normalizeAddress(i.position) === queryAddress) as PositionQueryV2;
 			if (getPosition == null) return;
 
 			// Collateral

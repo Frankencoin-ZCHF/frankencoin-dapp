@@ -16,11 +16,12 @@ import { LeadrateRateQuery } from "@frankencoin/api";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { Address } from "viem";
+import { normalizeAddress } from "../../utils/format";
 import { useDelegationHelpers } from "@hooks";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
-const MintModule = ADDRESS[mainnet.id].savingsV2.toLowerCase() as Address;
-const SaveModule = ADDRESS[mainnet.id].savingsReferral.toLowerCase() as Address;
+const MintModule = normalizeAddress(ADDRESS[mainnet.id].savingsV2);
+const SaveModule = normalizeAddress(ADDRESS[mainnet.id].savingsReferral);
 
 interface Props {}
 

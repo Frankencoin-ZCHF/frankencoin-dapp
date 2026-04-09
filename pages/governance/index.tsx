@@ -13,11 +13,11 @@ import { store } from "../../redux/redux.store";
 import { fetchLeadrate } from "../../redux/slices/savings.slice";
 import GovernanceMintersPropose from "@components/PageGovernance/GovernanceMintersPropose";
 import GovernanceDelegation from "@components/PageGovernance/GovernanceDelegation";
-import { useHoldingDurationStats } from "@hooks";
+import { useFPSAverageStats } from "@hooks";
 import { formatUnits } from "viem";
 
 export default function Governance() {
-	const stats = useHoldingDurationStats();
+	const stats = useFPSAverageStats();
 
 	useEffect(() => {
 		store.dispatch(fetchLeadrate());

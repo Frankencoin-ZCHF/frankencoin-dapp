@@ -3,9 +3,9 @@ import TableBody from "../Table/TableBody";
 import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useEffect, useState } from "react";
-import { FPSEarningsHistory } from "../../hooks/FPSEarningsHistory";
-import { FPSBalanceHistory } from "../../hooks/FPSBalanceHistory";
+import { FPSBalanceHistory, FPSEarningsHistory } from "@hooks";
 import { Address } from "viem";
+import { normalizeAddress } from "../../utils/format";
 import ReportsFPSYearlyRow from "./ReportsFPSYearlyRow";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
@@ -26,7 +26,7 @@ export default function ReportsFPSYearlyTable({ address, fpsHistory, fpsEarnings
 	const { logs } = useSelector((state: RootState) => state.dashboard.dailyLog);
 
 	const entriesRaw = fpsHistory.map((item, idx) => {
-		const balance = item.to == address.toLowerCase() ? item.balanceTo : item.balanceFrom;
+		const balance = normalizeAddress(item.to) === normalizeAddress(address) ? item.balanceTo : item.balanceFrom;
 		const firstDate = item.created * 1000;
 		const lastDate = idx == fpsHistory.length - 1 ? Date.now() : fpsHistory[idx + 1].created * 1000;
 		const earnings = fpsEarnings.filter((i) => i.created * 1000 >= firstDate && i.created * 1000 < lastDate);
@@ -61,12 +61,12 @@ export default function ReportsFPSYearlyTable({ address, fpsHistory, fpsEarnings
 
 		if (fpsYearly.at(-1) != undefined) {
 			const latestItem = fpsYearly.at(-1)!;
-			latestBalance = latestItem.to == address.toLowerCase() ? latestItem.balanceTo : latestItem.balanceFrom;
+			latestBalance = normalizeAddress(latestItem.to) === normalizeAddress(address) ? latestItem.balanceTo : latestItem.balanceFrom;
 		}
 
 		// get fps price
 		const yearNew = new Date(`${Number(y) + 1}-01-01`).getTime();
-		const filteredLogs = logs.filter((l) => Number(l.timestamp) < yearNew);
+		const filteredLogs = logs.filter((l) => Number(l.timestamp) * 1000 < yearNew);
 		const price = BigInt(filteredLogs.at(-1)?.fpsPrice || "0");
 		const value = (latestBalance * price) / BigInt(10 ** 18);
 

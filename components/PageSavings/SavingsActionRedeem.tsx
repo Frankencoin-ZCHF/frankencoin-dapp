@@ -10,6 +10,7 @@ import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { useRouter } from "next/router";
 import { Address, isAddress, zeroAddress } from "viem";
+import { normalizeAddress } from "../../utils/format";
 
 interface Props {
 	disabled?: boolean;
@@ -23,7 +24,7 @@ export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 	const chainId = mainnet.id;
 
 	const router = useRouter();
-	const queryAddress: Address = String(router.query.address).toLowerCase() as Address;
+	const queryAddress: Address = normalizeAddress(String(router.query.address));
 	const account = isAddress(queryAddress) ? queryAddress : address ?? zeroAddress;
 
 	useEffect(() => {

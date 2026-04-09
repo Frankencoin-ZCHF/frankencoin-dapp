@@ -1,7 +1,7 @@
 import { Address, formatUnits } from "viem";
 import TableRow from "../Table/TableRow";
 import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
-import { formatCurrency, FormatType, shortenAddress } from "../../utils/format";
+import { formatCurrency, FormatType, normalizeAddress, shortenAddress } from "../../utils/format";
 import GovernancePositionsAction from "./GovernancePositionsAction";
 import DisplayCollateralBorrowTable from "@components/PageBorrow/DisplayCollateralBorrowTable";
 import AppBox from "@components/AppBox";
@@ -17,7 +17,7 @@ interface Props {
 }
 
 export default function GovernancePositionsRow({ headers, subHeaders, tab, position, prices }: Props) {
-	const price = prices[position.collateral.toLowerCase() as Address];
+	const price = prices[normalizeAddress(position.collateral)];
 	if (!position || !price) return null;
 
 	const limit = formatUnits(BigInt(position.limitForClones), 18);

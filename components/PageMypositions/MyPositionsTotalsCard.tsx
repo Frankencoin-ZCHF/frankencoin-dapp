@@ -8,6 +8,7 @@ import { useAccount } from "wagmi";
 import { useRouter } from "next/router";
 import { Address, zeroAddress } from "viem";
 import { ADDRESS } from "@frankencoin/zchf";
+import { normalizeAddress } from "../../utils/format";
 import { WAGMI_CHAIN } from "../../app.config";
 import { mainnet } from "viem/chains";
 
@@ -20,7 +21,7 @@ export default function MyPositionsTotalsCard() {
 	const { address } = useAccount();
 	const account = overwrite || address || zeroAddress;
 
-	const matchingPositions = positions.filter((p) => p.owner.toLowerCase() == account.toLowerCase());
+	const matchingPositions = positions.filter((p) => normalizeAddress(p.owner) === normalizeAddress(account));
 
 	let totalMinted: bigint = 0n;
 	let totalReserves: bigint = 0n;

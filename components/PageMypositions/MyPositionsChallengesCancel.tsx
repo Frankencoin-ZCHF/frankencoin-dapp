@@ -3,7 +3,7 @@ import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
-import { formatBigInt } from "@utils";
+import { formatBigInt, normalizeAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
@@ -24,17 +24,17 @@ export default function MyPositionsChallengesCancel({ challenge, hidden }: Props
 	const account = useAccount();
 	const chainId = mainnet.id;
 	const [isHidden, setHidden] = useState<boolean>(
-		hidden == true || challenge.status !== "Active" || account.address?.toLowerCase() !== challenge.challenger.toLowerCase()
+		hidden == true || challenge.status !== "Active" || account.address?.toLowerCase() !== normalizeAddress(challenge.challenger)
 	);
 
 	const handleCancelOnClick = async function () {
-		const pid = challenge.position.toLowerCase() as Address;
+		const pid = normalizeAddress(challenge.position);
 		const p: PositionQuery = positions[pid];
 		const n: number = parseInt(challenge.number.toString());
 		const r = challenge.size - challenge.filledSize;
 
 		if (!p) return;
-		if (account.address?.toLowerCase() !== challenge.challenger.toLowerCase()) return;
+		if (account.address?.toLowerCase() !== normalizeAddress(challenge.challenger)) return;
 
 		try {
 			setCancelling(true);

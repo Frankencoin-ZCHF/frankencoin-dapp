@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Head from "next/head";
 import EquityFPSDetailsCard from "@components/PageEquity/EquityFPSDetailsCard";
 import EquityInteractionCard from "@components/PageEquity/EquityInteractionCard";
 import AppTitle from "@components/AppTitle";
 import { useAccount } from "wagmi";
-import { FPSBalanceHistory } from "../hooks/FPSBalanceHistory";
-import { FPSEarningsHistory } from "../hooks/FPSEarningsHistory";
+import { useFPSBalanceHistory, useFPSEarningsHistory } from "@hooks";
 import ReportsFPSYearlyTable from "@components/PageReports/ReportsFPSYearlyTable";
 import { zeroAddress } from "viem";
 import AppLink from "@components/AppLink";
@@ -16,30 +15,8 @@ import { mainnet } from "viem/chains";
 
 export default function Equity() {
 	const { address } = useAccount();
-	const [fpsHistory, setFpsHistory] = useState<FPSBalanceHistory[]>([]);
-	const [fpsEarnings, setFpsEarnings] = useState<FPSEarningsHistory[]>([]);
-
-	useEffect(() => {
-		if (address == undefined) {
-			setFpsHistory([]);
-			setFpsEarnings([]);
-			return;
-		}
-
-		const fetcher = async () => {
-			try {
-				const responseBalance = await FPSBalanceHistory(address);
-				setFpsHistory(responseBalance.reverse());
-
-				const responseEarnings = await FPSEarningsHistory(address);
-				setFpsEarnings(responseEarnings.reverse());
-			} catch (error) {
-				console.log(error);
-			}
-		};
-
-		fetcher();
-	}, [address]);
+	const fpsHistory = useFPSBalanceHistory(address || zeroAddress);
+	const fpsEarnings = useFPSEarningsHistory(address || zeroAddress);
 
 	return (
 		<>

@@ -4,7 +4,7 @@ import { PositionQuery, ChallengesQueryStatus, BidsQueryItem, BidsQueryType, Cha
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import TokenLogo from "@components/TokenLogo";
-import { formatCurrency } from "../../utils/format";
+import { formatCurrency, normalizeAddress } from "../../utils/format";
 import { useRouter as useNavigation } from "next/navigation";
 import { useContractUrl } from "@hooks";
 import AppBox from "@components/AppBox";
@@ -23,8 +23,8 @@ export default function MonitoringRow({ headers, tab, position }: Props) {
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const url = useContractUrl(position.collateral || zeroAddress);
-	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd || 1;
-	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd || 1;
+	const collTokenPrice = prices[normalizeAddress(position.collateral)]?.price?.usd || 1;
+	const zchfPrice = prices[normalizeAddress(position.zchf)]?.price?.usd || 1;
 
 	const maturity: number = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
 
@@ -35,7 +35,7 @@ export default function MonitoringRow({ headers, tab, position }: Props) {
 	const liquidationPct: number = Math.round((balanceZCHF / (liquidationZCHF * balance)) * 10000) / 100;
 
 	const digits: number = position.collateralDecimals;
-	const positionChallenges = challenges.map[position.position.toLowerCase() as Address] ?? [];
+	const positionChallenges = challenges.map[normalizeAddress(position.position)] ?? [];
 	const positionChallengesActive = positionChallenges.filter((ch: ChallengesQueryItem) => ch.status == "Active") ?? [];
 	const positionChallengesActiveCollateral =
 		positionChallengesActive.reduce<number>((acc, c) => {

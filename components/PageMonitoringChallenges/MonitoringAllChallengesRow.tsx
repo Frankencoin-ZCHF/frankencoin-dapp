@@ -3,7 +3,7 @@ import { BidsQueryItem, ChallengesQueryItem } from "@frankencoin/api";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import TokenLogo from "@components/TokenLogo";
-import { formatCurrency, formatDate } from "../../utils/format";
+import { formatCurrency, formatDate, normalizeAddress } from "../../utils/format";
 import { useContractUrl } from "@hooks";
 import { useRouter as useNavigation } from "next/navigation";
 import Button from "@components/Button";
@@ -21,12 +21,12 @@ export default function MonitoringAllChallengesRow({ challenge, bids }: Props) {
 	const positions = useSelector((state: RootState) => state.positions.mapping);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
-	const position = positions.map[challenge.position.toLowerCase() as Address];
+	const position = positions.map[normalizeAddress(challenge.position)];
 	const url = useContractUrl(position?.collateral || zeroAddress);
 	if (!position) return null;
 
-	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
-	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
+	const collTokenPrice = prices[normalizeAddress(position.collateral)]?.price?.usd;
+	const zchfPrice = prices[normalizeAddress(position.zchf)]?.price?.usd;
 	if (!collTokenPrice || !zchfPrice) return null;
 
 	const challengeSize: number = parseInt(challenge.size.toString()) / 10 ** position.collateralDecimals;
