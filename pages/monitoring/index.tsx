@@ -12,9 +12,9 @@ import { useSelector } from "react-redux";
 import PageTabInput from "@components/Input/PageTabInput";
 import AppHeroSteps from "@components/AppHeroSteps";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAward, faGavel, faMoneyBill, faTrophy } from "@fortawesome/free-solid-svg-icons";
+import { faGavel, faTrophy } from "@fortawesome/free-solid-svg-icons";
 import FrankencoinAllocation from "@components/PageEcoSystem/FrankencoinAllocation";
-import CollateralAndPositionsOverview from "@components/PageEcoSystem/CollateralAndPositionsOverview";
+import CollateralOverviewTable from "@components/PageMonitoring/CollateralOverviewTable";
 
 export default function Positions() {
 	const posCount = useSelector((state: RootState) => state.positions.openPositions.length);
@@ -126,8 +126,8 @@ export default function Positions() {
 					{
 						label: "Collateral Overview",
 						content: (
-							<div className={`pt-6`}>
-								<CollateralAndPositionsOverview />
+							<div className="mt-8">
+								<CollateralOverviewTable />
 							</div>
 						),
 					},
