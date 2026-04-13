@@ -24,6 +24,12 @@ interface Props {
 	activeFilters: string[];
 	onFiltersChange: (filters: string[]) => void;
 
+	// Custom categories filter
+	customCategories?: string[];
+	customCategoriesTitle?: string;
+	activeCustomCategories?: string[];
+	onCustomCategoriesChange?: (values: string[]) => void;
+
 	// Table column headers (same as TableHead)
 	headers: string[];
 	subHeaders?: string[];
@@ -44,6 +50,10 @@ export default function TableHeadSearchable({
 	filterOptions,
 	activeFilters,
 	onFiltersChange,
+	customCategories,
+	customCategoriesTitle = "State",
+	activeCustomCategories = [],
+	onCustomCategoriesChange,
 	headers,
 	subHeaders,
 	actionCol,
@@ -77,6 +87,17 @@ export default function TableHeadSearchable({
 			onFiltersChange([...activeFilters, value]);
 		}
 	};
+
+	const toggleCustomCategory = (value: string) => {
+		if (!onCustomCategoriesChange) return;
+		if (activeCustomCategories.includes(value)) {
+			onCustomCategoriesChange(activeCustomCategories.filter((f) => f !== value));
+		} else {
+			onCustomCategoriesChange([...activeCustomCategories, value]);
+		}
+	};
+
+	const totalActiveFilters = activeFilters.length + activeCustomCategories.length;
 
 	return (
 		<div className="rounded-t-lg bg-table-header-primary">
@@ -120,41 +141,71 @@ export default function TableHeadSearchable({
 						<button
 							onClick={() => setFilterOpen((prev) => !prev)}
 							className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors ${
-								filterOpen || activeFilters.length > 0
+								filterOpen || totalActiveFilters > 0
 									? "border-button-default text-button-default bg-blue-50 dark:bg-blue-900/20"
 									: "dark:border-gray-600 text-text-secondary hover:bg-button-disabled"
 							}`}
 						>
 							<FontAwesomeIcon icon={faSlidersH} className="w-3.5 h-3.5" />
 							<span>Filter</span>
-							{activeFilters.length > 0 && (
+							{totalActiveFilters > 0 && (
 								<span className="ml-1 bg-button-default text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-									{activeFilters.length}
+									{totalActiveFilters}
 								</span>
 							)}
 						</button>
 
 						{filterOpen && (
 							<div className="absolute right-0 top-full mt-2 z-50 w-52 rounded-lg bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 py-3">
-								<div className="px-4 pb-2">
-									<span className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
-										Asset Categories
-									</span>
-								</div>
-								{filterOptions.map((opt) => (
-									<label
-										key={opt.value}
-										className="flex items-center gap-3 px-4 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
-									>
-										<input
-											type="checkbox"
-											checked={activeFilters.includes(opt.value)}
-											onChange={() => toggleFilter(opt.value)}
-											className="w-4 h-4 rounded active:bg-button-default"
-										/>
-										<span className="text-sm text-text-primary">{opt.label}</span>
-									</label>
-								))}
+								{filterOptions.length > 0 && (
+									<>
+										<div className="px-4 pb-2">
+											<span className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
+												Asset Categories
+											</span>
+										</div>
+										{filterOptions.map((opt) => (
+											<label
+												key={opt.value}
+												className="flex items-center gap-3 px-4 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
+											>
+												<input
+													type="checkbox"
+													checked={activeFilters.includes(opt.value)}
+													onChange={() => toggleFilter(opt.value)}
+													className="w-4 h-4 rounded active:bg-button-default"
+												/>
+												<span className="text-sm text-text-primary">{opt.label}</span>
+											</label>
+										))}
+									</>
+								)}
+								{customCategories && customCategories.length > 0 && (
+									<>
+										{filterOptions.length > 0 && (
+											<div className="my-2 border-t border-gray-100 dark:border-gray-700" />
+										)}
+										<div className="px-4 pb-2">
+											<span className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
+												{customCategoriesTitle}
+											</span>
+										</div>
+										{customCategories.map((category) => (
+											<label
+												key={category}
+												className="flex items-center gap-3 px-4 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
+											>
+												<input
+													type="checkbox"
+													checked={activeCustomCategories.includes(category)}
+													onChange={() => toggleCustomCategory(category)}
+													className="w-4 h-4 rounded active:bg-button-default"
+												/>
+												<span className="text-sm text-text-primary">{category}</span>
+											</label>
+										))}
+									</>
+								)}
 							</div>
 						)}
 					</div>
