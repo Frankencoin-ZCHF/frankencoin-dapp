@@ -239,7 +239,7 @@ export default function PositionBorrow({}) {
 	const priceDigit = 36 - position.collateralDecimals;
 
 	return (
-		<>
+		<div className="flex flex-col md:max-w-2xl mx-auto">
 			<Head>
 				<title>Frankencoin - Borrow</title>
 			</Head>
@@ -273,7 +273,7 @@ export default function PositionBorrow({}) {
 			<div className="mt-8">
 				<section className="grid grid-cols-1 gap-4">
 					<AppCard>
-						<div className="text-lg font-bold text-center mt-3">Borrow Frankencoins</div>
+						<div className="text-lg font-bold text-center">Borrow Frankencoins</div>
 						<div className="grid md:grid-cols-2 gap-4">
 							<TokenInput
 								label="Deposit"
@@ -305,7 +305,7 @@ export default function PositionBorrow({}) {
 							/>
 						</div>
 
-						<div className="grid md:grid-cols-2 gap-4">
+						<div className="grid md:grid-cols-1 gap-4">
 							<LiquidationSlider
 								label="Liquidation Price"
 								value={newPrice}
@@ -483,6 +483,6 @@ export default function PositionBorrow({}) {
 					</div>
 				</section>
 			</div>
-		</>
+		</div>
 	);
 }
