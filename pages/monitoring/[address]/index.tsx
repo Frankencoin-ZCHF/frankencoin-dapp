@@ -176,12 +176,14 @@ export default function PositionDetail() {
 
 					{isSubjectToCooldown() && (
 						<AppCard>
-							<div className="text-base font-bold text-amber-400 mb-1">Cooldown Active</div>
-							<p className="text-text-secondary text-sm leading-relaxed">
-								The owner recently raised the liquidation price. This position is in a cooldown period until{" "}
-								<span className="text-text-primary font-medium">{formatDateTime(position.cooldown)}</span>. During this time
-								the position can be challenged before additional ZCHF can be minted.
-							</p>
+							<div className="gap-2">
+								<div className="text-base font-bold text-amber-400 mb-1">Cooldown Active</div>
+								<p className="text-text-secondary text-sm leading-relaxed">
+									The owner recently raised the liquidation price. This position is in a cooldown period until{" "}
+									<span className="text-text-primary font-medium">{formatDateTime(position.cooldown)}</span>. During this
+									time the position can be challenged before additional ZCHF can be minted.
+								</p>
+							</div>
 						</AppCard>
 					)}
 
