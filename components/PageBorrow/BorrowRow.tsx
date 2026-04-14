@@ -29,13 +29,12 @@ export default function BorrowRow({ headers, tab, position, vchfBridge, hideMyWa
 
 	const interest: number = position.annualInterestPPM / 10 ** 4;
 	const reserve: number = position.reserveContribution / 10 ** 4;
-
 	const price: number = parseInt(position.price) / 10 ** (36 - position.collateralDecimals);
 
 	const expirationStr = new Date(position.expiration * 1000).toDateString().split(" ");
 	const expirationString: string = `${expirationStr[2]} ${expirationStr[1]} ${expirationStr[3]}`;
 
-	const effectiveLTV: number = ((price * (1 - reserve / 100)) / collTokenPrice) * zchfPrice * 100;
+	const nominalLTV: number = (price / collTokenPrice) * zchfPrice * 100;
 	const effectiveInterest: number = interest / (1 - reserve / 100);
 
 	const isPending = position.start * 1000 > Date.now();
@@ -90,7 +89,7 @@ export default function BorrowRow({ headers, tab, position, vchfBridge, hideMyWa
 			</div>
 
 			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-md">{isVCHF ? "Swap 1:1" : `${formatCurrency(effectiveLTV, 2, 2)}%`}</div>
+				<div className="col-span-2 text-md">{isVCHF ? "Swap 1:1" : `${formatCurrency(nominalLTV, 2, 2)}%`}</div>
 			</div>
 
 			<div className="flex flex-col gap-2">
