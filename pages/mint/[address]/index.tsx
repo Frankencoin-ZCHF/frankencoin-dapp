@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { formatUnits, parseUnits, erc20Abi, Address } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import ButtonSecondary from "@components/ButtonSecondary";
+import Button from "@components/Button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLink, faLinkSlash } from "@fortawesome/free-solid-svg-icons";
 import { useAccount, useBlockNumber } from "wagmi";
 import { readContract } from "wagmi/actions";
 import { formatCurrency, formatDateFromSecs, min, normalizeAddress, shortenAddress, toTimestamp, DISCUSSIONS } from "@utils";
@@ -36,6 +39,8 @@ export default function PositionBorrow({}) {
 	const [collAmount, setCollAmount] = useState(0n);
 	const [newPrice, setNewPrice] = useState(0n);
 	const [mintPrice, setMintPrice] = useState(0n);
+
+	const [linked, setLinked] = useState(true);
 
 	const [userAllowance, setUserAllowance] = useState(0n);
 	const [userAllowanceHelper, setUserAllowanceHelper] = useState(0n);
@@ -210,16 +215,28 @@ export default function PositionBorrow({}) {
 	const hasAlternatives = alternativeRows.some(({ pos, isBest }) => pos && !isBest);
 
 	const onChangeCollateral = (value: string) => {
-		setCollAmount(BigInt(value));
+		const newColl = BigInt(value);
+		setCollAmount(newColl);
+		if (linked && mintPrice > 0n) {
+			setAmount((newColl * mintPrice) / parseUnits("1", 18));
+		}
 	};
 
 	const onChangeAmount = (value: string) => {
-		setAmount(BigInt(value));
+		const newAmount = BigInt(value);
+		setAmount(newAmount);
+		if (linked && mintPrice > 0n) {
+			setCollAmount((newAmount * parseUnits("1", 18) + mintPrice - 1n) / mintPrice);
+		}
 	};
 
 	const onChangeLiqPrice = (v: bigint) => {
 		setNewPrice(v);
-		setMintPrice(v <= priceBigInt ? v : priceBigInt);
+		const effectivePrice = v <= priceBigInt ? v : priceBigInt;
+		setMintPrice(effectivePrice);
+		if (linked && collAmount > 0n) {
+			setAmount((collAmount * effectivePrice) / parseUnits("1", 18));
+		}
 	};
 
 	const onChangeExpiration = (value: Date | null) => {
@@ -308,6 +325,25 @@ export default function PositionBorrow({}) {
 							/>
 						</div>
 
+						<div className="py-1 text-center">
+							{linked ? (
+								<Button className="h-10 rounded-full" width="w-10" onClick={() => setLinked(false)}>
+									<FontAwesomeIcon icon={faLink} className="w-5 h-5" />
+								</Button>
+							) : (
+								<ButtonSecondary
+									className="h-10 rounded-full"
+									width="w-10"
+									onClick={() => {
+										setLinked(true);
+										if (mintPrice > 0n) setAmount((collAmount * mintPrice) / parseUnits("1", 18));
+									}}
+								>
+									<FontAwesomeIcon icon={faLinkSlash} className="w-5 h-5" />
+								</ButtonSecondary>
+							)}
+						</div>
+
 						<div className="grid md:grid-cols-1 gap-4">
 							<LiquidationSlider
 								label="Liquidation Price"
@@ -361,7 +397,7 @@ export default function PositionBorrow({}) {
 
 									<div className="mt-0 flex">
 										<div className="flex-1">
-											<span>Unused after cooldown</span>
+											<span>Usable after cooldown</span>
 										</div>
 										<div className="text-right">
 											{additionalMintable > 0n ? "-" : ""}
