@@ -3,7 +3,17 @@ import { useEffect, useState } from "react";
 import { formatUnits, maxUint256, erc20Abi, Address, parseEther, parseUnits } from "viem";
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
-import { abs, bigIntMax, bigIntMin, ContractUrl, formatBigInt, formatCurrency, formatDuration, normalizeAddress, shortenAddress } from "@utils";
+import {
+	abs,
+	bigIntMax,
+	bigIntMin,
+	ContractUrl,
+	formatBigInt,
+	formatCurrency,
+	formatDuration,
+	normalizeAddress,
+	shortenAddress,
+} from "@utils";
 import Button from "@components/Button";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -389,17 +399,25 @@ export default function PositionAdjust() {
 				<title>Frankencoin - Manage Position</title>
 			</Head>
 
-			<AppTitle title={`Manage Position `}>
-				<div className="text-text-secondary">
-					Based on contract{" "}
-					<AppLink
-						label={shortenAddress(position.position) + "."}
-						href={ContractUrl(position.position)}
-						external={true}
-						className="pr-1"
-					/>
-				</div>
-			</AppTitle>
+			<AppTitle
+				title={`${position.collateralName} (${position.collateralSymbol})`}
+				subtitle={`Manage your position.`}
+				badges={[
+					position.closed
+						? { label: "Closed", className: "bg-red-500/20 text-red-400" }
+						: isCooldown
+						? { label: "Cooldown", className: "bg-amber-500/20 text-amber-400" }
+						: { label: "Active", className: "bg-green-500/20 text-green-400" },
+					{ label: `V${position.version}`, className: "bg-blue-500/20 text-blue-400" },
+					...(position.isClone ? [{ label: "Clone", className: "bg-purple-500/20 text-purple-400" }] : []),
+				]}
+				actions={
+					<div className="flex flex-wrap gap-4 text-sm">
+						<AppLink label="Contract" href={ContractUrl(position.position)} external={true} />
+						<AppLink label="Details" href={`/monitoring/${position.position}`} external={false} />
+					</div>
+				}
+			/>
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">

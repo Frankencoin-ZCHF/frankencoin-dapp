@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import { ADDRESS } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
+import { useContractUrl } from "@hooks";
 import { useRouter as useNavigation } from "next/navigation";
 import { mainnet } from "viem/chains";
 import AppCard from "@components/AppCard";
@@ -177,6 +178,14 @@ export default function PositionBorrow({}) {
 	const now = Date.now();
 	const isPositionBlocked = position.start * 1000 > now || (position.start * 1000 < now && position.cooldown > now);
 
+	const positionExplorerUrl = useContractUrl(String(addressQuery));
+	const isCooldown = position.start * 1000 < now && position.cooldown > now;
+	const positionStatus = position.closed
+		? { label: "Closed", cls: "bg-red-500/20 text-red-400" }
+		: isCooldown
+		? { label: "Cooldown", cls: "bg-amber-500/20 text-amber-400" }
+		: { label: "Active", cls: "bg-green-500/20 text-green-400" };
+
 	const collKey = normalizeAddress(position.collateral);
 	const bestRatePos = bestInterestByCollateral[collKey];
 	const posEffectiveRate = position.annualInterestPPM / (1_000_000 - position.reserveContribution);
@@ -264,31 +273,28 @@ export default function PositionBorrow({}) {
 				<title>Frankencoin - Borrow</title>
 			</Head>
 
-			<AppTitle title="Borrow Frankencoins">
-				<div className="text-text-secondary">
-					Deposit{" "}
-					{DISCUSSIONS[position.collateral] ? (
-						<AppLink
-							className=""
-							label={`${position.collateralName} (${position.collateralSymbol})`}
-							href={DISCUSSIONS[position.collateral]}
-							external={true}
-						/>
-					) : (
-						<span>
-							{position.collateralName} ({position.collateralSymbol})
-						</span>
-					)}{" "}
-					as collateral and mint new Frankencoins against it, cloning the terms from position{" "}
-					<AppLink
-						className=""
-						label={shortenAddress(position.position)}
-						href={`/monitoring/${position.position}`}
-						external={false}
-					/>
-					.
-				</div>
-			</AppTitle>
+			<AppTitle
+				title={`${position.collateralName} (${position.collateralSymbol})`}
+				subtitle="Deposit collateral and borrow new Frankencoins"
+				badges={[
+					{ label: positionStatus.label, className: positionStatus.cls },
+					{ label: `V${position.version}`, className: "bg-blue-500/20 text-blue-400" },
+					...(position.isClone ? [{ label: "Clone", className: "bg-purple-500/20 text-purple-400" }] : []),
+				]}
+				actions={
+					<div className="flex flex-wrap gap-4 text-sm">
+						{DISCUSSIONS[normalizeAddress(position.collateral)] && (
+							<AppLink
+								className="text-right"
+								label={`Discussion`}
+								href={DISCUSSIONS[normalizeAddress(position.collateral)]}
+								external={true}
+							/>
+						)}
+						<AppLink className="text-right" label={`Reference`} href={`/monitoring/${position.position}`} external={false} />
+					</div>
+				}
+			/>
 
 			<div className="mt-8">
 				<section className="grid grid-cols-1 gap-4">
