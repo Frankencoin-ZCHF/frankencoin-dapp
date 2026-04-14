@@ -3,7 +3,7 @@ import { RootState } from "../../redux/redux.store";
 import AppCard from "../AppCard";
 import { formatUnits } from "viem";
 import dynamic from "next/dynamic";
-import { formatCurrency } from "../../utils/format";
+import { formatCurrency, FormatType } from "../../utils/format";
 import AppLink from "@components/AppLink";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -150,7 +150,9 @@ export default function MintOutstanding() {
 										(d.exp * 1000 - Date.now()) / (24 * 3600 * 1000)
 									)}d - ${d.coll}`}
 								/>
-								<div className="text-text-secondary font-semibold">{formatCurrency(formatUnits(d.mint, 18), 2)} ZCHF</div>
+								<div className="text-text-secondary font-semibold">
+									{formatCurrency(formatUnits(d.mint, 18), 2, 2, FormatType.symbol)} ZCHF
+								</div>
 							</div>
 						))}
 				</div>

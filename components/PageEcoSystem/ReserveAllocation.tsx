@@ -3,7 +3,7 @@ import { RootState } from "../../redux/redux.store";
 import AppCard from "../AppCard";
 import { formatUnits, parseEther } from "viem";
 import dynamic from "next/dynamic";
-import { formatCurrency } from "../../utils/format";
+import { formatCurrency, FormatType } from "../../utils/format";
 import { colors } from "../../utils/constant";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -100,14 +100,18 @@ export default function ReserveAllocation() {
 							<div className="text-text-secondary font-semibold" style={{ color: colors[idx % colors.length] }}>
 								{label} <span className="text-sm">({percentByLabel.get(label)}%)</span>
 							</div>
-							<div className="text-text-secondary font-semibold">{formatCurrency(series[idx].toString(), 2)} ZCHF</div>
+							<div className="text-text-secondary font-semibold">
+								{formatCurrency(series[idx], 2, 2, FormatType.symbol)} ZCHF
+							</div>
 						</div>
 					))}
 					<div className="flex justify-between">
 						<div className="text-text-primary font-semibold mt-2">
 							Total <span className="text-sm">(100%)</span>
 						</div>
-						<div className="text-text-primary font-semibold mt-2">{formatCurrency(formatUnits(total, 18), 2)} ZCHF</div>
+						<div className="text-text-primary font-semibold mt-2">
+							{formatCurrency(formatUnits(total, 18), 2, 2, FormatType.symbol)} ZCHF
+						</div>
 					</div>
 				</div>
 			</div>
