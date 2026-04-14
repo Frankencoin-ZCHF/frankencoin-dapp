@@ -120,10 +120,12 @@ export default function PositionBorrow({}) {
 	if (!position) return null;
 
 	const priceBigInt = BigInt(position.price);
-	const priceFloat = parseFloat(formatUnits(priceBigInt, 36 - position.collateralDecimals));
+	const priceDigit = 36 - position.collateralDecimals;
+	const priceFloat = parseFloat(formatUnits(priceBigInt, priceDigit));
 	const collateralPriceZchf = prices[normalizeAddress(position.collateral)].price.chf || 1;
 	const reserve = position.reserveContribution / 10 ** 6;
 	const effectiveLTV = (priceFloat * (1 - reserve)) / collateralPriceZchf;
+	const ltvLimit = parseUnits(Math.max(0, (Number(formatUnits(newPrice, priceDigit)) / collateralPriceZchf) * 100).toFixed(6), 6);
 	const effectiveInterest = position.annualInterestPPM / 10 ** 6 / (1 - reserve);
 
 	const requiredColl = collAmount > BigInt(position.minimumCollateral) ? collAmount : BigInt(position.minimumCollateral);
@@ -156,6 +158,9 @@ export default function PositionBorrow({}) {
 	const paidOutToWallet = amount - borrowersReserveContribution - fees;
 	const availableByCollateralPrice = (collAmount * mintPrice) / parseUnits("1", 18);
 	const borrowingLimit = min(availableAmount, availableByCollateralPrice);
+	const mintableAtNewPrice = min((collAmount * newPrice) / parseUnits("1", 18), availableAmount);
+	const additionalMintable = mintableAtNewPrice > amount ? mintableAtNewPrice - amount : 0n;
+	const additionalMintableReserve = (BigInt(position.reserveContribution) * additionalMintable) / 1_000_000n;
 
 	const errorBorrow =
 		amount > availableAmount
@@ -236,8 +241,6 @@ export default function PositionBorrow({}) {
 		onChangeExpiration(expirationTabDates[t] ?? expirationMax);
 	};
 
-	const priceDigit = 36 - position.collateralDecimals;
-
 	return (
 		<div className="flex flex-col md:max-w-2xl mx-auto">
 			<Head>
@@ -291,7 +294,7 @@ export default function PositionBorrow({}) {
 								limitLabel="Balance"
 							/>
 							<TokenInput
-								label="Mint"
+								label="Mint now"
 								symbol="ZCHF"
 								value={amount.toString()}
 								onChange={onChangeAmount}
@@ -301,7 +304,7 @@ export default function PositionBorrow({}) {
 								showButtons={true}
 								limit={borrowingLimit}
 								limitDigit={18}
-								limitLabel="Available"
+								limitLabel="Mintable"
 							/>
 						</div>
 
@@ -317,13 +320,16 @@ export default function PositionBorrow({}) {
 								max={parseUnits(String(collateralPriceZchf), priceDigit)}
 								reset={priceBigInt}
 								onChange={onChangeLiqPrice}
-								limit={parseUnits(String(collateralPriceZchf), 18)}
-								limitDigit={18}
-								limitLabel="Market"
+								limit={ltvLimit}
+								limitDigit={6}
+								limitLabel="LTV"
+								limitUnit="%"
 								error={newPrice == 0n ? "Needs to be greater than zero" : ""}
 								warning={
 									newPrice > priceBigInt
-										? "Liquidation prices above the reference become effective after a 3-day cooldown."
+										? `Liquidation prices above the reference become effective after a 3-day cooldown. Afterwards, up to ${formatCurrency(
+												formatUnits(additionalMintable, 18)
+										  )} more ZCHF can be minted.`
 										: undefined
 								}
 							/>
@@ -342,9 +348,33 @@ export default function PositionBorrow({}) {
 						</div>
 
 						<div className="flex-1 mb-4">
-							<div className="flex">
+							{newPrice > priceBigInt && (
+								<div className="text-amber-500">
+									<div className="flex">
+										<div className="flex-1">
+											<span>Mintable after cooldown</span>
+										</div>
+										<div className="text-right">
+											<span>{formatCurrency(formatUnits(mintableAtNewPrice, 18))} ZCHF</span>
+										</div>
+									</div>
+
+									<div className="mt-0 flex">
+										<div className="flex-1">
+											<span>Unused after cooldown</span>
+										</div>
+										<div className="text-right">
+											{additionalMintable > 0n ? "-" : ""}
+											<span>{formatCurrency(formatUnits(additionalMintable, 18))} ZCHF</span>
+										</div>
+									</div>
+								</div>
+							)}
+
+							<div className="mt-2 flex">
 								<div className="flex-1 text-text-secondary">
-									<span>Minted</span>
+									<span>Mint now</span>
+									<span className="text-xs ml-1">(100%)</span>
 								</div>
 								<div className="text-right">
 									<span>{formatCurrency(formatUnits(amount, 18))} ZCHF</span>
@@ -364,7 +394,7 @@ export default function PositionBorrow({}) {
 								</div>
 							</div>
 
-							<div className="mt-1 flex">
+							<div className="mt-2 flex">
 								<div className="flex-1 text-text-secondary">
 									<span>To be repaid in the end</span>
 									<span className="text-xs ml-1">({formatCurrency(100 - position.reserveContribution / 10000)}%)</span>
