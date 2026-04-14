@@ -216,9 +216,13 @@ export default function PositionDetail() {
 					</div>
 				</div>
 
-				{/* Minting History – full width */}
+				{/* Position History – full width */}
 				<div>
-					<div className="text-lg font-bold mb-2 px-2">Minting History</div>
+					<AppTitle
+						title="Position History"
+						subtitle="A chronological record of all price, minting and collateral adjustments for this position."
+						className="pb-4"
+					/>
 					<MintingUpdatesTable updates={mintingUpdates} position={position} />
 				</div>
 			</div>
