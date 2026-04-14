@@ -73,8 +73,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 		const collateralPriceInZCHF = Math.round((collateral.price.chf / mint.price.chf) * 100) / 100;
 
 		const worstStatusColors = collateralizedPct < 100 ? "red-300" : collateralizedPct < 120 ? "blue-300" : "green-300";
-		const discussionKey = Object.keys(DISCUSSIONS).find((i) => normalizeAddress(i) === normalizeAddress(collateral.address));
-		const discussionLink = discussionKey ? DISCUSSIONS[discussionKey] : DISCUSSIONS["default"];
+		const discussionLink = DISCUSSIONS[normalizeAddress(collateral.address)] ?? DISCUSSIONS["default"];
 
 		const lockedValue = parseFloat(formatUnits(minted, 18)) * avgCollateral;
 
