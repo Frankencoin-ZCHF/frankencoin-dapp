@@ -1,27 +1,26 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import AppBox from "@components/AppBox";
-import DisplayLabel from "@components/DisplayLabel";
-import DisplayAmount from "@components/DisplayAmount";
-import { formatDateTime, normalizeAddress, shortenAddress } from "@utils";
+import AppCard from "@components/AppCard";
+import AppLink from "@components/AppLink";
+import AppTitle from "@components/AppTitle";
+import MintingUpdatesTable from "@components/PageMonitoring/MintingUpdatesTable";
+import AuctionCard from "@components/PageMonitoring/AuctionCard";
+import StatRow from "@components/PageMonitoring/StatRow";
+import { formatCurrency, formatDateTime, normalizeAddress, shortenAddress, DISCUSSIONS } from "@utils";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { useContractUrl } from "@hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
-import { CONFIG, WAGMI_CONFIG } from "../../../app.config";
+import { FRANKENCOIN_API_CLIENT, WAGMI_CONFIG } from "../../../app.config";
 import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
-import { ChallengesQueryItem, PositionQuery } from "@frankencoin/api";
-import { useRouter as useNavigation } from "next/navigation";
-import Button from "@components/Button";
+import { ApiMintingUpdateListing, MintingUpdateQuery } from "@frankencoin/api";
 import { ADDRESS, FrankencoinABI } from "@frankencoin/zchf";
-import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
-import AppLink from "@components/AppLink";
 import { mainnet } from "viem/chains";
-import AppCard from "@components/AppCard";
 
 export default function PositionDetail() {
 	const [reserve, setReserve] = useState<bigint>(0n);
+	const [mintingUpdates, setMintingUpdates] = useState<MintingUpdateQuery[]>([]);
 
 	const router = useRouter();
 	const address = router.query.address as Address;
@@ -29,212 +28,198 @@ export default function PositionDetail() {
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const challengesPositions = useSelector((state: RootState) => state.challenges.positions);
+	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
 	const position = positions.find((p) => normalizeAddress(p.position) === normalizeAddress(address));
 	const challengesActive = (challengesPositions.map[normalizeAddress(address)] || []).filter((c) => c.status === "Active");
 
 	const positionExplorerUrl = useContractUrl(String(address));
-	const ownerExplorerLink = useContractUrl(position?.owner || zeroAddress);
 	const myPosLink = `/mypositions?address=${position?.owner || zeroAddress}`;
-	const parentLink = `/monitoring/${(position?.version == 2 && position?.parent) || zeroAddress}`;
 
 	useEffect(() => {
 		if (!position) return;
 
-		const fetchAsync = async function () {
-			const data = await readContract(WAGMI_CONFIG, {
+		const fetchAsync = async () => {
+			const reserveData = await readContract(WAGMI_CONFIG, {
 				address: position.zchf,
 				chainId,
 				abi: FrankencoinABI,
 				functionName: "calculateAssignedReserve",
 				args: [BigInt(position.minted), position.reserveContribution],
 			});
+			setReserve(reserveData);
 
-			setReserve(data);
+			const updates = await FRANKENCOIN_API_CLIENT.get<ApiMintingUpdateListing>(
+				`/positions/mintingupdates/position/${position.version}/${normalizeAddress(position.position)}`
+			);
+			setMintingUpdates(updates.data.list ?? []);
 		};
 
 		fetchAsync();
 	}, [position, chainId]);
 
-	if (!position) return;
+	if (!position) return null;
 
 	const isSubjectToCooldown = () => {
 		const now = BigInt(Math.floor(Date.now() / 1000));
 		return now < position.cooldown && position.cooldown < 32508005122n;
 	};
 
-	const parentAddressInfo = (): string => {
-		if (position.version == 1) return "Not available for V1";
-		else if (position.version == 2) {
-			if (position.isOriginal) return "-";
-			else return shortenAddress(position.parent);
-		} else return "-";
+	const priceDigit = 36 - position.collateralDecimals;
+	const liqPriceFloat = parseFloat(formatUnits(BigInt(position.price), priceDigit));
+	const marketPriceChf = prices[normalizeAddress(position.collateral)]?.price?.chf || 0;
+	const nominalLTV = marketPriceChf > 0 ? (liqPriceFloat / marketPriceChf) * 100 : 0;
+
+	const originalInfo =
+		!position.isOriginal && position.original
+			? { label: shortenAddress(position.original), href: `/monitoring/${position.original}` }
+			: null;
+
+	const statusBadge = () => {
+		if (position.closed) return { label: "Closed", cls: "bg-red-500/20 text-red-400" };
+		if (isSubjectToCooldown()) return { label: "Cooldown", cls: "bg-amber-500/20 text-amber-400" };
+		return { label: "Active", cls: "bg-green-500/20 text-green-400" };
 	};
+	const status = statusBadge();
 
 	return (
 		<>
 			<Head>
 				<title>Frankencoin - Position Details</title>
 			</Head>
-			<div className="md:mt-8">
-				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<AppCard>
-						<div className="text-lg font-bold text-center">Position Details</div>
 
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:col-span-2">
-							<AppBox>
-								<DisplayLabel label="Minted Total" />
-								<DisplayAmount amount={BigInt(position.minted)} currency="ZCHF" address={ADDRESS[chainId].frankencoin} />
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Collateral" />
-								<DisplayAmount
-									amount={BigInt(position.collateralBalance)}
-									currency={position.collateralSymbol}
-									digits={position.collateralDecimals}
-									address={position.collateral}
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Liquidation Price" />
-								<DisplayAmount
-									amount={BigInt(position.price)}
-									currency={"ZCHF"}
-									digits={36 - position.collateralDecimals}
-									address={ADDRESS[chainId].frankencoin}
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Retained Reserve" />
-								<DisplayAmount amount={reserve} currency={"ZCHF"} address={ADDRESS[chainId].frankencoin} />
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Limit" />
-								<DisplayAmount
-									amount={BigInt(position.limitForClones)}
-									currency={"ZCHF"}
-									address={ADDRESS[chainId].frankencoin}
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Available for Clones" />
-								<DisplayAmount
-									amount={BigInt(position.availableForClones)}
-									currency={"ZCHF"}
-									address={ADDRESS[chainId].frankencoin}
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Minimum Collateral" />
-								<DisplayAmount
-									amount={BigInt(position.minimumCollateral)}
-									currency={position.collateralSymbol}
-									digits={position.collateralDecimals}
-									address={position.collateral}
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Auction Duration" />
-								<DisplayOutputAlignedRight amount={position.challengePeriod / 60 / 60} unit={"hours"} />
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Owner" />
-								<AppLink label={shortenAddress(position.owner)} href={myPosLink} external={false} />
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Reserve Requirement" />
-								<DisplayOutputAlignedRight amount={BigInt(position.reserveContribution / 100)} digits={2} unit={"%"} />
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Annual Interest" />
-								<DisplayOutputAlignedRight amount={BigInt(position.annualInterestPPM / 100)} digits={2} unit={"%"} />
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Start Date" />
-								<DisplayOutputAlignedRight
-									output={formatDateTime(position.isOriginal ? position.start : position.created)}
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Expiration Date" />
-								<DisplayOutputAlignedRight output={position.closed ? "Closed" : formatDateTime(position.expiration)} />
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Smart Contract" />
-								<AppLink label={shortenAddress(position.position)} href={positionExplorerUrl} external={true} />
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Parent Position" />
-								<AppLink label={parentAddressInfo()} href={parentLink} external={false} />
-							</AppBox>
+			<div className="flex flex-col gap-4">
+				{/* Header */}
+				<AppTitle
+					title={`${position.collateralName} (${position.collateralSymbol})`}
+					subtitle={`Position details of ${position.position}.`}
+					badges={[
+						{ label: status.label, className: status.cls },
+						{ label: `V${position.version}`, className: "bg-blue-500/20 text-blue-400" },
+						...(position.isClone ? [{ label: "Clone", className: "bg-purple-500/20 text-purple-400" }] : []),
+					]}
+					actions={
+						<div className="flex flex-wrap gap-4 text-sm">
+							{DISCUSSIONS[normalizeAddress(position.collateral)] && (
+								<AppLink label={`Discussion`} href={DISCUSSIONS[normalizeAddress(position.collateral)]} external={true} />
+							)}
+							<AppLink label="Contract" href={positionExplorerUrl} external={true} />
+							<AppLink label={`Owner: ${shortenAddress(position.owner)}`} href={myPosLink} external={false} />
+							{originalInfo && (
+								<AppLink label={`Original: ${originalInfo.label}`} href={originalInfo.href} external={false} />
+							)}
+						</div>
+					}
+				/>
+
+				{/* Detail cards – 2-col desktop, 1-col mobile */}
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<AppCard>
+						<div className="gap-2">
+							<div className="text-base font-bold mb-1">Mint Details</div>
+							<StatRow label="Minted">{formatCurrency(formatUnits(BigInt(position.minted), 18))} ZCHF</StatRow>
+							<StatRow label="Retained Reserve">{formatCurrency(formatUnits(reserve, 18))} ZCHF</StatRow>
+							<StatRow label="Available for Clones">
+								{formatCurrency(formatUnits(BigInt(position.availableForClones), 18))} ZCHF
+							</StatRow>
+							<StatRow label="Limit">{formatCurrency(formatUnits(BigInt(position.limitForClones), 18))} ZCHF</StatRow>
 						</div>
 					</AppCard>
 
-					<div>
-						{isSubjectToCooldown() && (
-							<AppCard>
-								<div className="text-lg font-bold text-center">Cooldown</div>
-								<AppBox className="flex-1 mt-4">
-									<p>
-										This position is subject to a cooldown period that ends on {formatDateTime(position.cooldown)} as
-										its owner has recently increased the applicable liquidation price. The cooldown period gives other
-										users an opportunity to challenge the position before additional Frankencoins can be minted.
-									</p>
-								</AppBox>
-							</AppCard>
-						)}
+					<AppCard>
+						<div className="gap-2">
+							<div className="text-base font-bold mb-1">Collateral Details</div>
+							<StatRow label="Balance">
+								{formatCurrency(formatUnits(BigInt(position.collateralBalance), position.collateralDecimals))}{" "}
+								{position.collateralSymbol}
+							</StatRow>
+							<StatRow label="Min. Collateral">
+								{formatCurrency(formatUnits(BigInt(position.minimumCollateral), position.collateralDecimals))}{" "}
+								{position.collateralSymbol}
+							</StatRow>
+							<StatRow label="Liquidation Price">
+								{formatCurrency(formatUnits(BigInt(position.price), priceDigit))} ZCHF
+							</StatRow>
+							<StatRow label="Nominal LTV">
+								<span className={nominalLTV > 90 ? "text-red-400" : nominalLTV > 80 ? "text-amber-400" : "text-green-400"}>
+									{formatCurrency(nominalLTV, 2, 2)}%
+								</span>
+							</StatRow>
+						</div>
+					</AppCard>
 
+					<AppCard>
+						<div className="gap-2">
+							<div className="text-base font-bold mb-1">Terms</div>
+							<StatRow label="Annual Interest">{formatCurrency(position.annualInterestPPM / 10000, 2, 2)}%</StatRow>
+							<StatRow label="Reserve Requirement">{formatCurrency(position.reserveContribution / 10000, 2, 2)}%</StatRow>
+							<StatRow label="Auction Duration">{position.challengePeriod / 3600} hours</StatRow>
+						</div>
+					</AppCard>
+
+					<AppCard>
+						<div className="gap-2">
+							<div className="text-base font-bold mb-1">Lifecycle</div>
+							<StatRow label="Start">{formatDateTime(position.isOriginal ? position.start : position.created)}</StatRow>
+							<StatRow label="Expiration">
+								<span className={position.closed ? "text-red-400" : ""}>
+									{position.closed ? "Closed" : formatDateTime(position.expiration)}
+								</span>
+							</StatRow>
+							{isSubjectToCooldown() && (
+								<StatRow label="Cooldown Until">
+									<span className="text-amber-400">{formatDateTime(position.cooldown)}</span>
+								</StatRow>
+							)}
+						</div>
+					</AppCard>
+
+					{isSubjectToCooldown() && (
 						<AppCard>
-							<div className="text-lg font-bold text-center">Active Challenges ({challengesActive.length})</div>
+							<div className="text-base font-bold text-amber-400 mb-1">Cooldown Active</div>
+							<p className="text-text-secondary text-sm leading-relaxed">
+								The owner recently raised the liquidation price. This position is in a cooldown period until{" "}
+								<span className="text-text-primary font-medium">{formatDateTime(position.cooldown)}</span>. During this time
+								the position can be challenged before additional ZCHF can be minted.
+							</p>
+						</AppCard>
+					)}
 
-							{challengesActive.map((c, idx) => (
-								<ActiveAuctionsRow key={c.id || `ActiveAuctionsRow_${idx}`} position={position} challenge={c} />
-							))}
-							{challengesActive.length === 0 ? <ActiveAuctionsRowEmpty /> : null}
+					<div className={isSubjectToCooldown() ? "" : "md:col-span-2"}>
+						<AppCard>
+							<AppTitle
+								className="!pt-0"
+								classNameTitle="text-base"
+								title="Active Auctions"
+								badges={[
+									{
+										label: String(challengesActive.length),
+										className:
+											challengesActive.length > 0
+												? "bg-red-500/20 text-red-400"
+												: "bg-card-content-primary text-text-secondary",
+									},
+								]}
+							/>
+							{challengesActive.length === 0 ? (
+								<p className="text-text-secondary text-sm">This position is currently not being challenged.</p>
+							) : (
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+									{challengesActive.map((c, idx) => (
+										<AuctionCard key={c.id || `auction_${idx}`} position={position} challenge={c} />
+									))}
+								</div>
+							)}
 						</AppCard>
 					</div>
-				</section>
+				</div>
+
+				{/* Minting History – full width */}
+				<div>
+					<div className="text-lg font-bold mb-2 px-2">Minting History</div>
+					<MintingUpdatesTable updates={mintingUpdates} position={position} />
+				</div>
 			</div>
 		</>
-	);
-}
-
-interface Props {
-	position: PositionQuery;
-	challenge: ChallengesQueryItem;
-}
-
-function ActiveAuctionsRow({ position, challenge }: Props) {
-	const navigate = useNavigation();
-
-	const beginning: number = parseFloat(formatUnits(challenge.size, position.collateralDecimals));
-	const remaining: number = parseFloat(formatUnits(challenge.size - challenge.filledSize, position.collateralDecimals));
-	return (
-		<AppBox className="flex-1 mt-4">
-			<AppBox className="col-span-3">
-				<DisplayLabel label="Remaining Size" />
-				<DisplayAmount
-					amount={BigInt(challenge.size - challenge.filledSize)}
-					digits={position.collateralDecimals}
-					currency={position.collateralSymbol}
-					address={position.collateral}
-				/>
-
-				<Button
-					className="h-10 mt-6"
-					onClick={() => navigate.push(`/monitoring/${normalizeAddress(challenge.position)}/auction/${challenge.number}`)}
-				>
-					Bid
-				</Button>
-			</AppBox>
-		</AppBox>
-	);
-}
-
-function ActiveAuctionsRowEmpty() {
-	return (
-		<AppBox className="flex-1 mt-4">
-			<p>This position is currently not being challenged.</p>
-		</AppBox>
 	);
 }
