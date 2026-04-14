@@ -126,9 +126,16 @@ export default function Positions() {
 					{
 						label: "Collateral Overview",
 						content: (
-							<div className="mt-8">
-								<CollateralOverviewTable />
-							</div>
+							<>
+								<AppTitle title={`Accepted Collateral Assets`}>
+									<div className="text-text-secondary">
+										An overview of all collateral types currently accepted by the Frankencoin protocol.
+									</div>
+								</AppTitle>
+								<div className="mt-8">
+									<CollateralOverviewTable />
+								</div>
+							</>
 						),
 					},
 				]}

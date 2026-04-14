@@ -14,14 +14,14 @@ import { formatCurrency, normalizeAddress, ALL_CATEGORIES, CollateralCategory, c
 import AppBox from "@components/AppBox";
 import { FilterOption } from "@components/Table/TableHeadSearchable";
 
-const headers = ["Collateral", "Total Value", "Positions", "Total Minted", "Avg Coll. Ratio"];
+const headers = ["Collateral", "Total Value", "Total Minted", "Available", "Avg Coll. Ratio"];
 const FILTER_OPTIONS: FilterOption[] = ALL_CATEGORIES.map((c) => ({ label: c, value: c }));
 
 export default function CollateralOverviewTable() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [activeCategories, setActiveCategories] = useState<string[]>([]);
 	const [inMyWallet, setInMyWallet] = useState(false);
-	const [tab, setTab] = useState(headers[3]);
+	const [tab, setTab] = useState(headers[2]);
 	const [reverse, setReverse] = useState(false);
 
 	const { address: walletAddress } = useAccount();
@@ -58,8 +58,8 @@ export default function CollateralOverviewTable() {
 		const s = [...stats].sort((a, b) => {
 			if (tab === headers[0]) return a.collateral.name.localeCompare(b.collateral.name);
 			if (tab === headers[1]) return b.totalValue - a.totalValue;
-			if (tab === headers[2]) return b.originals.length + b.clones.length - (a.originals.length + a.clones.length);
-			if (tab === headers[3]) return Number(b.minted) - Number(a.minted);
+			if (tab === headers[2]) return Number(b.minted) - Number(a.minted);
+			if (tab === headers[3]) return Number(b.availableForClones) - Number(a.availableForClones);
 			if (tab === headers[4]) return b.avgCollateral - a.avgCollateral;
 			return 0;
 		});
@@ -113,7 +113,6 @@ export default function CollateralOverviewTable() {
 					<TableRowEmpty>No collateral found.</TableRowEmpty>
 				) : (
 					filtered.map((stat) => {
-						const posCount = stat.originals.length + stat.clones.length;
 						const balanceFormatted = formatCurrency(Number(formatUnits(stat.balance, stat.collateral.decimals)), 2, 2);
 						const avgCollPct = stat.avgCollateral * 100;
 						const collColor = avgCollPct < 110 ? "text-red-500" : avgCollPct <= 120 ? "text-orange-400" : "text-green-500";
@@ -152,11 +151,13 @@ export default function CollateralOverviewTable() {
 								{/* Total Value */}
 								<div className="text-md">{formatCurrency(stat.totalValue, 2, 2, FormatType.symbol)} ZCHF</div>
 
-								{/* Positions */}
-								<div className="text-md">{posCount}</div>
-
 								{/* Total Minted */}
 								<div className="text-md">{formatCurrency(formatUnits(stat.minted, 18), 2, 2, FormatType.symbol)} ZCHF</div>
+
+								{/* Available */}
+								<div className="text-md">
+									{formatCurrency(Number(stat.availableForClones), 2, 2, FormatType.symbol)} ZCHF
+								</div>
 
 								{/* Avg Coll. Ratio */}
 								<div className={`text-md font-bold ${stat.minted > 0n ? collColor : ""}`}>
