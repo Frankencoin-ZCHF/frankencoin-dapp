@@ -23,6 +23,8 @@ interface Props {
 	limit?: bigint;
 	limitDigit?: bigint | number;
 	limitLabel?: string;
+	limitUnit?: string;
+	limitCurrency?: string;
 }
 
 export default function LiquidationSlider({
@@ -47,6 +49,8 @@ export default function LiquidationSlider({
 	limit = 0n,
 	limitDigit = 18n,
 	limitLabel,
+	limitUnit,
+	limitCurrency,
 }: Props) {
 	const valueNum = Number(formatUnits(value, digit));
 	const sliderMinNum = Number(formatUnits(sliderMin, digit));
@@ -134,22 +138,13 @@ export default function LiquidationSlider({
 								<div className="text-text-secondary flex-shrink-0">{limitLabel}</div>
 								<div className="text-text-primary truncate min-w-0 overflow-hidden">
 									{formatCurrency(formatUnits(limit, Number(limitDigit)))}
+									{limitUnit}
+									{limitCurrency && ` ${limitCurrency}`}
 								</div>
 							</>
 						)}
 					</div>
 					<div className="flex flex-row gap-2">
-						{canShowButtons && max != undefined && max !== value && (
-							<div
-								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
-								onClick={() => {
-									onChange(max);
-									onMax();
-								}}
-							>
-								Max
-							</div>
-						)}
 						{canShowButtons && min != undefined && min !== value && min !== max && (
 							<div
 								className="text-card-input-min cursor-pointer hover:text-card-input-focus font-extrabold"
@@ -170,6 +165,17 @@ export default function LiquidationSlider({
 								}}
 							>
 								Reset
+							</div>
+						)}
+						{canShowButtons && max != undefined && max !== value && (
+							<div
+								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
+								onClick={() => {
+									onChange(max);
+									onMax();
+								}}
+							>
+								Max
 							</div>
 						)}
 					</div>
