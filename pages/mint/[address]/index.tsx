@@ -519,7 +519,7 @@ export default function PositionBorrow({}) {
 					)}
 				</AppCard>
 
-				<div className="grid gap-4">
+				<div className="grid gap-4 mt-8">
 					{hasAlternatives && (
 						<AppCard>
 							<div className="text-lg font-bold text-center mt-3">Alternative Terms</div>
