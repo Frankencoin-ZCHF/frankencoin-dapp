@@ -255,8 +255,6 @@ export default function FrankencoinAllocation() {
 
 	return (
 		<AppCard>
-			<div className="mt-4 text-lg font-bold text-center">Frankencoins by Holder Type</div>
-
 			<div className="grid md:grid-cols-2 gap-4">
 				<div className="pr-2 my-auto">
 					<ApexChart
@@ -303,7 +301,7 @@ export default function FrankencoinAllocation() {
 					{labels.length == 0 ? <div className="flex justify-center text-text-warning">No data available.</div> : null}
 				</div>
 
-				<div className="mt-8 space-y-1">
+				<div className="my-auto space-y-1">
 					{labels.map((label, idx) => (
 						<div key={`${label}_${idx}`} className="flex justify-between">
 							<div className="text-text-secondary font-semibold" style={{ color: colors[idx % colors.length] }}>
