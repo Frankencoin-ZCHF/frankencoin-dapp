@@ -28,14 +28,22 @@ export default function DebtAllocation() {
 	// Aggregate swap bridges
 	byCollateral.set("VCHF", swapBridgeVCHF);
 
-	const mapping = [...byCollateral.keys()]
-		.map((label, idx) => {
-			return {
-				label,
-				value: byCollateral.get(label) ?? 0n,
-			};
-		})
+	const MAX_ITEMS = 10;
+
+	const sorted = [...byCollateral.keys()]
+		.map((label) => ({ label, value: byCollateral.get(label) ?? 0n }))
 		.sort((a, b) => (b.value > a.value ? 1 : -1));
+
+	const mapping =
+		sorted.length > MAX_ITEMS
+			? [
+					...sorted.slice(0, MAX_ITEMS - 1),
+					{
+						label: "Others",
+						value: sorted.slice(MAX_ITEMS - 1).reduce((a, b) => a + b.value, 0n),
+					},
+				]
+			: sorted;
 
 	const labels = mapping.map((m) => m.label);
 	const rawValues = mapping.map((m) => m.value);
