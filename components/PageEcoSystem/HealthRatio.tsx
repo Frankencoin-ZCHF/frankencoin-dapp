@@ -50,9 +50,7 @@ export default function HealthRatio() {
 		const d = date.getDate();
 		const m = date.getMonth() + 1;
 		const y = date.getFullYear();
-		const h = String(date.getHours()).padStart(2, "0");
-		const min = String(date.getMinutes()).padStart(2, "0");
-		return `${d}.${m}.${y} ${h}:${min}`;
+		return `${d}.${m}.${y}`;
 	};
 
 	const barPct = Math.min(currentPct / 3, 100);
@@ -107,7 +105,7 @@ export default function HealthRatio() {
 						type="area"
 						height={200}
 						options={{
-							colors: [currentPct >= 150 ? "#22c55e" : currentPct >= 100 ? "#f59e0b" : "#ef4444"],
+							colors: [currentPct >= 150 ? "#0E9F6E" : currentPct >= 100 ? "#f59e0b" : "#ef4444"],
 							stroke: {
 								curve: "smooth",
 								width: 2,
