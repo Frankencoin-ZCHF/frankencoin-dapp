@@ -23,6 +23,7 @@ import ReserveAllocation from "@components/PageEcoSystem/ReserveAllocation";
 export default function Positions() {
 	const posCount = useSelector((state: RootState) => state.positions.openPositions.length);
 	const activeChallengeCount = useSelector((state: RootState) => state.challenges.list.list.filter((c) => c.status === "Active").length);
+	const collateralCount = useSelector((state: RootState) => state.positions.openPositionsByCollateral.length) + 1; // +1 for VCHF bridge
 
 	useEffect(() => {
 		store.dispatch(fetchPositionsList());
@@ -112,6 +113,12 @@ export default function Positions() {
 									<HealthRatio />
 								</div>
 
+								<AppTitle title={`Market Data`}>
+									<div className="text-text-secondary">
+										This section shows the recent exchange rate and 24h trading volume of ZCHF on the open market. Data sourced from CoinGecko.
+									</div>
+								</AppTitle>
+
 								<div className="md:mt-8">
 									<MarketChart />
 								</div>
@@ -172,7 +179,7 @@ export default function Positions() {
 						label: "Collateral Overview",
 						content: (
 							<>
-								<AppTitle title={`Accepted Collateral Assets`}>
+								<AppTitle title={`Accepted Collateral Assets`} badge={String(collateralCount)}>
 									<div className="text-text-secondary">
 										An overview of all collateral types currently accepted by the Frankencoin protocol.
 									</div>
