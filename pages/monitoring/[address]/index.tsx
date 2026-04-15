@@ -100,14 +100,12 @@ export default function PositionDetail() {
 					]}
 					actions={
 						<div className="flex flex-wrap gap-4 text-sm">
+							<AppLink label={`Owner`} href={myPosLink} external={false} />
+							{originalInfo && <AppLink label={`Original`} href={originalInfo.href} external={false} />}
 							{DISCUSSIONS[normalizeAddress(position.collateral)] && (
 								<AppLink label={`Discussion`} href={DISCUSSIONS[normalizeAddress(position.collateral)]} external={true} />
 							)}
 							<AppLink label="Contract" href={positionExplorerUrl} external={true} />
-							<AppLink label={`Owner: ${shortenAddress(position.owner)}`} href={myPosLink} external={false} />
-							{originalInfo && (
-								<AppLink label={`Original: ${originalInfo.label}`} href={originalInfo.href} external={false} />
-							)}
 						</div>
 					}
 				/>

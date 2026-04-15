@@ -413,8 +413,8 @@ export default function PositionAdjust() {
 				]}
 				actions={
 					<div className="flex flex-wrap gap-4 text-sm">
-						<AppLink label="Contract" href={ContractUrl(position.position)} external={true} />
 						<AppLink label="Details" href={`/monitoring/${position.position}`} external={false} />
+						<AppLink label="Contract" href={ContractUrl(position.position)} external={true} />
 					</div>
 				}
 			/>
