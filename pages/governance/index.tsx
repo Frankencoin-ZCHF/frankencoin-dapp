@@ -13,6 +13,7 @@ import { store } from "../../redux/redux.store";
 import { fetchLeadrate } from "../../redux/slices/savings.slice";
 import GovernanceMintersPropose from "@components/PageGovernance/GovernanceMintersPropose";
 import GovernanceDelegation from "@components/PageGovernance/GovernanceDelegation";
+import GovernanceCCIPBridgesTable from "@components/PageGovernance/GovernanceCCIPBridgesTable";
 import { useFPSAverageStats } from "@hooks";
 import { formatUnits } from "viem";
 
@@ -58,6 +59,16 @@ export default function Governance() {
 			<GovernanceLeadrateCurrent />
 
 			<GovernanceLeadrateTable />
+
+			<AppTitle title="CCIP Bridges">
+				<div className="text-text-secondary">
+					Frankencoin is bridged between chains via Chainlink CCIP. Each source chain's token pool enforces its own incoming and
+					outgoing rate limits per destination chain, so a transfer is throttled by the limits configured on both sides. When a
+					limit is not enabled, transfers flow without throttling.
+				</div>
+			</AppTitle>
+
+			<GovernanceCCIPBridgesTable />
 
 			<AppTitle title="Minting Modules" />
 
