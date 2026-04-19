@@ -36,7 +36,7 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 				{/* Voting power + supported VP ratio as sub-text */}
 				<div className={`flex flex-col ${connectedWallet ? "font-semibold" : ""}`}>
 					<span>{formatCurrency(votingPower * 100)}%</span>
-					{voter.supportedVotingPowerRatio > 0 && (
+					{supporterCount > 0 && (
 						<span className="text-sm text-text-subheader font-normal">
 							{formatCurrency(voter.supportedVotingPowerRatio * 100)}%
 						</span>

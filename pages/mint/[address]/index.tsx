@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { formatUnits, parseUnits, erc20Abi, Address } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import ButtonSecondary from "@components/ButtonSecondary";
+import Button from "@components/Button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLink, faLinkSlash } from "@fortawesome/free-solid-svg-icons";
 import { useAccount, useBlockNumber } from "wagmi";
 import { readContract } from "wagmi/actions";
 import { formatCurrency, formatDateFromSecs, min, normalizeAddress, shortenAddress, toTimestamp, DISCUSSIONS } from "@utils";
@@ -13,6 +16,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import { ADDRESS } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
+import { useContractUrl } from "@hooks";
 import { useRouter as useNavigation } from "next/navigation";
 import { mainnet } from "viem/chains";
 import AppCard from "@components/AppCard";
@@ -21,6 +25,7 @@ import LiquidationSlider from "@components/Input/LiquidationSlider";
 import { useBorrowPositions } from "../../../hooks/useBorrowPositions";
 import BorrowCloneAction from "@components/PageBorrow/BorrowCloneAction";
 import BorrowClonePriceAction from "@components/PageBorrow/BorrowClonePriceAction";
+import AppBox from "@components/AppBox";
 
 function toDate(time: bigint | number | string) {
 	return new Date(Number(BigInt(time)) * 1000);
@@ -36,6 +41,8 @@ export default function PositionBorrow({}) {
 	const [collAmount, setCollAmount] = useState(0n);
 	const [newPrice, setNewPrice] = useState(0n);
 	const [mintPrice, setMintPrice] = useState(0n);
+
+	const [linked, setLinked] = useState(true);
 
 	const [userAllowance, setUserAllowance] = useState(0n);
 	const [userAllowanceHelper, setUserAllowanceHelper] = useState(0n);
@@ -120,10 +127,12 @@ export default function PositionBorrow({}) {
 	if (!position) return null;
 
 	const priceBigInt = BigInt(position.price);
-	const priceFloat = parseFloat(formatUnits(priceBigInt, 36 - position.collateralDecimals));
+	const priceDigit = 36 - position.collateralDecimals;
+	const priceFloat = parseFloat(formatUnits(priceBigInt, priceDigit));
 	const collateralPriceZchf = prices[normalizeAddress(position.collateral)].price.chf || 1;
 	const reserve = position.reserveContribution / 10 ** 6;
 	const effectiveLTV = (priceFloat * (1 - reserve)) / collateralPriceZchf;
+	const ltvLimit = parseUnits(Math.max(0, (Number(formatUnits(newPrice, priceDigit)) / collateralPriceZchf) * 100).toFixed(6), 6);
 	const effectiveInterest = position.annualInterestPPM / 10 ** 6 / (1 - reserve);
 
 	const requiredColl = collAmount > BigInt(position.minimumCollateral) ? collAmount : BigInt(position.minimumCollateral);
@@ -156,6 +165,9 @@ export default function PositionBorrow({}) {
 	const paidOutToWallet = amount - borrowersReserveContribution - fees;
 	const availableByCollateralPrice = (collAmount * mintPrice) / parseUnits("1", 18);
 	const borrowingLimit = min(availableAmount, availableByCollateralPrice);
+	const mintableAtNewPrice = min((collAmount * newPrice) / parseUnits("1", 18), availableAmount);
+	const additionalMintable = mintableAtNewPrice > amount ? mintableAtNewPrice - amount : 0n;
+	const additionalMintableReserve = (BigInt(position.reserveContribution) * additionalMintable) / 1_000_000n;
 
 	const errorBorrow =
 		amount > availableAmount
@@ -166,6 +178,14 @@ export default function PositionBorrow({}) {
 
 	const now = Date.now();
 	const isPositionBlocked = position.start * 1000 > now || (position.start * 1000 < now && position.cooldown > now);
+
+	const positionExplorerUrl = useContractUrl(String(addressQuery));
+	const isCooldown = position.start * 1000 < now && position.cooldown > now;
+	const positionStatus = position.closed
+		? { label: "Closed", cls: "bg-red-500/20 text-red-400" }
+		: isCooldown
+		? { label: "Cooldown", cls: "bg-amber-500/20 text-amber-400" }
+		: { label: "Active", cls: "bg-green-500/20 text-green-400" };
 
 	const collKey = normalizeAddress(position.collateral);
 	const bestRatePos = bestInterestByCollateral[collKey];
@@ -205,16 +225,29 @@ export default function PositionBorrow({}) {
 	const hasAlternatives = alternativeRows.some(({ pos, isBest }) => pos && !isBest);
 
 	const onChangeCollateral = (value: string) => {
-		setCollAmount(BigInt(value));
+		const newColl = BigInt(value);
+		setCollAmount(newColl);
+		if (linked && mintPrice > 0n) {
+			setAmount((newColl * mintPrice) / parseUnits("1", 18));
+		}
 	};
 
 	const onChangeAmount = (value: string) => {
-		setAmount(BigInt(value));
+		const newAmount = BigInt(value);
+		setAmount(newAmount);
+		if (linked && mintPrice > 0n) {
+			setCollAmount((newAmount * parseUnits("1", 18) + mintPrice - 1n) / mintPrice);
+		}
 	};
 
 	const onChangeLiqPrice = (v: bigint) => {
-		setNewPrice(v);
-		setMintPrice(v <= priceBigInt ? v : priceBigInt);
+		const clamped = linked && v > priceBigInt ? priceBigInt : v;
+		setNewPrice(clamped);
+		const effectivePrice = clamped <= priceBigInt ? clamped : priceBigInt;
+		setMintPrice(effectivePrice);
+		if (linked && collAmount > 0n) {
+			setAmount((collAmount * effectivePrice) / parseUnits("1", 18));
+		}
 	};
 
 	const onChangeExpiration = (value: Date | null) => {
@@ -236,115 +269,137 @@ export default function PositionBorrow({}) {
 		onChangeExpiration(expirationTabDates[t] ?? expirationMax);
 	};
 
-	const priceDigit = 36 - position.collateralDecimals;
-
 	return (
-		<>
+		<div className="flex flex-col md:max-w-2xl mx-auto">
 			<Head>
 				<title>Frankencoin - Borrow</title>
 			</Head>
 
-			<AppTitle title="Borrow Frankencoins">
-				<div className="text-text-secondary">
-					Deposit{" "}
-					{DISCUSSIONS[position.collateral] ? (
-						<AppLink
-							className=""
-							label={`${position.collateralName} (${position.collateralSymbol})`}
-							href={DISCUSSIONS[position.collateral]}
-							external={true}
-						/>
-					) : (
-						<span>
-							{position.collateralName} ({position.collateralSymbol})
-						</span>
-					)}{" "}
-					as collateral and mint new Frankencoins against it, cloning the terms from position{" "}
-					<AppLink
-						className=""
-						label={shortenAddress(position.position)}
-						href={`/monitoring/${position.position}`}
-						external={false}
-					/>
-					.
-				</div>
-			</AppTitle>
+			<AppTitle
+				title={`${position.collateralName} (${position.collateralSymbol})`}
+				subtitle="Deposit collateral and borrow new Frankencoins"
+				badges={[
+					{ label: positionStatus.label, className: positionStatus.cls },
+					{ label: `V${position.version}`, className: "bg-blue-500/20 text-blue-400" },
+					...(position.isClone ? [{ label: "Clone", className: "bg-purple-500/20 text-purple-400" }] : []),
+				]}
+				actions={
+					<div className="flex flex-wrap gap-4 text-sm">
+						<AppLink className="text-right" label={`Reference`} href={`/monitoring/${position.position}`} external={false} />
+						{DISCUSSIONS[normalizeAddress(position.collateral)] && (
+							<AppLink
+								className="text-right"
+								label={`Discussion`}
+								href={DISCUSSIONS[normalizeAddress(position.collateral)]}
+								external={true}
+							/>
+						)}
+					</div>
+				}
+			/>
 
 			<div className="mt-8">
-				<section className="grid grid-cols-1 gap-4">
-					<AppCard>
-						<div className="text-lg font-bold text-center mt-3">Borrow Frankencoins</div>
-						<div className="grid md:grid-cols-2 gap-4">
-							<TokenInput
-								label="Deposit"
-								max={userBalance >= minColl ? userBalance : undefined}
-								min={mintPrice > 0n ? (amount * parseUnits("1", 18) + mintPrice - 1n) / mintPrice : undefined}
-								reset={minColl}
-								digit={position.collateralDecimals}
-								onChange={onChangeCollateral}
-								error={errorColl}
-								placeholder="Amount"
-								value={String(collAmount)}
-								symbol={position.collateralSymbol}
-								limit={userBalance}
-								limitDigit={position.collateralDecimals}
-								limitLabel="Balance"
-							/>
-							<TokenInput
-								label="Mint"
-								symbol="ZCHF"
-								value={amount.toString()}
-								onChange={onChangeAmount}
-								max={borrowingLimit}
-								onMax={() => setAmount(borrowingLimit)}
-								error={errorBorrow}
-								showButtons={true}
-								limit={borrowingLimit}
-								limitDigit={18}
-								limitLabel="Available"
-							/>
-						</div>
+				<AppCard>
+					<div className="text-lg font-bold text-center">Borrow Frankencoins</div>
+					<div className="grid md:grid-cols-2 gap-4">
+						<TokenInput
+							label="Deposit"
+							max={userBalance >= minColl ? userBalance : undefined}
+							min={mintPrice > 0n ? (amount * parseUnits("1", 18) + mintPrice - 1n) / mintPrice : undefined}
+							reset={minColl}
+							digit={position.collateralDecimals}
+							onChange={onChangeCollateral}
+							error={errorColl}
+							placeholder="Amount"
+							value={String(collAmount)}
+							symbol={position.collateralSymbol}
+							limit={userBalance}
+							limitDigit={position.collateralDecimals}
+							limitLabel="Balance"
+						/>
+						<TokenInput
+							label="Mint now"
+							symbol="ZCHF"
+							value={amount.toString()}
+							onChange={onChangeAmount}
+							max={borrowingLimit}
+							onMax={() => setAmount(borrowingLimit)}
+							error={errorBorrow}
+							showButtons={true}
+							limit={borrowingLimit}
+							limitDigit={18}
+							limitLabel="Mintable"
+						/>
+					</div>
 
-						<div className="grid md:grid-cols-2 gap-4">
-							<LiquidationSlider
-								label="Liquidation Price"
-								value={newPrice}
-								digit={priceDigit}
-								sliderMin={parseUnits(String(collateralPriceZchf * 0.1), priceDigit)}
-								sliderMax={parseUnits(String(collateralPriceZchf), priceDigit)}
-								sliderSource={priceBigInt}
-								min={collAmount > 0n ? (amount * parseUnits("1", 18)) / collAmount : undefined}
-								max={parseUnits(String(collateralPriceZchf), priceDigit)}
-								reset={priceBigInt}
-								onChange={onChangeLiqPrice}
-								limit={parseUnits(String(collateralPriceZchf), 18)}
-								limitDigit={18}
-								limitLabel="Market"
-								error={newPrice == 0n ? "Needs to be greater than zero" : ""}
-								warning={
-									newPrice > priceBigInt
-										? "Liquidation prices above the reference become effective after a 3-day cooldown."
-										: undefined
-								}
-							/>
+					<div className="-mt-4 text-center">
+						{linked ? (
+							<ButtonSecondary className="h-10 rounded-full" width="w-10" onClick={() => setLinked(false)}>
+								<FontAwesomeIcon icon={faLink} className="w-5 h-5" />
+							</ButtonSecondary>
+						) : (
+							<ButtonSecondary
+								className="h-10 rounded-full"
+								width="w-10"
+								onClick={() => {
+									setLinked(true);
+									const resetPrice = newPrice > priceBigInt ? priceBigInt : newPrice;
+									setNewPrice(resetPrice);
+									const effectivePrice = resetPrice <= priceBigInt ? resetPrice : priceBigInt;
+									setMintPrice(effectivePrice);
+									if (effectivePrice > 0n) setAmount((collAmount * effectivePrice) / parseUnits("1", 18));
+								}}
+							>
+								<FontAwesomeIcon icon={faLinkSlash} className="w-5 h-5" />
+							</ButtonSecondary>
+						)}
+					</div>
 
-							<DateInput
-								label="Repay by"
-								value={expirationDate}
-								onChange={onChangeExpiration}
-								error={errorDate}
-								max={expirationMax}
-								tabs={["1M", "3M", "6M", "1Y", "Max"]}
-								tabDates={expirationTabDates}
-								tab={expirationTab}
-								onTab={onTabExpiration}
-							/>
-						</div>
+					<div className="grid md:grid-cols-1 gap-4">
+						<LiquidationSlider
+							label="Liquidation Price"
+							value={newPrice}
+							digit={priceDigit}
+							sliderMin={parseUnits(String(collateralPriceZchf * 0.1), priceDigit)}
+							sliderMax={parseUnits(String(collateralPriceZchf), priceDigit)}
+							sliderSource={priceBigInt}
+							min={collAmount > 0n ? (amount * parseUnits("1", 18)) / collAmount : undefined}
+							max={linked ? priceBigInt : parseUnits(String(collateralPriceZchf), priceDigit)}
+							reset={priceBigInt}
+							onChange={onChangeLiqPrice}
+							limit={ltvLimit}
+							limitDigit={6}
+							limitLabel="LTV"
+							limitUnit="%"
+							error={newPrice == 0n ? "Needs to be greater than zero" : ""}
+							warning={
+								newPrice > priceBigInt
+									? `Liquidation prices above the reference become effective after a 3-day cooldown. Afterwards, up to ${formatCurrency(
+											formatUnits(additionalMintable, 18)
+									  )} more ZCHF can be minted.`
+									: undefined
+							}
+						/>
 
-						<div className="flex-1 mb-4">
+						<DateInput
+							label="Repay by"
+							value={expirationDate}
+							onChange={onChangeExpiration}
+							error={errorDate}
+							max={expirationMax}
+							tabs={["1M", "3M", "6M", "1Y", "Max"]}
+							tabDates={expirationTabDates}
+							tab={expirationTab}
+							onTab={onTabExpiration}
+						/>
+					</div>
+
+					<div className="flex-1 mb-4 space-y-4">
+						<AppBox tight={true}>
 							<div className="flex">
 								<div className="flex-1 text-text-secondary">
-									<span>Minted</span>
+									<span>{newPrice > priceBigInt ? "Minted now" : "Minted"}</span>
+									<span className="text-xs ml-1">(100%)</span>
 								</div>
 								<div className="text-right">
 									<span>{formatCurrency(formatUnits(amount, 18))} ZCHF</span>
@@ -364,7 +419,7 @@ export default function PositionBorrow({}) {
 								</div>
 							</div>
 
-							<div className="mt-1 flex">
+							<div className="mt-2 flex">
 								<div className="flex-1 text-text-secondary">
 									<span>To be repaid in the end</span>
 									<span className="text-xs ml-1">({formatCurrency(100 - position.reserveContribution / 10000)}%)</span>
@@ -400,89 +455,114 @@ export default function PositionBorrow({}) {
 									<span>{formatCurrency(formatUnits(paidOutToWallet, 18))} ZCHF</span>
 								</div>
 							</div>
-						</div>
+						</AppBox>
 
-						<div className="mx-auto w-full flex-col">
-							{position.version == 2 && newPrice !== priceBigInt ? (
-								<BorrowClonePriceAction
-									position={position}
-									collAmount={collAmount}
-									requiredColl={requiredColl}
-									amount={amount}
-									expirationDate={expirationDate}
-									newPrice={newPrice}
-									userAllowance={userAllowanceHelper}
-									userBalance={userBalance}
-									disabled={!!errorColl || !!errorBorrow || isPositionBlocked}
-								/>
-							) : (
-								<BorrowCloneAction
-									position={position}
-									collAmount={collAmount}
-									requiredColl={requiredColl}
-									amount={amount}
-									expirationDate={expirationDate}
-									userAllowance={userAllowance}
-									userBalance={userBalance}
-									disabled={!!errorColl || !!errorBorrow || isPositionBlocked}
-								/>
-							)}
-						</div>
-
-						{isPositionBlocked && (
-							<div className="flex my-2 px-2 text-amber-500">
-								{position.start * 1000 > now
-									? "This position is pending governance approval."
-									: "This position is in a cooldown period."}
-							</div>
-						)}
-					</AppCard>
-
-					<div className="grid gap-4">
-						{hasAlternatives && (
-							<AppCard>
-								<div className="text-lg font-bold text-center mt-3">Alternative Terms</div>
-								<div className="flex-1 mt-4">
-									<div className="grid grid-cols-3 text-xs text-text-secondary pb-1 border-b border-gray-200 mb-1">
-										<div>Term</div>
-										<div className="text-center">Value</div>
-										<div className="text-right">Best</div>
+						{newPrice > priceBigInt && (
+							<AppBox tight={true}>
+								<div className="text-amber-500">
+									<div className="flex">
+										<div className="flex-1">
+											<span>Mintable after cooldown</span>
+										</div>
+										<div className="text-right">
+											<span>{formatCurrency(formatUnits(mintableAtNewPrice, 18))} ZCHF</span>
+										</div>
 									</div>
-									{alternativeRows.map(({ label, pos, value, isBest }) => {
-										if (!pos) return null;
-										return (
-											<div
-												key={label}
-												className={`grid grid-cols-3 py-2 text-sm border-b border-gray-100 last:border-0 ${
-													isBest ? "text-text-secondary" : "cursor-pointer"
-												}`}
-												onClick={() => !isBest && navigate.push(`/mint/${pos.position}`)}
-											>
-												<div className="text-text-secondary">{label}</div>
-												<div className="text-center font-medium text-text-primary">{value}</div>
-												<div className="text-right">
-													{isBest ? (
-														<span className="font-bold text-green-500">✓</span>
-													) : (
-														<span className="inline-block text-xs px-2 py-0.5 rounded-full bg-button-default hover:bg-button-hover text-white font-medium">
-															Select
-														</span>
-													)}
-												</div>
-											</div>
-										);
-									})}
+
+									<div className="mt-0 flex">
+										<div className="flex-1">
+											<span>Available after cooldown</span>
+										</div>
+										<div className="text-right">
+											{additionalMintable > 0n ? "-" : ""}
+											<span>{formatCurrency(formatUnits(additionalMintable, 18))} ZCHF</span>
+										</div>
+									</div>
 								</div>
-								<div className="mt-2">
-									<ButtonSecondary onClick={() => navigate.push(`/mint/create?source=${addressQuery}`)}>
-										Need different terms?
-									</ButtonSecondary>
-								</div>
-							</AppCard>
+							</AppBox>
 						)}
 					</div>
-				</section>
+
+					<div className="mx-auto w-full flex-col">
+						{position.version == 2 && newPrice !== priceBigInt ? (
+							<BorrowClonePriceAction
+								position={position}
+								collAmount={collAmount}
+								requiredColl={requiredColl}
+								amount={amount}
+								expirationDate={expirationDate}
+								newPrice={newPrice}
+								userAllowance={userAllowanceHelper}
+								userBalance={userBalance}
+								disabled={!!errorColl || !!errorBorrow || isPositionBlocked}
+							/>
+						) : (
+							<BorrowCloneAction
+								position={position}
+								collAmount={collAmount}
+								requiredColl={requiredColl}
+								amount={amount}
+								expirationDate={expirationDate}
+								userAllowance={userAllowance}
+								userBalance={userBalance}
+								disabled={!!errorColl || !!errorBorrow || isPositionBlocked}
+							/>
+						)}
+					</div>
+
+					{isPositionBlocked && (
+						<div className="flex my-2 px-2 text-amber-500">
+							{position.start * 1000 > now
+								? "This position is pending governance approval."
+								: "This position is in a cooldown period."}
+						</div>
+					)}
+				</AppCard>
+
+				<div className="grid gap-4 mt-8">
+					{hasAlternatives && (
+						<AppCard>
+							<div className="text-lg font-bold text-center mt-3">Alternative Terms</div>
+							<div className="flex-1 mt-4">
+								<div className="grid grid-cols-3 text-xs text-text-secondary pb-1 border-b border-gray-200 mb-1">
+									<div>Term</div>
+									<div className="text-center">Value</div>
+									<div className="text-right">Best</div>
+								</div>
+								{alternativeRows.map(({ label, pos, value, isBest }) => {
+									if (!pos) return null;
+									return (
+										<div
+											key={label}
+											className={`grid grid-cols-3 py-2 text-sm border-b border-gray-100 last:border-0 ${
+												isBest ? "text-text-secondary" : "cursor-pointer"
+											}`}
+											onClick={() => !isBest && navigate.push(`/mint/${pos.position}`)}
+										>
+											<div className="text-text-secondary">{label}</div>
+											<div className="text-center font-medium text-text-primary">{value}</div>
+											<div className="text-right">
+												{isBest ? (
+													<span className="font-bold text-green-500">✓</span>
+												) : (
+													<span className="inline-block text-xs px-2 py-0.5 rounded-full bg-button-default hover:bg-button-hover text-white font-medium">
+														Select
+													</span>
+												)}
+											</div>
+										</div>
+									);
+								})}
+							</div>
+							<div className="mt-2">
+								<ButtonSecondary onClick={() => navigate.push(`/mint/create?source=${addressQuery}`)}>
+									Need different terms?
+								</ButtonSecondary>
+							</div>
+						</AppCard>
+					)}
+				</div>
 			</div>
-		</>
+		</div>
 	);
 }

@@ -20,6 +20,8 @@ interface Props {
 	limit?: bigint;
 	limitDigit?: bigint | number;
 	limitLabel?: string;
+	limitUnit?: string;
+	limitCurrency?: string;
 	output?: string;
 	note?: string;
 	value?: string;
@@ -47,6 +49,8 @@ export default function TokenInputChain({
 	limit = 0n,
 	limitDigit = 18n,
 	limitLabel,
+	limitUnit,
+	limitCurrency,
 	output,
 	note,
 	value = "",
@@ -124,24 +128,13 @@ export default function TokenInputChain({
 									<div className="text-text-secondary flex-shrink-0">{limitLabel}</div>
 									<div className="text-text-primary truncate min-w-0 overflow-hidden">
 										{formatCurrency(formatUnits(limit, Number(limitDigit)))}
+										{limitUnit}
+										{limitCurrency && ` ${limitCurrency}`}
 									</div>
 								</div>
 							)}
 						</div>
 
-						{!disabled && max != undefined && max != BigInt(value) && (
-							<div
-								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
-								onClick={() => {
-									if (max !== undefined) {
-										onChange(max.toString());
-										onMax();
-									}
-								}}
-							>
-								Max
-							</div>
-						)}
 						{!disabled && min != undefined && min != BigInt(value) && min != max && (
 							<div
 								className="text-card-input-min cursor-pointer hover:text-card-input-focus font-extrabold"
@@ -166,6 +159,19 @@ export default function TokenInputChain({
 								}}
 							>
 								Reset
+							</div>
+						)}
+						{!disabled && max != undefined && max != BigInt(value) && (
+							<div
+								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
+								onClick={() => {
+									if (max !== undefined) {
+										onChange(max.toString());
+										onMax();
+									}
+								}}
+							>
+								Max
 							</div>
 						)}
 					</div>
