@@ -223,8 +223,8 @@ export default function CollateralOverviewTable() {
 								</div>
 
 								{/* Avg Coll. Ratio */}
-								<div className={`text-md font-bold ${stat.minted > 0n ? collColor : ""}`}>
-									{stat.minted > 0n ? formatCurrency(avgCollPct, 2, 2) : "- "}%
+								<div className={`text-md font-bold ${!isBridge && stat.minted > 0n ? collColor : ""}`}>
+									{isBridge || stat.minted === 0n ? "" : `${formatCurrency(avgCollPct, 2, 2)}%`}
 								</div>
 							</TableRow>
 							</div>
