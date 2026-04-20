@@ -48,6 +48,7 @@ export default function Positions() {
 				tabs={[
 					{
 						label: "Positions & Auctions",
+						slug: "positions",
 						badge: activeChallengeCount,
 						content: (
 							<>
@@ -97,6 +98,7 @@ export default function Positions() {
 					},
 					{
 						label: "System Health",
+						slug: "health",
 						content: (
 							<>
 								<AppTitle title={`System Health`}>
@@ -177,6 +179,7 @@ export default function Positions() {
 					},
 					{
 						label: "Collateral Overview",
+						slug: "collateral",
 						content: (
 							<>
 								<AppTitle title={`Accepted Collateral Assets`} badge={String(collateralCount)}>
