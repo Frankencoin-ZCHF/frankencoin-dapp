@@ -9,7 +9,6 @@ import { useContractUrl } from "@hooks";
 import { useRouter as useNavigation } from "next/navigation";
 import Button from "@components/Button";
 import { useAccount } from "wagmi";
-import AppBox from "@components/AppBox";
 import { TxUrl } from "@utils";
 import ButtonSecondary from "@components/ButtonSecondary";
 
@@ -82,14 +81,14 @@ export default function MyPositionsBidsRow({ headers, tab, bid }: Props) {
 				</div>
 
 				{/* mobile view */}
-				<AppBox className="md:hidden flex flex-row items-center">
+				<div className="md:hidden flex flex-row items-center">
 					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</div>
 					<div className={`col-span-2 text-md`}>{`${formatCurrency(formatUnits(bid.filledSize, position.collateralDecimals))} ${
 						position.collateralSymbol
 					}`}</div>
-				</AppBox>
+				</div>
 			</div>
 
 			{/* Price */}

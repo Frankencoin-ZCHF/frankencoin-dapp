@@ -115,6 +115,9 @@ export default function TableHeadSearchable({
 					/>
 				</div>
 
+				{/* Divider between search and controls — mobile only */}
+				<div className="md:hidden border-t border-gray-100 dark:border-gray-700 -mx-7 xl:-mx-11" />
+
 				{/* Right controls */}
 				<div className="flex items-center justify-end gap-5">
 					{/* In my wallet toggle */}

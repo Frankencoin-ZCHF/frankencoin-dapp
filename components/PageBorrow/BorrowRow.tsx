@@ -5,7 +5,6 @@ import { useRouter as useNavigation } from "next/navigation";
 import { formatCurrency, FormatType, normalizeAddress } from "../../utils/format";
 import { PositionQueryV2 } from "@frankencoin/api";
 import DisplayCollateralBorrowTable from "./DisplayCollateralBorrowTable";
-import AppBox from "@components/AppBox";
 import { formatUnits } from "viem";
 import { SwapVCHFStatsReturn } from "@hooks";
 import Button from "@components/Button";
@@ -64,7 +63,7 @@ export default function BorrowRow({ headers, tab, position, vchfBridge, hideMyWa
 			}
 		>
 			<div className="flex flex-col max-md:mb-5">
-				<AppBox className="md:hidden">
+				<div className="md:hidden">
 					<DisplayCollateralBorrowTable
 						symbol={position.collateralSymbol}
 						// symbolTiny={`v${position.version}`}
@@ -74,7 +73,7 @@ export default function BorrowRow({ headers, tab, position, vchfBridge, hideMyWa
 						hideMyWallet={hideMyWallet}
 						balance={collateralBalance}
 					/>
-				</AppBox>
+				</div>
 				<div className="max-md:hidden">
 					<DisplayCollateralBorrowTable
 						symbol={position.collateralSymbol}

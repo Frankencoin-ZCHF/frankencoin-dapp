@@ -7,7 +7,6 @@ import { formatCurrency, normalizeAddress } from "../../utils/format";
 import MyPositionsDisplayCollateral from "./MyPositionsDisplayCollateral";
 import { useRouter as useNavigate } from "next/navigation";
 import Button from "@components/Button";
-import AppBox from "@components/AppBox";
 
 interface Props {
 	headers: string[];
@@ -153,14 +152,14 @@ export default function MypositionsRow({ headers, tab, subHeaders, position }: P
 					<MyPositionsDisplayCollateral position={position} collateralPrice={collTokenPrice} zchfPrice={zchfPrice} />
 				</div>
 				{/* mobile view */}
-				<AppBox className="md:hidden">
+				<div className="md:hidden">
 					<MyPositionsDisplayCollateral
 						className={"justify-items-center items-center"}
 						position={position}
 						collateralPrice={collTokenPrice}
 						zchfPrice={zchfPrice}
 					/>
-				</AppBox>
+				</div>
 			</div>
 
 			{/* Liquidation */}

@@ -7,7 +7,6 @@ import TokenLogo from "@components/TokenLogo";
 import { formatCurrency, normalizeAddress } from "../../utils/format";
 import { useContractUrl } from "@hooks";
 import MyPositionsChallengesCancel from "./MyPositionsChallengesCancel";
-import AppBox from "@components/AppBox";
 
 interface Props {
 	headers: string[];
@@ -83,12 +82,12 @@ export default function MyPositionsChallengesRow({ headers, tab, challenge }: Pr
 				</div>
 
 				{/* mobile view */}
-				<AppBox className="md:hidden flex flex-row items-center">
+				<div className="md:hidden flex flex-row items-center">
 					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</div>
 					<div className={`col-span-2 text-md`}>{`${formatCurrency(challengeSize)} ${position.collateralSymbol}`}</div>
-				</AppBox>
+				</div>
 			</div>
 
 			{/* Averted Ratio */}

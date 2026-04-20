@@ -4,7 +4,6 @@ import { PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import { formatCurrency, FormatType, normalizeAddress, shortenAddress } from "../../utils/format";
 import GovernancePositionsAction from "./GovernancePositionsAction";
 import DisplayCollateralBorrowTable from "@components/PageBorrow/DisplayCollateralBorrowTable";
-import AppBox from "@components/AppBox";
 import AppLink from "@components/AppLink";
 import { ContractUrl } from "@utils";
 
@@ -51,7 +50,7 @@ export default function GovernancePositionsRow({ headers, subHeaders, tab, posit
 				</div>
 
 				{/* mobile view */}
-				<AppBox className="md:hidden flex flex-row items-center">
+				<div className="md:hidden flex flex-row items-center">
 					<DisplayCollateralBorrowTable
 						symbol={position.collateralSymbol}
 						symbolTiny={`v${position.version}`}
@@ -60,7 +59,7 @@ export default function GovernancePositionsRow({ headers, subHeaders, tab, posit
 						price={price.price.usd ?? 0}
 						balance={balance}
 					/>
-				</AppBox>
+				</div>
 			</div>
 
 			<div className="flex flex-col">

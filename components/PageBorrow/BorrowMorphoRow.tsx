@@ -2,7 +2,6 @@ import TableRow from "../Table/TableRow";
 import { formatCurrency } from "../../utils/format";
 import DisplayCollateralBorrowTable from "./DisplayCollateralBorrowTable";
 import Button from "@components/Button";
-import AppBox from "@components/AppBox";
 import { Market } from "../../redux/slices/morpho.types";
 import { MorphoMarketUrl } from "@utils";
 import { formatUnits } from "viem";
@@ -39,7 +38,7 @@ export default function BorrowMorphoRow({ headers, tab, market }: Props) {
 			}
 		>
 			<div className="flex flex-col max-md:mb-5">
-				<AppBox className="md:hidden">
+				<div className="md:hidden">
 					<DisplayCollateralBorrowTable
 						symbol={market.collateralAsset.symbol}
 						name={market.collateralAsset.name}
@@ -47,7 +46,7 @@ export default function BorrowMorphoRow({ headers, tab, market }: Props) {
 						price={0}
 						hideMyWallet
 					/>
-				</AppBox>
+				</div>
 				<div className="max-md:hidden">
 					<DisplayCollateralBorrowTable
 						symbol={market.collateralAsset.symbol}

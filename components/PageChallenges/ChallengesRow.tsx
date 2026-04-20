@@ -8,7 +8,6 @@ import { formatCurrency, normalizeAddress } from "../../utils/format";
 import { useRouter as useNavigation } from "next/navigation";
 import Button from "@components/Button";
 import { useContractUrl } from "@hooks";
-import AppBox from "@components/AppBox";
 
 interface Props {
 	headers: string[];
@@ -96,14 +95,14 @@ export default function ChallengesRow({ headers, tab, challenge }: Props) {
 				</div>
 
 				{/* mobile view */}
-				<AppBox className="md:hidden flex flex-row items-center">
+				<div className="md:hidden flex flex-row items-center">
 					<div className="mr-4 cursor-pointer" onClick={openExplorer}>
 						<TokenLogo currency={position.collateralSymbol} />
 					</div>
 					<div className={`col-span-2 text-md text-text-primary font-semibold`}>{`${formatCurrency(challengeRemainingSize)} ${
 						position.collateralSymbol
 					}`}</div>
-				</AppBox>
+				</div>
 			</div>
 
 			{/* Current Price */}
