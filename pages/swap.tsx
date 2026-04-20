@@ -71,7 +71,9 @@ export default function Swap() {
 			setErrorBridge(`Swap module has expired on ${horizon.toDateString()}`);
 		} else if (timeRemaining < thirtyDaysMs && timeRemaining > 0 && direction) {
 			const daysRemaining = Math.ceil(timeRemaining / (24 * 60 * 60 * 1000));
-			setErrorBridge(`Warning: Swap module expires in ${daysRemaining} day${daysRemaining === 1 ? "" : "s"} (${horizon.toDateString()})`);
+			setErrorBridge(
+				`Warning: Swap module expires in ${daysRemaining} day${daysRemaining === 1 ? "" : "s"} (${horizon.toDateString()})`
+			);
 		} else {
 			setErrorBridge("");
 		}
@@ -267,15 +269,19 @@ export default function Swap() {
 							error={errorBridge}
 						/>
 
-						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+						<div className="mx-auto mt-8 w-full flex-col">
 							<GuardSupportedChain chain={mainnet}>
 								{direction ? (
 									amount > swapStats.otherUserAllowance ? (
-										<AppButton disabled={!activeMinter || !!error} isLoading={isApproving} onClick={() => handleApprove()}>
+										<AppButton
+											disabled={!activeMinter || !!error}
+											isLoading={isApproving}
+											onClick={() => handleApprove()}
+										>
 											Approve
 										</AppButton>
 									) : (
-<AppButton
+										<AppButton
 											disabled={amount == 0n || !activeMinter || !!error}
 											isLoading={isMinting}
 											onClick={() => handleMint()}

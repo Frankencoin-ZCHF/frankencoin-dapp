@@ -284,7 +284,11 @@ export default function PositionChallenge() {
 										Approve
 									</AppButton>
 								) : (
-									<AppButton isLoading={isChallenging} disabled={!!error || amount == 0n} onClick={() => handleChallenge()}>
+									<AppButton
+										isLoading={isChallenging}
+										disabled={!!error || amount == 0n}
+										onClick={() => handleChallenge()}
+									>
 										Challenge
 									</AppButton>
 								)}
