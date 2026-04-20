@@ -3,8 +3,8 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import AppTitle from "@components/AppTitle";
 import PageTabInput from "@components/Input/PageTabInput";
-import Button from "@components/Button";
-import ButtonSecondary from "@components/ButtonSecondary";
+import AppButton from "@components/AppButton";
+import AppButtonSecondary from "@components/AppButtonSecondary";
 import AppLink from "@components/AppLink";
 import NormalInput from "@components/Input/NormalInput";
 import DateInput from "@components/Input/DateInput";
@@ -18,6 +18,7 @@ import DisplayLabel from "@components/DisplayLabel";
 import LoadingSpin from "@components/LoadingSpin";
 import Table from "@components/Table";
 import TableHead from "@components/Table/TableHead";
+import TableHeadSearchable, { FilterOption } from "@components/Table/TableHeadSearchable";
 import TableBody from "@components/Table/TableBody";
 import TableRow from "@components/Table/TableRow";
 import TableRowEmpty from "@components/Table/TableRowEmpty";
@@ -38,43 +39,27 @@ function DemoSection({ title, children }: { title: string; children: React.React
 function ButtonsTab() {
 	return (
 		<div>
-			<DemoSection title="Button">
-				<div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-					<Button onClick={() => {}}>Primary</Button>
-					<Button disabled onClick={() => {}}>
-						Disabled
-					</Button>
-					<Button isLoading onClick={() => {}}>
-						Loading
-					</Button>
-					<Button size="sm" onClick={() => {}}>
-						Small
-					</Button>
-				</div>
-				<div className="mt-4 max-w-xs">
-					<Button error="Something went wrong" onClick={() => {}}>
-						With Error
-					</Button>
+			<DemoSection title="AppButton">
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+					<AppButton onClick={() => {}}>Primary</AppButton>
+					<AppButton disabled onClick={() => {}}>Disabled</AppButton>
+					<AppButton isLoading onClick={() => {}}>Loading</AppButton>
+					<AppButton error="Something went wrong" onClick={() => {}}>With Error</AppButton>
+					<AppButton warning="Double-check before proceeding" onClick={() => {}}>With Warning</AppButton>
+					<AppButton note="This action is irreversible" onClick={() => {}}>With Note</AppButton>
+					<AppButton to="/savings">As Link (to=)</AppButton>
 				</div>
 			</DemoSection>
 
-			<DemoSection title="ButtonSecondary">
-				<div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-					<ButtonSecondary onClick={() => {}}>Secondary</ButtonSecondary>
-					<ButtonSecondary disabled onClick={() => {}}>
-						Disabled
-					</ButtonSecondary>
-					<ButtonSecondary isLoading onClick={() => {}}>
-						Loading
-					</ButtonSecondary>
-					<ButtonSecondary size="sm" onClick={() => {}}>
-						Small
-					</ButtonSecondary>
-				</div>
-				<div className="mt-4 max-w-xs">
-					<ButtonSecondary error="Action failed" onClick={() => {}}>
-						With Error
-					</ButtonSecondary>
+			<DemoSection title="AppButtonSecondary">
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+					<AppButtonSecondary onClick={() => {}}>Secondary</AppButtonSecondary>
+					<AppButtonSecondary disabled onClick={() => {}}>Disabled</AppButtonSecondary>
+					<AppButtonSecondary isLoading onClick={() => {}}>Loading</AppButtonSecondary>
+					<AppButtonSecondary error="Action failed" onClick={() => {}}>With Error</AppButtonSecondary>
+					<AppButtonSecondary warning="Double-check before proceeding" onClick={() => {}}>With Warning</AppButtonSecondary>
+					<AppButtonSecondary note="This action is irreversible" onClick={() => {}}>With Note</AppButtonSecondary>
+					<AppButtonSecondary to="/savings">As Link (to=)</AppButtonSecondary>
 				</div>
 			</DemoSection>
 
@@ -126,11 +111,7 @@ function InputsTab() {
 			</DemoSection>
 
 			<DemoSection title="TabInput">
-				<TabInput
-					tabs={["Option A", "Option B", "Option C"]}
-					tab={tabValue}
-					setTab={setTabValue}
-				/>
+				<TabInput tabs={["Option A", "Option B", "Option C"]} tab={tabValue} setTab={setTabValue} />
 				<p className="text-sm text-text-secondary mt-2">Active: {tabValue}</p>
 			</DemoSection>
 
@@ -206,9 +187,9 @@ function LayoutTab() {
 					<AppTitle
 						title="With Actions"
 						actions={
-							<Button width="w-auto" onClick={() => {}}>
+							<AppButton width="w-auto" onClick={() => {}}>
 								Action Button
-							</Button>
+							</AppButton>
 						}
 					/>
 					<AppTitle symbol="ZCHF" title="With Token Logo" />
@@ -312,13 +293,92 @@ function DisplayTab() {
 						<span className="text-text-secondary text-sm">Default (white on primary)</span>
 					</div>
 					<div className="flex items-center gap-3">
-						<Button isLoading onClick={() => {}}>
+						<AppButton isLoading onClick={() => {}}>
 							Inside Button
-						</Button>
+						</AppButton>
 					</div>
 				</div>
 			</DemoSection>
 		</div>
+	);
+}
+
+const MOCK_ROWS = [
+	{ symbol: "ZCHF", category: "Stablecoin", balance: 1234.56, value: 1234.56, inWallet: true },
+	{ symbol: "FPS", category: "Governance", balance: 42.0, value: 8400.0, inWallet: true },
+	{ symbol: "WBTC", category: "BTC", balance: 0.025, value: 2250.0, inWallet: false },
+	{ symbol: "ETH", category: "ETH", balance: 1.5, value: 4500.0, inWallet: true },
+	{ symbol: "USDC", category: "Stablecoin", balance: 500.0, value: 500.0, inWallet: false },
+	{ symbol: "DAI", category: "Stablecoin", balance: 200.0, value: 200.0, inWallet: false },
+];
+
+const FILTER_OPTIONS: FilterOption[] = [
+	{ label: "Stablecoin", value: "Stablecoin" },
+	{ label: "Governance", value: "Governance" },
+	{ label: "BTC", value: "BTC" },
+	{ label: "ETH", value: "ETH" },
+];
+
+function SearchableTableDemo() {
+	const headers = ["Asset", "Balance", "Value (USD)"];
+	const [tab, setTab] = useState(headers[0]);
+	const [reverse, setReverse] = useState(false);
+	const [search, setSearch] = useState("");
+	const [inMyWallet, setInMyWallet] = useState(false);
+	const [activeFilters, setActiveFilters] = useState<string[]>([]);
+
+	const handleTabChange = (h: string) => {
+		if (tab === h) setReverse((r) => !r);
+		else { setReverse(false); setTab(h); }
+	};
+
+	const filtered = MOCK_ROWS
+		.filter((r) => !search || r.symbol.toLowerCase().includes(search.toLowerCase()))
+		.filter((r) => !inMyWallet || r.inWallet)
+		.filter((r) => activeFilters.length === 0 || activeFilters.includes(r.category))
+		.sort((a, b) => {
+			const dir = reverse ? -1 : 1;
+			if (tab === "Asset") return dir * a.symbol.localeCompare(b.symbol);
+			if (tab === "Balance") return dir * (b.balance - a.balance);
+			return dir * (b.value - a.value);
+		});
+
+	return (
+		<Table>
+			{[
+				<TableHeadSearchable
+					key="head"
+					headers={headers}
+					tab={tab}
+					reverse={reverse}
+					tabOnChange={handleTabChange}
+					colSpan={3}
+					searchPlaceholder="Search assets…"
+					searchValue={search}
+					onSearchChange={setSearch}
+					inMyWallet={inMyWallet}
+					onInMyWalletChange={setInMyWallet}
+					filterOptions={FILTER_OPTIONS}
+					activeFilters={activeFilters}
+					onFiltersChange={setActiveFilters}
+				/>,
+				<TableBody key="body">
+					{filtered.length === 0 ? (
+						<TableRowEmpty>No assets match your filters.</TableRowEmpty>
+					) : (
+						(filtered.map((row) => (
+							<TableRow key={row.symbol} tab={tab} headers={headers} colSpan={3}>
+								{[
+									<div key="a" className="text-left font-semibold text-text-primary">{row.symbol}</div>,
+									<div key="b">{row.balance.toLocaleString()}</div>,
+									<div key="c">${row.value.toLocaleString()}</div>,
+								] as React.ReactElement[]}
+							</TableRow>
+						)) as unknown as React.ReactElement)
+					)}
+				</TableBody>,
+			] as React.ReactElement[]}
+		</Table>
 	);
 }
 
@@ -338,60 +398,76 @@ function TableTab() {
 
 	return (
 		<div>
+			<DemoSection title="TableHeadSearchable">
+				<SearchableTableDemo />
+			</DemoSection>
+
 			<DemoSection title="Table + TableHead + TableBody + TableRow">
 				<Table>
-					{[
-						<TableHead
-							key="head"
-							headers={headers}
-							tab={tab}
-							reverse={reverse}
-							tabOnChange={handleTabChange}
-							colSpan={3}
-						/>,
-						<TableBody key="body">
-							{[
-								<TableRow key="row1" tab={tab} headers={headers} colSpan={3}>
-									{[
-										<div key="a1" className="text-left font-semibold text-text-primary">
-											ZCHF
-										</div>,
-										<div key="a2">1,234.56</div>,
-										<div key="a3">$1,234.56</div>,
-									] as React.ReactElement[]}
-								</TableRow>,
-								<TableRow key="row2" tab={tab} headers={headers} colSpan={3}>
-									{[
-										<div key="b1" className="text-left font-semibold text-text-primary">
-											FPS
-										</div>,
-										<div key="b2">42.00</div>,
-										<div key="b3">$8,400.00</div>,
-									] as React.ReactElement[]}
-								</TableRow>,
-								<TableRow key="row3" tab={tab} headers={headers} colSpan={3}>
-									{[
-										<div key="c1" className="text-left font-semibold text-text-primary">
-											WBTC
-										</div>,
-										<div key="c2">0.025</div>,
-										<div key="c3">$2,250.00</div>,
-									] as React.ReactElement[]}
-								</TableRow>,
-							] as React.ReactElement[]}
-						</TableBody>,
-					] as React.ReactElement[]}
+					{
+						[
+							<TableHead
+								key="head"
+								headers={headers}
+								tab={tab}
+								reverse={reverse}
+								tabOnChange={handleTabChange}
+								colSpan={3}
+							/>,
+							<TableBody key="body">
+								{
+									[
+										<TableRow key="row1" tab={tab} headers={headers} colSpan={3}>
+											{
+												[
+													<div key="a1" className="text-left font-semibold text-text-primary">
+														ZCHF
+													</div>,
+													<div key="a2">1,234.56</div>,
+													<div key="a3">$1,234.56</div>,
+												] as React.ReactElement[]
+											}
+										</TableRow>,
+										<TableRow key="row2" tab={tab} headers={headers} colSpan={3}>
+											{
+												[
+													<div key="b1" className="text-left font-semibold text-text-primary">
+														FPS
+													</div>,
+													<div key="b2">42.00</div>,
+													<div key="b3">$8,400.00</div>,
+												] as React.ReactElement[]
+											}
+										</TableRow>,
+										<TableRow key="row3" tab={tab} headers={headers} colSpan={3}>
+											{
+												[
+													<div key="c1" className="text-left font-semibold text-text-primary">
+														WBTC
+													</div>,
+													<div key="c2">0.025</div>,
+													<div key="c3">$2,250.00</div>,
+												] as React.ReactElement[]
+											}
+										</TableRow>,
+									] as React.ReactElement[]
+								}
+							</TableBody>,
+						] as React.ReactElement[]
+					}
 				</Table>
 			</DemoSection>
 
 			<DemoSection title="TableRowEmpty">
 				<Table>
-					{[
-						<TableHead key="head" headers={headers} tab="" colSpan={3} />,
-						<TableBody key="body">
-							<TableRowEmpty>No positions found for the selected filters.</TableRowEmpty>
-						</TableBody>,
-					] as React.ReactElement[]}
+					{
+						[
+							<TableHead key="head" headers={headers} tab="" colSpan={3} />,
+							<TableBody key="body">
+								<TableRowEmpty>No positions found for the selected filters.</TableRowEmpty>
+							</TableBody>,
+						] as React.ReactElement[]
+					}
 				</Table>
 			</DemoSection>
 		</div>

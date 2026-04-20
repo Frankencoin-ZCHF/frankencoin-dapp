@@ -17,7 +17,6 @@ const MORE_ITEMS = [
 	{ to: "/transfer", name: "Transfer" },
 	{ to: "/monitoring", name: "Monitoring" },
 	{ to: "/governance", name: "Governance" },
-	{ to: "/components", name: "Components" },
 ];
 
 function MoreDropdown() {
