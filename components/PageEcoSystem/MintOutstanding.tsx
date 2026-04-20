@@ -3,11 +3,17 @@ import { RootState } from "../../redux/redux.store";
 import AppCard from "../AppCard";
 import { formatUnits } from "viem";
 import dynamic from "next/dynamic";
-import { formatCurrency } from "../../utils/format";
-import AppLink from "@components/AppLink";
+import { formatCurrency, FormatType } from "../../utils/format";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import TokenLogo from "@components/TokenLogo";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
+const INITIAL_VISIBLE = 6;
+
 export default function MintOutstanding() {
+	const [showAll, setShowAll] = useState(false);
+	const router = useRouter();
 	const { openPositions } = useSelector((state: RootState) => state.positions);
 
 	const mint = openPositions
@@ -19,6 +25,7 @@ export default function MintOutstanding() {
 		}))
 		.sort((a, b) => a.exp - b.exp);
 
+	const mintFiltered = mint.filter((i) => i.mint > 0);
 	const totalMint = mint.reduce((a, b) => a + b.mint, 0n);
 
 	const historyBegin = {
@@ -39,50 +46,50 @@ export default function MintOutstanding() {
 
 	const dateFormatter = (value: number) => {
 		const date = new Date(value);
-		const d = date.getDate();
-		const m = date.getMonth() + 1;
-		const y = date.getFullYear();
-		return `${d}.${m}.${y}`;
+		const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+		return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
 	};
+
+	const visibleMints = showAll ? mintFiltered : mintFiltered.slice(0, INITIAL_VISIBLE);
 
 	return (
 		<AppCard>
-			<div className="mt-4 text-lg font-bold text-center">Frankencoin Supply Expiration</div>
-
-			<div className="grid md:grid-cols-2 gap-4">
-				<div className="pr-2">
+			<div className="flex flex-col gap-6">
+				{/* Chart */}
+				<div className="-mx-4">
 					<ApexChart
-						type="line"
+						type="area"
+						height={220}
 						options={{
-							theme: {
-								monochrome: {
-									enabled: false,
-								},
-							},
-							colors: ["#092f62", "#0F80F0"],
+							colors: ["#092f62"],
 							stroke: {
-								curve: "linestep",
-								width: 3,
+								curve: "stepline",
+								width: 2,
+							},
+							fill: {
+								type: "gradient",
+								gradient: {
+									shadeIntensity: 1,
+									opacityFrom: 0.15,
+									opacityTo: 0.02,
+									stops: [0, 100],
+								},
 							},
 							chart: {
-								type: "line",
-								height: 100,
-								dropShadow: {
-									enabled: false,
-								},
-								toolbar: {
-									show: false,
-								},
-								zoom: {
-									enabled: false,
-								},
+								type: "area",
+								height: 220,
+								sparkline: { enabled: false },
+								dropShadow: { enabled: false },
+								toolbar: { show: false },
+								zoom: { enabled: false },
 								background: "0",
 							},
-							dataLabels: {
-								enabled: false,
-							},
+							dataLabels: { enabled: false },
 							grid: {
-								show: false,
+								show: true,
+								borderColor: "rgba(128,128,128,0.1)",
+								strokeDashArray: 4,
+								xaxis: { lines: { show: false } },
 							},
 							xaxis: {
 								type: "datetime",
@@ -90,69 +97,62 @@ export default function MintOutstanding() {
 									show: true,
 									formatter: (value) => {
 										const date = new Date(value);
-										const d = date.getDate();
-										const m = date.getMonth() + 1;
-										const y = date.getFullYear();
-										return `${d}.${m}.${y}`;
+										return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
 									},
 								},
-								axisBorder: {
-									show: false,
-								},
-								axisTicks: {
-									show: false,
-								},
+								axisBorder: { show: false },
+								axisTicks: { show: false },
 							},
 							yaxis: {
 								labels: {
 									show: true,
-									formatter: (value) => {
-										return `${Math.round(value / 100000) / 10} Mio.`;
-									},
+									formatter: (value) => `${Math.round(value / 100000) / 10} Mio.`,
 								},
-								axisBorder: {
-									show: true,
-								},
-								axisTicks: {
-									show: true,
-								},
+								axisBorder: { show: false },
+								axisTicks: { show: false },
 								min: 0,
-								max: (max) => {
-									return max + max * 0.1;
-								},
+								max: (max) => max + max * 0.1,
 							},
 						}}
 						series={[
 							{
-								name: "Mint",
-								data: history.map((entry) => {
-									return [entry.t * 1000, Math.round(parseFloat(formatUnits(entry.m, 16))) / 100];
-								}),
+								name: "Outstanding Supply",
+								data: history.map((entry) => [entry.t * 1000, Math.round(parseFloat(formatUnits(entry.m, 16))) / 100]),
 							},
 						]}
 					/>
 
-					{history.length == 0 ? (
+					{history.length === 0 && (
 						<div className="flex justify-center text-text-warning">No data available for selected timeframe.</div>
-					) : null}
+					)}
 				</div>
 
-				<div className="mt-8 space-y-1 gap-2">
-					{mint
-						.filter((i) => i.mint > 0)
-						.slice(0, 10)
-						.map((d, idx) => (
-							<div key={`${d}_${idx}`} className="flex justify-between">
-								<AppLink
-									className=""
-									href={`/monitoring/${d.pos}`}
-									label={`${dateFormatter(d.exp * 1000)} - ${Math.round(
-										(d.exp * 1000 - Date.now()) / (24 * 3600 * 1000)
-									)}d - ${d.coll}`}
-								/>
-								<div className="text-text-secondary font-semibold">{formatCurrency(formatUnits(d.mint, 18), 2)} ZCHF</div>
+				{/* Maturity list */}
+				<div>
+					{visibleMints.map((d, idx) => (
+						<div
+							key={`${d.pos}_${idx}`}
+							className="grid grid-cols-[1fr_auto_1fr] items-center py-3 border-b border-table-header-secondary last:border-0 cursor-pointer hover:bg-table-row-hover duration-200 px-2 -mx-2 rounded"
+							onClick={() => router.push(`/monitoring/${d.pos}`)}
+						>
+							<div className="text-text-secondary text-sm">{dateFormatter(d.exp * 1000)}</div>
+							<div className="flex items-center gap-2">
+								<TokenLogo currency={d.coll.toLowerCase()} size={5} />
+								<span className="font-semibold text-sm">{d.coll}</span>
 							</div>
-						))}
+							<div className="text-right font-semibold text-sm">
+								{formatCurrency(formatUnits(d.mint, 18), 2, 2, FormatType.symbol)} ZCHF
+							</div>
+						</div>
+					))}
+
+					{mintFiltered.length > INITIAL_VISIBLE && (
+						<div className="text-center mt-4">
+							<button className="text-sm text-blue-500 hover:text-blue-400 duration-200" onClick={() => setShowAll(!showAll)}>
+								{showAll ? "Show less" : `Show all ${mintFiltered.length} maturities`}
+							</button>
+						</div>
+					)}
 				</div>
 			</div>
 		</AppCard>

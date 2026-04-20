@@ -3,7 +3,7 @@ import { RootState } from "../../redux/redux.store";
 import AppCard from "../AppCard";
 import { formatUnits } from "viem";
 import dynamic from "next/dynamic";
-import { formatCurrency } from "../../utils/format";
+import { formatCurrency, FormatType } from "../../utils/format";
 import { colors } from "../../utils/constant";
 import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
@@ -28,14 +28,22 @@ export default function DebtAllocation() {
 	// Aggregate swap bridges
 	byCollateral.set("VCHF", swapBridgeVCHF);
 
-	const mapping = [...byCollateral.keys()]
-		.map((label, idx) => {
-			return {
-				label,
-				value: byCollateral.get(label) ?? 0n,
-			};
-		})
+	const MAX_ITEMS = 10;
+
+	const sorted = [...byCollateral.keys()]
+		.map((label) => ({ label, value: byCollateral.get(label) ?? 0n }))
 		.sort((a, b) => (b.value > a.value ? 1 : -1));
+
+	const mapping =
+		sorted.length > MAX_ITEMS
+			? [
+					...sorted.slice(0, MAX_ITEMS - 1),
+					{
+						label: "Others",
+						value: sorted.slice(MAX_ITEMS - 1).reduce((a, b) => a + b.value, 0n),
+					},
+				]
+			: sorted;
 
 	const labels = mapping.map((m) => m.label);
 	const rawValues = mapping.map((m) => m.value);
@@ -65,8 +73,6 @@ export default function DebtAllocation() {
 
 	return (
 		<AppCard>
-			<div className="mt-4 text-lg font-bold text-center">Frankencoin by Debt</div>
-
 			<div className="grid md:grid-cols-2 gap-4">
 				<div className="pr-2 my-auto">
 					<ApexChart
@@ -113,20 +119,24 @@ export default function DebtAllocation() {
 					{labels.length == 0 ? <div className="flex justify-center text-text-warning">No data available.</div> : null}
 				</div>
 
-				<div className="mt-8 space-y-1">
+				<div className="my-auto space-y-1">
 					{labels.map((label, idx) => (
 						<div key={`${label}_${idx}`} className="flex justify-between">
 							<div className="text-text-secondary font-semibold" style={{ color: colors[idx % colors.length] }}>
 								{label} <span className="text-sm">({percentByLabel.get(label)}%)</span>
 							</div>
-							<div className="text-text-secondary font-semibold">{formatCurrency(series[idx].toString(), 2)} ZCHF</div>
+							<div className="text-text-secondary font-semibold">
+								{formatCurrency(series[idx], 2, 2, FormatType.symbol)} ZCHF
+							</div>
 						</div>
 					))}
 					<div className="flex justify-between">
 						<div className="text-text-primary font-semibold mt-2">
 							Total <span className="text-sm">(100%)</span>
 						</div>
-						<div className="text-text-primary font-semibold mt-2">{formatCurrency(formatUnits(total, 18), 2)} ZCHF</div>
+						<div className="text-text-primary font-semibold mt-2">
+							{formatCurrency(formatUnits(total, 18), 2, 2, FormatType.symbol)} ZCHF
+						</div>
 					</div>
 				</div>
 			</div>

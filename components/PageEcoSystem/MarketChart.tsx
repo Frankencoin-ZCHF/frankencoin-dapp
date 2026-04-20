@@ -25,8 +25,6 @@ export default function MarketChart() {
 	return (
 		<div className="grid md:grid-cols-2 gap-4">
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">Exchange Rate</div>
-
 				<div className="-m-4 pr-2">
 					<ApexChart
 						type="line"
@@ -121,8 +119,6 @@ export default function MarketChart() {
 			</AppCard>
 
 			<AppCard>
-				<div className="mt-4 text-lg font-bold text-center">24h Trading Volume</div>
-
 				<div className="-m-4 pr-2">
 					<ApexChart
 						type="bar"

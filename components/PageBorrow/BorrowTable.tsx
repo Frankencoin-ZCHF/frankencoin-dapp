@@ -21,7 +21,7 @@ export default function BorrowTable() {
 	const [list, setList] = useState<PositionQueryV2[]>([]);
 	const [searchQuery, setSearchQuery] = useState<string>("");
 	const [activeCategories, setActiveCategories] = useState<string[]>([]);
-	const [inMyWallet, setInMyWallet] = useState<boolean>(true);
+	const [inMyWallet, setInMyWallet] = useState<boolean>(false);
 
 	const { address: walletAddress } = useAccount();
 	const vchfBridge = useSwapVCHFStats();
@@ -181,13 +181,12 @@ function sortPositions(
 		// sort for Collateral
 		sorting.sort((a, b) => a.collateralSymbol.localeCompare(b.collateralSymbol)); // default: increase
 	} else if (tab === headers[1]) {
-		// sort for LTV, LTV = liquidation price * (1 - reserve) / market price
+		// sort for LTV, nominal LTV = liquidation price / market price
 		sorting.sort((a, b) => {
 			const calc = function (p: PositionQueryV2) {
 				const liqPrice: number = parseFloat(formatUnits(BigInt(p.price), 36 - p.collateralDecimals));
-				const reserve: number = p.reserveContribution / 1000000;
 				const price: number = prices[normalizeAddress(p.collateral)].price.chf || 1;
-				return (liqPrice * (1 - reserve)) / price;
+				return liqPrice / price;
 			};
 			return calc(b) - calc(a); // default: decrease
 		});

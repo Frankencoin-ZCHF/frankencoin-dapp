@@ -39,7 +39,7 @@ export default function PageTabInput({ tabs, className }: Props) {
 				</div>
 			</div>
 
-			{tabs[active]?.content}
+			<div className="space-y-8">{tabs[active]?.content}</div>
 		</div>
 	);
 }

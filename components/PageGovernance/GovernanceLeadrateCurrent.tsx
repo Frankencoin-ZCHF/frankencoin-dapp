@@ -75,6 +75,31 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 	const matchingRatesMint = [latestDefaultEntryMint, ...rates[MintModule]];
 	const matchingRatesSave = [latestDefaultEntrySave, ...rates[SaveModule]];
 
+	// Bug in AbstractLeadrate.sol line 40: uint40 overflow in updateRate().
+	// ticksAnchor += (timeNow - anchorTime) * currentRatePPM overflows uint40
+	// when (elapsed seconds) * ratePPM > 2^40 - 1.
+	// Each rate change resets the countdown. After the deadline, any updateRate() call will revert.
+	const UINT40_MAX = 2n ** 40n - 1n;
+	const calcOverflowTimestamp = (module: Address) => {
+		const ratePPM = rate[module].approvedRate;
+		if (ratePPM <= 0) return null;
+		const anchor = rate[module].created;
+		const maxElapsed = Number(UINT40_MAX / BigInt(ratePPM));
+		return anchor + maxElapsed;
+	};
+	const formatOverflowWarning = (overflowTs: number | null) => {
+		if (!overflowTs) return null;
+		const now = Math.floor(Date.now() / 1000);
+		if (overflowTs <= now) return "Contract is bricked: uint40 overflow reached, rate changes will permanently revert.";
+		const daysLeft = Math.floor((overflowTs - now) / 86400);
+		const date = new Date(overflowTs * 1000);
+		const dateStr = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
+		if (daysLeft < 90) return `Apply new rate before ${dateStr} (~${daysLeft}d) due to uint40 overflow in contract.`;
+		return null;
+	};
+	const overflowWarningMint = formatOverflowWarning(calcOverflowTimestamp(MintModule));
+	const overflowWarningSave = formatOverflowWarning(calcOverflowTimestamp(SaveModule));
+
 	const handleOnClickMint = async function (e: any) {
 		e.preventDefault();
 		if (!account.address) return;
@@ -279,6 +304,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 						value={newRateMint.toString()}
 						digit={4}
 						onChange={(e) => setNewRateMint(BigInt(e))}
+						warning={overflowWarningMint ?? undefined}
 					/>
 
 					<div className="h-10 mb-4">
@@ -300,6 +326,7 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 						value={newRateSave.toString()}
 						digit={4}
 						onChange={(e) => setNewRateSave(BigInt(e))}
+						warning={overflowWarningSave ?? undefined}
 					/>
 
 					<div className="h-10 mb-4">
