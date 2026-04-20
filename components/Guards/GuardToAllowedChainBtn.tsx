@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { useAppKit, useAppKitState, useAppKitNetwork } from "@reown/appkit/react";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { useIsConnectedToCorrectChain } from "../../hooks/useWalletConnectStats";
 import { WAGMI_CHAIN } from "../../app.config";
 
@@ -31,7 +31,7 @@ export default function GuardToAllowedChainBtn(props: Props) {
 	// Check if wallet is disconnected
 	if (isDisconnected)
 		return (
-			<Button
+<AppButton
 				className="h-10"
 				disabled={props.disabled}
 				onClick={() => {
@@ -40,13 +40,13 @@ export default function GuardToAllowedChainBtn(props: Props) {
 				}}
 			>
 				{props?.label ?? "Connect Wallet"}
-			</Button>
+			</AppButton>
 		);
 
 	// Check if wallet is connected to one of the available chains
 	if (!isCorrectChain)
 		return (
-			<Button
+<AppButton
 				className="h-10"
 				disabled={props.disabled}
 				onClick={() => {
@@ -55,7 +55,7 @@ export default function GuardToAllowedChainBtn(props: Props) {
 				}}
 			>
 				{props?.label ?? "Change Chain"}
-			</Button>
+			</AppButton>
 		);
 
 	// render children

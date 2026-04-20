@@ -3,7 +3,7 @@ import TokenInput from "@components/Input/TokenInput";
 import { useEffect, useState } from "react";
 import { useContractUrl, useSwapVCHFStats } from "@hooks";
 import { erc20Abi, maxUint256 } from "viem";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
@@ -251,9 +251,9 @@ export default function Swap() {
 						</div>
 
 						<div className="py-4 text-center z-0">
-							<Button className={`h-10 rounded-full`} width="w-10" onClick={onChangeDirection}>
+							<AppButton className={`h-10 rounded-full`} width="w-10" onClick={onChangeDirection}>
 								<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
-							</Button>
+							</AppButton>
 						</div>
 
 						<TokenInput
@@ -271,22 +271,22 @@ export default function Swap() {
 							<GuardSupportedChain chain={mainnet}>
 								{direction ? (
 									amount > swapStats.otherUserAllowance ? (
-										<Button disabled={!activeMinter || !!error} isLoading={isApproving} onClick={() => handleApprove()}>
+										<AppButton disabled={!activeMinter || !!error} isLoading={isApproving} onClick={() => handleApprove()}>
 											Approve
-										</Button>
+										</AppButton>
 									) : (
-										<Button
+<AppButton
 											disabled={amount == 0n || !activeMinter || !!error}
 											isLoading={isMinting}
 											onClick={() => handleMint()}
 										>
 											Swap
-										</Button>
+										</AppButton>
 									)
 								) : (
-									<Button isLoading={isBurning} disabled={amount == 0n || !!error} onClick={() => handleBurn()}>
+									<AppButton isLoading={isBurning} disabled={amount == 0n || !!error} onClick={() => handleBurn()}>
 										Swap
-									</Button>
+									</AppButton>
 								)}
 							</GuardSupportedChain>
 						</div>

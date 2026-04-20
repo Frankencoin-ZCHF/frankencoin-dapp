@@ -1,13 +1,10 @@
 import Link from "next/link";
-import AppIcon from "./AppIcon";
 import LoadingSpin from "./LoadingSpin";
 
 interface Props {
 	to?: string;
 	isLoading?: boolean;
-	loading?: boolean;
 	className?: string;
-	icon?: string;
 	size?: "small" | "medium" | "large";
 	disabled?: boolean;
 	width?: string;
@@ -18,11 +15,9 @@ interface Props {
 	note?: string;
 }
 
-export default function AppButton({
+export default function AppButtonSecondary({
 	to,
 	isLoading,
-	loading,
-	icon,
 	className,
 	size,
 	disabled,
@@ -33,13 +28,12 @@ export default function AppButton({
 	warning,
 	note,
 }: Props) {
-	const busy = isLoading || loading;
 	const sizeClass = size === "small" ? "px-2 py-1 md:px-3 md:py-1 text-sm" : size === "medium" ? "px-3 py-2 md:px-3 md:py-3" : "py-3";
 
 	const btnClass = `btn ${className ?? ""} ${sizeClass} ${
-		disabled || busy
+		disabled || isLoading
 			? "cursor-not-allowed bg-button-disabled text-button-textdisabled"
-			: "bg-button-default text-white hover:bg-button-hover"
+			: "bg-transparent border-2 border-button-disabled text-text-primary hover:border-button-hover hover:bg-button-hover hover:text-white"
 	} ${width ?? "w-full"}`.trim();
 
 	const button = to ? (
@@ -47,9 +41,8 @@ export default function AppButton({
 			{children}
 		</Link>
 	) : (
-		<button className={btnClass} onClick={(e) => !disabled && !busy && onClick(e)}>
-			{busy && <LoadingSpin />}
-			{!busy && icon && <AppIcon src={icon} size="small" />}
+		<button className={btnClass} onClick={(e) => !disabled && !isLoading && onClick(e)}>
+			{isLoading && <LoadingSpin />}
 			{children}
 		</button>
 	);

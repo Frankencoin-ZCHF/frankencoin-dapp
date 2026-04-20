@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { formatCurrency, getChain } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount, useChainId } from "wagmi";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { Address, formatUnits } from "viem";
 import { ChainId, SavingsABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
@@ -88,9 +88,9 @@ export default function SavingsActionInterest({
 
 	return (
 		<GuardSupportedChain chain={chain}>
-			<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
+			<AppButton className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
 				Adjust
-			</Button>
+			</AppButton>
 		</GuardSupportedChain>
 	);
 }

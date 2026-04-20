@@ -14,7 +14,7 @@ import {
 	normalizeAddress,
 	shortenAddress,
 } from "@utils";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
@@ -497,11 +497,11 @@ export default function PositionAdjust() {
 							<div className="mx-auto mt-8 full flex-col">
 								<GuardSupportedChain chain={mainnet}>
 									{collateralAmount - BigInt(position.collateralBalance) > userCollAllowance ? (
-										<Button isLoading={isApproving} onClick={() => handleApprove()}>
+										<AppButton isLoading={isApproving} onClick={() => handleApprove()}>
 											Approve Collateral
-										</Button>
+										</AppButton>
 									) : (
-										<Button
+<AppButton
 											disabled={
 												(amount == BigInt(position.minted) &&
 													collateralAmount == BigInt(position.collateralBalance) &&
@@ -514,7 +514,7 @@ export default function PositionAdjust() {
 											onClick={() => handleAdjust()}
 										>
 											Adjust Position
-										</Button>
+										</AppButton>
 									)}
 								</GuardSupportedChain>
 							</div>

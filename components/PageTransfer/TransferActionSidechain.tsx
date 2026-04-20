@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { formatCurrency, shortenAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount, useChainId } from "wagmi";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { Address, formatUnits, Hash, parseEther } from "viem";
 import { ADDRESS, BridgedFrankencoinABI, ChainIdSide } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
@@ -156,9 +156,9 @@ export default function TransferActionSidechain({
 
 	return (
 		<GuardSupportedChain chain={chain}>
-			<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
+			<AppButton className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
 				Transfer
-			</Button>
+			</AppButton>
 		</GuardSupportedChain>
 	);
 }

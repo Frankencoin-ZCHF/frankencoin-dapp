@@ -7,7 +7,7 @@ import TokenLogo from "@components/TokenLogo";
 import { formatCurrency, normalizeAddress } from "../../utils/format";
 import { useRouter } from "next/navigation";
 import { useContractUrl } from "@hooks";
-import ButtonSecondary from "@components/ButtonSecondary";
+import AppButtonSecondary from "@components/AppButtonSecondary";
 
 interface Props {
 	headers: string[];
@@ -56,12 +56,12 @@ export default function MonitoringRow({ headers, tab, position }: Props) {
 			tab={tab}
 			className={rowBg}
 			actionCol={
-				<ButtonSecondary
+				<AppButtonSecondary
 					className="h-10"
 					onClick={() => router.push(`/monitoring/${position.position}/${maturity <= 0 ? "forceSell" : "challenge"}`)}
 				>
 					{maturity <= 0 ? "Force Sell" : "Challenge"}
-				</ButtonSecondary>
+				</AppButtonSecondary>
 			}
 		>
 			{/* Collateral */}

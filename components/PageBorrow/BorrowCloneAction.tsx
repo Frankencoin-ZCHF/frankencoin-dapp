@@ -9,7 +9,7 @@ import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import { WAGMI_CONFIG } from "../../app.config";
 import { formatBigInt, shortenAddress, toTimestamp } from "@utils";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { mainnet } from "viem/chains";
 import { useRouter } from "next/navigation";
@@ -166,21 +166,21 @@ export default function BorrowCloneAction({
 	return (
 		<GuardSupportedChain chain={mainnet}>
 			{requiredColl > userAllowance ? (
-				<Button
+<AppButton
 					disabled={disabled || requiredColl > userBalance}
 					isLoading={isApproving}
 					onClick={() => handleApprove()}
 				>
 					Approve
-				</Button>
+				</AppButton>
 			) : (
-				<Button
+<AppButton
 					disabled={disabled || requiredColl > userBalance}
 					isLoading={isCloning}
 					onClick={() => handleClone()}
 				>
 					Borrow
-				</Button>
+				</AppButton>
 			)}
 		</GuardSupportedChain>
 	);

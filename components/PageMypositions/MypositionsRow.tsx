@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { formatCurrency, normalizeAddress } from "../../utils/format";
 import MyPositionsDisplayCollateral from "./MyPositionsDisplayCollateral";
 import { useRouter as useNavigate } from "next/navigation";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import AppBox from "@components/AppBox";
 
 interface Props {
@@ -141,9 +141,9 @@ export default function MypositionsRow({ headers, tab, subHeaders, position }: P
 			subHeaders={subHeaders}
 			tab={tab}
 			actionCol={
-				<Button className="h-10" onClick={() => navigate.push(`/mypositions/${position.position}`)}>
+				<AppButton className="h-10" onClick={() => navigate.push(`/mypositions/${position.position}`)}>
 					Manage
-				</Button>
+				</AppButton>
 			}
 		>
 			{/* Collateral */}

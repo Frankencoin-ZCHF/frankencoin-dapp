@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { formatCurrency, shortenAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { Address, formatUnits, Hash, maxUint256 } from "viem";
 import { ADDRESS, ChainIdSide, FrankencoinABI, TransferReferenceABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
@@ -172,13 +172,13 @@ export default function TransferActionMainnet({
 	return (
 		<GuardSupportedChain chain={mainnet}>
 			{allowance < amount ? (
-				<Button className="h-10" disabled={isHidden || disabled} isLoading={isApproving} onClick={(e) => handleApprove(e)}>
+				<AppButton className="h-10" disabled={isHidden || disabled} isLoading={isApproving} onClick={(e) => handleApprove(e)}>
 					Approve
-				</Button>
+				</AppButton>
 			) : (
-				<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
+				<AppButton className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
 					Transfer
-				</Button>
+				</AppButton>
 			)}
 		</GuardSupportedChain>
 	);
