@@ -38,6 +38,7 @@ const COLLATERAL_CATEGORIES: Record<string, CollateralCategory[]> = {
 	"0x2e880962a9609aa3eab4def919fe9e917e99073b": ["Tokenized Securities"], // BOSS
 	"0x553c7f9c780316fc1d34b8e14ac2465ab22a090b": ["Tokenized Securities"], // REALU
 	"0x343324f53cbeee3ee6d171f2a20f005964c98047": ["Tokenized Securities"], // LENDS
+	"0xfedc5f4a6c38211c1338aa411018dfaf26612c08": ["Tokenized Securities"], // SPYon
 };
 
 export function getCategoriesForCollateral(address: string): CollateralCategory[] {

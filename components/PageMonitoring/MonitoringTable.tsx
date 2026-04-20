@@ -12,14 +12,16 @@ import { useAccount, useReadContracts } from "wagmi";
 import { ALL_CATEGORIES, CollateralCategory, collateralMatchesCategories, normalizeAddress } from "@utils";
 
 const FILTER_OPTIONS: FilterOption[] = ALL_CATEGORIES.map((c) => ({ label: c, value: c }));
+const STATE_CATEGORIES = ["At Risk", "Challenged", "Healthy"];
 
 export default function MonitoringTable() {
-	const headers: string[] = ["Collateral", "Collateralization", "Expiration", "Challenged"];
-	const [tab, setTab] = useState<string>(headers[1]);
+	const headers: string[] = ["Collateral", "Price", "Health", "Challenged", "Expiration"];
+	const [tab, setTab] = useState<string>(headers[2]);
 	const [reverse, setReverse] = useState<boolean>(true);
 	const [list, setList] = useState<PositionQuery[]>([]);
 	const [searchQuery, setSearchQuery] = useState<string>("");
 	const [activeCategories, setActiveCategories] = useState<string[]>([]);
+	const [activeCustomCategories, setActiveCustomCategories] = useState<string[]>([]);
 	const [inMyWallet, setInMyWallet] = useState<boolean>(false);
 
 	const { address: walletAddress } = useAccount();
@@ -66,9 +68,29 @@ export default function MonitoringTable() {
 			)
 				return false;
 			if (inMyWallet && walletAddress && (walletBalanceMap[normalizeAddress(pos.collateral)] ?? 0n) === 0n) return false;
+			if (activeCustomCategories.length > 0) {
+				const collTokenPrice = coingecko[normalizeAddress(pos.collateral)]?.price?.usd || 1;
+				const zchfPrice = coingecko[normalizeAddress(pos.zchf)]?.price?.usd || 1;
+				const balance = parseInt(pos.collateralBalance) / 10 ** pos.collateralDecimals;
+				const balanceZCHF = (balance * collTokenPrice) / zchfPrice;
+				const liquidationZCHF = parseInt(pos.price) / 10 ** (36 - pos.collateralDecimals);
+				const liquidationPct = (balanceZCHF / (liquidationZCHF * balance)) * 100;
+				const positionChallenges = challenges.map[normalizeAddress(pos.position)] ?? [];
+				const hasActiveChallenges = positionChallenges.some((ch: ChallengesQueryItem) => ch.status === "Active");
+				const isAtRisk = liquidationPct < 110;
+				const isChallenged = hasActiveChallenges;
+				const isHealthy = liquidationPct > 120 && !hasActiveChallenges;
+				const matches = activeCustomCategories.some((s) => {
+					if (s === "At Risk") return isAtRisk;
+					if (s === "Challenged") return isChallenged;
+					if (s === "Healthy") return isHealthy;
+					return false;
+				});
+				if (!matches) return false;
+			}
 			return true;
 		});
-	}, [sorted, searchQuery, activeCategories, inMyWallet, walletAddress, walletBalanceMap]);
+	}, [sorted, searchQuery, activeCategories, activeCustomCategories, inMyWallet, walletAddress, walletBalanceMap, coingecko, challenges]);
 
 	useEffect(() => {
 		const idList = list.map((l) => l.position).join("_");
@@ -105,6 +127,9 @@ export default function MonitoringTable() {
 				filterOptions={FILTER_OPTIONS}
 				activeFilters={activeCategories}
 				onFiltersChange={setActiveCategories}
+				customCategories={STATE_CATEGORIES}
+				activeCustomCategories={activeCustomCategories}
+				onCustomCategoriesChange={setActiveCustomCategories}
 			/>
 			<TableBody>
 				{list.length == 0 ? (
@@ -138,6 +163,15 @@ function sortPositions(
 			return calc(b) - calc(a);
 		});
 	} else if (tab === headers[1]) {
+		// sort for price
+		sortingList.sort((a, b) => {
+			const calc = function (p: PositionQuery) {
+				const liqPrice: number = parseFloat(formatUnits(BigInt(p.price), 36 - p.collateralDecimals));
+				return liqPrice;
+			};
+			return calc(b) - calc(a);
+		});
+	} else if (tab === headers[2]) {
 		// sort for coll.
 		sortingList.sort((a, b) => {
 			const calc = function (p: PositionQuery) {
@@ -146,11 +180,6 @@ function sortPositions(
 				return price / liqPrice;
 			};
 			return calc(b) - calc(a);
-		});
-	} else if (tab === headers[2]) {
-		// sorft for Expiration
-		sortingList.sort((a, b) => {
-			return b.expiration - a.expiration;
 		});
 	} else if (tab === headers[3]) {
 		// sort for Challenged
@@ -167,6 +196,11 @@ function sortPositions(
 				return cs / size;
 			};
 			return calc(b) - calc(a);
+		});
+	} else if (tab === headers[4]) {
+		// sorft for Expiration
+		sortingList.sort((a, b) => {
+			return b.expiration - a.expiration;
 		});
 	}
 

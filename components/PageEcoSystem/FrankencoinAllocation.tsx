@@ -3,7 +3,7 @@ import { RootState } from "../../redux/redux.store";
 import AppCard from "../AppCard";
 import { formatUnits } from "viem";
 import dynamic from "next/dynamic";
-import { formatCurrency } from "../../utils/format";
+import { formatCurrency, FormatType } from "../../utils/format";
 import { colors } from "../../utils/constant";
 import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
@@ -255,8 +255,6 @@ export default function FrankencoinAllocation() {
 
 	return (
 		<AppCard>
-			<div className="mt-4 text-lg font-bold text-center">Frankencoins by Holder Type</div>
-
 			<div className="grid md:grid-cols-2 gap-4">
 				<div className="pr-2 my-auto">
 					<ApexChart
@@ -275,7 +273,7 @@ export default function FrankencoinAllocation() {
 								labels: {
 									show: true,
 									formatter: (value) => {
-										return `${Math.round(value / 100000) / 10} Mio. ZCHF`;
+										return `${Math.round(value / 10000) / 100} Mio. ZCHF`;
 									},
 								},
 							},
@@ -303,20 +301,22 @@ export default function FrankencoinAllocation() {
 					{labels.length == 0 ? <div className="flex justify-center text-text-warning">No data available.</div> : null}
 				</div>
 
-				<div className="mt-8 space-y-1">
+				<div className="my-auto space-y-1">
 					{labels.map((label, idx) => (
 						<div key={`${label}_${idx}`} className="flex justify-between">
 							<div className="text-text-secondary font-semibold" style={{ color: colors[idx % colors.length] }}>
 								{label} <span className="text-sm">({percentByLabel.get(label)}%)</span>
 							</div>
-							<div className="text-text-secondary font-semibold">{formatCurrency(series[idx].toString(), 2)} ZCHF</div>
+							<div className="text-text-secondary font-semibold">
+								{formatCurrency(series[idx], 2, 2, FormatType.symbol)} ZCHF
+							</div>
 						</div>
 					))}
 					<div className="flex justify-between">
 						<div className="text-text-primary font-semibold mt-2">
 							Total <span className="text-sm">(100%)</span>
 						</div>
-						<div className="text-text-primary font-semibold mt-2">{formatCurrency(total, 2)} ZCHF</div>
+						<div className="text-text-primary font-semibold mt-2">{formatCurrency(total, 2, 2, FormatType.symbol)} ZCHF</div>
 					</div>
 				</div>
 			</div>
