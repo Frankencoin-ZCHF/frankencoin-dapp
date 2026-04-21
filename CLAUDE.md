@@ -1,10 +1,10 @@
 # Frankencoin DApp
 
-This is the frontend application for the Frankencoin protocol - a decentralized, collateral-backed stablecoin (ZCHF) on Ethereum.
+Frontend for the Frankencoin protocol — a decentralized, collateral-backed stablecoin (ZCHF) on Ethereum.
 
 ## Tech Stack
 
--   **Framework**: Next.js 14 with TypeScript
+-   **Framework**: Next.js 14 with TypeScript (Pages Router — not App Router)
 -   **Styling**: TailwindCSS + Flowbite components
 -   **State Management**: Redux Toolkit
 -   **Web3**: wagmi v2 + viem for wallet connections and contract interactions
@@ -12,12 +12,12 @@ This is the frontend application for the Frankencoin protocol - a decentralized,
 
 ## Project Structure
 
--   `pages/` - Next.js pages (uses Pages Router, not App Router)
--   `components/` - React components organized by feature
+-   `pages/` - Route pages: index, equity, savings, swap, transfer, report, components, monitoring
+-   `components/` - React components organized by feature; shared/general components live at the root level
 -   `hooks/` - Custom React hooks for data fetching and Web3 interactions
 -   `redux/` - Redux store configuration and slices
--   `utils/` - Utility functions and helpers
--   `public/` - Static assets including token logos in `public/coin/`
+-   `utils/` - Utility functions: `format.ts`, `math.ts`, `helpers.ts`, `constant.ts`, `collateralCategories.ts`
+-   `public/coin/` - Token logo assets
 -   `app.config.ts` - Environment configuration
 
 ## Key Packages
@@ -25,6 +25,18 @@ This is the frontend application for the Frankencoin protocol - a decentralized,
 -   `@frankencoin/zchf` - Smart contract ABIs and addresses
 -   `@frankencoin/api` - API client for the Frankencoin backend
 -   `@reown/appkit` - Wallet connection modal (formerly WalletConnect)
+
+## Shared Components
+
+General-purpose components at `components/` root level — always prefer these over building new ones:
+
+-   **Layout**: `AppCard`, `AppBox`, `AppForm`, `AppTitle`, `AppHeroSteps`
+-   **Buttons**: `AppButton`, `AppButtonSecondary`, `AppToggle`, `AppLink`, `NavButton`
+-   **Display**: `DisplayAmount`, `DisplayLabel`, `DisplayOutputAlignedRight`
+-   **Identity**: `TokenLogo`, `ChainLogo`, `AddressLabel`, `AppIcon`
+-   **Feedback**: `LoadingScreen`, `LoadingSpin`, `TxToast`
+
+Always reuse these components throughout the app. Extend an existing component if it almost fits; only create a new component if nothing suitable exists — and make it generic and reusable.
 
 ## Development Commands
 
@@ -39,7 +51,7 @@ yarn lint:fix     # Format with Prettier
 
 Copy `.env.example` to `.env.local` and configure:
 
--   `NEXT_PUBLIC_CHAIN_NAME` - "mainnet" or "polygon"
+-   `NEXT_PUBLIC_CHAIN_NAME` - `testnet`
 -   `NEXT_PUBLIC_WAGMI_ID` - WalletConnect project ID
 -   `NEXT_PUBLIC_RPC_URL_MAINNET` - Ethereum RPC URL
 
@@ -49,8 +61,9 @@ Copy `.env.example` to `.env.local` and configure:
 -   Format with Prettier (configured in `.prettierrc.json`)
 -   Components use functional style with hooks
 -   Web3 interactions go through custom hooks in `hooks/`
+-   Reuse shared components; extend before creating; create generic before specific
 
 ## Deployment
 
--   `main` branch deploys to app.frankencoin.com
--   `...` branch deploys to app.test.frankencoin.com
+-   `main` branch → app.frankencoin.com
+-   `...` branch → app.test.frankencoin.com

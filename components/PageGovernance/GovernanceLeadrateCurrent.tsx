@@ -1,5 +1,5 @@
 import { formatCurrency } from "../../utils/format";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import NormalInput from "@components/Input/NormalInput";
 import AppCard from "@components/AppCard";
 import { useSelector } from "react-redux";
@@ -309,13 +309,13 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 
 					<div className="h-10 mb-4">
 						<GuardSupportedChain disabled={isDisabledMint || isHiddenMint} chain={mainnet}>
-							<Button
+<AppButton
 								disabled={isDisabledMint || isHiddenMint}
 								isLoading={isHandlingMint}
 								onClick={(e) => handleOnClickMint(e)}
 							>
 								Propose Change
-							</Button>
+							</AppButton>
 						</GuardSupportedChain>
 					</div>
 
@@ -331,13 +331,13 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 
 					<div className="h-10 mb-4">
 						<GuardSupportedChain disabled={isDisabledSave || isHiddenSave} chain={mainnet}>
-							<Button
+<AppButton
 								disabled={isDisabledSave || isHiddenSave}
 								isLoading={isHandlingSave}
 								onClick={(e) => handleOnClickSave(e)}
 							>
 								Propose Change
-							</Button>
+							</AppButton>
 						</GuardSupportedChain>
 					</div>
 				</div>

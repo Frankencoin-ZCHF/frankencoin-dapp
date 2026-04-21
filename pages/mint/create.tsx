@@ -5,7 +5,7 @@ import { Address, decodeEventLog, isAddress, maxUint256, parseUnits } from "viem
 import TokenInput from "@components/Input/TokenInput";
 import { useTokenData, useUserBalance } from "@hooks";
 import { useState } from "react";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { erc20Abi } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -473,7 +473,7 @@ export default function PositionCreate({}) {
 							autoFocus={true}
 						/>
 						{collTokenData.symbol != "NaN" && initialCollAmount > userAllowance ? (
-							<Button
+<AppButton
 								className="-mt-4"
 								isLoading={isConfirming == "approve"}
 								disabled={
@@ -482,7 +482,7 @@ export default function PositionCreate({}) {
 								onClick={() => handleApprove()}
 							>
 								Approve {collTokenData.symbol == "NaN" ? "" : "Handling of " + collTokenData.symbol}
-							</Button>
+							</AppButton>
 						) : (
 							""
 						)}
@@ -588,13 +588,13 @@ export default function PositionCreate({}) {
 
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 					<GuardSupportedChain chain={mainnet}>
-						<Button
+<AppButton
 							disabled={minCollAmount == 0n || userAllowance < initialCollAmount || initialCollAmount == 0n || hasFormError()}
 							isLoading={isConfirming == "open"}
 							onClick={() => handleOpenPosition()}
 						>
 							Propose Position
-						</Button>
+						</AppButton>
 					</GuardSupportedChain>
 				</div>
 			</div>

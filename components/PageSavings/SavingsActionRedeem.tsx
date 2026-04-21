@@ -4,7 +4,7 @@ import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount, useChainId } from "wagmi";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { ADDRESS, SavingsABI, SavingsV2ABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
@@ -96,9 +96,9 @@ export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 			</div>
 			<div className="w-full">
 				<GuardSupportedChain chain={mainnet}>
-					<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
+					<AppButton className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
 						Redeem from older Version
-					</Button>
+					</AppButton>
 				</GuardSupportedChain>
 			</div>
 		</div>

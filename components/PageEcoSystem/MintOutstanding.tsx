@@ -44,6 +44,22 @@ export default function MintOutstanding() {
 
 	const history = [historyBegin, ...historyMap];
 
+	const maxMintZCHF = Math.round(parseFloat(formatUnits(totalMint, 16))) / 100;
+
+	const getNiceModulus = (max: number): number => {
+		if (max === 0) return 1;
+		const mag = Math.pow(10, Math.floor(Math.log10(max)));
+		const norm = max / mag;
+		if (norm <= 1.5) return 0.2 * mag;
+		if (norm <= 3) return 0.5 * mag;
+		if (norm <= 7) return mag;
+		return 2 * mag;
+	};
+
+	const yMod = getNiceModulus(maxMintZCHF);
+	const yAxisMax = Math.ceil((maxMintZCHF * 1.05) / yMod) * yMod;
+	const yTickAmount = Math.round(yAxisMax / yMod);
+
 	const dateFormatter = (value: number) => {
 		const date = new Date(value);
 		const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -111,7 +127,8 @@ export default function MintOutstanding() {
 								axisBorder: { show: false },
 								axisTicks: { show: false },
 								min: 0,
-								max: (max) => max + max * 0.1,
+								max: yAxisMax,
+								tickAmount: yTickAmount,
 							},
 						}}
 						series={[

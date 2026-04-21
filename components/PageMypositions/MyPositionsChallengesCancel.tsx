@@ -9,7 +9,7 @@ import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import { Address } from "viem";
 import { useAccount } from "wagmi";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 
@@ -79,9 +79,9 @@ export default function MyPositionsChallengesCancel({ challenge, hidden }: Props
 
 	return (
 		<div className="">
-			<Button className="h-10" disabled={isHidden} isLoading={isCancelling} onClick={() => handleCancelOnClick()}>
+			<AppButton className="h-10" disabled={isHidden} isLoading={isCancelling} onClick={() => handleCancelOnClick()}>
 				Cancel
-			</Button>
+			</AppButton>
 		</div>
 	);
 }

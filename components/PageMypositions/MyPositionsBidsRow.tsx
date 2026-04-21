@@ -7,11 +7,11 @@ import TokenLogo from "@components/TokenLogo";
 import { formatCurrency, normalizeAddress } from "../../utils/format";
 import { useContractUrl } from "@hooks";
 import { useRouter as useNavigation } from "next/navigation";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { useAccount } from "wagmi";
 import AppBox from "@components/AppBox";
 import { TxUrl } from "@utils";
-import ButtonSecondary from "@components/ButtonSecondary";
+import AppButtonSecondary from "@components/AppButtonSecondary";
 
 interface Props {
 	headers: string[];
@@ -53,18 +53,18 @@ export default function MyPositionsBidsRow({ headers, tab, bid }: Props) {
 			tab={tab}
 			actionCol={
 				isDisabled ? (
-					<ButtonSecondary className="h-10" onClick={openExplorerBid}>
+					<AppButtonSecondary className="h-10" onClick={openExplorerBid}>
 						View
-					</ButtonSecondary>
+					</AppButtonSecondary>
 				) : (
 					<div className="">
-						<Button
+<AppButton
 							className="h-10"
 							disabled={isDisabled}
 							onClick={() => navigate.push(`/monitoring/${normalizeAddress(challenge.position)}/auction/${challenge.number}`)}
 						>
 							Buy Again
-						</Button>
+						</AppButton>
 					</div>
 				)
 			}

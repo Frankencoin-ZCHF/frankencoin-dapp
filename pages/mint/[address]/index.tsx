@@ -3,8 +3,8 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { formatUnits, parseUnits, erc20Abi, Address } from "viem";
 import TokenInput from "@components/Input/TokenInput";
-import ButtonSecondary from "@components/ButtonSecondary";
-import Button from "@components/Button";
+import AppButtonSecondary from "@components/AppButtonSecondary";
+import AppButton from "@components/AppButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLink, faLinkSlash } from "@fortawesome/free-solid-svg-icons";
 import { useAccount, useBlockNumber } from "wagmi";
@@ -334,11 +334,11 @@ export default function PositionBorrow({}) {
 
 					<div className="-mt-4 text-center">
 						{linked ? (
-							<ButtonSecondary className="h-10 rounded-full" width="w-10" onClick={() => setLinked(false)}>
+							<AppButtonSecondary className="h-10 rounded-full" width="w-10" onClick={() => setLinked(false)}>
 								<FontAwesomeIcon icon={faLink} className="w-5 h-5" />
-							</ButtonSecondary>
+							</AppButtonSecondary>
 						) : (
-							<ButtonSecondary
+							<AppButtonSecondary
 								className="h-10 rounded-full"
 								width="w-10"
 								onClick={() => {
@@ -351,7 +351,7 @@ export default function PositionBorrow({}) {
 								}}
 							>
 								<FontAwesomeIcon icon={faLinkSlash} className="w-5 h-5" />
-							</ButtonSecondary>
+							</AppButtonSecondary>
 						)}
 					</div>
 
@@ -555,9 +555,9 @@ export default function PositionBorrow({}) {
 								})}
 							</div>
 							<div className="mt-2">
-								<ButtonSecondary onClick={() => navigate.push(`/mint/create?source=${addressQuery}`)}>
+								<AppButtonSecondary onClick={() => navigate.push(`/mint/create?source=${addressQuery}`)}>
 									Need different terms?
-								</ButtonSecondary>
+								</AppButtonSecondary>
 							</div>
 						</AppCard>
 					)}
