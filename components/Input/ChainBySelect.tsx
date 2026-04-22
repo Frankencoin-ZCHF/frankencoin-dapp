@@ -17,6 +17,7 @@ interface ChainBySelectProps {
 	invertColors?: boolean;
 	prefixLabel?: string;
 	tokenLogo?: string;
+	isClearable?: boolean;
 }
 
 export default function ChainBySelect({
@@ -28,16 +29,16 @@ export default function ChainBySelect({
 	invertColors = false,
 	prefixLabel,
 	tokenLogo,
+	isClearable = false,
 }: ChainBySelectProps) {
 	const options = chains.map((o): OptionEntry => {
 		return { value: o, label: o, reverse };
 	});
 	const symbolIdx = chains.findIndex((o) => o === chain);
-	const active = options[symbolIdx];
+	const active = symbolIdx >= 0 ? options[symbolIdx] : null;
 
 	const handleOnChange = (value: OptionEntry | null) => {
-		if (value == null) return;
-		if (typeof chainOnChange == "function") chainOnChange(value.value);
+		if (typeof chainOnChange == "function") chainOnChange(value?.value ?? null);
 	};
 
 	return (
@@ -48,6 +49,7 @@ export default function ChainBySelect({
 				defaultValue={active}
 				value={active}
 				onChange={handleOnChange}
+				isClearable={isClearable}
 				styles={{
 					indicatorSeparator: () => ({
 						display: "none",

@@ -2,12 +2,12 @@ import { Address, decodeAbiParameters, formatUnits } from "viem";
 import TableRow from "../Table/TableRow";
 import { ADDRESS, ChainId, SupportedChain, SupportedChainsMap } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
+import ChainLogo from "@components/ChainLogo";
 import { ContractUrl, formatCurrency, getChainByChainSelector, shortenAddress } from "@utils";
 import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
-import { useRouter } from "next/router";
 
 type RateLimiterState = {
 	tokens: bigint;
@@ -48,11 +48,12 @@ const tokenPoolReadABI = [
 
 interface Props {
 	headers: string[];
+	tab: string;
 	sourceChainId: ChainId;
 	destinationSelector: bigint;
 }
 
-export default function GovernanceCCIPBridgesRow({ headers, sourceChainId, destinationSelector }: Props) {
+export default function GovernanceCCIPBridgesRow({ headers, tab, sourceChainId, destinationSelector }: Props) {
 	const [remoteToken, setRemoteToken] = useState<Address | null>(null);
 	const [inbound, setInbound] = useState<RateLimiterState | null>(null);
 
@@ -93,25 +94,30 @@ export default function GovernanceCCIPBridgesRow({ headers, sourceChainId, desti
 		fetcher();
 	}, [sourceChainId, destinationSelector]);
 
-	const router = useRouter();
 	const detailsHref = `/governance/bridges/${sourceChainId}/${destinationSelector.toString()}`;
 
 	return (
 		<TableRow
 			headers={headers}
-			tab=""
+			tab={tab}
 			rawHeader={true}
 			actionCol={
-				<Button className="h-10" onClick={() => router.push(detailsHref)}>
+				<AppButton to={detailsHref} className="btn bg-button-default text-white hover:bg-button-hover w-full h-10">
 					View
-				</Button>
+				</AppButton>
 			}
 		>
 			{/* Configured Chain */}
-			<div className="flex flex-col md:text-left max-md:text-right">{sourceChain?.name ?? sourceChainId}</div>
+			<div className="flex items-center gap-2 md:text-left max-md:justify-end">
+				<ChainLogo chain={(sourceChain?.name ?? "").toLowerCase()} size={5} />
+				<span>{sourceChain?.name ?? sourceChainId}</span>
+			</div>
 
 			{/* Other Chain */}
-			<div className="flex flex-col">{destinationChain?.name ?? destinationSelector.toString()}</div>
+			<div className="flex items-center justify-end gap-2">
+				<ChainLogo chain={(destinationChain?.name ?? "").toLowerCase()} size={5} />
+				<span>{destinationChain?.name ?? destinationSelector.toString()}</span>
+			</div>
 
 			{/* Remote Token */}
 			<div className="flex flex-col">
