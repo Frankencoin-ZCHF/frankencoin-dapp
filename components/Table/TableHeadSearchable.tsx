@@ -115,6 +115,9 @@ export default function TableHeadSearchable({
 					/>
 				</div>
 
+				{/* Divider between search and controls — mobile only */}
+				<div className="md:hidden border-t border-gray-100 -mx-7" />
+
 				{/* Right controls */}
 				<div className="flex items-center justify-end gap-5">
 					{/* In my wallet toggle */}
@@ -182,9 +185,7 @@ export default function TableHeadSearchable({
 								)}
 								{customCategories && customCategories.length > 0 && (
 									<>
-										{filterOptions.length > 0 && (
-											<div className="my-2 border-t border-gray-100 dark:border-gray-700" />
-										)}
+										{filterOptions.length > 0 && <div className="my-2 border-t border-gray-100 dark:border-gray-700" />}
 										<div className="px-4 pb-2">
 											<span className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
 												{customCategoriesTitle}

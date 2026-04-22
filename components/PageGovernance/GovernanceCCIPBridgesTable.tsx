@@ -161,8 +161,17 @@ export default function GovernanceCCIPBridgesTable() {
 					<div className="flex flex-col md:flex-row md:items-center md:justify-end w-full gap-2">
 						<div className="flex items-center justify-between md:justify-start gap-2">
 							<span className="text-sm font-semibold text-text-secondary">From</span>
-							<ChainBySelect chains={sourceChainNames} chain={sourceFilter ?? ""} chainOnChange={setSourceFilter} isClearable />
+							<ChainBySelect
+								chains={sourceChainNames}
+								chain={sourceFilter ?? ""}
+								chainOnChange={setSourceFilter}
+								isClearable
+							/>
 						</div>
+
+						{/* Divider between search and controls — mobile only */}
+						<div className="md:hidden border-t border-gray-100 -mx-7" />
+
 						<div className="flex items-center justify-between md:justify-start gap-2">
 							<span className="text-sm font-semibold text-text-secondary">To</span>
 							<ChainBySelect
