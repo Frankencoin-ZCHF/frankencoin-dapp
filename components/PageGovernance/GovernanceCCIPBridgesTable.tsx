@@ -158,7 +158,7 @@ export default function GovernanceCCIPBridgesTable() {
 		<Table>
 			<div className="rounded-t-lg bg-table-header-primary">
 				<div className="flex flex-wrap items-center gap-2 px-8 xl:px-12 py-3 border-b border-table-header-secondary">
-					<div className="flex flex-col md:flex-row md:items-center md:justify-end w-full gap-2">
+					<div className="flex flex-col md:flex-row md:items-center md:justify-end w-full max-md:gap-2 md:gap-10">
 						<div className="flex items-center justify-between md:justify-start gap-2">
 							<span className="text-sm font-semibold text-text-secondary">From</span>
 							<ChainBySelect
