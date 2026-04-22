@@ -5,22 +5,14 @@ import { Address, decodeAbiParameters } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { useAccount } from "wagmi";
 import { toast } from "react-toastify";
-import {
-	ADDRESS,
-	CCIPAdminABI,
-	ChainId,
-	EquityABI,
-	SupportedChain,
-	SupportedChainIds,
-	SupportedChainsMap,
-} from "@frankencoin/zchf";
+import { ADDRESS, CCIPAdminABI, ChainId, EquityABI, SupportedChain, SupportedChainIds, SupportedChainsMap } from "@frankencoin/zchf";
 import { WAGMI_CONFIG } from "../../../../app.config";
 import { ContractUrl, getChainByChainSelector, shortenAddress } from "@utils";
 import AppTitle from "@components/AppTitle";
 import AppCard from "@components/AppCard";
 import AppLink from "@components/AppLink";
 import AppToggle from "@components/AppToggle";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import ChainBySelect from "@components/Input/ChainBySelect";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import NormalInput from "@components/Input/NormalInput";
@@ -294,9 +286,9 @@ export default function CCIPRateLimitPage() {
 				<div className="text-text-secondary">
 					Configure the incoming and outgoing CCIP rate limits on{" "}
 					<span className="font-medium text-text-primary">{sourceChain.name}</span> for transfers to and from{" "}
-					<span className="font-medium text-text-primary">{destinationLabel}</span>. Rate limits use a token bucket: the pool holds
-					up to <em>capacity</em> ZCHF and refills at the configured rate. When a limit is disabled, the bucket is bypassed and
-					transfers flow without throttling. See the{" "}
+					<span className="font-medium text-text-primary">{destinationLabel}</span>. Rate limits use a token bucket: the pool
+					holds up to <em>capacity</em> ZCHF and refills at the configured rate. When a limit is disabled, the bucket is bypassed
+					and transfers flow without throttling. See the{" "}
 					<AppLink
 						label="Chainlink CCIP rate limit documentation"
 						href="https://docs.chain.link/ccip/concepts/rate-limit-management/overview"
@@ -399,11 +391,11 @@ export default function CCIPRateLimitPage() {
 					/>
 				</div>
 
-				<div className="mt-4 md:max-w-xs md:ml-auto">
+				<div className="mt-4 md:max-w-md md:ml-auto">
 					<GuardSupportedChain chainId={sourceChainId}>
-						<Button isLoading={isSubmitting} onClick={handleSubmit}>
+						<AppButton isLoading={isSubmitting} onClick={handleSubmit}>
 							Apply rate limits
-						</Button>
+						</AppButton>
 					</GuardSupportedChain>
 				</div>
 			</AppCard>

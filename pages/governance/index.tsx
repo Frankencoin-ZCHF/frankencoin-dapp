@@ -60,16 +60,6 @@ export default function Governance() {
 
 			<GovernanceLeadrateTable />
 
-			<AppTitle title="CCIP Bridges">
-				<div className="text-text-secondary">
-					Frankencoin is bridged between chains via Chainlink CCIP. Each source chain's token pool enforces its own incoming and
-					outgoing rate limits per destination chain, so a transfer is throttled by the limits configured on both sides. When a
-					limit is not enabled, transfers flow without throttling.
-				</div>
-			</AppTitle>
-
-			<GovernanceCCIPBridgesTable />
-
 			<AppTitle title="Minting Modules" />
 
 			<GovernanceMintersPropose />
@@ -79,6 +69,16 @@ export default function Governance() {
 			<div className="flex justify-left">
 				<AppLink className="text-left" label="See all modules" href="/governance/modules" external={false} />
 			</div>
+
+			<AppTitle title="CCIP Bridges">
+				<div className="text-text-secondary">
+					Frankencoin is bridged between chains via Chainlink CCIP. Each source chain's token pool enforces its own incoming and
+					outgoing rate limits per destination chain, so a transfer is throttled by the limits configured on both sides. When a
+					limit is not enabled, transfers flow without throttling.
+				</div>
+			</AppTitle>
+
+			<GovernanceCCIPBridgesTable />
 
 			<AppTitle title="Frankencoin Pool Share Holders">
 				<div className="text-text-secondary">
