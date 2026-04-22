@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { formatCurrency } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { Address, formatUnits } from "viem";
 import { ADDRESS, GovernanceSenderABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
@@ -87,14 +87,14 @@ export default function GovernanceSyncAction({ targetChainId, voters, disabled }
 
 	return (
 		<GuardSupportedChain chainId={mainnet.id}>
-			<Button
+<AppButton
 				className="h-10"
 				disabled={disabled || !isReady}
 				isLoading={isAction}
 				onClick={(e) => handleOnClick(e)}
 			>
 				Sync to {targetChain?.name ?? String(targetChainId)}
-			</Button>
+			</AppButton>
 		</GuardSupportedChain>
 	);
 }

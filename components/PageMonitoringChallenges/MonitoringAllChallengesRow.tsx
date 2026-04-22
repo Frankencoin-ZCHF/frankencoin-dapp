@@ -6,7 +6,7 @@ import TokenLogo from "@components/TokenLogo";
 import { formatCurrency, formatDate, normalizeAddress } from "../../utils/format";
 import { useContractUrl } from "@hooks";
 import { useRouter as useNavigation } from "next/navigation";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { shortenAddress } from "@utils";
 import { TxLabelSimple } from "@components/AddressLabel";
 
@@ -79,12 +79,12 @@ export default function MonitoringAllChallengesRow({ challenge, bids }: Props) {
 				{/* Action */}
 				<div className="flex items-center justify-end md:justify-start">
 					{isActive ? (
-						<Button
+<AppButton
 							className="h-8"
 							onClick={() => navigate.push(`/monitoring/${challenge.position}/auction/${challenge.number}`)}
 						>
 							Bid
-						</Button>
+						</AppButton>
 					) : (
 						<span className="underline text-sm">
 							<TxLabelSimple label="View Tx" tx={challenge.txHash} showLink />

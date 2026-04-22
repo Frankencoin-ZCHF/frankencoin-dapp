@@ -6,7 +6,7 @@ import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
 import { Address, formatUnits, parseEther, zeroAddress } from "viem";
 import { ContractUrl, formatBigInt, formatCurrency, formatDateTime, normalizeAddress, shortenAddress } from "@utils";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
@@ -282,13 +282,13 @@ export default function ChallengePlaceBid() {
 						</div>
 						<div className="mx-auto mt-4 w-full flex-col">
 							<GuardSupportedChain chain={mainnet}>
-								<Button
+								<AppButton
 									disabled={amount == 0n || expectedZCHF > userBalance || error != ""}
 									isLoading={isBidding}
 									onClick={() => handleBid()}
 								>
 									Buy
-								</Button>
+								</AppButton>
 							</GuardSupportedChain>
 						</div>
 					</AppCard>

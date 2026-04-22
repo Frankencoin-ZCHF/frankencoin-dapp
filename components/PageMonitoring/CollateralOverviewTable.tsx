@@ -181,52 +181,54 @@ export default function CollateralOverviewTable() {
 
 						return (
 							<div key={stat.original.position} onClick={isBridge ? () => router.push("/swap") : undefined}>
-							<TableRow headers={headers} tab={tab} className={isBridge ? "cursor-pointer" : ""}>
-								{/* Collateral */}
-								<div className="flex flex-col max-md:mb-5">
-									<div className="max-md:hidden md:-ml-12 flex items-center">
-										<span className="mr-4">
-											<TokenLogo currency={stat.collateral.symbol.toLowerCase()} />
-										</span>
-										<div className="flex flex-col text-left">
-											<span className="font-bold text-md max-lg:w-[8rem] lg:w-[10rem] max-sm:w-[12rem] md:text-nowrap truncate">
-												{stat.collateral.name}
+								<TableRow headers={headers} tab={tab} className={isBridge ? "cursor-pointer" : ""}>
+									{/* Collateral */}
+									<div className="flex flex-col max-md:mb-5">
+										<div className="max-md:hidden md:-ml-12 flex items-center">
+											<span className="mr-4">
+												<TokenLogo currency={stat.collateral.symbol.toLowerCase()} />
 											</span>
-											<span className="text-text-subheader text-sm">
-												{balanceFormatted} {stat.collateral.symbol}
-											</span>
+											<div className="flex flex-col text-left">
+												<span className="font-bold text-md max-lg:w-[8rem] lg:w-[10rem] max-sm:w-[12rem] md:text-nowrap truncate">
+													{stat.collateral.name}
+												</span>
+												<span className="text-text-subheader text-sm">
+													{balanceFormatted} {stat.collateral.symbol}
+												</span>
+											</div>
 										</div>
+
+										<AppBox className="md:hidden flex flex-row items-center">
+											<span className="mr-4">
+												<TokenLogo currency={stat.collateral.symbol.toLowerCase()} />
+											</span>
+											<div className="flex flex-col text-left">
+												<span className="font-bold text-md">{stat.collateral.name}</span>
+												<span className="text-text-subheader text-sm">
+													{balanceFormatted} {stat.collateral.symbol}
+												</span>
+											</div>
+										</AppBox>
 									</div>
 
-									<AppBox className="md:hidden flex flex-row items-center">
-										<span className="mr-4">
-											<TokenLogo currency={stat.collateral.symbol.toLowerCase()} />
-										</span>
-										<div className="flex flex-col text-left">
-											<span className="font-bold text-md">{stat.collateral.name}</span>
-											<span className="text-text-subheader text-sm">
-												{balanceFormatted} {stat.collateral.symbol}
-											</span>
-										</div>
-									</AppBox>
-								</div>
+									{/* Total Value */}
+									<div className="text-md">{formatCurrency(stat.totalValue, 2, 2, FormatType.symbol)} ZCHF</div>
 
-								{/* Total Value */}
-								<div className="text-md">{formatCurrency(stat.totalValue, 2, 2, FormatType.symbol)} ZCHF</div>
+									{/* Total Minted */}
+									<div className="text-md">
+										{formatCurrency(formatUnits(stat.minted, 18), 2, 2, FormatType.symbol)} ZCHF
+									</div>
 
-								{/* Total Minted */}
-								<div className="text-md">{formatCurrency(formatUnits(stat.minted, 18), 2, 2, FormatType.symbol)} ZCHF</div>
+									{/* Available */}
+									<div className="text-md">
+										{formatCurrency(Number(stat.availableForClones), 2, 2, FormatType.symbol)} ZCHF
+									</div>
 
-								{/* Available */}
-								<div className="text-md">
-									{formatCurrency(Number(stat.availableForClones), 2, 2, FormatType.symbol)} ZCHF
-								</div>
-
-								{/* Avg Coll. Ratio */}
-								<div className={`text-md font-bold ${!isBridge && stat.minted > 0n ? collColor : ""}`}>
-									{isBridge || stat.minted === 0n ? "" : `${formatCurrency(avgCollPct, 2, 2)}%`}
-								</div>
-							</TableRow>
+									{/* Avg Coll. Ratio */}
+									<div className={`text-md font-bold ${!isBridge && stat.minted > 0n ? collColor : ""}`}>
+										{stat.minted === 0n ? "-" : `${formatCurrency(avgCollPct, 2, 2)}%`}
+									</div>
+								</TableRow>
 							</div>
 						);
 					})

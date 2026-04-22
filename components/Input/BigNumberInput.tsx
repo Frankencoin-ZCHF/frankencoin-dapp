@@ -92,7 +92,7 @@ export function BigNumberInput({
 		onChange: updateValue,
 		type: "text",
 		value: inputValue,
-		className: "truncate " + className,
+		className: "truncate bg-transparent " + className,
 		autoFocus,
 		disabled,
 	};

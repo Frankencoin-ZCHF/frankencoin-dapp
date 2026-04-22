@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import PositionRollerRow from "./PositionRollerRow";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { mainnet } from "viem/chains";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { useRouter as useNavigation } from "next/navigation";
 
 type PositionRollerTableParams = {
@@ -85,9 +85,9 @@ export default function PositionRollerTable({ position }: PositionRollerTablePar
 							<div className={`flex flex-col`}>
 								<div className="">No open positions available for rolling.</div>
 								<div className="mt-4">
-									<Button className="h-10" onClick={() => handleClick(position)}>
+									<AppButton className="h-10" onClick={() => handleClick(position)}>
 										Propose with new Parameter
-									</Button>
+									</AppButton>
 								</div>
 							</div>
 						}

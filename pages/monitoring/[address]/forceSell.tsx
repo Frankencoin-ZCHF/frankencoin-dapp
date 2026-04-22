@@ -6,7 +6,7 @@ import TokenInput from "@components/Input/TokenInput";
 import DisplayAmount from "@components/DisplayAmount";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { formatBigInt, formatCurrency, formatDateTime, normalizeAddress, shortenAddress } from "@utils";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
@@ -237,13 +237,13 @@ export default function MonitoringForceSell() {
 					<div className="mx-auto mt-4 w-full flex-col">
 						{/* Override lable here */}
 						<GuardSupportedChain chain={mainnet}>
-							<Button
+							<AppButton
 								disabled={amount == 0n || expectedZCHF() > userBalance || error != ""}
 								isLoading={isBidding}
 								onClick={() => handleBid()}
 							>
 								Force Sell
-							</Button>
+							</AppButton>
 						</GuardSupportedChain>
 					</div>
 				</AppCard>

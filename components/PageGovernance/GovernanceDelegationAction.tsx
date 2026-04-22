@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount, useChainId } from "wagmi";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { Address, isAddress } from "viem";
 import { ADDRESS, BridgedGovernanceABI, EquityABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
@@ -72,9 +72,9 @@ export default function GovernanceDelegationAction({ delegate, disabled }: Props
 
 	return (
 		<GuardSupportedChain chain={mainnet}>
-			<Button className="h-10" disabled={disabled || !isAddress(delegate)} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
+			<AppButton className="h-10" disabled={disabled || !isAddress(delegate)} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
 				Support Address
-			</Button>
+			</AppButton>
 		</GuardSupportedChain>
 	);
 }

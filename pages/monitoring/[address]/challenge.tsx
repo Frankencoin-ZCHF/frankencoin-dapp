@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import AppBox from "@components/AppBox";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import DisplayAmount from "@components/DisplayAmount";
 import TokenInput from "@components/Input/TokenInput";
 import { erc20Abi, zeroAddress } from "viem";
@@ -280,13 +280,17 @@ export default function PositionChallenge() {
 						<div className="mx-auto mt-4 w-full flex-col">
 							<GuardSupportedChain chain={mainnet}>
 								{amount > userAllowance ? (
-									<Button isLoading={isApproving} disabled={!!error} onClick={() => handleApprove()}>
+									<AppButton isLoading={isApproving} disabled={!!error} onClick={() => handleApprove()}>
 										Approve
-									</Button>
+									</AppButton>
 								) : (
-									<Button isLoading={isChallenging} disabled={!!error || amount == 0n} onClick={() => handleChallenge()}>
+									<AppButton
+										isLoading={isChallenging}
+										disabled={!!error || amount == 0n}
+										onClick={() => handleChallenge()}
+									>
 										Challenge
-									</Button>
+									</AppButton>
 								)}
 							</GuardSupportedChain>
 						</div>

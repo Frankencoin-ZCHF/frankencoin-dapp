@@ -1,5 +1,5 @@
 import { shortenAddress } from "../../utils/format";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import NormalInput from "@components/Input/NormalInput";
 import AppCard from "@components/AppCard";
 import { useEffect, useState } from "react";
@@ -162,14 +162,14 @@ export default function GovernanceMintersPropose({}: Props) {
 					<AddressInput label="Comment" placeholder={`Enter the comment here`} value={comment} onChange={setComment} />
 
 					<GuardSupportedChain disabled={isDisabled || isHidden} chain={chain}>
-						<Button
+<AppButton
 							className="max-md:h-10 md:h-12"
 							disabled={isDisabled || isHidden}
 							isLoading={isHandling}
 							onClick={(e) => handleOnClick(e)}
 						>
 							Propose Module on {chain.name}
-						</Button>
+						</AppButton>
 					</GuardSupportedChain>
 				</div>
 			</AppCard>

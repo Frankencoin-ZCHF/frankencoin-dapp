@@ -8,7 +8,7 @@ import DisplayCollateralBorrowTable from "./DisplayCollateralBorrowTable";
 import AppBox from "@components/AppBox";
 import { formatUnits } from "viem";
 import { SwapVCHFStatsReturn } from "@hooks";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 
 interface Props {
 	headers: string[];
@@ -54,13 +54,13 @@ export default function BorrowRow({ headers, tab, position, vchfBridge, hideMyWa
 			headers={headers}
 			tab={tab}
 			actionCol={
-				<Button
+<AppButton
 					className="h-10"
 					onClick={() => navigate.push(isVCHF ? "/swap" : `/mint/${position.position}`)}
 					disabled={isPending}
 				>
 					{isVCHF ? "Swap" : "Borrow"}
-				</Button>
+				</AppButton>
 			}
 		>
 			<div className="flex flex-col max-md:mb-5">

@@ -2,7 +2,7 @@ import { ChallengesQueryItem, PositionQuery } from "@frankencoin/api";
 import { formatUnits } from "viem";
 import { formatCurrency, formatDate, normalizeAddress } from "@utils";
 import { useRouter as useNavigation } from "next/navigation";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import StatRow from "./StatRow";
 
 interface Props {
@@ -34,12 +34,12 @@ export default function AuctionCard({ position, challenge }: Props) {
 			</div>
 			<div className="text-xs text-text-secondary">{formatCurrency(fillPct, 1, 1)}% filled</div>
 
-			<Button
+<AppButton
 				className="h-9 mt-1"
 				onClick={() => navigate.push(`/monitoring/${normalizeAddress(challenge.position)}/auction/${challenge.number}`)}
 			>
 				Place Bid
-			</Button>
+			</AppButton>
 		</div>
 	);
 }
