@@ -2,12 +2,12 @@ import { Address, decodeAbiParameters, formatUnits } from "viem";
 import TableRow from "../Table/TableRow";
 import { ADDRESS, ChainId, SupportedChain, SupportedChainsMap } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
-import AppButton from "@components/AppButton";
 import ChainLogo from "@components/ChainLogo";
 import { ContractUrl, formatCurrency, getChainByChainSelector, shortenAddress } from "@utils";
 import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
+import AppButtonSecondary from "@components/AppButtonSecondary";
 
 type RateLimiterState = {
 	tokens: bigint;
@@ -51,11 +51,14 @@ interface Props {
 	tab: string;
 	sourceChainId: ChainId;
 	destinationSelector: bigint;
+	inbound?: RateLimiterState | null;
 }
 
-export default function GovernanceCCIPBridgesRow({ headers, tab, sourceChainId, destinationSelector }: Props) {
+export default function GovernanceCCIPBridgesRow({ headers, tab, sourceChainId, destinationSelector, inbound: inboundProp }: Props) {
 	const [remoteToken, setRemoteToken] = useState<Address | null>(null);
-	const [inbound, setInbound] = useState<RateLimiterState | null>(null);
+	const [inboundFetched, setInboundFetched] = useState<RateLimiterState | null>(null);
+
+	const inbound = inboundProp !== undefined ? inboundProp : inboundFetched;
 
 	const sourceChain = SupportedChainsMap[sourceChainId] as SupportedChain;
 	const destinationChain = getChainByChainSelector(destinationSelector.toString());
@@ -63,6 +66,17 @@ export default function GovernanceCCIPBridgesRow({ headers, tab, sourceChainId, 
 	useEffect(() => {
 		const fetcher = async () => {
 			const pool = ADDRESS[sourceChainId].ccipTokenPool;
+
+			const fetchInbound =
+				inboundProp === undefined
+					? readContract(WAGMI_CONFIG, {
+							address: pool,
+							chainId: sourceChainId,
+							abi: tokenPoolReadABI,
+							functionName: "getCurrentInboundRateLimiterState",
+							args: [destinationSelector],
+					  })
+					: Promise.resolve(null);
 
 			const [tokenBytes, inState] = await Promise.all([
 				readContract(WAGMI_CONFIG, {
@@ -72,13 +86,7 @@ export default function GovernanceCCIPBridgesRow({ headers, tab, sourceChainId, 
 					functionName: "getRemoteToken",
 					args: [destinationSelector],
 				}),
-				readContract(WAGMI_CONFIG, {
-					address: pool,
-					chainId: sourceChainId,
-					abi: tokenPoolReadABI,
-					functionName: "getCurrentInboundRateLimiterState",
-					args: [destinationSelector],
-				}),
+				fetchInbound,
 			]);
 
 			if (tokenBytes && tokenBytes !== "0x") {
@@ -89,7 +97,7 @@ export default function GovernanceCCIPBridgesRow({ headers, tab, sourceChainId, 
 					setRemoteToken(null);
 				}
 			}
-			setInbound(inState as RateLimiterState);
+			if (inState !== null) setInboundFetched(inState as RateLimiterState);
 		};
 		fetcher();
 	}, [sourceChainId, destinationSelector]);
@@ -102,9 +110,9 @@ export default function GovernanceCCIPBridgesRow({ headers, tab, sourceChainId, 
 			tab={tab}
 			rawHeader={true}
 			actionCol={
-				<AppButton to={detailsHref} className="btn bg-button-default text-white hover:bg-button-hover w-full h-10">
+				<AppButtonSecondary className="h-10" to={detailsHref}>
 					View
-				</AppButton>
+				</AppButtonSecondary>
 			}
 		>
 			{/* Configured Chain */}
@@ -122,7 +130,12 @@ export default function GovernanceCCIPBridgesRow({ headers, tab, sourceChainId, 
 			{/* Remote Token */}
 			<div className="flex flex-col">
 				{remoteToken ? (
-					<AppLink label={shortenAddress(remoteToken)} href={ContractUrl(remoteToken, destinationChain)} external={true} className="" />
+					<AppLink
+						label={shortenAddress(remoteToken)}
+						href={ContractUrl(remoteToken, destinationChain)}
+						external={true}
+						className=""
+					/>
 				) : (
 					"–"
 				)}

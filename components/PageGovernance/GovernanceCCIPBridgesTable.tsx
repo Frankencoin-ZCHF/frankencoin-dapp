@@ -11,6 +11,14 @@ import { mainnet } from "viem/chains";
 import { getChainByChainSelector } from "@utils";
 import ChainBySelect from "@components/Input/ChainBySelect";
 
+type RateLimiterState = {
+	tokens: bigint;
+	lastUpdated: number;
+	isEnabled: boolean;
+	capacity: bigint;
+	rate: bigint;
+};
+
 const tokenPoolReadABI = [
 	{
 		name: "getSupportedChains",
@@ -19,9 +27,28 @@ const tokenPoolReadABI = [
 		inputs: [],
 		outputs: [{ name: "", type: "uint64[]" }],
 	},
+	{
+		name: "getCurrentInboundRateLimiterState",
+		type: "function",
+		stateMutability: "view",
+		inputs: [{ name: "chain", type: "uint64" }],
+		outputs: [
+			{
+				type: "tuple",
+				name: "",
+				components: [
+					{ name: "tokens", type: "uint128" },
+					{ name: "lastUpdated", type: "uint32" },
+					{ name: "isEnabled", type: "bool" },
+					{ name: "capacity", type: "uint128" },
+					{ name: "rate", type: "uint128" },
+				],
+			},
+		],
+	},
 ] as const;
 
-type BridgePair = { sourceChainId: ChainId; destinationSelector: bigint };
+type BridgePair = { sourceChainId: ChainId; destinationSelector: bigint; inbound: RateLimiterState | null };
 
 const DEFAULT_SOURCE = SupportedChainsMap[mainnet.id].name;
 
@@ -60,14 +87,33 @@ export default function GovernanceCCIPBridgesTable() {
 				})
 			);
 
-			const collected: BridgePair[] = [];
+			const pairs: BridgePair[] = [];
 			for (const r of results) {
 				if (r.status !== "fulfilled") continue;
 				for (const selector of r.value.selectors) {
-					collected.push({ sourceChainId: r.value.chainId, destinationSelector: selector });
+					pairs.push({ sourceChainId: r.value.chainId, destinationSelector: selector, inbound: null });
 				}
 			}
-			setPairs(collected);
+
+			// Fetch inbound rate limiter state for all pairs in parallel
+			await Promise.allSettled(
+				pairs.map(async (p, i) => {
+					try {
+						const state = await readContract(WAGMI_CONFIG, {
+							address: ADDRESS[p.sourceChainId].ccipTokenPool,
+							chainId: p.sourceChainId,
+							abi: tokenPoolReadABI,
+							functionName: "getCurrentInboundRateLimiterState",
+							args: [p.destinationSelector],
+						});
+						pairs[i] = { ...p, inbound: state as RateLimiterState };
+					} catch {
+						// leave inbound: null
+					}
+				})
+			);
+
+			setPairs(pairs);
 			setLoaded(true);
 		};
 		fetcher();
@@ -100,6 +146,10 @@ export default function GovernanceCCIPBridgesTable() {
 				const nameA = getChainByChainSelector(a.destinationSelector.toString())?.name ?? "";
 				const nameB = getChainByChainSelector(b.destinationSelector.toString())?.name ?? "";
 				cmp = nameA.localeCompare(nameB);
+			} else if (tab === headers[3]) {
+				const capA = a.inbound?.isEnabled ? a.inbound.capacity : a.inbound ? BigInt(Number.MAX_SAFE_INTEGER) : -1n;
+				const capB = b.inbound?.isEnabled ? b.inbound.capacity : b.inbound ? BigInt(Number.MAX_SAFE_INTEGER) : -1n;
+				cmp = capA < capB ? -1 : capA > capB ? 1 : 0;
 			}
 			return reverse ? -cmp : cmp;
 		});
@@ -137,6 +187,7 @@ export default function GovernanceCCIPBridgesTable() {
 							tab={tab}
 							sourceChainId={p.sourceChainId}
 							destinationSelector={p.destinationSelector}
+							inbound={p.inbound}
 						/>
 					))
 				)}
