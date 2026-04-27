@@ -5,14 +5,12 @@ import { useEffect } from "react";
 import { store } from "../../redux/redux.store";
 import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import AppTitle from "@components/AppTitle";
-import { fetchMorphoMarkets } from "../../redux/slices/morpho.slice";
-import BorrowMorphoTable from "@components/PageBorrow/BorrowMorphoTable";
-import AppLink from "@components/AppLink";
+import AppHeroSteps from "@components/AppHeroSteps";
+import AppButtonSecondary from "@components/AppButtonSecondary";
 
 export default function Borrow() {
 	useEffect(() => {
 		store.dispatch(fetchPositionsList());
-		store.dispatch(fetchMorphoMarkets());
 	}, []);
 
 	return (
@@ -21,29 +19,40 @@ export default function Borrow() {
 				<title>Frankencoin - Borrow</title>
 			</Head>
 
-			<AppTitle title="Mint fresh Frankencoins">
-				<div className="text-text-secondary">Mint Frankencoins (ZCHF) at a fixed rate for your duration of choice.</div>
+			<AppTitle title="Borrow Frankencoins">
+				<div className="text-text-secondary">
+					Deposit a collateral and mint new Frankencoins against it. The collateral stays locked until you return the minted coins.
+				</div>
 			</AppTitle>
+
+			<AppHeroSteps
+				steps={[
+					{
+						icon: 1,
+						title: "Choose a collateral",
+						description: "Choose a crypto asset to use as collateral.",
+					},
+					{
+						icon: 2,
+						title: "Define terms",
+						description: "Adjust amount, maturity, and liquidation price to your liking.",
+					},
+					{
+						icon: 3,
+						title: "Receive Frankencoins",
+						description: "Fresh Frankencoins are minted directly into your wallet.",
+					},
+				]}
+			/>
 
 			<div className="mt-8">
 				<BorrowTable />
 			</div>
 
-			<div className="flex">
-				<Link href={"mint/create"} className="btn bg-layout-primary border-text-primary text-menu-text hover:bg-white m-auto">
-					Propose New Position or Collateral
+			<div className="flex items-center justify-center">
+				<Link href={"mint/create"}>
+					<AppButtonSecondary>Propose New Position or Collateral</AppButtonSecondary>
 				</Link>
-			</div>
-
-			<AppTitle title="Borrow on Morpho">
-				<div className="text-text-secondary">
-					Borrow Frankencoins (ZCHF) at variable rates on the lending platform{" "}
-					<AppLink href="https://morpho.org/" label="Morpho" className="" external={true} />.
-				</div>
-			</AppTitle>
-
-			<div className="mt-8">
-				<BorrowMorphoTable />
 			</div>
 		</>
 	);

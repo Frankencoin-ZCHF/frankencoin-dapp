@@ -15,7 +15,7 @@ import SavingsActionWithdraw from "./SavingsActionWithdraw";
 import AppToggle from "@components/AppToggle";
 import AddressInput from "@components/Input/AddressInput";
 import SavingsActionSaveOnBehalf from "./SavingsActionSaveOnBehalf";
-import { ContractUrl, getChain, shortenAddress } from "@utils";
+import { ContractUrl, getChain, normalizeAddress, shortenAddress } from "@utils";
 import { useRouter } from "next/router";
 import AppLink from "@components/AppLink";
 import { AppKitNetwork } from "@reown/appkit/networks";
@@ -48,9 +48,9 @@ export default function SavingsInteractionCard() {
 
 	const frankencoinAddress =
 		chainId == 1 ? ADDRESS[chainId as ChainIdMain].frankencoin : ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin;
-	const savingsAdresse = (
+	const savingsAdresse = normalizeAddress(
 		chainId == 1 ? ADDRESS[chainId as ChainIdMain].savingsReferral : ADDRESS[chainId as ChainIdSide].ccipBridgedSavings
-	).toLowerCase() as Address;
+	);
 
 	const state = status[chainId][savingsAdresse];
 
@@ -58,7 +58,7 @@ export default function SavingsInteractionCard() {
 	const { address } = useAccount();
 	const router = useRouter();
 
-	const queryAddress: Address = String(router.query.address).toLowerCase() as Address;
+	const queryAddress: Address = normalizeAddress(String(router.query.address));
 	const account = isAddress(queryAddress) ? queryAddress : address ?? zeroAddress;
 
 	const queryReferrer: Address = router.query.referrer as Address;
@@ -190,7 +190,6 @@ export default function SavingsInteractionCard() {
 						min={!onbehalfToggle ? BigInt("0") : undefined}
 						max={!onbehalfToggle ? userBalance + userSavingsBalance + userSavingsInterest : userBalance}
 						reset={!onbehalfToggle ? userSavingsBalance : 0n}
-						balanceLabel="Max:"
 						symbol={fromSymbol}
 						placeholder={fromSymbol + " Amount"}
 						value={amount.toString()}
@@ -200,7 +199,6 @@ export default function SavingsInteractionCard() {
 						limitDigit={18}
 						limitLabel="Balance"
 						onChangeChain={onChangeChain}
-						prefixLabel={"ZCHF"}
 						tokenLogo={"ZCHF"}
 					/>
 				</div>
@@ -218,7 +216,7 @@ export default function SavingsInteractionCard() {
 					<AppToggle disabled={false} label="Custom target address" enabled={onbehalfToggle} onChange={setOnbehalfToggle} />
 				</div>
 
-				<div className="mx-auto my-4 w-72 max-w-full flex-col flex gap-4">
+				<div className="mx-auto my-4 w-full flex-col flex gap-4">
 					{onbehalfToggle ? (
 						<SavingsActionSaveOnBehalf
 							disabled={onbehalfError != "" || onbehalfAddress == ""}

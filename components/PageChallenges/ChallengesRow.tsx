@@ -4,9 +4,9 @@ import { ChallengesId, ChallengesQueryItem } from "@frankencoin/api";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import TokenLogo from "@components/TokenLogo";
-import { formatCurrency } from "../../utils/format";
+import { formatCurrency, normalizeAddress } from "../../utils/format";
 import { useRouter as useNavigation } from "next/navigation";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { useContractUrl } from "@hooks";
 import AppBox from "@components/AppBox";
 
@@ -23,12 +23,12 @@ export default function ChallengesRow({ headers, tab, challenge }: Props) {
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challengesPrices = useSelector((state: RootState) => state.challenges.challengesPrices);
 
-	const position = positions.map[challenge.position.toLowerCase() as Address];
+	const position = positions.map[normalizeAddress(challenge.position)];
 	const url = useContractUrl(position.collateral || zeroAddress);
 	if (!position) return null;
 
-	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
-	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
+	const collTokenPrice = prices[normalizeAddress(position.collateral)]?.price?.usd;
+	const zchfPrice = prices[normalizeAddress(position.zchf)]?.price?.usd;
 	if (!collTokenPrice || !zchfPrice) return null;
 
 	const challengePriceSearch: string | undefined = challengesPrices.map[challenge.id as ChallengesId];
@@ -78,9 +78,9 @@ export default function ChallengesRow({ headers, tab, challenge }: Props) {
 			headers={headers}
 			tab={tab}
 			actionCol={
-				<Button className="h-10" onClick={() => navigate.push(`/monitoring/${challenge.position}/auction/${challenge.number}`)}>
+				<AppButton className="h-10" onClick={() => navigate.push(`/monitoring/${challenge.position}/auction/${challenge.number}`)}>
 					Buy
-				</Button>
+				</AppButton>
 			}
 		>
 			{/* Collateral */}

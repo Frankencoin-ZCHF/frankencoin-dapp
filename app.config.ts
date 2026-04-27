@@ -7,6 +7,7 @@ import { mainnet, polygon, Chain, arbitrum, optimism, avalanche, gnosis, sonic, 
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import axios from "axios";
 import { Address } from "viem";
+import { normalizeAddress } from "./utils/format";
 import { SupportedChains } from "@frankencoin/zchf";
 
 export type ConfigEnv = {
@@ -108,8 +109,5 @@ export const MINT_POSITION_BLACKLIST: Address[] = [
 	"0x7FF29064edc935571f89266607eAA0b5a51b795d",
 ];
 export const POSITION_BLACKLISTED = (addr: Address): boolean => {
-	const r = MINT_POSITION_BLACKLIST.filter((p) => {
-		return p.toLowerCase() === addr.toLowerCase();
-	});
-	return r.length > 0;
+	return MINT_POSITION_BLACKLIST.some((p) => normalizeAddress(p) === normalizeAddress(addr));
 };

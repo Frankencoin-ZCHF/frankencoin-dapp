@@ -17,6 +17,10 @@ interface Props {
 	output?: string;
 	note?: string;
 	value: Date;
+	tabs?: string[];
+	tabDates?: Record<string, Date>;
+	tab?: string;
+	onTab?: (tab: string) => void;
 	onChange?: (date: Date | null) => void;
 	onMin?: () => void;
 	onMax?: () => void;
@@ -38,15 +42,18 @@ export default function DateInput({
 	value,
 	output,
 	note,
+	tabs,
+	tabDates,
+	tab,
+	onTab = () => {},
 	onChange = () => {},
-	onMin = () => {},
-	onMax = () => {},
 	onReset = () => {},
 	autoFocus,
 	disabled,
 	error,
 }: Props) {
 	const datePickerRef = useRef<any>(null);
+	const inputRef = useRef<HTMLInputElement>(null);
 
 	const handleClick = () => {
 		if (datePickerRef.current && !disabled) {
@@ -58,26 +65,26 @@ export default function DateInput({
 		<div className={className}>
 			<div
 				className={`group border-card-input-border ${
-					disabled ? "" : "hover:border-card-input-hover"
+					disabled ? "bg-card-input-disabled" : "hover:border-card-input-hover"
 				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
-				} text-text-secondary border-2 rounded-lg px-3 py-1 ${disabled ? "bg-card-input-disabled" : ""}`}
+				} text-text-secondary border-2 rounded-lg px-3 py-1`}
 				onClick={handleClick}
 			>
-				<div className="flex text-card-input-label my-1">{label}</div>
+				{label && <div className="flex text-card-input-label my-1">{label}</div>}
 
 				<div className="flex items-center">
 					<div
-						className={`flex-1 py-2 ${
+						className={`flex-1 h-[52px] ${
 							error ? "text-card-input-error" : !!value ? "text-text-primary" : "placeholder:text-card-input-empty"
 						}`}
 					>
 						<ReactDatePicker
 							ref={datePickerRef}
-							className={`-ml-2 text-xl bg-transparent`}
+							customInput={<input ref={inputRef} className="-ml-2 w-full bg-transparent" style={{ fontSize: "1.875rem" }} />}
 							id="expiration-datepicker"
 							selected={value}
-							dateFormat={"yyyy-MM-dd"}
+							dateFormat={"dd MMM yyyy"}
 							onChange={(e) => !disabled && onChange?.(e)}
 							disabled={disabled}
 							value={output}
@@ -89,8 +96,8 @@ export default function DateInput({
 					</div>
 				</div>
 
-				{limitLabel != undefined || max != undefined || min != undefined || reset != undefined ? (
-					<div className="flex flex-row gap-2 py-1">
+				{limitLabel != undefined || max != undefined || min != undefined || reset != undefined || tabs != undefined ? (
+					<div className="flex flex-row gap-4 py-1">
 						<div className="flex-1">
 							<div className="flex flex-row gap-2">
 								{limitLabel != undefined && <div className="text-text-secondary">{limitLabel}</div>}
@@ -98,7 +105,7 @@ export default function DateInput({
 							</div>
 						</div>
 
-						{!disabled && max != undefined && max.getDate() != value.getDate() && (
+						{/* {!disabled && max != undefined && max.getDate() != value.getDate() && (
 							<div
 								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
@@ -123,7 +130,31 @@ export default function DateInput({
 							>
 								Min
 							</div>
-						)}
+						)} */}
+						{!disabled &&
+							tabs != undefined &&
+							tabs.map((t) => {
+								const tabDate = tabDates?.[t];
+								const now = new Date();
+								if (tabDate && tabDate < now) return null;
+								if (tabDate && max && tabDate > max) return null;
+								return (
+									<div
+										key={t}
+										className={`font-extrabold ${
+											t === tab
+												? "text-card-input-min"
+												: "cursor-pointer text-card-input-label hover:text-card-input-focus"
+										}`}
+										onClick={(e) => {
+											e.stopPropagation();
+											onTab(t);
+										}}
+									>
+										{t}
+									</div>
+								);
+							})}
 						{!disabled && reset != undefined && reset != value && reset != min && reset != max && (
 							<div
 								className="text-card-input-reset cursor-pointer hover:text-card-input-focus font-extrabold"

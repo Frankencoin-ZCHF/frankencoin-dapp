@@ -3,6 +3,7 @@ import { Address } from "viem";
 import { disconnect } from "@wagmi/core";
 import { useAccount } from "wagmi";
 import { WAGMI_CONFIG } from "../app.config";
+import { normalizeAddress } from "../utils/format";
 import { toast } from "react-toastify";
 
 export default function USGovSanction() {
@@ -11,7 +12,7 @@ export default function USGovSanction() {
 	useEffect(() => {
 		const addr = account.address;
 		if (addr != undefined) {
-			const isList = USGovSanctionList.find((e) => e.toLowerCase() === addr.toLowerCase());
+			const isList = USGovSanctionList.find((e) => normalizeAddress(e) === normalizeAddress(addr));
 			if (isList == undefined) return;
 
 			const action = async () => {

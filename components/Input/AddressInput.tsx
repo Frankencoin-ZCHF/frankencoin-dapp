@@ -46,12 +46,14 @@ export default function AddressInput({
 	return (
 		<div className={className}>
 			<div
-				className={`group border-card-input-border hover:border-card-input-hover focus-within:!border-card-input-focus ${
+				className={`group border-card-input-border ${
+					disabled ? "bg-card-input-disabled" : "hover:border-card-input-hover"
+				} focus-within:!border-card-input-focus ${
 					error ? "!border-card-input-error" : ""
 				} text-text-secondary border-2 rounded-lg px-3 py-1`}
 				onClick={handleClick}
 			>
-				<div className="flex text-card-input-label my-1">{label}</div>
+				{label && <div className="flex text-card-input-label my-1">{label}</div>}
 
 				<input
 					ref={inputRef}

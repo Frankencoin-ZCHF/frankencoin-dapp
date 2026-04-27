@@ -4,7 +4,7 @@ import { BidsQueryType, ChallengesId, ChallengesQueryItem } from "@frankencoin/a
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import TokenLogo from "@components/TokenLogo";
-import { formatCurrency } from "../../utils/format";
+import { formatCurrency, normalizeAddress } from "../../utils/format";
 import { useContractUrl } from "@hooks";
 import MyPositionsChallengesCancel from "./MyPositionsChallengesCancel";
 import AppBox from "@components/AppBox";
@@ -20,12 +20,12 @@ export default function MyPositionsChallengesRow({ headers, tab, challenge }: Pr
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const bids = useSelector((state: RootState) => state.bids.challenges.map[challenge.id] || []);
 
-	const position = positions.map[challenge.position.toLowerCase() as Address];
+	const position = positions.map[normalizeAddress(challenge.position)];
 	const url = useContractUrl(position.collateral || zeroAddress);
 	if (!position) return null;
 
-	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
-	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
+	const collTokenPrice = prices[normalizeAddress(position.collateral)]?.price?.usd;
+	const zchfPrice = prices[normalizeAddress(position.zchf)]?.price?.usd;
 	if (!collTokenPrice || !zchfPrice) return null;
 
 	const start: number = parseInt(challenge.start.toString()) * 1000; // timestap

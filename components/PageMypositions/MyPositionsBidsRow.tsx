@@ -4,13 +4,14 @@ import { BidsQueryItem, ChallengesId } from "@frankencoin/api";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import TokenLogo from "@components/TokenLogo";
-import { formatCurrency } from "../../utils/format";
+import { formatCurrency, normalizeAddress } from "../../utils/format";
 import { useContractUrl } from "@hooks";
 import { useRouter as useNavigation } from "next/navigation";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { useAccount } from "wagmi";
 import AppBox from "@components/AppBox";
 import { TxUrl } from "@utils";
+import AppButtonSecondary from "@components/AppButtonSecondary";
 
 interface Props {
 	headers: string[];
@@ -22,7 +23,7 @@ export default function MyPositionsBidsRow({ headers, tab, bid }: Props) {
 	const positions = useSelector((state: RootState) => state.positions.mapping);
 	const challenges = useSelector((state: RootState) => state.challenges.mapping);
 
-	const pid = bid.position.toLowerCase() as Address;
+	const pid = normalizeAddress(bid.position);
 	const cid = `${pid}-challenge-${bid.number}` as ChallengesId;
 
 	const position = positions.map[pid];
@@ -52,18 +53,18 @@ export default function MyPositionsBidsRow({ headers, tab, bid }: Props) {
 			tab={tab}
 			actionCol={
 				isDisabled ? (
-					<Button className="h-10" onClick={openExplorerBid}>
+					<AppButtonSecondary className="h-10" onClick={openExplorerBid}>
 						View
-					</Button>
+					</AppButtonSecondary>
 				) : (
 					<div className="">
-						<Button
+<AppButton
 							className="h-10"
 							disabled={isDisabled}
-							onClick={() => navigate.push(`/monitoring/${challenge.position.toLowerCase()}/auction/${challenge.number}`)}
+							onClick={() => navigate.push(`/monitoring/${normalizeAddress(challenge.position)}/auction/${challenge.number}`)}
 						>
 							Buy Again
-						</Button>
+						</AppButton>
 					</div>
 				)
 			}

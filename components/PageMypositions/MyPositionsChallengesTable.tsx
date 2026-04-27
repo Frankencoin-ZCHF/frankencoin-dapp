@@ -7,6 +7,7 @@ import TableRowEmpty from "@components/Table/TableRowEmpty";
 import MyPositionsChallengesRow from "./MyPositionsChallengesRow";
 import { useAccount } from "wagmi";
 import { Address, formatUnits, zeroAddress } from "viem";
+import { normalizeAddress } from "../../utils/format";
 import {
 	ChallengesId,
 	ChallengesPricesMapping,
@@ -35,7 +36,7 @@ export default function MyPositionsChallengesTable() {
 	const { address } = useAccount();
 	const account = overwrite || address || zeroAddress;
 
-	const matchingChallenges = challenges.filter((c) => c.challenger.toLowerCase() === account.toLowerCase());
+	const matchingChallenges = challenges.filter((c) => normalizeAddress(c.challenger) === normalizeAddress(account));
 
 	const sorted: ChallengesQueryItem[] = sortChallenges({
 		challenges: matchingChallenges,
@@ -93,7 +94,7 @@ function sortChallenges(params: SortChallenges): ChallengesQueryItem[] {
 		// challenge size
 		challenges.sort((a, b) => {
 			const calc = function (c: ChallengesQueryItem) {
-				const pos: PositionQuery = positions[c.position.toLowerCase() as Address];
+				const pos: PositionQuery = positions[normalizeAddress(c.position)];
 				const size: number = parseFloat(formatUnits(c.size, pos.collateralDecimals));
 				return size;
 			};

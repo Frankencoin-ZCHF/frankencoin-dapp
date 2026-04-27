@@ -6,6 +6,7 @@ import TableBody from "@components/Table/TableBody";
 import TableRowEmpty from "@components/Table/TableRowEmpty";
 import { useAccount } from "wagmi";
 import { Address, formatUnits, zeroAddress } from "viem";
+import { normalizeAddress } from "../../utils/format";
 import { BidsQueryItem, ChallengesQueryItemMapping, PositionQuery, PositionsQueryObjectArray } from "@frankencoin/api";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
@@ -27,7 +28,7 @@ export default function MyPositionsBidsTable() {
 	const { address } = useAccount();
 	const account = overwrite || address || zeroAddress;
 
-	const matchingBids = bids.filter((b) => b.bidder.toLowerCase() === account.toLowerCase());
+	const matchingBids = bids.filter((b) => normalizeAddress(b.bidder) === normalizeAddress(account));
 
 	const sorted: BidsQueryItem[] = sortBids({
 		bids: matchingBids,
@@ -83,7 +84,7 @@ function sortBids(params: SortBids): BidsQueryItem[] {
 		// Filled Size
 		bids.sort((a, b) => {
 			const calc = function (b: BidsQueryItem) {
-				const pos: PositionQuery = positions[b.position.toLowerCase() as Address];
+				const pos: PositionQuery = positions[normalizeAddress(b.position)];
 				const size: number = parseFloat(formatUnits(b.filledSize, pos.collateralDecimals));
 				const price: number = parseFloat(formatUnits(b.price, 36 - pos.collateralDecimals));
 				return size * price;
@@ -94,7 +95,7 @@ function sortBids(params: SortBids): BidsQueryItem[] {
 		// Price
 		bids.sort((a, b) => {
 			const calc = function (b: BidsQueryItem) {
-				const pos: PositionQuery = positions[b.position.toLowerCase() as Address];
+				const pos: PositionQuery = positions[normalizeAddress(b.position)];
 				return parseFloat(formatUnits(b.price, 36 - pos.collateralDecimals));
 			};
 			return calc(b) - calc(a);

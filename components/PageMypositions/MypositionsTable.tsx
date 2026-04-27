@@ -1,4 +1,4 @@
-import TableHeader from "../Table/TableHead";
+import TableHeadSearchable, { FilterOption } from "../Table/TableHeadSearchable";
 import TableBody from "../Table/TableBody";
 import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
@@ -8,11 +8,14 @@ import { ChallengesPositionsMapping, PositionQuery, PriceQueryObjectArray } from
 import { Address, formatUnits, zeroAddress } from "viem";
 import { useAccount } from "wagmi";
 import MypositionsRow from "./MypositionsRow";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
-import { generateExpirationCalendar, downloadCalendarFile } from "../../utils/calendarGenerator";
+import { generateExpirationCalendar, downloadCalendarFile, generateGoogleCalendarUrl } from "../../utils/calendarGenerator";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
+import { faCalendarDays, faCalendarPlus } from "@fortawesome/free-solid-svg-icons";
+import { ALL_CATEGORIES, CollateralCategory, collateralMatchesCategories, normalizeAddress } from "@utils";
+
+const FILTER_OPTIONS: FilterOption[] = ALL_CATEGORIES.map((c) => ({ label: c, value: c }));
 
 export default function MypositionsTable() {
 	const headers: string[] = ["Collateral", "Liquidation Price", "Minted", "State"];
@@ -20,6 +23,8 @@ export default function MypositionsTable() {
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<PositionQuery[]>([]);
+	const [searchQuery, setSearchQuery] = useState<string>("");
+	const [activeCategories, setActiveCategories] = useState<string[]>([]);
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const challenges = useSelector((state: RootState) => state.challenges.positions.map);
@@ -34,12 +39,12 @@ export default function MypositionsTable() {
 	const sortedByCollateral: { [key: Address]: PositionQuery[] } = {};
 	const closedPositions: { [key: Address]: PositionQuery[] } = {};
 	for (const p of positions) {
-		const k: Address = p.collateral.toLowerCase() as Address;
+		const k: Address = normalizeAddress(p.collateral);
 
-		if (p.owner.toLowerCase() !== account.toLowerCase()) continue;
+		if (normalizeAddress(p.owner) !== normalizeAddress(account)) continue;
 
 		if (p.closed || p.denied) {
-			if (BigInt(p.collateralBalance) == 0n) continue;
+			if (BigInt(p.collateralBalance) < BigInt(p.minimumCollateral)) continue;
 			if (closedPositions[k] == undefined) closedPositions[k] = [];
 			closedPositions[k].push(p);
 			continue;
@@ -61,11 +66,26 @@ export default function MypositionsTable() {
 		reverse,
 	});
 
+	const filteredList = useMemo(() => {
+		return sorted.filter((pos) => {
+			if (searchQuery) {
+				const q = searchQuery.toLowerCase();
+				if (!pos.collateralName.toLowerCase().includes(q) && !pos.collateralSymbol.toLowerCase().includes(q)) return false;
+			}
+			if (
+				activeCategories.length > 0 &&
+				!collateralMatchesCategories(normalizeAddress(pos.collateral), activeCategories as CollateralCategory[])
+			)
+				return false;
+			return true;
+		});
+	}, [sorted, searchQuery, activeCategories]);
+
 	useEffect(() => {
 		const idList = list.map((l) => l.position).join("_");
-		const idSorted = sorted.map((l) => l.position).join("_");
-		if (idList != idSorted) setList(sorted);
-	}, [list, sorted]);
+		const idFiltered = filteredList.map((l) => l.position).join("_");
+		if (idList != idFiltered) setList(filteredList);
+	}, [list, filteredList]);
 
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
@@ -80,21 +100,36 @@ export default function MypositionsTable() {
 
 	const handleDownloadCalendar = () => {
 		if (list.length === 0) return;
+		downloadCalendarFile(generateExpirationCalendar(list, account));
+	};
 
-		const calendarContent = generateExpirationCalendar(list, account);
-		downloadCalendarFile(calendarContent);
+	const handleGoogleCalendar = () => {
+		const activePositions = list.filter((p) => !p.closed && !p.denied);
+		if (activePositions.length === 0) return;
+		// Pick the position with the soonest expiration
+		const soonest = activePositions.slice().sort((a, b) => a.expiration - b.expiration)[0];
+		window.open(generateGoogleCalendarUrl(soonest), "_blank");
 	};
 
 	return (
 		<>
 			<Table>
-				<TableHeader
+				<TableHeadSearchable
 					headers={headers}
 					subHeaders={subHeaders}
 					tab={tab}
 					reverse={reverse}
 					tabOnChange={handleTabOnChange}
 					actionCol
+					searchPlaceholder="Search Positions"
+					searchValue={searchQuery}
+					onSearchChange={setSearchQuery}
+					hideMyWallet
+					inMyWallet={false}
+					onInMyWalletChange={() => {}}
+					filterOptions={FILTER_OPTIONS}
+					activeFilters={activeCategories}
+					onFiltersChange={setActiveCategories}
 				/>
 				<TableBody>
 					{list.length == 0 ? (
@@ -107,14 +142,22 @@ export default function MypositionsTable() {
 				</TableBody>
 			</Table>
 			{list.length > 0 && (
-				<div className="mb-4 flex justify-end">
+				<div className="mb-4 flex justify-end gap-2">
+					<button
+						onClick={handleGoogleCalendar}
+						className="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-700 transition-colors"
+						title="Add expiration reminder to Google Calendar"
+					>
+						<FontAwesomeIcon icon={faCalendarPlus} className="mr-2" />
+						Add to Google Calendar
+					</button>
 					<button
 						onClick={handleDownloadCalendar}
 						className="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-700 transition-colors"
 						title="Download expiration alerts calendar"
 					>
 						<FontAwesomeIcon icon={faCalendarDays} className="mr-2" />
-						Download Expiration Calendar
+						Download Calendar
 					</button>
 				</div>
 			)}
@@ -150,7 +193,7 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 		sortingList.sort((a, b) => {
 			const calc = function (p: PositionQuery) {
 				const size: number = parseFloat(formatUnits(BigInt(p.collateralBalance), p.collateralDecimals));
-				const price: number = prices[p.collateral.toLowerCase() as Address]?.price?.chf || 1;
+				const price: number = prices[normalizeAddress(p.collateral)]?.price?.chf || 1;
 				return size * price;
 			};
 			return calc(b) - calc(a);
@@ -160,7 +203,7 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 		sortingList.sort((a, b) => {
 			const calc = function (p: PositionQuery) {
 				const liqPrice: number = parseFloat(formatUnits(BigInt(p.price), 36 - p.collateralDecimals));
-				const price: number = prices[p.collateral.toLowerCase() as Address]?.price?.chf || 1;
+				const price: number = prices[normalizeAddress(p.collateral)]?.price?.chf || 1;
 				return price / liqPrice;
 			};
 			return calc(b) - calc(a);
@@ -177,7 +220,7 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 		// sort for state
 		sortingList.sort((a, b) => {
 			const calc = function (p: PositionQuery): number {
-				const pid: Address = p.position.toLowerCase() as Address;
+				const pid: Address = normalizeAddress(p.position);
 				const cPos = challenges[pid] ?? [];
 				const cPosActive = cPos.filter((c) => c.status == "Active") ?? [];
 				const maturity: number = (p.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;

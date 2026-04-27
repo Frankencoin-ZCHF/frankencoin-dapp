@@ -16,7 +16,7 @@ export default function MonitoringAllChallengesTable() {
 
 	if (sorted.length === 0) {
 		return (
-			<div className="bg-card-body-primary rounded-xl p-8 text-center text-text-secondary">No challenges have been recorded yet.</div>
+			<div className="bg-card-body-primary rounded-lg p-8 text-center text-text-secondary">No challenges have been recorded yet.</div>
 		);
 	}
 

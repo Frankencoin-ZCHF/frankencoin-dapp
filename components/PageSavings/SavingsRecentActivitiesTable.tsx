@@ -9,10 +9,11 @@ import { SavingsActivityQuery } from "@frankencoin/api";
 import SavingsRecentActivitiesRow from "./SavingsRecentActivitiesRow";
 import { useAccount, useChainId } from "wagmi";
 import { ADDRESS, ChainId } from "@frankencoin/zchf";
+import { normalizeAddress } from "../../utils/format";
 import { mainnet } from "viem/chains";
 
 export default function SavingsRecentActivitiesTable() {
-	const headers: string[] = ["Date", "Saver", "Kind", "Amount", "Balance"];
+	const headers: string[] = ["Date", "Kind", "Amount", "Balance"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<SavingsActivityQuery[]>([]);
@@ -20,8 +21,8 @@ export default function SavingsRecentActivitiesTable() {
 	const { address } = useAccount();
 
 	const activities = useSelector((state: RootState) => state.savings.savingsActivity);
-	const ignoreModule = ADDRESS[mainnet.id].savingsV2.toLowerCase();
-	const matching = activities.filter((l) => l.chainId == chainId && l.module.toLowerCase() != ignoreModule).slice(0, 20);
+	const ignoreModule = normalizeAddress(ADDRESS[mainnet.id].savingsV2);
+	const matching = activities.filter((l) => l.chainId == chainId && normalizeAddress(l.module) !== ignoreModule).slice(0, 20);
 
 	const sorted: SavingsActivityQuery[] = sortFunction({ list: matching, headers, tab, reverse });
 
@@ -80,15 +81,12 @@ function sortFunction(params: SortFunctionParams): SavingsActivityQuery[] {
 		// Date
 		sortingList.sort((a, b) => b.created - a.created);
 	} else if (tab === headers[1]) {
-		// Saver
-		sortingList.sort((a, b) => a.account.localeCompare(b.account));
-	} else if (tab === headers[2]) {
 		// Kind
 		sortingList.sort((a, b) => a.kind.localeCompare(b.kind));
-	} else if (tab === headers[3]) {
+	} else if (tab === headers[2]) {
 		// Amount
 		sortingList.sort((a, b) => parseInt(b.amount) - parseInt(a.amount));
-	} else if (tab === headers[4]) {
+	} else if (tab === headers[3]) {
 		// Balance
 		sortingList.sort((a, b) => parseInt(b.balance) - parseInt(a.balance));
 	}

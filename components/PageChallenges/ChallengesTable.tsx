@@ -15,6 +15,7 @@ import {
 	PriceQueryObjectArray,
 } from "@frankencoin/api";
 import { Address, formatUnits } from "viem";
+import { normalizeAddress } from "../../utils/format";
 
 export default function ChallengesTable() {
 	const headers: string[] = ["Available", "Price", "Phase", "Ends in"];
@@ -92,9 +93,9 @@ function sortChallenges(params: SortChallenges): ChallengesQueryItem[] {
 		// Available challenge size
 		challenges.sort((a, b) => {
 			const calc = function (c: ChallengesQueryItem) {
-				const pos: PositionQuery = positions[c.position.toLowerCase() as Address];
+				const pos: PositionQuery = positions[normalizeAddress(c.position)];
 				const size: number = parseFloat(formatUnits(c.size, pos.collateralDecimals));
-				const price: number = prices[pos.collateral.toLowerCase() as Address].price.chf || 1;
+				const price: number = prices[normalizeAddress(pos.collateral)].price.chf || 1;
 				return size * price;
 			};
 			return calc(b) - calc(a);
@@ -103,7 +104,7 @@ function sortChallenges(params: SortChallenges): ChallengesQueryItem[] {
 		// Prices, auction prices
 		challenges.sort((a, b) => {
 			const calc = function (c: ChallengesQueryItem) {
-				const pos: PositionQuery = positions[c.position.toLowerCase() as Address];
+				const pos: PositionQuery = positions[normalizeAddress(c.position)];
 				const raw: bigint = BigInt(auction[c.id as ChallengesId] ?? 0);
 				const price: number = parseFloat(formatUnits(raw, 36 - pos.collateralDecimals)) || 0;
 				return price;

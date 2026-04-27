@@ -4,12 +4,13 @@ import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount, useChainId } from "wagmi";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { ADDRESS, SavingsABI, SavingsV2ABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { useRouter } from "next/router";
 import { Address, isAddress, zeroAddress } from "viem";
+import { normalizeAddress } from "../../utils/format";
 
 interface Props {
 	disabled?: boolean;
@@ -23,7 +24,7 @@ export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 	const chainId = mainnet.id;
 
 	const router = useRouter();
-	const queryAddress: Address = String(router.query.address).toLowerCase() as Address;
+	const queryAddress: Address = normalizeAddress(String(router.query.address));
 	const account = isAddress(queryAddress) ? queryAddress : address ?? zeroAddress;
 
 	useEffect(() => {
@@ -93,11 +94,11 @@ export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 			<div className="flex-1 text-text-secondary">
 				You have unclaimed savings in an older Savings Module. Click here to claim your savings.
 			</div>
-			<div className="w-72 max-w-full">
+			<div className="w-full">
 				<GuardSupportedChain chain={mainnet}>
-					<Button className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
+					<AppButton className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
 						Redeem from older Version
-					</Button>
+					</AppButton>
 				</GuardSupportedChain>
 			</div>
 		</div>

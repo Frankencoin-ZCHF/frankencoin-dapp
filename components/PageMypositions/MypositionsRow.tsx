@@ -3,10 +3,10 @@ import TableRow from "../Table/TableRow";
 import { PositionQuery, ChallengesQueryItem } from "@frankencoin/api";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
-import { formatCurrency } from "../../utils/format";
+import { formatCurrency, normalizeAddress } from "../../utils/format";
 import MyPositionsDisplayCollateral from "./MyPositionsDisplayCollateral";
 import { useRouter as useNavigate } from "next/navigation";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import AppBox from "@components/AppBox";
 
 interface Props {
@@ -32,8 +32,8 @@ export default function MypositionsRow({ headers, tab, subHeaders, position }: P
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const bids = useSelector((state: RootState) => state.bids.positions);
-	const collTokenPrice = prices[position.collateral.toLowerCase() as Address]?.price?.usd;
-	const zchfPrice = prices[position.zchf.toLowerCase() as Address]?.price?.usd;
+	const collTokenPrice = prices[normalizeAddress(position.collateral)]?.price?.usd;
+	const zchfPrice = prices[normalizeAddress(position.zchf)]?.price?.usd;
 	if (!collTokenPrice || !zchfPrice) return null;
 
 	const maturity: number = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
@@ -46,9 +46,12 @@ export default function MypositionsRow({ headers, tab, subHeaders, position }: P
 	const loanAvailableV2: number = parseFloat(formatUnits(position.version == 2 ? BigInt(position.availableForMinting) : 0n, 18));
 
 	const liquidationZCHF: number = parseInt(position.price) / 10 ** (36 - position.collateralDecimals);
+	const collateralCapacity: number = balance * liquidationZCHF - loanZCHF;
+	const personalizedAvailableV1: number = Math.max(0, Math.min(loanAvailableV1, collateralCapacity));
+	const personalizedAvailableV2: number = Math.max(0, Math.min(loanAvailableV2, collateralCapacity));
 	const liquidationPct: number = (balanceZCHF / (liquidationZCHF * balance)) * 100;
 
-	const positionChallenges = challenges.map[position.position.toLowerCase() as Address] ?? [];
+	const positionChallenges = challenges.map[normalizeAddress(position.position)] ?? [];
 	const positionChallengesActive = positionChallenges.filter((ch: ChallengesQueryItem) => ch.status == "Active") ?? [];
 
 	const states: string[] = ["Closed", "Challenged", "New Request", "Cooldown", "Expiring Soon", "Expired", "Open"];
@@ -138,9 +141,9 @@ export default function MypositionsRow({ headers, tab, subHeaders, position }: P
 			subHeaders={subHeaders}
 			tab={tab}
 			actionCol={
-				<Button className="h-10" onClick={() => navigate.push(`/mypositions/${position.position}`)}>
+				<AppButton className="h-10" onClick={() => navigate.push(`/mypositions/${position.position}`)}>
 					Manage
-				</Button>
+				</AppButton>
 			}
 		>
 			{/* Collateral */}
@@ -172,7 +175,7 @@ export default function MypositionsRow({ headers, tab, subHeaders, position }: P
 			<div className="flex flex-col">
 				<span className="text-md">{formatCurrency(loanZCHF, 2, 2)} ZCHF</span>
 				<span className="text-sm text-text-subheader font-normal">
-					{formatCurrency(position.version == 2 ? loanAvailableV2 : loanAvailableV1, 2, 2)} ZCHF
+					{formatCurrency(position.version == 2 ? personalizedAvailableV2 : personalizedAvailableV1, 2, 2)} ZCHF
 				</span>
 			</div>
 

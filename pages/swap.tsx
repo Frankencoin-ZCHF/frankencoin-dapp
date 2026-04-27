@@ -3,7 +3,7 @@ import TokenInput from "@components/Input/TokenInput";
 import { useEffect, useState } from "react";
 import { useContractUrl, useSwapVCHFStats } from "@hooks";
 import { erc20Abi, maxUint256 } from "viem";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
@@ -71,7 +71,9 @@ export default function Swap() {
 			setErrorBridge(`Swap module has expired on ${horizon.toDateString()}`);
 		} else if (timeRemaining < thirtyDaysMs && timeRemaining > 0 && direction) {
 			const daysRemaining = Math.ceil(timeRemaining / (24 * 60 * 60 * 1000));
-			setErrorBridge(`Warning: Swap module expires in ${daysRemaining} day${daysRemaining === 1 ? "" : "s"} (${horizon.toDateString()})`);
+			setErrorBridge(
+				`Warning: Swap module expires in ${daysRemaining} day${daysRemaining === 1 ? "" : "s"} (${horizon.toDateString()})`
+			);
 		} else {
 			setErrorBridge("");
 		}
@@ -251,9 +253,9 @@ export default function Swap() {
 						</div>
 
 						<div className="py-4 text-center z-0">
-							<Button className={`h-10 rounded-full`} width="w-10" onClick={onChangeDirection}>
+							<AppButton className={`h-10 rounded-full`} width="w-10" onClick={onChangeDirection}>
 								<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
-							</Button>
+							</AppButton>
 						</div>
 
 						<TokenInput
@@ -267,26 +269,30 @@ export default function Swap() {
 							error={errorBridge}
 						/>
 
-						<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+						<div className="mx-auto mt-8 w-full flex-col">
 							<GuardSupportedChain chain={mainnet}>
 								{direction ? (
 									amount > swapStats.otherUserAllowance ? (
-										<Button disabled={!activeMinter || !!error} isLoading={isApproving} onClick={() => handleApprove()}>
+										<AppButton
+											disabled={!activeMinter || !!error}
+											isLoading={isApproving}
+											onClick={() => handleApprove()}
+										>
 											Approve
-										</Button>
+										</AppButton>
 									) : (
-										<Button
+										<AppButton
 											disabled={amount == 0n || !activeMinter || !!error}
 											isLoading={isMinting}
 											onClick={() => handleMint()}
 										>
 											Swap
-										</Button>
+										</AppButton>
 									)
 								) : (
-									<Button isLoading={isBurning} disabled={amount == 0n || !!error} onClick={() => handleBurn()}>
+									<AppButton isLoading={isBurning} disabled={amount == 0n || !!error} onClick={() => handleBurn()}>
 										Swap
-									</Button>
+									</AppButton>
 								)}
 							</GuardSupportedChain>
 						</div>

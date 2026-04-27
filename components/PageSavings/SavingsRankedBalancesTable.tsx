@@ -16,7 +16,7 @@ export default function SavingsRankedBalancesTable() {
 
 	const ranked = useSelector((state: RootState) => state.savings.savingsRanked);
 
-	const sorted: SavingsBalance[] = sortFunction({ list: ranked, headers, tab, reverse });
+	const sorted: SavingsBalance[] = sortFunction({ list: ranked, headers, tab, reverse }).slice(0, 10);
 
 	useEffect(() => {
 		const idList = list.map((l) => `${l.chainId}-${l.account}`).join("_");

@@ -7,7 +7,7 @@ import { formatBigInt, formatDuration, shortenAddress } from "@utils";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
@@ -213,7 +213,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 			const ratio = (calculateProceeds * BigInt(1e18)) / amount;
 			return `1 ${fromSymbol} = ${formatUnits(ratio, 18)} ${toSymbol}`;
 		} else {
-			return `${toSymbol} price is calculated dynamically.\n`;
+			return ``;
 		}
 	};
 
@@ -236,14 +236,14 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 				/>
 
 				<div className="py-4 text-center z-0">
-					<Button
+<AppButton
 						className={`h-10 rounded-full`}
 						width="w-10"
 						onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}
 						disabled={true}
 					>
 						<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
-					</Button>
+					</AppButton>
 				</div>
 
 				<TokenInputSelect
@@ -260,16 +260,16 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 				/>
 				<div className={`mt-2 px-1 transition-opacity`}>{conversionNote()}</div>
 
-				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+				<div className="mx-auto mt-8 w-full flex-col">
 					<GuardSupportedChain chain={mainnet}>
 						{amount > wfpsAllowance ? (
-							<Button isLoading={isApproving} disabled={amount == 0n || !!error || !unlocked} onClick={() => handleApprove()}>
+							<AppButton isLoading={isApproving} disabled={amount == 0n || !!error || !unlocked} onClick={() => handleApprove()}>
 								Approve
-							</Button>
+							</AppButton>
 						) : (
-							<Button isLoading={isRedeeming} disabled={amount == 0n || !!error || !unlocked} onClick={() => handleRedeem()}>
+							<AppButton isLoading={isRedeeming} disabled={amount == 0n || !!error || !unlocked} onClick={() => handleRedeem()}>
 								Unwrap and Redeem
-							</Button>
+							</AppButton>
 						)}
 					</GuardSupportedChain>
 				</div>

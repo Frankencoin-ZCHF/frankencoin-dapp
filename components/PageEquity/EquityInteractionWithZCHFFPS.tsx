@@ -7,7 +7,7 @@ import { formatBigInt, formatDuration, shortenAddress } from "@utils";
 import { useAccount, useChainId, useReadContract } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
@@ -205,10 +205,10 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 
 	const conversionNote = () => {
 		if (amount != 0n && result != 0n) {
-			const ratio = (result * BigInt(1e18)) / amount;
-			return `1 ${fromSymbol} = ${formatUnits(ratio, 18)} ${toSymbol}`;
+			const ratio = 100n * amount / result;
+			return `1 ${toSymbol} = ${formatUnits(ratio, 2)} ${fromSymbol}`;
 		} else {
-			return `${toSymbol} price is calculated dynamically.\n`;
+			return ``;
 		}
 	};
 
@@ -231,9 +231,9 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 				/>
 
 				<div className="py-4 text-center z-0">
-					<Button className={`h-10 rounded-full`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
+					<AppButton className={`h-10 rounded-full`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
 						<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
-					</Button>
+					</AppButton>
 				</div>
 
 				<TokenInputSelect
@@ -251,26 +251,26 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 
 				<div className={`mt-2 px-1 transition-opacity ${(shareLoading || proceedLoading) && "opacity-50"}`}>{conversionNote()}</div>
 
-				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+				<div className="mx-auto mt-8 w-full flex-col">
 					<GuardSupportedChain chain={mainnet}>
 						{direction ? (
 							amount > poolStats.frankenAllowance ? (
-								<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>
+								<AppButton isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>
 									Approve
-								</Button>
+								</AppButton>
 							) : (
-								<Button disabled={amount == 0n || !!error} isLoading={isInversting} onClick={() => handleInvest()}>
+								<AppButton disabled={amount == 0n || !!error} isLoading={isInversting} onClick={() => handleInvest()}>
 									Mint
-								</Button>
+								</AppButton>
 							)
 						) : (
-							<Button
+<AppButton
 								isLoading={isRedeeming}
 								disabled={amount == 0n || !!error || !poolStats.equityCanRedeem}
 								onClick={() => handleRedeem()}
 							>
 								Redeem
-							</Button>
+							</AppButton>
 						)}
 					</GuardSupportedChain>
 				</div>

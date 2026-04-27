@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { useAppKit, useAppKitState, useAppKitNetwork } from "@reown/appkit/react";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { WAGMI_CHAIN, WAGMI_CHAINS } from "../../app.config";
 import { AppKitNetwork } from "@reown/appkit/networks";
 import { ChainId } from "@frankencoin/zchf";
@@ -44,8 +44,7 @@ export default function GuardSupportedChain({ children, label, disabled, chain, 
 	// Check if wallet is disconnected
 	if (Account.isDisconnected)
 		return (
-			<Button
-				className="h-10"
+<AppButton
 				disabled={disabled}
 				onClick={() => {
 					AppKit.open();
@@ -53,14 +52,13 @@ export default function GuardSupportedChain({ children, label, disabled, chain, 
 				}}
 			>
 				{label ?? "Connect Wallet"}
-			</Button>
+			</AppButton>
 		);
 
 	// Check if wallet is connected to the correct chains
 	if (!isCorrectChain)
 		return (
-			<Button
-				className="h-10"
+<AppButton
 				disabled={disabled}
 				onClick={() => {
 					AppKitNetwork.switchNetwork(chain);
@@ -68,7 +66,7 @@ export default function GuardSupportedChain({ children, label, disabled, chain, 
 				}}
 			>
 				<div className="truncate">{label ?? `Switch to ${chain.name}`}</div>
-			</Button>
+			</AppButton>
 		);
 
 	// render children

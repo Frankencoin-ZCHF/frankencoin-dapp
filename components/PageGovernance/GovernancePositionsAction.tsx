@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
 import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { useAccount, useChainId } from "wagmi";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { Address } from "viem";
 import { PositionQuery } from "@frankencoin/api";
 import { EquityABI, PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
@@ -77,9 +77,9 @@ export default function GovernancePositionsAction({ position, disabled }: Props)
 	return (
 		<div className="">
 			<GuardSupportedChain disabled={isHidden || disabled} chain={mainnet}>
-				<Button className="h-10" disabled={isHidden || disabled} isLoading={isDenying} onClick={(e) => handleOnClick(e)}>
+				<AppButton className="h-10" disabled={isHidden || disabled} isLoading={isDenying} onClick={(e) => handleOnClick(e)}>
 					Deny
-				</Button>
+				</AppButton>
 			</GuardSupportedChain>
 		</div>
 	);

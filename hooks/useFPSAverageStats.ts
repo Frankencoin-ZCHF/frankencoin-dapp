@@ -3,7 +3,7 @@ import { decodeBigIntCall } from "@utils";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 
-export const useHoldingDurationStats = () => {
+export const useFPSAverageStats = () => {
 	const equityContract = {
 		address: ADDRESS[mainnet.id].equity,
 		chainId: mainnet.id,

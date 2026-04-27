@@ -1,4 +1,4 @@
-import { useLocalStorage } from "./useLocalStorage";
+import { useLocalStorage } from "../useLocalStorage";
 
 export const useTheme = (): [string, React.Dispatch<string>] => {
 	const [theme, setTheme] = useLocalStorage("theme");

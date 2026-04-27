@@ -4,12 +4,13 @@ import DisplayLabel from "@components/DisplayLabel";
 import { usePoolStats } from "@hooks";
 import dynamic from "next/dynamic";
 import { ADDRESS } from "@frankencoin/zchf";
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { formatUnits, parseEther } from "viem";
 import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
 import { mainnet } from "viem/chains";
+import { TabInput } from "@components/Input/TabInput";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const Timeframes = ["All", "1Y", "1Q", "1M", "1W"];
@@ -20,7 +21,7 @@ export default function EquityFPSDetailsCard() {
 	const [typechart, setTypechart] = useState<string>(TypeCharts[0]);
 	const chainId = mainnet.id;
 	const poolStats = usePoolStats();
-	const { logs } = useSelector((state: RootState) => state.dashboard.dailyLog);
+	const logs = useSelector((state: RootState) => state.dashboard.dailyLog.logs);
 	const supply = useSelector((state: RootState) => state.ecosystem.frankencoinSupply);
 
 	// @dev: show trades since start
@@ -33,7 +34,7 @@ export default function EquityFPSDetailsCard() {
 	else startTrades = 0; // All
 
 	let matchingLogs = logs.filter((t) => {
-		return parseInt(t.timestamp) >= startTrades;
+		return parseInt(t.timestamp) * 1000 >= startTrades;
 	});
 
 	let matchingSupply = Object.values(supply).filter((t) => {
@@ -44,7 +45,7 @@ export default function EquityFPSDetailsCard() {
 	const adjustedOutflow = BigInt(matchingLogs.at(-1)?.totalOutflow || "0") - BigInt(matchingLogs.at(0)?.totalOutflow || "0");
 	const netIncome = adjustedInflow - adjustedOutflow;
 
-	const timestampBegin = BigInt(matchingLogs.at(0)?.timestamp || "0");
+	const timestampBegin = BigInt(matchingLogs.at(0)?.timestamp || "0") * 1000n;
 	const timestampEnd = BigInt(Date.now());
 	const timestampDiff = timestampEnd - timestampBegin;
 	const oneYearMs = 365n * 24n * 60n * 60n * 1000n;
@@ -55,9 +56,9 @@ export default function EquityFPSDetailsCard() {
 	const returnOnEquity = equityAvg > 0n ? (((netIncome * parseEther("1")) / equityAvg) * oneYearMs) / timestampDiff : 0n;
 
 	return (
-		<div className="bg-card-body-primary shadow-lg rounded-xl p-4 grid grid-cols-1 gap-2">
+		<div className="bg-card-body-primary rounded-lg p-4 grid grid-cols-1 gap-2">
 			<div id="chart-timeline">
-				<TypeTabs tabs={TypeCharts} tab={typechart} setTab={setTypechart} />
+				<TabInput tabs={TypeCharts} tab={typechart} setTab={setTypechart} />
 
 				<div className="-m-2">
 					<ApexChart
@@ -150,14 +151,9 @@ export default function EquityFPSDetailsCard() {
 												return [parseFloat(String(entry.created)) * 1000, entry.supply];
 										  })
 										: matchingLogs.map((entry) => {
-												if (typechart == TypeCharts[0]) {
+												if (typechart == TypeCharts[1]) {
 													return [
-														parseFloat(entry.timestamp),
-														Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100,
-													];
-												} else if (typechart == TypeCharts[1]) {
-													return [
-														parseFloat(entry.timestamp),
+														parseFloat(entry.timestamp) * 1000,
 														Math.round(parseFloat(formatUnits(entry.fpsTotalSupply, 16))) / 100,
 													];
 													// @dev: this is just mainnet frankencoin supply data
@@ -167,8 +163,9 @@ export default function EquityFPSDetailsCard() {
 													// 		Math.round(parseFloat(formatUnits(entry.totalSupply, 16))) / 100,
 													// 	];
 												} else {
+													// typechart == TypeCharts[0]
 													return [
-														parseFloat(entry.timestamp),
+														parseFloat(entry.timestamp) * 1000,
 														Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100,
 													];
 												}
@@ -182,7 +179,7 @@ export default function EquityFPSDetailsCard() {
 					<div className="flex justify-center text-text-warning">No data available for selected timeframe.</div>
 				) : null}
 
-				<TimeframeTabs tabs={Timeframes} tab={timeframe} setTab={setTimeframe} />
+				<TabInput tabs={Timeframes} tab={timeframe} setTab={setTimeframe} />
 			</div>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -214,62 +211,6 @@ export default function EquityFPSDetailsCard() {
 					<DisplayLabel label={timeframe == "1Y" ? "Return on Equity" : "RoE (annualized from " + timeframe + ")"} />
 					<DisplayOutputAlignedRight amount={returnOnEquity * 100n} unit="%" />
 				</AppBox>
-			</div>
-		</div>
-	);
-}
-
-interface TimeframeTabsInterface {
-	tabs: string[];
-	tab: string;
-	setTab: Dispatch<SetStateAction<string>>;
-}
-
-function TimeframeTabs(params: TimeframeTabsInterface) {
-	const { tabs, tab, setTab } = params;
-	if (tabs.length == 0) return null;
-
-	return (
-		<div className="bg-card-content-primary mb-5 rounded-2xl">
-			<div className="flex flex-row justify-between px-6 text-text-secondary">
-				{tabs.map((ts) => (
-					<div
-						key={"key_" + ts}
-						className={`px-6 max-md:px-2 py-2 ${ts == tab ? "text-text-primary font-semibold" : "cursor-pointer"}`}
-						onClick={() => setTab(ts)}
-					>
-						{ts}
-					</div>
-				))}
-			</div>
-		</div>
-	);
-}
-
-interface TypeTabsInterface {
-	tabs: string[];
-	tab: string;
-	setTab: Dispatch<SetStateAction<string>>;
-}
-
-function TypeTabs(params: TypeTabsInterface) {
-	const { tabs, tab, setTab } = params;
-	if (tabs.length == 0) return null;
-
-	return (
-		<div className="bg-card-content-primary mb-5 rounded-2xl">
-			<div className="flex flex-row justify-between px-6 text-text-secondary">
-				{tabs.map((ts) => (
-					<div
-						key={"key_" + ts}
-						className={`px-6 max-md:px-2 py-2 text-sm text-center ${
-							ts == tab ? "text-text-primary font-semibold" : "cursor-pointer"
-						}`}
-						onClick={() => setTab(ts)}
-					>
-						{ts}
-					</div>
-				))}
 			</div>
 		</div>
 	);

@@ -1,67 +1,59 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Head from "next/head";
 import EquityFPSDetailsCard from "@components/PageEquity/EquityFPSDetailsCard";
 import EquityInteractionCard from "@components/PageEquity/EquityInteractionCard";
 import AppTitle from "@components/AppTitle";
 import { useAccount } from "wagmi";
-import { FPSBalanceHistory } from "../hooks/FPSBalanceHistory";
-import { FPSEarningsHistory } from "../hooks/FPSEarningsHistory";
+import { useFPSBalanceHistory, useFPSEarningsHistory } from "@hooks";
 import ReportsFPSYearlyTable from "@components/PageReports/ReportsFPSYearlyTable";
 import { zeroAddress } from "viem";
 import AppLink from "@components/AppLink";
+import AppHeroSteps from "@components/AppHeroSteps";
 import { ContractUrl } from "@utils";
 import { ADDRESS } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 
 export default function Equity() {
 	const { address } = useAccount();
-	const [fpsHistory, setFpsHistory] = useState<FPSBalanceHistory[]>([]);
-	const [fpsEarnings, setFpsEarnings] = useState<FPSEarningsHistory[]>([]);
-
-	useEffect(() => {
-		if (address == undefined) {
-			setFpsHistory([]);
-			setFpsEarnings([]);
-			return;
-		}
-
-		const fetcher = async () => {
-			try {
-				const responseBalance = await FPSBalanceHistory(address);
-				setFpsHistory(responseBalance.reverse());
-
-				const responseEarnings = await FPSEarningsHistory(address);
-				setFpsEarnings(responseEarnings.reverse());
-			} catch (error) {
-				console.log(error);
-			}
-		};
-
-		fetcher();
-	}, [address]);
+	const fpsHistory = useFPSBalanceHistory(address || zeroAddress);
+	const fpsEarnings = useFPSEarningsHistory(address || zeroAddress);
 
 	return (
 		<>
 			<Head>
-				<title>Frankencoin - Equity</title>
+				<title>Frankencoin - Invest</title>
 			</Head>
 
-			<AppTitle title={`Equity `}>
+			<AppTitle title={`Invest`}>
 				<div className="text-text-secondary">
-					This page allows you to invest in or redeem your{" "}
-					<AppLink
-						className=""
-						label="Frankencoin Pool Shares"
-						href={ContractUrl(ADDRESS[mainnet.id].equity, mainnet)}
-						external={true}
-					/>
-					, which serve as the governance token for the Frankencoin Ecosystem. Get a glance over the latest changes via the{" "}
-					<AppLink className="" label="transaction logs." href={"/monitoring/logs?kind=Equity"} external={false} />
+					Invest in or redeem your{" "}
+					<AppLink className="" label="Frankencoin Pool Shares" href={ContractUrl(ADDRESS[mainnet.id].equity)} external={true} />{" "}
+					(FPS) — the governance token of the Frankencoin Ecosystem.
 				</div>
 			</AppTitle>
 
+			<AppHeroSteps
+				steps={[
+					{
+						icon: 1,
+						title: "Get Pool Shares",
+						description: "Add ZCHF to the Frankencoin reserve pool and get newly minted pool shares in return.",
+					},
+					{
+						icon: 2,
+						title: "Participate",
+						description: "FPS's fundamental value climbs (or falls) with Frankencoin's success (or decline).",
+					},
+					{
+						icon: 3,
+						title: "Govern",
+						description: "Team up with others to veto protocol extensions or collaterals you don't like.",
+					},
+				]}
+			/>
+
 			<div className="md:mt-8">
-				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 container mx-auto">
+				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-auto">
 					<EquityInteractionCard />
 					<EquityFPSDetailsCard />
 				</section>

@@ -3,8 +3,18 @@ import { useEffect, useState } from "react";
 import { formatUnits, maxUint256, erc20Abi, Address, parseEther, parseUnits } from "viem";
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
-import { abs, bigIntMax, bigIntMin, ContractUrl, formatBigInt, formatCurrency, formatDuration, shortenAddress } from "@utils";
-import Button from "@components/Button";
+import {
+	abs,
+	bigIntMax,
+	bigIntMin,
+	ContractUrl,
+	formatBigInt,
+	formatCurrency,
+	formatDuration,
+	normalizeAddress,
+	shortenAddress,
+} from "@utils";
+import AppButton from "@components/AppButton";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
@@ -21,9 +31,9 @@ import AppLink from "@components/AppLink";
 import MyPositionsNotFound from "@components/PageMypositions/MyPositionsNotFound";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
-import { generateExpirationCalendar, downloadCalendarFile } from "../../../utils/calendarGenerator";
+import { generateExpirationCalendar, downloadCalendarFile, generateGoogleCalendarUrl } from "../../../utils/calendarGenerator";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
+import { faCalendarDays, faCalendarPlus } from "@fortawesome/free-solid-svg-icons";
 
 export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
@@ -111,7 +121,7 @@ export default function PositionAdjust() {
 	// ---------------------------------------------------------------------------
 	if (!position) return <MyPositionsNotFound query={addressQuery} />;
 
-	const priceQuery = prices[position.collateral.toLowerCase() as Address];
+	const priceQuery = prices[normalizeAddress(position.collateral)];
 	if (!priceQuery) return <AppCard>Market Price of position not found</AppCard>;
 
 	const marketPriceDec = priceQuery.price.chf != undefined ? Math.round(priceQuery.price.chf * 80) / 100 : 1;
@@ -327,7 +337,7 @@ export default function PositionAdjust() {
 	};
 
 	// Minted Max
-	const mintedMax = bigIntMin(maxTotalLimit, (liqPrice * (BigInt(position.collateralBalance) + userCollBalance)) / parseEther("1"));
+	const mintedMax = bigIntMin(maxTotalLimit, (liqPrice * collateralAmount) / parseEther("1"));
 
 	const mintedMaxCallback = () => {
 		/* Disabled: I think the user should click max separately on the collateral field if he also wants to have the collateral returned
@@ -378,27 +388,40 @@ export default function PositionAdjust() {
 		downloadCalendarFile(calendarContent, `frankencoin-position-${position.position.slice(0, 8)}.ics`);
 	};
 
+	const handleGoogleCalendar = () => {
+		const googleUrl = generateGoogleCalendarUrl(position);
+		window.open(googleUrl, "_blank");
+	};
+
 	return (
 		<>
 			<Head>
 				<title>Frankencoin - Manage Position</title>
 			</Head>
 
-			<AppTitle title={`Manage Position `}>
-				<div className="text-text-secondary">
-					Based on contract{" "}
-					<AppLink
-						label={shortenAddress(position.position) + "."}
-						href={ContractUrl(position.position)}
-						external={true}
-						className="pr-1"
-					/>
-				</div>
-			</AppTitle>
+			<AppTitle
+				title={`${position.collateralName} (${position.collateralSymbol})`}
+				subtitle={`Manage your position.`}
+				badges={[
+					position.closed
+						? { label: "Closed", className: "bg-red-500/20 text-red-400" }
+						: isCooldown
+						? { label: "Cooldown", className: "bg-amber-500/20 text-amber-400" }
+						: { label: "Active", className: "bg-green-500/20 text-green-400" },
+					{ label: `V${position.version}`, className: "bg-blue-500/20 text-blue-400" },
+					...(position.isClone ? [{ label: "Clone", className: "bg-purple-500/20 text-purple-400" }] : []),
+				]}
+				actions={
+					<div className="flex flex-wrap gap-4 text-sm">
+						<AppLink label="Details" href={`/monitoring/${position.position}`} external={false} />
+						<AppLink label="Contract" href={ContractUrl(position.position)} external={true} />
+					</div>
+				}
+			/>
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					<AppCard>
 						<div className="text-lg font-bold text-center">Adjustment</div>
 						<div className="space-y-8">
 							<TokenInput
@@ -471,14 +494,14 @@ export default function PositionAdjust() {
 								</div>
 							</div>
 
-							<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+							<div className="mx-auto mt-8 full flex-col">
 								<GuardSupportedChain chain={mainnet}>
 									{collateralAmount - BigInt(position.collateralBalance) > userCollAllowance ? (
-										<Button isLoading={isApproving} onClick={() => handleApprove()}>
+										<AppButton isLoading={isApproving} onClick={() => handleApprove()}>
 											Approve Collateral
-										</Button>
+										</AppButton>
 									) : (
-										<Button
+<AppButton
 											disabled={
 												(amount == BigInt(position.minted) &&
 													collateralAmount == BigInt(position.collateralBalance) &&
@@ -491,12 +514,12 @@ export default function PositionAdjust() {
 											onClick={() => handleAdjust()}
 										>
 											Adjust Position
-										</Button>
+										</AppButton>
 									)}
 								</GuardSupportedChain>
 							</div>
 						</div>
-					</div>
+					</AppCard>
 
 					<div className="flex flex-col gap-4">
 						<AppCard>
@@ -575,14 +598,22 @@ export default function PositionAdjust() {
 							</div>
 						</AppCard>
 						{!position.closed && !position.denied && (
-							<div className="flex justify-end">
+							<div className="flex justify-end gap-2">
+								<button
+									onClick={handleGoogleCalendar}
+									className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-700 transition-colors"
+									title="Add expiration reminder to Google Calendar"
+								>
+									<FontAwesomeIcon icon={faCalendarPlus} className="mr-2" />
+									Add to Google Calendar
+								</button>
 								<button
 									onClick={handleDownloadCalendar}
 									className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-700 transition-colors"
 									title="Download expiration alert calendar for this position"
 								>
 									<FontAwesomeIcon icon={faCalendarDays} className="mr-2" />
-									Expiration Calendar
+									Download Calendar
 								</button>
 							</div>
 						)}

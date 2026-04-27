@@ -5,14 +5,14 @@ import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useAccount } from "wagmi";
-import Button from "@components/Button";
-import { VoteData } from "./GovernanceVotersTable";
+import AppButton from "@components/AppButton";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { VoteDataQuote } from "@hooks";
 
 interface Props {
-	voter: VoteData;
+	voter: VoteDataQuote;
 	disabled?: boolean;
 	connectedWallet?: boolean;
 }
@@ -75,14 +75,14 @@ export default function GovernanceVotersAction({ voter, disabled, connectedWalle
 		<div className="">
 			<GuardSupportedChain disabled={isHidden || disabled} chain={mainnet}>
 				<div className="overflow-hidden">
-					<Button
+<AppButton
 						className="h-10 scroll-nopeak"
 						disabled={isHidden || disabled}
 						isLoading={isDelegating}
 						onClick={(e) => handleOnClick(e)}
 					>
 						{connectedWallet ? "Revoke" : "Delegate"}
-					</Button>
+					</AppButton>
 				</div>
 			</GuardSupportedChain>
 		</div>

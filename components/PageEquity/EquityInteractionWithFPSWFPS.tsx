@@ -6,7 +6,7 @@ import { formatBigInt, formatDuration, shortenAddress } from "@utils";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
@@ -260,9 +260,9 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 				/>
 
 				<div className="py-4 text-center z-0">
-					<Button className={`h-10 rounded-full`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
+					<AppButton className={`h-10 rounded-full`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
 						<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
-					</Button>
+					</AppButton>
 				</div>
 
 				<TokenInputSelect
@@ -281,22 +281,22 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 					1 {fromSymbol} = 1 {toSymbol}
 				</div>
 
-				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
+				<div className="mx-auto mt-8 w-full flex-col">
 					<GuardSupportedChain chain={mainnet}>
 						{direction ? (
 							amount > fpsAllowance ? (
-								<Button isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>
+								<AppButton isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>
 									Approve
-								</Button>
+								</AppButton>
 							) : (
-								<Button disabled={amount == 0n || !!error} isLoading={isWrapping} onClick={() => handleWrapping()}>
+								<AppButton disabled={amount == 0n || !!error} isLoading={isWrapping} onClick={() => handleWrapping()}>
 									Wrap
-								</Button>
+								</AppButton>
 							)
 						) : (
-							<Button isLoading={isUnwrapping} disabled={amount == 0n || !!error} onClick={() => handleUnwrapping()}>
+							<AppButton isLoading={isUnwrapping} disabled={amount == 0n || !!error} onClick={() => handleUnwrapping()}>
 								Unwrap
-							</Button>
+							</AppButton>
 						)}
 					</GuardSupportedChain>
 				</div>

@@ -14,7 +14,6 @@ import { fetchBidsList } from "../redux/slices/bids.slice";
 import { fetchEcosystem } from "../redux/slices/ecosystem.slice";
 import { fetchLeadrate, fetchSavings } from "../redux/slices/savings.slice";
 import { fetchDashboard } from "../redux/slices/dashboard.slice";
-import { fetchMorphoMarkets } from "../redux/slices/morpho.slice";
 import { mainnet } from "viem/chains";
 
 let initializing: boolean = false;
@@ -65,7 +64,6 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		store.dispatch(fetchSavings(latestAddress));
 		store.dispatch(fetchLeadrate());
 		store.dispatch(fetchDashboard());
-		store.dispatch(fetchMorphoMarkets());
 	}, [initialized, latestAddress]);
 
 	// --------------------------------------------------------------------------------

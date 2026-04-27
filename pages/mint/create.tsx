@@ -5,11 +5,11 @@ import { Address, decodeEventLog, isAddress, maxUint256, parseUnits } from "viem
 import TokenInput from "@components/Input/TokenInput";
 import { useTokenData, useUserBalance } from "@hooks";
 import { useState } from "react";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { erc20Abi } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { formatBigInt, shortenAddress } from "@utils";
+import { formatBigInt, normalizeAddress, shortenAddress } from "@utils";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import NormalInput from "@components/Input/NormalInput";
@@ -26,6 +26,7 @@ import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQueryV2 } from "@frankencoin/api";
+import AppCard from "@components/AppCard";
 
 export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
@@ -66,7 +67,7 @@ export default function PositionCreate({}) {
 	const collTokenData = useTokenData(collateralAddress);
 	const userBalance = useUserBalance();
 	const router = useRouter();
-	const queryAddress: Address = String(router.query.source).toLowerCase() as Address;
+	const queryAddress: Address = normalizeAddress(String(router.query.source));
 	const { list } = useSelector((state: RootState) => state.positions.list);
 
 	useEffect(() => {
@@ -74,7 +75,7 @@ export default function PositionCreate({}) {
 		else setIsInit(true);
 
 		if (isAddress(queryAddress)) {
-			const getPosition = list.find((i) => i.position.toLowerCase() == queryAddress) as PositionQueryV2;
+			const getPosition = list.find((i) => normalizeAddress(i.position) === queryAddress) as PositionQueryV2;
 			if (getPosition == null) return;
 
 			// Collateral
@@ -423,7 +424,7 @@ export default function PositionCreate({}) {
 
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					<AppCard>
 						<div className="text-lg font-bold justify-center mt-3 flex">Proposal Process</div>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							<TokenInput
@@ -457,22 +458,23 @@ export default function PositionCreate({}) {
 							new positions before initiating them to increase the probability of passing the decentralized governance
 							process.
 						</div>
-					</div>
+					</AppCard>
 
 					{/* Collateral */}
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					<AppCard>
 						<div className="text-lg font-bold justify-center mt-3 flex">Collateral</div>
 
 						<AddressInput
 							label="Contract Address"
 							error={collTokenAddrError}
-							placeholder="0x..."
+							placeholder="Enter address here..."
 							value={collateralAddress}
 							onChange={onChangeCollateralAddress}
 							autoFocus={true}
 						/>
 						{collTokenData.symbol != "NaN" && initialCollAmount > userAllowance ? (
-							<Button
+<AppButton
+								className="-mt-4"
 								isLoading={isConfirming == "approve"}
 								disabled={
 									collTokenData.symbol == "NaN" || (userAllowance > minCollAmount && userAllowance > initialCollAmount)
@@ -480,7 +482,7 @@ export default function PositionCreate({}) {
 								onClick={() => handleApprove()}
 							>
 								Approve {collTokenData.symbol == "NaN" ? "" : "Handling of " + collTokenData.symbol}
-							</Button>
+							</AppButton>
 						) : (
 							""
 						)}
@@ -506,8 +508,9 @@ export default function PositionCreate({}) {
 							digit={collTokenData.decimals}
 							placeholder="Amount"
 						/>
-					</div>
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					</AppCard>
+
+					<AppCard>
 						<div className="text-lg font-bold text-center mt-3">Financial Terms</div>
 						<TokenInput
 							label="Global Minting Limit"
@@ -541,8 +544,9 @@ export default function PositionCreate({}) {
 								placeholder="Number"
 							/>
 						</div>
-					</div>
-					<div className="bg-card-body-primary shadow-lg rounded-xl p-4 flex flex-col gap-y-4">
+					</AppCard>
+
+					<AppCard>
 						<div className="text-lg font-bold text-center mt-3">Liquidation</div>
 						<TokenInput
 							label="Liquidation Price"
@@ -579,17 +583,18 @@ export default function PositionCreate({}) {
 								placeholder="Number"
 							/>
 						</div>
-					</div>
+					</AppCard>
 				</section>
+
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 					<GuardSupportedChain chain={mainnet}>
-						<Button
+<AppButton
 							disabled={minCollAmount == 0n || userAllowance < initialCollAmount || initialCollAmount == 0n || hasFormError()}
 							isLoading={isConfirming == "open"}
 							onClick={() => handleOpenPosition()}
 						>
 							Propose Position
-						</Button>
+						</AppButton>
 					</GuardSupportedChain>
 				</div>
 			</div>

@@ -1,12 +1,12 @@
 import { Address, erc20Abi, formatUnits, Hash, maxUint256, encodeAbiParameters } from "viem";
 import TableRow from "../Table/TableRow";
-import { formatCurrency, shortenAddress } from "../../utils/format";
+import { formatCurrency, normalizeAddress, shortenAddress } from "../../utils/format";
 import { useEffect, useState } from "react";
 import { waitForTransactionReceipt, writeContract, readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, ChainSide, EquityABI, LeadrateSenderABI, SavingsABI } from "@frankencoin/zchf";
 import { LeadrateProposedOpen } from "@frankencoin/api";
-import Button from "@components/Button";
+import AppButton from "@components/AppButton";
 import { toast } from "react-toastify";
 import { renderErrorTxToast, renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import AppLink from "@components/AppLink";
@@ -16,8 +16,8 @@ import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { useAccount } from "wagmi";
 import { useDelegationHelpers } from "@hooks";
 
-const MintModule = ADDRESS[mainnet.id].savingsV2.toLowerCase() as Address;
-const SaveModule = ADDRESS[mainnet.id].savingsReferral.toLowerCase() as Address;
+const MintModule = normalizeAddress(ADDRESS[mainnet.id].savingsV2);
+const SaveModule = normalizeAddress(ADDRESS[mainnet.id].savingsReferral);
 
 interface Props {
 	headers: string[];
@@ -366,21 +366,21 @@ export default function GovernanceLeadrateRow({ headers, tab, proposal }: Props)
 				actionCol={
 					proposal.isPending ? (
 						<GuardSupportedChain chain={mainnet}>
-							<Button className="h-10" disabled={isHidden} isLoading={isDenying} onClick={(e) => handleOnDeny(e)}>
+							<AppButton className="h-10" disabled={isHidden} isLoading={isDenying} onClick={(e) => handleOnDeny(e)}>
 								Deny
-							</Button>
+							</AppButton>
 						</GuardSupportedChain>
 					) : proposal.isProposal && !proposal.isPending ? (
 						<GuardSupportedChain chain={mainnet}>
-							<Button className="h-10" disabled={isHidden} isLoading={isApplying} onClick={(e) => handleOnApply(e)}>
+							<AppButton className="h-10" disabled={isHidden} isLoading={isApplying} onClick={(e) => handleOnApply(e)}>
 								Apply
-							</Button>
+							</AppButton>
 						</GuardSupportedChain>
 					) : !proposal.isProposal && !proposal.isPending && !proposal.isSynced ? (
 						<GuardSupportedChain chain={mainnet}>
-							<Button className="h-10" disabled={isHidden} isLoading={isSyncing} onClick={(e) => handleOnSync(e)}>
+							<AppButton className="h-10" disabled={isHidden} isLoading={isSyncing} onClick={(e) => handleOnSync(e)}>
 								Sync
-							</Button>
+							</AppButton>
 						</GuardSupportedChain>
 					) : (
 						<></>
@@ -402,7 +402,7 @@ export default function GovernanceLeadrateRow({ headers, tab, proposal }: Props)
 
 				<div className="flex flex-col">
 					<AppLink
-						label={proposal.details.module.toLowerCase() == MintModule ? "Mint" : "Save"}
+						label={normalizeAddress(proposal.details.module) === MintModule ? "Mint" : "Save"}
 						href={ContractUrl(proposal.details.module)}
 						external={true}
 						className=""
