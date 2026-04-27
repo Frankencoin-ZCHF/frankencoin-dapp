@@ -4,7 +4,7 @@ import { WAGMI_CONFIG, WAGMI_CHAINS } from "../../app.config";
 import { toast } from "react-toastify";
 import { formatCurrency } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import AppButton from "@components/AppButton";
 import { Address, formatUnits } from "viem";
 import { ADDRESS, GovernanceSenderABI } from "@frankencoin/zchf";
@@ -19,7 +19,7 @@ interface Props {
 
 export default function GovernanceSyncAction({ targetChainId, voters, disabled }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
-	const { address } = useAccount();
+	const { address } = useConnection();
 
 	const targetChain = WAGMI_CHAINS.find((c) => c.id === targetChainId);
 	const targetChainSelector = BigInt((ADDRESS as any)[targetChainId]?.chainSelector ?? 0);

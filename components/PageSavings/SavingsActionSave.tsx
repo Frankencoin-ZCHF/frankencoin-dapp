@@ -4,7 +4,7 @@ import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { formatCurrency, getChain } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
-import { useAccount, useChainId } from "wagmi";
+import { useConnection, useChainId } from "wagmi";
 import AppButton from "@components/AppButton";
 import { Address, formatUnits } from "viem";
 import { ChainId, SavingsABI } from "@frankencoin/zchf";
@@ -23,7 +23,7 @@ interface Props {
 export default function SavingsActionSave({ savingsModule, amount, interest, disabled, setLoaded, newReferrer, newReferralFeePPM }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
-	const account = useAccount();
+	const account = useConnection();
 	const chainId = useChainId() as ChainId;
 	const chain = getChain(chainId);
 

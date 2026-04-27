@@ -4,7 +4,7 @@ import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
 import { usePoolStats } from "@hooks";
 import { formatBigInt, formatDuration, shortenAddress } from "@utils";
-import { useAccount, useChainId, useReadContract } from "wagmi";
+import { useConnection, useChainId, useReadContract } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import AppButton from "@components/AppButton";
@@ -33,7 +33,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 	const [isInversting, setInversting] = useState(false);
 	const [isRedeeming, setRedeeming] = useState(false);
 
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const chainId = mainnet.id;
 	const poolStats = usePoolStats();
 	const account = address || zeroAddress;

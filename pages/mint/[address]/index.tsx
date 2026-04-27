@@ -7,7 +7,7 @@ import AppButtonSecondary from "@components/AppButtonSecondary";
 import AppButton from "@components/AppButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLink, faLinkSlash } from "@fortawesome/free-solid-svg-icons";
-import { useAccount, useBlockNumber } from "wagmi";
+import { useConnection, useBlockNumber } from "wagmi";
 import { readContract } from "wagmi/actions";
 import { formatCurrency, formatDateFromSecs, min, normalizeAddress, shortenAddress, toTimestamp, DISCUSSIONS } from "@utils";
 import DateInput from "@components/Input/DateInput";
@@ -50,7 +50,7 @@ export default function PositionBorrow({}) {
 
 	const { data } = useBlockNumber({ watch: true });
 	const navigate = useNavigation();
-	const account = useAccount();
+	const account = useConnection();
 	const router = useRouter();
 
 	const chainId = mainnet.id;

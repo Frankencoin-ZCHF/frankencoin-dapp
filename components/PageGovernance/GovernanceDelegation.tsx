@@ -1,6 +1,6 @@
 import AppCard from "@components/AppCard";
 import { useState } from "react";
-import { useAccount, useChainId, useReadContracts } from "wagmi";
+import { useConnection, useChainId, useReadContracts } from "wagmi";
 import { Address, isAddress, zeroAddress } from "viem";
 import { mainnet } from "viem/chains";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
@@ -13,7 +13,7 @@ import GovernanceDelegationAction from "./GovernanceDelegationAction";
 import GovernanceSyncAction from "./GovernanceSyncAction";
 
 export default function GovernanceDelegation() {
-	const account = useAccount();
+	const account = useConnection();
 	useChainId();
 	const myAddress: Address = account.address ?? zeroAddress;
 	const isConnected = !!account.address;

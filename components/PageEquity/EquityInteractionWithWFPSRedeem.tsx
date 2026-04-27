@@ -4,7 +4,7 @@ import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
 import { usePoolStats } from "@hooks";
 import { formatBigInt, formatDuration, shortenAddress } from "@utils";
-import { useAccount, useBlockNumber, useChainId } from "wagmi";
+import { useConnection, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import AppButton from "@components/AppButton";
@@ -38,7 +38,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 	const [calculateProceeds, setCalculateProceeds] = useState<bigint>(0n);
 
 	const { data } = useBlockNumber({ watch: true });
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const poolStats = usePoolStats();
 	const chainId = mainnet.id;
 	const account = address || zeroAddress;

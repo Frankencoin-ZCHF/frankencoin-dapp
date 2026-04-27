@@ -13,14 +13,14 @@ import { fetchBidsList } from "../../redux/slices/bids.slice";
 import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
 import { useContractUrl } from "@hooks";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import ReportsPositionsYearlyTable from "@components/PageReports/ReportsPositionsYearlyTable";
 import { OwnerPositionDebt, OwnerPositionFees, OwnerPositionValueLocked } from "../report";
 import { FRANKENCOIN_API_CLIENT } from "../../app.config";
 import { ApiOwnerDebt, ApiOwnerValueLocked } from "@frankencoin/api";
 
 export default function Positions() {
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const router = useRouter();
 	const paramAddr = router.query.address as Address;
 	const overwrite: Address | undefined = isAddress(paramAddr) ? paramAddr : undefined;

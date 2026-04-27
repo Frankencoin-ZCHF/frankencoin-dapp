@@ -7,7 +7,7 @@ import DisplayAmount from "@components/DisplayAmount";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { formatBigInt, formatCurrency, formatDateTime, normalizeAddress, shortenAddress } from "@utils";
 import AppButton from "@components/AppButton";
-import { useAccount, useBlockNumber, useChainId } from "wagmi";
+import { useConnection, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
@@ -34,7 +34,7 @@ export default function MonitoringForceSell() {
 	const [auctionPrice, setAuctionPrice] = useState<bigint>(0n);
 
 	const { data } = useBlockNumber({ watch: true });
-	const account = useAccount();
+	const account = useConnection();
 	const router = useRouter();
 	const navigate = useNavigation();
 

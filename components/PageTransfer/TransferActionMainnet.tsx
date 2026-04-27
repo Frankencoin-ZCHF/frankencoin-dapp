@@ -4,7 +4,7 @@ import { WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { formatCurrency, shortenAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import AppButton from "@components/AppButton";
 import { Address, formatUnits, Hash, maxUint256 } from "viem";
 import { ADDRESS, ChainIdSide, FrankencoinABI, TransferReferenceABI } from "@frankencoin/zchf";
@@ -37,7 +37,7 @@ export default function TransferActionMainnet({
 	const [isApproving, setApproving] = useState<boolean>(false);
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
-	const { address } = useAccount();
+	const { address } = useConnection();
 
 	const userAllowance = useUserAllowance([{ spender: ADDRESS[mainnet.id].transferReference, chainId: mainnet.id }]);
 	const allowance = userAllowance[0].allowance;

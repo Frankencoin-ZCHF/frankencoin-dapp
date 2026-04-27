@@ -3,7 +3,7 @@ import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/ac
 import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
-import { useAccount, useChainId } from "wagmi";
+import { useConnection, useChainId } from "wagmi";
 import AppButton from "@components/AppButton";
 import { ADDRESS, SavingsABI, SavingsV2ABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
@@ -20,7 +20,7 @@ interface Props {
 export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(true);
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const chainId = mainnet.id;
 
 	const router = useRouter();

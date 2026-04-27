@@ -5,7 +5,7 @@ import AppCard from "@components/AppCard";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import { WAGMI_CONFIG } from "../../app.config";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ADDRESS, EquityABI, SavingsABI } from "@frankencoin/zchf";
@@ -26,7 +26,7 @@ const SaveModule = normalizeAddress(ADDRESS[mainnet.id].savingsReferral);
 interface Props {}
 
 export default function GovernanceLeadrateCurrent({}: Props) {
-	const account = useAccount();
+	const account = useConnection();
 	const chainId = mainnet.id;
 	const { helpers } = useDelegationHelpers(account.address);
 	const rate = useSelector((state: RootState) => state.savings.leadrateRate.rate[chainId]);

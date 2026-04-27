@@ -7,7 +7,7 @@ import TokenInput from "@components/Input/TokenInput";
 import { erc20Abi, zeroAddress } from "viem";
 import { useEffect, useState } from "react";
 import { formatBigInt, formatDuration, shortenAddress } from "@utils";
-import { useAccount, useBlockNumber, useChainId } from "wagmi";
+import { useConnection, useBlockNumber, useChainId } from "wagmi";
 import { Address } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
@@ -37,7 +37,7 @@ export default function PositionChallenge() {
 	const [userBalance, setUserBalance] = useState(0n);
 
 	const { data } = useBlockNumber({ watch: true });
-	const account = useAccount();
+	const account = useConnection();
 	const router = useRouter();
 	const navigate = useNavigation();
 

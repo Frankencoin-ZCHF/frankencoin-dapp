@@ -5,7 +5,7 @@ import TableHeader from "@components/Table/TableHead";
 import TableBody from "@components/Table/TableBody";
 import TableRowEmpty from "@components/Table/TableRowEmpty";
 import MyPositionsChallengesRow from "./MyPositionsChallengesRow";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { normalizeAddress } from "../../utils/format";
 import {
@@ -33,7 +33,7 @@ export default function MyPositionsChallengesTable() {
 	const router = useRouter();
 	const overwrite = router.query.address as Address;
 
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const account = overwrite || address || zeroAddress;
 
 	const matchingChallenges = challenges.filter((c) => normalizeAddress(c.challenger) === normalizeAddress(account));

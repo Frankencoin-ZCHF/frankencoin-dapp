@@ -4,7 +4,7 @@ import NavButton from "./NavButton";
 import { CONFIG } from "../app.config";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 
 const MAIN_ITEMS = [
 	{ to: "/mint", name: "Borrow" },
@@ -82,7 +82,7 @@ export function NavItems({ items }: { items: typeof MAIN_ITEMS }) {
 
 export default function Navbar() {
 	const [isNavBarOpen, setIsNavBarOpen] = useState(false);
-	const { address } = useAccount();
+	const { address } = useConnection();
 
 	let mainItems = MAIN_ITEMS;
 	if (!address) {

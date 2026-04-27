@@ -4,7 +4,7 @@ import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import AppButton from "@components/AppButton";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
@@ -19,7 +19,7 @@ interface Props {
 
 export default function GovernanceVotersAction({ voter, disabled, connectedWallet }: Props) {
 	const [isDelegating, setDelegating] = useState<boolean>(false);
-	const account = useAccount();
+	const account = useConnection();
 	const chainId = mainnet.id;
 	const [isHidden, setHidden] = useState<boolean>(false);
 

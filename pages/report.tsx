@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import AppTitle from "@components/AppTitle";
 import AddressInput from "@components/Input/AddressInput";
 import { useEffect, useState } from "react";
@@ -34,7 +34,7 @@ export type OwnerPositionValueLocked = {
 
 export default function ReportPage() {
 	const targetRef = useRef<HTMLDivElement>(null); // for pdf print
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const [isLoading, setLoading] = useState<boolean>(false);
 	const [isExporting, setExporting] = useState<boolean>(false);
 	const [reportingAddress, setReportingAddress] = useState<string>(address ?? "");

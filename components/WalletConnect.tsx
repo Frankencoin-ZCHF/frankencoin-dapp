@@ -1,9 +1,9 @@
 import { useAppKit } from "@reown/appkit/react";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 
 export default function WalletConnect() {
 	const AppKit = useAppKit();
-	const { isConnected } = useAccount();
+	const { isConnected } = useConnection();
 
 	if (!isConnected) {
 		return (

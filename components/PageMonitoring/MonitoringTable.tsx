@@ -8,7 +8,7 @@ import { ApiChallengesPositions, ChallengesQueryItem, PositionQuery, PriceQueryO
 import { Address, erc20Abi, formatUnits, zeroAddress } from "viem";
 import MonitoringRow from "./MonitoringRow";
 import { useEffect, useMemo, useState } from "react";
-import { useAccount, useReadContracts } from "wagmi";
+import { useConnection, useReadContracts } from "wagmi";
 import { ALL_CATEGORIES, CollateralCategory, collateralMatchesCategories, normalizeAddress } from "@utils";
 
 const FILTER_OPTIONS: FilterOption[] = ALL_CATEGORIES.map((c) => ({ label: c, value: c }));
@@ -24,7 +24,7 @@ export default function MonitoringTable() {
 	const [activeCustomCategories, setActiveCustomCategories] = useState<string[]>([]);
 	const [inMyWallet, setInMyWallet] = useState<boolean>(false);
 
-	const { address: walletAddress } = useAccount();
+	const { address: walletAddress } = useConnection();
 
 	const { openPositions } = useSelector((state: RootState) => state.positions);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);

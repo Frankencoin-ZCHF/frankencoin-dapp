@@ -4,7 +4,7 @@ import { WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { formatCurrency, shortenAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
-import { useAccount, useChainId } from "wagmi";
+import { useConnection, useChainId } from "wagmi";
 import AppButton from "@components/AppButton";
 import { Address, formatUnits, Hash, parseEther } from "viem";
 import { ADDRESS, BridgedFrankencoinABI, ChainIdSide } from "@frankencoin/zchf";
@@ -34,7 +34,7 @@ export default function TransferActionSidechain({
 }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
-	const { address } = useAccount();
+	const { address } = useConnection();
 
 	const chainId = useChainId();
 	const chain = WAGMI_CHAINS.find((c) => c.id == chainId) as AppKitNetwork;

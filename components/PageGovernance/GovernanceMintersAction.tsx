@@ -5,7 +5,7 @@ import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
 import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import AppButton from "@components/AppButton";
 import { Address, Chain } from "viem";
 import {
@@ -28,7 +28,7 @@ interface Props {
 
 export default function GovernanceMintersAction({ minter, disabled }: Props) {
 	const [isVetoing, setVetoing] = useState<boolean>(false);
-	const account = useAccount();
+	const account = useConnection();
 	const chainId = minter.chainId as ChainId;
 	const [isHidden, setHidden] = useState<boolean>(false);
 	const { helpers } = useDelegationHelpers(account.address);

@@ -7,7 +7,7 @@ import DisplayAmount from "@components/DisplayAmount";
 import { Address, formatUnits, parseEther, zeroAddress } from "viem";
 import { ContractUrl, formatBigInt, formatCurrency, formatDateTime, normalizeAddress, shortenAddress } from "@utils";
 import AppButton from "@components/AppButton";
-import { useAccount, useBlockNumber, useChainId } from "wagmi";
+import { useConnection, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
@@ -33,7 +33,7 @@ export default function ChallengePlaceBid() {
 	const [auctionPrice, setAuctionPrice] = useState<bigint>(0n);
 
 	const { data } = useBlockNumber({ watch: true });
-	const account = useAccount();
+	const account = useConnection();
 	const router = useRouter();
 	const navigate = useNavigation();
 

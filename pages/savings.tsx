@@ -4,7 +4,7 @@ import Head from "next/head";
 import { useEffect, useState } from "react";
 import { RootState, store } from "../redux/redux.store";
 import { fetchLeadrate, fetchSavings } from "../redux/slices/savings.slice";
-import { useAccount, useChainId } from "wagmi";
+import { useConnection, useChainId } from "wagmi";
 import AppTitle from "@components/AppTitle";
 import SavingsRankedBalancesTable from "@components/PageSavings/SavingsRankedBalancesTable";
 import AppLink from "@components/AppLink";
@@ -22,7 +22,7 @@ import { mainnet } from "viem/chains";
 export default function SavingsPage() {
 	const { status } = useSelector((state: RootState) => state.savings.savingsInfo);
 	const activities = useSelector((state: RootState) => state.savings.savingsActivity);
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const router = useRouter();
 	const AppKitNetwork = useAppKitNetwork();
 	const chainId = useChainId() as ChainId;

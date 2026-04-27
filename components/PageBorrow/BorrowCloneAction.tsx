@@ -2,7 +2,7 @@ import { useState } from "react";
 import { erc20Abi, maxUint256, zeroHash, Hash, decodeEventLog } from "viem";
 import { Address } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { useAccount, useChainId } from "wagmi";
+import { useConnection, useChainId } from "wagmi";
 import { toast } from "react-toastify";
 import { PositionQuery } from "@frankencoin/api";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
@@ -37,7 +37,7 @@ export default function BorrowCloneAction({
 }: Props) {
 	const [isApproving, setApproving] = useState(false);
 	const [isCloning, setCloning] = useState(false);
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const chainId = useChainId();
 	const navigate = useRouter();
 
