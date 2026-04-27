@@ -31,6 +31,15 @@ const nextConfig = {
 	// @dev: Needed for SAFE testing locally
 	headers: async () => [
 		{
+			source: "/(.*)",
+			headers: [
+				{
+					key: "Content-Security-Policy",
+					value: "frame-ancestors 'self' https://app.safe.global https://*.safe.global",
+				},
+			],
+		},
+		{
 			source: "/manifest.json",
 			headers: [
 				{
