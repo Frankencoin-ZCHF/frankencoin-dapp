@@ -1,40 +1,27 @@
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import AppBox from "@components/AppBox";
-import TokenInput from "@components/Input/TokenInput";
-import DisplayAmount from "@components/DisplayAmount";
-import { Address, formatUnits, parseEther, zeroAddress } from "viem";
-import { ContractUrl, formatBigInt, formatCurrency, formatDateTime, normalizeAddress, shortenAddress } from "@utils";
-import AppButton from "@components/AppButton";
-import { useConnection, useBlockNumber, useChainId } from "wagmi";
-import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { track } from "@hooks";
-import { toast } from "react-toastify";
-import { TxToast, renderErrorTxToast } from "@components/TxToast";
-import DisplayLabel from "@components/DisplayLabel";
-import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../../app.config";
+import { Address, parseUnits, zeroAddress } from "viem";
+import { normalizeAddress } from "@utils";
+import { useBlockNumber } from "wagmi";
+import { readContract } from "wagmi/actions";
+import { WAGMI_CONFIG } from "../../../../app.config";
 import { RootState } from "../../../../redux/redux.store";
 import { useSelector } from "react-redux";
 import { useRouter as useNavigation } from "next/navigation";
-import { ADDRESS, FrankencoinABI, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
-import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
-import AppLink from "@components/AppLink";
+import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
-import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import AppCard from "@components/AppCard";
+import AppTitle from "@components/AppTitle";
+import AppLink from "@components/AppLink";
+import ChallengeAuctionPriceChart from "@components/PageMonitoring/ChallengeAuctionPriceChart";
+import AuctionBidAction from "@components/PageMonitoring/AuctionBidAction";
 
 export default function ChallengePlaceBid() {
-	const [isInit, setInit] = useState(false);
-	const [amount, setAmount] = useState<bigint>(0n);
-	const [error, setError] = useState("");
-	const [isBidding, setBidding] = useState(false);
-	const [isNavigating, setNavigating] = useState(false);
-	const [userBalance, setUserBalance] = useState<bigint>(0n);
 	const [auctionPrice, setAuctionPrice] = useState<bigint>(0n);
+	const [isNavigating, setNavigating] = useState(false);
 
 	const { data } = useBlockNumber({ watch: true });
-	const account = useConnection();
 	const router = useRouter();
 	const navigate = useNavigation();
 
@@ -44,30 +31,17 @@ export default function ChallengePlaceBid() {
 
 	const challenges = useSelector((state: RootState) => state.challenges.list.list);
 	const positions = useSelector((state: RootState) => state.positions.list.list);
+	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
 	const challenge = challenges.find((c) => c.position == (addressQuery ?? zeroAddress) && String(c.number) == indexQuery);
 	const position = positions.find((p) => normalizeAddress(p.position) === challenge?.position);
 
 	useEffect(() => {
-		const acc: Address | undefined = account.address;
-		const ADDR = ADDRESS[chainId];
-		if (position === undefined) return;
-		if (challenge === undefined) return;
+		if (position === undefined || challenge === undefined) return;
 
-		const fetchAsync = async function () {
-			if (acc !== undefined) {
-				const _balance = await readContract(WAGMI_CONFIG, {
-					address: ADDR.frankencoin,
-					chainId,
-					abi: FrankencoinABI,
-					functionName: "balanceOf",
-					args: [acc],
-				});
-				setUserBalance(_balance);
-			}
-
+		const fetchAsync = async () => {
 			const _price = await readContract(WAGMI_CONFIG, {
-				address: position.version === 1 ? ADDR.mintingHubV1 : ADDR.mintingHubV2,
+				address: position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2,
 				chainId,
 				abi: position.version === 1 ? MintingHubV1ABI : MintingHubV2ABI,
 				functionName: "price",
@@ -77,226 +51,81 @@ export default function ChallengePlaceBid() {
 		};
 
 		fetchAsync();
-	}, [data, position, challenge, account.address, chainId]);
+	}, [data, position, challenge, chainId]);
 
 	useEffect(() => {
-		if (isInit) return;
-		if (challenge === undefined) return;
+		if (isNavigating) navigate.push("/mypositions");
+	}, [isNavigating, navigate]);
 
-		const _amount = challenge.size - challenge.filledSize;
-		setAmount(_amount);
+	if (!challenge || !position) {
+		return (
+			<div className="flex flex-col md:max-w-2xl mx-auto">
+				<Head>
+					<title>Frankencoin - Auction</title>
+				</Head>
 
-		setInit(true);
-	}, [isInit, challenge]);
+				<AppTitle
+					title="Auction"
+					subtitle="Buy collateral in the challenge auction"
+					badges={[{ label: "Auction", className: "bg-blue-500/20 text-blue-400" }]}
+				/>
 
-	useEffect(() => {
-		if (isNavigating && position?.position) {
-			navigate.push(`/mypositions`);
-		}
-	}, [isNavigating, navigate, position]);
+				<div className="mt-8">
+					<div className="rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30 px-4 py-3 text-sm text-blue-600 dark:text-blue-400">
+						This auction could not be found. It may have already ended or the data is still loading.
+					</div>
+				</div>
+			</div>
+		);
+	}
 
-	// Validate after data is fetched
-	useEffect(() => {
-		if (!isInit) return;
-		if (!challenge || !position) return;
+	const startMs = parseInt(challenge.start.toString()) * 1000;
+	const durationMs = parseInt(challenge.duration.toString()) * 1000;
+	const timeToExpiration = startMs >= position.expiration * 1000 ? 0 : position.expiration * 1000 - startMs;
+	const phase1Ms = Math.min(timeToExpiration, durationMs);
+	const phase2Ms = durationMs;
 
-		const remaining = BigInt(challenge.size) - BigInt(challenge.filledSize);
-		const expected = (BigInt(amount) * auctionPrice) / parseEther("1");
-
-		if (expected > userBalance) {
-			setError("Not enough ZCHF in your wallet to cover the expected costs.");
-		} else if (amount > remaining) {
-			setError("Expected winning collateral should be lower than remaining collateral.");
-		} else {
-			setError("");
-		}
-	}, [isInit, amount, auctionPrice, userBalance, challenge, position]);
-
-	if (!challenge) return null;
-	if (!position) return null;
-
-	const remainingSize = BigInt(challenge.size) - BigInt(challenge.filledSize);
-
-	const start: number = parseInt(challenge.start.toString()) * 1000; // timestamp
-	const duration: number = parseInt(challenge.duration.toString()) * 1000;
-
-	const timeToExpiration = start >= position.expiration * 1000 ? 0 : position.expiration * 1000 - start;
-	const phase1 = Math.min(timeToExpiration, duration);
-
-	const declineStartTimestamp = start + phase1;
-	const zeroPriceTimestamp = start + phase1 + duration;
-
-	// @dev: issues with amount converstion from string input. Reconvert to bigint.
-	const expectedZCHF = (BigInt(amount) * auctionPrice) / parseEther("1");
-
-	const onChangeAmount = (value: string) => {
-		const valueBigInt = BigInt(value);
-		setAmount(valueBigInt);
-
-		const newExpectedZCHF = (BigInt(valueBigInt) * auctionPrice) / parseEther("1");
-		if (newExpectedZCHF > userBalance) {
-			setError("Not enough ZCHF in your wallet to cover the expected costs.");
-		} else if (amount > remainingSize) {
-			setError("Expected winning collateral should be lower than remaining collateral.");
-		} else if (error.length > 0) {
-			setError("");
-		}
-	};
-
-	const handleBid = async () => {
-		try {
-			setBidding(true);
-
-			const bidWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2,
-				chainId,
-				abi: position.version === 1 ? MintingHubV1ABI : MintingHubV2ABI,
-				functionName: "bid",
-				args: [parseInt(challenge.number.toString()), amount, false],
-			});
-
-			const toastContent = [
-				{
-					title: `Bid Amount: `,
-					value: formatBigInt(amount, position.collateralDecimals) + " " + position.collateralSymbol,
-				},
-				{
-					title: `Expected ZCHF: `,
-					value: formatCurrency(formatUnits(expectedZCHF, 18)) + " ZCHF",
-				},
-				{
-					title: "Transaction:",
-					hash: bidWriteHash,
-				},
-			];
-
-			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: bidWriteHash, confirmations: 1 }), {
-				pending: {
-					render: <TxToast title={`Placing a bid`} rows={toastContent} />,
-				},
-				success: {
-					render: <TxToast title="Successfully Placed Bid" rows={toastContent} />,
-				},
-			});
-
-			track("auction_bid_placed", { collateral: position.collateralSymbol, amount: formatBigInt(amount, position.collateralDecimals) });
-			setNavigating(true);
-		} catch (error) {
-			toast.error(renderErrorTxToast(error));
-		} finally {
-			setBidding(false);
-		}
-	};
+	const priceDigits = 36 - position.collateralDecimals;
+	const collateralPriceChf = prices[normalizeAddress(position.collateral)]?.price?.chf;
+	const marketPrice = collateralPriceChf ? parseUnits(collateralPriceChf.toFixed(6), priceDigits) : undefined;
 
 	return (
-		<>
+		<div className="flex flex-col md:max-w-2xl mx-auto">
 			<Head>
 				<title>Frankencoin - Auction</title>
 			</Head>
 
-			<div className="md:mt-8">
-				<section className="mx-auto max-w-2xl sm:px-8">
-					<AppCard>
-						<div className="text-lg font-bold text-center mt-3">Buy {position.collateralSymbol} in Auction</div>
+			<AppTitle
+				symbol={position.collateralSymbol}
+				title={`${position.collateralName} (${position.collateralSymbol})`}
+				subtitle="Buy collateral in the challenge auction"
+				actions={
+					<div className="flex flex-wrap gap-4 text-sm">
+						<AppLink label="Owner" href={`/mypositions?address=${position.owner}`} external={false} />
+						<AppLink label="Reference" href={`/monitoring/${position.position}`} external={false} />
+					</div>
+				}
+			/>
 
-						<div className="">
-							<TokenInput
-								label=""
-								min={BigInt(position.minimumCollateral)}
-								max={remainingSize}
-								value={amount.toString()}
-								onChange={onChangeAmount}
-								digit={position.collateralDecimals}
-								symbol={position.collateralSymbol}
-								error={error}
-								placeholder="Collateral Amount"
-								limitLabel="Available"
-								limitDigit={position.collateralDecimals}
-								limit={remainingSize}
-							/>
-							<div className="flex flex-col">
-								<span>Your balance: {formatCurrency(formatUnits(userBalance, 18), 2, 2)} ZCHF</span>
-							</div>
-							<div className="flex flex-col">
-								<span>Estimated cost: {formatCurrency(formatUnits(expectedZCHF, 18), 2, 2)} ZCHF</span>
-							</div>
-						</div>
-
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:col-span-2">
-							<AppBox>
-								<DisplayLabel label="Available" />
-								<DisplayAmount
-									amount={remainingSize}
-									currency={position.collateralSymbol}
-									address={position.collateral}
-									digits={position.collateralDecimals}
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Price per Unit" />
-								<DisplayAmount
-									amount={auctionPrice}
-									digits={36 - position.collateralDecimals}
-									address={ADDRESS[chainId].frankencoin}
-									currency={"ZCHF"}
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Initially Available" />
-								<DisplayAmount
-									amount={challenge.size || 0n}
-									currency={position.collateralSymbol}
-									address={position.collateral}
-									digits={position.collateralDecimals}
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Challenger" />
-								<AppLink
-									label={shortenAddress(challenge?.challenger || zeroAddress)}
-									href={ContractUrl(challenge?.challenger || zeroAddress, WAGMI_CHAIN)}
-									external={true}
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Owner" />
-								<AppLink
-									label={shortenAddress(position.owner)}
-									href={`/mypositions?address=${position.owner}`}
-									external={false}
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Target Position" />
-								<AppLink
-									label={shortenAddress(position.position || zeroAddress)}
-									href={`/monitoring/${position.position}`}
-									external={false}
-								/>
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Fixed price until" />
-								<DisplayOutputAlignedRight output={formatDateTime(declineStartTimestamp / 1000) || "-"} />
-							</AppBox>
-							<AppBox>
-								<DisplayLabel label="Reaching zero at" />
-								<DisplayOutputAlignedRight output={formatDateTime(zeroPriceTimestamp / 1000) || "---"} />
-							</AppBox>
-						</div>
-						<div className="mx-auto mt-4 w-full flex-col">
-							<GuardSupportedChain chain={mainnet}>
-								<AppButton
-									disabled={amount == 0n || expectedZCHF > userBalance || error != ""}
-									isLoading={isBidding}
-									onClick={() => handleBid()}
-								>
-									Buy
-								</AppButton>
-							</GuardSupportedChain>
-						</div>
-					</AppCard>
-				</section>
+			<div className="mt-8">
+				<AppCard>
+					<div className="text-lg font-bold text-center">Place a Bid</div>
+					<ChallengeAuctionPriceChart
+						position={position}
+						challengeStartMs={startMs}
+						phase1Ms={phase1Ms}
+						phase2Ms={phase2Ms}
+						auctionPrice={auctionPrice}
+						marketPrice={marketPrice}
+					/>
+					<AuctionBidAction
+						position={position}
+						challenge={challenge}
+						auctionPrice={auctionPrice}
+						onBidSuccess={() => setNavigating(true)}
+					/>
+				</AppCard>
 			</div>
-		</>
+		</div>
 	);
 }

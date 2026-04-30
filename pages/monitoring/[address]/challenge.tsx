@@ -1,81 +1,26 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import AppBox from "@components/AppBox";
-import AppButton from "@components/AppButton";
-import DisplayAmount from "@components/DisplayAmount";
-import TokenInput from "@components/Input/TokenInput";
-import { erc20Abi, zeroAddress } from "viem";
 import { useEffect, useState } from "react";
-import { formatBigInt, formatDuration, shortenAddress } from "@utils";
-import { useConnection, useBlockNumber, useChainId } from "wagmi";
 import { Address } from "viem";
-import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { track } from "@hooks";
-import { toast } from "react-toastify";
-import { TxToast, renderErrorTxToast } from "@components/TxToast";
-import DisplayLabel from "@components/DisplayLabel";
-import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../redux/redux.store";
 import { useRouter as useNavigation } from "next/navigation";
-import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
-import DisplayOutputAlignedRight from "@components/DisplayOutputAlignedRight";
-import AppLink from "@components/AppLink";
+import { RootState } from "../../../redux/redux.store";
 import { mainnet } from "viem/chains";
-import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import AppCard from "@components/AppCard";
+import AppTitle from "@components/AppTitle";
+import AppLink from "@components/AppLink";
+import ChallengeAuctionPriceChart from "@components/PageMonitoring/ChallengeAuctionPriceChart";
+import ChallengeAction from "@components/PageMonitoring/ChallengeAction";
 
 export default function PositionChallenge() {
-	const [amount, setAmount] = useState(0n);
-	const [error, setError] = useState("");
-	const [isInit, setInit] = useState(false);
-	const [isApproving, setApproving] = useState(false);
-	const [isChallenging, setChallenging] = useState(false);
 	const [isNavigating, setNavigating] = useState(false);
 
-	const [userAllowance, setUserAllowance] = useState(0n);
-	const [userBalance, setUserBalance] = useState(0n);
-
-	const { data } = useBlockNumber({ watch: true });
-	const account = useConnection();
 	const router = useRouter();
 	const navigate = useNavigation();
 
-	const chainId = mainnet.id;
 	const addressQuery: Address = router.query.address as Address;
-
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const position = positions.find((p) => p.position == addressQuery);
-
-	// ---------------------------------------------------------------------------
-	useEffect(() => {
-		const acc: Address | undefined = account.address;
-		const fc: Address = ADDRESS[chainId].frankencoin;
-		if (acc === undefined) return;
-		if (!position || !position.collateral) return;
-
-		const fetchAsync = async function () {
-			const _balanceColl = await readContract(WAGMI_CONFIG, {
-				address: position.collateral,
-				chainId,
-				abi: erc20Abi,
-				functionName: "balanceOf",
-				args: [acc],
-			});
-			setUserBalance(_balanceColl);
-
-			const _allowanceColl = await readContract(WAGMI_CONFIG, {
-				address: position.collateral,
-				chainId,
-				abi: erc20Abi,
-				functionName: "allowance",
-				args: [acc, position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2],
-			});
-			setUserAllowance(_allowanceColl);
-		};
-
-		fetchAsync();
-	}, [data, account.address, position, chainId]);
 
 	useEffect(() => {
 		if (isNavigating && position?.position) {
@@ -83,245 +28,43 @@ export default function PositionChallenge() {
 		}
 	}, [isNavigating, navigate, position]);
 
-	useEffect(() => {
-		if (isInit || position == undefined) return;
-		setAmount(BigInt(position.collateralBalance));
-		setInit(true);
-	}, [isInit, position]);
-
-	// ---------------------------------------------------------------------------
 	if (!position) return null;
 
-	const _collBal: bigint = BigInt(position.collateralBalance);
-	const belowMinBalance: boolean = _collBal < BigInt(position.minimumCollateral);
-
-	// ---------------------------------------------------------------------------
-	const onChangeAmount = (value: string) => {
-		var valueBigInt = BigInt(value);
-		if (valueBigInt > _collBal && !belowMinBalance) {
-			valueBigInt = _collBal;
-		}
-		setAmount(valueBigInt);
-		if (valueBigInt > userBalance) {
-			setError(`Not enough ${position.collateralSymbol} in your wallet.`);
-		} else if (valueBigInt > BigInt(position.collateralBalance) && !belowMinBalance) {
-			setError("Amount cannot be larger than the underlying position");
-		} else if (valueBigInt < BigInt(position.minimumCollateral) && !belowMinBalance) {
-			setError("Amount must be at least the minimum");
-		} else {
-			setError("");
-		}
-	};
-
-	const handleApprove = async () => {
-		try {
-			setApproving(true);
-
-			const approveWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: position.collateral as Address,
-				chainId,
-				abi: erc20Abi,
-				functionName: "approve",
-				args: [position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2, amount],
-			});
-
-			const toastContent = [
-				{
-					title: "Amount:",
-					value: formatBigInt(amount, position.collateralDecimals) + " " + position.collateralSymbol,
-				},
-				{
-					title: "Spender: ",
-					value: shortenAddress(ADDRESS[chainId].mintingHubV1),
-				},
-				{
-					title: "Transaction:",
-					hash: approveWriteHash,
-				},
-			];
-
-			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: approveWriteHash, confirmations: 1 }), {
-				pending: {
-					render: <TxToast title={`Approving ${position.collateralSymbol}`} rows={toastContent} />,
-				},
-				success: {
-					render: <TxToast title={`Successfully Approved ${position.collateralSymbol}`} rows={toastContent} />,
-				},
-			});
-
-			track("collateral_approved", { collateral: position.collateralSymbol });
-		} catch (error) {
-			toast.error(renderErrorTxToast(error));
-		} finally {
-			setApproving(false);
-		}
-	};
-
-	const handleChallenge = async () => {
-		try {
-			setChallenging(true);
-
-			const challengeWriteHash = await writeContract(WAGMI_CONFIG, {
-				address: position.version === 1 ? ADDRESS[chainId].mintingHubV1 : ADDRESS[chainId].mintingHubV2,
-				chainId,
-				abi: position.version === 1 ? MintingHubV1ABI : MintingHubV2ABI,
-				functionName: "challenge",
-				args: [position.position, amount, BigInt(position.price)],
-			});
-
-			const toastContent = [
-				{
-					title: "Size:",
-					value: formatBigInt(amount, position.collateralDecimals) + " " + position.collateralSymbol,
-				},
-				{
-					title: "Price: ",
-					value: formatBigInt(BigInt(position.price), 36 - position.collateralDecimals) + " ZCHF",
-				},
-				{
-					title: "Transaction:",
-					hash: challengeWriteHash,
-				},
-			];
-
-			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: challengeWriteHash, confirmations: 1 }), {
-				pending: {
-					render: <TxToast title={`Launching a challenge`} rows={toastContent} />,
-				},
-				success: {
-					render: <TxToast title={`Successfully Launched challenge`} rows={toastContent} />,
-				},
-			});
-
-			track("position_challenged", {
-				collateral: position.collateralSymbol,
-				amount: formatBigInt(amount, position.collateralDecimals),
-			});
-			setNavigating(true);
-		} catch (error) {
-			toast.error(renderErrorTxToast(error));
-		} finally {
-			setChallenging(false);
-		}
-	};
+	const nowMs = Date.now();
+	const timeToExpiration = nowMs >= position.expiration * 1000 ? 0 : position.expiration * 1000 - nowMs;
+	const phase1Ms = Math.min(timeToExpiration, position.challengePeriod * 1000);
+	const phase2Ms = position.challengePeriod * 1000;
 
 	return (
-		<>
+		<div className="flex flex-col md:max-w-2xl mx-auto">
 			<Head>
 				<title>Frankencoin - Challenge</title>
 			</Head>
 
-			{/* <div>
-				<AppPageHeader title="Lunch A Challenge" />
-			</div> */}
+			<AppTitle
+				symbol={position.collateralSymbol}
+				title={`${position.collateralName} (${position.collateralSymbol})`}
+				subtitle="Deposit collateral and launch a challenge"
+				actions={
+					<div className="flex flex-wrap gap-4 text-sm">
+						<AppLink label="Owner" href={`/mypositions?address=${position.owner}`} external={false} />
+						<AppLink label="Reference" href={`/monitoring/${position.position}`} external={false} />
+					</div>
+				}
+			/>
 
-			<div className="md:mt-8">
-				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<AppCard>
-						<div className="text-lg font-bold text-center mt-3">Launch A Challenge</div>
-						<TokenInput
-							symbol={position.collateralSymbol}
-							min={BigInt(position.minimumCollateral)}
-							max={userBalance > BigInt(position.collateralBalance) ? BigInt(position.collateralBalance) : userBalance}
-							balanceLabel="Your balance:"
-							digit={position.collateralDecimals}
-							value={amount.toString()}
-							onChange={onChangeAmount}
-							error={error}
-							label="Amount"
-							placeholder="Collateral Amount"
-							limit={userBalance > BigInt(position.collateralBalance) ? BigInt(position.collateralBalance) : userBalance}
-							limitDigit={position.collateralDecimals}
-							limitLabel="Maximum"
-						/>
-						<div className="grid grid-cols-6 gap-2 lg:col-span-2">
-							<AppBox className="col-span-6 sm:col-span-3">
-								<DisplayLabel label="Starting Price" />
-								<DisplayAmount
-									amount={BigInt(position.price)}
-									currency={"ZCHF"}
-									digits={36 - position.collateralDecimals}
-									address={ADDRESS[chainId].frankencoin}
-								/>
-							</AppBox>
-							<AppBox className="col-span-6 sm:col-span-3">
-								<DisplayLabel label="Potential Reward" />
-								<DisplayAmount
-									amount={(BigInt(position.price) * amount * 2n) / 100n}
-									currency={"ZCHF"}
-									digits={36}
-									address={ADDRESS[chainId].frankencoin}
-								/>
-							</AppBox>
-							<AppBox className="col-span-6 sm:col-span-3">
-								<DisplayLabel label="Collateral in Position" />
-								<DisplayAmount
-									amount={BigInt(position.collateralBalance)}
-									currency={position.collateralSymbol}
-									digits={position.collateralDecimals}
-									address={position.collateral}
-								/>
-							</AppBox>
-							<AppBox className="col-span-6 sm:col-span-3">
-								<DisplayLabel label="Minimum Amount" />
-								<DisplayAmount
-									amount={BigInt(position.minimumCollateral)}
-									currency={position.collateralSymbol}
-									digits={position.collateralDecimals}
-									address={position.collateral}
-								/>
-							</AppBox>
-							<AppBox className="col-span-6 sm:col-span-3">
-								<DisplayLabel label="Phase duration" />
-								<DisplayOutputAlignedRight output={formatDuration(position.challengePeriod)} />
-							</AppBox>
-							<AppBox className="col-span-6 sm:col-span-3">
-								<DisplayLabel label="Target Position" />
-								<AppLink
-									label={shortenAddress(position.position || zeroAddress)}
-									href={`/monitoring/${position.position}`}
-								/>
-							</AppBox>
-						</div>
-						<div className="mx-auto mt-4 w-full flex-col">
-							<GuardSupportedChain chain={mainnet}>
-								{amount > userAllowance ? (
-									<AppButton isLoading={isApproving} disabled={!!error} onClick={() => handleApprove()}>
-										Approve
-									</AppButton>
-								) : (
-									<AppButton
-										isLoading={isChallenging}
-										disabled={!!error || amount == 0n}
-										onClick={() => handleChallenge()}
-									>
-										Challenge
-									</AppButton>
-								)}
-							</GuardSupportedChain>
-						</div>
-					</AppCard>
-
-					<AppCard>
-						<div className="text-lg font-bold text-center mt-3 text-text-primary">How does it work?</div>
-						<div className="flex-1 mt-4 text-text-secondary">
-							<p>A challenge is divided into two phases:</p>
-							<ol className="flex flex-col gap-y-2 pl-6 [&>li]:list-decimal">
-								<li>
-									During the fixed price phase, anyone can buy the {position.collateralSymbol} you provided at the
-									liquidation price of {formatBigInt(BigInt(position.price), 36 - position.collateralDecimals)} ZCHF each.
-								</li>
-								<li>
-									If there are any {position.collateralSymbol} left after the fixed price phase ends, you get the
-									remaining {position.collateralSymbol} back and the price starts to decline towards zero. In this phase,
-									the bidders are not buying from the challenger any more, but from the position owner. You will get 2% of
-									the sales proceeds as a reward.
-								</li>
-							</ol>
-						</div>
-					</AppCard>
-				</section>
+			<div className="mt-8">
+				<AppCard>
+					<div className="text-lg font-bold text-center">Launch a Challenge</div>
+					<ChallengeAuctionPriceChart
+						position={position}
+						challengeStartMs={nowMs}
+						phase1Ms={phase1Ms}
+						phase2Ms={phase2Ms}
+					/>
+					<ChallengeAction position={position} onChallengeSuccess={() => setNavigating(true)} />
+				</AppCard>
 			</div>
-		</>
+		</div>
 	);
 }

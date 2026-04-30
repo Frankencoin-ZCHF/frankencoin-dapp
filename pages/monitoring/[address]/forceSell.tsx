@@ -30,6 +30,7 @@ export default function MonitoringForceSell() {
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const position = positions.find((p) => normalizeAddress(p.position) === normalizeAddress(queryAddress));
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const challengesPositions = useSelector((state: RootState) => state.challenges.positions);
 
 	useEffect(() => {
 		if (position === undefined) return;
@@ -58,6 +59,20 @@ export default function MonitoringForceSell() {
 	const collateralPriceChf = prices[normalizeAddress(position.collateral)]?.price?.chf;
 	const marketPrice = collateralPriceChf ? parseUnits(collateralPriceChf.toFixed(6), priceDigits) : undefined;
 
+	const now = Date.now();
+	const positionChallenges = challengesPositions.map[normalizeAddress(position.position)] ?? [];
+	const isChallenged = positionChallenges.some((ch) => ch.status === "Active");
+	const isCooldown = position.start * 1000 < now && position.cooldown > now;
+	const isExpired = now > position.expiration * 1000;
+
+	const statusBadge = isExpired
+		? { label: "Expired", className: "bg-red-500/20 text-red-400" }
+		: isChallenged
+		? { label: "Challenged", className: "bg-orange-500/20 text-orange-400" }
+		: isCooldown
+		? { label: "Cooldown", className: "bg-amber-500/20 text-amber-400" }
+		: { label: "Active", className: "bg-green-500/20 text-green-400" };
+
 	return (
 		<div className="flex flex-col md:max-w-2xl mx-auto">
 			<Head>
@@ -68,7 +83,7 @@ export default function MonitoringForceSell() {
 				symbol={position.collateralSymbol}
 				title={`${position.collateralName} (${position.collateralSymbol})`}
 				subtitle="Buy collateral at declining auction price"
-				badges={[{ label: "Expired", className: "bg-red-500/20 text-red-400" }]}
+				badges={[statusBadge]}
 				actions={
 					<div className="flex flex-wrap gap-4 text-sm">
 						<AppLink label="Owner" href={`/mypositions?address=${position.owner}`} external={false} />
