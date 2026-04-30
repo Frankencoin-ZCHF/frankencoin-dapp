@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Address, zeroAddress } from "viem";
+import { Address, parseUnits, zeroAddress } from "viem";
 import { normalizeAddress } from "@utils";
 import { useBlockNumber } from "wagmi";
 import { readContract } from "wagmi/actions";
@@ -29,6 +29,7 @@ export default function MonitoringForceSell() {
 	const queryAddress: Address = (String(router.query.address) as Address) || zeroAddress;
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const position = positions.find((p) => normalizeAddress(p.position) === normalizeAddress(queryAddress));
+	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
 	useEffect(() => {
 		if (position === undefined) return;
@@ -53,6 +54,10 @@ export default function MonitoringForceSell() {
 
 	if (!position) return null;
 
+	const priceDigits = 36 - position.collateralDecimals;
+	const collateralPriceChf = prices[normalizeAddress(position.collateral)]?.price?.chf;
+	const marketPrice = collateralPriceChf ? parseUnits(collateralPriceChf.toFixed(6), priceDigits) : undefined;
+
 	return (
 		<div className="flex flex-col md:max-w-2xl mx-auto">
 			<Head>
@@ -75,7 +80,7 @@ export default function MonitoringForceSell() {
 			<div className="mt-8">
 				<AppCard>
 					<div className="text-lg font-bold text-center">Force Sell</div>
-					<ForceSellPriceChart position={position} auctionPrice={auctionPrice} />
+					<ForceSellPriceChart position={position} auctionPrice={auctionPrice} marketPrice={marketPrice} />
 					<ForceSellAction position={position} auctionPrice={auctionPrice} onBidSuccess={() => setNavigating(true)} />
 				</AppCard>
 			</div>

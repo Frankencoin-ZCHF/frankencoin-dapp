@@ -25,14 +25,16 @@ export default function ForceSellPriceChart({ position, auctionPrice, marketPric
 
 	const isLive = nowMs > startMs && nowMs < auctionEndMs;
 
-	const phase1Data: [number, number][] = [
-		[startMs, liqPriceNum * 10],
-		[phase2StartMs, liqPriceNum],
-	];
-	const phase2Data: [number, number][] = [
-		[phase2StartMs, liqPriceNum],
-		[auctionEndMs, 0],
-	];
+	const STEPS = 60;
+
+	const phase1Data: [number, number][] = Array.from({ length: STEPS + 1 }, (_, i) => {
+		const t = i / STEPS;
+		return [startMs + t * phaseMs, liqPriceNum * 10 - t * liqPriceNum * 9];
+	});
+	const phase2Data: [number, number][] = Array.from({ length: STEPS + 1 }, (_, i) => {
+		const t = i / STEPS;
+		return [phase2StartMs + t * phaseMs, liqPriceNum * (1 - t)];
+	});
 
 	// Calculate when auction price crosses market price
 	let marketPriceHitMs: number | undefined;
@@ -47,18 +49,6 @@ export default function ForceSellPriceChart({ position, auctionPrice, marketPric
 	}
 
 	const yaxisAnnotations = [
-		{
-			y: liqPriceNum,
-			borderColor: "#9CA3AF",
-			borderWidth: 1.5,
-			strokeDashArray: 5,
-			label: {
-				text: `Liq ${formatCurrency(liqPriceNum, 0, 0)}`,
-				position: "left",
-				offsetX: 52,
-				style: { color: "#6B7280", background: "transparent", fontSize: "10px", padding: { top: 2, bottom: 2, left: 4, right: 4 } },
-			},
-		},
 		...(marketPriceNum !== undefined
 			? [
 					{
@@ -138,10 +128,11 @@ export default function ForceSellPriceChart({ position, auctionPrice, marketPric
 					fill: {
 						type: "gradient",
 						gradient: {
+							shadeIntensity: 0,
+							opacityFrom: 0.4,
+							opacityTo: 0.05,
 							shade: "light",
-							type: "vertical",
-							opacityFrom: 0.28,
-							opacityTo: 0.02,
+							gradientToColors: ["#2563EB", "#EF4444"],
 						},
 					},
 					grid: {
