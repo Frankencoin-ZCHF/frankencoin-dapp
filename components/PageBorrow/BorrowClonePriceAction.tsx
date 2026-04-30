@@ -12,6 +12,7 @@ import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import AppButton from "@components/AppButton";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { mainnet } from "viem/chains";
+import { track } from "@hooks";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -122,6 +123,8 @@ export default function BorrowClonePriceAction({
 					render: <TxToast title="Successfully Minted ZCHF" rows={toastContent} />,
 				},
 			});
+
+			track("zchf_minted", { collateral: position.collateralSymbol, amount: formatBigInt(amount) });
 
 			const receipt = await waitForTransactionReceipt(WAGMI_CONFIG, {
 				chainId: mainnet.id,

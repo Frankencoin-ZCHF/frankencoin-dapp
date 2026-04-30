@@ -10,6 +10,7 @@ import { formatBigInt, formatDuration, shortenAddress } from "@utils";
 import { useConnection, useBlockNumber, useChainId } from "wagmi";
 import { Address } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { track } from "@hooks";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import DisplayLabel from "@components/DisplayLabel";
@@ -148,6 +149,8 @@ export default function PositionChallenge() {
 					render: <TxToast title={`Successfully Approved ${position.collateralSymbol}`} rows={toastContent} />,
 				},
 			});
+
+			track("collateral_approved", { collateral: position.collateralSymbol });
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
@@ -191,6 +194,7 @@ export default function PositionChallenge() {
 				},
 			});
 
+			track("position_challenged", { collateral: position.collateralSymbol, amount: formatBigInt(amount, position.collateralDecimals) });
 			setNavigating(true);
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));

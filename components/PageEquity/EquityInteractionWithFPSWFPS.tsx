@@ -10,6 +10,7 @@ import AppButton from "@components/AppButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
+import { track } from "@hooks";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
@@ -176,6 +177,8 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 					render: <TxToast title="Successfully Wrapped FPS" rows={toastContent} />,
 				},
 			});
+
+			track("fps_wrapped", { amount: formatBigInt(amount) });
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
@@ -218,6 +221,8 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 					render: <TxToast title="Successfully Unwrapped WFPS" rows={toastContent} />,
 				},
 			});
+
+			track("fps_unwrapped", { amount: formatBigInt(amount) });
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {

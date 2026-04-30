@@ -11,6 +11,7 @@ import AppButton from "@components/AppButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
+import { track } from "@hooks";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
@@ -185,6 +186,8 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 					render: <TxToast title="Successfully Redeemed WFPS" rows={toastContent} />,
 				},
 			});
+
+			track("wfps_redeemed", { wfps: formatBigInt(amount), zchf: formatBigInt(calculateProceeds, 18) });
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {

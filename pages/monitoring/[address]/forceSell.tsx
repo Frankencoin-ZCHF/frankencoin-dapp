@@ -9,6 +9,7 @@ import { formatBigInt, formatCurrency, formatDateTime, normalizeAddress, shorten
 import AppButton from "@components/AppButton";
 import { useConnection, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { track } from "@hooks";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import DisplayLabel from "@components/DisplayLabel";
@@ -147,6 +148,8 @@ export default function MonitoringForceSell() {
 					render: <TxToast title="Successfully Forced to Sell" rows={toastContent} />,
 				},
 			});
+
+			track("position_force_sold", { collateral: position.collateralSymbol, amount: formatBigInt(amount, position.collateralDecimals) });
 			setNavigating(true);
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));

@@ -6,6 +6,7 @@ import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useConnection, useChainId } from "wagmi";
 import AppButton from "@components/AppButton";
 import { ADDRESS, SavingsABI, SavingsV2ABI } from "@frankencoin/zchf";
+import { track } from "@hooks";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { useRouter } from "next/router";
@@ -80,6 +81,7 @@ export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 				},
 			});
 
+			track("savings_redeemed_v1");
 			setHidden(true);
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));

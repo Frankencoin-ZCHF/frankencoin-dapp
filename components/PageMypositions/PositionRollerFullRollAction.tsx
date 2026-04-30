@@ -12,6 +12,7 @@ import { PositionQuery } from "@frankencoin/api";
 import { zeroAddress } from "viem";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { track } from "@hooks";
 
 interface Props {
 	label?: string;
@@ -67,6 +68,7 @@ export default function PositionRollerFullRollAction({ label = "Roll", source, t
 				},
 			});
 
+			track(isTargetOwned ? "position_merged" : "position_rolled");
 			setHidden(true);
 		} catch (error) {
 			// toast.error(renderErrorTxToast(error));

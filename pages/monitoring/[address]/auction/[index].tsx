@@ -9,6 +9,7 @@ import { ContractUrl, formatBigInt, formatCurrency, formatDateTime, normalizeAdd
 import AppButton from "@components/AppButton";
 import { useConnection, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { track } from "@hooks";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import DisplayLabel from "@components/DisplayLabel";
@@ -177,6 +178,8 @@ export default function ChallengePlaceBid() {
 					render: <TxToast title="Successfully Placed Bid" rows={toastContent} />,
 				},
 			});
+
+			track("auction_bid_placed", { collateral: position.collateralSymbol, amount: formatBigInt(amount, position.collateralDecimals) });
 			setNavigating(true);
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));

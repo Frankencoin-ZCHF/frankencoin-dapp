@@ -9,6 +9,7 @@ import AppButton from "@components/AppButton";
 import { Address, formatUnits, Hash, parseEther } from "viem";
 import { ADDRESS, BridgedFrankencoinABI, ChainIdSide } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { track } from "@hooks";
 import { AppKitNetwork } from "@reown/appkit/networks";
 
 interface Props {
@@ -146,6 +147,7 @@ export default function TransferActionSidechain({
 				},
 			});
 
+			track("zchf_transferred", { amount: formatUnits(amount, 18), chain: recipientChain.name, crossChain: !isSameChain });
 			if (setLoaded != undefined) setLoaded(true);
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));

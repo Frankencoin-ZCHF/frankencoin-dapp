@@ -11,6 +11,7 @@ import AppButton from "@components/AppButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
+import { track } from "@hooks";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
@@ -118,6 +119,8 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 					render: <TxToast title="Successfully Invested" rows={toastContent} />,
 				},
 			});
+
+			track("fps_invested", { zchf: formatBigInt(amount, 18), fps: formatBigInt(result) });
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
@@ -160,6 +163,8 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 					render: <TxToast title="Successfully Redeemed" rows={toastContent} />,
 				},
 			});
+
+			track("fps_redeemed", { fps: formatBigInt(amount), zchf: formatBigInt(result, 18) });
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {

@@ -11,6 +11,7 @@ import { formatBigInt, shortenAddress, toTimestamp } from "@utils";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import AppButton from "@components/AppButton";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { track } from "@hooks";
 import { mainnet } from "viem/chains";
 import { useRouter } from "next/navigation";
 
@@ -77,6 +78,8 @@ export default function BorrowCloneAction({
 					render: <TxToast title={`Successfully Approved ${position.collateralSymbol}`} rows={toastContent} />,
 				},
 			});
+
+			track("collateral_approved", { collateral: position.collateralSymbol });
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
@@ -131,6 +134,8 @@ export default function BorrowCloneAction({
 					render: <TxToast title="Successfully Minted ZCHF" rows={toastContent} />,
 				},
 			});
+
+			track("zchf_minted", { collateral: position.collateralSymbol, amount: formatBigInt(amount) });
 
 			const receipt = await waitForTransactionReceipt(WAGMI_CONFIG, {
 				chainId: mainnet.id,

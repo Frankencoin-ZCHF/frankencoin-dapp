@@ -9,6 +9,7 @@ import AppButton from "@components/AppButton";
 import { Address, formatUnits, Hash, maxUint256 } from "viem";
 import { ADDRESS, ChainIdSide, FrankencoinABI, TransferReferenceABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { track } from "@hooks";
 import { mainnet } from "viem/chains";
 import { useUserAllowance } from "../../hooks/useUserAllowance";
 import { AppKitNetwork } from "@reown/appkit/networks";
@@ -161,6 +162,7 @@ export default function TransferActionMainnet({
 				},
 			});
 
+			track("zchf_transferred", { amount: formatUnits(amount, 18), chain: recipientChain.name, crossChain: !isSameChain });
 			if (setLoaded != undefined) setLoaded(true);
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));

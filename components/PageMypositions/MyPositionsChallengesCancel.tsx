@@ -11,6 +11,7 @@ import { Address } from "viem";
 import { useConnection } from "wagmi";
 import AppButton from "@components/AppButton";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
+import { track } from "@hooks";
 import { mainnet } from "viem/chains";
 
 interface Props {
@@ -69,6 +70,8 @@ export default function MyPositionsChallengesCancel({ challenge, hidden }: Props
 					render: <TxToast title="Successfully Cancelled Challenge" rows={toastContent} />,
 				},
 			});
+
+			track("challenge_cancelled", { collateral: p.collateralSymbol });
 			setHidden(true);
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));

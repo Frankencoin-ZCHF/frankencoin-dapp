@@ -9,6 +9,7 @@ import AppButton from "@components/AppButton";
 import { Address, formatUnits } from "viem";
 import { ADDRESS, GovernanceSenderABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { track } from "@hooks";
 import { mainnet } from "viem/chains";
 
 interface Props {
@@ -78,6 +79,8 @@ export default function GovernanceSyncAction({ targetChainId, voters, disabled }
 					render: <TxToast title="Successfully synced votes" rows={toastContent} />,
 				},
 			});
+
+			track("votes_synced", { chain: targetChain?.name, voters: voters.length });
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {

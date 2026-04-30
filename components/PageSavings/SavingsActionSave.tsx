@@ -7,6 +7,7 @@ import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useConnection, useChainId } from "wagmi";
 import AppButton from "@components/AppButton";
 import { Address, formatUnits } from "viem";
+import { track } from "@hooks";
 import { ChainId, SavingsABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
@@ -66,6 +67,7 @@ export default function SavingsActionSave({ savingsModule, amount, interest, dis
 				},
 			});
 
+			track("savings_deposited", { amount: formatUnits(amount, 18) });
 			setHidden(true);
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));

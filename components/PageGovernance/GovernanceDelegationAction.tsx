@@ -9,6 +9,7 @@ import AppButton from "@components/AppButton";
 import { Address, isAddress } from "viem";
 import { ADDRESS, BridgedGovernanceABI, EquityABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { track } from "@hooks";
 import { mainnet } from "viem/chains";
 
 interface Props {
@@ -63,6 +64,8 @@ export default function GovernanceDelegationAction({ delegate, disabled }: Props
 					render: <TxToast title="Successfully supported votes" rows={toastContent} />,
 				},
 			});
+
+			track("votes_delegated");
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
