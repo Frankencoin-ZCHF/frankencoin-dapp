@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import React, { ReactNode, useMemo } from "react";
+import { track } from "@hooks";
 
 interface PageTab {
 	label: string;
@@ -34,6 +35,7 @@ export default function PageTabInput({ tabs, urlParam = "tab", className }: Prop
 
 	const selectTab = (i: number) => {
 		if (i === active) return;
+		track("tab_" + slugs[i]);
 		const nextQuery = { ...router.query, [urlParam]: slugs[i] };
 		router.replace({ pathname: router.pathname, query: nextQuery }, undefined, { shallow: true, scroll: false });
 	};

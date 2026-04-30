@@ -6,7 +6,7 @@ import TokenInput from "@components/Input/TokenInput";
 import { useTokenData, useUserBalance } from "@hooks";
 import { useState } from "react";
 import AppButton from "@components/AppButton";
-import { useAccount, useBlockNumber, useChainId } from "wagmi";
+import { useConnection, useBlockNumber, useChainId } from "wagmi";
 import { erc20Abi } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { formatBigInt, normalizeAddress, shortenAddress } from "@utils";
@@ -60,7 +60,7 @@ export default function PositionCreate({}) {
 
 	const [userAllowance, setUserAllowance] = useState<bigint>(0n);
 	const { data } = useBlockNumber({ watch: true });
-	const account = useAccount();
+	const account = useConnection();
 	const navigate = useNavigation();
 
 	const chainId = mainnet.id;

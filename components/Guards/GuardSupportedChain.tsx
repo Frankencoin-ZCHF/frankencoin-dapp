@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import { useAppKit, useAppKitState, useAppKitNetwork } from "@reown/appkit/react";
 import AppButton from "@components/AppButton";
 import { WAGMI_CHAIN, WAGMI_CHAINS } from "../../app.config";
@@ -17,7 +17,7 @@ interface Props {
 export default function GuardSupportedChain({ children, label, disabled, chain, chainId }: Props) {
 	const [requestedChange, setRequestedChange] = useState(false);
 
-	const Account = useAccount();
+	const Account = useConnection();
 	const AppKit = useAppKit();
 	const AppKitState = useAppKitState();
 	const AppKitNetwork = useAppKitNetwork();

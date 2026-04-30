@@ -1,7 +1,7 @@
 import AppCard from "@components/AppCard";
 import TokenInputChain from "@components/Input/TokenInputChain";
 import { ADDRESS, ChainId, ChainIdMain, ChainIdSide, FrankencoinABI, SavingsABI } from "@frankencoin/zchf";
-import { useAccount, useBlockNumber, useChainId } from "wagmi";
+import { useConnection, useBlockNumber, useChainId } from "wagmi";
 import { Address, isAddress, zeroAddress } from "viem";
 import { useEffect, useState } from "react";
 import SavingsDetailsCard from "./SavingsDetailsCard";
@@ -55,7 +55,7 @@ export default function SavingsInteractionCard() {
 	const state = status[chainId][savingsAdresse];
 
 	const { data } = useBlockNumber({ watch: true });
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const router = useRouter();
 
 	const queryAddress: Address = normalizeAddress(String(router.query.address));

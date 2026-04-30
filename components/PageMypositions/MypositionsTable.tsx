@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { ChallengesPositionsMapping, PositionQuery, PriceQueryObjectArray } from "@frankencoin/api";
 import { Address, formatUnits, zeroAddress } from "viem";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import MypositionsRow from "./MypositionsRow";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
@@ -33,7 +33,7 @@ export default function MypositionsTable() {
 	const router = useRouter();
 	const overwrite = router.query.address as Address;
 
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const account = overwrite || address || zeroAddress;
 
 	const sortedByCollateral: { [key: Address]: PositionQuery[] } = {};

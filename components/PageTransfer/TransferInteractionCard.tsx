@@ -3,7 +3,7 @@ import AddressInput from "@components/Input/AddressInput";
 import TokenInput from "@components/Input/TokenInput";
 import { useEffect, useState } from "react";
 import { Address, isAddress } from "viem";
-import { useAccount, useChainId } from "wagmi";
+import { useConnection, useChainId } from "wagmi";
 import { WAGMI_CHAIN, WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, BridgedFrankencoinABI, ChainId, ChainIdMain, ChainIdSide, SupportedChain, TransferReferenceABI } from "@frankencoin/zchf";
 import { useRouter } from "next/router";
@@ -21,7 +21,7 @@ import { getChain } from "@utils";
 export default function TransferInteractionCard() {
 	const router = useRouter();
 	const chainId = useChainId() as ChainId;
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const AppKitNetwork = useAppKitNetwork();
 	const chain = getChain(chainId);
 	const isMainnetChain = chainId == mainnet.id;

@@ -5,7 +5,7 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { useState } from "react";
 import { useVotingPowers, VoteDataQuote } from "@hooks";
 import GovernanceVotersRow from "./GovernanceVotersRow";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import { normalizeAddress } from "../../utils/format";
 
 export default function GovernanceVotersTable() {
@@ -13,7 +13,7 @@ export default function GovernanceVotersTable() {
 	const [tab, setTab] = useState<string>(headers[1]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const { votesData, accountVoteData, totalVotes } = useVotingPowers();
 
 	const otherVotes = votesData.filter((v) => !address || normalizeAddress(v.holder) !== normalizeAddress(address));

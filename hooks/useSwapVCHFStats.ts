@@ -1,4 +1,4 @@
-import { useAccount, useReadContracts } from "wagmi";
+import { useConnection, useReadContracts } from "wagmi";
 import { decodeBigIntCall } from "@utils";
 import { erc20Abi } from "viem";
 import { ADDRESS, StablecoinBridgeABI } from "@frankencoin/zchf";
@@ -20,7 +20,7 @@ export type SwapVCHFStatsReturn = {
 
 export const useSwapVCHFStats = (): SwapVCHFStatsReturn => {
 	const chainId = mainnet.id;
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const account = address || "0x0";
 
 	const other = ADDRESS[chainId].vchfToken;

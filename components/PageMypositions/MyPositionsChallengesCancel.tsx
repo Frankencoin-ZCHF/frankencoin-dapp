@@ -8,9 +8,10 @@ import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { RootState } from "../../redux/redux.store";
 import { useSelector } from "react-redux";
 import { Address } from "viem";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import AppButton from "@components/AppButton";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
+import { track } from "@hooks";
 import { mainnet } from "viem/chains";
 
 interface Props {
@@ -21,7 +22,7 @@ interface Props {
 export default function MyPositionsChallengesCancel({ challenge, hidden }: Props) {
 	const [isCancelling, setCancelling] = useState<boolean>(false);
 	const positions: PositionsQueryObjectArray = useSelector((state: RootState) => state.positions.mapping.map);
-	const account = useAccount();
+	const account = useConnection();
 	const chainId = mainnet.id;
 	const [isHidden, setHidden] = useState<boolean>(
 		hidden == true || challenge.status !== "Active" || account.address?.toLowerCase() !== normalizeAddress(challenge.challenger)
@@ -69,6 +70,8 @@ export default function MyPositionsChallengesCancel({ challenge, hidden }: Props
 					render: <TxToast title="Successfully Cancelled Challenge" rows={toastContent} />,
 				},
 			});
+
+			track("challenge_cancelled", { collateral: p.collateralSymbol });
 			setHidden(true);
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));

@@ -1,13 +1,13 @@
 import { useEffect } from "react";
 import { Address } from "viem";
 import { disconnect } from "@wagmi/core";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import { WAGMI_CONFIG } from "../app.config";
 import { normalizeAddress } from "../utils/format";
 import { toast } from "react-toastify";
 
 export default function USGovSanction() {
-	const account = useAccount();
+	const account = useConnection();
 
 	useEffect(() => {
 		const addr = account.address;

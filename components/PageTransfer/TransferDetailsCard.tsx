@@ -1,7 +1,7 @@
 import AppCard from "@components/AppCard";
 import { Address, formatUnits, isAddress, zeroAddress } from "viem";
 import AppLink from "@components/AppLink";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import { ContractUrl, shortenAddress } from "@utils";
 import { SupportedChain } from "@frankencoin/zchf";
 
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function TransferDetailsCard({ senderAddress, recipientAddress, chain, recipientChain, ccipFee }: Props) {
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const isSameChain = recipientChain?.id == chain?.id;
 
 	senderAddress = senderAddress || zeroAddress;

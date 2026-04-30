@@ -11,6 +11,7 @@ interface Props {
 }
 
 export default function AppLink({ label, href = "/", external = false, icon = false, className }: Props) {
+	const umamiEvent = (external ? "external_link_" : "link_") + label.toLowerCase().replace(/\s+/g, "_");
 	return (
 		<Link
 			className={`${
@@ -19,6 +20,7 @@ export default function AppLink({ label, href = "/", external = false, icon = fa
 			href={href}
 			target={external ? "_blank" : undefined}
 			rel={external ? "noreferrer" : undefined}
+			data-umami-event={umamiEvent}
 		>
 			<span className="">
 				{label}

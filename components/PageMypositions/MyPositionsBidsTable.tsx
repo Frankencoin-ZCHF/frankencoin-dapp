@@ -4,7 +4,7 @@ import Table from "@components/Table";
 import TableHeader from "@components/Table/TableHead";
 import TableBody from "@components/Table/TableBody";
 import TableRowEmpty from "@components/Table/TableRowEmpty";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import { Address, formatUnits, zeroAddress } from "viem";
 import { normalizeAddress } from "../../utils/format";
 import { BidsQueryItem, ChallengesQueryItemMapping, PositionQuery, PositionsQueryObjectArray } from "@frankencoin/api";
@@ -25,7 +25,7 @@ export default function MyPositionsBidsTable() {
 	const router = useRouter();
 	const overwrite = router.query.address as Address;
 
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const account = overwrite || address || zeroAddress;
 
 	const matchingBids = bids.filter((b) => normalizeAddress(b.bidder) === normalizeAddress(account));

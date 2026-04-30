@@ -13,7 +13,7 @@ import AppLink from "@components/AppLink";
 import { ContractUrl, TxUrl } from "@utils";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import { useDelegationHelpers } from "@hooks";
 
 const MintModule = normalizeAddress(ADDRESS[mainnet.id].savingsV2);
@@ -39,7 +39,7 @@ export default function GovernanceLeadrateRow({ headers, tab, proposal }: Props)
 	const [userLinkBalance, setUserLinkBalance] = useState<bigint>(0n);
 	const [userLinkAllowance, setUserLinkAllowance] = useState<bigint>(0n);
 
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const { helpers } = useDelegationHelpers(address);
 
 	const chainId = mainnet.id;

@@ -1,4 +1,4 @@
-import { useAccount, useBlockNumber } from "wagmi";
+import { useConnection, useBlockNumber } from "wagmi";
 import { Address } from "viem";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -23,7 +23,7 @@ let loading: boolean = false;
 
 export default function BockUpdater({ children }: { children?: React.ReactElement | React.ReactElement[] }) {
 	const { error, data } = useBlockNumber({ chainId: mainnet.id, watch: true });
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const isConnectedToCorrectChain = useIsConnectedToCorrectChain();
 
 	const [initialized, setInitialized] = useState<boolean>(false);

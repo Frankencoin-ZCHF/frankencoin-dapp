@@ -13,6 +13,7 @@ interface Props {
 	error?: string;
 	warning?: string;
 	note?: string;
+	umamiEvent?: string;
 }
 
 export default function AppButtonSecondary({
@@ -27,6 +28,7 @@ export default function AppButtonSecondary({
 	error,
 	warning,
 	note,
+	umamiEvent,
 }: Props) {
 	const sizeClass = size === "small" ? "px-2 py-1 md:px-3 md:py-1 text-sm" : size === "medium" ? "px-3 py-2 md:px-3 md:py-3" : "py-3";
 
@@ -37,11 +39,11 @@ export default function AppButtonSecondary({
 	} ${width ?? "w-full"}`.trim();
 
 	const button = to ? (
-		<Link href={to} className={btnClass} onClick={onClick}>
+		<Link href={to} className={btnClass} onClick={onClick} data-umami-event={umamiEvent}>
 			{children}
 		</Link>
 	) : (
-		<button className={btnClass} onClick={(e) => !disabled && !isLoading && onClick(e)}>
+		<button className={btnClass} onClick={(e) => !disabled && !isLoading && onClick(e)} data-umami-event={umamiEvent}>
 			{isLoading && <LoadingSpin />}
 			{children}
 		</button>

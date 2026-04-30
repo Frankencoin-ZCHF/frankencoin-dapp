@@ -1,0 +1,49 @@
+services:
+    postgres:
+        image: postgres:16-alpine
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: frankencoin
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        networks:
+            - backend
+        deploy:
+            replicas: 1
+            restart_policy:
+                condition: on-failure
+                delay: 5s
+
+    umami:
+        image: docker.umami.is/umami-software/umami:postgresql-latest
+        environment:
+            DATABASE_URL: postgresql://postgres:postgres@postgres:5432/frankencoin
+            DATABASE_TYPE: postgresql
+            APP_SECRET: replace-me-with-a-random-string
+        ports:
+            - "3001:3000"
+        depends_on:
+            - postgres
+        networks:
+            - backend
+        deploy:
+            replicas: 1
+            restart_policy:
+                condition: on-failure
+                delay: 5s
+
+volumes:
+    postgres_data:
+
+networks:
+    backend:
+        driver: overlay
+        attachable: true

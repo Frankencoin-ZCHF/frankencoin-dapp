@@ -7,7 +7,7 @@ import { RootState } from "../../redux/redux.store";
 import { useEffect, useState } from "react";
 import { SavingsActivityQuery } from "@frankencoin/api";
 import SavingsRecentActivitiesRow from "./SavingsRecentActivitiesRow";
-import { useAccount, useChainId } from "wagmi";
+import { useConnection, useChainId } from "wagmi";
 import { ADDRESS, ChainId } from "@frankencoin/zchf";
 import { normalizeAddress } from "../../utils/format";
 import { mainnet } from "viem/chains";
@@ -18,7 +18,7 @@ export default function SavingsRecentActivitiesTable() {
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<SavingsActivityQuery[]>([]);
 	const chainId = useChainId() as ChainId;
-	const { address } = useAccount();
+	const { address } = useConnection();
 
 	const activities = useSelector((state: RootState) => state.savings.savingsActivity);
 	const ignoreModule = normalizeAddress(ADDRESS[mainnet.id].savingsV2);

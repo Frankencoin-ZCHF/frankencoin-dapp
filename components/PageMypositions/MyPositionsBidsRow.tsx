@@ -8,7 +8,7 @@ import { formatCurrency, normalizeAddress } from "../../utils/format";
 import { useContractUrl } from "@hooks";
 import { useRouter as useNavigation } from "next/navigation";
 import AppButton from "@components/AppButton";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import AppBox from "@components/AppBox";
 import { TxUrl } from "@utils";
 import AppButtonSecondary from "@components/AppButtonSecondary";
@@ -30,7 +30,7 @@ export default function MyPositionsBidsRow({ headers, tab, bid }: Props) {
 	const challenge = challenges.map[cid];
 	const url = useContractUrl(position.collateral || zeroAddress);
 	const urlBid = TxUrl(bid.txHash);
-	const account = useAccount();
+	const account = useConnection();
 	const navigate = useNavigation();
 	if (!position || !challenge) return null;
 

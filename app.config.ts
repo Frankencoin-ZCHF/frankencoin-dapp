@@ -2,7 +2,7 @@
 
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { cookieStorage, createStorage, http } from "@wagmi/core";
-import { injected, coinbaseWallet, walletConnect, safe } from "@wagmi/connectors";
+import { injected, coinbaseWallet, safe } from "@wagmi/connectors";
 import { mainnet, polygon, Chain, arbitrum, optimism, avalanche, gnosis, sonic, base, AppKitNetwork } from "@reown/appkit/networks";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import axios from "axios";
@@ -87,7 +87,6 @@ export const WAGMI_ADAPTER = new WagmiAdapter({
 		safe({
 			allowedDomains: [/gnosis-safe.io$/, /app.safe.global$/, /dhedge.org$/],
 		}),
-		walletConnect({ projectId: CONFIG.wagmiId, metadata: WAGMI_METADATA, showQrModal: false }),
 		injected({ shimDisconnect: true }),
 		coinbaseWallet({
 			appName: WAGMI_METADATA.name,

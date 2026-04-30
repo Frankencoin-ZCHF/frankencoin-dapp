@@ -4,13 +4,14 @@ import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
 import { usePoolStats } from "@hooks";
 import { formatBigInt, formatDuration, shortenAddress } from "@utils";
-import { useAccount, useChainId, useReadContract } from "wagmi";
+import { useConnection, useChainId, useReadContract } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import AppButton from "@components/AppButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
+import { track } from "@hooks";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
@@ -33,7 +34,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 	const [isInversting, setInversting] = useState(false);
 	const [isRedeeming, setRedeeming] = useState(false);
 
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const chainId = mainnet.id;
 	const poolStats = usePoolStats();
 	const account = address || zeroAddress;
@@ -118,6 +119,8 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 					render: <TxToast title="Successfully Invested" rows={toastContent} />,
 				},
 			});
+
+			track("fps_invested", { zchf: formatBigInt(amount, 18), fps: formatBigInt(result) });
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
@@ -160,6 +163,8 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 					render: <TxToast title="Successfully Redeemed" rows={toastContent} />,
 				},
 			});
+
+			track("fps_redeemed", { fps: formatBigInt(amount), zchf: formatBigInt(result, 18) });
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {

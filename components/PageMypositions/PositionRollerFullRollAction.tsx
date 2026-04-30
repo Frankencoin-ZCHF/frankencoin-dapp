@@ -4,7 +4,7 @@ import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { normalizeAddress, shortenAddress } from "@utils";
 import { renderErrorTxToast, renderErrorTxToastDecode, TxToast } from "@components/TxToast";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import AppButton from "@components/AppButton";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { ADDRESS, ERC20ABI, PositionRollerV2ABI, PositionV2ABI } from "@frankencoin/zchf";
@@ -12,6 +12,7 @@ import { PositionQuery } from "@frankencoin/api";
 import { zeroAddress } from "viem";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { track } from "@hooks";
 
 interface Props {
 	label?: string;
@@ -23,7 +24,7 @@ interface Props {
 export default function PositionRollerFullRollAction({ label = "Roll", source, target, disabled }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const account = address || zeroAddress;
 
 	const isTargetOwned = normalizeAddress(target.owner) === normalizeAddress(account);
@@ -67,6 +68,7 @@ export default function PositionRollerFullRollAction({ label = "Roll", source, t
 				},
 			});
 
+			track(isTargetOwned ? "position_merged" : "position_rolled");
 			setHidden(true);
 		} catch (error) {
 			// toast.error(renderErrorTxToast(error));

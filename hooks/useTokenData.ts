@@ -1,5 +1,5 @@
 import { erc20Abi, getAddress, isAddress, zeroAddress } from "viem";
-import { useAccount, useReadContracts } from "wagmi";
+import { useConnection, useReadContracts } from "wagmi";
 import { decodeBigIntCall } from "../utils/format";
 import { ADDRESS } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
@@ -7,7 +7,7 @@ import { mainnet } from "viem/chains";
 export const useTokenData = (addr: string) => {
 	if (!isAddress(addr)) addr = zeroAddress;
 	const tokenAddress = getAddress(addr);
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const chainId = mainnet.id;
 
 	const account = address || zeroAddress;

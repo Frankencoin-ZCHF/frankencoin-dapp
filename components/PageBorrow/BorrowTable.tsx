@@ -8,7 +8,7 @@ import { RootState } from "../../redux/redux.store";
 import { PositionQueryV2, PriceQueryObjectArray } from "@frankencoin/api";
 import { Address, erc20Abi, formatUnits, zeroAddress } from "viem";
 import { useEffect, useMemo, useState } from "react";
-import { useAccount, useReadContracts } from "wagmi";
+import { useConnection, useReadContracts } from "wagmi";
 import { ALL_CATEGORIES, CollateralCategory, collateralMatchesCategories, normalizeAddress } from "@utils";
 import { useBorrowPositions, useSwapVCHFStats } from "@hooks";
 
@@ -23,7 +23,7 @@ export default function BorrowTable() {
 	const [activeCategories, setActiveCategories] = useState<string[]>([]);
 	const [inMyWallet, setInMyWallet] = useState<boolean>(false);
 
-	const { address: walletAddress } = useAccount();
+	const { address: walletAddress } = useConnection();
 	const vchfBridge = useSwapVCHFStats();
 	const { uniqueByCollateral } = useBorrowPositions();
 

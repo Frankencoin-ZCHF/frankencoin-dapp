@@ -4,7 +4,7 @@ import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
 import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
-import { useAccount, useChainId } from "wagmi";
+import { useConnection, useChainId } from "wagmi";
 import AppButton from "@components/AppButton";
 import { Address } from "viem";
 import { PositionQuery } from "@frankencoin/api";
@@ -21,7 +21,7 @@ interface Props {
 export default function GovernancePositionsAction({ position, disabled }: Props) {
 	const [isDenying, setDenying] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
-	const account = useAccount();
+	const account = useConnection();
 	const chaindId = useChainId();
 	const { helpers } = useDelegationHelpers(account.address);
 

@@ -18,3 +18,4 @@ export * from "./useWalletConnectStats";
 export * from "./useDelegationHelpers";
 export * from "./useVotesSynced";
 export * from "./useBorrowPositions";
+export * from "./useAnalytics";

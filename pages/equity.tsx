@@ -3,7 +3,7 @@ import Head from "next/head";
 import EquityFPSDetailsCard from "@components/PageEquity/EquityFPSDetailsCard";
 import EquityInteractionCard from "@components/PageEquity/EquityInteractionCard";
 import AppTitle from "@components/AppTitle";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import { useFPSBalanceHistory, useFPSEarningsHistory } from "@hooks";
 import ReportsFPSYearlyTable from "@components/PageReports/ReportsFPSYearlyTable";
 import { zeroAddress } from "viem";
@@ -14,7 +14,7 @@ import { ADDRESS } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 
 export default function Equity() {
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const fpsHistory = useFPSBalanceHistory(address || zeroAddress);
 	const fpsEarnings = useFPSEarningsHistory(address || zeroAddress);
 

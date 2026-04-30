@@ -16,6 +16,7 @@ interface Props {
 	error?: string;
 	warning?: string;
 	note?: string;
+	umamiEvent?: string;
 }
 
 export default function AppButton({
@@ -32,6 +33,7 @@ export default function AppButton({
 	error,
 	warning,
 	note,
+	umamiEvent,
 }: Props) {
 	const busy = isLoading || loading;
 	const sizeClass = size === "small" ? "px-2 py-1 md:px-3 md:py-1 text-sm" : size === "medium" ? "px-3 py-2 md:px-3 md:py-3" : "py-3";
@@ -43,11 +45,11 @@ export default function AppButton({
 	} ${width ?? "w-full"}`.trim();
 
 	const button = to ? (
-		<Link href={to} className={btnClass} onClick={onClick}>
+		<Link href={to} className={btnClass} onClick={onClick} data-umami-event={umamiEvent}>
 			{children}
 		</Link>
 	) : (
-		<button className={btnClass} onClick={(e) => !disabled && !busy && onClick(e)}>
+		<button className={btnClass} onClick={(e) => !disabled && !busy && onClick(e)} data-umami-event={umamiEvent}>
 			{busy && <LoadingSpin />}
 			{!busy && icon && <AppIcon src={icon} size="small" />}
 			{children}

@@ -8,7 +8,7 @@ import AppCard from "@components/AppCard";
 import AddressInput from "@components/Input/AddressInput";
 import DateInput from "@components/Input/DateInput";
 import { Address, isAddress } from "viem";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import { FRANKENCOIN_API_CLIENT } from "../../app.config";
 import { ApiTransferReferenceList, TransferReferenceQuery } from "@frankencoin/api";
 import { shortenAddress } from "@utils";
@@ -22,7 +22,7 @@ export default function TransferListTable() {
 	const [fetchedList, setFetchedList] = useState<TransferReferenceQuery[]>([]);
 	const [list, setList] = useState<TransferReferenceQuery[]>([]);
 
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const [sender, setSender] = useState<Address | string>("");
 	const [recipient, setRecipient] = useState<Address | string>(address || "");
 	const [reference, setReference] = useState<string>("");

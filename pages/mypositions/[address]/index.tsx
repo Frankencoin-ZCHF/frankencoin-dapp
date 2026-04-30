@@ -15,7 +15,7 @@ import {
 	shortenAddress,
 } from "@utils";
 import AppButton from "@components/AppButton";
-import { useAccount, useBlockNumber, useChainId } from "wagmi";
+import { useConnection, useBlockNumber, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast, renderErrorTxToastDecode } from "@components/TxToast";
@@ -46,7 +46,7 @@ export default function PositionAdjust() {
 	const [userFrancBalance, setUserFrancBalance] = useState(0n);
 
 	const { data } = useBlockNumber({ watch: true });
-	const account = useAccount();
+	const account = useConnection();
 	const router = useRouter();
 	const chainId = mainnet.id;
 

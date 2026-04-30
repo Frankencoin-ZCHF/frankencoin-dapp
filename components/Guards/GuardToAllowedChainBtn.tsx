@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import { useAppKit, useAppKitState, useAppKitNetwork } from "@reown/appkit/react";
 import AppButton from "@components/AppButton";
 import { useIsConnectedToCorrectChain } from "../../hooks/useWalletConnectStats";
@@ -14,7 +14,7 @@ interface Props {
 export default function GuardToAllowedChainBtn(props: Props) {
 	const [requestedChange, setRequestedChange] = useState(false);
 
-	const { isDisconnected } = useAccount();
+	const { isDisconnected } = useConnection();
 	const AppKit = useAppKit();
 	const AppKitState = useAppKitState();
 	const AppKitNetwork = useAppKitNetwork();

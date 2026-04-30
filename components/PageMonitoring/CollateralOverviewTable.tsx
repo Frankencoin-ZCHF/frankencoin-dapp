@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { useAccount, useReadContracts } from "wagmi";
+import { useConnection, useReadContracts } from "wagmi";
 import { Address, erc20Abi, formatUnits, zeroAddress } from "viem";
 import { RootState } from "../../redux/redux.store";
 import { calcOverviewStats } from "@components/PageEcoSystem/CollateralAndPositionsOverview";
@@ -30,7 +30,7 @@ export default function CollateralOverviewTable() {
 	const [reverse, setReverse] = useState(false);
 
 	const router = useRouter();
-	const { address: walletAddress } = useAccount();
+	const { address: walletAddress } = useConnection();
 	const { list, openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 	const vchfBridge = useSwapVCHFStats();

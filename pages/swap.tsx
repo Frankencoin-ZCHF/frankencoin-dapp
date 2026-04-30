@@ -18,6 +18,7 @@ import { ADDRESS, FrankencoinABI, StablecoinBridgeABI } from "@frankencoin/zchf"
 import AppLink from "@components/AppLink";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { track } from "@hooks";
 
 export default function Swap() {
 	const [amount, setAmount] = useState(0n);

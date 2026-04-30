@@ -1,4 +1,4 @@
-import { useAccount, useReadContracts } from "wagmi";
+import { useConnection, useReadContracts } from "wagmi";
 import { useFPSHolders } from "./useFPSHolders";
 import { useDelegationQuery } from "./useDelegationQuery";
 import { decodeBigIntCall, normalizeAddress } from "../utils/format";
@@ -24,7 +24,7 @@ const equityContract = {
 } as const;
 
 export const useVotingPowers = () => {
-	const { address } = useAccount();
+	const { address } = useConnection();
 
 	const { holders } = useFPSHolders();
 	const { allOwners, allDelegatees, delegatees } = useDelegationQuery();

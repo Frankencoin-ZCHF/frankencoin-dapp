@@ -4,11 +4,12 @@ import { WAGMI_CONFIG, WAGMI_CHAINS } from "../../app.config";
 import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
-import { useAccount, useChainId } from "wagmi";
+import { useConnection, useChainId } from "wagmi";
 import AppButton from "@components/AppButton";
 import { Address, isAddress } from "viem";
 import { ADDRESS, BridgedGovernanceABI, EquityABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { track } from "@hooks";
 import { mainnet } from "viem/chains";
 
 interface Props {
@@ -18,7 +19,7 @@ interface Props {
 
 export default function GovernanceDelegationAction({ delegate, disabled }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const chainId = useChainId();
 
 	const handleOnClick = async function (e: any) {
@@ -63,6 +64,8 @@ export default function GovernanceDelegationAction({ delegate, disabled }: Props
 					render: <TxToast title="Successfully supported votes" rows={toastContent} />,
 				},
 			});
+
+			track("votes_delegated");
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {

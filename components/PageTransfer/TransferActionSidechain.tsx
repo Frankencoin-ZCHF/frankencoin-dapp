@@ -4,11 +4,12 @@ import { WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { formatCurrency, shortenAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
-import { useAccount, useChainId } from "wagmi";
+import { useConnection, useChainId } from "wagmi";
 import AppButton from "@components/AppButton";
 import { Address, formatUnits, Hash, parseEther } from "viem";
 import { ADDRESS, BridgedFrankencoinABI, ChainIdSide } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import { track } from "@hooks";
 import { AppKitNetwork } from "@reown/appkit/networks";
 
 interface Props {
@@ -34,7 +35,7 @@ export default function TransferActionSidechain({
 }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
-	const { address } = useAccount();
+	const { address } = useConnection();
 
 	const chainId = useChainId();
 	const chain = WAGMI_CHAINS.find((c) => c.id == chainId) as AppKitNetwork;
@@ -146,6 +147,7 @@ export default function TransferActionSidechain({
 				},
 			});
 
+			track("zchf_transferred", { amount: formatUnits(amount, 18), chain: recipientChain.name, crossChain: !isSameChain });
 			if (setLoaded != undefined) setLoaded(true);
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));

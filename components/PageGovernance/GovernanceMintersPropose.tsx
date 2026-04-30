@@ -3,7 +3,7 @@ import AppButton from "@components/AppButton";
 import NormalInput from "@components/Input/NormalInput";
 import AppCard from "@components/AppCard";
 import { useEffect, useState } from "react";
-import { useAccount, useChainId } from "wagmi";
+import { useConnection, useChainId } from "wagmi";
 import { CONFIG, WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ADDRESS, ChainId, ChainIdMain, ChainIdSide, EquityABI, FrankencoinABI } from "@frankencoin/zchf";
@@ -24,7 +24,7 @@ interface Props {}
 export default function GovernanceMintersPropose({}: Props) {
 	const userBal = useUserBalance();
 	const [isHandling, setHandling] = useState<boolean>(false);
-	const account = useAccount();
+	const account = useConnection();
 	const chainId = useChainId();
 	const [period, setPeriod] = useState<string>("14");
 	const [module, setModule] = useState<string>("");

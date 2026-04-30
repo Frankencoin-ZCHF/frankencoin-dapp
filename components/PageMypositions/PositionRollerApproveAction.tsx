@@ -4,7 +4,7 @@ import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
 import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import AppButton from "@components/AppButton";
 import { maxUint256 } from "viem";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
@@ -21,7 +21,7 @@ interface Props {
 export default function PositionRollerApproveAction({ source, disabled }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(false);
-	const account = useAccount();
+	const account = useConnection();
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();

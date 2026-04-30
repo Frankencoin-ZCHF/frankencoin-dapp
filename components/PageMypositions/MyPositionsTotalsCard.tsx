@@ -4,7 +4,7 @@ import DisplayAmount from "@components/DisplayAmount";
 import DisplayLabel from "@components/DisplayLabel";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { useAccount } from "wagmi";
+import { useConnection } from "wagmi";
 import { useRouter } from "next/router";
 import { Address, zeroAddress } from "viem";
 import { ADDRESS } from "@frankencoin/zchf";
@@ -18,7 +18,7 @@ export default function MyPositionsTotalsCard() {
 	const router = useRouter();
 	const overwrite = router.query.address as Address;
 
-	const { address } = useAccount();
+	const { address } = useConnection();
 	const account = overwrite || address || zeroAddress;
 
 	const matchingPositions = positions.filter((p) => normalizeAddress(p.owner) === normalizeAddress(account));
