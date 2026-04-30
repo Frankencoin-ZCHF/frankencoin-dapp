@@ -6,8 +6,10 @@ import AppButton from "@components/AppButton";
 import AppLink from "@components/AppLink";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
-import { ContractUrl, formatBigInt, formatCurrency, shortenAddress } from "@utils";
+import { ContractUrl, formatBigInt, formatCurrency, normalizeAddress, shortenAddress } from "@utils";
 import { useConnection, useBlockNumber } from "wagmi";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/redux.store";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, FrankencoinABI, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
@@ -32,6 +34,8 @@ export default function AuctionBidAction({ position, challenge, auctionPrice, on
 	const { data } = useBlockNumber({ watch: true });
 	const account = useConnection();
 	const chainId = mainnet.id;
+	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const marketPriceChf = prices[normalizeAddress(position.collateral)]?.price?.chf;
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
@@ -170,6 +174,12 @@ export default function AuctionBidAction({ position, challenge, auctionPrice, on
 					<span className="text-text-secondary">Price per unit</span>
 					<span className="text-text-primary font-medium">
 						{formatCurrency(formatUnits(auctionPrice, 36 - position.collateralDecimals), 2, 2)} ZCHF
+					</span>
+				</div>
+				<div className="flex justify-between items-center">
+					<span className="text-text-secondary">Market price</span>
+					<span className="text-text-primary font-medium">
+						{marketPriceChf !== undefined ? `${formatCurrency(marketPriceChf, 2, 2)} ZCHF` : "—"}
 					</span>
 				</div>
 				<div className="flex justify-between items-center">

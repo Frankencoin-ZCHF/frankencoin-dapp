@@ -5,8 +5,10 @@ import TokenInput from "@components/Input/TokenInput";
 import AppButton from "@components/AppButton";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
-import { formatBigInt, formatCurrency, formatDuration, shortenAddress } from "@utils";
+import { formatBigInt, formatCurrency, formatDuration, normalizeAddress, shortenAddress } from "@utils";
 import { useConnection, useBlockNumber } from "wagmi";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/redux.store";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
@@ -31,6 +33,8 @@ export default function ChallengeAction({ position, onChallengeSuccess }: Props)
 	const { data } = useBlockNumber({ watch: true });
 	const account = useConnection();
 	const chainId = mainnet.id;
+	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const marketPriceChf = prices[normalizeAddress(position.collateral)]?.price?.chf;
 
 	// ---------------------------------------------------------------------------
 	useEffect(() => {
@@ -227,12 +231,6 @@ export default function ChallengeAction({ position, onChallengeSuccess }: Props)
 				<div className="flex justify-between items-center">
 					<span className="text-text-secondary">Phase duration</span>
 					<span className="text-text-primary font-medium">{Math.round(position.challengePeriod / 3600)} h</span>
-				</div>
-				<div className="flex justify-between items-center">
-					<span className="text-text-secondary">Your balance</span>
-					<span className="text-text-primary font-medium">
-						{formatBigInt(userBalance, position.collateralDecimals)} {position.collateralSymbol}
-					</span>
 				</div>
 			</div>
 

@@ -1,7 +1,8 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { Address } from "viem";
+import { Address, parseUnits } from "viem";
+import { normalizeAddress } from "@utils";
 import { useSelector } from "react-redux";
 import { useRouter as useNavigation } from "next/navigation";
 import { RootState } from "../../../redux/redux.store";
@@ -21,6 +22,7 @@ export default function PositionChallenge() {
 	const addressQuery: Address = router.query.address as Address;
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const position = positions.find((p) => p.position == addressQuery);
+	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
 	useEffect(() => {
 		if (isNavigating && position?.position) {
@@ -34,6 +36,10 @@ export default function PositionChallenge() {
 	const timeToExpiration = nowMs >= position.expiration * 1000 ? 0 : position.expiration * 1000 - nowMs;
 	const phase1Ms = Math.min(timeToExpiration, position.challengePeriod * 1000);
 	const phase2Ms = position.challengePeriod * 1000;
+
+	const priceDigits = 36 - position.collateralDecimals;
+	const collateralPriceChf = prices[normalizeAddress(position.collateral)]?.price?.chf;
+	const marketPrice = collateralPriceChf ? parseUnits(collateralPriceChf.toFixed(6), priceDigits) : undefined;
 
 	return (
 		<div className="flex flex-col md:max-w-2xl mx-auto">
@@ -61,6 +67,7 @@ export default function PositionChallenge() {
 						challengeStartMs={nowMs}
 						phase1Ms={phase1Ms}
 						phase2Ms={phase2Ms}
+						marketPrice={marketPrice}
 					/>
 					<ChallengeAction position={position} onChallengeSuccess={() => setNavigating(true)} />
 				</AppCard>
