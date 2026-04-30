@@ -14,7 +14,6 @@ import { track } from "@hooks";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import DisplayLabel from "@components/DisplayLabel";
-import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
@@ -194,7 +193,10 @@ export default function PositionChallenge() {
 				},
 			});
 
-			track("position_challenged", { collateral: position.collateralSymbol, amount: formatBigInt(amount, position.collateralDecimals) });
+			track("position_challenged", {
+				collateral: position.collateralSymbol,
+				amount: formatBigInt(amount, position.collateralDecimals),
+			});
 			setNavigating(true);
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
