@@ -5,7 +5,7 @@ import TokenInput from "@components/Input/TokenInput";
 import AppButton from "@components/AppButton";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
-import { formatBigInt, formatCurrency, formatDuration, normalizeAddress, shortenAddress } from "@utils";
+import { formatBigInt, formatCurrency, normalizeAddress, shortenAddress } from "@utils";
 import { useConnection, useBlockNumber } from "wagmi";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
@@ -77,7 +77,7 @@ export default function ChallengeAction({ position, onChallengeSuccess }: Props)
 
 	// ---------------------------------------------------------------------------
 	const onChangeAmount = (value: string) => {
-		var valueBigInt = BigInt(value);
+		let valueBigInt = BigInt(value);
 		if (valueBigInt > _collBal && !belowMinBalance) {
 			valueBigInt = _collBal;
 		}
