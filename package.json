@@ -34,7 +34,6 @@
 		"@types/node": "18.11.11",
 		"@types/react": "^18.3.3",
 		"@types/react-dom": "^18.3.0",
-		"@vercel/analytics": "^1.1.1",
 		"@walletconnect/ethereum-provider": "^2.21.1",
 		"abitype": "^0.9.6",
 		"apexcharts": "^3.44.0",
