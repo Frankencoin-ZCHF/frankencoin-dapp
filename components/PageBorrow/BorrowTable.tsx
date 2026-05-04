@@ -10,7 +10,7 @@ import { Address, erc20Abi, formatUnits, zeroAddress } from "viem";
 import { useMemo, useState } from "react";
 import { useConnection, useReadContracts } from "wagmi";
 import { ALL_CATEGORIES, CollateralCategory, collateralMatchesCategories, normalizeAddress } from "@utils";
-import { useBorrowPositions, useSwapVCHFStats } from "@hooks";
+import { useBorrowPositions, useSwapVCHFStats, useSwapCHFAUStats, SwapVCHFStatsReturn } from "@hooks";
 
 const FILTER_OPTIONS: FilterOption[] = ALL_CATEGORIES.map((c) => ({ label: c, value: c }));
 
@@ -24,13 +24,25 @@ export default function BorrowTable() {
 
 	const { address: walletAddress } = useConnection();
 	const vchfBridge = useSwapVCHFStats();
+	const chfauBridge = useSwapCHFAUStats();
 	const { uniqueByCollateral } = useBorrowPositions();
 
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 
 	const uniquePositions: PositionQueryV2[] = Object.values(uniqueByCollateral);
 
-	const sorted: PositionQueryV2[] = sortPositions([...uniquePositions, vchfBridge.asBorrowPosition], coingecko, headers, tab, reverse);
+	const bridgeMap: Record<string, SwapVCHFStatsReturn> = {
+		[normalizeAddress(vchfBridge.bridgeAddress)]: vchfBridge,
+		[normalizeAddress(chfauBridge.bridgeAddress)]: chfauBridge,
+	};
+
+	const sorted: PositionQueryV2[] = sortPositions(
+		[...uniquePositions, vchfBridge.asBorrowPosition, chfauBridge.asBorrowPosition],
+		coingecko,
+		headers,
+		tab,
+		reverse
+	);
 
 	// Wallet balance detection for "In my wallet" toggle
 	const uniqueCollaterals = useMemo(
@@ -108,7 +120,7 @@ export default function BorrowTable() {
 							headers={headers}
 							tab={tab}
 							position={pos}
-							vchfBridge={vchfBridge}
+							bridgeStats={bridgeMap[normalizeAddress(pos.position)]}
 							hideMyWallet={!walletAddress}
 							walletBalance={walletBalanceMap}
 							key={`BorrowRow_${pos.position || idx}`}
