@@ -1,5 +1,6 @@
 import { formatCurrency } from "@utils";
 import { formatUnits, parseUnits } from "viem";
+import { useState } from "react";
 
 interface Props {
 	label?: string;
@@ -52,6 +53,8 @@ export default function LiquidationSlider({
 	limitUnit,
 	limitCurrency,
 }: Props) {
+	const [inputText, setInputText] = useState<string | null>(null);
+
 	const valueNum = Number(formatUnits(value, digit));
 	const sliderMinNum = Number(formatUnits(sliderMin, digit));
 	const sliderMaxNum = Number(formatUnits(sliderMax, digit));
@@ -73,9 +76,35 @@ export default function LiquidationSlider({
 				{/* Label row */}
 				<div className="flex items-center my-1">
 					<span className="flex-1 text-card-input-label">{label ?? "Liquidation price"}</span>
-					<span className="font-bold text-lg text-text-primary">
-						{formatCurrency(formatUnits(value, digit))} {symbol}
-					</span>
+					{inputText !== null ? (
+						<div className="flex items-center gap-1">
+							<input
+								type="text"
+								className="font-bold text-lg text-text-primary text-right bg-transparent outline-none w-32"
+								value={inputText}
+								autoFocus
+								onChange={(e) => setInputText(e.target.value)}
+								onBlur={() => {
+									try {
+										onChange(parseUnits(inputText || "0", digit));
+									} catch {}
+									setInputText(null);
+								}}
+								onKeyDown={(e) => {
+									if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+									if (e.key === "Escape") setInputText(null);
+								}}
+							/>
+							<span className="text-text-primary font-bold text-lg">{symbol}</span>
+						</div>
+					) : (
+						<span
+							className="font-bold text-lg text-text-primary cursor-text hover:text-card-input-focus"
+							onClick={() => !disabled && setInputText(formatUnits(value, digit))}
+						>
+							{formatCurrency(formatUnits(value, digit))} {symbol}
+						</span>
+					)}
 				</div>
 
 				{/* Slider area */}
