@@ -1,7 +1,8 @@
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
 import { useEffect, useState } from "react";
-import { useContractUrl, useSwapVCHFStats } from "@hooks";
+import { useContractUrl, useSwapVCHFStats, useSwapCHFAUStats } from "@hooks";
+import { useRouter } from "next/router";
 import { erc20Abi, maxUint256 } from "viem";
 import AppButton from "@components/AppButton";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -12,7 +13,7 @@ import { formatBigInt, shortenAddress } from "@utils";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import { WAGMI_CONFIG } from "../app.config";
 import AppCard from "@components/AppCard";
-import { FrankencoinABI, StablecoinBridgeV1ABI } from "@frankencoin/zchf";
+import { FrankencoinABI } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
@@ -26,10 +27,25 @@ export default function Swap() {
 	const [isBurning, setBurning] = useState(false);
 	const [isMinter, setMinter] = useState<bigint>(0n);
 
-	const swapStats = useSwapVCHFStats();
+	const router = useRouter();
+	const vchfStats = useSwapVCHFStats();
+	const chfauStats = useSwapCHFAUStats();
+	const swapStats = (router.query.token as string)?.toUpperCase() === "CHFAU" ? chfauStats : vchfStats;
 
-	const { chain, chainId, otherAddress: other, bridgeAddress: bridge, frankencoinAddress } = swapStats;
+	const { chain, chainId, otherAddress: other, bridgeAddress: bridge, frankencoinAddress, bridgeAbi } = swapStats;
 	const bridgeUrl = useContractUrl(bridge);
+
+	// Reset state when switching bridges; init direction to burn if already expired
+	useEffect(() => {
+		setAmount(0n);
+		setMinter(0n);
+	}, [bridge]);
+
+	useEffect(() => {
+		if (swapStats.bridgeHorizon === 0n) return;
+		const expired = swapStats.bridgeHorizon * 1000n < BigInt(Date.now());
+		setDirection(!expired);
+	}, [swapStats.bridgeHorizon, bridge]);
 
 	const activeMinter = isMinter > 0 && isMinter * 1000n <= Date.now();
 	const fromBalance = direction ? swapStats.otherUserBal : swapStats.zchfUserBal;
@@ -130,7 +146,7 @@ export default function Swap() {
 			const mintWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: bridge,
 				chainId,
-				abi: StablecoinBridgeV1ABI,
+				abi: bridgeAbi,
 				functionName: "mint",
 				args: [amount],
 			});
@@ -171,7 +187,7 @@ export default function Swap() {
 			const burnWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: bridge,
 				chainId,
-				abi: StablecoinBridgeV1ABI,
+				abi: bridgeAbi,
 				functionName: "burn",
 				args: [amount],
 			});
