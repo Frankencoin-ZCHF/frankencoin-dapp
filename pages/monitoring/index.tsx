@@ -24,7 +24,7 @@ import ReserveAllocation from "@components/PageEcoSystem/ReserveAllocation";
 export default function Positions() {
 	const posCount = useSelector((state: RootState) => state.positions.openPositions.length);
 	const activeChallengeCount = useSelector((state: RootState) => state.challenges.list.list.filter((c) => c.status === "Active").length);
-	const collateralCount = useSelector((state: RootState) => state.positions.openPositionsByCollateral.length) + 1; // +1 for VCHF bridge
+	const collateralCount = useSelector((state: RootState) => state.positions.openPositionsByCollateral.length) + 1; // +1 for stablecoin bridge
 
 	useEffect(() => {
 		store.dispatch(fetchPositionsList());
@@ -118,7 +118,8 @@ export default function Positions() {
 
 								<AppTitle title={`Market Data`}>
 									<div className="text-text-secondary">
-										This section shows the recent exchange rate and 24h trading volume of ZCHF on the open market. Data sourced from CoinGecko.
+										This section shows the recent exchange rate and 24h trading volume of ZCHF on the open market. Data
+										sourced from CoinGecko.
 									</div>
 								</AppTitle>
 
@@ -194,9 +195,9 @@ export default function Positions() {
 
 								<AppTitle title="Collateral Risk Ranking">
 									<div className="text-text-secondary">
-										Risk parameters per collateral: governance-set risk premium, reserve contribution, average liquidation
-										price, and minimum value locked (sum of minimum collateral × liquidation price across all original
-										positions). Sorted by min. locked descending by default.
+										Risk parameters per collateral: governance-set risk premium, reserve contribution, average
+										liquidation price, and minimum value locked (sum of minimum collateral × liquidation price across
+										all original positions). Sorted by min. locked descending by default.
 									</div>
 								</AppTitle>
 								<div className="mt-8">

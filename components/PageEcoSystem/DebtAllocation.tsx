@@ -5,16 +5,12 @@ import { formatUnits } from "viem";
 import dynamic from "next/dynamic";
 import { formatCurrency, FormatType } from "../../utils/format";
 import { colors } from "../../utils/constant";
-import { useEffect, useState } from "react";
-import { readContract } from "wagmi/actions";
-import { WAGMI_CONFIG } from "../../app.config";
-import { ADDRESS, StablecoinBridgeABI } from "@frankencoin/zchf";
-import { mainnet } from "viem/chains";
+import { useSwapVCHFStats } from "@hooks";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function DebtAllocation() {
 	const { openPositions } = useSelector((state: RootState) => state.positions);
-	const [swapBridgeVCHF, setSwapBridgeVCHF] = useState(0n);
+	const vchfBridge = useSwapVCHFStats();
 
 	// Aggregate collateral
 	const byCollateral = new Map<string, bigint>();
@@ -26,7 +22,7 @@ export default function DebtAllocation() {
 
 	// @dev: could be excluded since swap bridges repayments are not enforced to repay.
 	// Aggregate swap bridges
-	byCollateral.set("VCHF", swapBridgeVCHF);
+	byCollateral.set("VCHF", vchfBridge.otherBridgeBal);
 
 	const MAX_ITEMS = 10;
 
@@ -42,7 +38,7 @@ export default function DebtAllocation() {
 						label: "Others",
 						value: sorted.slice(MAX_ITEMS - 1).reduce((a, b) => a + b.value, 0n),
 					},
-				]
+			  ]
 			: sorted;
 
 	const labels = mapping.map((m) => m.label);
@@ -58,18 +54,6 @@ export default function DebtAllocation() {
 		const pct = total === 0n ? 0 : Number((v * 1000n) / total) / 10;
 		percentByLabel.set(label, pct);
 	});
-
-	useEffect(() => {
-		const fetcher = async () => {
-			const vchf = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[mainnet.id].stablecoinBridgeVCHF,
-				abi: StablecoinBridgeABI,
-				functionName: "minted",
-			});
-			setSwapBridgeVCHF(vchf);
-		};
-		fetcher();
-	}, []);
 
 	return (
 		<AppCard>

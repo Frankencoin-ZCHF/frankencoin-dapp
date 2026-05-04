@@ -16,7 +16,7 @@ import { FilterOption } from "@components/Table/TableHeadSearchable";
 import { useSwapVCHFStats } from "@hooks";
 import { ADDRESS } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
-import { PositionQuery } from "@frankencoin/api";
+import { CollateralOverviewStat } from "@hooks";
 import { useRouter } from "next/navigation";
 
 const headers = ["Collateral", "Total Value", "Total Minted", "Available", "Avg Coll. Ratio"];
@@ -42,58 +42,10 @@ export default function CollateralOverviewTable() {
 		[openPositionsByCollateral, list.list, coingecko]
 	);
 
-	const stats = useMemo(() => {
-		const chainId = mainnet.id;
-		const VCHF_Address: Address = normalizeAddress(ADDRESS[chainId].vchfToken);
-		const vchfPrice = coingecko[VCHF_Address]?.price?.chf || 1;
-		const bridgeLimit = vchfBridge.bridgeLimit;
-		const otherBridgeBal = vchfBridge.otherBridgeBal;
-		const available = bridgeLimit - otherBridgeBal;
-		const totalValue = Math.round(Number(formatUnits(otherBridgeBal, 18)) * vchfPrice);
-
-		const vchfStat = {
-			original: {
-				position: ADDRESS[chainId].stablecoinBridgeVCHF,
-			} as PositionQuery,
-			originals: [],
-			clones: [],
-			balance: otherBridgeBal,
-			collateral: coingecko[VCHF_Address] || {
-				chainId,
-				address: VCHF_Address,
-				name: "VNX Franc",
-				symbol: "VCHF",
-				decimals: 18,
-				price: { chf: vchfPrice },
-				timestamp: 0,
-			},
-			mint: coingecko[normalizeAddress(ADDRESS[chainId].frankencoin)] || {
-				chainId,
-				address: ADDRESS[chainId].frankencoin,
-				name: "Frankencoin",
-				symbol: "ZCHF",
-				decimals: 18,
-				price: { chf: 1 },
-				timestamp: 0,
-			},
-			minted: otherBridgeBal,
-			reserve: 0n,
-			limitForClones: bridgeLimit / 10n ** 18n,
-			availableForClones: available / 10n ** 18n,
-			totalValue,
-			avgCollateral: vchfPrice,
-			highestZCHFPrice: vchfPrice,
-			collateralizedPct: vchfPrice * 100,
-			availableForClonesPct: bridgeLimit > 0n ? Math.round((Number(available) / Number(bridgeLimit)) * 10000) / 100 : 0,
-			collateralPriceInZCHF: vchfPrice,
-			worstStatusColors: "green-300",
-			lowestInterestRate: 0,
-			discussionLink: "",
-			lockedValue: Number(formatUnits(otherBridgeBal, 18)) * vchfPrice,
-		};
-
-		return [...positionStats, vchfStat];
-	}, [positionStats, vchfBridge, coingecko]);
+	const stats = useMemo(
+		() => [...positionStats, vchfBridge.asCollateralOverview] as CollateralOverviewStat[],
+		[positionStats, vchfBridge.asCollateralOverview]
+	);
 
 	const uniqueCollaterals = useMemo(() => stats.map((s) => normalizeAddress(s.collateral.address)), [stats]);
 
