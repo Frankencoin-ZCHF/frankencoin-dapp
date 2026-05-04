@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQueryV2, PriceQueryObjectArray } from "@frankencoin/api";
 import { Address, erc20Abi, formatUnits, zeroAddress } from "viem";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useConnection, useReadContracts } from "wagmi";
 import { ALL_CATEGORIES, CollateralCategory, collateralMatchesCategories, normalizeAddress } from "@utils";
 import { useBorrowPositions, useSwapVCHFStats } from "@hooks";
@@ -18,7 +18,6 @@ export default function BorrowTable() {
 	const headers: string[] = ["Collateral", "Loan-to-Value", "Interest", "Maturity"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
-	const [list, setList] = useState<PositionQueryV2[]>([]);
 	const [searchQuery, setSearchQuery] = useState<string>("");
 	const [activeCategories, setActiveCategories] = useState<string[]>([]);
 	const [inMyWallet, setInMyWallet] = useState<boolean>(false);
@@ -71,12 +70,6 @@ export default function BorrowTable() {
 		});
 	}, [sorted, searchQuery, activeCategories, inMyWallet, walletAddress, walletBalanceMap]);
 
-	useEffect(() => {
-		const idList = list.map((l) => l.position).join("_");
-		const idFiltered = filteredList.map((l) => l.position).join("_");
-		if (idList != idFiltered) setList(filteredList);
-	}, [list, filteredList]);
-
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
 			setReverse(!reverse);
@@ -105,12 +98,12 @@ export default function BorrowTable() {
 				onFiltersChange={setActiveCategories}
 			/>
 			<TableBody>
-				{list.length == 0 ? (
+				{filteredList.length == 0 ? (
 					<TableRowEmpty>
 						{!walletAddress ? "There are no other positions yet." : "You don't have any available collaterals in your wallet."}
 					</TableRowEmpty>
 				) : (
-					list.map((pos, idx) => (
+					filteredList.map((pos, idx) => (
 						<BorrowRow
 							headers={headers}
 							tab={tab}
