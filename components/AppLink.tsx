@@ -20,7 +20,7 @@ export default function AppLink({ label, href = "/", external = false, icon = fa
 			href={href}
 			target={external ? "_blank" : undefined}
 			rel={external ? "noreferrer" : undefined}
-			data-umami-event={umamiEvent}
+			onClick={() => (window as any).umami?.track(umamiEvent)}
 		>
 			<span className="">
 				{label}

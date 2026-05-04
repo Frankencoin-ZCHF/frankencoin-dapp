@@ -18,7 +18,7 @@ export default function NavButton({ to, name, external }: Props) {
 			}`}
 			href={to}
 			target={external ? "_blank" : "_self"}
-			data-umami-event={umamiEvent}
+			onClick={() => (window as any).umami?.track(umamiEvent)}
 		>
 			{name}
 		</Link>

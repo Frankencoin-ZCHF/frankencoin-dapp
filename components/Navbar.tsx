@@ -98,7 +98,7 @@ export default function Navbar() {
 				<header className="grid grid-cols-[1fr,auto,1fr] items-center md:py-4 py-3 px-4 w-full">
 					{/* Left: logo */}
 					<div className="flex items-center md:pl-4">
-						<Link href={CONFIG.landing} data-umami-event="nav_home">
+						<Link href={CONFIG.landing} onClick={() => (window as any).umami?.track("nav_home")}>
 							<picture>
 								<img className="h-9 transition" src="/coin/zchf.png" alt="Logo" />
 							</picture>
