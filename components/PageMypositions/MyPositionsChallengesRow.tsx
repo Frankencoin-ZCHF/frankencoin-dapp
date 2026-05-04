@@ -7,7 +7,9 @@ import TokenLogo from "@components/TokenLogo";
 import { formatCurrency, normalizeAddress } from "../../utils/format";
 import { useContractUrl } from "@hooks";
 import MyPositionsChallengesCancel from "./MyPositionsChallengesCancel";
+import AppButtonSecondary from "@components/AppButtonSecondary";
 import AppBox from "@components/AppBox";
+import { TxUrl } from "@utils";
 
 interface Props {
 	headers: string[];
@@ -70,7 +72,15 @@ export default function MyPositionsChallengesRow({ headers, tab, challenge }: Pr
 		<TableRow
 			headers={headers}
 			tab={tab}
-			actionCol={stateIdx == 1 ? <></> : <MyPositionsChallengesCancel challenge={challenge} hidden={stateIdx == 1} />}
+			actionCol={
+				stateIdx == 1 ? (
+					<AppButtonSecondary className="h-10" onClick={() => window.open(TxUrl(challenge.txHash), "_blank")}>
+						View
+					</AppButtonSecondary>
+				) : (
+					<MyPositionsChallengesCancel challenge={challenge} hidden={stateIdx == 1} />
+				)
+			}
 		>
 			{/* Collateral */}
 			<div className="flex flex-col max-md:mb-5">
