@@ -1,7 +1,9 @@
 import { useConnection, useReadContracts } from "wagmi";
 import { decodeBigIntCall, normalizeAddress } from "@utils";
 import { Address, erc20Abi, formatUnits, parseUnits, zeroAddress } from "viem";
-import { ADDRESS, StablecoinBridgeV1ABI } from "@frankencoin/zchf";
+import { ADDRESS, StablecoinBridgeV1ABI, StablecoinBridgeV2ABI } from "@frankencoin/zchf";
+
+export type BridgeAbi = typeof StablecoinBridgeV1ABI | typeof StablecoinBridgeV2ABI;
 import { mainnet, type Chain } from "viem/chains";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/redux.store";
@@ -41,6 +43,9 @@ export type SwapVCHFStatsReturn = {
 	// stablecoin metadata
 	otherLabel: string;
 	otherInfoUrl: string;
+	otherDecimals: number;
+	swapUrl: string;
+	bridgeAbi: BridgeAbi;
 	// balances & allowances
 	isError: boolean;
 	isLoading: boolean;
@@ -175,8 +180,8 @@ export const useSwapVCHFStats = (): SwapVCHFStatsReturn => {
 		mint: zchfMint,
 		minted: otherBridgeBal,
 		reserve: 0n,
-		limitForClones: bridgeLimit / 10n ** BigInt(VCHF_DECIMALS),
-		availableForClones: available / 10n ** BigInt(VCHF_DECIMALS),
+		limitForClones: bridgeLimit / 10n ** 18n,
+		availableForClones: available / 10n ** 18n,
 		totalValue,
 		avgCollateral: vchfPrice,
 		highestZCHFPrice: vchfPrice,
@@ -197,6 +202,9 @@ export const useSwapVCHFStats = (): SwapVCHFStatsReturn => {
 		frankencoinAddress: zchfAddress,
 		otherLabel: "VNX Swiss Franc (VCHF)",
 		otherInfoUrl: "https://vnx.li/vchf/",
+		otherDecimals: VCHF_DECIMALS,
+		swapUrl: "/swap?token=VCHF",
+		bridgeAbi: StablecoinBridgeV1ABI,
 
 		isError,
 		isLoading,

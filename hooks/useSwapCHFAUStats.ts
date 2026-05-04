@@ -6,7 +6,7 @@ import { mainnet } from "viem/chains";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/redux.store";
 import { PositionQuery, PositionQueryV2, PriceQuery } from "@frankencoin/api";
-import { type CollateralOverviewStat, type SwapVCHFStatsReturn } from "./useSwapVCHFStats";
+import { type BridgeAbi, type CollateralOverviewStat, type SwapVCHFStatsReturn } from "./useSwapVCHFStats";
 
 const CHFAU_DECIMALS = 6;
 const PRICE_DIGIT = 36 - CHFAU_DECIMALS; // 30
@@ -34,6 +34,7 @@ export const useSwapCHFAUStats = (): SwapVCHFStatsReturn => {
 			// Bridge V2 calls
 			{ chainId, address: bridge, abi: StablecoinBridgeV2ABI, functionName: "limit" },
 			{ chainId, address: bridge, abi: StablecoinBridgeV2ABI, functionName: "horizon" },
+			{ chainId, address: bridge, abi: StablecoinBridgeV2ABI, functionName: "minted" },
 		],
 	});
 
@@ -48,6 +49,7 @@ export const useSwapCHFAUStats = (): SwapVCHFStatsReturn => {
 
 	const bridgeLimit: bigint = data ? decodeBigIntCall(data[7]) : 0n;
 	const bridgeHorizon: bigint = data ? decodeBigIntCall(data[8]) : 0n;
+	const bridgeMinted: bigint = data ? decodeBigIntCall(data[9]) : 0n;
 
 	const chfauAddress: Address = normalizeAddress(other);
 	const chfauPrice = coingecko[chfauAddress]?.price?.chf ?? 0;
@@ -92,7 +94,7 @@ export const useSwapCHFAUStats = (): SwapVCHFStatsReturn => {
 		availableForClones: String(available),
 		availableForMinting: String(available),
 		availableForPosition: String(available),
-		minted: String(otherBridgeBal),
+		minted: String(bridgeMinted),
 	};
 
 	const chfauCollateral: PriceQuery = coingecko[chfauAddress] || {
@@ -123,10 +125,10 @@ export const useSwapCHFAUStats = (): SwapVCHFStatsReturn => {
 		balance: otherBridgeBal,
 		collateral: chfauCollateral,
 		mint: zchfMint,
-		minted: otherBridgeBal,
+		minted: bridgeMinted,
 		reserve: 0n,
-		limitForClones: bridgeLimit / 10n ** BigInt(CHFAU_DECIMALS),
-		availableForClones: available / 10n ** BigInt(CHFAU_DECIMALS),
+		limitForClones: bridgeLimit / 10n ** 18n,
+		availableForClones: available / 10n ** 18n,
 		totalValue,
 		avgCollateral: chfauPrice,
 		highestZCHFPrice: chfauPrice,
@@ -147,6 +149,9 @@ export const useSwapCHFAUStats = (): SwapVCHFStatsReturn => {
 		frankencoinAddress: zchfAddress,
 		otherLabel: "Allunity Swiss Franc Stablecoin",
 		otherInfoUrl: "https://allunity.com/",
+		otherDecimals: CHFAU_DECIMALS,
+		swapUrl: "/swap?token=CHFAU",
+		bridgeAbi: StablecoinBridgeV2ABI,
 
 		isError,
 		isLoading,
