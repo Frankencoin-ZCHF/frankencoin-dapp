@@ -10,13 +10,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { formatBigInt, shortenAddress } from "@utils";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
-import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../app.config";
 import AppCard from "@components/AppCard";
-import { FrankencoinABI, StablecoinBridgeABI } from "@frankencoin/zchf";
+import { FrankencoinABI, StablecoinBridgeV1ABI } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
-import { track } from "@hooks";
 
 export default function Swap() {
 	const [amount, setAmount] = useState(0n);
@@ -132,7 +130,7 @@ export default function Swap() {
 			const mintWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: bridge,
 				chainId,
-				abi: StablecoinBridgeABI,
+				abi: StablecoinBridgeV1ABI,
 				functionName: "mint",
 				args: [amount],
 			});
@@ -173,7 +171,7 @@ export default function Swap() {
 			const burnWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: bridge,
 				chainId,
-				abi: StablecoinBridgeABI,
+				abi: StablecoinBridgeV1ABI,
 				functionName: "burn",
 				args: [amount],
 			});
