@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useContractUrl, useSwapVCHFStats } from "@hooks";
 import { erc20Abi, maxUint256 } from "viem";
 import AppButton from "@components/AppButton";
-import { useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -14,9 +13,8 @@ import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../app.config";
 import AppCard from "@components/AppCard";
-import { ADDRESS, FrankencoinABI, StablecoinBridgeABI } from "@frankencoin/zchf";
+import { FrankencoinABI, StablecoinBridgeABI } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
-import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { track } from "@hooks";
 
@@ -30,11 +28,9 @@ export default function Swap() {
 	const [isBurning, setBurning] = useState(false);
 	const [isMinter, setMinter] = useState<bigint>(0n);
 
-	const chainId = mainnet.id;
 	const swapStats = useSwapVCHFStats();
 
-	const other = ADDRESS[chainId].vchfToken;
-	const bridge = ADDRESS[chainId].stablecoinBridgeVCHF;
+	const { chain, chainId, otherAddress: other, bridgeAddress: bridge, frankencoinAddress } = swapStats;
 	const bridgeUrl = useContractUrl(bridge);
 
 	const activeMinter = isMinter > 0 && isMinter * 1000n <= Date.now();
@@ -47,7 +43,7 @@ export default function Swap() {
 	useEffect(() => {
 		const fetcher = async () => {
 			const active = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].frankencoin,
+				address: frankencoinAddress,
 				chainId,
 				abi: FrankencoinABI,
 				functionName: "minters",
@@ -235,7 +231,7 @@ export default function Swap() {
 						<div className="mt-8">
 							The <AppLink className="" label="swap module" href={bridgeUrl} external={true} /> enables 1:1 conversion between
 							other Swiss Franc stablecoins and back, up to certain limits. Currently,{" "}
-							<AppLink className="" label="VNX Swiss Franc (VCHF)" href="https://vnx.li/vchf/" external={true} /> is
+							<AppLink className="" label={swapStats.otherLabel} href={swapStats.otherInfoUrl} external={true} /> is
 							supported.
 						</div>
 
@@ -271,7 +267,7 @@ export default function Swap() {
 						/>
 
 						<div className="mx-auto mt-8 w-full flex-col">
-							<GuardSupportedChain chain={mainnet}>
+							<GuardSupportedChain chain={chain}>
 								{direction ? (
 									amount > swapStats.otherUserAllowance ? (
 										<AppButton
