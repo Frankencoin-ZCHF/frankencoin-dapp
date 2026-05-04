@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { track } from "../hooks/useAnalytics";
 
 interface Props {
 	to: string;
@@ -18,7 +19,7 @@ export default function NavButton({ to, name, external }: Props) {
 			}`}
 			href={to}
 			target={external ? "_blank" : "_self"}
-			onClick={() => (window as any).umami?.track(umamiEvent)}
+			onClick={() => track(umamiEvent)}
 		>
 			{name}
 		</Link>
