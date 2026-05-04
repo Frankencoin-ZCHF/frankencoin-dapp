@@ -33,6 +33,7 @@ const COLLATERAL_CATEGORIES: Record<string, CollateralCategory[]> = {
 
 	// Stablecoins
 	"0x79d4f0232a66c4c91b89c76362016a1707cfbf4f": ["Stablecoins"], // VCHF
+	"0xbd4dfc058eb95b8de5ceaf39966a1a70f5556f78": ["Stablecoins"], // CHFAU
 
 	// Tokenized Securities
 	"0x2e880962a9609aa3eab4def919fe9e917e99073b": ["Tokenized Securities"], // BOSS
