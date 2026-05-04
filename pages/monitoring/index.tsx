@@ -24,7 +24,7 @@ import ReserveAllocation from "@components/PageEcoSystem/ReserveAllocation";
 export default function Positions() {
 	const posCount = useSelector((state: RootState) => state.positions.openPositions.length);
 	const activeChallengeCount = useSelector((state: RootState) => state.challenges.list.list.filter((c) => c.status === "Active").length);
-	const collateralCount = useSelector((state: RootState) => state.positions.openPositionsByCollateral.length) + 1; // +1 for stablecoin bridge
+	const collateralCount = useSelector((state: RootState) => state.positions.openPositionsByCollateral.length) + 2; // +2 for VCHF and CHFAU stablecoin bridges
 
 	useEffect(() => {
 		store.dispatch(fetchPositionsList());
