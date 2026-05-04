@@ -15,6 +15,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGavel, faTrophy } from "@fortawesome/free-solid-svg-icons";
 import FrankencoinAllocation from "@components/PageEcoSystem/FrankencoinAllocation";
 import CollateralOverviewTable from "@components/PageMonitoring/CollateralOverviewTable";
+import CollateralRiskTable from "@components/PageMonitoring/CollateralRiskTable";
 import HealthRatio from "@components/PageEcoSystem/HealthRatio";
 import DebtAllocation from "@components/PageEcoSystem/DebtAllocation";
 import MintOutstanding from "@components/PageEcoSystem/MintOutstanding";
@@ -189,6 +190,17 @@ export default function Positions() {
 								</AppTitle>
 								<div className="mt-8">
 									<CollateralOverviewTable />
+								</div>
+
+								<AppTitle title="Collateral Risk Ranking">
+									<div className="text-text-secondary">
+										Risk parameters per collateral: governance-set risk premium, reserve contribution, average liquidation
+										price, and minimum value locked (sum of minimum collateral × liquidation price across all original
+										positions). Sorted by min. locked descending by default.
+									</div>
+								</AppTitle>
+								<div className="mt-8">
+									<CollateralRiskTable />
 								</div>
 							</>
 						),
