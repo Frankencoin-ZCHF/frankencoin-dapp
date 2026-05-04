@@ -193,7 +193,7 @@ export default function Positions() {
 									<CollateralOverviewTable />
 								</div>
 
-								<AppTitle title="Collateral Risk Ranking">
+								<AppTitle title="Collateral Risk Parameters">
 									<div className="text-text-secondary">
 										Risk parameters per collateral: governance-set risk premium, reserve contribution, average
 										liquidation price, and minimum value locked (sum of minimum collateral × liquidation price across
