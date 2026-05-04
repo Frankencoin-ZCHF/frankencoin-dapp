@@ -235,8 +235,11 @@ export default function PositionBorrow({}) {
 	const onChangeAmount = (value: string) => {
 		const newAmount = BigInt(value);
 		setAmount(newAmount);
-		if (linked && mintPrice > 0n) {
-			setCollAmount((newAmount * parseUnits("1", 18) + mintPrice - 1n) / mintPrice);
+		if (linked && collAmount > 0n) {
+			const computedPrice = (newAmount * parseUnits("1", 18)) / collAmount;
+			const clamped = computedPrice > priceBigInt ? priceBigInt : computedPrice;
+			setNewPrice(clamped);
+			setMintPrice(clamped);
 		}
 	};
 
