@@ -84,7 +84,8 @@ export default function Equity() {
 				<div className="text-text-secondary">
 					{isQueryOverride
 						? "FPS investments and redemptions for this address."
-						: "A history of your personal FPS investments and redemptions."}
+						: "A history of your personal FPS investments and redemptions."}{" "}
+					Each trade incurs a 0.3% fee on behalf of the reserve.
 				</div>
 			</AppTitle>
 			<EquityTradesTable trades={equityTrades} />

@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default function EquityTradesTable({ trades }: Props) {
-	const headers: string[] = ["Date", "Amount", "Shares", "Fee 0.3%", "Price"];
+	const headers: string[] = ["Date", "Amount", "Shares", "Fee", "Price"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<EquityTrade[]>([]);
