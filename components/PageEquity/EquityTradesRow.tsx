@@ -24,18 +24,14 @@ export default function EquityTradesRow({ headers, tab, item }: Props) {
 				<AppLink className="" label={dateStr} href={TxUrl(item.txHash as Hash, SupportedChains.mainnet)} external={true} />
 			</div>
 
-			<div className={`flex flex-col ${isInvest ? "text-red-500" : "text-green-500"}`}>
+			<div className={`flex flex-col`}>
 				{isInvest ? "-" : ""}
 				{formatCurrency(formatUnits(item.amount, 18))} ZCHF
 			</div>
 
-			<div className={`flex flex-col ${isInvest ? "text-green-500" : "text-red-500"}`}>
-				{formatCurrency(formatUnits(item.shares, 18))} FPS
-			</div>
+			<div className={`flex flex-col`}>{formatCurrency(formatUnits(item.shares, 18))} FPS</div>
 
-			<div className="flex flex-col text-red-500">-{formatCurrency(formatUnits(fee, 18))} ZCHF</div>
-
-			<div className="flex flex-col">{formatCurrency(formatUnits(item.price, 18))} ZCHF</div>
+			<div className="flex flex-col">{formatCurrency(formatUnits((item.amount * 10n ** 18n) / item.shares, 18))} ZCHF</div>
 		</TableRow>
 	);
 }
