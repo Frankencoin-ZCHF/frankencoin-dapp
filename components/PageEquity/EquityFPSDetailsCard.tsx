@@ -64,7 +64,7 @@ export default function EquityFPSDetailsCard({ equityTrades }: Props) {
 		label: {
 			borderWidth: 0,
 			borderRadius: 0,
-			offsetY: trade.kind === "Invested" ? 12 : 4,
+			offsetY: trade.kind === "Invested" ? 15 : 2,
 			text: trade.kind === "Invested" ? "▲" : "▼",
 			style: {
 				background: "transparent",
