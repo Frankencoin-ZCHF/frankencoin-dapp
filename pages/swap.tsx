@@ -251,7 +251,7 @@ export default function Swap() {
 
 						<div className="mt-8">
 							<TokenInput
-								max={fromBalance}
+								max={fromBalance < swapLimit ? fromBalance : swapLimit}
 								reset={0n}
 								symbol={fromSymbol}
 								limit={fromBalance}

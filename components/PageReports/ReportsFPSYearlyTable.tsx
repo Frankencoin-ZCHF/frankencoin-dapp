@@ -78,7 +78,8 @@ export default function ReportsFPSYearlyTable({ address, fpsHistory, fpsEarnings
 		});
 	}
 
-	const sorted: AccountYearly[] = sortFunction({ list: accountYearly, headers, tab, reverse });
+	const nonEmpty = accountYearly.filter((r) => r.earnings !== 0n || r.balance !== 0n || r.value !== 0n);
+	const sorted: AccountYearly[] = sortFunction({ list: nonEmpty, headers, tab, reverse });
 
 	useEffect(() => {
 		const idList = list.map((l) => `${l.year}_${l.balance}`).join("_");

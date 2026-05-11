@@ -9,9 +9,9 @@ import { track } from "../hooks/useAnalytics";
 
 const MAIN_ITEMS = [
 	{ to: "/mint", name: "Borrow" },
+	{ to: "/mypositions", name: "My Positions" },
 	{ to: "/savings", name: "Earn" },
 	{ to: "/equity", name: "Invest" },
-	{ to: "/mypositions", name: "My Positions" },
 ];
 
 const MORE_ITEMS = [

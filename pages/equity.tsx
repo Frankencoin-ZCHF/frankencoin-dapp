@@ -6,7 +6,6 @@ import { useEquityTrades, useFPSBalanceHistory, useFPSEarningsHistory } from "@h
 import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
 import AppHeroSteps from "@components/AppHeroSteps";
-import { AddressLabelSimple } from "@components/AddressLabel";
 import EquityFPSDetailsCard from "@components/PageEquity/EquityFPSDetailsCard";
 import EquityInteractionCard from "@components/PageEquity/EquityInteractionCard";
 import EquityTradesTable from "@components/PageEquity/EquityTradesTable";
@@ -20,6 +19,7 @@ export default function Equity() {
 	const router = useRouter();
 	const queryAddress = router.query.address as Address;
 	const isQueryOverride = isAddress(queryAddress) && queryAddress.toLowerCase() !== address?.toLowerCase();
+	const hasAddress = !!address || isAddress(queryAddress);
 	const resolvedAddress: Address = isAddress(queryAddress) ? queryAddress : address || zeroAddress;
 
 	const fpsHistory = useFPSBalanceHistory(resolvedAddress);
@@ -67,28 +67,27 @@ export default function Equity() {
 				</section>
 			</div>
 
-			<AppTitle title="Attributable Income">
-				<div className="text-text-secondary">
-					Historic system income{" "}
-					<AppLink
-						className=""
-						label={isQueryOverride ? "attributable to this address" : "attributable to the current address"}
-						href={`/report${isQueryOverride ? `?address=${resolvedAddress}` : ""}`}
-					/>
-					.
-				</div>
-			</AppTitle>
-			<ReportsFPSYearlyTable address={resolvedAddress} fpsHistory={fpsHistory} fpsEarnings={fpsEarnings} />
+			{hasAddress && (
+				<>
+					<AppTitle title="Attributable Income">
+						<div className="text-text-secondary">
+							Historic system income{" "}
+							<AppLink
+								className=""
+								label={isQueryOverride ? "attributable to this address" : "attributable to the current address"}
+								href={`/report${isQueryOverride ? `?address=${resolvedAddress}` : ""}`}
+							/>
+							.
+						</div>
+					</AppTitle>
+					<ReportsFPSYearlyTable address={resolvedAddress} fpsHistory={fpsHistory} fpsEarnings={fpsEarnings} />
 
-			<AppTitle title={isQueryOverride ? "Trades" : "My Trades"}>
-				<div className="text-text-secondary">
-					{isQueryOverride
-						? "FPS investments and redemptions for this address."
-						: "A history of your personal FPS investments and redemptions."}{" "}
-					Each trade incurs a 0.3% fee on behalf of the reserve.
-				</div>
-			</AppTitle>
-			<EquityTradesTable trades={equityTrades} />
+					<AppTitle title={isQueryOverride ? "Trades" : "My Trades"}>
+						<div className="text-text-secondary">Investment and redemption history.</div>
+					</AppTitle>
+					<EquityTradesTable trades={equityTrades} />
+				</>
+			)}
 		</>
 	);
 }

@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default function EquityTradesTable({ trades }: Props) {
-	const headers: string[] = ["Date", "Amount", "Shares", "Fee", "Price"];
+	const headers: string[] = ["Date", "Amount", "Shares", "Price"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<EquityTrade[]>([]);
@@ -67,9 +67,6 @@ function sortFunction({ list, headers, tab, reverse }: SortFunctionParams): Equi
 		// Shares
 		sortingList.sort((a, b) => (b.shares > a.shares ? 1 : -1));
 	} else if (tab === headers[3]) {
-		// Fee — proportional to amount, so sort by amount
-		sortingList.sort((a, b) => (b.amount > a.amount ? 1 : -1));
-	} else if (tab === headers[4]) {
 		// Price
 		sortingList.sort((a, b) => (b.price > a.price ? 1 : -1));
 	}
