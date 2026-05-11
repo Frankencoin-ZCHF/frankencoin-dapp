@@ -5,16 +5,12 @@ import { formatUnits } from "viem";
 import dynamic from "next/dynamic";
 import { formatCurrency } from "../../utils/format";
 import { colors } from "../../utils/constant";
-import { useEffect, useState } from "react";
-import { readContract } from "wagmi/actions";
-import { WAGMI_CONFIG } from "../../app.config";
-import { ADDRESS, StablecoinBridgeABI } from "@frankencoin/zchf";
-import { mainnet } from "viem/chains";
+import { useSwapVCHFStats } from "@hooks";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function MintAllocation() {
 	const { openPositions } = useSelector((state: RootState) => state.positions);
-	const [swapBridgeVCHF, setSwapBridgeVCHF] = useState(0n);
+	const vchfBridge = useSwapVCHFStats();
 
 	// Aggregate collateral
 	const byCollateral = new Map<string, bigint>();
@@ -24,7 +20,7 @@ export default function MintAllocation() {
 	});
 
 	// Aggregate swap bridges
-	byCollateral.set("VCHF", swapBridgeVCHF);
+	byCollateral.set("VCHF", vchfBridge.otherBridgeBal);
 
 	const mapping = [...byCollateral.keys()]
 		.map((label, idx) => {
@@ -48,19 +44,6 @@ export default function MintAllocation() {
 		const pct = total === 0n ? 0 : Number((v * 1000n) / total) / 10;
 		percentByLabel.set(label, pct);
 	});
-
-	useEffect(() => {
-		const fetcher = async () => {
-			const vchf = await readContract(WAGMI_CONFIG, {
-				chainId: mainnet.id,
-				address: ADDRESS[mainnet.id].stablecoinBridgeVCHF,
-				abi: StablecoinBridgeABI,
-				functionName: "minted",
-			});
-			setSwapBridgeVCHF(vchf);
-		};
-		fetcher();
-	}, []);
 
 	return (
 		<AppCard>

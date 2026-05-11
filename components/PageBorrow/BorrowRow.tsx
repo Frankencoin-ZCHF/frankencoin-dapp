@@ -14,18 +14,20 @@ interface Props {
 	headers: string[];
 	tab: string;
 	position: PositionQueryV2;
-	vchfBridge: SwapVCHFStatsReturn;
+	bridgeStats?: SwapVCHFStatsReturn;
 	hideMyWallet?: boolean;
 	walletBalance?: Record<string, bigint>;
 }
 
-export default function BorrowRow({ headers, tab, position, vchfBridge, hideMyWallet, walletBalance }: Props) {
+export default function BorrowRow({ headers, tab, position, bridgeStats, hideMyWallet, walletBalance }: Props) {
 	const navigate = useNavigation();
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const collTokenPrice = prices[normalizeAddress(position.collateral)]?.price?.usd || 0;
 	const zchfPrice = prices[normalizeAddress(position.zchf)]?.price?.usd || 0;
-	if (!collTokenPrice || !zchfPrice) return null;
+
+	const isBridge = !!bridgeStats;
+	if (!isBridge && (!collTokenPrice || !zchfPrice)) return null;
 
 	const interest: number = position.annualInterestPPM / 10 ** 4;
 	const reserve: number = position.reserveContribution / 10 ** 4;
@@ -38,15 +40,14 @@ export default function BorrowRow({ headers, tab, position, vchfBridge, hideMyWa
 	const effectiveInterest: number = interest / (1 - reserve / 100);
 
 	const isPending = position.start * 1000 > Date.now();
-
-	const isVCHF = normalizeAddress(position.collateral) == normalizeAddress("0x79d4f0232A66c4c91b89c76362016A1707CFBF4f");
+	const isBridgeExpired = isBridge && position.expiration * 1000 < Date.now();
 
 	const collateralBalance = parseFloat(
 		formatUnits(walletBalance?.[normalizeAddress(position.collateral)] ?? 0n, position.collateralDecimals)
 	);
 
-	const mintable = isVCHF
-		? formatUnits(vchfBridge.bridgeLimit - vchfBridge.otherBridgeBal, 18)
+	const mintable = isBridge
+		? formatUnits(bridgeStats!.bridgeLimit - bridgeStats!.otherBridgeBal, position.collateralDecimals)
 		: formatUnits(BigInt(position.availableForClones), 18);
 
 	return (
@@ -54,12 +55,12 @@ export default function BorrowRow({ headers, tab, position, vchfBridge, hideMyWa
 			headers={headers}
 			tab={tab}
 			actionCol={
-<AppButton
+				<AppButton
 					className="h-10"
-					onClick={() => navigate.push(isVCHF ? "/swap" : `/mint/${position.position}`)}
+					onClick={() => navigate.push(isBridge ? bridgeStats!.swapUrl : `/mint/${position.position}`)}
 					disabled={isPending}
 				>
-					{isVCHF ? "Swap" : "Borrow"}
+					{isBridge ? (isBridgeExpired ? "Redeem" : "Swap") : "Borrow"}
 				</AppButton>
 			}
 		>
@@ -67,7 +68,6 @@ export default function BorrowRow({ headers, tab, position, vchfBridge, hideMyWa
 				<AppBox className="md:hidden">
 					<DisplayCollateralBorrowTable
 						symbol={position.collateralSymbol}
-						// symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
 						price={collTokenPrice}
@@ -78,7 +78,6 @@ export default function BorrowRow({ headers, tab, position, vchfBridge, hideMyWa
 				<div className="max-md:hidden">
 					<DisplayCollateralBorrowTable
 						symbol={position.collateralSymbol}
-						// symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
 						price={collTokenPrice}
@@ -89,7 +88,7 @@ export default function BorrowRow({ headers, tab, position, vchfBridge, hideMyWa
 			</div>
 
 			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-md">{isVCHF ? "Swap 1:1" : `${formatCurrency(nominalLTV, 2, 2)}%`}</div>
+				<div className="col-span-2 text-md">{isBridge ? (isBridgeExpired ? "Redeem 1:1" : "Swap 1:1") : `${formatCurrency(nominalLTV, 2, 2)}%`}</div>
 			</div>
 
 			<div className="flex flex-col gap-2">

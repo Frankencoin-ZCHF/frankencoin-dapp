@@ -1,24 +1,21 @@
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
 import { useEffect, useState } from "react";
-import { useContractUrl, useSwapVCHFStats } from "@hooks";
+import { useContractUrl, useSwapVCHFStats, useSwapCHFAUStats } from "@hooks";
+import { useRouter } from "next/router";
 import { erc20Abi, maxUint256 } from "viem";
 import AppButton from "@components/AppButton";
-import { useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { formatBigInt, shortenAddress } from "@utils";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
-import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../app.config";
 import AppCard from "@components/AppCard";
-import { ADDRESS, FrankencoinABI, StablecoinBridgeABI } from "@frankencoin/zchf";
+import { FrankencoinABI } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
-import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
-import { track } from "@hooks";
 
 export default function Swap() {
 	const [amount, setAmount] = useState(0n);
@@ -30,12 +27,25 @@ export default function Swap() {
 	const [isBurning, setBurning] = useState(false);
 	const [isMinter, setMinter] = useState<bigint>(0n);
 
-	const chainId = mainnet.id;
-	const swapStats = useSwapVCHFStats();
+	const router = useRouter();
+	const vchfStats = useSwapVCHFStats();
+	const chfauStats = useSwapCHFAUStats();
+	const swapStats = (router.query.token as string)?.toUpperCase() === "CHFAU" ? chfauStats : vchfStats;
 
-	const other = ADDRESS[chainId].vchfToken;
-	const bridge = ADDRESS[chainId].stablecoinBridgeVCHF;
+	const { chain, chainId, otherAddress: other, bridgeAddress: bridge, frankencoinAddress, bridgeAbi } = swapStats;
 	const bridgeUrl = useContractUrl(bridge);
+
+	// Reset state when switching bridges; init direction to burn if already expired
+	useEffect(() => {
+		setAmount(0n);
+		setMinter(0n);
+	}, [bridge]);
+
+	useEffect(() => {
+		if (swapStats.bridgeHorizon === 0n) return;
+		const expired = swapStats.bridgeHorizon * 1000n < BigInt(Date.now());
+		setDirection(!expired);
+	}, [swapStats.bridgeHorizon, bridge]);
 
 	const activeMinter = isMinter > 0 && isMinter * 1000n <= Date.now();
 	const fromBalance = direction ? swapStats.otherUserBal : swapStats.zchfUserBal;
@@ -47,7 +57,7 @@ export default function Swap() {
 	useEffect(() => {
 		const fetcher = async () => {
 			const active = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[chainId].frankencoin,
+				address: frankencoinAddress,
 				chainId,
 				abi: FrankencoinABI,
 				functionName: "minters",
@@ -136,7 +146,7 @@ export default function Swap() {
 			const mintWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: bridge,
 				chainId,
-				abi: StablecoinBridgeABI,
+				abi: bridgeAbi,
 				functionName: "mint",
 				args: [amount],
 			});
@@ -177,7 +187,7 @@ export default function Swap() {
 			const burnWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: bridge,
 				chainId,
-				abi: StablecoinBridgeABI,
+				abi: bridgeAbi,
 				functionName: "burn",
 				args: [amount],
 			});
@@ -235,13 +245,13 @@ export default function Swap() {
 						<div className="mt-8">
 							The <AppLink className="" label="swap module" href={bridgeUrl} external={true} /> enables 1:1 conversion between
 							other Swiss Franc stablecoins and back, up to certain limits. Currently,{" "}
-							<AppLink className="" label="VNX Swiss Franc (VCHF)" href="https://vnx.li/vchf/" external={true} /> is
+							<AppLink className="" label={swapStats.otherLabel} href={swapStats.otherInfoUrl} external={true} /> is
 							supported.
 						</div>
 
 						<div className="mt-8">
 							<TokenInput
-								max={fromBalance}
+								max={fromBalance < swapLimit ? fromBalance : swapLimit}
 								reset={0n}
 								symbol={fromSymbol}
 								limit={fromBalance}
@@ -271,7 +281,7 @@ export default function Swap() {
 						/>
 
 						<div className="mx-auto mt-8 w-full flex-col">
-							<GuardSupportedChain chain={mainnet}>
+							<GuardSupportedChain chain={chain}>
 								{direction ? (
 									amount > swapStats.otherUserAllowance ? (
 										<AppButton

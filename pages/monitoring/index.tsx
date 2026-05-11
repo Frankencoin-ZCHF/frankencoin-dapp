@@ -15,6 +15,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGavel, faTrophy } from "@fortawesome/free-solid-svg-icons";
 import FrankencoinAllocation from "@components/PageEcoSystem/FrankencoinAllocation";
 import CollateralOverviewTable from "@components/PageMonitoring/CollateralOverviewTable";
+import CollateralRiskTable from "@components/PageMonitoring/CollateralRiskTable";
 import HealthRatio from "@components/PageEcoSystem/HealthRatio";
 import DebtAllocation from "@components/PageEcoSystem/DebtAllocation";
 import MintOutstanding from "@components/PageEcoSystem/MintOutstanding";
@@ -23,7 +24,7 @@ import ReserveAllocation from "@components/PageEcoSystem/ReserveAllocation";
 export default function Positions() {
 	const posCount = useSelector((state: RootState) => state.positions.openPositions.length);
 	const activeChallengeCount = useSelector((state: RootState) => state.challenges.list.list.filter((c) => c.status === "Active").length);
-	const collateralCount = useSelector((state: RootState) => state.positions.openPositionsByCollateral.length) + 1; // +1 for VCHF bridge
+	const collateralCount = useSelector((state: RootState) => state.positions.openPositionsByCollateral.length) + 2; // +2 for VCHF and CHFAU stablecoin bridges
 
 	useEffect(() => {
 		store.dispatch(fetchPositionsList());
@@ -117,7 +118,8 @@ export default function Positions() {
 
 								<AppTitle title={`Market Data`}>
 									<div className="text-text-secondary">
-										This section shows the recent exchange rate and 24h trading volume of ZCHF on the open market. Data sourced from CoinGecko.
+										This section shows the recent exchange rate and 24h trading volume of ZCHF on the open market. Data
+										sourced from CoinGecko.
 									</div>
 								</AppTitle>
 
@@ -189,6 +191,17 @@ export default function Positions() {
 								</AppTitle>
 								<div className="mt-8">
 									<CollateralOverviewTable />
+								</div>
+
+								<AppTitle title="Collateral Risk Parameters">
+									<div className="text-text-secondary">
+										Risk parameters per collateral: governance-set risk premium, reserve contribution, average
+										liquidation price, and minimum value locked (sum of minimum collateral × liquidation price across
+										all original positions). Sorted by min. locked descending by default.
+									</div>
+								</AppTitle>
+								<div className="mt-8">
+									<CollateralRiskTable />
 								</div>
 							</>
 						),

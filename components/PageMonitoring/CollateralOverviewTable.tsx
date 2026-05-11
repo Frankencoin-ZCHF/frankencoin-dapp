@@ -13,10 +13,7 @@ import TokenLogo from "@components/TokenLogo";
 import { formatCurrency, normalizeAddress, ALL_CATEGORIES, CollateralCategory, collateralMatchesCategories, FormatType } from "@utils";
 import AppBox from "@components/AppBox";
 import { FilterOption } from "@components/Table/TableHeadSearchable";
-import { useSwapVCHFStats } from "@hooks";
-import { ADDRESS } from "@frankencoin/zchf";
-import { mainnet } from "viem/chains";
-import { PositionQuery } from "@frankencoin/api";
+import { useSwapVCHFStats, useSwapCHFAUStats, CollateralOverviewStat } from "@hooks";
 import { useRouter } from "next/navigation";
 
 const headers = ["Collateral", "Total Value", "Total Minted", "Available", "Avg Coll. Ratio"];
@@ -34,7 +31,7 @@ export default function CollateralOverviewTable() {
 	const { list, openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 	const vchfBridge = useSwapVCHFStats();
-	const bridgePosition = normalizeAddress(ADDRESS[mainnet.id].stablecoinBridgeVCHF);
+	const chfauBridge = useSwapCHFAUStats();
 
 	const positionStats = useMemo(
 		() => calcOverviewStats(openPositionsByCollateral, list.list, coingecko),
@@ -42,58 +39,15 @@ export default function CollateralOverviewTable() {
 		[openPositionsByCollateral, list.list, coingecko]
 	);
 
-	const stats = useMemo(() => {
-		const chainId = mainnet.id;
-		const VCHF_Address: Address = normalizeAddress(ADDRESS[chainId].vchfToken);
-		const vchfPrice = coingecko[VCHF_Address]?.price?.chf || 1;
-		const bridgeLimit = vchfBridge.bridgeLimit;
-		const otherBridgeBal = vchfBridge.otherBridgeBal;
-		const available = bridgeLimit - otherBridgeBal;
-		const totalValue = Math.round(Number(formatUnits(otherBridgeBal, 18)) * vchfPrice);
+	const stats = useMemo(
+		() => [...positionStats, vchfBridge.asCollateralOverview, chfauBridge.asCollateralOverview] as CollateralOverviewStat[],
+		[positionStats, vchfBridge.asCollateralOverview, chfauBridge.asCollateralOverview]
+	);
 
-		const vchfStat = {
-			original: {
-				position: ADDRESS[chainId].stablecoinBridgeVCHF,
-			} as PositionQuery,
-			originals: [],
-			clones: [],
-			balance: otherBridgeBal,
-			collateral: coingecko[VCHF_Address] || {
-				chainId,
-				address: VCHF_Address,
-				name: "VNX Franc",
-				symbol: "VCHF",
-				decimals: 18,
-				price: { chf: vchfPrice },
-				timestamp: 0,
-			},
-			mint: coingecko[normalizeAddress(ADDRESS[chainId].frankencoin)] || {
-				chainId,
-				address: ADDRESS[chainId].frankencoin,
-				name: "Frankencoin",
-				symbol: "ZCHF",
-				decimals: 18,
-				price: { chf: 1 },
-				timestamp: 0,
-			},
-			minted: otherBridgeBal,
-			reserve: 0n,
-			limitForClones: bridgeLimit / 10n ** 18n,
-			availableForClones: available / 10n ** 18n,
-			totalValue,
-			avgCollateral: vchfPrice,
-			highestZCHFPrice: vchfPrice,
-			collateralizedPct: vchfPrice * 100,
-			availableForClonesPct: bridgeLimit > 0n ? Math.round((Number(available) / Number(bridgeLimit)) * 10000) / 100 : 0,
-			collateralPriceInZCHF: vchfPrice,
-			worstStatusColors: "green-300",
-			lowestInterestRate: 0,
-			discussionLink: "",
-			lockedValue: Number(formatUnits(otherBridgeBal, 18)) * vchfPrice,
-		};
-
-		return [...positionStats, vchfStat];
-	}, [positionStats, vchfBridge, coingecko]);
+	const bridgeSwapUrls: Record<string, string> = {
+		[normalizeAddress(vchfBridge.bridgeAddress)]: vchfBridge.swapUrl,
+		[normalizeAddress(chfauBridge.bridgeAddress)]: chfauBridge.swapUrl,
+	};
 
 	const uniqueCollaterals = useMemo(() => stats.map((s) => normalizeAddress(s.collateral.address)), [stats]);
 
@@ -177,10 +131,11 @@ export default function CollateralOverviewTable() {
 						const balanceFormatted = formatCurrency(Number(formatUnits(stat.balance, stat.collateral.decimals)), 2, 2);
 						const avgCollPct = stat.avgCollateral * 100;
 						const collColor = avgCollPct < 110 ? "text-red-500" : avgCollPct <= 120 ? "text-orange-400" : "text-green-500";
-						const isBridge = normalizeAddress(stat.original.position) === bridgePosition;
+						const swapUrl = bridgeSwapUrls[normalizeAddress(stat.original.position)];
+						const isBridge = !!swapUrl;
 
 						return (
-							<div key={stat.original.position} onClick={isBridge ? () => router.push("/swap") : undefined}>
+							<div key={stat.original.position} onClick={isBridge ? () => router.push(swapUrl) : undefined}>
 								<TableRow headers={headers} tab={tab} className={isBridge ? "cursor-pointer" : ""}>
 									{/* Collateral */}
 									<div className="flex flex-col max-md:mb-5">

@@ -2,6 +2,7 @@ import AppBox from "@components/AppBox";
 import DisplayAmount from "@components/DisplayAmount";
 import DisplayLabel from "@components/DisplayLabel";
 import { usePoolStats } from "@hooks";
+import { EquityTrade } from "@hooks";
 import dynamic from "next/dynamic";
 import { ADDRESS } from "@frankencoin/zchf";
 import { useState } from "react";
@@ -16,7 +17,11 @@ const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 const Timeframes = ["All", "1Y", "1Q", "1M", "1W"];
 const TypeCharts = ["FPS Price", "FPS Supply", "ZCHF Supply"];
 
-export default function EquityFPSDetailsCard() {
+interface Props {
+	equityTrades: EquityTrade[];
+}
+
+export default function EquityFPSDetailsCard({ equityTrades }: Props) {
 	const [timeframe, setTimeframe] = useState<string>(Timeframes[1]);
 	const [typechart, setTypechart] = useState<string>(TypeCharts[0]);
 	const chainId = mainnet.id;
@@ -49,6 +54,26 @@ export default function EquityFPSDetailsCard() {
 	const timestampEnd = BigInt(Date.now());
 	const timestampDiff = timestampEnd - timestampBegin;
 	const oneYearMs = 365n * 24n * 60n * 60n * 1000n;
+
+	const matchingTrades = typechart === TypeCharts[0] ? equityTrades.filter((t) => t.created * 1000 >= startTrades) : [];
+
+	const tradeAnnotations = matchingTrades.map((trade) => ({
+		x: trade.created * 1000,
+		y: Math.round(parseFloat(formatUnits(trade.price, 16))) / 100,
+		marker: { size: 0 },
+		label: {
+			borderWidth: 0,
+			borderRadius: 0,
+			offsetY: trade.kind === "Invested" ? 15 : 2,
+			text: trade.kind === "Invested" ? "▲" : "▼",
+			style: {
+				background: "transparent",
+				color: trade.kind === "Invested" ? "#22c55e" : "#ef4444",
+				fontSize: "10px",
+				padding: { top: 0, bottom: 0, left: 0, right: 0 },
+			},
+		},
+	}));
 
 	const equityStart = BigInt(matchingLogs.at(0)?.totalEquity || "0");
 	const equityEnd = BigInt(matchingLogs.at(-1)?.totalEquity || "0");
@@ -139,6 +164,9 @@ export default function EquityFPSDetailsCard() {
 									shade: "#e7e7ea",
 									gradientToColors: ["#092f62"],
 								},
+							},
+							annotations: {
+								points: tradeAnnotations,
 							},
 						}}
 						series={[

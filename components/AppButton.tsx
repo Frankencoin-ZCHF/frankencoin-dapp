@@ -1,6 +1,7 @@
 import Link from "next/link";
 import AppIcon from "./AppIcon";
 import LoadingSpin from "./LoadingSpin";
+import { track } from "../hooks/useAnalytics";
 
 interface Props {
 	to?: string;
@@ -45,7 +46,7 @@ export default function AppButton({
 	} ${width ?? "w-full"}`.trim();
 
 	const button = to ? (
-		<Link href={to} className={btnClass} onClick={onClick} data-umami-event={umamiEvent}>
+		<Link href={to} className={btnClass} onClick={(e) => { onClick(e); if (umamiEvent) track(umamiEvent); }}>
 			{children}
 		</Link>
 	) : (

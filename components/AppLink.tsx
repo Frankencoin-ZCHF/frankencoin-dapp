@@ -1,6 +1,7 @@
 import { faArrowUpRightFromSquare, faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
+import { track } from "../hooks/useAnalytics";
 
 interface Props {
 	label: string;
@@ -20,7 +21,7 @@ export default function AppLink({ label, href = "/", external = false, icon = fa
 			href={href}
 			target={external ? "_blank" : undefined}
 			rel={external ? "noreferrer" : undefined}
-			data-umami-event={umamiEvent}
+			onClick={() => track(umamiEvent)}
 		>
 			<span className="">
 				{label}

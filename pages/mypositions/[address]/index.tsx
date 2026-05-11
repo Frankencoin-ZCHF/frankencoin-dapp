@@ -423,56 +423,82 @@ export default function PositionAdjust() {
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<AppCard>
 						<div className="text-lg font-bold text-center">Adjustment</div>
-						<div className="space-y-8">
-							<TokenInput
-								label="Amount"
-								symbol="ZCHF"
-								output={position.closed ? "0" : ""}
-								min={mintedMin}
-								max={mintedMax}
-								reset={BigInt(position.minted)}
-								digit={18}
-								value={amount.toString()}
-								onChange={onChangeAmount}
-								onMin={mintedMinCallback}
-								onMax={mintedMaxCallback}
-								error={getAmountError()}
-								placeholder="Loan Amount"
-								limit={userFrancBalance}
-								limitDigit={18}
-								limitLabel="Balance"
-							/>
-							<TokenInput
-								label="Collateral"
-								symbol={position.collateralSymbol}
-								min={BigInt("0")}
-								max={userCollBalance + BigInt(position.collateralBalance)}
-								reset={BigInt(position.collateralBalance)}
-								value={collateralAmount.toString()}
-								onChange={onChangeCollAmount}
-								onMin={collateralMinCallback}
-								digit={position.collateralDecimals}
-								note={collateralNote}
-								error={getCollateralError()}
-								placeholder="Collateral Amount"
-								limit={userCollBalance}
-								limitDigit={position.collateralDecimals}
-								limitLabel="Balance"
-							/>
-							<TokenInput
-								label="Liquidation Price"
-								symbol={"ZCHF"}
-								min={collateralAmount == 0n ? 0n : (amount * 10n ** 18n) / collateralAmount}
-								max={marketPrice80Pct}
-								reset={BigInt(position.price)}
-								value={liqPrice.toString()}
-								digit={36 - position.collateralDecimals}
-								onChange={onChangeLiqAmount}
-								onMin={liqPriceMinCallback}
-								onMax={liqPriceMaxCallback}
-								placeholder="Liquidation Price"
-							/>
+						<TokenInput
+							label="Amount"
+							symbol="ZCHF"
+							output={position.closed ? "0" : ""}
+							min={mintedMin}
+							max={mintedMax}
+							reset={BigInt(position.minted)}
+							digit={18}
+							value={amount.toString()}
+							onChange={onChangeAmount}
+							onMin={mintedMinCallback}
+							onMax={mintedMaxCallback}
+							error={getAmountError()}
+							placeholder="Loan Amount"
+							limit={userFrancBalance}
+							limitDigit={18}
+							limitLabel="Balance"
+						/>
+						<TokenInput
+							label="Collateral"
+							symbol={position.collateralSymbol}
+							min={BigInt("0")}
+							max={userCollBalance + BigInt(position.collateralBalance)}
+							reset={BigInt(position.collateralBalance)}
+							value={collateralAmount.toString()}
+							onChange={onChangeCollAmount}
+							onMin={collateralMinCallback}
+							digit={position.collateralDecimals}
+							note={collateralNote}
+							error={getCollateralError()}
+							placeholder="Collateral Amount"
+							limit={userCollBalance}
+							limitDigit={position.collateralDecimals}
+							limitLabel="Balance"
+						/>
+						<TokenInput
+							label="Liquidation Price"
+							symbol={"ZCHF"}
+							min={collateralAmount == 0n ? 0n : (amount * 10n ** 18n) / collateralAmount}
+							max={marketPrice80Pct}
+							reset={BigInt(position.price)}
+							value={liqPrice.toString()}
+							digit={36 - position.collateralDecimals}
+							onChange={onChangeLiqAmount}
+							onMin={liqPriceMinCallback}
+							onMax={liqPriceMaxCallback}
+							placeholder="Liquidation Price"
+						/>
 
+						<GuardSupportedChain chain={mainnet}>
+							{collateralAmount - BigInt(position.collateralBalance) > userCollAllowance ? (
+								<AppButton isLoading={isApproving} onClick={() => handleApprove()}>
+									Approve Collateral
+								</AppButton>
+							) : (
+								<AppButton
+									disabled={
+										(amount == BigInt(position.minted) &&
+											collateralAmount == BigInt(position.collateralBalance) &&
+											liqPrice == BigInt(position.price)) ||
+										(!position.denied &&
+											((isCooldown && amount > 0n) || !!getAmountError() || !!getCollateralError())) ||
+										(challengeSize > 0n && collateralAmount < BigInt(position.collateralBalance))
+									}
+									isLoading={isAdjusting}
+									onClick={() => handleAdjust()}
+								>
+									Adjust Position
+								</AppButton>
+							)}
+						</GuardSupportedChain>
+					</AppCard>
+
+					<div className="flex flex-col gap-4">
+						<AppCard>
+							<div className="text-lg font-bold text-center mt-3">Position Details</div>
 							<div className="flex-1 mt-4">
 								<div className="flex">
 									<div className="flex-1 text-text-secondary">
@@ -491,54 +517,6 @@ export default function PositionAdjust() {
 										<span>Expiration</span>
 									</div>
 									<div className="text-right">{expiredIn}</div>
-								</div>
-							</div>
-
-							<div className="mx-auto mt-8 full flex-col">
-								<GuardSupportedChain chain={mainnet}>
-									{collateralAmount - BigInt(position.collateralBalance) > userCollAllowance ? (
-										<AppButton isLoading={isApproving} onClick={() => handleApprove()}>
-											Approve Collateral
-										</AppButton>
-									) : (
-<AppButton
-											disabled={
-												(amount == BigInt(position.minted) &&
-													collateralAmount == BigInt(position.collateralBalance) &&
-													liqPrice == BigInt(position.price)) ||
-												(!position.denied &&
-													((isCooldown && amount > 0n) || !!getAmountError() || !!getCollateralError())) ||
-												(challengeSize > 0n && collateralAmount < BigInt(position.collateralBalance))
-											}
-											isLoading={isAdjusting}
-											onClick={() => handleAdjust()}
-										>
-											Adjust Position
-										</AppButton>
-									)}
-								</GuardSupportedChain>
-							</div>
-						</div>
-					</AppCard>
-
-					<div className="flex flex-col gap-4">
-						<AppCard>
-							<div className="text-lg font-bold text-center mt-3">Connected Wallet</div>
-							<div className="flex-1 mt-4">
-								<div className="flex">
-									<div className="flex-1 text-text-secondary">
-										<span>Frankencoin Balance</span>
-									</div>
-									<div className="text-right">{formatCurrency(formatUnits(userFrancBalance, 18))} ZCHF</div>
-								</div>
-								<div className="flex mt-2">
-									<div className="flex-1 text-text-secondary">
-										<span>Collateral Balance</span>
-									</div>
-									<div className="text-right">
-										{formatCurrency(formatUnits(userCollBalance, position.collateralDecimals))}{" "}
-										{position.collateralSymbol}
-									</div>
 								</div>
 							</div>
 						</AppCard>

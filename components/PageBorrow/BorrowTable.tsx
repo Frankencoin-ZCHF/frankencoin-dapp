@@ -7,10 +7,10 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQueryV2, PriceQueryObjectArray } from "@frankencoin/api";
 import { Address, erc20Abi, formatUnits, zeroAddress } from "viem";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useConnection, useReadContracts } from "wagmi";
 import { ALL_CATEGORIES, CollateralCategory, collateralMatchesCategories, normalizeAddress } from "@utils";
-import { useBorrowPositions, useSwapVCHFStats } from "@hooks";
+import { useBorrowPositions, useSwapVCHFStats, useSwapCHFAUStats, SwapVCHFStatsReturn } from "@hooks";
 
 const FILTER_OPTIONS: FilterOption[] = ALL_CATEGORIES.map((c) => ({ label: c, value: c }));
 
@@ -18,61 +18,31 @@ export default function BorrowTable() {
 	const headers: string[] = ["Collateral", "Loan-to-Value", "Interest", "Maturity"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
-	const [list, setList] = useState<PositionQueryV2[]>([]);
 	const [searchQuery, setSearchQuery] = useState<string>("");
 	const [activeCategories, setActiveCategories] = useState<string[]>([]);
 	const [inMyWallet, setInMyWallet] = useState<boolean>(false);
 
 	const { address: walletAddress } = useConnection();
 	const vchfBridge = useSwapVCHFStats();
+	const chfauBridge = useSwapCHFAUStats();
 	const { uniqueByCollateral } = useBorrowPositions();
 
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 
 	const uniquePositions: PositionQueryV2[] = Object.values(uniqueByCollateral);
 
-	const VCHF_Address: Address = normalizeAddress("0x79d4f0232A66c4c91b89c76362016A1707CFBF4f");
-	const VCHF_Price: number = coingecko[VCHF_Address].price.chf || 0;
-	const VCHF_Available: bigint = vchfBridge.bridgeLimit - vchfBridge.otherBridgeBal;
-	const VCHF_Bridge: PositionQueryV2 = {
-		version: 2,
-		position: "0x3b71ba73299f925a837836160c3e1fec74340403",
-		owner: zeroAddress,
-		zchf: "0xB58E61C3098d85632Df34EecfB899A1Ed80921cB",
-		collateral: VCHF_Address,
-		price: String(VCHF_Price * 10 ** 18),
-		created: 0,
-		isOriginal: true,
-		isClone: false,
-		denied: false,
-		denyDate: 0,
-		closed: false,
-		original: "0x3b71ba73299f925a837836160c3e1fec74340403",
-		parent: "0x3b71ba73299f925a837836160c3e1fec74340403",
-		minimumCollateral: "0",
-		annualInterestPPM: 0,
-		riskPremiumPPM: 0,
-		reserveContribution: 0,
-		start: 0,
-		cooldown: 0,
-		expiration: 1776276731,
-		challengePeriod: 0,
-		zchfName: "Frankencoin",
-		zchfSymbol: "ZCHF",
-		zchfDecimals: 18,
-		collateralName: "VNX Franc",
-		collateralSymbol: "VCHF",
-		collateralDecimals: 18,
-		collateralBalance: String(vchfBridge.otherBridgeBal),
-		limitForPosition: "0",
-		limitForClones: String(vchfBridge.bridgeLimit),
-		availableForClones: String(VCHF_Available),
-		availableForMinting: String(VCHF_Available),
-		availableForPosition: String(VCHF_Available),
-		minted: String(vchfBridge.otherBridgeBal),
+	const bridgeMap: Record<string, SwapVCHFStatsReturn> = {
+		[normalizeAddress(vchfBridge.bridgeAddress)]: vchfBridge,
+		[normalizeAddress(chfauBridge.bridgeAddress)]: chfauBridge,
 	};
 
-	const sorted: PositionQueryV2[] = sortPositions([...uniquePositions, VCHF_Bridge], coingecko, headers, tab, reverse);
+	const sorted: PositionQueryV2[] = sortPositions(
+		[...uniquePositions, vchfBridge.asBorrowPosition, chfauBridge.asBorrowPosition],
+		coingecko,
+		headers,
+		tab,
+		reverse
+	);
 
 	// Wallet balance detection for "In my wallet" toggle
 	const uniqueCollaterals = useMemo(
@@ -112,12 +82,6 @@ export default function BorrowTable() {
 		});
 	}, [sorted, searchQuery, activeCategories, inMyWallet, walletAddress, walletBalanceMap]);
 
-	useEffect(() => {
-		const idList = list.map((l) => l.position).join("_");
-		const idFiltered = filteredList.map((l) => l.position).join("_");
-		if (idList != idFiltered) setList(filteredList);
-	}, [list, filteredList]);
-
 	const handleTabOnChange = function (e: string) {
 		if (tab === e) {
 			setReverse(!reverse);
@@ -146,17 +110,17 @@ export default function BorrowTable() {
 				onFiltersChange={setActiveCategories}
 			/>
 			<TableBody>
-				{list.length == 0 ? (
+				{filteredList.length == 0 ? (
 					<TableRowEmpty>
 						{!walletAddress ? "There are no other positions yet." : "You don't have any available collaterals in your wallet."}
 					</TableRowEmpty>
 				) : (
-					list.map((pos, idx) => (
+					filteredList.map((pos, idx) => (
 						<BorrowRow
 							headers={headers}
 							tab={tab}
 							position={pos}
-							vchfBridge={vchfBridge}
+							bridgeStats={bridgeMap[normalizeAddress(pos.position)]}
 							hideMyWallet={!walletAddress}
 							walletBalance={walletBalanceMap}
 							key={`BorrowRow_${pos.position || idx}`}

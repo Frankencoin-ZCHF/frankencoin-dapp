@@ -1,22 +1,30 @@
-import React from "react";
 import Head from "next/head";
-import EquityFPSDetailsCard from "@components/PageEquity/EquityFPSDetailsCard";
-import EquityInteractionCard from "@components/PageEquity/EquityInteractionCard";
-import AppTitle from "@components/AppTitle";
+import { useRouter } from "next/router";
+import { Address, isAddress, zeroAddress } from "viem";
 import { useConnection } from "wagmi";
-import { useFPSBalanceHistory, useFPSEarningsHistory } from "@hooks";
-import ReportsFPSYearlyTable from "@components/PageReports/ReportsFPSYearlyTable";
-import { zeroAddress } from "viem";
+import { useEquityTrades, useFPSBalanceHistory, useFPSEarningsHistory } from "@hooks";
+import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
 import AppHeroSteps from "@components/AppHeroSteps";
+import EquityFPSDetailsCard from "@components/PageEquity/EquityFPSDetailsCard";
+import EquityInteractionCard from "@components/PageEquity/EquityInteractionCard";
+import EquityTradesTable from "@components/PageEquity/EquityTradesTable";
+import ReportsFPSYearlyTable from "@components/PageReports/ReportsFPSYearlyTable";
 import { ContractUrl } from "@utils";
 import { ADDRESS } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 
 export default function Equity() {
 	const { address } = useConnection();
-	const fpsHistory = useFPSBalanceHistory(address || zeroAddress);
-	const fpsEarnings = useFPSEarningsHistory(address || zeroAddress);
+	const router = useRouter();
+	const queryAddress = router.query.address as Address;
+	const isQueryOverride = isAddress(queryAddress) && queryAddress.toLowerCase() !== address?.toLowerCase();
+	const hasAddress = !!address || isAddress(queryAddress);
+	const resolvedAddress: Address = isAddress(queryAddress) ? queryAddress : address || zeroAddress;
+
+	const fpsHistory = useFPSBalanceHistory(resolvedAddress);
+	const fpsEarnings = useFPSEarningsHistory(resolvedAddress);
+	const equityTrades = useEquityTrades(resolvedAddress);
 
 	return (
 		<>
@@ -24,7 +32,7 @@ export default function Equity() {
 				<title>Frankencoin - Invest</title>
 			</Head>
 
-			<AppTitle title={`Invest`}>
+			<AppTitle title="Invest">
 				<div className="text-text-secondary">
 					Invest in or redeem your{" "}
 					<AppLink className="" label="Frankencoin Pool Shares" href={ContractUrl(ADDRESS[mainnet.id].equity)} external={true} />{" "}
@@ -55,16 +63,31 @@ export default function Equity() {
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-auto">
 					<EquityInteractionCard />
-					<EquityFPSDetailsCard />
+					<EquityFPSDetailsCard equityTrades={equityTrades} />
 				</section>
 			</div>
 
-			<AppTitle title="Attributable Income">
-				<div className="text-text-secondary">
-					Historic system income <AppLink className="text-left" label={"attributable to the current address"} href={`/report`} />.
-				</div>
-			</AppTitle>
-			<ReportsFPSYearlyTable address={address || zeroAddress} fpsHistory={fpsHistory} fpsEarnings={fpsEarnings} />
+			{hasAddress && (
+				<>
+					<AppTitle title="Attributable Income">
+						<div className="text-text-secondary">
+							Historic system income{" "}
+							<AppLink
+								className=""
+								label={isQueryOverride ? "attributable to this address" : "attributable to the current address"}
+								href={`/report${isQueryOverride ? `?address=${resolvedAddress}` : ""}`}
+							/>
+							.
+						</div>
+					</AppTitle>
+					<ReportsFPSYearlyTable address={resolvedAddress} fpsHistory={fpsHistory} fpsEarnings={fpsEarnings} />
+
+					<AppTitle title={isQueryOverride ? "Trades" : "My Trades"}>
+						<div className="text-text-secondary">Investment and redemption history.</div>
+					</AppTitle>
+					<EquityTradesTable trades={equityTrades} />
+				</>
+			)}
 		</>
 	);
 }

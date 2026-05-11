@@ -8,8 +8,9 @@ import { colors } from "../../utils/constant";
 import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
-import { ADDRESS, FrankencoinABI, StablecoinBridgeABI } from "@frankencoin/zchf";
+import { ADDRESS, FrankencoinABI } from "@frankencoin/zchf";
 import { base, gnosis, mainnet } from "viem/chains";
+import { useSwapVCHFStats } from "@hooks";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function FrankencoinAllocation() {
@@ -17,7 +18,7 @@ export default function FrankencoinAllocation() {
 	const { fpsInfo } = useSelector((state: RootState) => state.ecosystem);
 	const { savingsInfo } = useSelector((state: RootState) => state.savings);
 
-	const [swapBridgeVCHF, setSwapBridgeVCHF] = useState(0n);
+	const vchfBridge = useSwapVCHFStats();
 
 	const [protocols, setProtocols] = useState(0);
 	const [dex, setDex] = useState(0);
@@ -31,7 +32,7 @@ export default function FrankencoinAllocation() {
 	});
 
 	// Aggregate swap bridges
-	byCollateral.set("VCHF", swapBridgeVCHF);
+	byCollateral.set("VCHF", vchfBridge.otherBridgeBal);
 
 	const mappingMinted = [...byCollateral.keys()]
 		.map((label, idx) => {
@@ -94,20 +95,9 @@ export default function FrankencoinAllocation() {
 
 	useEffect(() => {
 		const fetcher = async () => {
-			const bridges: Promise<any>[] = [];
 			const dexes: Promise<any>[] = [];
 			const cexes: Promise<any>[] = [];
 			const protocols: Promise<any>[] = [];
-
-			// SwapBrideVCHF
-			bridges.push(
-				readContract(WAGMI_CONFIG, {
-					chainId: mainnet.id,
-					address: ADDRESS[mainnet.id].stablecoinBridgeVCHF,
-					abi: StablecoinBridgeABI,
-					functionName: "minted",
-				})
-			);
 
 			// UniSwap USDT
 			// https://etherscan.io/address/0x8E4318E2cb1ae291254B187001a59a1f8ac78cEF
@@ -238,9 +228,6 @@ export default function FrankencoinAllocation() {
 			};
 
 			// set results
-			const resultBridges = await getResults(bridges);
-			setSwapBridgeVCHF(resultBridges[0]);
-
 			const resultDexes = await getResults(dexes);
 			setDex(resultDexes.reduce((a, b) => a + parseInt(formatUnits(b, 18)), 0));
 
