@@ -114,7 +114,7 @@ export default function PositionDetail() {
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<AppCard>
 						<div className="gap-2">
-							<div className="text-base font-bold mb-1">Mint Details</div>
+							<div className="text-base font-bold mb-1">Usage</div>
 							<StatRow label="Minted">{formatCurrency(formatUnits(BigInt(position.minted), 18))} ZCHF</StatRow>
 							<StatRow label="Retained Reserve">{formatCurrency(formatUnits(reserve, 18))} ZCHF</StatRow>
 							<StatRow label="Available for Clones">
@@ -126,7 +126,7 @@ export default function PositionDetail() {
 
 					<AppCard>
 						<div className="gap-2">
-							<div className="text-base font-bold mb-1">Collateral Details</div>
+							<div className="text-base font-bold mb-1">Collateral</div>
 							<StatRow label="Balance">
 								{formatCurrency(formatUnits(BigInt(position.collateralBalance), position.collateralDecimals))}{" "}
 								{position.collateralSymbol}
