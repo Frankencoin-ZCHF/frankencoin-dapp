@@ -10,7 +10,7 @@ import { Address, erc20Abi, formatUnits, zeroAddress } from "viem";
 import { useMemo, useState } from "react";
 import { useConnection, useReadContracts } from "wagmi";
 import { ALL_CATEGORIES, CollateralCategory, collateralMatchesCategories, normalizeAddress } from "@utils";
-import { useBorrowPositions, useSwapVCHFStats, useSwapCHFAUStats, SwapVCHFStatsReturn } from "@hooks";
+import { useBorrowPositions, useSwapCHFAUStats, SwapVCHFStatsReturn } from "@hooks";
 
 const FILTER_OPTIONS: FilterOption[] = ALL_CATEGORIES.map((c) => ({ label: c, value: c }));
 
@@ -23,7 +23,6 @@ export default function BorrowTable() {
 	const [inMyWallet, setInMyWallet] = useState<boolean>(false);
 
 	const { address: walletAddress } = useConnection();
-	const vchfBridge = useSwapVCHFStats();
 	const chfauBridge = useSwapCHFAUStats();
 	const { uniqueByCollateral } = useBorrowPositions();
 
@@ -32,12 +31,11 @@ export default function BorrowTable() {
 	const uniquePositions: PositionQueryV2[] = Object.values(uniqueByCollateral);
 
 	const bridgeMap: Record<string, SwapVCHFStatsReturn> = {
-		[normalizeAddress(vchfBridge.bridgeAddress)]: vchfBridge,
 		[normalizeAddress(chfauBridge.bridgeAddress)]: chfauBridge,
 	};
 
 	const sorted: PositionQueryV2[] = sortPositions(
-		[...uniquePositions, vchfBridge.asBorrowPosition, chfauBridge.asBorrowPosition],
+		[...uniquePositions, chfauBridge.asBorrowPosition],
 		coingecko,
 		headers,
 		tab,

@@ -32,8 +32,18 @@ export default function Swap() {
 	const chfauStats = useSwapCHFAUStats();
 	const swapStats = (router.query.token as string)?.toUpperCase() === "CHFAU" ? chfauStats : vchfStats;
 
-	const { chain, chainId, otherAddress: other, bridgeAddress: bridge, frankencoinAddress, bridgeAbi } = swapStats;
+	const { chain, chainId, otherAddress: other, bridgeAddress: bridge, frankencoinAddress, bridgeAbi, otherDecimals } = swapStats;
 	const bridgeUrl = useContractUrl(bridge);
+
+	const fromDecimals = direction ? otherDecimals : 18;
+	const toDecimals = direction ? 18 : otherDecimals;
+	const decimalDiff = toDecimals - fromDecimals;
+	const toAmount =
+		decimalDiff > 0
+			? amount * BigInt(10) ** BigInt(decimalDiff)
+			: decimalDiff < 0
+				? amount / BigInt(10) ** BigInt(-decimalDiff)
+				: amount;
 
 	// Reset state when switching bridges; init direction to burn if already expired
 	useEffect(() => {
@@ -154,11 +164,11 @@ export default function Swap() {
 			const toastContent = [
 				{
 					title: `${fromSymbol} Amount: `,
-					value: formatBigInt(amount) + " " + fromSymbol,
+					value: formatBigInt(amount, fromDecimals) + " " + fromSymbol,
 				},
 				{
 					title: `${toSymbol} Amount: `,
-					value: formatBigInt(amount) + " " + toSymbol,
+					value: formatBigInt(toAmount, toDecimals) + " " + toSymbol,
 				},
 				{
 					title: "Transaction:",
@@ -195,11 +205,11 @@ export default function Swap() {
 			const toastContent = [
 				{
 					title: `${fromSymbol} Amount: `,
-					value: formatBigInt(amount) + " " + fromSymbol,
+					value: formatBigInt(amount, fromDecimals) + " " + fromSymbol,
 				},
 				{
 					title: `${toSymbol} Amount: `,
-					value: formatBigInt(amount) + " " + toSymbol,
+					value: formatBigInt(toAmount, toDecimals) + " " + toSymbol,
 				},
 				{
 					title: "Transaction:",
@@ -253,6 +263,8 @@ export default function Swap() {
 							<TokenInput
 								max={fromBalance < swapLimit ? fromBalance : swapLimit}
 								reset={0n}
+								digit={fromDecimals}
+								limitDigit={fromDecimals}
 								symbol={fromSymbol}
 								limit={fromBalance}
 								limitLabel="Balance"
@@ -271,9 +283,11 @@ export default function Swap() {
 
 						<TokenInput
 							symbol={toSymbol}
+							digit={toDecimals}
+							limitDigit={toDecimals}
 							limit={swapLimit}
 							limitLabel="Available"
-							value={amount.toString()}
+							value={toAmount.toString()}
 							note={`1 ${fromSymbol} = 1 ${toSymbol}`}
 							label="Receive"
 							disabled={true}
