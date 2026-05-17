@@ -1,4 +1,5 @@
-import { useConnection, useReadContracts } from "wagmi";
+import { useBlockNumber, useConnection, useReadContracts } from "wagmi";
+import { useEffect } from "react";
 import { decodeBigIntCall, normalizeAddress } from "@utils";
 import { Address, erc20Abi, formatUnits, parseUnits, zeroAddress } from "viem";
 import { ADDRESS, StablecoinBridgeV1ABI, StablecoinBridgeV2ABI } from "@frankencoin/zchf";
@@ -56,6 +57,7 @@ export type SwapVCHFStatsReturn = {
 	zchfUserBal: bigint;
 	zchfSymbol: string;
 	zchfUserAllowance: bigint;
+	bridgeMinted: bigint;
 	bridgeLimit: bigint;
 	bridgeHorizon: bigint;
 	// rich objects
@@ -75,7 +77,8 @@ export const useSwapVCHFStats = (): SwapVCHFStatsReturn => {
 	const other = ADDRESS[chainId].vchfToken;
 	const bridge = ADDRESS[chainId].stablecoinBridgeVCHF;
 
-	const { data, isError, isLoading } = useReadContracts({
+	const { data: blockNumber } = useBlockNumber({ watch: true });
+	const { data, refetch, isError, isLoading } = useReadContracts({
 		contracts: [
 			// VCHF token calls
 			{ chainId, address: other, abi: erc20Abi, functionName: "balanceOf", args: [account] },
@@ -91,6 +94,10 @@ export const useSwapVCHFStats = (): SwapVCHFStatsReturn => {
 			{ chainId, address: bridge, abi: StablecoinBridgeV1ABI, functionName: "horizon" },
 		],
 	});
+
+	useEffect(() => {
+		refetch();
+	}, [blockNumber]);
 
 	const otherUserBal: bigint = data ? decodeBigIntCall(data[0]) : 0n;
 	const otherSymbol: string = data ? String(data[1].result) : "";
@@ -218,6 +225,7 @@ export const useSwapVCHFStats = (): SwapVCHFStatsReturn => {
 		zchfSymbol,
 		zchfUserAllowance,
 
+		bridgeMinted: otherBridgeBal,
 		bridgeLimit,
 		bridgeHorizon,
 		asBorrowPosition,

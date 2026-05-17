@@ -1,4 +1,5 @@
-import { useConnection, useReadContracts } from "wagmi";
+import { useBlockNumber, useConnection, useReadContracts } from "wagmi";
+import { useEffect } from "react";
 import { decodeBigIntCall, normalizeAddress } from "@utils";
 import { Address, erc20Abi, formatUnits, parseUnits, zeroAddress } from "viem";
 import { ADDRESS, StablecoinBridgeV2ABI } from "@frankencoin/zchf";
@@ -20,7 +21,8 @@ export const useSwapCHFAUStats = (): SwapVCHFStatsReturn => {
 	const other = ADDRESS[chainId].chfauToken;
 	const bridge = ADDRESS[chainId].stablecoinBridgeCHFAU;
 
-	const { data, isError, isLoading } = useReadContracts({
+	const { data: blockNumber } = useBlockNumber({ watch: true });
+	const { data, refetch, isError, isLoading } = useReadContracts({
 		contracts: [
 			// CHFAU token calls
 			{ chainId, address: other, abi: erc20Abi, functionName: "balanceOf", args: [account] },
@@ -37,6 +39,10 @@ export const useSwapCHFAUStats = (): SwapVCHFStatsReturn => {
 			{ chainId, address: bridge, abi: StablecoinBridgeV2ABI, functionName: "minted" },
 		],
 	});
+
+	useEffect(() => {
+		refetch();
+	}, [blockNumber]);
 
 	const otherUserBal: bigint = data ? decodeBigIntCall(data[0]) : 0n;
 	const otherSymbol: string = data ? String(data[1].result) : "";
@@ -165,6 +171,7 @@ export const useSwapCHFAUStats = (): SwapVCHFStatsReturn => {
 		zchfSymbol,
 		zchfUserAllowance,
 
+		bridgeMinted,
 		bridgeLimit,
 		bridgeHorizon,
 		asBorrowPosition,
