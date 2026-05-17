@@ -30,7 +30,7 @@ export default function Swap() {
 	const router = useRouter();
 	const vchfStats = useSwapVCHFStats();
 	const chfauStats = useSwapCHFAUStats();
-	const swapStats = (router.query.token as string)?.toUpperCase() === "CHFAU" ? chfauStats : vchfStats;
+	const swapStats = (router.query.token as string)?.toUpperCase() === "VCHF" ? vchfStats : chfauStats;
 
 	const { chain, chainId, otherAddress: other, bridgeAddress: bridge, frankencoinAddress, bridgeAbi, otherDecimals } = swapStats;
 	const bridgeUrl = useContractUrl(bridge);
@@ -42,8 +42,8 @@ export default function Swap() {
 		decimalDiff > 0
 			? amount * BigInt(10) ** BigInt(decimalDiff)
 			: decimalDiff < 0
-				? amount / BigInt(10) ** BigInt(-decimalDiff)
-				: amount;
+			? amount / BigInt(10) ** BigInt(-decimalDiff)
+			: amount;
 
 	// Reset state when switching bridges; init direction to burn if already expired
 	useEffect(() => {
@@ -59,10 +59,10 @@ export default function Swap() {
 
 	const activeMinter = isMinter > 0 && isMinter * 1000n <= Date.now();
 	const fromBalance = direction ? swapStats.otherUserBal : swapStats.zchfUserBal;
-	const toBalance = !direction ? swapStats.otherUserBal : swapStats.zchfUserBal;
 	const fromSymbol = direction ? swapStats.otherSymbol : "ZCHF";
 	const toSymbol = !direction ? swapStats.otherSymbol : "ZCHF";
-	const swapLimit = direction ? swapStats.bridgeLimit - swapStats.otherBridgeBal : swapStats.otherBridgeBal;
+	const swapLimit = direction ? swapStats.bridgeLimit - swapStats.bridgeMinted : swapStats.bridgeMinted; // (18 digits)
+	const swapLimitCorrected = (swapLimit * 10n ** BigInt(fromDecimals)) / 10n ** 18n;
 
 	useEffect(() => {
 		const fetcher = async () => {
@@ -101,14 +101,14 @@ export default function Swap() {
 	}, [activeMinter, swapStats, direction]);
 
 	useEffect(() => {
-		if (amount > fromBalance) {
-			setError(`Not enough ${fromSymbol} in your wallet.`);
-		} else if (amount > swapLimit) {
+		if (amount > swapLimitCorrected) {
 			setError(`Not enough ${toSymbol} available to swap.`);
+		} else if (amount > fromBalance) {
+			setError(`Not enough ${fromSymbol} in your wallet.`);
 		} else {
 			setError("");
 		}
-	}, [amount, direction, fromBalance, fromSymbol, swapLimit, toSymbol]);
+	}, [amount, direction, fromBalance, fromSymbol, swapLimitCorrected, toSymbol]);
 
 	const handleApprove = async () => {
 		try {
@@ -233,6 +233,7 @@ export default function Swap() {
 	};
 
 	const onChangeDirection = () => {
+		setAmount(toAmount);
 		setDirection(!direction);
 	};
 
@@ -261,12 +262,12 @@ export default function Swap() {
 
 						<div className="mt-8">
 							<TokenInput
-								max={fromBalance < swapLimit ? fromBalance : swapLimit}
+								max={fromBalance < swapLimitCorrected ? fromBalance : swapLimitCorrected}
 								reset={0n}
 								digit={fromDecimals}
-								limitDigit={fromDecimals}
 								symbol={fromSymbol}
 								limit={fromBalance}
+								limitDigit={fromDecimals}
 								limitLabel="Balance"
 								placeholder={"Swap Amount"}
 								onChange={onChangeAmount}
@@ -284,7 +285,7 @@ export default function Swap() {
 						<TokenInput
 							symbol={toSymbol}
 							digit={toDecimals}
-							limitDigit={toDecimals}
+							limitDigit={18}
 							limit={swapLimit}
 							limitLabel="Available"
 							value={toAmount.toString()}
