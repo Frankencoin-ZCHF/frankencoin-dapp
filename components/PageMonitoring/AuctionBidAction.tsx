@@ -20,12 +20,12 @@ import { mainnet } from "viem/chains";
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function fmtDate(d: Date): string {
-	const day = d.getUTCDate();
-	const mon = MONTHS[d.getUTCMonth()];
-	const yr = d.getUTCFullYear();
-	const hh = String(d.getUTCHours()).padStart(2, "0");
-	const mm = String(d.getUTCMinutes()).padStart(2, "0");
-	const ss = String(d.getUTCSeconds()).padStart(2, "0");
+	const day = d.getDate();
+	const mon = MONTHS[d.getMonth()];
+	const yr = d.getFullYear();
+	const hh = String(d.getHours()).padStart(2, "0");
+	const mm = String(d.getMinutes()).padStart(2, "0");
+	const ss = String(d.getSeconds()).padStart(2, "0");
 	return `${day} ${mon} ${yr} ${hh}:${mm}:${ss}`;
 }
 
