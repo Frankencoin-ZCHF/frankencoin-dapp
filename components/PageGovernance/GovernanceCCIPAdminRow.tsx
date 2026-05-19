@@ -35,7 +35,7 @@ function StatusCell({ proposal }: { proposal: ApiCCIPProposal }) {
 
 	const msLeft = proposal.deadline * 1000 - Date.now();
 	const hoursLeft = msLeft / 1000 / 60 / 60;
-	const countdown = msLeft <= 0 ? "Expired" : hoursLeft < 24 ? `${Math.round(hoursLeft)}h left` : `${Math.round(hoursLeft / 24)}d left`;
+	const countdown = msLeft <= 0 ? "Ready" : hoursLeft < 24 ? `${Math.round(hoursLeft)}h left` : `${Math.round(hoursLeft / 24)}d left`;
 	return <span>{countdown}</span>;
 }
 
