@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { PositionQuery } from "@frankencoin/api";
-import { Address, formatUnits } from "viem";
+import { Address, formatUnits, parseUnits } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import AppButton from "@components/AppButton";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
-import { formatBigInt, formatCurrency } from "@utils";
+import { formatBigInt, formatCurrency, normalizeAddress } from "@utils";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/redux.store";
 import { useConnection, useBlockNumber } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
@@ -13,6 +15,18 @@ import { ADDRESS, FrankencoinABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import { toast } from "react-toastify";
 import { track } from "@hooks";
 import { mainnet } from "viem/chains";
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function fmtDate(d: Date): string {
+	const day = d.getUTCDate();
+	const mon = MONTHS[d.getUTCMonth()];
+	const yr = d.getUTCFullYear();
+	const hh = String(d.getUTCHours()).padStart(2, "0");
+	const mm = String(d.getUTCMinutes()).padStart(2, "0");
+	const ss = String(d.getUTCSeconds()).padStart(2, "0");
+	return `${day} ${mon} ${yr} ${hh}:${mm}:${ss}`;
+}
 
 interface Props {
 	position: PositionQuery;
@@ -31,6 +45,8 @@ export default function ForceSellAction({ position, auctionPrice, onBidSuccess }
 	const account = useConnection();
 	const chainId = mainnet.id;
 	const priceDigits = 36 - position.collateralDecimals;
+	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const marketPriceChf = prices[normalizeAddress(position.collateral)]?.price?.chf;
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
@@ -55,6 +71,26 @@ export default function ForceSellAction({ position, auctionPrice, onBidSuccess }
 		setAmount(BigInt(position.collateralBalance));
 		setInit(true);
 	}, [isInit, position]);
+
+	const AVG_BLOCK_TIME_MS = 12_000;
+	const marketPriceBigInt = marketPriceChf !== undefined ? parseUnits(marketPriceChf.toFixed(6), priceDigits) : undefined;
+	const endTimeMs = (position.expiration + position.challengePeriod) * 1000;
+	const remainingMs = Math.max(0, endTimeMs - Date.now());
+
+	let marketReachedAt: string = "—";
+	let estimatedBlockStr: string = "—";
+	if (marketPriceBigInt !== undefined && auctionPrice > 0n) {
+		if (auctionPrice <= marketPriceBigInt) {
+			marketReachedAt = "Now";
+			estimatedBlockStr = data !== undefined ? `#${Number(data).toLocaleString()}` : "—";
+		} else if (remainingMs > 0) {
+			const msUntilMarket = Number((BigInt(remainingMs) * (auctionPrice - marketPriceBigInt)) / auctionPrice);
+			marketReachedAt = fmtDate(new Date(Date.now() + msUntilMarket));
+			if (data !== undefined) {
+				estimatedBlockStr = `#${Number(data) + Math.round(msUntilMarket / AVG_BLOCK_TIME_MS)}`;
+			}
+		}
+	}
 
 	const expectedZCHF = (bidAmount?: bigint) => {
 		if (!bidAmount) bidAmount = amount;
@@ -145,11 +181,27 @@ export default function ForceSellAction({ position, auctionPrice, onBidSuccess }
 						{formatBigInt(BigInt(position.collateralBalance), position.collateralDecimals)} {position.collateralSymbol}
 					</span>
 				</div>
-				<div className="flex justify-between items-center">
+				<div className="flex justify-between items-center mt-2">
 					<span className="text-text-secondary">Price per unit</span>
-					<span className="text-text-primary font-medium">{formatCurrency(formatUnits(auctionPrice, priceDigits), 2, 2)} ZCHF</span>
+					<span className="text-text-primary font-medium">
+						{formatCurrency(formatUnits(auctionPrice, priceDigits), 2, 2)} ZCHF
+					</span>
 				</div>
 				<div className="flex justify-between items-center">
+					<span className="text-text-secondary">Market price</span>
+					<span className="text-text-primary font-medium">
+						{marketPriceChf !== undefined ? `${formatCurrency(marketPriceChf, 2, 2)} ZCHF` : "—"}
+					</span>
+				</div>
+				<div className="flex justify-between items-center">
+					<span className="text-text-secondary">Reaches market price</span>
+					<span className="text-text-primary font-medium">{marketReachedAt}</span>
+				</div>
+				<div className="flex justify-between items-center">
+					<span className="text-text-secondary">Est. block</span>
+					<span className="text-text-primary font-medium">{estimatedBlockStr}</span>
+				</div>
+				<div className="flex justify-between items-center mt-2">
 					<span className="text-text-secondary">Your balance</span>
 					<span className="text-text-primary font-medium">{formatCurrency(formatUnits(userBalance, 18), 2, 2)} ZCHF</span>
 				</div>
