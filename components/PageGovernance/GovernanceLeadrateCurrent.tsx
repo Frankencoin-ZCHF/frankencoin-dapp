@@ -1,56 +1,22 @@
-import { formatCurrency } from "../../utils/format";
-import AppButton from "@components/AppButton";
-import NormalInput from "@components/Input/NormalInput";
 import AppCard from "@components/AppCard";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { useEffect, useState } from "react";
-import { useConnection } from "wagmi";
-import { WAGMI_CONFIG } from "../../app.config";
-import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ADDRESS, EquityABI, SavingsABI } from "@frankencoin/zchf";
-import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
-import { toast } from "react-toastify";
+import { ADDRESS } from "@frankencoin/zchf";
 import dynamic from "next/dynamic";
 import { LeadrateRateQuery } from "@frankencoin/api";
 import { mainnet } from "viem/chains";
-import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
-import { Address } from "viem";
 import { normalizeAddress } from "../../utils/format";
-import { useDelegationHelpers } from "@hooks";
+import GovernanceLeadrateActionMint from "./GovernanceLeadrateActionMint";
+import GovernanceLeadrateActionSave from "./GovernanceLeadrateActionSave";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const MintModule = normalizeAddress(ADDRESS[mainnet.id].savingsV2);
 const SaveModule = normalizeAddress(ADDRESS[mainnet.id].savingsReferral);
 
-interface Props {}
-
-export default function GovernanceLeadrateCurrent({}: Props) {
-	const account = useConnection();
+export default function GovernanceLeadrateCurrent() {
 	const chainId = mainnet.id;
-	const { helpers } = useDelegationHelpers(account.address);
 	const rate = useSelector((state: RootState) => state.savings.leadrateRate.rate[chainId]);
 	const rates = useSelector((state: RootState) => state.savings.leadrateRate.list[chainId]);
-
-	const [newRateMint, setNewRateMint] = useState<bigint>(BigInt(rate[MintModule].approvedRate));
-	const [isHandlingMint, setHandlingMint] = useState<boolean>(false);
-	const [isHiddenMint, setHiddenMint] = useState<boolean>(false);
-	const [isDisabledMint, setDisabledMint] = useState<boolean>(true);
-
-	const [newRateSave, setNewRateSave] = useState<bigint>(BigInt(rate[SaveModule].approvedRate));
-	const [isHandlingSave, setHandlingSave] = useState<boolean>(false);
-	const [isHiddenSave, setHiddenSave] = useState<boolean>(false);
-	const [isDisabledSave, setDisabledSave] = useState<boolean>(true);
-
-	useEffect(() => {
-		if (newRateMint != BigInt(rate[MintModule].approvedRate)) setDisabledMint(false);
-		else setDisabledMint(true);
-	}, [newRateMint, rate]);
-
-	useEffect(() => {
-		if (newRateSave != BigInt(rate[SaveModule].approvedRate)) setDisabledSave(false);
-		else setDisabledSave(true);
-	}, [newRateSave, rate]);
 
 	const latestDefaultEntryMint: LeadrateRateQuery = {
 		chainId: mainnet.id,
@@ -75,125 +41,6 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 	const matchingRatesMint = [latestDefaultEntryMint, ...rates[MintModule]];
 	const matchingRatesSave = [latestDefaultEntrySave, ...rates[SaveModule]];
 
-	// Bug in AbstractLeadrate.sol line 40: uint40 overflow in updateRate().
-	// ticksAnchor += (timeNow - anchorTime) * currentRatePPM overflows uint40
-	// when (elapsed seconds) * ratePPM > 2^40 - 1.
-	// Each rate change resets the countdown. After the deadline, any updateRate() call will revert.
-	const UINT40_MAX = 2n ** 40n - 1n;
-	const calcOverflowTimestamp = (module: Address) => {
-		const ratePPM = rate[module].approvedRate;
-		if (ratePPM <= 0) return null;
-		const anchor = rate[module].created;
-		const maxElapsed = Number(UINT40_MAX / BigInt(ratePPM));
-		return anchor + maxElapsed;
-	};
-	const formatOverflowWarning = (overflowTs: number | null) => {
-		if (!overflowTs) return null;
-		const now = Math.floor(Date.now() / 1000);
-		if (overflowTs <= now) return "Contract is bricked: uint40 overflow reached, rate changes will permanently revert.";
-		const daysLeft = Math.floor((overflowTs - now) / 86400);
-		const date = new Date(overflowTs * 1000);
-		const dateStr = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
-		if (daysLeft < 90) return `Apply new rate before ${dateStr} (~${daysLeft}d) due to uint40 overflow in contract.`;
-		return null;
-	};
-	const overflowWarningMint = formatOverflowWarning(calcOverflowTimestamp(MintModule));
-	const overflowWarningSave = formatOverflowWarning(calcOverflowTimestamp(SaveModule));
-
-	const handleOnClickMint = async function (e: any) {
-		e.preventDefault();
-		if (!account.address) return;
-
-		try {
-			setHandlingMint(true);
-
-			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: MintModule,
-				chainId: chainId,
-				abi: SavingsABI,
-				functionName: "proposeChange",
-				args: [parseInt(String(newRateMint)), helpers],
-			});
-
-			const toastContent = [
-				{
-					title: `From: `,
-					value: `${formatCurrency(rate[MintModule].approvedRate / 10000)}%`,
-				},
-				{
-					title: `Proposing to: `,
-					value: `${formatCurrency(parseInt(String(newRateMint)) / 10000)}%`,
-				},
-				{
-					title: "Transaction: ",
-					hash: writeHash,
-				},
-			];
-
-			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
-				pending: {
-					render: <TxToast title={`Proposing mint rate change...`} rows={toastContent} />,
-				},
-				success: {
-					render: <TxToast title="Successfully proposed" rows={toastContent} />,
-				},
-			});
-
-			setHiddenMint(true);
-		} catch (error) {
-			toast.error(renderErrorTxToastDecode(error, EquityABI));
-		} finally {
-			setHandlingMint(false);
-		}
-	};
-
-	const handleOnClickSave = async function (e: any) {
-		e.preventDefault();
-		if (!account.address) return;
-
-		try {
-			setHandlingSave(true);
-
-			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: SaveModule,
-				chainId: chainId,
-				abi: SavingsABI,
-				functionName: "proposeChange",
-				args: [parseInt(String(newRateSave)), helpers],
-			});
-
-			const toastContent = [
-				{
-					title: `From: `,
-					value: `${formatCurrency(rate[SaveModule].approvedRate / 10000)}%`,
-				},
-				{
-					title: `Proposing to: `,
-					value: `${formatCurrency(parseInt(String(newRateSave)) / 10000)}%`,
-				},
-				{
-					title: "Transaction: ",
-					hash: writeHash,
-				},
-			];
-
-			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
-				pending: {
-					render: <TxToast title={`Proposing save rate change...`} rows={toastContent} />,
-				},
-				success: {
-					render: <TxToast title="Successfully proposed" rows={toastContent} />,
-				},
-			});
-
-			setHiddenSave(true);
-		} catch (error) {
-			toast.error(renderErrorTxToastDecode(error, EquityABI));
-		} finally {
-			setHandlingSave(false);
-		}
-	};
-
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 			<AppCard>
@@ -203,91 +50,55 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 					<ApexChart
 						type="line"
 						options={{
-							theme: {
-								monochrome: {
-									enabled: false,
-								},
-							},
+							theme: { monochrome: { enabled: false } },
 							colors: ["#092f62", "#0F80F0"],
-							stroke: {
-								curve: "linestep",
-								width: 3,
-							},
+							stroke: { curve: "linestep", width: 3 },
 							chart: {
 								type: "line",
 								height: 100,
-								dropShadow: {
-									enabled: false,
-								},
-								toolbar: {
-									show: false,
-								},
-								zoom: {
-									enabled: false,
-								},
+								dropShadow: { enabled: false },
+								toolbar: { show: false },
+								zoom: { enabled: false },
 								background: "0",
 							},
-							dataLabels: {
-								enabled: false,
-							},
-							grid: {
-								show: false,
-							},
+							dataLabels: { enabled: false },
+							grid: { show: false },
 							xaxis: {
 								type: "datetime",
 								labels: {
 									show: true,
 									formatter: (value) => {
-										const date = new Date(value);
-										const d = date.getDate();
-										const m = date.getMonth() + 1;
-										const y = date.getFullYear();
-										return `${d}.${m}.${y}`;
+										const d = new Date(value);
+										return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`;
 									},
 								},
-								axisBorder: {
-									show: false,
-								},
-								axisTicks: {
-									show: false,
-								},
+								axisBorder: { show: false },
+								axisTicks: { show: false },
 							},
 							yaxis: {
 								labels: {
 									show: true,
-									formatter: (value) => {
-										return `${Math.round(value / 1000) / 10} %`;
-									},
+									formatter: (value) => `${Math.round(value / 1000) / 10} %`,
 								},
-								axisBorder: {
-									show: true,
-								},
-								axisTicks: {
-									show: true,
-								},
+								axisBorder: { show: true },
+								axisTicks: { show: true },
 								min: 0,
-								max: (max) => {
-									return (Math.floor(max / 100000) + 1) * 50000;
-								},
+								max: (max) => (Math.floor(max / 100000) + 1) * 50000,
 							},
 						}}
 						series={[
 							{
 								name: "Mint",
-								data: matchingRatesMint.map((entry) => {
-									return [entry.created * 1000, Math.round(entry.approvedRate)];
-								}),
+								data: matchingRatesMint.map((e) => [e.created * 1000, Math.round(e.approvedRate)]),
 							},
 							{
 								name: "Save",
-								data: matchingRatesSave.map((entry) => {
-									return [entry.created * 1000, Math.round(entry.approvedRate)];
-								}),
+								data: matchingRatesSave.map((e) => [e.created * 1000, Math.round(e.approvedRate)]),
 							},
 						]}
 					/>
 
-					{matchingRatesMint.length == 0 || matchingRatesSave.length == 0 ? (
+					{matchingRatesMint.length === 0 || matchingRatesSave.length === 0 ? (
 						<div className="flex justify-center text-text-warning">No data available for selected timeframe.</div>
 					) : null}
 				</div>
@@ -296,50 +107,8 @@ export default function GovernanceLeadrateCurrent({}: Props) {
 			<AppCard>
 				<div className="flex flex-col gap-4">
 					<div className="mt-4 text-lg font-bold text-center">Propose a new Rate</div>
-
-					<NormalInput
-						symbol="%"
-						label="Mint Rate"
-						placeholder={`Change Rate`}
-						value={newRateMint.toString()}
-						digit={4}
-						onChange={(e) => setNewRateMint(BigInt(e))}
-						warning={overflowWarningMint ?? undefined}
-					/>
-
-					<div className="h-10 mb-4">
-						<GuardSupportedChain disabled={isDisabledMint || isHiddenMint} chain={mainnet}>
-<AppButton
-								disabled={isDisabledMint || isHiddenMint}
-								isLoading={isHandlingMint}
-								onClick={(e) => handleOnClickMint(e)}
-							>
-								Propose Change
-							</AppButton>
-						</GuardSupportedChain>
-					</div>
-
-					<NormalInput
-						symbol="%"
-						label="Save Rate"
-						placeholder={`Change Rate`}
-						value={newRateSave.toString()}
-						digit={4}
-						onChange={(e) => setNewRateSave(BigInt(e))}
-						warning={overflowWarningSave ?? undefined}
-					/>
-
-					<div className="h-10 mb-4">
-						<GuardSupportedChain disabled={isDisabledSave || isHiddenSave} chain={mainnet}>
-<AppButton
-								disabled={isDisabledSave || isHiddenSave}
-								isLoading={isHandlingSave}
-								onClick={(e) => handleOnClickSave(e)}
-							>
-								Propose Change
-							</AppButton>
-						</GuardSupportedChain>
-					</div>
+					<GovernanceLeadrateActionMint />
+					<GovernanceLeadrateActionSave />
 				</div>
 			</AppCard>
 		</div>
