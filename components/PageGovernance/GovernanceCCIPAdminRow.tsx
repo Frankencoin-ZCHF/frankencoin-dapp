@@ -4,6 +4,8 @@ import { ChainId, SupportedChain, SupportedChainsMap } from "@frankencoin/zchf";
 import { ApiCCIPProposal } from "../../redux/slices/bridge.types";
 import { ContractUrl, getChainByChainSelector, shortenAddress, TxUrl } from "@utils";
 import { Address, Hash } from "viem";
+import GovernanceCCIPAdminDenyAction from "./GovernanceCCIPAdminDenyAction";
+import GovernanceCCIPAdminEnactAction from "./GovernanceCCIPAdminEnactAction";
 
 interface Props {
 	headers: string[];
@@ -66,8 +68,21 @@ export default function GovernanceCCIPAdminRow({ headers, tab, proposal }: Props
 	const dateArr = new Date(proposal.created * 1000).toDateString().split(" ");
 	const dateStr = `${dateArr[2]} ${dateArr[1]} ${dateArr[3]}`;
 
+	const isPending = proposal.status === "Pending";
+	const deadlinePassed = proposal.deadline * 1000 < Date.now();
+
+	const actionCol = isPending ? (
+		deadlinePassed ? (
+			<GovernanceCCIPAdminEnactAction proposal={proposal} />
+		) : (
+			<GovernanceCCIPAdminDenyAction proposal={proposal} />
+		)
+	) : (
+		<span />
+	);
+
 	return (
-		<TableRow headers={headers} rawHeader={true} tab={tab} actionCol={<span />}>
+		<TableRow headers={headers} rawHeader={true} tab={tab} actionCol={actionCol}>
 			{/* Date → tx link */}
 			<div className="flex flex-col md:text-left max-md:text-right">
 				<AppLink className="" label={dateStr} href={TxUrl(proposal.txHash as Hash, chain)} external={true} />
