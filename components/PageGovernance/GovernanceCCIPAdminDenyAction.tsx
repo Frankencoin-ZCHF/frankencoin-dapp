@@ -8,6 +8,7 @@ import AppButton from "@components/AppButton";
 import { Chain, Hash } from "viem";
 import { ADDRESS, CCIPAdminABI, ChainId, SupportedChainsMap } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
+import GuardQualifiedVoter from "@components/Guards/GuardQualifiedVoter";
 import { useDelegationHelpers } from "@hooks";
 import { shortenString } from "@utils";
 import { ApiCCIPProposal } from "../../redux/slices/bridge.types";
@@ -62,10 +63,12 @@ export default function GovernanceCCIPAdminDenyAction({ proposal, disabled }: Pr
 	};
 
 	return (
-		<GuardSupportedChain disabled={isHidden || disabled} chain={chain}>
-			<AppButton className="" disabled={isHidden || disabled} isLoading={isDenying} onClick={handleOnClick}>
-				Deny
-			</AppButton>
-		</GuardSupportedChain>
+		<GuardQualifiedVoter disabled={isHidden || disabled}>
+			<GuardSupportedChain disabled={isHidden || disabled} chain={chain}>
+				<AppButton disabled={isHidden || disabled} isLoading={isDenying} onClick={handleOnClick}>
+					Deny
+				</AppButton>
+			</GuardSupportedChain>
+		</GuardQualifiedVoter>
 	);
 }
