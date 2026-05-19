@@ -137,7 +137,10 @@ export default function AuctionBidAction({ position, challenge, auctionPrice, on
 				},
 			});
 
-			track("auction_bid_placed", { collateral: position.collateralSymbol, amount: formatBigInt(amount, position.collateralDecimals) });
+			track("auction_bid_placed", {
+				collateral: position.collateralSymbol,
+				amount: formatBigInt(amount, position.collateralDecimals),
+			});
 			onBidSuccess();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
@@ -190,7 +193,12 @@ export default function AuctionBidAction({ position, challenge, auctionPrice, on
 				</div>
 				<div className="flex justify-between items-center">
 					<span className="text-text-secondary">Challenger</span>
-					<AppLink label={shortenAddress(challenge.challenger)} href={ContractUrl(challenge.challenger, WAGMI_CHAIN)} external={true} />
+					<AppLink
+						className=""
+						label={shortenAddress(challenge.challenger)}
+						href={ContractUrl(challenge.challenger, WAGMI_CHAIN)}
+						external={true}
+					/>
 				</div>
 				<div className="flex justify-between items-center">
 					<span className="text-text-secondary">Your balance</span>
@@ -203,7 +211,11 @@ export default function AuctionBidAction({ position, challenge, auctionPrice, on
 			</div>
 
 			<GuardSupportedChain chain={mainnet}>
-				<AppButton disabled={amount == 0n || expectedZCHF > userBalance || error != ""} isLoading={isBidding} onClick={() => handleBid()}>
+				<AppButton
+					disabled={amount == 0n || expectedZCHF > userBalance || error != ""}
+					isLoading={isBidding}
+					onClick={() => handleBid()}
+				>
 					Buy
 				</AppButton>
 			</GuardSupportedChain>
