@@ -75,9 +75,9 @@ export default function Governance() {
 
 			<AppTitle title="CCIP Admin Proposals">
 				<div className="text-text-secondary">
-					Changes to the CCIP bridge configuration — adding or removing chains, updating remote pool addresses, and adjusting rate
-					limits — require a governance proposal with a seven-day veto window. Any qualified FPS holder can deny a pending proposal
-					before its deadline.
+					Structural changes to the CCIP bridge — adding or removing chains, updating remote pool addresses, and transferring admin
+					— require a governance proposal with a seven-day veto window (21 days for admin transfer). Any qualified FPS holder can
+					deny a pending proposal before its deadline. Rate limit adjustments take effect immediately without a timelock.
 				</div>
 			</AppTitle>
 
