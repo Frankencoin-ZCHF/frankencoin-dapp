@@ -14,14 +14,17 @@ import { fetchLeadrate } from "../../redux/slices/savings.slice";
 import GovernanceMintersPropose from "@components/PageGovernance/GovernanceMintersPropose";
 import GovernanceDelegation from "@components/PageGovernance/GovernanceDelegation";
 import GovernanceCCIPBridgesTable from "@components/PageGovernance/GovernanceCCIPBridgesTable";
+import GovernanceCCIPAdminTable from "@components/PageGovernance/GovernanceCCIPAdminTable";
 import { useFPSAverageStats } from "@hooks";
 import { formatUnits } from "viem";
+import { fetchBridge } from "../../redux/slices/bridge.slice";
 
 export default function Governance() {
 	const stats = useFPSAverageStats();
 
 	useEffect(() => {
 		store.dispatch(fetchLeadrate());
+		store.dispatch(fetchBridge());
 	}, []);
 
 	return (
@@ -69,6 +72,16 @@ export default function Governance() {
 			<div className="flex justify-left">
 				<AppLink className="text-left" label="See all modules" href="/governance/modules" external={false} />
 			</div>
+
+			<AppTitle title="CCIP Admin Proposals">
+				<div className="text-text-secondary">
+					Changes to the CCIP bridge configuration — adding or removing chains, updating remote pool addresses, and adjusting rate
+					limits — require a governance proposal with a seven-day veto window. Any qualified FPS holder can deny a pending proposal
+					before its deadline.
+				</div>
+			</AppTitle>
+
+			<GovernanceCCIPAdminTable />
 
 			<AppTitle title="CCIP Bridges">
 				<div className="text-text-secondary">

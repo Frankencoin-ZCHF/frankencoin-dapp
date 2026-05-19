@@ -10,6 +10,7 @@ import { reducer as challengesReducer } from "./slices/challenges.slice";
 import { reducer as bidsReducer } from "./slices/bids.slice";
 import { reducer as savingsReducer } from "./slices/savings.slice";
 import { reducer as morphoReducer } from "./slices/morpho.slice";
+import { reducer as bridgeReducer } from "./slices/bridge.slice";
 
 // store with combined reducers
 export const store = configureStore({
@@ -22,6 +23,7 @@ export const store = configureStore({
 		bids: bidsReducer,
 		savings: savingsReducer,
 		morpho: morphoReducer,
+		bridge: bridgeReducer,
 	}),
 });
 
