@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { PositionQuery, ChallengesQueryItem } from "@frankencoin/api";
-import { Address, formatUnits, parseEther } from "viem";
+import { Address, formatUnits, parseEther, parseUnits } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import AppButton from "@components/AppButton";
 import AppLink from "@components/AppLink";
@@ -16,6 +16,18 @@ import { ADDRESS, FrankencoinABI, MintingHubV1ABI, MintingHubV2ABI } from "@fran
 import { toast } from "react-toastify";
 import { track } from "@hooks";
 import { mainnet } from "viem/chains";
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function fmtDate(d: Date): string {
+	const day = d.getDate();
+	const mon = MONTHS[d.getMonth()];
+	const yr = d.getFullYear();
+	const hh = String(d.getHours()).padStart(2, "0");
+	const mm = String(d.getMinutes()).padStart(2, "0");
+	const ss = String(d.getSeconds()).padStart(2, "0");
+	return `${day} ${mon} ${yr} ${hh}:${mm}:${ss}`;
+}
 
 interface Props {
 	position: PositionQuery;
@@ -84,6 +96,27 @@ export default function AuctionBidAction({ position, challenge, auctionPrice, on
 
 	const remainingSize = BigInt(challenge.size) - BigInt(challenge.filledSize);
 
+	const AVG_BLOCK_TIME_MS = 12_000; // Ethereum mainnet PoS
+	const priceDigits = 36 - position.collateralDecimals;
+	const marketPriceBigInt = marketPriceChf !== undefined ? parseUnits(marketPriceChf.toFixed(6), priceDigits) : undefined;
+	const endTimeMs = (parseInt(challenge.start.toString()) + parseInt(challenge.duration.toString())) * 1000;
+	const remainingMs = Math.max(0, endTimeMs - Date.now());
+
+	let marketReachedAt: string = "—";
+	let estimatedBlockStr: string = "—";
+	if (marketPriceBigInt !== undefined && auctionPrice > 0n) {
+		if (auctionPrice <= marketPriceBigInt) {
+			marketReachedAt = "Now";
+			estimatedBlockStr = data !== undefined ? `#${Number(data).toLocaleString()}` : "—";
+		} else if (remainingMs > 0) {
+			const msUntilMarket = Number((BigInt(remainingMs) * (auctionPrice - marketPriceBigInt)) / auctionPrice);
+			marketReachedAt = fmtDate(new Date(Date.now() + msUntilMarket));
+			if (data !== undefined) {
+				estimatedBlockStr = `#${Number(data) + Math.round(msUntilMarket / AVG_BLOCK_TIME_MS)}`;
+			}
+		}
+	}
+
 	// @dev: issues with amount conversion from string input. Reconvert to bigint.
 	const expectedZCHF = (BigInt(amount) * auctionPrice) / parseEther("1");
 
@@ -137,7 +170,10 @@ export default function AuctionBidAction({ position, challenge, auctionPrice, on
 				},
 			});
 
-			track("auction_bid_placed", { collateral: position.collateralSymbol, amount: formatBigInt(amount, position.collateralDecimals) });
+			track("auction_bid_placed", {
+				collateral: position.collateralSymbol,
+				amount: formatBigInt(amount, position.collateralDecimals),
+			});
 			onBidSuccess();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
@@ -165,12 +201,28 @@ export default function AuctionBidAction({ position, challenge, auctionPrice, on
 
 			<div className="flex flex-col gap-1.5 text-sm">
 				<div className="flex justify-between items-center">
+					<span className="text-text-secondary">Initially</span>
+					<span className="text-text-primary font-medium">
+						{formatBigInt(challenge.size, position.collateralDecimals)} {position.collateralSymbol}
+					</span>
+				</div>
+				<div className="flex justify-between items-center">
 					<span className="text-text-secondary">Available</span>
 					<span className="text-text-primary font-medium">
 						{formatBigInt(remainingSize, position.collateralDecimals)} {position.collateralSymbol}
 					</span>
 				</div>
 				<div className="flex justify-between items-center">
+					<span className="text-text-secondary">Challenger</span>
+					<AppLink
+						className=""
+						label={shortenAddress(challenge.challenger)}
+						href={ContractUrl(challenge.challenger, WAGMI_CHAIN)}
+						external={true}
+					/>
+				</div>
+
+				<div className="flex justify-between items-center mt-2">
 					<span className="text-text-secondary">Price per unit</span>
 					<span className="text-text-primary font-medium">
 						{formatCurrency(formatUnits(auctionPrice, 36 - position.collateralDecimals), 2, 2)} ZCHF
@@ -183,16 +235,15 @@ export default function AuctionBidAction({ position, challenge, auctionPrice, on
 					</span>
 				</div>
 				<div className="flex justify-between items-center">
-					<span className="text-text-secondary">Initially available</span>
-					<span className="text-text-primary font-medium">
-						{formatBigInt(challenge.size, position.collateralDecimals)} {position.collateralSymbol}
-					</span>
+					<span className="text-text-secondary">Reaches market price</span>
+					<span className="text-text-primary font-medium">{marketReachedAt}</span>
 				</div>
 				<div className="flex justify-between items-center">
-					<span className="text-text-secondary">Challenger</span>
-					<AppLink label={shortenAddress(challenge.challenger)} href={ContractUrl(challenge.challenger, WAGMI_CHAIN)} external={true} />
+					<span className="text-text-secondary">Est. block</span>
+					<span className="text-text-primary font-medium">{estimatedBlockStr}</span>
 				</div>
-				<div className="flex justify-between items-center">
+
+				<div className="flex justify-between items-center mt-2">
 					<span className="text-text-secondary">Your balance</span>
 					<span className="text-text-primary font-medium">{formatCurrency(formatUnits(userBalance, 18), 2, 2)} ZCHF</span>
 				</div>
@@ -203,7 +254,11 @@ export default function AuctionBidAction({ position, challenge, auctionPrice, on
 			</div>
 
 			<GuardSupportedChain chain={mainnet}>
-				<AppButton disabled={amount == 0n || expectedZCHF > userBalance || error != ""} isLoading={isBidding} onClick={() => handleBid()}>
+				<AppButton
+					disabled={amount == 0n || expectedZCHF > userBalance || error != ""}
+					isLoading={isBidding}
+					onClick={() => handleBid()}
+				>
 					Buy
 				</AppButton>
 			</GuardSupportedChain>

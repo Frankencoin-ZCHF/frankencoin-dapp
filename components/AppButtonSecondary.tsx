@@ -21,7 +21,7 @@ export default function AppButtonSecondary({
 	to,
 	isLoading,
 	className,
-	size,
+	size = "medium",
 	disabled,
 	width,
 	onClick = () => {},
@@ -31,7 +31,7 @@ export default function AppButtonSecondary({
 	note,
 	umamiEvent,
 }: Props) {
-	const sizeClass = size === "small" ? "px-2 py-1 md:px-3 md:py-1 text-sm" : size === "medium" ? "px-3 py-2 md:px-3 md:py-3" : "py-3";
+	const sizeClass = size === "small" ? "px-2 py-1 md:px-3 md:py-1 text-sm" : size === "medium" ? "py-2" : "py-3";
 
 	const btnClass = `btn ${className ?? ""} ${sizeClass} ${
 		disabled || isLoading
@@ -40,7 +40,14 @@ export default function AppButtonSecondary({
 	} ${width ?? "w-full"}`.trim();
 
 	const button = to ? (
-		<Link href={to} className={btnClass} onClick={(e) => { onClick(e); if (umamiEvent) track(umamiEvent); }}>
+		<Link
+			href={to}
+			className={btnClass}
+			onClick={(e) => {
+				onClick(e);
+				if (umamiEvent) track(umamiEvent);
+			}}
+		>
 			{children}
 		</Link>
 	) : (
