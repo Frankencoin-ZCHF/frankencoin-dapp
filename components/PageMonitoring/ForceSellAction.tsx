@@ -74,18 +74,36 @@ export default function ForceSellAction({ position, auctionPrice, onBidSuccess }
 
 	const AVG_BLOCK_TIME_MS = 12_000;
 	const marketPriceBigInt = marketPriceChf !== undefined ? parseUnits(marketPriceChf.toFixed(6), priceDigits) : undefined;
-	const endTimeMs = (position.expiration + position.challengePeriod) * 1000;
-	const remainingMs = Math.max(0, endTimeMs - Date.now());
+	const liqPriceBigInt = BigInt(position.price);
+	const nowMs = Date.now();
+	const startMs = position.expiration * 1000;
+	const phaseMs = position.challengePeriod * 1000;
+	const phase2StartMs = startMs + phaseMs;
+	const endTimeMs = startMs + 2 * phaseMs;
+	const remainingMs = Math.max(0, endTimeMs - nowMs);
 
 	let marketReachedAt: string = "—";
 	let estimatedBlockStr: string = "—";
-	if (marketPriceBigInt !== undefined && auctionPrice > 0n) {
+	if (marketPriceBigInt !== undefined && auctionPrice > 0n && liqPriceBigInt > 0n) {
 		if (auctionPrice <= marketPriceBigInt) {
 			marketReachedAt = "Now";
 			estimatedBlockStr = data !== undefined ? `#${Number(data).toLocaleString()}` : "—";
 		} else if (remainingMs > 0) {
-			const msUntilMarket = Number((BigInt(remainingMs) * (auctionPrice - marketPriceBigInt)) / auctionPrice);
-			marketReachedAt = fmtDate(new Date(Date.now() + msUntilMarket));
+			let msUntilMarket: number;
+			const inPhase1 = nowMs < phase2StartMs;
+			if (inPhase1 && marketPriceBigInt > liqPriceBigInt) {
+				// Both current and target price are in phase 1 range (10×→1× liqPrice)
+				msUntilMarket = Number((BigInt(phaseMs) * (auctionPrice - marketPriceBigInt)) / (9n * liqPriceBigInt));
+			} else if (inPhase1) {
+				// Currently in phase 1, market price reached in phase 2 (1×→0)
+				const remainingPhase1Ms = phase2StartMs - nowMs;
+				const msInPhase2 = Number((BigInt(phaseMs) * (liqPriceBigInt - marketPriceBigInt)) / liqPriceBigInt);
+				msUntilMarket = remainingPhase1Ms + msInPhase2;
+			} else {
+				// In phase 2 (1×→0 liqPrice)
+				msUntilMarket = Number((BigInt(phaseMs) * (auctionPrice - marketPriceBigInt)) / liqPriceBigInt);
+			}
+			marketReachedAt = fmtDate(new Date(nowMs + msUntilMarket));
 			if (data !== undefined) {
 				estimatedBlockStr = `#${Number(data) + Math.round(msUntilMarket / AVG_BLOCK_TIME_MS)}`;
 			}
