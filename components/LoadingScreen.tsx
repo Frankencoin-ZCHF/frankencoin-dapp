@@ -58,6 +58,19 @@ export default function LoadingScreen({ title = "Frankencoin is loading...", loa
 						</ul>
 					)}
 
+					<p className="text-sm text-amber-600 border border-amber-300 bg-amber-50 rounded px-4 py-3 max-w-md text-center">
+						⚠️ The frontend is currently not getting any data due to a{" "}
+						<a
+							href="https://status.railway.com/incident/I23M92U0"
+							target="_blank"
+							rel="noreferrer"
+							className="underline hover:opacity-80"
+						>
+							service disruption
+						</a>
+						{" "}at our hosting provider.
+					</p>
+
 					{showWarning && (
 						<p className="text-sm text-text-warning animate-pulse text-center max-w-md">
 							Loading takes longer than expected. Continuing in {remainingSeconds}s. Please try again at a later point
