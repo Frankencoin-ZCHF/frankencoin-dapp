@@ -15,6 +15,35 @@ type SuccessBody = { status: "success"; data: XerberusRating[] };
 type ErrorBody = { status: "error"; message: string };
 
 const ALLOWED_TYPES: XerberusEntityType[] = ["pool", "protocol", "organisation", "asset"];
+const UPSTREAM_TIMEOUT_MS = 8 * 1000;
+const ENABLE_DEV_MOCKS = process.env.NODE_ENV !== "production";
+
+const DEV_MOCK_RATINGS: XerberusRating[] = [
+	{
+		type: "protocol",
+		id: "frankencoin",
+		name: "Frankencoin",
+		score: 91,
+		platform: null,
+		address: null,
+	},
+	{
+		type: "organisation",
+		id: "frankencoin-dao",
+		name: "Frankencoin",
+		score: 87,
+		platform: null,
+		address: null,
+	},
+	{
+		type: "pool",
+		id: "frankencoin-savings-eth",
+		name: "Frankencoin Savings",
+		score: 83,
+		platform: "ethereum",
+		address: null,
+	},
+];
 
 const parseCsv = (raw: unknown): string[] | undefined => {
 	if (typeof raw !== "string" || raw.length === 0) return undefined;
@@ -23,6 +52,22 @@ const parseCsv = (raw: unknown): string[] | undefined => {
 		.map((s) => s.trim())
 		.filter(Boolean);
 	return parts.length > 0 ? parts : undefined;
+};
+
+const fetchWithTimeout = async (url: string, init: RequestInit, timeoutMs: number) => {
+	const controller = new AbortController();
+	const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+	try {
+		return await fetch(url, { ...init, signal: controller.signal });
+	} catch (err) {
+		if (err instanceof Error && err.name === "AbortError") {
+			throw new Error(`Upstream request timed out after ${timeoutMs}ms`);
+		}
+		throw err;
+	} finally {
+		clearTimeout(timeout);
+	}
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<SuccessBody | ErrorBody>) {
@@ -44,6 +89,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 	const userEmail = process.env.XERBERUS_USER_EMAIL;
 
 	if (!baseUrl || !apiKey || !userEmail) {
+		if (ENABLE_DEV_MOCKS) {
+			res.setHeader("X-Ratings-Mock", "xerberus");
+			return res.status(200).json({
+				status: "success",
+				data: types ? DEV_MOCK_RATINGS.filter((rating) => types.includes(rating.type)) : DEV_MOCK_RATINGS,
+			});
+		}
+
 		return res.status(500).json({
 			status: "error",
 			message: "Xerberus API is not configured (XERBERUS_API_URL, XERBERUS_API_KEY, XERBERUS_USER_EMAIL).",
@@ -56,14 +109,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 	const upstreamUrl = `${baseUrl.replace(/\/$/, "")}/registry/scores${params.toString() ? `?${params.toString()}` : ""}`;
 
 	try {
-		const upstream = await fetch(upstreamUrl, {
-			method: "GET",
-			headers: {
-				"x-api-key": apiKey,
-				"x-user-email": userEmail,
-				accept: "application/json",
+		const upstream = await fetchWithTimeout(
+			upstreamUrl,
+			{
+				method: "GET",
+				headers: {
+					"x-api-key": apiKey,
+					"x-user-email": userEmail,
+					accept: "application/json",
+				},
 			},
-		});
+			UPSTREAM_TIMEOUT_MS
+		);
 
 		const body = (await upstream.json().catch(() => null)) as SuccessBody | ErrorBody | null;
 
