@@ -1,4 +1,3 @@
-import SavingsGlobalCard from "@components/PageSavings/SavingsGlobalCard";
 import SavingsInteractionCard from "@components/PageSavings/SavingsInteractionCard";
 import Head from "next/head";
 import { useEffect, useState } from "react";
@@ -6,7 +5,6 @@ import { RootState, store } from "../redux/redux.store";
 import { fetchLeadrate, fetchSavings } from "../redux/slices/savings.slice";
 import { useConnection, useChainId } from "wagmi";
 import AppTitle from "@components/AppTitle";
-import SavingsRankedBalancesTable from "@components/PageSavings/SavingsRankedBalancesTable";
 import AppLink from "@components/AppLink";
 import AppHeroSteps from "@components/AppHeroSteps";
 import SavingsRecentActivitiesTable from "@components/PageSavings/SavingsRecentActivitiesTable";
@@ -70,7 +68,7 @@ export default function SavingsPage() {
 
 			<AppTitle title={`Earn`}>
 				<div className={`text-text-secondary`}>
-					Earn interest on your Frankencoins - supported on all eight chains. Already more than {" "}
+					Earn interest on your Frankencoins - supported on all eight chains. Already more than{" "}
 					{Math.floor(totalBalance / 1000000)} million ZCHF saved.
 				</div>
 			</AppTitle>
