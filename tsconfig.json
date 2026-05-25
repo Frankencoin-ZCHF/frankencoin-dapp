@@ -20,7 +20,9 @@
 			"@components/*": ["./components/*"],
 			"@hooks": ["./hooks"],
 			"@utils": ["./utils"],
-			"@contracts": ["./contracts"]
+			"@contracts": ["./contracts"],
+			"viem": ["./node_modules/viem"],
+			"viem/*": ["./node_modules/viem/*"]
 		},
 		"plugins": [
 			{
