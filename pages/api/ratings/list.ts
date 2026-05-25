@@ -1,15 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-
-export type XerberusEntityType = "pool" | "protocol" | "organisation" | "asset";
-
-export type XerberusRating = {
-	type: XerberusEntityType;
-	id: string;
-	name: string;
-	score: number | null;
-	platform: string | null;
-	address: string | null;
-};
+import type { XerberusEntityType, XerberusRating } from "@utils";
 
 type SuccessBody = { status: "success"; data: XerberusRating[] };
 type ErrorBody = { status: "error"; message: string };
@@ -17,8 +7,9 @@ type ErrorBody = { status: "error"; message: string };
 const ALLOWED_TYPES: XerberusEntityType[] = ["pool", "protocol", "organisation", "asset"];
 
 const parseCsv = (raw: unknown): string[] | undefined => {
-	if (typeof raw !== "string" || raw.length === 0) return undefined;
-	const parts = raw
+	const str = Array.isArray(raw) ? raw[0] : raw;
+	if (typeof str !== "string" || str.length === 0) return undefined;
+	const parts = str
 		.split(",")
 		.map((s) => s.trim())
 		.filter(Boolean);
@@ -63,6 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				"x-user-email": userEmail,
 				accept: "application/json",
 			},
+			signal: AbortSignal.timeout(5000),
 		});
 
 		const body = (await upstream.json().catch(() => null)) as SuccessBody | ErrorBody | null;
@@ -72,8 +64,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 			return res.status(upstream.status || 502).json({ status: "error", message });
 		}
 
+		res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=120");
 		return res.status(200).json(body);
 	} catch (err) {
+		if (err instanceof Error && err.name === "TimeoutError") {
+			return res.status(504).json({ status: "error", message: "Xerberus API timed out" });
+		}
 		const message = err instanceof Error ? err.message : "Unknown error contacting Xerberus API";
 		return res.status(502).json({ status: "error", message });
 	}

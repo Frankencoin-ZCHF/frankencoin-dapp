@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { XerberusEntityType, XerberusRating } from "../pages/api/ratings/list";
+import type { XerberusEntityType, XerberusRating } from "@utils";
 
 type Args = {
 	types?: XerberusEntityType[];
@@ -16,11 +16,15 @@ export function useRatings({ types }: Args): Result {
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 
+	// Stable string key avoids re-fetching when the caller passes a new array reference
+	// with the same content (e.g. an inline Array.from(...) expression).
+	const typeKey = types?.join(",") ?? "";
+
 	const query = useMemo(() => {
 		const params = new URLSearchParams();
-		if (types && types.length > 0) params.set("type", types.join(","));
+		if (typeKey) params.set("type", typeKey);
 		return params.toString();
-	}, [types]);
+	}, [typeKey]);
 
 	useEffect(() => {
 		const controller = new AbortController();
