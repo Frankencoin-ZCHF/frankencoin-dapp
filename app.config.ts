@@ -67,7 +67,7 @@ export const WAGMI_METADATA = {
 	icons: ["https://avatars.githubusercontent.com/u/37784886"],
 };
 export const WAGMI_ADAPTER = new WagmiAdapter({
-	networks: WAGMI_CHAINS,
+	networks: WAGMI_CHAINS as AppKitNetwork[],
 	transports: {
 		[mainnet.id]: http(`https://eth-mainnet.g.alchemy.com/v2/${CONFIG.rpc}`),
 		[polygon.id]: http(`https://polygon-mainnet.g.alchemy.com/v2/${CONFIG.rpc}`),

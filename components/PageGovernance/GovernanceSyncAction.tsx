@@ -90,12 +90,7 @@ export default function GovernanceSyncAction({ targetChainId, voters, disabled }
 
 	return (
 		<GuardSupportedChain chainId={mainnet.id}>
-<AppButton
-				className="h-10"
-				disabled={disabled || !isReady}
-				isLoading={isAction}
-				onClick={(e) => handleOnClick(e)}
-			>
+			<AppButton className="h-10" disabled={disabled || !isReady} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
 				Sync to {targetChain?.name ?? String(targetChainId)}
 			</AppButton>
 		</GuardSupportedChain>

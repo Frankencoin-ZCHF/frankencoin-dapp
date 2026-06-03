@@ -3,7 +3,7 @@ import GovernancePositionsTable from "@components/PageGovernance/GovernancePosit
 import GovernanceMintersTable from "@components/PageGovernance/GovernanceMintersTable";
 import GovernanceVotersTable from "@components/PageGovernance/GovernanceVotersTable";
 import GovernanceTelegramBot from "@components/PageGovernance/GovernanceTelegramBot";
-import { formatCurrency, formatDuration, SOCIAL } from "@utils";
+import { formatCurrency, formatDuration, normalizeAddress, SOCIAL } from "@utils";
 import GovernanceLeadrateTable from "@components/PageGovernance/GovernanceLeadrateTable";
 import GovernanceLeadrateCurrent from "@components/PageGovernance/GovernanceLeadrateCurrent";
 import AppTitle from "@components/AppTitle";
@@ -18,9 +18,28 @@ import GovernanceCCIPAdminTable from "@components/PageGovernance/GovernanceCCIPA
 import { useFPSAverageStats } from "@hooks";
 import { formatUnits } from "viem";
 import { fetchBridge } from "../../redux/slices/bridge.slice";
+import { useConnection, useChainId } from "wagmi";
+import { ADDRESS, ChainIdSide, ChainSide } from "@frankencoin/zchf";
+
+const TOKENMANAGER_SLUGS: Record<number, string> = {
+	1: "ethereum-mainnet",
+	10: "optimism-mainnet",
+	100: "gnosis-mainnet",
+	137: "polygon-mainnet",
+	146: "sonic-mainnet",
+	8453: "base-mainnet",
+	42161: "arbitrum-mainnet",
+	43114: "avalanche-mainnet",
+};
 
 export default function Governance() {
 	const stats = useFPSAverageStats();
+	const { address } = useConnection();
+	const chainId = useChainId();
+
+	const tmSlug = TOKENMANAGER_SLUGS[chainId] ?? TOKENMANAGER_SLUGS[1];
+	const tmToken = normalizeAddress(chainId === 1 ? ADDRESS[1].frankencoin : ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin);
+	const tokenmanagerHref = `https://tokenmanager.chain.link/dashboard/${tmSlug},${tmToken}`;
 
 	useEffect(() => {
 		store.dispatch(fetchLeadrate());
@@ -75,9 +94,10 @@ export default function Governance() {
 
 			<AppTitle title="CCIP Admin Proposals">
 				<div className="text-text-secondary">
-					Structural changes to the CCIP bridge — adding or removing chains, updating remote pool addresses, and transferring admin
-					— require a governance proposal with a seven-day veto window (21 days for admin transfer). Any qualified FPS holder can
-					deny a pending proposal before its deadline. Rate limit adjustments take effect immediately without a timelock.
+					Structural changes to the CCIP bridge — adding or removing chains, updating remote pool addresses, and transferring
+					admin — require a governance proposal with a seven-day veto window (21 days for admin transfer). Any qualified FPS
+					holder can deny a pending proposal before its deadline. Rate limit adjustments take effect immediately without a
+					timelock.
 				</div>
 			</AppTitle>
 
@@ -89,12 +109,11 @@ export default function Governance() {
 					<AppLink
 						className="inline text-card-input-max hover:text-card-input-hover cursor-pointer"
 						label="Chainlink CCIP"
-						href="https://tokenmanager.chain.link/dashboard/polygon-mainnet,0xd4dd9e2f021bb459d5a5f6c24c12fe09c5d45553"
+						href={tokenmanagerHref}
 						external={true}
 					/>
-					. Each source chain's token pool enforces its own incoming and outgoing rate limits per destination chain, so a
-					transfer is throttled by the limits configured on both sides. When a limit is not enabled, transfers flow without
-					throttling.
+					. Each source chain's token pool enforces its own incoming and outgoing rate limits per destination chain, so a transfer
+					is throttled by the limits configured on both sides. When a limit is not enabled, transfers flow without throttling.
 				</div>
 			</AppTitle>
 
@@ -107,7 +126,14 @@ export default function Governance() {
 					conditions, an individual FPS holder with at least{" "}
 					<span className="font-medium text-text-primary">{formatCurrency(formatUnits(stats.fpsForVeto, 18))} FPS</span> held for
 					the average duration would reach the veto threshold of 2%. If you need voting power on one of the supported multichains,
-					sync your votes first.
+					sync your votes first. You can track cross-chain transfers on the{" "}
+					<AppLink
+						className=""
+						label="CCIP Explorer"
+						external={true}
+						href={`https://ccip.chain.link${address ? `/address/${address}` : ""}`}
+					/>
+					.
 				</div>
 			</AppTitle>
 
