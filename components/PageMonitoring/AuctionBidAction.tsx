@@ -99,7 +99,11 @@ export default function AuctionBidAction({ position, challenge, auctionPrice, on
 	const AVG_BLOCK_TIME_MS = 12_000; // Ethereum mainnet PoS
 	const priceDigits = 36 - position.collateralDecimals;
 	const marketPriceBigInt = marketPriceChf !== undefined ? parseUnits(marketPriceChf.toFixed(6), priceDigits) : undefined;
-	const endTimeMs = (parseInt(challenge.start.toString()) + parseInt(challenge.duration.toString())) * 1000;
+	const startMs = parseInt(challenge.start.toString()) * 1000;
+	const durationMs = parseInt(challenge.duration.toString()) * 1000;
+	const timeToExpiration = startMs >= position.expiration * 1000 ? 0 : position.expiration * 1000 - startMs;
+	const phase1Ms = Math.min(timeToExpiration, durationMs);
+	const endTimeMs = startMs + phase1Ms + durationMs; // phase1 + phase2
 	const remainingMs = Math.max(0, endTimeMs - Date.now());
 
 	let marketReachedAt: string = "—";
