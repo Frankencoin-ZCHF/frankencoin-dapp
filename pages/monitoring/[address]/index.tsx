@@ -14,7 +14,7 @@ import { RootState } from "../../../redux/redux.store";
 import { FRANKENCOIN_API_CLIENT, WAGMI_CONFIG } from "../../../app.config";
 import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
-import { ApiMintingUpdateListing, MintingUpdateQuery } from "@frankencoin/api";
+import { ApiMintingUpdateListing, MintingUpdateQuery, PositionQueryV2 } from "@frankencoin/api";
 import { ADDRESS, FrankencoinABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 
@@ -148,10 +148,22 @@ export default function PositionDetail() {
 
 					<AppCard>
 						<div className="gap-2">
-							<div className="text-base font-bold mb-1">Terms</div>
-							<StatRow label="Annual Interest">{formatCurrency(position.annualInterestPPM / 10000, 2, 2)}%</StatRow>
+							<div className="text-base font-bold mb-1">Interest</div>
+							<StatRow label="Base Interest">
+								{formatCurrency(
+									(position.annualInterestPPM - ((position as PositionQueryV2).riskPremiumPPM ?? 0)) / 10000,
+									2,
+									2
+								)}
+								%
+							</StatRow>
+							<StatRow label="Risk Premium">
+								{formatCurrency((position as PositionQueryV2).riskPremiumPPM ?? 0 / 10000, 2, 2)}%
+							</StatRow>
+							<StatRow label="Effective Interest">
+								{formatCurrency((position.annualInterestPPM * 100) / (1000000 - position.reserveContribution), 2, 2)}%
+							</StatRow>
 							<StatRow label="Reserve Requirement">{formatCurrency(position.reserveContribution / 10000, 2, 2)}%</StatRow>
-							<StatRow label="Auction Duration">{position.challengePeriod / 3600} hours</StatRow>
 						</div>
 					</AppCard>
 
@@ -159,7 +171,7 @@ export default function PositionDetail() {
 						<div className="gap-2">
 							<div className="text-base font-bold mb-1">Lifecycle</div>
 							<StatRow label="Start">{formatDateTime(position.isOriginal ? position.start : position.created)}</StatRow>
-							<StatRow label="Expiration">
+							<StatRow label="Maturity">
 								<span className={position.closed ? "text-red-400" : ""}>
 									{position.closed ? "Closed" : formatDateTime(position.expiration)}
 								</span>
@@ -169,6 +181,14 @@ export default function PositionDetail() {
 									<span className="text-amber-400">{formatDateTime(position.cooldown)}</span>
 								</StatRow>
 							)}
+							<StatRow label="Auction Duration">{position.challengePeriod / 3600} hours</StatRow>
+							<div className="">
+								<AppLink
+									label="Need different terms?"
+									href={`/mint/create?source=${normalizeAddress(position.position)}&chain=ethereum`}
+									external={false}
+								/>
+							</div>
 						</div>
 					</AppCard>
 
