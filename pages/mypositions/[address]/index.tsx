@@ -364,16 +364,6 @@ export default function PositionAdjust() {
 	};
 
 	// LiqPrice
-	const liqPriceMinCallback = () => {
-		if (collateralAmount > 0) {
-			const calcPrice = (amount * parseEther("1")) / collateralAmount;
-			const verifyMint = (calcPrice * collateralAmount) / parseEther("1");
-			const isRoundingError = verifyMint < amount;
-			const corrected = isRoundingError ? calcPrice + 1n : calcPrice;
-			setLiqPrice(corrected);
-		}
-	};
-
 	const liqPriceMaxCallback = () => {
 		// const calcPrice = (amount * parseEther("1")) / (BigInt(position.collateralBalance) + userCollBalance);
 		// const verifyMint = (calcPrice * collateralAmount) / parseEther("1");
@@ -461,13 +451,12 @@ export default function PositionAdjust() {
 						<TokenInput
 							label="Liquidation Price"
 							symbol={"ZCHF"}
-							min={collateralAmount == 0n ? 0n : (amount * 10n ** 18n) / collateralAmount}
+							min={collateralAmount == 0n ? 0n : (amount * 10n ** 18n + collateralAmount - 1n) / collateralAmount}
 							max={marketPrice80Pct}
 							reset={BigInt(position.price)}
 							value={liqPrice.toString()}
 							digit={36 - position.collateralDecimals}
 							onChange={onChangeLiqAmount}
-							onMin={liqPriceMinCallback}
 							onMax={liqPriceMaxCallback}
 							placeholder="Liquidation Price"
 						/>

@@ -366,7 +366,7 @@ export default function PositionBorrow({}) {
 							sliderMin={parseUnits(String(collateralPriceZchf * 0.1), priceDigit)}
 							sliderMax={parseUnits(String(collateralPriceZchf), priceDigit)}
 							sliderSource={priceBigInt}
-							min={collAmount > 0n ? (amount * parseUnits("1", 18)) / collAmount : undefined}
+							min={collAmount > 0n ? (amount * parseUnits("1", 18) + collAmount - 1n) / collAmount : undefined}
 							max={linked ? priceBigInt : parseUnits(String(collateralPriceZchf), priceDigit)}
 							reset={priceBigInt}
 							onChange={onChangeLiqPrice}

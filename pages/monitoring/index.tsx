@@ -105,10 +105,9 @@ export default function Positions() {
 								<AppTitle title={`System Health`}>
 									<div className="text-text-secondary">
 										This chart shows how well the Frankencoins in free circulation are backed by collateral assets. All
-										Frankencoins that are not in the reserve pool are considered in free circulation. To the extent this
-										value falls below 100%, the fundamental value of falls below below the peg. As long as the value is
-										above 100%, all Frankencoins in free circulation are backed by collateral. The recording of historic
-										watermarks started in September 2025.
+										Frankencoins that are not in the reserve pool are considered in free circulation. As long as the
+										value is above 100%, all Frankencoins in free circulation are backed by collateral. The recording of
+										historic watermarks started in September 2025.
 									</div>
 								</AppTitle>
 
