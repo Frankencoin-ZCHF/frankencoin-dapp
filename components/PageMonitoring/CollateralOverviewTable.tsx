@@ -16,8 +16,8 @@ import { FilterOption } from "@components/Table/TableHeadSearchable";
 import { useSwapCHFAUStats, CollateralOverviewStat } from "@hooks";
 import { useRouter } from "next/navigation";
 
-const headers = ["Collateral", "Total Minted", "Available", "Avg Health"];
-const subHeaders = ["", "Total Debt", "Usable", "Risk Health"];
+const headers = ["Collateral", "Open Debt", "Usable", "Avg. Health"];
+const subHeaders = ["", "Total Minted", "Available", "Excl. Reserve"];
 const FILTER_OPTIONS: FilterOption[] = ALL_CATEGORIES.map((c) => ({ label: c, value: c }));
 
 export default function CollateralOverviewTable() {
@@ -71,8 +71,9 @@ export default function CollateralOverviewTable() {
 	const sorted = useMemo(() => {
 		const s = [...stats].sort((a, b) => {
 			if (tab === headers[0]) return a.collateral.name.localeCompare(b.collateral.name);
-			if (tab === headers[1]) return Number(b.minted) - Number(a.minted);
-			if (tab === headers[2]) return Number(b.availableForClones) - Number(a.availableForClones);
+			if (tab === headers[1]) return Number(b.minted - b.reserve) - Number(a.minted - a.reserve);
+			if (tab === headers[2])
+				return Number(b.availableForClones) * (1 - b.avgReserveRatio) - Number(a.availableForClones) * (1 - a.avgReserveRatio);
 			if (tab === headers[3]) return b.avgCollateral - a.avgCollateral;
 			return 0;
 		});
@@ -178,39 +179,35 @@ export default function CollateralOverviewTable() {
 										</AppBox>
 									</div>
 
-									{/* Total Minted / Total Debt */}
+									{/* Total Debt / Total Minted */}
 									<div className="flex flex-col text-right">
 										<div className="text-md">
+											{formatCurrency(formatUnits(totalDebt, 18), 2, 2, FormatType.symbol)} ZCHF
+										</div>
+										<div className="text-xs text-text-subheader">
 											{formatCurrency(formatUnits(stat.minted, 18), 2, 2, FormatType.symbol)} ZCHF
 										</div>
-										<div className="text-xs text-text-subheader">
-											{stat.minted > 0n
-												? `${formatCurrency(formatUnits(totalDebt, 18), 2, 2, FormatType.symbol)} ZCHF`
-												: "-"}
-										</div>
 									</div>
 
-									{/* Available / Usable */}
+									{/* Usable / Available */}
 									<div className="flex flex-col text-right">
-										<div className="text-md">
+										<div className="text-md">{formatCurrency(usable, 2, 2, FormatType.symbol)} ZCHF</div>
+										<div className="text-xs text-text-subheader">
 											{formatCurrency(Number(stat.availableForClones), 2, 2, FormatType.symbol)} ZCHF
 										</div>
-										<div className="text-xs text-text-subheader">
-											{formatCurrency(usable, 2, 2, FormatType.symbol)} ZCHF
-										</div>
 									</div>
 
-									{/* Avg Health / Risk Health */}
+									{/* Avg Health / Excl. Reserve */}
 									<div className="flex flex-col text-right">
-										<div className={`text-md font-bold ${!isBridge && stat.minted > 0n ? collColor : ""}`}>
-											{stat.minted === 0n ? "-" : `${formatCurrency(avgHealthPct, 2, 2)}%`}
+										<div className={`text-md font-bold ${!isBridge && riskHealthPct > 0 ? riskColor : ""}`}>
+											{riskHealthPct > 0 ? `${formatCurrency(riskHealthPct, 2, 2)}%` : "-"}
 										</div>
 										<div
 											className={`text-xs font-semibold ${
-												!isBridge && riskHealthPct > 0 ? riskColor : "text-text-subheader"
+												!isBridge && stat.minted > 0n ? collColor : "text-text-subheader"
 											}`}
 										>
-											{riskHealthPct > 0 ? `${formatCurrency(riskHealthPct, 2, 2)}%` : "-"}
+											{stat.minted === 0n ? "-" : `${formatCurrency(avgHealthPct, 2, 2)}%`}
 										</div>
 									</div>
 								</TableRow>
