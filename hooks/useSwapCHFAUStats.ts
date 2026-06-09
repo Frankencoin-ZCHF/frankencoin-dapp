@@ -59,7 +59,7 @@ export const useSwapCHFAUStats = (): SwapVCHFStatsReturn => {
 
 	const chfauAddress: Address = normalizeAddress(other);
 	const chfauPrice = coingecko[chfauAddress]?.price?.chf ?? 0;
-	const available = bridgeLimit - otherBridgeBal;
+	const available = bridgeLimit - bridgeMinted;
 	const zchfAddress = ADDRESS[chainId].frankencoin as Address;
 
 	// price: liquidation price = 1:1, expressed with PRICE_DIGIT = 36 - CHFAU_DECIMALS trailing zeros
