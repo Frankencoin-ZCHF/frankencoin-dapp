@@ -194,9 +194,8 @@ export default function Positions() {
 
 								<AppTitle title="Collateral Risk Parameters">
 									<div className="text-text-secondary">
-										Risk parameters per collateral: governance-set risk premium, reserve contribution, average
-										liquidation price, and minimum value locked (sum of minimum collateral × liquidation price across
-										all original positions). Sorted by min. locked descending by default.
+										Risk parameters per collateral: governance-set risk premium, reserve contribution, and average
+										minimum locked value (average minimum collateral × average liquidation price across original positions).
 									</div>
 								</AppTitle>
 								<div className="mt-8">

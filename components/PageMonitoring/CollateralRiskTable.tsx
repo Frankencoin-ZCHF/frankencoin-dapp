@@ -12,7 +12,7 @@ import TokenLogo from "@components/TokenLogo";
 import { formatCurrency, normalizeAddress, ALL_CATEGORIES, CollateralCategory, collateralMatchesCategories, FormatType } from "@utils";
 import { PositionQuery } from "@frankencoin/api";
 
-const headers = ["Collateral", "Positions", "Risk Premium", "Reserve", "Avg Liq. Price", "Min. Locked"];
+const headers = ["Collateral", "Positions", "Risk Premium", "Reserve", "Min. Locked"];
 const FILTER_OPTIONS: FilterOption[] = ALL_CATEGORIES.map((c) => ({ label: c, value: c }));
 
 interface RiskRow {
@@ -23,8 +23,7 @@ interface RiskRow {
 	clonesCount: number;
 	avgRiskPremiumPPM: number | null; // null = V1 only
 	avgReservePPM: number;
-	avgLiqPrice: number; // ZCHF per collateral unit, human-readable
-	minLocked: number; // total min locked in ZCHF across originals
+	minLocked: number; // avg(minColl) × avg(liqPrice) in ZCHF
 }
 
 function buildRiskRows(positionsByCollateral: PositionQuery[][]): RiskRow[] {
@@ -44,12 +43,9 @@ function buildRiskRows(positionsByCollateral: PositionQuery[][]): RiskRow[] {
 		const avgReservePPM = basis.reduce((sum, p) => sum + p.reserveContribution, 0) / basis.length;
 
 		const avgLiqPrice = basis.reduce((sum, p) => sum + parseFloat(formatUnits(BigInt(p.price), priceDigit)), 0) / basis.length;
-
-		const minLocked = basis.reduce((sum, p) => {
-			const minColl = parseFloat(formatUnits(BigInt(p.minimumCollateral), p.collateralDecimals));
-			const liqPrice = parseFloat(formatUnits(BigInt(p.price), 36 - p.collateralDecimals));
-			return sum + minColl * liqPrice;
-		}, 0);
+		const avgMinColl =
+			basis.reduce((sum, p) => sum + parseFloat(formatUnits(BigInt(p.minimumCollateral), p.collateralDecimals)), 0) / basis.length;
+		const minLocked = avgMinColl * avgLiqPrice;
 
 		return {
 			collateralAddress: normalizeAddress(positions[0].collateral),
@@ -59,7 +55,6 @@ function buildRiskRows(positionsByCollateral: PositionQuery[][]): RiskRow[] {
 			clonesCount: clones.length,
 			avgRiskPremiumPPM,
 			avgReservePPM,
-			avgLiqPrice,
 			minLocked,
 		};
 	});
@@ -69,7 +64,7 @@ export default function CollateralRiskTable() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [activeCategories, setActiveCategories] = useState<string[]>([]);
 	const [inMyWallet, setInMyWallet] = useState(false);
-	const [tab, setTab] = useState(headers[5]);
+	const [tab, setTab] = useState(headers[4]);
 	const [reverse, setReverse] = useState(false);
 
 	const { address: walletAddress } = useConnection();
@@ -103,8 +98,7 @@ export default function CollateralRiskTable() {
 			if (tab === headers[1]) return b.originalsCount + b.clonesCount - (a.originalsCount + a.clonesCount);
 			if (tab === headers[2]) return (b.avgRiskPremiumPPM ?? 0) - (a.avgRiskPremiumPPM ?? 0);
 			if (tab === headers[3]) return b.avgReservePPM - a.avgReservePPM;
-			if (tab === headers[4]) return b.avgLiqPrice - a.avgLiqPrice;
-			if (tab === headers[5]) return b.minLocked - a.minLocked;
+			if (tab === headers[4]) return b.minLocked - a.minLocked;
 			return 0;
 		});
 		return reverse ? s.reverse() : s;
@@ -161,6 +155,7 @@ export default function CollateralRiskTable() {
 						const riskPct = row.avgRiskPremiumPPM != null ? row.avgRiskPremiumPPM / 10_000 : null;
 
 						const reserveColor = reservePct >= 20 ? "text-green-500" : reservePct >= 10 ? "text-amber-400" : "text-red-500";
+						const minLockedColor = row.minLocked > 5_000 ? "text-green-500" : row.minLocked === 5_000 ? "text-amber-400" : "text-red-500";
 						const riskColor =
 							riskPct == null
 								? "text-text-secondary"
@@ -201,7 +196,7 @@ export default function CollateralRiskTable() {
 								</div>
 
 								{/* Risk Premium */}
-								<div className={`text-md font-bold ${riskColor}`}>
+								<div className={`text-md font-medium ${riskColor}`}>
 									{riskPct == null ? (
 										<span className="text-text-secondary font-normal text-sm">V1 / n/a</span>
 									) : (
@@ -210,13 +205,12 @@ export default function CollateralRiskTable() {
 								</div>
 
 								{/* Reserve */}
-								<div className={`text-md font-bold ${reserveColor}`}>{formatCurrency(reservePct, 2, 2)}%</div>
-
-								{/* Avg Liq. Price */}
-								<div className="text-md">{formatCurrency(row.avgLiqPrice, 2, 2, FormatType.symbol)} ZCHF</div>
+								<div className={`text-md font-medium ${reserveColor}`}>{formatCurrency(reservePct, 2, 2)}%</div>
 
 								{/* Min. Locked */}
-								<div className="text-md font-medium">{formatCurrency(row.minLocked, 2, 2, FormatType.symbol)} ZCHF</div>
+								<div className={`text-md font-medium ${minLockedColor}`}>
+									{formatCurrency(row.minLocked, 2, 2, FormatType.symbol)} ZCHF
+								</div>
 							</TableRow>
 						);
 					})
