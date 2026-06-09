@@ -76,6 +76,8 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 		const discussionLink = DISCUSSIONS[normalizeAddress(collateral.address)] ?? DISCUSSIONS["default"];
 
 		const lockedValue = parseFloat(formatUnits(minted, 18)) * avgCollateral;
+		const avgReserveRatio =
+			positions.reduce((acc, pos) => acc + pos.reserveContribution, 0) / positions.length / 1_000_000;
 
 		stats.push({
 			original,
@@ -98,6 +100,7 @@ export function calcOverviewStats(listByCollateral: PositionQuery[][], allPositi
 			lowestInterestRate,
 			discussionLink,
 			lockedValue,
+			avgReserveRatio,
 		});
 	}
 	return stats;

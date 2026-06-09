@@ -145,6 +145,7 @@ export const useSwapCHFAUStats = (): SwapVCHFStatsReturn => {
 		lowestInterestRate: 0,
 		discussionLink: "",
 		lockedValue: bridgeBalFloat * chfauPrice,
+		avgReserveRatio: 0,
 	};
 
 	return {

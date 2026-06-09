@@ -31,6 +31,7 @@ export type CollateralOverviewStat = {
 	lowestInterestRate: number;
 	discussionLink: string;
 	lockedValue: number;
+	avgReserveRatio: number;
 };
 
 export type SwapVCHFStatsReturn = {
@@ -199,6 +200,7 @@ export const useSwapVCHFStats = (): SwapVCHFStatsReturn => {
 		lowestInterestRate: 0,
 		discussionLink: "",
 		lockedValue: bridgeBalFloat * vchfPrice,
+		avgReserveRatio: 0,
 	};
 
 	return {
