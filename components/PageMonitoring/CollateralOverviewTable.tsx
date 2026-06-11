@@ -16,8 +16,7 @@ import { FilterOption } from "@components/Table/TableHeadSearchable";
 import { useSwapCHFAUStats, CollateralOverviewStat } from "@hooks";
 import { useRouter } from "next/navigation";
 
-const headers = ["Collateral", "Open Debt", "Usable", "Avg. Health"];
-const subHeaders = ["", "Total Minted", "Available", "Excl. Reserve"];
+const headers = ["Collateral", "Open Debt", "Avail. Debt", "Max Debt", "Avg. Coll."];
 const FILTER_OPTIONS: FilterOption[] = ALL_CATEGORIES.map((c) => ({ label: c, value: c }));
 
 export default function CollateralOverviewTable() {
@@ -74,7 +73,9 @@ export default function CollateralOverviewTable() {
 			if (tab === headers[1]) return Number(b.minted - b.reserve) - Number(a.minted - a.reserve);
 			if (tab === headers[2])
 				return Number(b.availableForClones) * (1 - b.avgReserveRatio) - Number(a.availableForClones) * (1 - a.avgReserveRatio);
-			if (tab === headers[3]) return b.avgCollateral - a.avgCollateral;
+			if (tab === headers[3])
+				return Number(b.limitForClones) * (1 - b.avgReserveRatio) - Number(a.limitForClones) * (1 - a.avgReserveRatio);
+			if (tab === headers[4]) return b.avgCollateral - a.avgCollateral;
 			return 0;
 		});
 		return reverse ? s.reverse() : s;
@@ -109,7 +110,6 @@ export default function CollateralOverviewTable() {
 		<Table>
 			<TableHeadSearchable
 				headers={headers}
-				subHeaders={subHeaders}
 				searchPlaceholder="Search collateral"
 				searchValue={searchQuery}
 				onSearchChange={setSearchQuery}
@@ -129,13 +129,13 @@ export default function CollateralOverviewTable() {
 				) : (
 					filtered.map((stat) => {
 						const collateralAmount = formatCurrency(Number(formatUnits(stat.balance, stat.collateral.decimals)), 2, 2);
-						const avgHealthPct = stat.avgCollateral * 100;
-						const collColor = avgHealthPct < 110 ? "text-red-500" : avgHealthPct <= 120 ? "text-orange-400" : "text-green-500";
 						const swapUrl = bridgeSwapUrls[normalizeAddress(stat.original.position)];
 						const isBridge = !!swapUrl;
 
 						const totalDebt = stat.minted - stat.reserve;
-						const usable = Number(stat.availableForClones) * (1 - stat.avgReserveRatio);
+						const availDebt = Number(stat.availableForClones) * (1 - stat.avgReserveRatio);
+						const maxDebt = Number(stat.limitForClones) * (1 - stat.avgReserveRatio);
+						const avgHealthPct = stat.avgCollateral * 100;
 						const riskHealthPct =
 							stat.minted > 0n && totalDebt > 0n ? avgHealthPct * (Number(stat.minted) / Number(totalDebt)) : 0;
 						const riskColor =
@@ -147,7 +147,7 @@ export default function CollateralOverviewTable() {
 
 						return (
 							<div key={stat.original.position} onClick={isBridge ? () => router.push(swapUrl) : undefined}>
-								<TableRow headers={headers} subHeaders={subHeaders} tab={tab} className={isBridge ? "cursor-pointer" : ""}>
+								<TableRow headers={headers} tab={tab} className={isBridge ? "cursor-pointer" : ""}>
 									{/* Collateral */}
 									<div className="flex flex-col max-md:mb-5">
 										<div className="max-md:hidden md:-ml-12 flex items-center">
@@ -179,36 +179,20 @@ export default function CollateralOverviewTable() {
 										</AppBox>
 									</div>
 
-									{/* Total Debt / Total Minted */}
-									<div className="flex flex-col text-right">
-										<div className="text-md">
-											{formatCurrency(formatUnits(totalDebt, 18), 2, 2, FormatType.symbol)} ZCHF
-										</div>
-										<div className="text-xs text-text-subheader">
-											{formatCurrency(formatUnits(stat.minted, 18), 2, 2, FormatType.symbol)} ZCHF
-										</div>
+									{/* Open Debt */}
+									<div className="text-right">
+										{formatCurrency(formatUnits(totalDebt, 18), 2, 2, FormatType.symbol)} ZCHF
 									</div>
 
-									{/* Usable / Available */}
-									<div className="flex flex-col text-right">
-										<div className="text-md">{formatCurrency(usable, 2, 2, FormatType.symbol)} ZCHF</div>
-										<div className="text-xs text-text-subheader">
-											{formatCurrency(Number(stat.availableForClones), 2, 2, FormatType.symbol)} ZCHF
-										</div>
-									</div>
+									{/* Avail. Debt */}
+									<div className="text-right">{formatCurrency(availDebt, 2, 2, FormatType.symbol)} ZCHF</div>
 
-									{/* Avg Health / Excl. Reserve */}
-									<div className="flex flex-col text-right">
-										<div className={`text-md font-bold ${!isBridge && riskHealthPct > 0 ? riskColor : ""}`}>
-											{riskHealthPct > 0 ? `${formatCurrency(riskHealthPct, 2, 2)}%` : "-"}
-										</div>
-										<div
-											className={`text-xs font-semibold ${
-												!isBridge && stat.minted > 0n ? collColor : "text-text-subheader"
-											}`}
-										>
-											{stat.minted === 0n ? "-" : `${formatCurrency(avgHealthPct, 2, 2)}%`}
-										</div>
+									{/* Max Debt */}
+									<div className="text-right">{formatCurrency(maxDebt, 2, 2, FormatType.symbol)} ZCHF</div>
+
+									{/* Avg. Coll. */}
+									<div className={`text-right text-md font-bold ${!isBridge && riskHealthPct > 0 ? riskColor : ""}`}>
+										{riskHealthPct > 0 ? `${formatCurrency(riskHealthPct, 2, 2)}%` : "-"}
 									</div>
 								</TableRow>
 							</div>
