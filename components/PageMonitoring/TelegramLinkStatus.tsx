@@ -57,7 +57,13 @@ export function TelegramLinkStatus() {
 						disabled={testState === "sending"}
 						className="text-xs text-text-secondary hover:text-blue-400 transition-colors disabled:opacity-50"
 					>
-						{testState === "sending" ? "Sending…" : testState === "sent" ? "✓ Sent" : testState === "error" ? "✗ Failed" : "Test Bot"}
+						{testState === "sending"
+							? "Sending…"
+							: testState === "sent"
+							? "✓ Sent"
+							: testState === "error"
+							? "✗ Failed"
+							: "Test Bot"}
 					</button>
 					<button
 						onClick={() => store.dispatch(clearTelegramSession() as any)}
@@ -77,14 +83,18 @@ export function TelegramLinkStatus() {
 			<div className="flex items-center gap-3">
 				<button
 					onClick={() => setContext("dm")}
-					className={`text-sm font-medium transition-colors ${context === "dm" ? "text-text-primary" : "text-text-secondary hover:text-text-primary"}`}
+					className={`text-md font-medium transition-colors ${
+						context === "dm" ? "text-text-primary font-semibold" : "text-text-secondary hover:text-text-primary"
+					}`}
 				>
 					Personal
 				</button>
 				<span className="text-text-secondary">·</span>
 				<button
 					onClick={() => setContext("group")}
-					className={`text-sm font-medium transition-colors ${context === "group" ? "text-text-primary" : "text-text-secondary hover:text-text-primary"}`}
+					className={`text-md font-medium transition-colors ${
+						context === "group" ? "text-text-primary font-semibold" : "text-text-secondary hover:text-text-primary"
+					}`}
 				>
 					Group
 				</button>
@@ -92,7 +102,7 @@ export function TelegramLinkStatus() {
 			<div className="bg-white p-4 rounded-xl">
 				<QRCode value={loginUrl} size={180} />
 			</div>
-			<AppLink label={loginUrl} href={loginUrl} external />
+			<AppLink label="Click and link with Telegram" href={loginUrl} external copy copyValue={loginUrl} />
 			<div className="text-xs text-text-secondary animate-pulse">Waiting for Telegram link…</div>
 		</AppCard>
 	);
