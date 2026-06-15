@@ -18,7 +18,6 @@ import ReportsPositionsYearlyTable from "@components/PageReports/ReportsPosition
 import { OwnerPositionDebt, OwnerPositionFees, OwnerPositionValueLocked } from "../report";
 import { FRANKENCOIN_API_CLIENT } from "../../app.config";
 import { ApiOwnerDebt, ApiOwnerValueLocked } from "@frankencoin/api";
-import TelegramLoginQR from "@components/PageMypositions/TelegramLoginQR";
 
 export default function Positions() {
 	const { address } = useConnection();
@@ -130,10 +129,6 @@ export default function Positions() {
 			</AppTitle>
 
 			<MyPositionsBidsTable />
-
-			{/* Section Telegram Bot */}
-			<AppTitle title="Telegram Bot" />
-			<TelegramLoginQR />
 		</>
 	);
 }
