@@ -4,7 +4,7 @@ import { RootState } from "../redux.store";
 
 // -------------------------------------------------------------------------------
 
-const TELEGRAM_BOT_BASE = "https://t.me/samclassixbot";
+const TELEGRAM_BOT_BASE = `https://t.me/${process.env.NEXT_PUBLIC_BOT_NAME ?? "FrankencoinApiBot"}`;
 const STORAGE_KEY = "telegram_link_jwt";
 
 export type SessionContext = "dm" | "group";
