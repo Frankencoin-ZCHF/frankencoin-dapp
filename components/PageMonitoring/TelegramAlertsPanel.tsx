@@ -119,7 +119,7 @@ export function TelegramAlertsPanel() {
 												<span className="text-text-secondary">·</span>
 												<span className="whitespace-nowrap">{chfAmt} ZCHF</span>
 												<span className="text-text-secondary">·</span>
-												<AppLink label={shortenAddress(address as Address)} href={`/monitoring/${address}`} />
+												<AppLink label={shortenAddress(address as Address)} href={`/monitoring/${address}`} className="" />
 											</div>
 											<AppToggle label="" enabled={isEnabled("position", address)} onChange={() => toggle("position", address)} />
 										</div>
@@ -145,7 +145,7 @@ export function TelegramAlertsPanel() {
 									<span className="text-text-secondary">·</span>
 									<span className="whitespace-nowrap">Value: {formatCurrency(totalChf, 0, 0, FormatType.symbol)} ZCHF</span>
 									<span className="text-text-secondary">·</span>
-									<AppLink label={shortenAddress(address as Address)} href={`/mypositions?address=${address}`} />
+									<AppLink label={shortenAddress(address as Address)} href={`/mypositions?address=${address}`} className="" />
 								</div>
 								<AppToggle label="" enabled={isEnabled("owner", address)} onChange={() => toggle("owner", address)} />
 							</div>
