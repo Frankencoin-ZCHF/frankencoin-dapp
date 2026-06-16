@@ -47,7 +47,7 @@ export function TelegramAlertsPanel() {
 		return [...map.values()]
 			.sort((a, b) => b.positions.length - a.positions.length)
 			.map((group) => {
-				const priceChf = coingecko[group.collateral]?.price?.chf ?? 0;
+				const priceChf = coingecko[group.collateral as Address]?.price?.chf ?? 0;
 				const sorted = [...group.positions].sort((a, b) => {
 					const val = (pos: PosEntry) => (Number(BigInt(pos.collateralBalance)) / 10 ** group.collateralDecimals) * priceChf;
 					return val(b) - val(a);
@@ -72,9 +72,9 @@ export function TelegramAlertsPanel() {
 
 	const uniqueCollaterals = useMemo(
 		() =>
-			[...new Map(openPositions.map((p) => [normalizeAddress(p.collateral), p.collateralSymbol])).entries()].map(
-				([address, symbol]) => ({ address, symbol })
-			),
+			[...new Map(openPositions.map((p) => [normalizeAddress(p.collateral), p.collateralSymbol])).entries()]
+				.map(([address, symbol]) => ({ address, symbol }))
+				.sort((a, b) => a.symbol.localeCompare(b.symbol)),
 		[openPositions]
 	);
 
@@ -121,7 +121,7 @@ export function TelegramAlertsPanel() {
 										positionsByCollateral.length === 0 ? (
 											<div className="text-text-secondary text-sm py-2">No open positions</div>
 										) : (
-											<div className="columns-1 md:columns-2 gap-x-6 mt-2">
+											<div className="columns-1 md:columns-2 gap-x-6 mt-3">
 												{positionsByCollateral.map(({ collateral, symbol, collateralDecimals, positions }) => (
 													<div key={collateral} className="flex flex-col gap-2 break-inside-avoid mb-4">
 														<div className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wide">
@@ -130,7 +130,7 @@ export function TelegramAlertsPanel() {
 														</div>
 														{positions.map(({ address, collateralBalance }) => {
 															const collFloat = Number(BigInt(collateralBalance)) / 10 ** collateralDecimals;
-															const priceChf = coingecko[collateral]?.price?.chf ?? 0;
+															const priceChf = coingecko[collateral as Address]?.price?.chf ?? 0;
 															const collAmt = formatBigInt(BigInt(collateralBalance), collateralDecimals, 2);
 															const chfAmt = formatCurrency(collFloat * priceChf, 0, 0, FormatType.symbol);
 															return (
@@ -168,7 +168,7 @@ export function TelegramAlertsPanel() {
 										uniqueOwners.length === 0 ? (
 											<div className="text-text-secondary text-sm py-2">No owners found</div>
 										) : (
-											<div className="columns-1 md:columns-2 gap-x-4 mt-2">
+											<div className="columns-1 md:columns-2 gap-x-4 mt-3">
 												{uniqueOwners.map(({ address, positionCount, totalChf }) => (
 													<div
 														key={address}
@@ -204,7 +204,7 @@ export function TelegramAlertsPanel() {
 										uniqueCollaterals.length === 0 ? (
 											<div className="text-text-secondary text-sm py-2">No collaterals found</div>
 										) : (
-											<div className="columns-1 md:columns-2 gap-x-4 mt-2">
+											<div className="columns-1 md:columns-2 gap-x-4 mt-3">
 												{uniqueCollaterals.map(({ address, symbol }) => (
 													<div
 														key={address}
