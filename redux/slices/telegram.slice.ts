@@ -1,4 +1,5 @@
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
+import { AlertType, AlertResponse, SessionContext } from "@frankencoin/api";
 import { FRANKENCOIN_API_CLIENT } from "../../app.config";
 import { RootState } from "../redux.store";
 
@@ -7,44 +8,19 @@ import { RootState } from "../redux.store";
 const TELEGRAM_BOT_BASE = `https://t.me/${process.env.NEXT_PUBLIC_BOT_NAME ?? "FrankencoinApiBot"}`;
 const STORAGE_KEY = "telegram_link_jwt";
 
-export type SessionContext = "dm" | "group";
+export type { SessionContext, AlertType, AlertResponse };
 
 export function getLoginUrl(jti: string, context: SessionContext): string {
 	const param = context === "dm" ? "start" : "startgroup";
-	return `${TELEGRAM_BOT_BASE}?${param}=login_${jti}`;
+	return `${TELEGRAM_BOT_BASE}?${param}=link_${jti}`;
 }
-
-// -------------------------------------------------------------------------------
-
-export type TelegramAlertType =
-	| "weeklyInfo"
-	| "newPosition"
-	| "positionExpiry"
-	| "challenge"
-	| "newMinter"
-	| "mintingUpdates"
-	| "priceAlerts"
-	| "equityEvents"
-	| "ccipProposal"
-	| "savingsRate"
-	| "mintingRate"
-	| "position"
-	| "owner"
-	| "collateral";
-
-export type TelegramAlert = {
-	id: string;
-	type: TelegramAlertType;
-	address: string;
-	createdAt: string;
-};
 
 export type TelegramState = {
 	loaded: boolean;
 	linked: boolean;
 	jwt: string | null;
 	jti: string | null;
-	alerts: TelegramAlert[];
+	alerts: AlertResponse[];
 };
 
 // -------------------------------------------------------------------------------
@@ -88,10 +64,10 @@ export const slice = createSlice({
 		setJti: (state, action: { payload: string | null }) => {
 			state.jti = action.payload;
 		},
-		setAlerts: (state, action: { payload: TelegramAlert[] }) => {
+		setAlerts: (state, action: { payload: AlertResponse[] }) => {
 			state.alerts = action.payload;
 		},
-		alertAdded: (state, action: { payload: TelegramAlert }) => {
+		alertAdded: (state, action: { payload: AlertResponse }) => {
 			if (!state.alerts.find((a) => a.id === action.payload.id)) {
 				state.alerts.push(action.payload);
 			}
@@ -152,18 +128,18 @@ export const fetchTelegramAlerts = () => async (dispatch: Dispatch, getState: ()
 	const jwt = getState().telegram.jwt;
 	if (!jwt) return;
 	try {
-		const res = await FRANKENCOIN_API_CLIENT.get<TelegramAlert[]>("/auth/alerts", { headers: authHeaders(jwt) });
+		const res = await FRANKENCOIN_API_CLIENT.get<AlertResponse[]>("/auth/alerts", { headers: authHeaders(jwt) });
 		dispatch(slice.actions.setAlerts(res.data));
 	} catch {}
 };
 
 export const addTelegramAlert =
-	(type: TelegramAlertType, address = "") =>
+	(type: AlertType, address = "") =>
 	async (dispatch: Dispatch, getState: () => RootState) => {
 		const jwt = getState().telegram.jwt;
 		if (!jwt) return;
 		try {
-			const res = await FRANKENCOIN_API_CLIENT.post<TelegramAlert>("/auth/alerts", { type, address }, { headers: authHeaders(jwt) });
+			const res = await FRANKENCOIN_API_CLIENT.post<AlertResponse>("/auth/alerts", { type, address }, { headers: authHeaders(jwt) });
 			dispatch(slice.actions.alertAdded(res.data));
 		} catch {}
 	};
@@ -178,7 +154,7 @@ export const removeTelegramAlert = (id: string) => async (dispatch: Dispatch, ge
 };
 
 export const toggleTelegramAlert =
-	(type: TelegramAlertType, address = "") =>
+	(type: AlertType, address = "") =>
 	(dispatch: Dispatch, getState: () => RootState) => {
 		const existing = getState().telegram.alerts.find((a) => a.type === type && a.address === address);
 		if (existing) {
