@@ -153,11 +153,18 @@ function RateLimitCell({ state }: { state: RateLimiterState | null }) {
 	if (!state) return <>–</>;
 	if (!state.isEnabled) return <>Unlimited</>;
 
-	const available = formatCurrency(formatUnits(state.tokens, 18));
 	const capacity = formatCurrency(formatUnits(state.capacity, 18));
+	const deficit = state.capacity - state.tokens;
+	const isRefueling = deficit > 0n && state.rate > 0n;
+	const secondsToFull = isRefueling ? Number(deficit) / Number(state.rate) : 0;
+	const hours = Math.floor(secondsToFull / 3600);
+	const minutes = Math.floor((secondsToFull % 3600) / 60);
+	const refuelLabel = hours > 0 ? `~${hours}h ${minutes}m until refueled` : minutes > 0 ? `~${minutes}m until refueled` : null;
+
 	return (
-		<>
-			{available} / {capacity} ZCHF
-		</>
+		<div className="flex flex-col">
+			<span>{capacity} ZCHF</span>
+			{refuelLabel && <span className="text-xs text-text-subheader">{refuelLabel}</span>}
+		</div>
 	);
 }

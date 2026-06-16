@@ -24,7 +24,7 @@ export default function BorrowTable() {
 
 	const { address: walletAddress } = useConnection();
 	const chfauBridge = useSwapCHFAUStats();
-	const { uniqueByCollateral } = useBorrowPositions();
+	const { uniqueByCollateral, sortedByCollateral } = useBorrowPositions();
 
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 
@@ -34,12 +34,24 @@ export default function BorrowTable() {
 		[normalizeAddress(chfauBridge.bridgeAddress)]: chfauBridge,
 	};
 
+	const totalDebtByCollateral = useMemo(() => {
+		const map: Record<string, number> = {};
+		for (const [coll, positions] of Object.entries(sortedByCollateral)) {
+			map[normalizeAddress(coll as Address)] = positions.reduce(
+				(sum, p) => sum + (Number(p.minted) * (1_000_000 - p.reserveContribution)) / 1_000_000,
+				0
+			);
+		}
+		return map;
+	}, [sortedByCollateral]);
+
 	const sorted: PositionQueryV2[] = sortPositions(
 		[...uniquePositions, chfauBridge.asBorrowPosition],
 		coingecko,
 		headers,
 		tab,
-		reverse
+		reverse,
+		totalDebtByCollateral
 	);
 
 	// Wallet balance detection for "In my wallet" toggle
@@ -135,13 +147,18 @@ function sortPositions(
 	prices: PriceQueryObjectArray,
 	headers: string[],
 	tab: string,
-	reverse: boolean
+	reverse: boolean,
+	totalDebtByCollateral: Record<string, number> = {}
 ): PositionQueryV2[] {
 	const sorting = [...list];
 
 	if (tab === headers[0]) {
-		// sort for Collateral
-		sorting.sort((a, b) => a.collateralSymbol.localeCompare(b.collateralSymbol)); // default: increase
+		// sort by total debt across all positions per collateral DESC
+		sorting.sort((a, b) => {
+			const debtA = totalDebtByCollateral[normalizeAddress(a.collateral)] ?? 0;
+			const debtB = totalDebtByCollateral[normalizeAddress(b.collateral)] ?? 0;
+			return debtB - debtA;
+		});
 	} else if (tab === headers[1]) {
 		// sort for LTV, nominal LTV = liquidation price / market price
 		sorting.sort((a, b) => {

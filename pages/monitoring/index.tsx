@@ -105,10 +105,9 @@ export default function Positions() {
 								<AppTitle title={`System Health`}>
 									<div className="text-text-secondary">
 										This chart shows how well the Frankencoins in free circulation are backed by collateral assets. All
-										Frankencoins that are not in the reserve pool are considered in free circulation. To the extent this
-										value falls below 100%, the fundamental value of falls below below the peg. As long as the value is
-										above 100%, all Frankencoins in free circulation are backed by collateral. The recording of historic
-										watermarks started in September 2025.
+										Frankencoins that are not in the reserve pool are considered in free circulation. As long as the
+										value is above 100%, all Frankencoins in free circulation are backed by collateral. The recording of
+										historic watermarks started in September 2025.
 									</div>
 								</AppTitle>
 
@@ -194,10 +193,18 @@ export default function Positions() {
 								</div>
 
 								<AppTitle title="Collateral Risk Parameters">
-									<div className="text-text-secondary">
-										Risk parameters per collateral: governance-set risk premium, reserve contribution, average
-										liquidation price, and minimum value locked (sum of minimum collateral × liquidation price across
-										all original positions). Sorted by min. locked descending by default.
+									<div className="text-text-secondary flex flex-col gap-2">
+										<p>
+											Risk parameters per collateral: governance-set risk premium, reserve contribution, and average
+											minimum locked value (average minimum collateral × market price across original positions). The
+											avg. min. locked value is the minimum collateral value anyone needs to deposit to open a new
+											position and mint new Frankencoin. It also reflects the avg. minimum value a challenger needs to
+											provide when starting a challenge.
+										</p>
+										<p>
+											Note: A new position proposal requires that the minimum collateral covers a minting capacity of
+											at least 5,000 ZCHF.
+										</p>
 									</div>
 								</AppTitle>
 								<div className="mt-8">

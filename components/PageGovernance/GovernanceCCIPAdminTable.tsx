@@ -16,7 +16,7 @@ export default function GovernanceCCIPAdminTable() {
 	const headers = ["Date", "Proposer", "Chain", "Type", "Status"];
 	const [tab, setTab] = useState(headers[0]);
 	const [reverse, setReverse] = useState(false);
-	const [statusFilter, setStatusFilter] = useState("All");
+	const [statusFilter, setStatusFilter] = useState("Pending");
 
 	const handleTabOnChange = (e: string) => {
 		if (tab === e) setReverse(!reverse);
@@ -67,9 +67,7 @@ export default function GovernanceCCIPAdminTable() {
 				{sorted.length === 0 ? (
 					<TableRowEmpty>{loaded ? "No proposals found." : "Loading..."}</TableRowEmpty>
 				) : (
-					sorted.map((p) => (
-						<GovernanceCCIPAdminRow key={`${p.chainId}-${p.hash}`} headers={headers} tab={tab} proposal={p} />
-					))
+					sorted.map((p) => <GovernanceCCIPAdminRow key={`${p.chainId}-${p.hash}`} headers={headers} tab={tab} proposal={p} />)
 				)}
 			</TableBody>
 		</Table>
