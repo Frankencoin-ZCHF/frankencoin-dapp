@@ -18,6 +18,7 @@ import ReportsPositionsYearlyTable from "@components/PageReports/ReportsPosition
 import { OwnerPositionDebt, OwnerPositionFees, OwnerPositionValueLocked } from "../report";
 import { FRANKENCOIN_API_CLIENT } from "../../app.config";
 import { ApiOwnerDebt, ApiOwnerValueLocked } from "@frankencoin/api";
+import TelegramAlertToggle from "@components/TelegramAlertToggle";
 
 export default function Positions() {
 	const { address } = useConnection();
@@ -94,7 +95,14 @@ export default function Positions() {
 			</Head>
 
 			{/* Section Positions */}
-			<AppTitle title="Owned Positions">
+			<AppTitle
+				title="Owned Positions"
+				actions={
+					(overwrite ?? address) ? (
+						<TelegramAlertToggle type="owner" address={(overwrite ?? address) as string} label="Alerts" />
+					) : undefined
+				}
+			>
 				<DisplayWarningMessage overwrite={overwrite} />
 			</AppTitle>
 
