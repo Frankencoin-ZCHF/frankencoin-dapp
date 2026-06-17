@@ -67,7 +67,7 @@ export default function HealthRatio() {
 									: "text-text-secondary hover:text-text-primary"
 							}`}
 						>
-							Free Float
+							Free Circulation
 						</button>
 						<button
 							onClick={() => setMode("supply")}
@@ -77,7 +77,7 @@ export default function HealthRatio() {
 									: "text-text-secondary hover:text-text-primary"
 							}`}
 						>
-							Collateral
+							Total Supply
 						</button>
 					</div>
 				</div>
