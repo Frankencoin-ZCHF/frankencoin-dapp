@@ -98,12 +98,17 @@ export default function Positions() {
 			<AppTitle
 				title="Owned Positions"
 				actions={
-					(overwrite ?? address) ? (
+					overwrite ?? address ? (
 						<TelegramAlertToggle type="owner" address={(overwrite ?? address) as string} label="Alerts" />
 					) : undefined
 				}
 			>
 				<DisplayWarningMessage overwrite={overwrite} />
+				<div className="text-text-secondary">
+					Monitor your open positions and stay on top of their collateralization.{" "}
+					<AppLink className="" label="Manage Telegram alerts" href="/monitoring/telegram" external={false} /> to get notified
+					when a position needs attention.
+				</div>
 			</AppTitle>
 
 			<MypositionsTable />
@@ -127,6 +132,7 @@ export default function Positions() {
 			{/* Section Challenges */}
 			<AppTitle title="Initiated Challenges">
 				<DisplayWarningMessage overwrite={overwrite} />
+				<div className="text-text-secondary">Challenges you have launched against positions.</div>
 			</AppTitle>
 
 			<MyPositionsChallengesTable />
@@ -134,6 +140,7 @@ export default function Positions() {
 			{/* Section Bids */}
 			<AppTitle title="Your Bids">
 				<DisplayWarningMessage overwrite={overwrite} />
+				<div className="text-text-secondary">Bids you have placed on collateral auctions.</div>
 			</AppTitle>
 
 			<MyPositionsBidsTable />

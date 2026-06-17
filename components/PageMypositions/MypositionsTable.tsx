@@ -14,6 +14,7 @@ import { generateExpirationCalendar, downloadCalendarFile, generateGoogleCalenda
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarDays, faCalendarPlus } from "@fortawesome/free-solid-svg-icons";
 import { ALL_CATEGORIES, CollateralCategory, collateralMatchesCategories, normalizeAddress } from "@utils";
+import { TelegramLinkStatus } from "@components/PageMonitoring/TelegramLinkStatus";
 
 const FILTER_OPTIONS: FilterOption[] = ALL_CATEGORIES.map((c) => ({ label: c, value: c }));
 
@@ -141,6 +142,9 @@ export default function MypositionsTable() {
 					)}
 				</TableBody>
 			</Table>
+
+			<TelegramLinkStatus />
+
 			{list.length > 0 && (
 				<div className="mb-4 flex justify-end gap-2">
 					<button
