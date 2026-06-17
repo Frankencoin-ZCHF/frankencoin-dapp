@@ -10,7 +10,7 @@ import { readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, FrankencoinABI } from "@frankencoin/zchf";
 import { base, gnosis, mainnet } from "viem/chains";
-import { useSwapVCHFStats } from "@hooks";
+import { useSwapCHFAUStats } from "@hooks";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function FrankencoinAllocation() {
@@ -18,7 +18,7 @@ export default function FrankencoinAllocation() {
 	const { fpsInfo } = useSelector((state: RootState) => state.ecosystem);
 	const { savingsInfo } = useSelector((state: RootState) => state.savings);
 
-	const vchfBridge = useSwapVCHFStats();
+	const chfauBridge = useSwapCHFAUStats();
 
 	const [protocols, setProtocols] = useState(0);
 	const [dex, setDex] = useState(0);
@@ -32,7 +32,7 @@ export default function FrankencoinAllocation() {
 	});
 
 	// Aggregate swap bridges
-	byCollateral.set("VCHF", vchfBridge.otherBridgeBal);
+	byCollateral.set("CHFAU", chfauBridge.bridgeMinted);
 
 	const mappingMinted = [...byCollateral.keys()]
 		.map((label, idx) => {
