@@ -3,7 +3,7 @@ import TableRow from "../Table/TableRow";
 import { ADDRESS, ChainId, SupportedChain, SupportedChainsMap } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
 import ChainLogo from "@components/ChainLogo";
-import { ContractUrl, formatCurrency, getChainByChainSelector, shortenAddress } from "@utils";
+import { ContractUrl, formatCurrency, FormatType, getChainByChainSelector, shortenAddress } from "@utils";
 import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
@@ -153,17 +153,20 @@ function RateLimitCell({ state }: { state: RateLimiterState | null }) {
 	if (!state) return <>–</>;
 	if (!state.isEnabled) return <>Unlimited</>;
 
-	const capacity = formatCurrency(formatUnits(state.capacity, 18));
+	const capacity = formatCurrency(formatUnits(state.capacity, 18), 0, 0, FormatType.symbol);
+	const available = formatCurrency(formatUnits(state.tokens, 18), 0, 0, FormatType.symbol);
 	const deficit = state.capacity - state.tokens;
 	const isRefueling = deficit > 0n && state.rate > 0n;
 	const secondsToFull = isRefueling ? Number(deficit) / Number(state.rate) : 0;
 	const hours = Math.floor(secondsToFull / 3600);
 	const minutes = Math.floor((secondsToFull % 3600) / 60);
-	const refuelLabel = hours > 0 ? `~${hours}h ${minutes}m until refueled` : minutes > 0 ? `~${minutes}m until refueled` : null;
+	const refuelLabel = hours > 0 ? `~${hours}h ${minutes}m until full` : minutes > 0 ? `~${minutes}m until full` : null;
 
 	return (
 		<div className="flex flex-col">
-			<span>{capacity} ZCHF</span>
+			<span>
+				{isRefueling ? `${available} of` : ""} {capacity} ZCHF
+			</span>
 			{refuelLabel && <span className="text-xs text-text-subheader">{refuelLabel}</span>}
 		</div>
 	);
