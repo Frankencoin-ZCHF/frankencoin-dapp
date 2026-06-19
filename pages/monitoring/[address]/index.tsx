@@ -17,7 +17,6 @@ import { readContract } from "wagmi/actions";
 import { ApiMintingUpdateListing, MintingUpdateQuery, PositionQueryV2 } from "@frankencoin/api";
 import { ADDRESS, FrankencoinABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
-import TelegramAlertToggle from "@components/TelegramAlertToggle";
 
 export default function PositionDetail() {
 	const [reserve, setReserve] = useState<bigint>(0n);
@@ -107,11 +106,6 @@ export default function PositionDetail() {
 								<AppLink label={`Discussion`} href={DISCUSSIONS[normalizeAddress(position.collateral)]} external={true} />
 							)}
 							<AppLink label="Contract" href={positionExplorerUrl} external={true} />
-							<TelegramAlertToggle
-								type="position"
-								address={normalizeAddress(position.position)}
-								label="Alerts"
-							/>
 						</div>
 					}
 				/>

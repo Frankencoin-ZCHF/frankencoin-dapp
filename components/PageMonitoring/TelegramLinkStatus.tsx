@@ -15,9 +15,8 @@ import {
 
 export function TelegramLinkStatus() {
 	const { loaded, linked, jti } = useSelector((state: RootState) => state.telegram);
-	const [context, setContext] = useState<"dm" | "group">("dm");
 	const [testState, setTestState] = useState<"idle" | "sending" | "sent" | "error">("idle");
-	const loginUrl = jti ? getLoginUrl(jti, context) : "";
+	const loginUrl = jti ? getLoginUrl(jti, "dm") : "";
 
 	useEffect(() => {
 		store.dispatch(initTelegramAuth() as any);
@@ -50,7 +49,7 @@ export function TelegramLinkStatus() {
 	if (linked) {
 		return (
 			<AppCard className="flex items-center justify-between px-4 py-3">
-				<span className="text-green-500 font-bold">✅ Telegram Linked</span>
+				<span className="font-bold">✅ Telegram Linked</span>
 				<div className="flex items-center gap-3">
 					<button
 						onClick={handleTest}
@@ -63,13 +62,13 @@ export function TelegramLinkStatus() {
 							? "✓ Sent"
 							: testState === "error"
 							? "✗ Failed"
-							: "Test Bot"}
+							: "Send Test Message"}
 					</button>
 					<button
 						onClick={() => store.dispatch(clearTelegramSession() as any)}
 						className="text-xs text-text-secondary hover:text-red-400 transition-colors"
 					>
-						Clear Session
+						Disconnect
 					</button>
 				</div>
 			</AppCard>
@@ -80,25 +79,6 @@ export function TelegramLinkStatus() {
 
 	return (
 		<AppCard className="flex flex-col items-center gap-3 px-4 py-6">
-			<div className="flex items-center gap-3">
-				<button
-					onClick={() => setContext("dm")}
-					className={`text-md font-medium transition-colors ${
-						context === "dm" ? "text-text-primary font-semibold" : "text-text-secondary hover:text-text-primary"
-					}`}
-				>
-					Personal
-				</button>
-				<span className="text-text-secondary">·</span>
-				<button
-					onClick={() => setContext("group")}
-					className={`text-md font-medium transition-colors ${
-						context === "group" ? "text-text-primary font-semibold" : "text-text-secondary hover:text-text-primary"
-					}`}
-				>
-					Group
-				</button>
-			</div>
 			<div className="bg-white p-4 rounded-xl">
 				<QRCode value={loginUrl} size={180} />
 			</div>

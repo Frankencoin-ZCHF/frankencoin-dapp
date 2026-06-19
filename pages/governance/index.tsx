@@ -141,9 +141,11 @@ export default function Governance() {
 
 			<GovernanceVotersTable />
 
-			<AppTitle title="Frankencoin Api Bot" />
+			<div id="api-bot" className="scroll-mt-20">
+				<AppTitle title="Frankencoin Api Bot" />
 
-			<GovernanceTelegramBot />
+				<GovernanceTelegramBot />
+			</div>
 		</>
 	);
 }
