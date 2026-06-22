@@ -65,7 +65,7 @@ export default function PageTabInput({ tabs, urlParam = "tab", className }: Prop
 				</div>
 			</div>
 
-			<div className="space-y-8">{tabs[active]?.content}</div>
+			<div className="space-y-8 mt-6">{tabs[active]?.content}</div>
 		</div>
 	);
 }
