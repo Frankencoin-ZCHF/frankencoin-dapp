@@ -5,7 +5,6 @@ import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import AppTitle from "@components/AppTitle";
 import AppHeroSteps from "@components/AppHeroSteps";
 import { TelegramLinkStatus } from "@components/PageMonitoring/TelegramLinkStatus";
-import { TelegramAlertsPanel } from "@components/PageMonitoring/TelegramAlertsPanel";
 
 export default function TelegramMonitoringPage() {
 	useEffect(() => {
@@ -24,24 +23,24 @@ export default function TelegramMonitoringPage() {
 				steps={[
 					{
 						icon: 1,
-						title: "Choose Chat Context",
-						description: "Link alerts to your personal chat or to a group — each has its own independent link.",
+						title: "Open the Bot",
+						description: "Scan or click the link below to open the Frankencoin Bot on Telegram.",
 					},
 					{
 						icon: 2,
-						title: "Link with Telegram",
-						description: "Scan the QR code, open the link directly, or copy it to connect your Telegram chat.",
+						title: "Subscribe",
+						description:
+							"Type /start for all alerts, /start GOV for governance, /start ALL for all positions, or /start <address> to track an owner.",
 					},
 					{
 						icon: 3,
-						title: "Manage & Get Alerted",
-						description: "Select which positions to watch and receive instant Telegram notifications.",
+						title: "Get Alerted",
+						description: "Receive instant notifications directly in your Telegram chat.",
 					},
 				]}
 			/>
 
 			<TelegramLinkStatus />
-			<TelegramAlertsPanel />
 		</>
 	);
 }

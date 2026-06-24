@@ -11,7 +11,6 @@ import { reducer as bidsReducer } from "./slices/bids.slice";
 import { reducer as savingsReducer } from "./slices/savings.slice";
 import { reducer as morphoReducer } from "./slices/morpho.slice";
 import { reducer as bridgeReducer } from "./slices/bridge.slice";
-import { reducer as telegramReducer } from "./slices/telegram.slice";
 
 // store with combined reducers
 export const store = configureStore({
@@ -25,7 +24,6 @@ export const store = configureStore({
 		savings: savingsReducer,
 		morpho: morphoReducer,
 		bridge: bridgeReducer,
-		telegram: telegramReducer,
 	}),
 });
 

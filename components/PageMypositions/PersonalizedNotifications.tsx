@@ -7,10 +7,11 @@ export default function PersonalizedNotifications() {
 		<>
 			<AppTitle title="Personalized Notifications">
 				<div className="text-text-secondary">
-					Connect to the Frankencoin Telegram Bot to get alerts when your positions expire, when your positions are challenged,
-					or when the market price falls to less than 10% above the liquidation price. This service is provided on a best-effort
-					basis without any guarantees. To subscribe to alerts relevant for general monitoring and governance, visit the{" "}
-					<AppLink className="" label="governance page" href="/governance#api-bot" external={false} />.
+					Get alerts when your positions expire, when your positions are challenged, or when the market price falls to less than 10%
+					above the liquidation price. Open the Frankencoin Bot on Telegram and type{" "}
+					<span className="font-mono text-text-primary">/start &lt;your address&gt;</span> to track your positions. This service
+					is provided on a best-effort basis without any guarantees. For governance and general monitoring alerts, visit the{" "}
+					<AppLink className="" label="monitoring page" href="/monitoring/telegram" external={false} />.
 				</div>
 			</AppTitle>
 
