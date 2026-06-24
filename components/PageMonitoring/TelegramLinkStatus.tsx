@@ -10,6 +10,7 @@ interface Props {
 export function TelegramLinkStatus({ address }: Props) {
 	const url = getBotUrl(address);
 	const label = address ? "Scan to track this owner in Telegram" : "Scan to open Frankencoin Bot";
+	const labelUrl = address ? "Click to track this owner in Telegram" : "Click to open Frankencoin Bot";
 
 	return (
 		<AppCard className="flex flex-col items-center gap-3 px-4 py-6">
@@ -17,7 +18,7 @@ export function TelegramLinkStatus({ address }: Props) {
 			<div className="bg-white p-4 rounded-xl">
 				<QRCode value={url} size={180} />
 			</div>
-			<AppLink label={url} href={url} external copy copyValue={url} />
+			<AppLink label={labelUrl} href={url} external copy copyValue={url} />
 		</AppCard>
 	);
 }

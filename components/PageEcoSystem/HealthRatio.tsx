@@ -58,7 +58,7 @@ export default function HealthRatio() {
 							Current as of {currentEntry ? dateFormatter(currentEntry.timestamp) : "-"}
 						</div>
 					</div>
-					<div className="flex rounded-lg overflow-hidden border border-card-content-primary text-xs">
+					<div className="flex rounded-lg overflow-hidden border border-card-content-primary text-xs max-md:ml-3">
 						<button
 							onClick={() => setMode("freeFloat")}
 							className={`px-3 py-1.5 transition-colors ${

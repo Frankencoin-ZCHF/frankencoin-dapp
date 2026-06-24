@@ -1,15 +1,11 @@
 import Head from "next/head";
-import { useEffect } from "react";
-import { store } from "../../redux/redux.store";
-import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import AppTitle from "@components/AppTitle";
 import AppHeroSteps from "@components/AppHeroSteps";
 import { TelegramLinkStatus } from "@components/PageMonitoring/TelegramLinkStatus";
+import { useConnection } from "wagmi";
 
 export default function TelegramMonitoringPage() {
-	useEffect(() => {
-		store.dispatch(fetchPositionsList());
-	}, []);
+	const { address } = useConnection();
 
 	return (
 		<>
@@ -40,7 +36,7 @@ export default function TelegramMonitoringPage() {
 				]}
 			/>
 
-			<TelegramLinkStatus />
+			<TelegramLinkStatus address={address} />
 		</>
 	);
 }
