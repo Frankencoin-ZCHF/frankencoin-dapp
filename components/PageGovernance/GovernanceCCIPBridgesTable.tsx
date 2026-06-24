@@ -46,14 +46,33 @@ const tokenPoolReadABI = [
 			},
 		],
 	},
+	{
+		name: "getCurrentOutboundRateLimiterState",
+		type: "function",
+		stateMutability: "view",
+		inputs: [{ name: "chain", type: "uint64" }],
+		outputs: [
+			{
+				type: "tuple",
+				name: "",
+				components: [
+					{ name: "tokens", type: "uint128" },
+					{ name: "lastUpdated", type: "uint32" },
+					{ name: "isEnabled", type: "bool" },
+					{ name: "capacity", type: "uint128" },
+					{ name: "rate", type: "uint128" },
+				],
+			},
+		],
+	},
 ] as const;
 
-type BridgePair = { sourceChainId: ChainId; destinationSelector: bigint; inbound: RateLimiterState | null };
+type BridgePair = { sourceChainId: ChainId; destinationSelector: bigint; inbound: RateLimiterState | null; outbound: RateLimiterState | null };
 
 const DEFAULT_SOURCE = SupportedChainsMap[mainnet.id].name;
 
 export default function GovernanceCCIPBridgesTable() {
-	const headers: string[] = ["Configured Chain", "Other Chain", "Remote Token", "Incoming Limit"];
+	const headers: string[] = ["Configured Chain", "Other Chain", "Outgoing Limit", "Incoming Limit"];
 	const [pairs, setPairs] = useState<BridgePair[]>([]);
 	const [loaded, setLoaded] = useState<boolean>(false);
 
@@ -91,24 +110,34 @@ export default function GovernanceCCIPBridgesTable() {
 			for (const r of results) {
 				if (r.status !== "fulfilled") continue;
 				for (const selector of r.value.selectors) {
-					pairs.push({ sourceChainId: r.value.chainId, destinationSelector: selector, inbound: null });
+					pairs.push({ sourceChainId: r.value.chainId, destinationSelector: selector, inbound: null, outbound: null });
 				}
 			}
 
-			// Fetch inbound rate limiter state for all pairs in parallel
+			// Fetch inbound and outbound rate limiter states for all pairs in parallel
 			await Promise.allSettled(
 				pairs.map(async (p, i) => {
 					try {
-						const state = await readContract(WAGMI_CONFIG, {
-							address: ADDRESS[p.sourceChainId].ccipTokenPool,
-							chainId: p.sourceChainId,
-							abi: tokenPoolReadABI,
-							functionName: "getCurrentInboundRateLimiterState",
-							args: [p.destinationSelector],
-						});
-						pairs[i] = { ...p, inbound: state as RateLimiterState };
+						const pool = ADDRESS[p.sourceChainId].ccipTokenPool;
+						const [inState, outState] = await Promise.all([
+							readContract(WAGMI_CONFIG, {
+								address: pool,
+								chainId: p.sourceChainId,
+								abi: tokenPoolReadABI,
+								functionName: "getCurrentInboundRateLimiterState",
+								args: [p.destinationSelector],
+							}),
+							readContract(WAGMI_CONFIG, {
+								address: pool,
+								chainId: p.sourceChainId,
+								abi: tokenPoolReadABI,
+								functionName: "getCurrentOutboundRateLimiterState",
+								args: [p.destinationSelector],
+							}),
+						]);
+						pairs[i] = { ...p, inbound: inState as RateLimiterState, outbound: outState as RateLimiterState };
 					} catch {
-						// leave inbound: null
+						// leave inbound/outbound: null
 					}
 				})
 			);
@@ -146,6 +175,10 @@ export default function GovernanceCCIPBridgesTable() {
 				const nameA = getChainByChainSelector(a.destinationSelector.toString())?.name ?? "";
 				const nameB = getChainByChainSelector(b.destinationSelector.toString())?.name ?? "";
 				cmp = nameA.localeCompare(nameB);
+			} else if (tab === headers[2]) {
+				const capA = a.outbound?.isEnabled ? a.outbound.capacity : a.outbound ? BigInt(Number.MAX_SAFE_INTEGER) : -1n;
+				const capB = b.outbound?.isEnabled ? b.outbound.capacity : b.outbound ? BigInt(Number.MAX_SAFE_INTEGER) : -1n;
+				cmp = capA < capB ? -1 : capA > capB ? 1 : 0;
 			} else if (tab === headers[3]) {
 				const capA = a.inbound?.isEnabled ? a.inbound.capacity : a.inbound ? BigInt(Number.MAX_SAFE_INTEGER) : -1n;
 				const capB = b.inbound?.isEnabled ? b.inbound.capacity : b.inbound ? BigInt(Number.MAX_SAFE_INTEGER) : -1n;
@@ -197,6 +230,7 @@ export default function GovernanceCCIPBridgesTable() {
 							sourceChainId={p.sourceChainId}
 							destinationSelector={p.destinationSelector}
 							inbound={p.inbound}
+							outbound={p.outbound}
 						/>
 					))
 				)}

@@ -44,7 +44,19 @@ const tokenPoolReadABI = [
 		inputs: [{ name: "chain", type: "uint64" }],
 		outputs: [rateLimiterStateOutput],
 	},
+	{
+		name: "getCurrentOutboundRateLimiterState",
+		type: "function",
+		stateMutability: "view",
+		inputs: [{ name: "chain", type: "uint64" }],
+		outputs: [rateLimiterStateOutput],
+	},
 ] as const;
+
+const sourceTokenAddress = (chainId: ChainId): Address => {
+	const addrs = ADDRESS[chainId] as Record<string, unknown>;
+	return (addrs.frankencoin ?? addrs.ccipBridgedFrankencoin) as Address;
+};
 
 interface Props {
 	headers: string[];
@@ -52,13 +64,23 @@ interface Props {
 	sourceChainId: ChainId;
 	destinationSelector: bigint;
 	inbound?: RateLimiterState | null;
+	outbound?: RateLimiterState | null;
 }
 
-export default function GovernanceCCIPBridgesRow({ headers, tab, sourceChainId, destinationSelector, inbound: inboundProp }: Props) {
+export default function GovernanceCCIPBridgesRow({
+	headers,
+	tab,
+	sourceChainId,
+	destinationSelector,
+	inbound: inboundProp,
+	outbound: outboundProp,
+}: Props) {
 	const [remoteToken, setRemoteToken] = useState<Address | null>(null);
 	const [inboundFetched, setInboundFetched] = useState<RateLimiterState | null>(null);
+	const [outboundFetched, setOutboundFetched] = useState<RateLimiterState | null>(null);
 
 	const inbound = inboundProp !== undefined ? inboundProp : inboundFetched;
+	const outbound = outboundProp !== undefined ? outboundProp : outboundFetched;
 
 	const sourceChain = SupportedChainsMap[sourceChainId] as SupportedChain;
 	const destinationChain = getChainByChainSelector(destinationSelector.toString());
@@ -78,7 +100,18 @@ export default function GovernanceCCIPBridgesRow({ headers, tab, sourceChainId, 
 					  })
 					: Promise.resolve(null);
 
-			const [tokenBytes, inState] = await Promise.all([
+			const fetchOutbound =
+				outboundProp === undefined
+					? readContract(WAGMI_CONFIG, {
+							address: pool,
+							chainId: sourceChainId,
+							abi: tokenPoolReadABI,
+							functionName: "getCurrentOutboundRateLimiterState",
+							args: [destinationSelector],
+					  })
+					: Promise.resolve(null);
+
+			const [tokenBytes, inState, outState] = await Promise.all([
 				readContract(WAGMI_CONFIG, {
 					address: pool,
 					chainId: sourceChainId,
@@ -87,6 +120,7 @@ export default function GovernanceCCIPBridgesRow({ headers, tab, sourceChainId, 
 					args: [destinationSelector],
 				}),
 				fetchInbound,
+				fetchOutbound,
 			]);
 
 			if (tokenBytes && tokenBytes !== "0x") {
@@ -98,6 +132,7 @@ export default function GovernanceCCIPBridgesRow({ headers, tab, sourceChainId, 
 				}
 			}
 			if (inState !== null) setInboundFetched(inState as RateLimiterState);
+			if (outState !== null) setOutboundFetched(outState as RateLimiterState);
 		};
 		fetcher();
 	}, [sourceChainId, destinationSelector]);
@@ -118,27 +153,32 @@ export default function GovernanceCCIPBridgesRow({ headers, tab, sourceChainId, 
 			{/* Configured Chain */}
 			<div className="flex items-center gap-2 md:text-left max-md:justify-end">
 				<ChainLogo chain={(sourceChain?.name ?? "").toLowerCase()} size={5} />
-				<span>{sourceChain?.name ?? sourceChainId}</span>
+				<AppLink
+					className=""
+					label={sourceChain?.name ?? String(sourceChainId)}
+					href={ContractUrl(sourceTokenAddress(sourceChainId), sourceChain)}
+					external={true}
+				/>
 			</div>
 
 			{/* Other Chain */}
 			<div className="flex items-center justify-end gap-2">
 				<ChainLogo chain={(destinationChain?.name ?? "").toLowerCase()} size={5} />
-				<span>{destinationChain?.name ?? destinationSelector.toString()}</span>
-			</div>
-
-			{/* Remote Token */}
-			<div className="flex flex-col">
 				{remoteToken ? (
 					<AppLink
-						label={shortenAddress(remoteToken)}
+						className=""
+						label={destinationChain?.name ?? destinationSelector.toString()}
 						href={ContractUrl(remoteToken, destinationChain)}
 						external={true}
-						className=""
 					/>
 				) : (
-					"–"
+					<span>{destinationChain?.name ?? destinationSelector.toString()}</span>
 				)}
+			</div>
+
+			{/* Outgoing Limit */}
+			<div className="flex flex-col">
+				<RateLimitCell state={outbound} />
 			</div>
 
 			{/* Incoming Limit */}
