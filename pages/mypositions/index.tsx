@@ -110,19 +110,16 @@ export default function Positions() {
 			)}
 
 			{/* Section Positions */}
-			<AppTitle
-				title="Owned Positions"
-			>
+			<AppTitle title="Owned Positions">
 				<div className="text-text-secondary">
-					Open positions belonging to{" "}
-					<AppLink className="" label={shortenAddress(account)} href={accountUrl} external={true} />.
+					Open positions belonging to <AppLink className="" label={shortenAddress(account)} href={accountUrl} external={true} />.
 				</div>
 			</AppTitle>
 
 			<MypositionsTable />
 
 			{/* Section Personalized Notifications */}
-			<PersonalizedNotifications />
+			<PersonalizedNotifications overwrite={account} />
 
 			{/* Section Report */}
 			<AppTitle title="Yearly Accounts">
