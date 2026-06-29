@@ -7,35 +7,25 @@ import { PriceHistoryRatio } from "@frankencoin/api";
 import { formatCurrency } from "@utils";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
-type ChartData = {
-	timestamp: number;
-	value: number;
-};
+type Mode = "freeFloat" | "supply";
 
 export default function HealthRatio() {
-	const [chartData, setChartData] = useState<ChartData[]>([]);
+	const [ratioData, setRatioData] = useState<PriceHistoryRatio | null>(null);
+	const [mode, setMode] = useState<Mode>("freeFloat");
 
 	useEffect(() => {
 		const fetcher = async () => {
 			const response = await FRANKENCOIN_API_CLIENT.get("/prices/history/ratio");
-			const ratio = response.data as PriceHistoryRatio;
-
-			const keys = Object.keys(ratio.collateralRatioByFreeFloat).map((i) => parseInt(i));
-
-			const data: ChartData[] = keys.map((i) => ({
-				timestamp: i,
-				value: ratio.collateralRatioByFreeFloat[i],
-			}));
-
-			const date = Date.now() - 365 * 24 * 60 * 60 * 1000;
-
-			const chartFiltered = data.filter((i) => (i.timestamp < date ? false : true));
-
-			setChartData(chartFiltered);
+			setRatioData(response.data as PriceHistoryRatio);
 		};
-
 		fetcher();
 	}, []);
+
+	const cutoff = Date.now() - 365 * 24 * 60 * 60 * 1000;
+	const source = ratioData ? (mode === "freeFloat" ? ratioData.collateralRatioByFreeFloat : ratioData.collateralRatioBySupply) : {};
+	const chartData = Object.keys(source)
+		.map((k) => ({ timestamp: parseInt(k), value: source[parseInt(k)] }))
+		.filter((i) => i.timestamp >= cutoff);
 
 	const chartListTimestamp = [...chartData].sort((a, b) => a.timestamp - b.timestamp);
 	const currentEntry = chartListTimestamp.at(-1);
@@ -60,11 +50,35 @@ export default function HealthRatio() {
 	return (
 		<AppCard>
 			<div className="flex flex-col gap-6">
-				{/* Current value */}
-				<div>
-					<div className={`text-4xl font-bold ${healthColor}`}>{formatCurrency(currentPct, 2)}%</div>
-					<div className="text-text-secondary text-sm mt-1">
-						Current as of {currentEntry ? dateFormatter(currentEntry.timestamp) : "-"}
+				{/* Current value + toggle */}
+				<div className="flex items-start justify-between">
+					<div>
+						<div className={`text-4xl font-bold ${healthColor}`}>{formatCurrency(currentPct, 2)}%</div>
+						<div className="text-text-secondary text-sm mt-1">
+							Current as of {currentEntry ? dateFormatter(currentEntry.timestamp) : "-"}
+						</div>
+					</div>
+					<div className="flex rounded-lg overflow-hidden border border-card-content-primary text-xs max-md:ml-3">
+						<button
+							onClick={() => setMode("freeFloat")}
+							className={`px-3 py-1.5 transition-colors ${
+								mode === "freeFloat"
+									? "bg-card-content-primary text-text-primary"
+									: "text-text-secondary hover:text-text-primary"
+							}`}
+						>
+							Free Circulation
+						</button>
+						<button
+							onClick={() => setMode("supply")}
+							className={`px-3 py-1.5 transition-colors ${
+								mode === "supply"
+									? "bg-card-content-primary text-text-primary"
+									: "text-text-secondary hover:text-text-primary"
+							}`}
+						>
+							Total Supply
+						</button>
 					</div>
 				</div>
 

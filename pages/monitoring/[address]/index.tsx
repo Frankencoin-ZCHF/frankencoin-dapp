@@ -99,7 +99,7 @@ export default function PositionDetail() {
 						...(position.isClone ? [{ label: "Clone", className: "bg-purple-500/20 text-purple-400" }] : []),
 					]}
 					actions={
-						<div className="flex flex-wrap gap-4 text-sm">
+						<div className="flex flex-wrap items-center gap-4 text-sm">
 							<AppLink label={`Owner`} href={myPosLink} external={false} />
 							{originalInfo && <AppLink label={`Original`} href={originalInfo.href} external={false} />}
 							{DISCUSSIONS[normalizeAddress(position.collateral)] && (
@@ -158,7 +158,7 @@ export default function PositionDetail() {
 								%
 							</StatRow>
 							<StatRow label="Risk Premium">
-								{formatCurrency((position as PositionQueryV2).riskPremiumPPM ?? 0 / 10000, 2, 2)}%
+								{formatCurrency(((position as PositionQueryV2).riskPremiumPPM ?? 0) / 10000, 2, 2)}%
 							</StatRow>
 							<StatRow label="Effective Interest">
 								{formatCurrency((position.annualInterestPPM * 100) / (1000000 - position.reserveContribution), 2, 2)}%

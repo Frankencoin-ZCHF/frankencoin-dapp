@@ -12,18 +12,23 @@ import { fetchChallengesList } from "../../redux/slices/challenges.slice";
 import { fetchBidsList } from "../../redux/slices/bids.slice";
 import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleInfo } from "@fortawesome/free-solid-svg-icons";
 import { useContractUrl } from "@hooks";
 import { useConnection } from "wagmi";
 import ReportsPositionsYearlyTable from "@components/PageReports/ReportsPositionsYearlyTable";
 import { OwnerPositionDebt, OwnerPositionFees, OwnerPositionValueLocked } from "../report";
 import { FRANKENCOIN_API_CLIENT } from "../../app.config";
 import { ApiOwnerDebt, ApiOwnerValueLocked } from "@frankencoin/api";
+import PersonalizedNotifications from "@components/PageMypositions/PersonalizedNotifications";
 
 export default function Positions() {
 	const { address } = useConnection();
 	const router = useRouter();
 	const paramAddr = router.query.address as Address;
 	const overwrite: Address | undefined = isAddress(paramAddr) ? paramAddr : undefined;
+	const account = overwrite ?? address ?? zeroAddress;
+	const accountUrl = useContractUrl(account);
 
 	const [isLoading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string>("");
@@ -93,16 +98,34 @@ export default function Positions() {
 				<title>Frankencoin - My Positions</title>
 			</Head>
 
+			{overwrite && (
+				<div className="mb-4 flex items-center gap-3 rounded-lg bg-card-content-primary p-4 text-text-secondary">
+					<FontAwesomeIcon icon={faCircleInfo} className="h-5 w-5 flex-shrink-0 text-text-secondary" />
+					<span>
+						Showing the public view for positions owned by{" "}
+						<AppLink className="" label={shortenAddress(overwrite)} href={accountUrl} external={true} /> and not the connected
+						wallet.
+					</span>
+				</div>
+			)}
+
 			{/* Section Positions */}
-			<AppTitle title="Owned Positions">
-				<DisplayWarningMessage overwrite={overwrite} />
+			<AppTitle
+				title="Owned Positions"
+			>
+				<div className="text-text-secondary">
+					Open positions belonging to{" "}
+					<AppLink className="" label={shortenAddress(account)} href={accountUrl} external={true} />.
+				</div>
 			</AppTitle>
 
 			<MypositionsTable />
 
+			{/* Section Personalized Notifications */}
+			<PersonalizedNotifications />
+
 			{/* Section Report */}
 			<AppTitle title="Yearly Accounts">
-				<DisplayWarningMessage overwrite={overwrite} />
 				<div className="text-text-secondary">
 					Open positions at the end of each year as well as interest paid. See also the
 					<AppLink className="" label={" report page"} href={`/report?address=${overwrite ?? address ?? zeroAddress}`} />.
@@ -118,30 +141,17 @@ export default function Positions() {
 
 			{/* Section Challenges */}
 			<AppTitle title="Initiated Challenges">
-				<DisplayWarningMessage overwrite={overwrite} />
+				<div className="text-text-secondary">Challenges you have launched against positions.</div>
 			</AppTitle>
 
 			<MyPositionsChallengesTable />
 
 			{/* Section Bids */}
 			<AppTitle title="Your Bids">
-				<DisplayWarningMessage overwrite={overwrite} />
+				<div className="text-text-secondary">Bids you have placed on collateral auctions.</div>
 			</AppTitle>
 
 			<MyPositionsBidsTable />
 		</>
-	);
-}
-
-function DisplayWarningMessage(props: { overwrite: Address | undefined }) {
-	const link = useContractUrl(props.overwrite ?? zeroAddress);
-	if (props.overwrite == undefined) return;
-
-	return (
-		<div>
-			<div className="font-bold text-sm">
-				Public View for: {<AppLink className="" label={shortenAddress(props.overwrite)} href={link} external={true} />}
-			</div>
-		</div>
 	);
 }

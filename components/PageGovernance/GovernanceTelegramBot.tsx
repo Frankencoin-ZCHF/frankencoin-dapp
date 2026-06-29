@@ -1,70 +1,56 @@
 import AppCard from "@components/AppCard";
+import AppLink from "@components/AppLink";
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { SOCIAL } from "@utils";
 import Image from "next/image";
 
+const NOTIFICATIONS = [
+	"New Minter Proposal and Vetoed",
+	"New Leadrate Proposal and Changes",
+	"New Position Proposal and Expiring",
+	"Challenge Started and Bid Taken",
+	"Minting Notifications",
+];
+
 export default function GovernanceTelegramBot() {
-	const openExplorer = (e: any) => {
+	const openBot = (e: React.MouseEvent) => {
 		e.preventDefault();
 		window.open(SOCIAL.TelegramApiBot, "_blank");
 	};
 
 	return (
 		<AppCard>
-			<div className="grid max-md:grid-cols-1 md:grid-cols-2">
-				<div className="flex flex-col gap-4 p-2 md:px-4 justify-center items-left">
+			<div className="flex flex-col items-center gap-8 p-2 md:flex-row md:items-center md:gap-12 md:p-4">
+				{/* Description + notification list + call to action */}
+				<div className="flex flex-1 flex-col gap-5">
 					<div className="text-text-secondary">
-						The Frankencoin API Bot is a Telegram communication tool designed to keep users informed about various activities
-						and updates within the Frankencoin ecosystem.
+						The Notification Bot is a Telegram bot that can notify you about events relevant to the governance of the system.
 					</div>
 
-					<div className="grid grid-cols-1 w-full my-4 md:ml-6 max-md:ml-2">
-						<ul className="flex flex-col gap-4">
-							<li className="flex justify-left items-center">
-								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-card-body-secondary" />
-								<span className="ml-5 text-center">New Minter Proposal and Vetoed</span>
+					<ul className="flex flex-col gap-3">
+						{NOTIFICATIONS.map((item) => (
+							<li key={item} className="flex items-center gap-3">
+								<FontAwesomeIcon icon={faCircleCheck} className="h-5 w-5 flex-shrink-0 text-card-body-secondary" />
+								<span>{item}</span>
 							</li>
-							<li className="flex justify-left items-center">
-								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-card-body-secondary" />
-								<span className="ml-5 text-center">New Leadrate Proposal and Changes</span>
-							</li>
-							<li className="flex justify-left items-center">
-								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-card-body-secondary" />
-								<span className="ml-5 text-center">New Position Proposal and Expiring</span>
-							</li>
-							<li className="flex justify-left items-center">
-								<FontAwesomeIcon icon={faCircleCheck} className="w-8 h-8 text-card-body-secondary" />
-								<span className="ml-5 text-center">Challenge Started and Bid Taken</span>
-							</li>
-						</ul>
-					</div>
+						))}
+					</ul>
 
-					<div className="text-text-secondary">Users can subscribe to different types of updates using specific handles.</div>
-
-					<div className="grid grid-cols-1 w-full my-4 md:ml-6 max-md:ml-2">
-						<ul className="flex flex-col gap-4">
-							<li className="flex justify-left items-center">
-								<FontAwesomeIcon
-									icon={faCircleCheck}
-									className="w-8 h-8 bg-card-body-secondary rounded-full border-card-body-secondary border-2"
-									inverse
-								/>
-								<span className="ml-5 text-center">New Minting Updates</span>
-							</li>
-						</ul>
-					</div>
+					<AppLink className="mt-1" label="Open Notification Bot in Telegram" href={SOCIAL.TelegramApiBot} external />
 				</div>
 
-				<div className="">
-					<Image
-						className="cursor-pointer"
-						src="/assets/telegram-qr.png"
-						alt="Logo"
-						width={1000}
-						height={1000}
-						onClick={openExplorer}
-					/>
+				{/* QR code */}
+				<div className="flex flex-shrink-0 flex-col items-center gap-3">
+					<button onClick={openBot} className="rounded-xl bg-white p-4" aria-label="Open Notification Bot in Telegram">
+						<Image
+							className="cursor-pointer"
+							src="/assets/telegram-qr-2.png"
+							alt="Telegram Notification Bot QR code"
+							width={200}
+							height={200}
+						/>
+					</button>
 				</div>
 			</div>
 		</AppCard>
