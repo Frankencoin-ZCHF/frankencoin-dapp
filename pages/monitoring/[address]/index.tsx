@@ -158,7 +158,7 @@ export default function PositionDetail() {
 								%
 							</StatRow>
 							<StatRow label="Risk Premium">
-								{formatCurrency((position as PositionQueryV2).riskPremiumPPM ?? 0 / 10000, 2, 2)}%
+								{formatCurrency(((position as PositionQueryV2).riskPremiumPPM ?? 0) / 10000, 2, 2)}%
 							</StatRow>
 							<StatRow label="Effective Interest">
 								{formatCurrency((position.annualInterestPPM * 100) / (1000000 - position.reserveContribution), 2, 2)}%
