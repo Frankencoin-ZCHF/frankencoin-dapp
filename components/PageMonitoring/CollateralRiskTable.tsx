@@ -154,17 +154,6 @@ export default function CollateralRiskTable() {
 						const reservePct = row.avgReservePPM / 10_000;
 						const riskPct = row.avgRiskPremiumPPM != null ? row.avgRiskPremiumPPM / 10_000 : null;
 
-						const reserveColor = reservePct >= 20 ? "text-green-500" : reservePct >= 10 ? "text-amber-400" : "text-red-500";
-						const minLockedColor = row.minLocked > 5_000 ? "text-green-500" : row.minLocked === 5_000 ? "text-amber-400" : "text-red-500";
-						const riskColor =
-							riskPct == null
-								? "text-text-secondary"
-								: riskPct === 0
-								? "text-green-500"
-								: riskPct < 2
-								? "text-amber-400"
-								: "text-red-500";
-
 						return (
 							<TableRow key={row.collateralAddress} headers={headers} tab={tab}>
 								{/* Collateral */}
@@ -196,7 +185,7 @@ export default function CollateralRiskTable() {
 								</div>
 
 								{/* Risk Premium */}
-								<div className={`text-md font-medium ${riskColor}`}>
+								<div className="text-md font-medium">
 									{riskPct == null ? (
 										<span className="text-text-secondary font-normal text-sm">V1 / n/a</span>
 									) : (
@@ -205,10 +194,10 @@ export default function CollateralRiskTable() {
 								</div>
 
 								{/* Reserve */}
-								<div className={`text-md font-medium ${reserveColor}`}>{formatCurrency(reservePct, 2, 2)}%</div>
+								<div className="text-md font-medium">{formatCurrency(reservePct, 2, 2)}%</div>
 
 								{/* Min. Locked */}
-								<div className={`text-md font-medium ${minLockedColor}`}>
+								<div className="text-md font-medium">
 									{formatCurrency(row.minLocked, 2, 2, FormatType.symbol)} ZCHF
 								</div>
 							</TableRow>
