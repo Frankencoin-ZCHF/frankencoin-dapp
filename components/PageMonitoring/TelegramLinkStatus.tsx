@@ -9,8 +9,8 @@ interface Props {
 
 export function TelegramLinkStatus({ address }: Props) {
 	const url = getBotUrl(address);
-	const label = address ? "Scan to track this owner in Telegram" : "Scan to open Frankencoin Bot";
-	const labelUrl = address ? "Click to track this owner in Telegram" : "Click to open Frankencoin Bot";
+	const label = address ? `Setup alerts for all positions owned by ${address}` : "Setup alerts in Telegram";
+	const labelUrl = address ? `Initiate alerts in Telegram` : "Open Frankencoin Bot in Telegram";
 
 	return (
 		<AppCard className="flex flex-col items-center gap-3 px-4 py-6">
