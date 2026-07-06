@@ -2,8 +2,9 @@ import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
 import { TelegramLinkStatus } from "@components/PageMonitoring/TelegramLinkStatus";
 import { useConnection } from "wagmi";
+import { Address } from "viem";
 
-export default function PersonalizedNotifications() {
+export default function PersonalizedNotifications({ overwrite }: { overwrite?: Address }) {
 	const { address } = useConnection();
 
 	return (
@@ -18,7 +19,7 @@ export default function PersonalizedNotifications() {
 				</div>
 			</AppTitle>
 
-			<TelegramLinkStatus address={address} />
+			<TelegramLinkStatus address={overwrite ?? address} />
 		</>
 	);
 }
