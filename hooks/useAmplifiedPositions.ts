@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useBlockNumber, useConnection, useReadContracts } from "wagmi";
-import { Address, encodePacked, isAddress, keccak256 } from "viem";
+import { getPublicClient } from "wagmi/actions";
+import { Address, encodePacked, keccak256, parseAbiItem, zeroAddress } from "viem";
 import { mainnet } from "viem/chains";
-import axios from "axios";
 import { UniswapV3PoolABI } from "@frankencoin/zchf";
 import { decodeBigIntCall } from "@utils";
+import { WAGMI_CONFIG } from "../app.config";
 import { AmplifiedPositionABI, UniswapAmplifierABI } from "../abis/UniswapAmplifier";
 import { getPendingFees } from "../utils/uniswapV3Math";
 
@@ -15,6 +16,7 @@ export type AmplifiedPositionInfo = {
 	tickHigh: number;
 	borrowed: bigint;
 	liquidity: bigint;
+	owner: Address;
 };
 
 export type AmplifiedPositionsResult = {
@@ -23,15 +25,13 @@ export type AmplifiedPositionsResult = {
 	apiError: string;
 };
 
-const AKTIONARIAT_OWNER_API = "https://api.aktionariat.com/owner";
+const POSITION_CREATED_EVENT = parseAbiItem("event AmplifiedPositionCreated(address position)");
 
 /**
- * Finds the AmplifiedPosition contracts of the connected user that belong to the given amplifier.
- *
- * The list of candidate contracts owned by the user comes from the Aktionariat API. Contracts the
- * user created in this session can be passed in as `extra` since the API only picks them up with
- * a delay. Candidates are then filtered on-chain via the amplifier's positionCreationDate mapping.
- * An `overwrite` address shows the positions of that owner instead of the connected wallet.
+ * Loads every AmplifiedPosition ever created by the given amplifier, regardless of owner, by
+ * reading its AmplifiedPositionCreated events. Positions belonging to the acting account
+ * (`overwrite` or the connected wallet) are sorted to the top. Positions created in the current
+ * session can be passed in as `extra` since the events may take a block to be indexed.
  */
 export const useAmplifiedPositions = (
 	amplifier: Address | undefined,
@@ -40,102 +40,101 @@ export const useAmplifiedPositions = (
 ): AmplifiedPositionsResult => {
 	const chainId = mainnet.id;
 	const { address: connected } = useConnection();
-	const account = overwrite ?? connected;
-	const [owned, setOwned] = useState<Address[]>([]);
-	const [apiError, setApiError] = useState("");
-	const [apiLoading, setApiLoading] = useState(false);
+	const account = (overwrite ?? connected)?.toLowerCase();
+	const [createdList, setCreatedList] = useState<{ address: Address; block: bigint }[]>([]);
+	const [logError, setLogError] = useState("");
+	const [logLoading, setLogLoading] = useState(false);
 
+	// enumerate all positions from the amplifier's creation events
 	useEffect(() => {
-		if (!account) {
-			setOwned([]);
+		if (!amplifier) {
+			setCreatedList([]);
 			return;
 		}
+		const client = getPublicClient(WAGMI_CONFIG, { chainId });
+		if (!client) return;
 		let cancelled = false;
-		setApiLoading(true);
-		axios
-			.get<string[]>(AKTIONARIAT_OWNER_API, { params: { address: account } })
-			.then((response) => {
+		setLogLoading(true);
+		client
+			.getLogs({ address: amplifier, event: POSITION_CREATED_EVENT, fromBlock: 0n, toBlock: "latest" })
+			.then((logs) => {
 				if (cancelled) return;
-				const addresses = response.data
-					.filter((entry) => entry.startsWith("mainnet-"))
-					.map((entry) => entry.slice("mainnet-".length))
-					.filter((addr) => isAddress(addr)) as Address[];
-				setOwned(addresses);
-				setApiError("");
+				setCreatedList(logs.map((log) => ({ address: log.args.position as Address, block: log.blockNumber ?? 0n })));
+				setLogError("");
 			})
 			.catch(() => {
-				if (!cancelled) setApiError("Could not load your contracts from the Aktionariat API.");
+				if (!cancelled) setLogError("Could not load positions from the blockchain.");
 			})
 			.finally(() => {
-				if (!cancelled) setApiLoading(false);
+				if (!cancelled) setLogLoading(false);
 			});
 		return () => {
 			cancelled = true;
 		};
-	}, [account]);
+	}, [amplifier, chainId]);
 
+	// merge in session-created positions (newest, hence a large sentinel block), deduplicated
 	const candidates = useMemo(() => {
 		const seen = new Set<string>();
-		return [...owned, ...extra].filter((addr) => {
-			const key = addr.toLowerCase();
-			if (seen.has(key)) return false;
-			seen.add(key);
-			return true;
-		});
-	}, [owned, extra]);
+		const out: { address: Address; created: bigint }[] = [];
+		for (const { address, block } of createdList) {
+			const key = address.toLowerCase();
+			if (!seen.has(key)) {
+				seen.add(key);
+				out.push({ address, created: block });
+			}
+		}
+		for (const address of extra) {
+			const key = address.toLowerCase();
+			if (!seen.has(key)) {
+				seen.add(key);
+				out.push({ address, created: 2n ** 63n });
+			}
+		}
+		return out;
+	}, [createdList, extra]);
 
-	// step 1: which of the user's contracts were created by this amplifier?
-	const { data: creationData, isLoading: creationLoading } = useReadContracts({
-		contracts: candidates.map((candidate) => ({
-			chainId,
-			address: amplifier,
-			abi: UniswapAmplifierABI,
-			functionName: "positionCreationDate",
-			args: [candidate],
-		})),
-		query: { enabled: !!amplifier && candidates.length > 0 },
-	});
-
-	const amplified = useMemo(() => {
-		if (!creationData) return [];
-		return candidates
-			.map((address, i) => ({ address, created: decodeBigIntCall(creationData[i]) }))
-			.filter((c) => c.created > 0n)
-			.sort((a, b) => (a.created < b.created ? -1 : 1));
-	}, [candidates, creationData]);
-
-	// step 2: load the state of each amplified position, refreshed every block
+	// load the state and owner of each position, refreshed every block
 	const { data: blockNumber } = useBlockNumber({ watch: true });
 	const { data: stateData, refetch, isLoading: stateLoading } = useReadContracts({
-		contracts: amplified.flatMap(({ address }) => [
+		contracts: candidates.flatMap(({ address }) => [
 			{ chainId, address, abi: AmplifiedPositionABI, functionName: "tickLow" } as const,
 			{ chainId, address, abi: AmplifiedPositionABI, functionName: "tickHigh" } as const,
 			{ chainId, address, abi: AmplifiedPositionABI, functionName: "borrowed" } as const,
 			{ chainId, address, abi: AmplifiedPositionABI, functionName: "totalLiquidity" } as const,
+			{ chainId, address, abi: AmplifiedPositionABI, functionName: "owner" } as const,
 		]),
-		query: { enabled: amplified.length > 0 },
+		query: { enabled: candidates.length > 0 },
 	});
 
 	useEffect(() => {
-		if (amplified.length > 0) refetch();
-	}, [blockNumber, amplified.length, refetch]);
+		if (candidates.length > 0) refetch();
+	}, [blockNumber, candidates.length, refetch]);
 
 	const positions = useMemo(() => {
 		if (!stateData) return [];
-		return amplified.map(({ address, created }, i) => ({
+		const list = candidates.map(({ address, created }, i) => ({
 			address,
 			created,
-			tickLow: Number(stateData[i * 4]?.result ?? 0),
-			tickHigh: Number(stateData[i * 4 + 1]?.result ?? 0),
-			borrowed: decodeBigIntCall(stateData[i * 4 + 2]),
-			liquidity: decodeBigIntCall(stateData[i * 4 + 3]),
+			tickLow: Number(stateData[i * 5]?.result ?? 0),
+			tickHigh: Number(stateData[i * 5 + 1]?.result ?? 0),
+			borrowed: decodeBigIntCall(stateData[i * 5 + 2]),
+			liquidity: decodeBigIntCall(stateData[i * 5 + 3]),
+			owner: (stateData[i * 5 + 4]?.result as Address) ?? zeroAddress,
 		}));
-	}, [amplified, stateData]);
+		// acting account's positions first, then everyone else's, each group oldest-first
+		return list.sort((a, b) => {
+			const aOwn = !!account && a.owner.toLowerCase() === account;
+			const bOwn = !!account && b.owner.toLowerCase() === account;
+			if (aOwn !== bOwn) return aOwn ? -1 : 1;
+			return a.created < b.created ? -1 : 1;
+		});
+	}, [candidates, stateData, account]);
 
 	return {
 		positions,
-		isLoading: apiLoading || (candidates.length > 0 && creationLoading) || (amplified.length > 0 && stateLoading),
-		apiError,
+		isLoading: logLoading || (candidates.length > 0 && stateLoading),
+		apiError: logError,
 	};
 };
 
@@ -187,6 +186,7 @@ export const useAmplifiedPosition = (amplifier: Address | undefined, position: A
 						tickHigh: Number(data![2]?.result ?? 0),
 						borrowed: decodeBigIntCall(data![3]),
 						liquidity: decodeBigIntCall(data![4]),
+						owner: (data![5]?.result as Address) ?? zeroAddress,
 				  }
 				: undefined,
 	};

@@ -28,13 +28,7 @@ export default function AmplifierPositionsTable({ stats, positions, isLoading, a
 			<TableBody>
 				{positions.length == 0 ? (
 					<TableRowEmpty>
-						{!account
-							? "Connect your wallet to see your amplified positions."
-							: apiError
-							? apiError
-							: isLoading
-							? "Loading your amplified positions..."
-							: "You do not have any amplified positions yet."}
+						{apiError ? apiError : isLoading ? "Loading amplified positions..." : "This amplifier has no positions yet."}
 					</TableRowEmpty>
 				) : (
 					positions.map((position) => (
@@ -43,6 +37,7 @@ export default function AmplifierPositionsTable({ stats, positions, isLoading, a
 							headers={headers}
 							stats={stats}
 							position={position}
+							account={account}
 							onAction={onAction}
 						/>
 					))

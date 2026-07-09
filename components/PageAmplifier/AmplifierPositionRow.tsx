@@ -1,3 +1,4 @@
+import { Address } from "viem";
 import AppLink from "@components/AppLink";
 import AppMenu from "@components/AppMenu";
 import DisplayAmount from "@components/DisplayAmount";
@@ -14,11 +15,13 @@ interface Props {
 	headers: string[];
 	stats: AmplifierStats;
 	position: AmplifiedPositionInfo;
+	account?: Address;
 	onAction: (action: AmplifierPositionAction, position: AmplifiedPositionInfo) => void;
 }
 
-export default function AmplifierPositionRow({ headers, stats, position, onAction }: Props) {
+export default function AmplifierPositionRow({ headers, stats, position, account, onAction }: Props) {
 	const url = useContractUrl(position.address);
+	const isOwn = account != undefined && position.owner.toLowerCase() === account.toLowerCase();
 
 	const sqrtA = getSqrtRatioAtTick(position.tickLow);
 	const sqrtB = getSqrtRatioAtTick(position.tickHigh);
@@ -41,13 +44,15 @@ export default function AmplifierPositionRow({ headers, stats, position, onActio
 			tab={headers[0]}
 			actionCol={
 				<div className="text-right max-md:text-center">
-					<AppMenu
-						items={[
-							{ label: "Add Liquidity", onClick: () => onAction("add", position) },
-							{ label: "Remove Liquidity", onClick: () => onAction("remove", position) },
-							{ label: "Collect Fees", onClick: () => onAction("collect", position) },
-						]}
-					/>
+					{isOwn && (
+						<AppMenu
+							items={[
+								{ label: "Add Liquidity", onClick: () => onAction("add", position) },
+								{ label: "Remove Liquidity", onClick: () => onAction("remove", position) },
+								{ label: "Collect Fees", onClick: () => onAction("collect", position) },
+							]}
+						/>
+					)}
 				</div>
 			}
 		>

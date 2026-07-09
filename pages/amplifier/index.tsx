@@ -111,8 +111,8 @@ export default function AmplifierPage() {
 
 			{/* Section Positions */}
 			<AppTitle
-				title="Your Amplified Positions"
-				subtitle="Positions you created through this amplifier."
+				title="Amplified Positions"
+				subtitle="All positions created through this amplifier. Yours (if any) are listed first."
 				actions={
 					<AppButton className="h-10 px-4" width="w-auto" disabled={expired} onClick={() => setShowCreate(true)}>
 						Create Position
