@@ -17,8 +17,8 @@ export default function Overview() {
 			<AppTitle title={`Frankencoin Holders`}>
 				<div className="text-text-secondary">
 					This section provides an overview of how the total ZCHF supply is distributed among different holders. The circulating
-					supply reflects tokens held in uncategorized wallets, while other portions are allocated to protocol reserves,
-					centralized & decentralized exchanges, and external integrations such as Morpho.
+					supply reflects tokens held in uncategorized wallets, while other portions are allocated to protocol reserves and
+					centralized & decentralized exchanges.
 				</div>
 			</AppTitle>
 

@@ -20,7 +20,6 @@ export default function FrankencoinAllocation() {
 
 	const chfauBridge = useSwapCHFAUStats();
 
-	const [protocols, setProtocols] = useState(0);
 	const [dex, setDex] = useState(0);
 	const [cex, setCex] = useState(0);
 
@@ -49,7 +48,7 @@ export default function FrankencoinAllocation() {
 			18
 		)
 	);
-	const freeFlow = totalMinted - fpsInfo.reserve.equity - fpsInfo.reserve.minter - savingsInfo.totalBalance - protocols - dex - cex;
+	const freeFlow = totalMinted - fpsInfo.reserve.equity - fpsInfo.reserve.minter - savingsInfo.totalBalance - dex - cex;
 
 	const mapping = [
 		{
@@ -63,10 +62,6 @@ export default function FrankencoinAllocation() {
 		{
 			label: "Savings Modules",
 			value: savingsInfo.totalBalance,
-		},
-		{
-			label: "External Protocols",
-			value: protocols,
 		},
 		{
 			label: "Decentralized Exchanges",
@@ -97,7 +92,6 @@ export default function FrankencoinAllocation() {
 		const fetcher = async () => {
 			const dexes: Promise<any>[] = [];
 			const cexes: Promise<any>[] = [];
-			const protocols: Promise<any>[] = [];
 
 			// UniSwap USDT
 			// https://etherscan.io/address/0x8E4318E2cb1ae291254B187001a59a1f8ac78cEF
@@ -207,18 +201,6 @@ export default function FrankencoinAllocation() {
 				})
 			);
 
-			// Morpho
-			// https://etherscan.io/address/0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb
-			protocols.push(
-				readContract(WAGMI_CONFIG, {
-					chainId: mainnet.id,
-					address: ADDRESS[mainnet.id].frankencoin,
-					abi: FrankencoinABI,
-					functionName: "balanceOf",
-					args: ["0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb"],
-				})
-			);
-
 			// helper results
 			const getResults = async (items: Promise<any>[]) => {
 				return (await Promise.allSettled(items)).map((i) => {
@@ -233,9 +215,6 @@ export default function FrankencoinAllocation() {
 
 			const resultCexes = await getResults(cexes);
 			setCex(resultCexes.reduce((a, b) => a + parseInt(formatUnits(b, 18)), 0));
-
-			const resultProtocols = await getResults(protocols);
-			setProtocols(resultProtocols.reduce((a, b) => a + parseInt(formatUnits(b, 18)), 0));
 		};
 		fetcher();
 	}, []);

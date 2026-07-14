@@ -18,8 +18,6 @@ export const TxUrl = (hash: Hash, chain: SupportedChain = SupportedChains["mainn
 	return path.join(explorerLink, "tx", hash);
 };
 
-export const MorphoMarketUrl = (id: string) => `https://app.morpho.org/ethereum/market/${id}`;
-
 export const getChain = (id: ChainId) => {
 	return WAGMI_CHAINS.find((c) => c.id == id) ?? WAGMI_CHAIN;
 };
