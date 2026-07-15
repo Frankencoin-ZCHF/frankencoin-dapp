@@ -1,19 +1,20 @@
 import AppCard from "@components/AppCard";
 import DisplayAmount from "@components/DisplayAmount";
 import DisplayLabel from "@components/DisplayLabel";
-import { AmplifierStats } from "../../hooks/useAmplifier";
+import { AmplifierPriceView, AmplifierStats } from "../../hooks/useAmplifier";
 import { FormatType, formatCurrency, formatDateTime } from "@utils";
 
 interface Props {
 	stats: AmplifierStats;
+	priceView: AmplifierPriceView;
 }
 
-export default function AmplifierSummary({ stats }: Props) {
-	const priceUnit = `${stats.zchfSymbol || "ZCHF"}/${stats.usdSymbol || "USD"}`;
+export default function AmplifierSummary({ stats, priceView }: Props) {
+	const priceUnit = priceView.unit;
 
-	const anchorPrice = stats.anchorPricePerUsd;
-	const boundLow = stats.zchfPerUsdAtTick(stats.minimumTick);
-	const boundHigh = stats.zchfPerUsdAtTick(stats.maximumTick);
+	const anchorPrice = priceView.anchor;
+	const boundLow = priceView.atTick(stats.minimumTick);
+	const boundHigh = priceView.atTick(stats.maximumTick);
 	const rangeLow = Math.min(boundLow, boundHigh);
 	const rangeHigh = Math.max(boundLow, boundHigh);
 
@@ -22,7 +23,7 @@ export default function AmplifierSummary({ stats }: Props) {
 			<AppCard>
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 					<DisplayLabel label="Current Price">
-						<DisplayAmount output={formatCurrency(stats.pricePerUsd, 2, 4, FormatType.us) ?? "-"} unit={priceUnit} />
+						<DisplayAmount output={formatCurrency(priceView.current, 2, 4, FormatType.us) ?? "-"} unit={priceUnit} />
 					</DisplayLabel>
 					<DisplayLabel label="Anchor Price">
 						<DisplayAmount output={formatCurrency(anchorPrice, 2, 4, FormatType.us) ?? "-"} unit={priceUnit} />

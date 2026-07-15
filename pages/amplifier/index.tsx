@@ -7,13 +7,16 @@ import AppCard from "@components/AppCard";
 import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
 import AmplifierSummary from "@components/PageAmplifier/AmplifierSummary";
+import AmplifierPoolChart from "@components/PageAmplifier/AmplifierPoolChart";
 import AmplifierPositionsTable from "@components/PageAmplifier/AmplifierPositionsTable";
 import { AmplifierPositionAction } from "@components/PageAmplifier/AmplifierPositionRow";
 import AmplifierPositionAddDialog from "@components/PageAmplifier/AmplifierPositionAddDialog";
 import AmplifierPositionRemoveDialog from "@components/PageAmplifier/AmplifierPositionRemoveDialog";
 import AmplifierPositionCollectDialog from "@components/PageAmplifier/AmplifierPositionCollectDialog";
 import AmplifierPositionCreateDialog from "@components/PageAmplifier/AmplifierPositionCreateDialog";
+import AppSelect from "@components/AppSelect";
 import { AmplifiedPositionInfo, useAmplifier, useAmplifiedPositions, useContractUrl } from "@hooks";
+import { getPriceView } from "../../hooks/useAmplifier";
 import { isDateExpired, shortenAddress } from "@utils";
 import { TEST_AMPLIFIER } from "../../utils/amplifierConstants";
 
@@ -25,6 +28,18 @@ export default function AmplifierPage() {
 	const overwrite: Address | undefined = paramAddr && isAddress(paramAddr) ? paramAddr : undefined;
 
 	const stats = useAmplifier(amplifier);
+
+	// base currency of the displayed numbers: CHF (prices as ZCHF per USD, the default)
+	// or USD (prices as USD per ZCHF), remembered across visits
+	const [priceBase, setPriceBase] = useState("CHF");
+	useEffect(() => {
+		if (localStorage.getItem("amplifier-price-base") === "USD") setPriceBase("USD");
+	}, []);
+	const priceView = getPriceView(stats, priceBase === "USD");
+	const changePriceBase = (base: string) => {
+		setPriceBase(base);
+		localStorage.setItem("amplifier-price-base", base);
+	};
 
 	// positions created in this session, remembered across navigation because
 	// the Aktionariat API only picks up new contracts with a delay
@@ -71,8 +86,8 @@ export default function AmplifierPage() {
 			<AppCard>
 				<div className="text-lg font-bold text-center mt-4">Uniswap Amplifier</div>
 				<div>
-					The contract <AppLink className="" label={shortenAddress(amplifier)} href={amplifierUrl} external={true} /> does not seem
-					to be a UniswapAmplifier on Ethereum mainnet.
+					The contract <AppLink className="" label={shortenAddress(amplifier)} href={amplifierUrl} external={true} /> does not
+					seem to be a UniswapAmplifier on Ethereum mainnet.
 				</div>
 			</AppCard>
 		);
@@ -85,29 +100,48 @@ export default function AmplifierPage() {
 			</Head>
 
 			{/* Section Amplifier Overview */}
-			<AppTitle title="Uniswap Amplifier">
-				<div className="text-text-secondary">
-					The <AppLink className="" label="amplifier" href={amplifierUrl} external={true} /> lets you provide liquidity to the{" "}
-					<AppLink
-						className=""
-						label={`${stats.zchfSymbol} / ${stats.usdSymbol || "..."} Uniswap pool`}
-						href={poolUrl}
-						external={true}
-					/>{" "}
-					while only supplying{" "}
-					<AppLink className="" label={stats.usdSymbol || "the paired token"} href={usdUrl} external={true} /> — the{" "}
-					{stats.zchfSymbol} side is borrowed from the Frankencoin protocol, cutting the capital costs of liquidity provisioning in
-					half.
-				</div>
-			</AppTitle>
+			<AppTitle
+				title="Uniswap Amplifier"
+				subtitle={
+					<>
+						The <AppLink className="" label="amplifier" href={amplifierUrl} external={true} /> lets you provide liquidity to the{" "}
+						<AppLink
+							className=""
+							label={`${stats.zchfSymbol} / ${stats.usdSymbol || "..."} Uniswap pool`}
+							href={poolUrl}
+							external={true}
+						/>{" "}
+						while only supplying{" "}
+						<AppLink className="" label={stats.usdSymbol || "the paired token"} href={usdUrl} external={true} /> — the{" "}
+						{stats.zchfSymbol} side is borrowed from the Frankencoin protocol, cutting the capital costs of liquidity
+						provisioning in half.
+					</>
+				}
+				actions={
+					<AppSelect
+						className="w-40"
+						options={[
+							{ value: "CHF", label: "Base CHF" },
+							{ value: "USD", label: "Base USD" },
+						]}
+						value={priceBase}
+						onChange={changePriceBase}
+					/>
+				}
+			/>
 
 			{isTestAmplifier && (
 				<div className="mt-4 rounded-lg bg-card-content-primary p-4 text-text-secondary">
-					This is the test amplifier. It does not actually mint {stats.zchfSymbol}, but still uses real ZCHF supplied by volunteer that must be returned by closing all positions before the amplifier expires.
+					This is the test amplifier. It does not actually mint {stats.zchfSymbol}, but still uses real ZCHF supplied by volunteer
+					that must be returned by closing all positions before the amplifier expires.
 				</div>
 			)}
 
-			<AmplifierSummary stats={stats} />
+			<AmplifierSummary stats={stats} priceView={priceView} />
+
+			<div className="mt-4">
+				<AmplifierPoolChart stats={stats} priceView={priceView} positions={positions} overwrite={overwrite} />
+			</div>
 
 			{/* Section Positions */}
 			<AppTitle
@@ -130,6 +164,7 @@ export default function AmplifierPage() {
 			<div className="mt-4">
 				<AmplifierPositionsTable
 					stats={stats}
+					priceView={priceView}
 					positions={positions}
 					isLoading={isLoading}
 					apiError={apiError}
@@ -140,7 +175,7 @@ export default function AmplifierPage() {
 
 			{/* Dialogs for state changes */}
 			{dialog && dialogPosition && dialog.action === "add" && (
-				<AmplifierPositionAddDialog stats={stats} position={dialogPosition} onClose={() => setDialog(null)} />
+				<AmplifierPositionAddDialog stats={stats} priceView={priceView} position={dialogPosition} onClose={() => setDialog(null)} />
 			)}
 			{dialog && dialogPosition && dialog.action === "remove" && (
 				<AmplifierPositionRemoveDialog stats={stats} position={dialogPosition} onClose={() => setDialog(null)} />
@@ -151,6 +186,7 @@ export default function AmplifierPage() {
 			{showCreate && (
 				<AmplifierPositionCreateDialog
 					stats={stats}
+					priceView={priceView}
 					onClose={() => setShowCreate(false)}
 					onCreated={(position) => {
 						if (storageKey) {

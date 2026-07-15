@@ -55,6 +55,42 @@ export type AmplifierStats = {
 	anchorPricePerUsd: number; // anchor price as ZCHF per USD
 };
 
+// One price orientation of an amplifier, bundling everything the UI needs to display
+// prices consistently: the unit label, the live prices, and the tick conversions.
+// Direction-sensitive wording must branch on `inverted`: in the default orientation
+// (ZCHF per USD) a strengthening dollar means a RISING price, in the inverted one
+// (USD per ZCHF) a FALLING price.
+export type AmplifierPriceView = {
+	inverted: boolean; // false: ZCHF per USD (e.g. 0.81), true: USD per ZCHF (e.g. 1.23)
+	unit: string;
+	current: number;
+	anchor: number;
+	atTick: (tick: number) => number;
+	tickAt: (price: number) => number;
+};
+
+export const getPriceView = (stats: AmplifierStats, inverted: boolean): AmplifierPriceView => {
+	const zchf = stats.zchfSymbol || "ZCHF";
+	const usd = stats.usdSymbol || "USD";
+	return inverted
+		? {
+				inverted,
+				unit: `${usd}/${zchf}`,
+				current: stats.usdPerZchf,
+				anchor: stats.anchorPrice,
+				atTick: stats.usdPerZchfAtTick,
+				tickAt: stats.tickAtUsdPerZchf,
+		  }
+		: {
+				inverted,
+				unit: `${zchf}/${usd}`,
+				current: stats.pricePerUsd,
+				anchor: stats.anchorPricePerUsd,
+				atTick: stats.zchfPerUsdAtTick,
+				tickAt: stats.tickAtZchfPerUsd,
+		  };
+};
+
 /**
  * Loads the configuration and live state of a deployed UniswapAmplifier contract,
  * including the connected user's balances and allowances for the involved tokens.
@@ -94,7 +130,11 @@ export const useAmplifier = (amplifier: Address | undefined): AmplifierStats => 
 	const loaded = !!configData && !invalid && pool !== zeroAddress;
 
 	const { data: blockNumber } = useBlockNumber({ watch: true });
-	const { data: liveData, refetch, isLoading: liveLoading } = useReadContracts({
+	const {
+		data: liveData,
+		refetch,
+		isLoading: liveLoading,
+	} = useReadContracts({
 		contracts: [
 			{ chainId, address: pool, abi: UniswapV3PoolABI, functionName: "tickSpacing" },
 			{ chainId, address: usd, abi: erc20Abi, functionName: "symbol" },

@@ -63,7 +63,11 @@ export default function AmplifierPositionRemoveDialog({ stats, position, onClose
 	} else if (position.liquidity == 0n) {
 		error = "This position has no liquidity to remove.";
 	} else if (shortfall > stats.zchfUserBalance) {
-		error = `Repaying the debt requires about ${formatBigInt(shortfall)} ${stats.zchfSymbol} from your wallet on top of the withdrawn liquidity, but you only have ${formatBigInt(stats.zchfUserBalance)} ${stats.zchfSymbol}.`;
+		error = `Repaying the debt requires about ${formatBigInt(shortfall)} ${
+			stats.zchfSymbol
+		} from your wallet on top of the withdrawn liquidity, but you only have ${formatBigInt(stats.zchfUserBalance)} ${
+			stats.zchfSymbol
+		}.`;
 	} else if (shortfall > 0n) {
 		const shortfallText = `About ${formatBigInt(shortfall)} ${stats.zchfSymbol} will be taken from your wallet to repay the debt.`;
 		warning = returnsText ? `${returnsText} ${shortfallText}` : shortfallText;
@@ -129,8 +133,8 @@ export default function AmplifierPositionRemoveDialog({ stats, position, onClose
 	return (
 		<AppDialog title="Remove Liquidity" isOpen={true} onClose={onClose} preventClose={isApproving || isBurning}>
 			<div className="text-text-secondary">
-				Withdraw a share of position {shortenAddress(position.address)}. The withdrawn {stats.zchfSymbol} repays the borrowed
-				share, the rest goes to your wallet.
+				Withdraw a share of position {shortenAddress(position.address)}. The withdrawn {stats.zchfSymbol} repays the borrowed share,
+				the rest goes to your wallet.
 			</div>
 
 			{expired && (

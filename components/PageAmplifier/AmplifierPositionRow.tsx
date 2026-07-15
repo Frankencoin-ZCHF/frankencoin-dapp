@@ -1,11 +1,11 @@
-import { Address } from "viem";
+import { Address, formatUnits } from "viem";
 import AppLink from "@components/AppLink";
 import AppMenu from "@components/AppMenu";
 import DisplayAmount from "@components/DisplayAmount";
 import TableRow from "@components/Table/TableRow";
 import { useContractUrl } from "@hooks";
-import { AmplifierStats } from "../../hooks/useAmplifier";
-import { AmplifiedPositionInfo } from "../../hooks/useAmplifiedPositions";
+import { AmplifierPriceView, AmplifierStats } from "../../hooks/useAmplifier";
+import { AmplifiedPositionInfo, useAmplifiedPositionFees } from "../../hooks/useAmplifiedPositions";
 import { FormatType, formatCurrency, shortenAddress } from "@utils";
 import { getAmountsForLiquidity, getSqrtRatioAtTick } from "../../utils/uniswapV3Math";
 
@@ -14,14 +14,18 @@ export type AmplifierPositionAction = "add" | "remove" | "collect";
 interface Props {
 	headers: string[];
 	stats: AmplifierStats;
+	priceView: AmplifierPriceView;
 	position: AmplifiedPositionInfo;
 	account?: Address;
 	onAction: (action: AmplifierPositionAction, position: AmplifiedPositionInfo) => void;
 }
 
-export default function AmplifierPositionRow({ headers, stats, position, account, onAction }: Props) {
+export default function AmplifierPositionRow({ headers, stats, priceView, position, account, onAction }: Props) {
 	const url = useContractUrl(position.address);
 	const isOwn = account != undefined && position.owner.toLowerCase() === account.toLowerCase();
+	const { fees0, fees1 } = useAmplifiedPositionFees(stats.pool, stats.currentTick, position);
+	const usdFees = stats.zchfIsToken0 ? fees1 : fees0;
+	const zchfFees = stats.zchfIsToken0 ? fees0 : fees1;
 
 	const sqrtA = getSqrtRatioAtTick(position.tickLow);
 	const sqrtB = getSqrtRatioAtTick(position.tickHigh);
@@ -32,8 +36,8 @@ export default function AmplifierPositionRow({ headers, stats, position, account
 	const usdAmount = stats.zchfIsToken0 ? amounts.amount1 : amounts.amount0;
 	const zchfAmount = stats.zchfIsToken0 ? amounts.amount0 : amounts.amount1;
 
-	const priceAtLow = stats.zchfPerUsdAtTick(position.tickLow);
-	const priceAtHigh = stats.zchfPerUsdAtTick(position.tickHigh);
+	const priceAtLow = priceView.atTick(position.tickLow);
+	const priceAtHigh = priceView.atTick(position.tickHigh);
 	const rangeLow = Math.min(priceAtLow, priceAtHigh);
 	const rangeHigh = Math.max(priceAtLow, priceAtHigh);
 	const inRange = stats.currentTick >= position.tickLow && stats.currentTick < position.tickHigh;
@@ -67,9 +71,11 @@ export default function AmplifierPositionRow({ headers, stats, position, account
 			</div>
 			<div className="flex flex-col">
 				<DisplayAmount className="" amount={usdAmount} digits={stats.usdDecimals} unit={stats.usdSymbol} />
+				<span className="text-sm text-text-secondary">+{formatCurrency(formatUnits(usdFees, stats.usdDecimals))} fees</span>
 			</div>
 			<div className="flex flex-col">
 				<DisplayAmount className="" amount={zchfAmount} digits={18} unit={stats.zchfSymbol} />
+				<span className="text-sm text-text-secondary">+{formatCurrency(formatUnits(zchfFees, 18))} fees</span>
 			</div>
 			<div className="flex flex-col">
 				<DisplayAmount className="" amount={position.borrowed} digits={18} unit={stats.zchfSymbol} />

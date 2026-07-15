@@ -1,6 +1,11 @@
 import { useRef } from "react";
 import { BigNumberInput } from "./BigNumberInput";
 
+export type NormalInputAction = {
+	label: string;
+	onClick: () => void;
+};
+
 interface Props {
 	label?: string;
 	placeholder?: string;
@@ -13,6 +18,7 @@ interface Props {
 	digit?: bigint | number;
 	output?: string; // overwrite with string output
 	note?: string;
+	actions?: NormalInputAction[]; // clickable fill-in helpers like "Max", analogous to TokenInput's buttons
 
 	autoFocus?: boolean;
 	disabled?: boolean;
@@ -29,6 +35,7 @@ export default function NormalInput({
 	digit = 18,
 	output,
 	note,
+	actions,
 	autoFocus = false,
 	disabled = false,
 }: Props) {
@@ -76,6 +83,23 @@ export default function NormalInput({
 
 					<div className="text-card-input-label text-left">{symbol}</div>
 				</div>
+
+				{!disabled && actions && actions.length > 0 && (
+					<div className="flex flex-row justify-end gap-3 py-1">
+						{actions.map((action) => (
+							<div
+								key={action.label}
+								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
+								onClick={(e) => {
+									e.stopPropagation();
+									action.onClick();
+								}}
+							>
+								{action.label}
+							</div>
+						))}
+					</div>
+				)}
 			</div>
 
 			{error ? (

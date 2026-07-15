@@ -8,7 +8,7 @@ import TokenInput from "@components/Input/TokenInput";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import { WAGMI_CONFIG } from "../../app.config";
-import { AmplifierStats } from "../../hooks/useAmplifier";
+import { AmplifierPriceView, AmplifierStats } from "../../hooks/useAmplifier";
 import { AmplifiedPositionInfo } from "../../hooks/useAmplifiedPositions";
 import { AmplifiedPositionABI } from "../../abis/UniswapAmplifier";
 import { FormatType, formatBigInt, formatCurrency, isDateExpired, shortenAddress } from "@utils";
@@ -17,6 +17,7 @@ import { amplificationThresholdTick, qualifiesForAmplification } from "../../uti
 
 interface Props {
 	stats: AmplifierStats;
+	priceView: AmplifierPriceView;
 	position: AmplifiedPositionInfo;
 	onClose: () => void;
 }
@@ -25,7 +26,7 @@ interface Props {
  * Dialog to add liquidity to an amplified position: the user provides dollars,
  * the matching ZCHF side is borrowed from the Frankencoin protocol.
  */
-export default function AmplifierPositionAddDialog({ stats, position, onClose }: Props) {
+export default function AmplifierPositionAddDialog({ stats, priceView, position, onClose }: Props) {
 	const [usdValue, setUsdValue] = useState("0");
 	const [isApproving, setApproving] = useState(false);
 	const [isApprovingZchf, setApprovingZchf] = useState(false);
@@ -40,7 +41,7 @@ export default function AmplifierPositionAddDialog({ stats, position, onClose }:
 
 	// the dollars-per-ZCHF requirement is a ratio fixed by the range and the current price,
 	// so whether it is met does not depend on the amount the user enters
-	const priceUnit = `${stats.zchfSymbol}/${usdSymbol}`;
+	const priceUnit = priceView.unit;
 	let rangeError = "";
 	if (sqrtP > 0n) {
 		const outOfRange = usdIsToken0 ? sqrtP >= sqrtB : sqrtP <= sqrtA;
@@ -50,8 +51,20 @@ export default function AmplifierPositionAddDialog({ stats, position, onClose }:
 			rangeError = `At the current price, this range would consist entirely of borrowed ${stats.zchfSymbol}, which the amplifier does not allow. Create a position with a different range instead.`;
 		} else if (!qualifiesForAmplification(sqrtP, sqrtA, sqrtB, stats.priceAnchorX96, usdIsToken0)) {
 			const thresholdTick = amplificationThresholdTick(position.tickLow, position.tickHigh, stats.priceAnchorX96, usdIsToken0);
-			const threshold = stats.zchfPerUsdAtTick(thresholdTick);
-			rangeError = `At the current price of ${formatCurrency(stats.pricePerUsd, 2, 4, FormatType.us)} ${priceUnit}, this range would borrow too much ${stats.zchfSymbol} relative to the provided ${usdSymbol} — a larger amount does not change this ratio. Adding liquidity becomes possible once the price reaches about ${formatCurrency(threshold, 2, 4, FormatType.us)} ${priceUnit}. Create a new position with a higher price range.`;
+			const threshold = priceView.atTick(thresholdTick);
+			rangeError = `At the current price of ${formatCurrency(
+				priceView.current,
+				2,
+				4,
+				FormatType.us
+			)} ${priceUnit}, this range would borrow too much ${
+				stats.zchfSymbol
+			} relative to the provided ${usdSymbol} — a larger amount does not change this ratio. Adding liquidity becomes possible once the price reaches about ${formatCurrency(
+				threshold,
+				2,
+				4,
+				FormatType.us
+			)} ${priceUnit}. Create a new position with a ${priceView.inverted ? "lower" : "higher"} price range.`;
 		}
 	}
 
@@ -76,9 +89,11 @@ export default function AmplifierPositionAddDialog({ stats, position, onClose }:
 		} else if (usdNeeded > stats.usdUserBalance) {
 			amountError = `Not enough ${usdSymbol} in your wallet.`;
 		} else if (stats.minterDeposit !== undefined && zchfBorrowed > stats.minterDeposit) {
-			amountError = `The test minter can only hand out ${stats.zchfSymbol} you have deposited to it, and your deposit of ${formatBigInt(
-				stats.minterDeposit
-			)} ${stats.zchfSymbol} does not cover the ${formatBigInt(zchfBorrowed)} ${stats.zchfSymbol} to be borrowed. See the note at the top of the page.`;
+			amountError = `The test minter can only hand out ${
+				stats.zchfSymbol
+			} you have deposited to it, and your deposit of ${formatBigInt(stats.minterDeposit)} ${
+				stats.zchfSymbol
+			} does not cover the ${formatBigInt(zchfBorrowed)} ${stats.zchfSymbol} to be borrowed. See the note at the top of the page.`;
 		}
 	}
 	const error = rangeError || amountError;
