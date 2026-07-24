@@ -1,4 +1,4 @@
-import { formatUnits, Hash, parseEther } from "viem";
+import { formatUnits, Hash } from "viem";
 import TableRow from "../Table/TableRow";
 import { formatCurrency } from "../../utils/format";
 import { AnalyticsTransactionLog } from "@frankencoin/api";
@@ -17,9 +17,6 @@ export default function LogsRow({ headers, tab, log }: Props) {
 	const dateArr = new Date(parseInt(log.timestamp) * 1000).toLocaleString().split(", ");
 	const kindArr = log.kind.split(":");
 
-	const equityRatio = (BigInt(log.totalEquity) * parseEther("1")) / BigInt(log.totalSupply);
-	const savingsRatio = (BigInt(log.totalSavings) * parseEther("1")) / BigInt(log.totalSupply);
-
 	const openExplorer = (e: any) => {
 		e.preventDefault();
 		window.open(link, "_blank");
@@ -37,9 +34,8 @@ export default function LogsRow({ headers, tab, log }: Props) {
 			<div>{formatCurrency(formatUnits(log.amount, 18))}</div>
 
 			{/* totals */}
-			<div>{formatCurrency(formatUnits(log.totalSupply, 18 + 6))}M</div>
-			<div>{formatCurrency(formatUnits(equityRatio, 18 - 2))}%</div>
-			<div>{formatCurrency(formatUnits(savingsRatio, 18 - 2))}%</div>
+			<div>{formatCurrency(formatUnits(log.totalEquity, 18 + 6))}M</div>
+			<div>{formatCurrency(formatUnits(log.totalSavings, 18 + 6))}M</div>
 
 			{/* FPS */}
 			<div>{formatCurrency(formatUnits(log.fpsPrice, 18))}</div>
@@ -47,7 +43,6 @@ export default function LogsRow({ headers, tab, log }: Props) {
 
 			{/* analytics */}
 			<div>{formatCurrency(formatUnits(log.realizedNetEarnings, 18 + 6))}M</div>
-			<div>{formatCurrency(formatUnits(log.annualNetEarnings, 18 + 6))}M</div>
 			<div>{formatCurrency(formatUnits(log.earningsPerFPS, 18))}</div>
 		</TableRow>
 	);

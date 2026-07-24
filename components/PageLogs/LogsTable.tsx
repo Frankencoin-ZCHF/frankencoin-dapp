@@ -20,13 +20,11 @@ export default function LogsTable() {
 		"Date",
 		"Tx Kind",
 		"Tx Amount",
-		"ZCHF Supply",
-		"In Equity",
-		"In Savings",
+		"Equity",
+		"Savings",
 		"FPS Price",
 		"FPS Supply",
 		"Earnings 365days",
-		"Earnings Annual",
 		"Earn. FPS (accum.)",
 	];
 	const [tab, setTab] = useState<string>(headers[0]);
