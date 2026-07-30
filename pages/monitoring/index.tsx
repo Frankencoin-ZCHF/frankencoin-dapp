@@ -20,10 +20,15 @@ import HealthRatio from "@components/PageEcoSystem/HealthRatio";
 import DebtAllocation from "@components/PageEcoSystem/DebtAllocation";
 import MintOutstanding from "@components/PageEcoSystem/MintOutstanding";
 import ReserveAllocation from "@components/PageEcoSystem/ReserveAllocation";
+import { isForceSellable } from "@utils";
 
 export default function Positions() {
 	const posCount = useSelector((state: RootState) => state.positions.openPositions.length);
-	const activeChallengeCount = useSelector((state: RootState) => state.challenges.list.list.filter((c) => c.status === "Active").length);
+	const activeChallengeCount = useSelector(
+		(state: RootState) =>
+			state.challenges.list.list.filter((c) => c.status === "Active").length +
+			state.positions.openPositions.filter((p) => isForceSellable(p)).length
+	);
 	const collateralCount = useSelector((state: RootState) => state.positions.openPositionsByCollateral.length) + 2; // +2 for VCHF and CHFAU stablecoin bridges
 
 	useEffect(() => {
