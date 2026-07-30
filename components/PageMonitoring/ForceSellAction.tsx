@@ -105,7 +105,7 @@ export default function ForceSellAction({ position, auctionPrice, onBidSuccess }
 			}
 			marketReachedAt = fmtDate(new Date(nowMs + msUntilMarket));
 			if (data !== undefined) {
-				estimatedBlockStr = `#${Number(data) + Math.round(msUntilMarket / AVG_BLOCK_TIME_MS)}`;
+				estimatedBlockStr = `${Number(data) + Math.round(msUntilMarket / AVG_BLOCK_TIME_MS)}`;
 			}
 		}
 	}
@@ -200,7 +200,7 @@ export default function ForceSellAction({ position, auctionPrice, onBidSuccess }
 					</span>
 				</div>
 				<div className="flex justify-between items-center mt-2">
-					<span className="text-text-secondary">Price per unit</span>
+					<span className="text-text-secondary">Current price</span>
 					<span className="text-text-primary font-medium">
 						{formatCurrency(formatUnits(auctionPrice, priceDigits), 2, 2)} ZCHF
 					</span>
@@ -212,11 +212,11 @@ export default function ForceSellAction({ position, auctionPrice, onBidSuccess }
 					</span>
 				</div>
 				<div className="flex justify-between items-center">
-					<span className="text-text-secondary">Reaches market price</span>
+					<span className="text-text-secondary">Market price reached at</span>
 					<span className="text-text-primary font-medium">{marketReachedAt}</span>
 				</div>
 				<div className="flex justify-between items-center">
-					<span className="text-text-secondary">Est. block</span>
+					<span className="text-text-secondary">Predicted block</span>
 					<span className="text-text-primary font-medium">{estimatedBlockStr}</span>
 				</div>
 				<div className="flex justify-between items-center mt-2">
@@ -224,7 +224,7 @@ export default function ForceSellAction({ position, auctionPrice, onBidSuccess }
 					<span className="text-text-primary font-medium">{formatCurrency(formatUnits(userBalance, 18), 2, 2)} ZCHF</span>
 				</div>
 				<div className="flex justify-between items-center">
-					<span className="text-text-secondary">Estimated cost</span>
+					<span className="text-text-secondary">Total cost</span>
 					<span className="text-text-primary font-medium">{formatCurrency(formatUnits(expectedZCHF(), 18), 2, 2)} ZCHF</span>
 				</div>
 			</div>
@@ -235,7 +235,7 @@ export default function ForceSellAction({ position, auctionPrice, onBidSuccess }
 					isLoading={isBidding}
 					onClick={handleBid}
 				>
-					Force Sell
+					Buy at Current Price
 				</AppButton>
 			</GuardSupportedChain>
 		</div>

@@ -54,7 +54,7 @@ export default function ForceSellRow({ headers, tab, position }: Props) {
 			tab={tab}
 			actionCol={
 				<AppButton className="h-10" onClick={() => navigate.push(`/monitoring/${position.position}/forceSell`)}>
-					Force Sell
+					Bid
 				</AppButton>
 			}
 		>

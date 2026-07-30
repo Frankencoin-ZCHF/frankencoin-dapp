@@ -76,7 +76,7 @@ export default function MonitoringForceSell() {
 	return (
 		<div className="flex flex-col md:max-w-2xl mx-auto">
 			<Head>
-				<title>Frankencoin - Force Sell</title>
+				<title>Frankencoin - Expiration Auction</title>
 			</Head>
 
 			<AppTitle
@@ -94,7 +94,7 @@ export default function MonitoringForceSell() {
 
 			<div className="mt-8">
 				<AppCard>
-					<div className="text-lg font-bold text-center">Force Sell</div>
+					<div className="text-lg font-bold text-center">Automatically Triggered Auction at Expiration</div>
 					<ForceSellPriceChart position={position} auctionPrice={auctionPrice} marketPrice={marketPrice} />
 					<ForceSellAction position={position} auctionPrice={auctionPrice} onBidSuccess={() => setNavigating(true)} />
 				</AppCard>

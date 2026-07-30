@@ -23,7 +23,7 @@ export default function ForceSellAuctionCard({ position }: Props) {
 
 	return (
 		<div className="rounded-lg bg-card-content-primary p-3 flex flex-col gap-2">
-			<div className="text-sm font-semibold text-text-primary">Force Sell Auction</div>
+			<div className="text-sm font-semibold text-text-primary">Auction at Expiration</div>
 
 			<StatRow label="Available">
 				{formatCurrency(total, 2, 2)} {position.collateralSymbol}
@@ -36,7 +36,7 @@ export default function ForceSellAuctionCard({ position }: Props) {
 				disabled={isEnded}
 				onClick={() => navigate.push(`/monitoring/${normalizeAddress(position.position)}/forceSell`)}
 			>
-				{isEnded ? "Auction Ended" : "Force Sell"}
+				{isEnded ? "Auction Ended" : "Bid"}
 			</AppButton>
 		</div>
 	);

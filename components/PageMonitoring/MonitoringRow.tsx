@@ -60,7 +60,7 @@ export default function MonitoringRow({ headers, tab, position }: Props) {
 					className="h-10"
 					onClick={() => router.push(`/monitoring/${position.position}/${maturity <= 0 ? "forceSell" : "challenge"}`)}
 				>
-					{maturity <= 0 ? "Force Sell" : "Challenge"}
+					{maturity <= 0 ? "Bid" : "Challenge"}
 				</AppButtonSecondary>
 			}
 		>
