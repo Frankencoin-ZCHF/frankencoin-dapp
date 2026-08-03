@@ -23,7 +23,7 @@ export const collectHelpers = (address: Address, delegatees: DelegateeMap): Addr
 		}
 	};
 	collect(address);
-	return helpers;
+	return helpers.sort();
 };
 
 export const computeSupporterCount = (address: Address, delegatees: DelegateeMap): number =>

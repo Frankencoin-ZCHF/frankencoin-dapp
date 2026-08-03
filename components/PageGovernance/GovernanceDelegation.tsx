@@ -8,6 +8,8 @@ import { useDelegationQuery, useDelegationHelpers, useVotesSynced } from "@hooks
 import { formatCurrency, normalizeAddress, shortenAddress } from "@utils";
 import AddressInput from "@components/Input/AddressInput";
 import ChainSyncedVotes from "@components/Input/ChainSyncedVotes";
+import AppLink from "@components/AppLink";
+import { ContractUrl } from "@utils";
 import { WAGMI_CHAINS } from "../../app.config";
 import GovernanceDelegationAction from "./GovernanceDelegationAction";
 import GovernanceSyncAction from "./GovernanceSyncAction";
@@ -53,9 +55,9 @@ export default function GovernanceDelegation() {
 
 	const { data: readData } = useReadContracts({ contracts: contractReads as any });
 
-	const totalVotes: bigint = readData ? ((readData[voters.length + 1]?.result as bigint) ?? 0n) : 0n;
-	const totalDelegated: bigint = readData ? ((readData[voters.length]?.result as bigint) ?? 0n) : 0n;
-	const votingPowers: bigint[] = voters.map((_, i) => (readData ? ((readData[i]?.result as bigint) ?? 0n) : 0n));
+	const totalVotes: bigint = readData ? (readData[voters.length + 1]?.result as bigint) ?? 0n : 0n;
+	const totalDelegated: bigint = readData ? (readData[voters.length]?.result as bigint) ?? 0n : 0n;
+	const votingPowers: bigint[] = voters.map((_, i) => (readData ? (readData[i]?.result as bigint) ?? 0n : 0n));
 
 	const myVotes = votingPowers[0] ?? 0n;
 	const delegatorVotes: { address: Address; votes: bigint }[] = helpers
@@ -85,8 +87,7 @@ export default function GovernanceDelegation() {
 
 	// synced votes on the selected target chain
 	const { syncedVotes, totalVotes: syncTotalVotes } = useVotesSynced(myAddress, helpers, syncChainId);
-	const syncedPct =
-		syncTotalVotes > 0n ? `${formatCurrency((Number(syncedVotes) / Number(syncTotalVotes)) * 100)}%` : "—";
+	const syncedPct = syncTotalVotes > 0n ? `${formatCurrency((Number(syncedVotes) / Number(syncTotalVotes)) * 100)}%` : "—";
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -124,7 +125,15 @@ export default function GovernanceDelegation() {
 						{/* Supporter rows */}
 						{delegatorVotes.map(({ address: addr, votes: vp }) => (
 							<div key={addr} className="grid grid-cols-2 items-center py-1 border-b border-card-input-border">
-								<div className="text-sm text-text-primary truncate">{shortenAddress(addr)}</div>
+								<div className="text-sm text-text-primary truncate">
+									<AppLink
+										label={shortenAddress(addr)}
+										href={ContractUrl(addr)}
+										external={true}
+										copyValue={addr}
+										className=""
+									/>
+								</div>
 								<div className="text-right text-sm text-text-primary">{formatPct(vp)}</div>
 							</div>
 						))}
@@ -182,11 +191,7 @@ export default function GovernanceDelegation() {
 						pct={syncedPct}
 					/>
 
-					<GovernanceSyncAction
-						targetChainId={syncChainId}
-						voters={voters}
-						disabled={!isConnected || voters.length === 0}
-					/>
+					<GovernanceSyncAction targetChainId={syncChainId} voters={voters} disabled={!isConnected || voters.length === 0} />
 				</div>
 			</AppCard>
 		</div>
