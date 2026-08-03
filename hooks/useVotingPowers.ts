@@ -1,6 +1,7 @@
 import { useConnection, useReadContracts } from "wagmi";
 import { useFPSHolders } from "./useFPSHolders";
 import { useDelegationQuery } from "./useDelegationQuery";
+import { collectHelpers } from "./useDelegationHelpers";
 import { decodeBigIntCall, normalizeAddress } from "../utils/format";
 import { ADDRESS, EquityABI } from "@frankencoin/zchf";
 import { Address } from "viem";
@@ -77,7 +78,7 @@ export const useVotingPowers = () => {
 	if (data) {
 		for (let i = 0; i < n; i++) {
 			const addr = allAddresses[i];
-			const supporters: Address[] = delegatees[addr] ?? [];
+			const supporters: Address[] = collectHelpers(addr, delegatees);
 			const supportedVotingPower = supporters.reduce((sum, s) => sum + (votePowerMap.get(normalizeAddress(s)) ?? 0n), 0n);
 
 			const votingPower = votePowerMap.get(addr) ?? 0n;
