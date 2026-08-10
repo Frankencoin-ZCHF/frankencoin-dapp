@@ -5,6 +5,7 @@ import { WAGMI_CONFIG, CONFIG, WAGMI_ADAPTER, WAGMI_METADATA, WAGMI_CHAINS, WAGM
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Config, State, WagmiProvider } from "wagmi";
 import { createAppKit } from "@reown/appkit/react";
+import { AppKitNetwork } from "@reown/appkit/networks";
 
 const queryClient = new QueryClient();
 if (!CONFIG.wagmiId) throw new Error("Project ID is not defined");
@@ -14,7 +15,7 @@ const modal = createAppKit({
 	projectId: CONFIG.wagmiId,
 	// @ts-ignore
 	networks: WAGMI_CHAINS,
-	defaultNetwork: WAGMI_CHAIN,
+	defaultNetwork: WAGMI_CHAIN as AppKitNetwork,
 	metadata: WAGMI_METADATA,
 	features: {
 		analytics: true,

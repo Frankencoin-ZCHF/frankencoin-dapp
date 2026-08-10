@@ -5,12 +5,13 @@ import AppButton from "@components/AppButton";
 import { WAGMI_CHAIN, WAGMI_CHAINS } from "../../app.config";
 import { AppKitNetwork } from "@reown/appkit/networks";
 import { ChainId, SupportedChain } from "@frankencoin/zchf";
+import { Chain } from "viem";
 
 interface Props {
 	children?: React.ReactNode;
 	label?: string;
 	disabled?: boolean;
-	chain?: AppKitNetwork | SupportedChain;
+	chain?: AppKitNetwork | SupportedChain | Chain;
 	chainId?: ChainId;
 }
 

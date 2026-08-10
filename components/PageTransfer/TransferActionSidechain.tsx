@@ -6,15 +6,15 @@ import { formatCurrency, shortenAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useConnection, useChainId } from "wagmi";
 import AppButton from "@components/AppButton";
-import { Address, formatUnits, Hash, parseEther } from "viem";
-import { ADDRESS, BridgedFrankencoinABI, ChainIdSide } from "@frankencoin/zchf";
+import { Address, Chain, formatUnits, Hash, parseEther } from "viem";
+import { ADDRESS, BridgedFrankencoinABI, ChainIdSide, SupportedChain } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { track } from "@hooks";
 import { AppKitNetwork } from "@reown/appkit/networks";
 
 interface Props {
 	recipient: Address;
-	recipientChain: AppKitNetwork;
+	recipientChain: AppKitNetwork | SupportedChain | Chain;
 	ccipFee: bigint;
 	addReference?: boolean;
 	reference: string;
