@@ -3095,15 +3095,20 @@
     "@typescript-eslint/types" "6.21.0"
     eslint-visitor-keys "^3.4.1"
 
-"@wagmi/connectors@8.0.5", "@wagmi/connectors@>=5.9.9":
+"@wagmi/connectors@8.1.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@wagmi/connectors/-/connectors-8.1.0.tgz#695c9daa827efb823ce44dc631fe74b99d615385"
+  integrity sha512-ASlHXq9NC4pp617lalZdlPuPnZUhFeWNEKQfm3ngVSQKd4S2is5XXG4v3EOAhcxdLjSk1AMfGXlHgk5tX2WCZg==
+
+"@wagmi/connectors@>=5.9.9":
   version "8.0.5"
   resolved "https://registry.yarnpkg.com/@wagmi/connectors/-/connectors-8.0.5.tgz#9997a6130ffe3bbb13c21d1d353e19581f13a388"
   integrity sha512-Xxysn4jalQS5W4b687LX0znp2eswonS/1fvRRVAlPD+LG15YRs8nHaC7xAjI9lVMWAx2TePw9Car6pQ5nzYVsA==
 
-"@wagmi/core@3.4.6":
-  version "3.4.6"
-  resolved "https://registry.yarnpkg.com/@wagmi/core/-/core-3.4.6.tgz#1b6bdfb9d912db14fcabc536c642049383c97480"
-  integrity sha512-wDZpRfzQo6NJj770mt23HdeU9O0MDO3cnxVP7tP/1HL7DLqOGMN3hADIc0wEF51ejrpnJlGLf8hS1qb2ZAzqJA==
+"@wagmi/core@3.6.4":
+  version "3.6.4"
+  resolved "https://registry.yarnpkg.com/@wagmi/core/-/core-3.6.4.tgz#ed9436a367c843898f2eb8c76c6f3e3dd9f1cc33"
+  integrity sha512-YERJ+vbFZw3UI6p4KoFU5DkxkqmtzBq5lddpgVAvcu5Tz7kSicKVA3DMCWvjVAFsikNdZYIs39FIkMGWfzpSMQ==
   dependencies:
     eventemitter3 "5.0.1"
     mipd "0.0.7"
@@ -9055,13 +9060,13 @@ viem@^2.55.11:
     ox "0.14.33"
     ws "8.21.0"
 
-wagmi@^3.6.5:
-  version "3.6.5"
-  resolved "https://registry.yarnpkg.com/wagmi/-/wagmi-3.6.5.tgz#87f01ca9128272a5eb34b2be6eca0605081e98f4"
-  integrity sha512-TBN/h26CX/FQROEk4zXCtRXGfL2erBEZ9BAbfRpn+sujMtQAoDzGM7LFAr4ODCiDcRAqJcMQWGJvk25DMEnFaQ==
+wagmi@^3.7.6:
+  version "3.7.6"
+  resolved "https://registry.yarnpkg.com/wagmi/-/wagmi-3.7.6.tgz#da2810b86b241522f3bc22534c5666abf7348509"
+  integrity sha512-Zm/ppGHV6GYX9by3ERs1KVcNqpMZ4Vdno48Avdz9U+3QCjC5iFatOwruA9IMOl8poL7n/pJGQOcR1xj8N5c69w==
   dependencies:
-    "@wagmi/connectors" "8.0.5"
-    "@wagmi/core" "3.4.6"
+    "@wagmi/connectors" "8.1.0"
+    "@wagmi/core" "3.6.4"
     use-sync-external-store "1.4.0"
 
 webidl-conversions@^3.0.0:
