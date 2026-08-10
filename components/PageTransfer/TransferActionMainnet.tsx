@@ -6,8 +6,8 @@ import { formatCurrency, shortenAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useConnection } from "wagmi";
 import AppButton from "@components/AppButton";
-import { Address, formatUnits, Hash, maxUint256 } from "viem";
-import { ADDRESS, ChainIdSide, FrankencoinABI, TransferReferenceABI } from "@frankencoin/zchf";
+import { Address, Chain, formatUnits, Hash, maxUint256 } from "viem";
+import { ADDRESS, ChainIdSide, FrankencoinABI, SupportedChain, TransferReferenceABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { track } from "@hooks";
 import { mainnet } from "viem/chains";
@@ -16,7 +16,7 @@ import { AppKitNetwork } from "@reown/appkit/networks";
 
 interface Props {
 	recipient: Address;
-	recipientChain: AppKitNetwork;
+	recipientChain: AppKitNetwork | SupportedChain | Chain;
 	ccipFee: bigint;
 	addReference?: boolean;
 	reference: string;

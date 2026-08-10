@@ -18,6 +18,7 @@ import { formatCurrency, getChainByName, normalizeAddress } from "@utils";
 import { useAppKitNetwork } from "@reown/appkit/react";
 import { ADDRESS, ChainId } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
+import { AppKitNetwork } from "@reown/appkit/networks";
 
 export default function SavingsPage() {
 	const { status } = useSelector((state: RootState) => state.savings.savingsInfo);
@@ -56,7 +57,7 @@ export default function SavingsPage() {
 		const targetChain = getChainByName(targetChainToCheck);
 
 		if (targetChain.id != chainId) {
-			AppKitNetwork.switchNetwork(targetChain);
+			AppKitNetwork.switchNetwork(targetChain as AppKitNetwork);
 		}
 
 		setTargetChainName(targetChain.name);
@@ -70,7 +71,7 @@ export default function SavingsPage() {
 
 			<AppTitle title={`Earn`}>
 				<div className={`text-text-secondary`}>
-					Earn interest on your Frankencoins - supported on all eight chains. Already more than {" "}
+					Earn interest on your Frankencoins - supported on all eight chains. Already more than{" "}
 					{Math.floor(totalBalance / 1000000)} million ZCHF saved.
 				</div>
 			</AppTitle>

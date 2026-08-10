@@ -4,6 +4,7 @@ import { useAppKit, useAppKitState, useAppKitNetwork } from "@reown/appkit/react
 import AppButton from "@components/AppButton";
 import { useIsConnectedToCorrectChain } from "../../hooks/useWalletConnectStats";
 import { WAGMI_CHAIN } from "../../app.config";
+import { AppKitNetwork } from "@reown/appkit/networks";
 
 interface Props {
 	children?: React.ReactNode;
@@ -50,7 +51,7 @@ export default function GuardToAllowedChainBtn(props: Props) {
 				className="h-10"
 				disabled={props.disabled}
 				onClick={() => {
-					AppKitNetwork.switchNetwork(WAGMI_CHAIN);
+					AppKitNetwork.switchNetwork(WAGMI_CHAIN as AppKitNetwork);
 					setRequestedChange(true);
 				}}
 			>
