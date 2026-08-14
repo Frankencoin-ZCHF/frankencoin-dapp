@@ -35,7 +35,7 @@ export default function DisplayCollateralChallenge({
 		window.open(url, "_blank");
 	};
 
-	const collateralSize: number = parseInt(formatUnits(BigInt(position.collateralBalance), position.collateralDecimals - 2)) / 100;
+	const collateralSize: number = Number(formatUnits(BigInt(position.collateralBalance), position.collateralDecimals));
 	const collateralValue: number = (collateralSize * collateralPrice) / zchfPrice;
 
 	const challengeRemainingSize: number =

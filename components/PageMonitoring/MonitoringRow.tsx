@@ -33,13 +33,13 @@ export default function MonitoringRow({ headers, tab, position }: Props) {
 	const liquidationPct: number = Math.round((balanceZCHF / (liquidationZCHF * balance)) * 10000) / 100;
 
 	const digits: number = position.collateralDecimals;
+	const toUnits = (value: bigint | string): number => Number(formatUnits(BigInt(value), digits));
 	const positionChallenges = challenges.map[normalizeAddress(position.position)] ?? [];
 	const positionChallengesActive = positionChallenges.filter((ch: ChallengesQueryItem) => ch.status === "Active");
-	const positionChallengesActiveCollateral =
-		positionChallengesActive.reduce<number>((acc, c) => {
-			return acc + parseInt(formatUnits(c.size, digits - 2)) - parseInt(formatUnits(c.filledSize, digits - 2));
-		}, 0) / 100;
-	const collateralBalanceNumber: number = parseInt(formatUnits(BigInt(position.collateralBalance), digits - 2)) / 100;
+	const positionChallengesActiveCollateral = positionChallengesActive.reduce<number>((acc, c) => {
+		return acc + toUnits(c.size) - toUnits(c.filledSize);
+	}, 0);
+	const collateralBalanceNumber: number = toUnits(position.collateralBalance);
 	const challengesRatioPct: number = Math.round((positionChallengesActiveCollateral / collateralBalanceNumber) * 100);
 
 	const collColor = liquidationPct < 110 ? "text-red-500" : liquidationPct <= 120 ? "text-orange-400" : "text-green-500";
