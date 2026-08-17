@@ -2,13 +2,16 @@
 // that must be blocked from accessing pages for that collateral, per the
 // jurisdictional restrictions of the underlying tokenized asset.
 // Kept dependency-free (no viem/format imports) so it stays safe to bundle
+
+import { normalizeAddress } from "./format";
+
 // into the edge middleware.
 const COLLATERAL_GEO_BLOCKS: Record<string, string[]> = {
 	"0xfedc5f4a6c38211c1338aa411018dfaf26612c08": ["US"], // SPYon - SPDR S&P 500 ETF (Ondo Tokenized)
 };
 
 export function getBlockedCountriesForCollateral(address: string): string[] {
-	return COLLATERAL_GEO_BLOCKS[address.toLowerCase()] ?? [];
+	return COLLATERAL_GEO_BLOCKS[normalizeAddress(address)] ?? [];
 }
 
 export function isCollateralBlockedForCountry(address: string, countryCode: string | null | undefined): boolean {
