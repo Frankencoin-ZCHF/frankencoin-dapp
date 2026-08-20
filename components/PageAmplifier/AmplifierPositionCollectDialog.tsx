@@ -26,7 +26,7 @@ interface Props {
  */
 export default function AmplifierPositionCollectDialog({ stats, position, onClose }: Props) {
 	const [isCollecting, setCollecting] = useState(false);
-	const { fees0, fees1, isLoading } = useAmplifiedPositionFees(stats.pool, stats.currentTick, position);
+	const { fees0, fees1, isLoading } = useAmplifiedPositionFees(stats.pool, stats.currentTick, position, stats.chainId);
 
 	const usdSymbol = stats.usdSymbol || "USD";
 	const usdFees = stats.zchfIsToken0 ? fees1 : fees0;

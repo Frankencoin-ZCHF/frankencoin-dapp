@@ -35,10 +35,10 @@ const POSITION_CREATED_EVENT = parseAbiItem("event AmplifiedPositionCreated(addr
  */
 export const useAmplifiedPositions = (
 	amplifier: Address | undefined,
+	chainId: number = mainnet.id,
 	extra: Address[] = [],
 	overwrite?: Address
 ): AmplifiedPositionsResult => {
-	const chainId = mainnet.id;
 	const { address: connected } = useConnection();
 	const account = (overwrite ?? connected)?.toLowerCase();
 	const [createdList, setCreatedList] = useState<{ address: Address; block: bigint }[]>([]);
@@ -149,8 +149,11 @@ export type AmplifiedPositionResult = {
  * Loads the state of a single AmplifiedPosition, verifying on-chain that it was
  * created by the given amplifier. Refreshed every block.
  */
-export const useAmplifiedPosition = (amplifier: Address | undefined, position: Address | undefined): AmplifiedPositionResult => {
-	const chainId = mainnet.id;
+export const useAmplifiedPosition = (
+	amplifier: Address | undefined,
+	position: Address | undefined,
+	chainId: number = mainnet.id
+): AmplifiedPositionResult => {
 	const enabled = !!amplifier && !!position;
 
 	const { data: blockNumber } = useBlockNumber({ watch: true });
@@ -205,9 +208,9 @@ export type AmplifiedPositionFees = {
 export const useAmplifiedPositionFees = (
 	pool: Address | undefined,
 	currentTick: number,
-	position: AmplifiedPositionInfo | undefined
+	position: AmplifiedPositionInfo | undefined,
+	chainId: number = mainnet.id
 ): AmplifiedPositionFees => {
-	const chainId = mainnet.id;
 	const enabled = !!pool && !!position;
 	const positionKey = position
 		? keccak256(encodePacked(["address", "int24", "int24"], [position.address, position.tickLow, position.tickHigh]))

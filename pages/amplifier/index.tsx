@@ -14,11 +14,12 @@ import AmplifierPositionAddDialog from "@components/PageAmplifier/AmplifierPosit
 import AmplifierPositionRemoveDialog from "@components/PageAmplifier/AmplifierPositionRemoveDialog";
 import AmplifierPositionCollectDialog from "@components/PageAmplifier/AmplifierPositionCollectDialog";
 import AmplifierPositionCreateDialog from "@components/PageAmplifier/AmplifierPositionCreateDialog";
+import AmplifierOverviewTable from "@components/PageAmplifier/AmplifierOverviewTable";
 import AppSelect from "@components/AppSelect";
 import { AmplifiedPositionInfo, useAmplifier, useAmplifiedPositions, useContractUrl } from "@hooks";
 import { getPriceView } from "../../hooks/useAmplifier";
 import { isDateExpired, shortenAddress } from "@utils";
-import { TEST_AMPLIFIER } from "../../utils/amplifierConstants";
+import { getAmplifierChain, isTestAmplifier, resolveAmplifierChainId, uniswapChainSlug } from "../../utils/amplifierConstants";
 
 export default function AmplifierPage() {
 	const router = useRouter();
@@ -26,8 +27,10 @@ export default function AmplifierPage() {
 	const amplifier: Address | undefined = param && isAddress(param) ? param : undefined;
 	const paramAddr = router.query.address as string;
 	const overwrite: Address | undefined = paramAddr && isAddress(paramAddr) ? paramAddr : undefined;
+	const chainId = resolveAmplifierChainId(router.query.chain as string, amplifier);
+	const chain = getAmplifierChain(chainId);
 
-	const stats = useAmplifier(amplifier);
+	const stats = useAmplifier(amplifier, chainId);
 
 	// base currency of the displayed numbers: CHF (prices as ZCHF per USD, the default)
 	// or USD (prices as USD per ZCHF), remembered across visits
@@ -43,7 +46,7 @@ export default function AmplifierPage() {
 
 	// positions created in this session, remembered across navigation because
 	// the Aktionariat API only picks up new contracts with a delay
-	const storageKey = amplifier ? `amplifier-created-${amplifier.toLowerCase()}` : undefined;
+	const storageKey = amplifier ? `amplifier-created-${chainId}-${amplifier.toLowerCase()}` : undefined;
 	const [createdPositions, setCreatedPositions] = useState<Address[]>([]);
 	useEffect(() => {
 		if (!storageKey) return;
@@ -52,10 +55,10 @@ export default function AmplifierPage() {
 		} catch {}
 	}, [storageKey]);
 
-	const { positions, isLoading, apiError } = useAmplifiedPositions(amplifier, createdPositions, overwrite);
-	const amplifierUrl = useContractUrl(amplifier ?? zeroAddress);
-	const usdUrl = useContractUrl(stats.usd ?? zeroAddress);
-	const poolUrl = `https://app.uniswap.org/explore/pools/ethereum/${stats.pool}`;
+	const { positions, isLoading, apiError } = useAmplifiedPositions(amplifier, chainId, createdPositions, overwrite);
+	const amplifierUrl = useContractUrl(amplifier ?? zeroAddress, chain);
+	const usdUrl = useContractUrl(stats.usd ?? zeroAddress, chain);
+	const poolUrl = `https://app.uniswap.org/explore/pools/${uniswapChainSlug(chainId)}/${stats.pool}`;
 
 	const [dialog, setDialog] = useState<{ action: AmplifierPositionAction; position: AmplifiedPositionInfo } | null>(null);
 	const [showCreate, setShowCreate] = useState(false);
@@ -66,18 +69,27 @@ export default function AmplifierPage() {
 		: undefined;
 
 	const expired = stats.expiration > 0n && isDateExpired(stats.expiration);
-	const isTestAmplifier = amplifier != undefined && amplifier.toLowerCase() === TEST_AMPLIFIER.toLowerCase();
 
 	if (router.isReady && !amplifier) {
 		return (
-			<AppCard>
-				<div className="text-lg font-bold text-center mt-4">Uniswap Amplifier</div>
-				<div>
-					No amplifier contract provided. Open this page with the address of a deployed UniswapAmplifier, e.g.{" "}
-					<span className="font-mono">/amplifier?contract=0x...</span>, or try the{" "}
-					<AppLink className="" label="test amplifier" href={`/amplifier?contract=${TEST_AMPLIFIER}`} />.
+			<>
+				<Head>
+					<title>Frankencoin - Amplifier</title>
+				</Head>
+				<AppTitle
+					title="Uniswap Amplifiers"
+					subtitle={
+						<>
+							Amplifiers let you provide liquidity to a ZCHF Uniswap pool while only supplying the paired dollar token — the
+							ZCHF side is borrowed from the Frankencoin protocol, cutting the capital costs of liquidity provisioning in
+							half. Open an amplifier to see its positions and to create your own.
+						</>
+					}
+				/>
+				<div className="mt-4">
+					<AmplifierOverviewTable />
 				</div>
-			</AppCard>
+			</>
 		);
 	}
 
@@ -87,7 +99,7 @@ export default function AmplifierPage() {
 				<div className="text-lg font-bold text-center mt-4">Uniswap Amplifier</div>
 				<div>
 					The contract <AppLink className="" label={shortenAddress(amplifier)} href={amplifierUrl} external={true} /> does not
-					seem to be a UniswapAmplifier on Ethereum mainnet.
+					seem to be a UniswapAmplifier on {chain.name}.
 				</div>
 			</AppCard>
 		);
@@ -130,7 +142,7 @@ export default function AmplifierPage() {
 				}
 			/>
 
-			{isTestAmplifier && (
+			{isTestAmplifier(amplifier) && (
 				<div className="mt-4 rounded-lg bg-card-content-primary p-4 text-text-secondary">
 					This is the test amplifier. It does not actually mint {stats.zchfSymbol}, but still uses real ZCHF supplied by volunteer
 					that must be returned by closing all positions before the amplifier expires.

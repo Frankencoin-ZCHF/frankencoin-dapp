@@ -95,8 +95,7 @@ export const getPriceView = (stats: AmplifierStats, inverted: boolean): Amplifie
  * Loads the configuration and live state of a deployed UniswapAmplifier contract,
  * including the connected user's balances and allowances for the involved tokens.
  */
-export const useAmplifier = (amplifier: Address | undefined): AmplifierStats => {
-	const chainId = mainnet.id;
+export const useAmplifier = (amplifier: Address | undefined, chainId: number = mainnet.id): AmplifierStats => {
 	const { address } = useConnection();
 	const account = address || zeroAddress;
 
@@ -245,5 +244,54 @@ export const useAmplifier = (amplifier: Address | undefined): AmplifierStats => 
 		tickAtZchfPerUsd,
 		pricePerUsd,
 		anchorPricePerUsd,
+	};
+};
+
+export type AmplifierOverview = {
+	isLoading: boolean;
+	invalid: boolean;
+	usdSymbol: string;
+	zchfSymbol: string;
+	expiration: bigint;
+	limit: bigint;
+	totalBorrowed: bigint;
+};
+
+/**
+ * Loads the key figures of a deployed UniswapAmplifier for the overview table,
+ * without any user-specific state and without per-block refreshing.
+ */
+export const useAmplifierOverview = (amplifier: Address, chainId: number): AmplifierOverview => {
+	const { data: configData, isLoading: configLoading } = useReadContracts({
+		contracts: [
+			{ chainId, address: amplifier, abi: UniswapAmplifierABI, functionName: "ZCHF" },
+			{ chainId, address: amplifier, abi: UniswapAmplifierABI, functionName: "USD" },
+			{ chainId, address: amplifier, abi: UniswapAmplifierABI, functionName: "EXPIRATION" },
+			{ chainId, address: amplifier, abi: UniswapAmplifierABI, functionName: "LIMIT" },
+			{ chainId, address: amplifier, abi: UniswapAmplifierABI, functionName: "totalBorrowed" },
+		],
+	});
+
+	const invalid = !!configData && configData.some((d) => d.status === "failure");
+	const zchf = (configData?.[0]?.result as Address) || zeroAddress;
+	const usd = (configData?.[1]?.result as Address) || zeroAddress;
+	const loaded = !!configData && !invalid && usd !== zeroAddress;
+
+	const { data: symbolData, isLoading: symbolLoading } = useReadContracts({
+		contracts: [
+			{ chainId, address: usd, abi: erc20Abi, functionName: "symbol" },
+			{ chainId, address: zchf, abi: erc20Abi, functionName: "symbol" },
+		],
+		query: { enabled: loaded },
+	});
+
+	return {
+		isLoading: configLoading || (loaded && symbolLoading),
+		invalid,
+		usdSymbol: symbolData?.[0]?.result ? String(symbolData[0].result) : "",
+		zchfSymbol: symbolData?.[1]?.result ? String(symbolData[1].result) : "ZCHF",
+		expiration: configData ? decodeBigIntCall(configData[2]) : 0n,
+		limit: configData ? decodeBigIntCall(configData[3]) : 0n,
+		totalBorrowed: configData ? decodeBigIntCall(configData[4]) : 0n,
 	};
 };

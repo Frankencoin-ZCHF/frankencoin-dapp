@@ -7,6 +7,7 @@ import { useContractUrl } from "@hooks";
 import { AmplifierPriceView, AmplifierStats } from "../../hooks/useAmplifier";
 import { AmplifiedPositionInfo, useAmplifiedPositionFees } from "../../hooks/useAmplifiedPositions";
 import { FormatType, formatCurrency, shortenAddress } from "@utils";
+import { getAmplifierChain } from "../../utils/amplifierConstants";
 import { getAmountsForLiquidity, getSqrtRatioAtTick } from "../../utils/uniswapV3Math";
 
 export type AmplifierPositionAction = "add" | "remove" | "collect";
@@ -21,9 +22,9 @@ interface Props {
 }
 
 export default function AmplifierPositionRow({ headers, stats, priceView, position, account, onAction }: Props) {
-	const url = useContractUrl(position.address);
+	const url = useContractUrl(position.address, getAmplifierChain(stats.chainId));
 	const isOwn = account != undefined && position.owner.toLowerCase() === account.toLowerCase();
-	const { fees0, fees1 } = useAmplifiedPositionFees(stats.pool, stats.currentTick, position);
+	const { fees0, fees1 } = useAmplifiedPositionFees(stats.pool, stats.currentTick, position, stats.chainId);
 	const usdFees = stats.zchfIsToken0 ? fees1 : fees0;
 	const zchfFees = stats.zchfIsToken0 ? fees0 : fees1;
 
