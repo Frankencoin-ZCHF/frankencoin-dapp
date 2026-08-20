@@ -3,8 +3,8 @@ import AppButton from "@components/AppButton";
 import NormalInput from "@components/Input/NormalInput";
 import AppCard from "@components/AppCard";
 import { useEffect, useState } from "react";
-import { useConnection, useChainId } from "wagmi";
-import { CONFIG, WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
+import { useConnection } from "wagmi";
+import { WAGMI_CHAIN, WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { ADDRESS, ChainId, ChainIdMain, ChainIdSide, EquityABI, FrankencoinABI } from "@frankencoin/zchf";
 import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import TokenInput from "@components/Input/TokenInput";
 import AppLink from "@components/AppLink";
 import AddressInput from "@components/Input/AddressInput";
+import AddressInputChain from "@components/Input/AddressInputChain";
 import { Address, isAddress, parseEther, parseUnits } from "viem";
 import { useUserBalance } from "@hooks";
 import { SOCIAL } from "@utils";
@@ -25,7 +26,7 @@ export default function GovernanceMintersPropose({}: Props) {
 	const userBal = useUserBalance();
 	const [isHandling, setHandling] = useState<boolean>(false);
 	const account = useConnection();
-	const chainId = useChainId();
+	const [chain, setChain] = useState<AppKitNetwork>(WAGMI_CHAIN as AppKitNetwork);
 	const [period, setPeriod] = useState<string>("14");
 	const [module, setModule] = useState<string>("");
 	const [comment, setComment] = useState<string>("");
@@ -33,16 +34,11 @@ export default function GovernanceMintersPropose({}: Props) {
 	const [isDisabled, setDisabled] = useState<boolean>(true);
 	const [errorAddress, setErrorAddress] = useState<string>("");
 
-	const chain = WAGMI_CHAINS.find((c) => c.id == chainId) as AppKitNetwork;
+	const chainId = chain.id as ChainId;
 
 	useEffect(() => {
-		if (
-			Number(period) < 14 || chainId == mainnet.id
-				? userBal[chainId as ChainIdMain].frankencoin < parseEther("1000")
-				: userBal[chainId as ChainIdSide].frankencoin < parseEther("1000") || !isAddress(module) || comment.length == 0
-		)
-			setDisabled(true);
-		else setDisabled(false);
+		const balance = userBal[chainId]?.frankencoin ?? 0n;
+		setDisabled(Number(period) < 14 || balance < parseEther("1000") || !isAddress(module) || comment.length == 0);
 	}, [period, module, comment, userBal, chainId]);
 
 	const changeAddress = (value: string) => {
@@ -114,7 +110,7 @@ export default function GovernanceMintersPropose({}: Props) {
 						onChange={() => {}}
 						digit={0}
 						error={
-							account.address != undefined && userBal[chainId as ChainId].frankencoin < BigInt(1000 * 1e18)
+							account.address != undefined && userBal[chainId].frankencoin < BigInt(1000 * 1e18)
 								? `Not enough ZCHF on ${chain.name}`
 								: ""
 						}
@@ -150,12 +146,17 @@ export default function GovernanceMintersPropose({}: Props) {
 				<div className="flex flex-col gap-4">
 					<div className="mt-4 text-lg font-bold text-center">Propose a new Module on {chain.name}</div>
 
-					<AddressInput
+					<AddressInputChain
 						label="Address"
 						placeholder="Enter the address here"
 						value={module}
 						onChange={changeAddress}
 						error={errorAddress}
+						chain={chain.name}
+						onChangeChain={(name: string) => {
+							const selected = WAGMI_CHAINS.find((c) => c.name === name);
+							if (selected) setChain(selected as AppKitNetwork);
+						}}
 					/>
 
 					<AddressInput label="Comment" placeholder={`Enter the comment here`} value={comment} onChange={setComment} />
