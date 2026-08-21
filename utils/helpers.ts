@@ -9,12 +9,17 @@ export const AppUrl = (url: string) => {
 };
 
 export const ContractUrl = (address: string, chain: SupportedChain = SupportedChains["mainnet"]) => {
-	const explorerLink = chain?.blockExplorers?.default.url || "https://etherscan.io/";
+	const explorerLink = chain?.blockExplorers?.default?.url || "https://etherscan.io/";
+	// path.join throws "Path must be a string. Received undefined" if address is
+	// missing (e.g. a malformed API row), which would crash the whole page.
+	if (!address) return explorerLink;
 	return path.join(explorerLink, "address", address);
 };
 
 export const TxUrl = (hash: Hash, chain: SupportedChain = SupportedChains["mainnet"]) => {
-	const explorerLink = chain?.blockExplorers?.default.url || "https://etherscan.io/";
+	const explorerLink = chain?.blockExplorers?.default?.url || "https://etherscan.io/";
+	// Guard against undefined hash for the same reason as ContractUrl above.
+	if (!hash) return explorerLink;
 	return path.join(explorerLink, "tx", hash);
 };
 

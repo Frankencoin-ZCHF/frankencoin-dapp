@@ -171,11 +171,16 @@ type SortFunctionParams = {
 
 function sortFunction(params: SortFunctionParams): TransferReferenceQuery[] {
 	const { list, headers, tab, reverse } = params;
-	// Guard against null/malformed entries coming from the API; any of the
-	// comparators below (b.created, a.from, a.to, a.reference, b.amount) will
-	// throw on a null element and crash the whole page via the Next.js error
-	// boundary ("a client-side exception has occurred").
-	let sortingList = list.filter((i): i is TransferReferenceQuery => i != null); // writeable + null-safe
+	// Guard against null/malformed entries coming from the API. The comparators
+	// below (b.created, a.from, a.to, a.reference, b.amount) and the row renderer
+	// (item.txHash, item.chainId, item.targetChain, ...) all dereference fields
+	// directly, so a null OR an incomplete placeholder entry (e.g. the
+	// { __typename, count } row the API sometimes emits) crashes the whole page
+	// via the Next.js error boundary. Require the fields we actually use.
+	let sortingList = list.filter(
+		(i): i is TransferReferenceQuery =>
+			i != null && i.created != null && i.txHash != null && i.from != null && i.to != null && i.amount != null
+	); // writeable + null/placeholder-safe
 
 	if (tab === headers[0]) {
 		// Date
