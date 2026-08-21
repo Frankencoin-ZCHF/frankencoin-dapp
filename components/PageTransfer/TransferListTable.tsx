@@ -171,7 +171,11 @@ type SortFunctionParams = {
 
 function sortFunction(params: SortFunctionParams): TransferReferenceQuery[] {
 	const { list, headers, tab, reverse } = params;
-	let sortingList = [...list]; // make it writeable
+	// Guard against null/malformed entries coming from the API; any of the
+	// comparators below (b.created, a.from, a.to, a.reference, b.amount) will
+	// throw on a null element and crash the whole page via the Next.js error
+	// boundary ("a client-side exception has occurred").
+	let sortingList = list.filter((i): i is TransferReferenceQuery => i != null); // writeable + null-safe
 
 	if (tab === headers[0]) {
 		// Date
