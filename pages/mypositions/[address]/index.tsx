@@ -193,8 +193,6 @@ export default function PositionAdjust() {
 			return `This position is limited to ${formatCurrency(formatUnits(maxTotalLimit, 18), 2, 2)} ZCHF`;
 		} else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
 			return `Can mint at most ${formatUnits((collateralAmount * liqPrice) / 10n ** 36n, 0)} ZCHF given price and collateral.`;
-		} else if (amount > BigInt(position.minted) && liqPrice > BigInt(position.price)) {
-			return "Amount can only be increased after new price has gone through cooldown.";
 		} else if (liqPrice > BigInt(position.price) && BigInt(position.price) * collateralAmount < amount * parseEther("1")) {
 			return "This position is limited to the old price, decrease the mint.";
 		} else if (userFrancBalance + paidOutAmount() < 0) {
@@ -337,7 +335,8 @@ export default function PositionAdjust() {
 	};
 
 	// Minted Max
-	const mintedMax = bigIntMin(maxTotalLimit, (liqPrice * collateralAmount) / parseEther("1"));
+	const bindingPrice = bigIntMin(liqPrice, BigInt(position.price));
+	const mintedMax = bigIntMin(maxTotalLimit, (bindingPrice * collateralAmount) / parseEther("1"));
 
 	const mintedMaxCallback = () => {
 		/* Disabled: I think the user should click max separately on the collateral field if he also wants to have the collateral returned
