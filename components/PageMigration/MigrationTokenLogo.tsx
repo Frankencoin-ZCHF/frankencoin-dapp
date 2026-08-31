@@ -15,7 +15,7 @@ export default function MigrationTokenLogo({ logoURI, symbol, size = 8 }: Props)
 		setFailed(false);
 	}, [logoURI]);
 
-	return failed ? (
+	return failed || !logoURI ? (
 		<FontAwesomeIcon icon={faCircleQuestion} className={`w-${size} h-${size} text-text-secondary`} />
 	) : (
 		<img src={logoURI} alt={symbol} className={`w-${size} h-${size} rounded-full`} onError={() => setFailed(true)} />
