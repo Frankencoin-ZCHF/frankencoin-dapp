@@ -1,6 +1,6 @@
-import { Address, encodeFunctionData, Hex } from "viem";
+import { Address, BaseError, encodeFunctionData, Hex, MethodNotFoundRpcError, MethodNotSupportedRpcError } from "viem";
 import { gnosis } from "viem/chains";
-import { getPublicClient, sendCalls } from "@wagmi/core";
+import { getPublicClient, sendCalls, sendTransaction, waitForTransactionReceipt } from "@wagmi/core";
 import {
 	COW_PROTOCOL_SETTLEMENT_CONTRACT_ADDRESS,
 	COW_PROTOCOL_VAULT_RELAYER_ADDRESS,
@@ -118,12 +118,38 @@ export async function buildPresignBatchCall(
 	return { orderUid, calls: [approveCall, presignCall] };
 }
 
+function isMethodUnsupportedError(error: unknown): boolean {
+	return (
+		error instanceof BaseError &&
+		error.walk((e) => e instanceof MethodNotFoundRpcError || e instanceof MethodNotSupportedRpcError) !== null
+	);
+}
+
 // Sends every token's [approve, setPreSignature] pair as one batched Safe transaction
-// (EIP-5792 wallet_sendCalls) so the user signs once for all tokens.
+// (EIP-5792 wallet_sendCalls) so the user signs once for all tokens. Wallets that don't
+// implement wallet_sendCalls (e.g. many Safe connections) fall back to submitting each
+// call as its own sequential transaction.
 export async function sendPresignBatch(calls: PresignBatchCall[]) {
-	return sendCalls(WAGMI_CONFIG, {
-		chainId: gnosis.id,
-		calls,
-		forceAtomic: true,
-	});
+	console.log(`[migration] sendCalls: submitting ${calls.length} call(s) as one bundle`, calls);
+
+	try {
+		const result = await sendCalls(WAGMI_CONFIG, {
+			chainId: gnosis.id,
+			calls,
+			forceAtomic: true,
+		});
+
+		console.log("[migration] sendCalls: bundle submitted", result);
+		return result;
+	} catch (error) {
+		if (!isMethodUnsupportedError(error)) throw error;
+
+		console.log("[migration] sendCalls unsupported — falling back to sequential transactions", error);
+
+		for (const [index, call] of calls.entries()) {
+			const hash = await sendTransaction(WAGMI_CONFIG, { chainId: gnosis.id, to: call.to, data: call.data });
+			console.log(`[migration] sequential tx ${index + 1}/${calls.length} submitted`, { call, hash });
+			await waitForTransactionReceipt(WAGMI_CONFIG, { hash, chainId: gnosis.id, confirmations: 1 });
+		}
+	}
 }
