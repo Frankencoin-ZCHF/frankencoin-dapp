@@ -3,10 +3,12 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { isAddress } from "viem";
 import { useConnection } from "wagmi";
+import { normalizeAddress } from "@utils";
 import AppTitle from "@components/AppTitle";
 import AppHeroSteps from "@components/AppHeroSteps";
 import MigrationTokenSwapCard from "@components/PageMigration/MigrationTokenSwapCard";
 import MigrationBridgeCard from "@components/PageMigration/MigrationBridgeCard";
+import MigrationOptimismBalancesCard from "@components/PageMigration/MigrationOptimismBalancesCard";
 
 export default function MigrationPage() {
 	const router = useRouter();
@@ -17,7 +19,8 @@ export default function MigrationPage() {
 		if (queryAddress && isAddress(queryAddress)) return queryAddress;
 		return address;
 	}, [queryAddress, address]);
-	const isViewingOtherAddress = !!queryAddress && isAddress(queryAddress) && queryAddress.toLowerCase() !== address?.toLowerCase();
+	const isViewingOtherAddress =
+		!!queryAddress && isAddress(queryAddress) && (!address || normalizeAddress(queryAddress) !== normalizeAddress(address));
 
 	return (
 		<>
@@ -50,6 +53,7 @@ export default function MigrationPage() {
 			<div className="mt-8 flex flex-col gap-8">
 				<MigrationTokenSwapCard viewAddress={viewAddress} />
 				<MigrationBridgeCard viewAddress={viewAddress} isViewingOtherAddress={isViewingOtherAddress} />
+				<MigrationOptimismBalancesCard viewAddress={viewAddress} />
 			</div>
 		</>
 	);
