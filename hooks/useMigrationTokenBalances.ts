@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Address } from "viem";
 import { gnosis } from "viem/chains";
 import { ADDRESS, ChainIdSide } from "@frankencoin/zchf";
-import { getCowLogoURI } from "@utils";
+import { getCowLogoURI, normalizeAddress } from "@utils";
 
 export type MigrationTokenBalance = {
 	address: Address;
@@ -53,13 +53,18 @@ export const useMigrationTokenBalances = (account?: Address): MigrationTokenBala
 
 		const fetcher = async () => {
 			try {
-				const zchf = ADDRESS[chainId].ccipBridgedFrankencoin.toLowerCase();
+				const zchf = normalizeAddress(ADDRESS[chainId].ccipBridgedFrankencoin);
+				const svZchf = normalizeAddress(ADDRESS[gnosis.id].svZCHF);
 				const res = await fetch(`https://gnosisscan.io/api/v2/addresses/${account}/tokens?type=ERC-20`);
 				if (!res.ok) throw new Error(`Blockscout request failed: ${res.status}`);
 				const data: { items: BlockscoutTokenBalance[] } = await res.json();
 
 				const priced = (data.items ?? []).filter(
-					(item) => item.token.exchange_rate != null && item.token.address_hash.toLowerCase() !== zchf && BigInt(item.value) > 0n
+					(item) =>
+						item.token.exchange_rate != null &&
+						normalizeAddress(item.token.address_hash) !== zchf &&
+						normalizeAddress(item.token.address_hash) !== svZchf &&
+						BigInt(item.value) > 0n
 				);
 
 				const withLogos = await Promise.all(
