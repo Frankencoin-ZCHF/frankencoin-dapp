@@ -3,6 +3,7 @@ import { useReadContract } from "wagmi";
 import { Address, erc20Abi } from "viem";
 import { ADDRESS, ChainIdSide } from "@frankencoin/zchf";
 import AppCard from "@components/AppCard";
+import AppLink from "@components/AppLink";
 import TokenInput from "@components/Input/TokenInput";
 import { useUserBalance } from "@hooks";
 
@@ -45,6 +46,14 @@ export default function MigrationOptimismBalancesCard({ viewAddress }: Props) {
 					value={(svZchfBalance ?? 0n).toString()}
 					digit={18}
 					disabled={true}
+				/>
+			</div>
+
+			<div className="flex mt-4">
+				<AppLink
+					className="mx-auto"
+					label="Manage your savings-vault tokens"
+					href={viewAddress ? `/savings/vault?address=${viewAddress}` : "/savings/vault"}
 				/>
 			</div>
 		</AppCard>
