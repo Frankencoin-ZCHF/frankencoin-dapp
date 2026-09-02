@@ -1,11 +1,11 @@
 import { useConnection, useReadContracts } from "wagmi";
 import { decodeBigIntCall } from "@utils";
 import { ADDRESS, ChainIdMain } from "@frankencoin/zchf";
-import { gnosis, mainnet, optimism } from "viem/chains";
+import { base, gnosis, mainnet, optimism } from "viem/chains";
 import { Address, erc20Abi, zeroAddress } from "viem";
 import { ERC4626ABI } from "../abis/ERC4626";
 
-export type VaultChainId = ChainIdMain | typeof optimism.id | typeof gnosis.id;
+export type VaultChainId = ChainIdMain | typeof optimism.id | typeof gnosis.id | typeof base.id;
 
 export type VaultChainStats = {
 	vault: Address;
@@ -26,6 +26,7 @@ export const useVaultBalances = (account?: Address): { data: VaultBalances; isLo
 	const mainnetVault = ADDRESS[mainnet.id].svZCHF;
 	const optimismVault = ADDRESS[optimism.id].svZCHF;
 	const gnosisVault = ADDRESS[gnosis.id].svZCHF;
+	const baseVault = ADDRESS[base.id].svZCHF;
 
 	const { data, isLoading } = useReadContracts({
 		contracts: [
@@ -38,6 +39,9 @@ export const useVaultBalances = (account?: Address): { data: VaultBalances; isLo
 			{ address: gnosisVault, chainId: gnosis.id, abi: erc20Abi, functionName: "balanceOf", args: [owner] },
 			{ address: gnosisVault, chainId: gnosis.id, abi: erc20Abi, functionName: "totalSupply" },
 			{ address: gnosisVault, chainId: gnosis.id, abi: ERC4626ABI, functionName: "totalAssets" },
+			{ address: baseVault, chainId: base.id, abi: erc20Abi, functionName: "balanceOf", args: [owner] },
+			{ address: baseVault, chainId: base.id, abi: erc20Abi, functionName: "totalSupply" },
+			{ address: baseVault, chainId: base.id, abi: ERC4626ABI, functionName: "totalAssets" },
 		],
 	});
 
@@ -57,6 +61,7 @@ export const useVaultBalances = (account?: Address): { data: VaultBalances; isLo
 			[mainnet.id]: build(mainnetVault, 0),
 			[optimism.id]: build(optimismVault, 3),
 			[gnosis.id]: build(gnosisVault, 6),
+			[base.id]: build(baseVault, 9),
 		} as VaultBalances,
 		isLoading,
 	};

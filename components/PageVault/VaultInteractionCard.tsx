@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Address, erc20Abi, formatUnits, maxUint256, zeroAddress } from "viem";
-import { gnosis, mainnet, optimism } from "viem/chains";
+import { base, gnosis, mainnet, optimism } from "viem/chains";
 import { useConnection, useChainId, useReadContracts } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
@@ -24,8 +24,8 @@ interface Props {
 	isViewingOtherAddress?: boolean;
 }
 
-type VaultChainId = typeof mainnet.id | typeof optimism.id | typeof gnosis.id;
-const VAULT_CHAINS = [mainnet, optimism, gnosis];
+type VaultChainId = typeof mainnet.id | typeof optimism.id | typeof gnosis.id | typeof base.id;
+const VAULT_CHAINS = [mainnet, optimism, gnosis, base];
 const VAULT_CHAIN_NAMES = VAULT_CHAINS.map((c) => c.name);
 
 export default function VaultInteractionCard({ viewAddress, isViewingOtherAddress }: Props) {

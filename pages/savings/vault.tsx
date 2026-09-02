@@ -44,7 +44,7 @@ export default function VaultPage() {
 			<AppTitle title="Savings Vault">
 				<div className="text-text-secondary">
 					svZCHF is the tokenized version of your Frankencoin savings — wrap ZCHF once and hold a single yield-bearing token on
-					Ethereum, Optimism or Gnosis Chain. See also the <AppLink className="" label="Earn page" href={`/savings`} />.
+					Ethereum, Optimism, Gnosis Chain or Base. See also the <AppLink className="" label="Earn page" href={`/savings`} />.
 				</div>
 			</AppTitle>
 

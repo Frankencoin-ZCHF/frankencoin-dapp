@@ -2,14 +2,14 @@ import AppCard from "@components/AppCard";
 import TokenLogo from "@components/TokenLogo";
 import { formatCurrency } from "@utils";
 import { formatUnits, Address } from "viem";
-import { gnosis, mainnet, optimism } from "viem/chains";
+import { base, gnosis, mainnet, optimism } from "viem/chains";
 import { useVaultBalances } from "@hooks";
 
 interface Props {
 	viewAddress?: Address;
 }
 
-const ROWS = [mainnet, optimism, gnosis];
+const ROWS = [mainnet, optimism, gnosis, base];
 
 export default function VaultChainBalancesTable({ viewAddress }: Props) {
 	const { data, isLoading } = useVaultBalances(viewAddress);
