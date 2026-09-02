@@ -24,3 +24,4 @@ export * from "./useAmplifier";
 export * from "./useAmplifiedPositions";
 export * from "./useMigrationTokenBalances";
 export * from "./useMigrationQuotes";
+export * from "./useVaultBalances";

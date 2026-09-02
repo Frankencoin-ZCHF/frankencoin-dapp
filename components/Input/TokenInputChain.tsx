@@ -26,6 +26,7 @@ interface Props {
 	note?: string;
 	value?: string;
 	chain?: string;
+	chains?: string[];
 	onChangeChain?: (value: string) => void;
 	onChange?: (value: string) => void;
 	onMin?: () => void;
@@ -55,6 +56,7 @@ export default function TokenInputChain({
 	note,
 	value = "",
 	chain = WAGMI_CHAIN.name,
+	chains,
 	autoFocus,
 	disabled,
 	onChange = () => {},
@@ -110,7 +112,7 @@ export default function TokenInputChain({
 
 					<div className="md:col-span-2">
 						<ChainBySelect
-							chains={WAGMI_CHAINS.map((c) => c.name)}
+							chains={chains ?? WAGMI_CHAINS.map((c) => c.name)}
 							chain={chain}
 							chainOnChange={onChangeChain}
 							invertColors={disabled}
