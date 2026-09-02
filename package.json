@@ -23,6 +23,7 @@
 		"@coinbase/wallet-sdk": "^4.3.6",
 		"@cowprotocol/cow-sdk": "^9.2.6",
 		"@cowprotocol/sdk-viem-adapter": "^0.3.26",
+		"@ensofinance/sdk": "^2.5.0",
 		"@ethersproject/units": "^5.7.0",
 		"@fortawesome/fontawesome-svg-core": "^6.4.2",
 		"@fortawesome/free-brands-svg-icons": "^6.4.2",
