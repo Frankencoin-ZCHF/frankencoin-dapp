@@ -10,9 +10,10 @@ import AppButton from "@components/AppButton";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import TokenInput from "@components/Input/TokenInput";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
-import { buildCCIPTokenAndDataMessage, CCIP_SEND_GAS_LIMIT, formatCurrency, shortenAddress } from "@utils";
+import { buildCCIPTokenAndDataMessage, CCIP_SEND_GAS_LIMIT, formatCurrency, FormatType, shortenAddress } from "@utils";
 import { useUserBalance } from "@hooks";
 import { CCIPRouterABI } from "../../abis/CCIPRouter";
+import { ERC4626ABI } from "../../abis/ERC4626";
 import { WAGMI_CONFIG } from "../../app.config";
 
 interface Props {
@@ -55,6 +56,22 @@ export default function MigrationBridgeCard({ viewAddress, isViewingOtherAddress
 		abi: erc20Abi,
 		functionName: "allowance",
 		args: [viewAddress ?? "0x0000000000000000000000000000000000000000", router],
+	});
+
+	const svZchfTokenOptimism = ADDRESS[optimism.id].svZCHF;
+	const { data: svZchfPrice } = useReadContract({
+		chainId: optimism.id,
+		address: svZchfTokenOptimism,
+		abi: ERC4626ABI,
+		functionName: "convertToAssets",
+		args: [10n ** 18n],
+	});
+	const { data: estimatedSvZchf } = useReadContract({
+		chainId: optimism.id,
+		address: svZchfTokenOptimism,
+		abi: ERC4626ABI,
+		functionName: "previewDeposit",
+		args: [bridgeAmount],
 	});
 
 	useEffect(() => {
@@ -165,41 +182,64 @@ export default function MigrationBridgeCard({ viewAddress, isViewingOtherAddress
 				Send your ZCHF from Gnosis Chain to Optimism, where it is automatically wrapped into savings for your wallet.
 			</div>
 
-			<div className="mt-6 flex flex-col gap-2">
-				<TokenInput
-					symbol="ZCHF"
-					label="ZCHF to bridge"
-					chain={gnosis.name}
-					value={bridgeAmount.toString()}
-					digit={18}
-					onChange={onChangeBridgeAmount}
-					max={zchfBalance}
-					reset={0n}
-					limit={zchfBalance}
-					limitDigit={18}
-					limitLabel="Balance"
-					disabled={isViewingOtherAddress}
-					error={errorAmount()}
-				/>
+			<div className="mt-6 grid md:grid-cols-2 gap-6">
+				<div className="flex flex-col gap-2">
+					<TokenInput
+						symbol="ZCHF"
+						label="ZCHF to bridge"
+						chain={gnosis.name}
+						value={bridgeAmount.toString()}
+						digit={18}
+						onChange={onChangeBridgeAmount}
+						max={zchfBalance}
+						reset={0n}
+						limit={zchfBalance}
+						limitDigit={18}
+						limitLabel="Balance"
+						disabled={isViewingOtherAddress}
+						error={errorAmount()}
+					/>
 
-				{/* {bridgeAmount > 0n && (
-					<div className="text-sm text-text-secondary text-center">
-						Estimated CCIP fee: {Math.round(Number(formatUnits(ccipFee, 18)) * 100000000) / 100000000}{" "}
-						{gnosis.nativeCurrency.symbol}
+					{/* {bridgeAmount > 0n && (
+						<div className="text-sm text-text-secondary text-center">
+							Estimated CCIP fee: {Math.round(Number(formatUnits(ccipFee, 18)) * 100000000) / 100000000}{" "}
+							{gnosis.nativeCurrency.symbol}
+						</div>
+					)} */}
+
+					<GuardSupportedChain chainId={gnosis.id as ChainIdSide}>
+						{needsApproval ? (
+							<AppButton className="h-10" disabled={isViewingOtherAddress} isLoading={isApproving} onClick={handleApprove}>
+								Approve
+							</AppButton>
+						) : (
+							<AppButton className="h-10" disabled={disabled} isLoading={isBridging} onClick={handleBridge}>
+								Bridge to Optimism
+							</AppButton>
+						)}
+					</GuardSupportedChain>
+				</div>
+
+				<div className="flex flex-col gap-2 pt-3">
+					<div className="flex">
+						<div className="flex-1 text-text-secondary">Exchange rate</div>
+						<div className="">
+							1 svZCHF = {formatCurrency(formatUnits(svZchfPrice ?? 10n ** 18n, 18), 4, 4, FormatType.us)} ZCHF
+						</div>
 					</div>
-				)} */}
 
-				<GuardSupportedChain chainId={gnosis.id as ChainIdSide}>
-					{needsApproval ? (
-						<AppButton className="h-10" disabled={isViewingOtherAddress} isLoading={isApproving} onClick={handleApprove}>
-							Approve
-						</AppButton>
-					) : (
-						<AppButton className="h-10" disabled={disabled} isLoading={isBridging} onClick={handleBridge}>
-							Bridge to Optimism
-						</AppButton>
-					)}
-				</GuardSupportedChain>
+					<hr className="border-slate-700 border-dashed" />
+
+					<div className="flex">
+						<div className="flex-1 text-text-secondary">You send</div>
+						<div className="">{formatCurrency(formatUnits(bridgeAmount, 18))} ZCHF</div>
+					</div>
+
+					<div className="flex font-bold">
+						<div className="flex-1 text-text-secondary">You receive</div>
+						<div className="">{formatCurrency(formatUnits(estimatedSvZchf ?? 0n, 18))} svZCHF</div>
+					</div>
+				</div>
 			</div>
 		</AppCard>
 	);
