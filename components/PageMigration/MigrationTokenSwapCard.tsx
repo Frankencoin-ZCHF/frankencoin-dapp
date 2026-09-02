@@ -1,18 +1,20 @@
 import { useState } from "react";
-import { Address, encodeFunctionData, erc20Abi, formatUnits } from "viem";
+import { Address, erc20Abi, formatUnits } from "viem";
 import { gnosis } from "viem/chains";
 import { useConnection, useReadContract } from "wagmi";
+import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import { ADDRESS, ChainId, ChainIdSide } from "@frankencoin/zchf";
 import AppCard from "@components/AppCard";
 import AppButton from "@components/AppButton";
 import TokenLogo from "@components/TokenLogo";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
-import { renderErrorTxToast } from "@components/TxToast";
-import MigrationTokenLogo from "./MigrationTokenLogo";
+import { renderErrorTxToast, TxToast } from "@components/TxToast";
+import MigrationTokenSwapRow from "./MigrationTokenSwapRow";
 import { useMigrationQuotes, useMigrationTokenBalances, useUserBalance } from "@hooks";
-import { buildPresignBatchCall, formatCurrency, getMigrationQuote, normalizeAddress, PresignBatchCall, sendPresignBatch } from "@utils";
+import { formatCurrency, normalizeAddress } from "@utils";
 import { ERC4626ABI } from "../../abis/ERC4626";
+import { WAGMI_CONFIG } from "../../app.config";
 
 interface Props {
 	viewAddress?: Address;
@@ -27,7 +29,7 @@ export default function MigrationTokenSwapCard({ viewAddress }: Props) {
 	const zchfBalance = userBalance[gnosis.id as ChainIdSide]?.frankencoin ?? 0n;
 
 	const svZchfToken = ADDRESS[gnosis.id].svZCHF;
-	const { data: svZchfBalance } = useReadContract({
+	const { data: svZchfBalance, refetch: refetchSvZchfBalance } = useReadContract({
 		chainId: gnosis.id,
 		address: svZchfToken,
 		abi: erc20Abi,
@@ -43,72 +45,43 @@ export default function MigrationTokenSwapCard({ viewAddress }: Props) {
 	});
 
 	const [slippage, setSlippage] = useState<Record<Address, number>>({});
-	const [isSwapping, setSwapping] = useState(false);
+	const [isUnwrapping, setUnwrapping] = useState(false);
 
 	const heldTokens = balances.filter((token) => token.balance > 0n);
 	const { quotes, isLoading: isLoadingQuotes } = useMigrationQuotes(viewAddress, heldTokens);
 
 	const isOwnWallet = !!address && !!viewAddress && normalizeAddress(address) === normalizeAddress(viewAddress);
 	const hasSvZchf = (svZchfBalance ?? 0n) > 0n;
-	const canSwap = heldTokens.length > 0 || hasSvZchf;
 
-	const onChangeSlippage = (address: Address, value: string) => {
+	const onChangeSlippage = (tokenAddress: Address, value: string) => {
 		const parsed = Number(value);
-		setSlippage((prev) => ({ ...prev, [address]: isNaN(parsed) ? 0 : parsed }));
+		setSlippage((prev) => ({ ...prev, [tokenAddress]: isNaN(parsed) ? 0 : parsed }));
 	};
 
-	const handleSwapAll = async () => {
-		if (!address || !isOwnWallet || !canSwap) return;
+	const handleUnwrapSvZchf = async () => {
+		if (!address || !isOwnWallet || !hasSvZchf) return;
 
 		try {
-			setSwapping(true);
+			setUnwrapping(true);
 
-			const zchf = ADDRESS[gnosis.id as ChainIdSide].ccipBridgedFrankencoin;
-			const allCalls: PresignBatchCall[] = [];
-
-			for (const token of heldTokens) {
-				const slippageBps = Math.round((slippage[token.address] ?? DEFAULT_SLIPPAGE_PCT) * 100);
-
-				const quote = await getMigrationQuote({
-					owner: address,
-					sellToken: token.address,
-					sellTokenDecimals: token.decimals,
-					buyToken: zchf,
-					buyTokenDecimals: 18,
-					sellAmount: token.balance,
-					slippageBps,
-				});
-
-				const { calls } = await buildPresignBatchCall(quote, address, token.address, token.balance);
-				allCalls.push(...calls);
-			}
-
-			if (hasSvZchf) {
-				allCalls.push({
-					to: svZchfToken,
-					data: encodeFunctionData({
-						abi: ERC4626ABI,
-						functionName: "redeem",
-						args: [svZchfBalance ?? 0n, address, address],
-					}),
-				});
-			}
-
-			console.log(
-				`[migration] bundling ${allCalls.length} calls for ${heldTokens.length} swap(s)${hasSvZchf ? " + 1 svZCHF unwrap" : ""}:`,
-				allCalls
-			);
-
-			await toast.promise(sendPresignBatch(allCalls), {
-				pending: `Submitting ${heldTokens.length} swap${heldTokens.length > 1 ? "s" : ""}${
-					hasSvZchf ? " and unwrapping svZCHF" : ""
-				} to CoW Protocol...`,
-				success: "Swap orders submitted — they will settle once CoW's solvers fill them.",
+			const writeHash = await writeContract(WAGMI_CONFIG, {
+				chainId: gnosis.id,
+				address: svZchfToken,
+				abi: ERC4626ABI,
+				functionName: "redeem",
+				args: [svZchfBalance ?? 0n, address, address],
 			});
+
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, chainId: gnosis.id, confirmations: 1 }), {
+				pending: { render: <TxToast title="Unwrapping svZCHF" rows={[{ title: "Transaction:", hash: writeHash }]} /> },
+				success: { render: <TxToast title="Successfully unwrapped svZCHF" rows={[{ title: "Transaction:", hash: writeHash }]} /> },
+			});
+
+			refetchSvZchfBalance();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
-			setSwapping(false);
+			setUnwrapping(false);
 		}
 	};
 
@@ -118,15 +91,16 @@ export default function MigrationTokenSwapCard({ viewAddress }: Props) {
 			<div className="mt-2 text-text-secondary text-center">Overview of the tokens held by your wallet on Gnosis Chain.</div>
 
 			<div className="mt-6 overflow-x-auto">
-				<div className="min-w-[560px] flex flex-col gap-2">
-					<div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] px-3 text-xs font-semibold text-text-secondary">
+				<div className="min-w-[680px] flex flex-col gap-2">
+					<div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr] px-3 text-xs font-semibold text-text-secondary">
 						<span>Token</span>
 						<span className="text-right">Balance</span>
 						<span className="text-right">Slippage</span>
 						<span className="text-right">Est. Output (ZCHF)</span>
+						<span className="text-right">Action</span>
 					</div>
 
-					<div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] items-center p-3 rounded-lg bg-card-body-primary opacity-60">
+					<div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr] items-center p-3 rounded-lg bg-card-body-primary opacity-60">
 						<div className="flex items-center gap-2">
 							<TokenLogo currency="ZCHF" chain={gnosis.name} />
 							<span className="font-medium">ZCHF</span>
@@ -134,18 +108,39 @@ export default function MigrationTokenSwapCard({ viewAddress }: Props) {
 						<span className="text-right">{formatCurrency(formatUnits(zchfBalance, 18))}</span>
 						<span className="text-right text-text-secondary">—</span>
 						<span className="text-right text-text-secondary">already ZCHF</span>
+						<span className="text-right text-text-secondary">—</span>
 					</div>
 
-					<div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] items-center p-3 rounded-lg bg-card-body-primary">
+					<div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr] items-center p-3 rounded-lg bg-card-body-primary">
 						<div className="flex items-center gap-2">
 							<TokenLogo currency="ZCHF" chain={gnosis.name} />
 							<span className="font-medium">svZCHF</span>
 						</div>
 						<span className="text-right">{formatCurrency(formatUnits(svZchfBalance ?? 0n, 18))}</span>
 						<span className="text-right text-text-secondary">—</span>
-						<span className="text-right text-text-secondary">
-							{formatCurrency(formatUnits(svZchfRedeemPreview ?? 0n, 18))}
-						</span>
+						<span className="text-right text-text-secondary">{formatCurrency(formatUnits(svZchfRedeemPreview ?? 0n, 18))}</span>
+						<div className="flex justify-end">
+							{address ? (
+								<GuardSupportedChain
+									size="small"
+									width="auto"
+									chainId={gnosis.id as ChainId}
+									disabled={!isOwnWallet || !hasSvZchf}
+								>
+									<AppButton
+										size="small"
+										width="auto"
+										disabled={!isOwnWallet || !hasSvZchf}
+										isLoading={isUnwrapping}
+										onClick={handleUnwrapSvZchf}
+									>
+										Unwrap
+									</AppButton>
+								</GuardSupportedChain>
+							) : (
+								<span className="text-right text-text-secondary">—</span>
+							)}
+						</div>
 					</div>
 
 					{isLoading ? (
@@ -153,50 +148,25 @@ export default function MigrationTokenSwapCard({ viewAddress }: Props) {
 					) : heldTokens.length === 0 ? (
 						<div className="text-text-secondary text-center py-4">No other tokens held on Gnosis Chain.</div>
 					) : (
-						heldTokens.map((token) => {
-							const quote = quotes[token.address];
-							return (
-								<div
-									key={token.address}
-									className="grid grid-cols-[1.5fr_1fr_1fr_1fr] items-center p-3 rounded-lg bg-card-body-primary"
-								>
-									<div className="flex items-center gap-2">
-										<MigrationTokenLogo logoURI={token.logoURI} symbol={token.symbol} />
-										<span className="font-medium">{token.symbol}</span>
-									</div>
-									<span className="text-right">{formatCurrency(formatUnits(token.balance, token.decimals))}</span>
-									<div className="flex items-center justify-end gap-1">
-										<input
-											type="number"
-											min={0}
-											max={100}
-											step={0.1}
-											value={slippage[token.address] ?? DEFAULT_SLIPPAGE_PCT}
-											onChange={(e) => onChangeSlippage(token.address, e.target.value)}
-											className="w-16 text-right bg-transparent border border-card-input-border rounded px-1 py-0.5 text-sm focus:outline-none focus:border-card-input-focus"
-										/>
-										<span className="text-text-secondary text-sm">%</span>
-									</div>
-									<span className="text-right text-text-secondary">
-										{quote ? formatCurrency(formatUnits(quote.buyAmount, 18)) : isLoadingQuotes ? "..." : "—"}
-									</span>
-								</div>
-							);
-						})
+						heldTokens.map((token) => (
+							<MigrationTokenSwapRow
+								key={token.address}
+								token={token}
+								quote={quotes[token.address]}
+								isLoadingQuote={isLoadingQuotes}
+								slippage={slippage[token.address] ?? DEFAULT_SLIPPAGE_PCT}
+								onChangeSlippage={(value) => onChangeSlippage(token.address, value)}
+								ownerAddress={address}
+								isOwnWallet={isOwnWallet}
+							/>
+						))
 					)}
 				</div>
 			</div>
 
-			<div className="mt-6">
-				<GuardSupportedChain chainId={gnosis.id as ChainId}>
-					<AppButton className="h-10" disabled={!isOwnWallet || !canSwap} isLoading={isSwapping} onClick={handleSwapAll}>
-						Swap All to ZCHF
-					</AppButton>
-				</GuardSupportedChain>
-			</div>
-			<div className="mt-2 text-xs text-text-secondary text-center">
-				Swaps are executed via CoW Protocol and settle asynchronously once a solver fills them; svZCHF is unwrapped directly — all
-				of it batches into a single wallet transaction.
+			<div className="mt-4 text-xs text-text-secondary text-center">
+				Swaps are executed via CoW Protocol and settle asynchronously once a solver fills them. Tokens without enough allowance need
+				to be approved first.
 			</div>
 		</AppCard>
 	);
