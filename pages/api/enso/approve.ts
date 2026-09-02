@@ -1,9 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ApproveParams, EnsoClient } from "@ensofinance/sdk";
 
-// Server-side proxy so the Enso API key never reaches the browser bundle. Disabled until
-// ENSO_API_KEY is configured — see utils/enso.ts for the client-side caller and the
-// NEXT_PUBLIC_ENSO_SWAP_ENABLED flag that gates whether the UI calls this at all.
+// Server-side proxy so the Enso API key never reaches the browser bundle. 501s until
+// ENSO_API_KEY is configured — see utils/enso.ts for the client-side caller.
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 

@@ -18,7 +18,6 @@ export type ConfigEnv = {
 	ponder: string;
 	rpc: string;
 	wagmiId: string;
-	ensoSwapEnabled: boolean;
 };
 
 // DEV: Loaded with defaults, not needed for now.
@@ -35,8 +34,6 @@ export const CONFIG: ConfigEnv = {
 	ponder: process.env.NEXT_PUBLIC_PONDER_URL || "https://ponder.frankencoin.com",
 	wagmiId: process.env.NEXT_PUBLIC_WAGMI_ID || "3321ad5a4f22083fe6fe82208a4c9ddc",
 	rpc: process.env.NEXT_PUBLIC_RPC_KEY || "dhaKbi2HDlKYW1JaSHm1i_hGkE2gnA5t",
-	// @dev scaffolded swap-execution backend, kept off until an ENSO_API_KEY is configured server-side
-	ensoSwapEnabled: process.env.NEXT_PUBLIC_ENSO_SWAP_ENABLED === "true",
 };
 
 console.log("YOU ARE USING THIS CONFIG PROFILE:");

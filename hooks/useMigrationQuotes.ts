@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { Address } from "viem";
 import { gnosis } from "viem/chains";
 import { ADDRESS, ChainIdSide } from "@frankencoin/zchf";
-import { getMigrationQuote } from "@utils";
+import { getEnsoRoute, getMigrationQuote } from "@utils";
 import { MigrationTokenBalance } from "./useMigrationTokenBalances";
+
+const PREVIEW_SLIPPAGE_BPS = 50;
 
 export type MigrationQuote = {
 	buyAmount: bigint;
@@ -15,10 +17,14 @@ export type MigrationQuotesReturn = {
 	isLoading: boolean;
 };
 
-// Fetches a CoW quote (sell token -> ZCHF) per held token, keyed by token address, used for
-// the "Est. Output" column. Slippage per token only affects the order built at swap time,
-// not this preview.
-export const useMigrationQuotes = (owner: Address | undefined, tokens: MigrationTokenBalance[]): MigrationQuotesReturn => {
+// Fetches a quote (sell token -> ZCHF) per held token, keyed by token address, used for the
+// "Est. Output" column — via Enso's route API when useEnso is on, otherwise CoW. Slippage per
+// token only affects the order built at swap time, not this preview.
+export const useMigrationQuotes = (
+	owner: Address | undefined,
+	tokens: MigrationTokenBalance[],
+	useEnso: boolean
+): MigrationQuotesReturn => {
 	const [quotes, setQuotes] = useState<Record<Address, MigrationQuote | undefined>>({});
 	const [isLoading, setLoading] = useState(false);
 
@@ -37,6 +43,21 @@ export const useMigrationQuotes = (owner: Address | undefined, tokens: Migration
 		const fetcher = async () => {
 			const results = await Promise.allSettled(
 				tokens.map(async (token) => {
+					if (useEnso) {
+						const route = await getEnsoRoute({
+							chainId: gnosis.id,
+							fromAddress: owner,
+							receiver: owner,
+							amountIn: [token.balance.toString()],
+							tokenIn: [token.address],
+							tokenOut: [zchf],
+							slippage: PREVIEW_SLIPPAGE_BPS,
+							routingStrategy: "router",
+						});
+						const amountOut = Array.isArray(route.amountOut) ? route.amountOut[0] : route.amountOut;
+						return { address: token.address, buyAmount: BigInt(amountOut), sellAmount: token.balance };
+					}
+
 					const quote = await getMigrationQuote({
 						owner,
 						sellToken: token.address,
@@ -44,7 +65,7 @@ export const useMigrationQuotes = (owner: Address | undefined, tokens: Migration
 						buyToken: zchf,
 						buyTokenDecimals: 18,
 						sellAmount: token.balance,
-						slippageBps: 50,
+						slippageBps: PREVIEW_SLIPPAGE_BPS,
 					});
 					return { address: token.address, buyAmount: BigInt(quote.orderToSign.buyAmount), sellAmount: token.balance };
 				})
@@ -69,7 +90,7 @@ export const useMigrationQuotes = (owner: Address | undefined, tokens: Migration
 			cancelled = true;
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [owner, key, zchf]);
+	}, [owner, key, zchf, useEnso]);
 
 	return { quotes, isLoading };
 };

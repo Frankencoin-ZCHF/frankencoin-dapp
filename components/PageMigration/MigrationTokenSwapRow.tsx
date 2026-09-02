@@ -1,16 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Address, erc20Abi, formatUnits, maxUint256, zeroAddress } from "viem";
 import { gnosis } from "viem/chains";
 import { useReadContract } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
+import type { ApproveData } from "@ensofinance/sdk";
 import { ADDRESS, ChainId, ChainIdSide } from "@frankencoin/zchf";
 import AppButton from "@components/AppButton";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import MigrationTokenLogo from "./MigrationTokenLogo";
 import { MigrationQuote, MigrationTokenBalance } from "@hooks";
-import { buildPresignBatchCall, COW_VAULT_RELAYER_GNOSIS, formatCurrency, getMigrationQuote, sendPresignBatch } from "@utils";
+import {
+	buildPresignBatchCall,
+	COW_VAULT_RELAYER_GNOSIS,
+	formatCurrency,
+	getEnsoApproval,
+	getEnsoRoute,
+	getMigrationQuote,
+	sendEnsoTransaction,
+	sendPresignBatch,
+} from "@utils";
 import { WAGMI_CONFIG } from "../../app.config";
 
 interface Props {
@@ -21,6 +31,7 @@ interface Props {
 	onChangeSlippage: (value: string) => void;
 	ownerAddress?: Address;
 	isOwnWallet: boolean;
+	useEnso: boolean;
 }
 
 export default function MigrationTokenSwapRow({
@@ -31,20 +42,44 @@ export default function MigrationTokenSwapRow({
 	onChangeSlippage,
 	ownerAddress,
 	isOwnWallet,
+	useEnso,
 }: Props) {
 	const [isApproving, setApproving] = useState(false);
 	const [isSwapping, setSwapping] = useState(false);
+	const [ensoApproval, setEnsoApproval] = useState<ApproveData>();
+
+	useEffect(() => {
+		if (!useEnso || !ownerAddress) return;
+
+		let cancelled = false;
+		setEnsoApproval(undefined);
+
+		getEnsoApproval({ fromAddress: ownerAddress, tokenAddress: token.address, chainId: gnosis.id, amount: maxUint256.toString() })
+			.then((data) => {
+				if (!cancelled) setEnsoApproval(data);
+			})
+			.catch((error) => {
+				if (!cancelled) toast.error(renderErrorTxToast(error));
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [useEnso, ownerAddress, token.address]);
+
+	const spender = useEnso ? ensoApproval?.spender : COW_VAULT_RELAYER_GNOSIS;
 
 	const { data: allowance, refetch: refetchAllowance } = useReadContract({
 		chainId: gnosis.id,
 		address: token.address,
 		abi: erc20Abi,
 		functionName: "allowance",
-		args: [ownerAddress ?? zeroAddress, COW_VAULT_RELAYER_GNOSIS],
+		args: [ownerAddress ?? zeroAddress, spender ?? zeroAddress],
+		query: { enabled: !!spender },
 	});
 
-	const needsApproval = (allowance ?? 0n) < token.balance;
-	const disabled = !ownerAddress || !isOwnWallet;
+	const needsApproval = spender ? (allowance ?? 0n) < token.balance : true;
+	const disabled = !ownerAddress || !isOwnWallet || (useEnso && !ensoApproval);
 
 	const handleApprove = async () => {
 		if (!ownerAddress) return;
@@ -52,13 +87,19 @@ export default function MigrationTokenSwapRow({
 		try {
 			setApproving(true);
 
-			const writeHash = await writeContract(WAGMI_CONFIG, {
-				chainId: gnosis.id,
-				address: token.address,
-				abi: erc20Abi,
-				functionName: "approve",
-				args: [COW_VAULT_RELAYER_GNOSIS, maxUint256],
-			});
+			let writeHash: `0x${string}`;
+			if (useEnso) {
+				if (!ensoApproval) return;
+				writeHash = await sendEnsoTransaction(ensoApproval.tx, gnosis.id);
+			} else {
+				writeHash = await writeContract(WAGMI_CONFIG, {
+					chainId: gnosis.id,
+					address: token.address,
+					abi: erc20Abi,
+					functionName: "approve",
+					args: [COW_VAULT_RELAYER_GNOSIS, maxUint256],
+				});
+			}
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, chainId: gnosis.id, confirmations: 1 }), {
 				pending: { render: <TxToast title={`Approving ${token.symbol}`} rows={[{ title: "Transaction:", hash: writeHash }]} /> },
@@ -83,6 +124,36 @@ export default function MigrationTokenSwapRow({
 
 			const zchf = ADDRESS[gnosis.id as ChainIdSide].ccipBridgedFrankencoin;
 			const slippageBps = Math.round(slippage * 100);
+
+			if (useEnso) {
+				const route = await getEnsoRoute({
+					chainId: gnosis.id,
+					fromAddress: ownerAddress,
+					receiver: ownerAddress,
+					amountIn: [token.balance.toString()],
+					tokenIn: [token.address],
+					tokenOut: [zchf],
+					slippage: slippageBps,
+					routingStrategy: "router",
+				});
+
+				const writeHash = await sendEnsoTransaction(route.tx, gnosis.id);
+
+				await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, chainId: gnosis.id, confirmations: 1 }), {
+					pending: {
+						render: <TxToast title={`Swapping ${token.symbol} to ZCHF`} rows={[{ title: "Transaction:", hash: writeHash }]} />,
+					},
+					success: {
+						render: (
+							<TxToast
+								title={`Successfully swapped ${token.symbol} to ZCHF`}
+								rows={[{ title: "Transaction:", hash: writeHash }]}
+							/>
+						),
+					},
+				});
+				return;
+			}
 
 			const orderQuote = await getMigrationQuote({
 				owner: ownerAddress,

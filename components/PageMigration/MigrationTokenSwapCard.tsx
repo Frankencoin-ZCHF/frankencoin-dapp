@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { ADDRESS, ChainId, ChainIdSide } from "@frankencoin/zchf";
 import AppCard from "@components/AppCard";
 import AppButton from "@components/AppButton";
+import AppToggle from "@components/AppToggle";
 import TokenLogo from "@components/TokenLogo";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
@@ -46,9 +47,10 @@ export default function MigrationTokenSwapCard({ viewAddress }: Props) {
 
 	const [slippage, setSlippage] = useState<Record<Address, number>>({});
 	const [isUnwrapping, setUnwrapping] = useState(false);
+	const [useEnso, setUseEnso] = useState(true);
 
 	const heldTokens = balances.filter((token) => token.balance > 0n);
-	const { quotes, isLoading: isLoadingQuotes } = useMigrationQuotes(viewAddress, heldTokens);
+	const { quotes, isLoading: isLoadingQuotes } = useMigrationQuotes(viewAddress, heldTokens, useEnso);
 
 	const isOwnWallet = !!address && !!viewAddress && normalizeAddress(address) === normalizeAddress(viewAddress);
 	const hasSvZchf = (svZchfBalance ?? 0n) > 0n;
@@ -89,6 +91,10 @@ export default function MigrationTokenSwapCard({ viewAddress }: Props) {
 		<AppCard>
 			<div className="mt-4 text-lg font-bold text-center">1. Assets on Gnosis Chain</div>
 			<div className="mt-2 text-text-secondary text-center">Overview of the tokens held by your wallet on Gnosis Chain.</div>
+
+			<div className="mt-4 flex justify-center">
+				<AppToggle label="Use CoW Protocol instead" enabled={!useEnso} onChange={(enabled) => setUseEnso(!enabled)} />
+			</div>
 
 			<div className="mt-6 overflow-x-auto">
 				<div className="min-w-[680px] flex flex-col gap-2">
@@ -158,6 +164,7 @@ export default function MigrationTokenSwapCard({ viewAddress }: Props) {
 								onChangeSlippage={(value) => onChangeSlippage(token.address, value)}
 								ownerAddress={address}
 								isOwnWallet={isOwnWallet}
+								useEnso={useEnso}
 							/>
 						))
 					)}
@@ -165,8 +172,10 @@ export default function MigrationTokenSwapCard({ viewAddress }: Props) {
 			</div>
 
 			<div className="mt-4 text-xs text-text-secondary text-center">
-				Swaps are executed via CoW Protocol and settle asynchronously once a solver fills them. Tokens without enough allowance need
-				to be approved first.
+				{useEnso
+					? "Swaps are executed via Enso and settle immediately onchain."
+					: "Swaps are executed via CoW Protocol and settle asynchronously once a solver fills them."}{" "}
+				Tokens without enough allowance need to be approved first.
 			</div>
 		</AppCard>
 	);
