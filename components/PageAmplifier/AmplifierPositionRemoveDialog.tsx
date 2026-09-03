@@ -13,6 +13,7 @@ import { AmplifiedPositionInfo } from "../../hooks/useAmplifiedPositions";
 import { AmplifiedPositionABI } from "../../abis/UniswapAmplifier";
 import { formatBigInt, isDateExpired, shortenAddress } from "@utils";
 import { getAmountsForLiquidity, getSqrtRatioAtTick } from "../../utils/uniswapV3Math";
+import { getAmplifierChain } from "../../utils/amplifierConstants";
 
 interface Props {
 	stats: AmplifierStats;
@@ -156,7 +157,7 @@ export default function AmplifierPositionRemoveDialog({ stats, position, onClose
 				note={burnedLiquidity > 0n && !error ? returnsText : ""}
 			/>
 
-			<GuardSupportedChain>
+			<GuardSupportedChain chain={getAmplifierChain(stats.chainId)}>
 				{needsMinterApproval ? (
 					<AppButton
 						disabled={!!error || burnedLiquidity == 0n}
