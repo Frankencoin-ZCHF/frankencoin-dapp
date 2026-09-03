@@ -5,6 +5,7 @@ export * from "./useFPSBalanceHistory";
 export * from "./useFPSEarningsHistory";
 export * from "./useFPSHolders";
 export * from "./useFPSStats";
+export * from "./useFCSStats";
 
 export * from "./useContractUrl";
 export * from "./useSwapVCHFStats";

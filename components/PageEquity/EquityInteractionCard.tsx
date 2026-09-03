@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import EquityInteractionWithZCHFFPS from "./EquityInteractionWithZCHFFPS";
 import EquityInteractionWithFPSWFPS from "./EquityInteractionWithFPSWFPS";
 import EquityInteractionWithWFPSRedeem from "./EquityInteractionWithWFPSRedeem";
+import EquityInteractionWithZCHFFCS from "./EquityInteractionWithZCHFFCS";
+import EquityInteractionWithFPSFCS from "./EquityInteractionWithFPSFCS";
 import AppCard from "@components/AppCard";
 
 export const EquityTokenSelectorMapping: { [key: string]: string[] } = {
-	ZCHF: ["FPS"],
-	FPS: ["ZCHF", "WFPS"],
+	ZCHF: ["FPS", "FCS"],
+	FPS: ["ZCHF", "WFPS", "FCS"],
+	FCS: ["FPS", "ZCHF"],
 	WFPS: ["FPS", "ZCHF"],
 };
 
@@ -36,6 +39,22 @@ export default function EquityInteractionCard() {
 
 			{tokenFromTo.from === "WFPS" && tokenFromTo.to === "ZCHF" ? (
 				<EquityInteractionWithWFPSRedeem
+					tokenFromTo={tokenFromTo}
+					setTokenFromTo={setTokenFromTo}
+					selectorMapping={EquityTokenSelectorMapping}
+				/>
+			) : null}
+
+			{(tokenFromTo.from === "ZCHF" && tokenFromTo.to === "FCS") || (tokenFromTo.from === "FCS" && tokenFromTo.to === "ZCHF") ? (
+				<EquityInteractionWithZCHFFCS
+					tokenFromTo={tokenFromTo}
+					setTokenFromTo={setTokenFromTo}
+					selectorMapping={EquityTokenSelectorMapping}
+				/>
+			) : null}
+
+			{(tokenFromTo.from === "FPS" && tokenFromTo.to === "FCS") || (tokenFromTo.from === "FCS" && tokenFromTo.to === "FPS") ? (
+				<EquityInteractionWithFPSFCS
 					tokenFromTo={tokenFromTo}
 					setTokenFromTo={setTokenFromTo}
 					selectorMapping={EquityTokenSelectorMapping}
