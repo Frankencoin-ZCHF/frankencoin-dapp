@@ -1,10 +1,12 @@
 import { gql, useQuery } from "@apollo/client";
 import { Address, zeroAddress } from "viem";
+import { ChainId } from "@frankencoin/zchf";
 
 export interface SavingsReferrerMapping {
 	referrer: Address;
 	balance: bigint;
 	account: Address;
+	chainId: ChainId;
 }
 
 export const useSavingsReferrerMappings = (): {
@@ -23,6 +25,7 @@ export const useSavingsReferrerMappings = (): {
 						referrer
 						balance
 						account
+						chainId
 					}
 				}
 			}
