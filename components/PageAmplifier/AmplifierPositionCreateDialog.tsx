@@ -12,6 +12,7 @@ import { AmplifierPriceView, AmplifierStats } from "../../hooks/useAmplifier";
 import { UniswapAmplifierABI } from "../../abis/UniswapAmplifier";
 import { FormatType, formatCurrency, isDateExpired } from "@utils";
 import { snapTick } from "../../utils/uniswapV3Math";
+import { getAmplifierChain } from "../../utils/amplifierConstants";
 import { amplificationThresholdTick } from "../../utils/amplifierMath";
 
 const DEFAULT_SPAN = 1.03; // default range spans 3%
@@ -322,7 +323,7 @@ export default function AmplifierPositionCreateDialog({ stats, priceView, onClos
 			{!error && valid && thresholdWarning !== "" && <div className="text-amber-500">{thresholdWarning}</div>}
 			{!error && valid && thresholdWarning === "" && <div className="text-text-secondary">{thresholdNote}</div>}
 
-			<GuardSupportedChain>
+			<GuardSupportedChain chain={getAmplifierChain(stats.chainId)}>
 				<AppButton disabled={!valid} isLoading={isCreating} onClick={() => handleCreate()}>
 					Create Position
 				</AppButton>

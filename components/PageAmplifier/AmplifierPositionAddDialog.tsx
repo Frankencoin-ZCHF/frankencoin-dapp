@@ -13,6 +13,7 @@ import { AmplifiedPositionInfo } from "../../hooks/useAmplifiedPositions";
 import { AmplifiedPositionABI } from "../../abis/UniswapAmplifier";
 import { FormatType, formatBigInt, formatCurrency, isDateExpired, shortenAddress } from "@utils";
 import { getAmountsForLiquidity, getLiquidityForAmount0, getLiquidityForAmount1, getSqrtRatioAtTick } from "../../utils/uniswapV3Math";
+import { getAmplifierChain } from "../../utils/amplifierConstants";
 import { amplificationThresholdTick, qualifiesForAmplification } from "../../utils/amplifierMath";
 
 interface Props {
@@ -210,7 +211,7 @@ export default function AmplifierPositionAddDialog({ stats, priceView, position,
 				}
 			/>
 
-			<GuardSupportedChain>
+			<GuardSupportedChain chain={getAmplifierChain(stats.chainId)}>
 				{usdNeeded > stats.usdUserAllowance ? (
 					<AppButton disabled={!!error || liquidity == 0n} isLoading={isApproving} onClick={() => handleApprove()}>
 						Approve {usdSymbol}
