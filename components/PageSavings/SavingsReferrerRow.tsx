@@ -20,6 +20,7 @@ export default function SavingsReferrerRow({ headers, tab, item }: Props) {
 				external={true}
 			/>
 			<div className="flex flex-col">{item.accounts.length}</div>
+			<div className="flex flex-col">{item.chainIds.length}</div>
 			<div className="flex flex-col">{formatCurrency(formatUnits(item.balance, 18))} ZCHF</div>
 		</TableRow>
 	);

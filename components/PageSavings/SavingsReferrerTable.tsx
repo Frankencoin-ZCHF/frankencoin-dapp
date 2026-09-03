@@ -4,18 +4,20 @@ import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useMemo, useState } from "react";
 import { Address } from "viem";
-import { useSavingsReferrerMappings } from "@hooks";
+import { ChainId } from "@frankencoin/zchf";
+import { useSavingsReferrerMappings, SavingsReferrerMapping } from "@hooks";
 import SavingsReferrerRow from "./SavingsReferrerRow";
 
 export interface AggregatedSavingsReferrer {
 	referrer: Address;
 	balance: bigint;
 	accounts: Address[];
+	chainIds: ChainId[];
 }
 
 export default function SavingsReferrerTable() {
-	const headers: string[] = ["Referrer", "Savers", "Balance"];
-	const [tab, setTab] = useState<string>(headers[2]);
+	const headers: string[] = ["Referrer", "Savers", "Chains", "Balance"];
+	const [tab, setTab] = useState<string>(headers[3]);
 	const [reverse, setReverse] = useState<boolean>(false);
 
 	const { loading, mappings } = useSavingsReferrerMappings();
@@ -46,7 +48,7 @@ export default function SavingsReferrerTable() {
 	);
 }
 
-function aggregateByReferrer(mappings: { referrer: Address; balance: bigint; account: Address }[]): AggregatedSavingsReferrer[] {
+function aggregateByReferrer(mappings: SavingsReferrerMapping[]): AggregatedSavingsReferrer[] {
 	const byReferrer = new Map<Address, AggregatedSavingsReferrer>();
 
 	for (const m of mappings) {
@@ -56,8 +58,9 @@ function aggregateByReferrer(mappings: { referrer: Address; balance: bigint; acc
 		if (existing) {
 			existing.balance += balance;
 			existing.accounts.push(m.account);
+			if (!existing.chainIds.includes(m.chainId)) existing.chainIds.push(m.chainId);
 		} else {
-			byReferrer.set(m.referrer, { referrer: m.referrer, balance, accounts: [m.account] });
+			byReferrer.set(m.referrer, { referrer: m.referrer, balance, accounts: [m.account], chainIds: [m.chainId] });
 		}
 	}
 
@@ -82,6 +85,9 @@ function sortFunction(params: SortFunctionParams): AggregatedSavingsReferrer[] {
 		// Savers
 		sortingList.sort((a, b) => b.accounts.length - a.accounts.length);
 	} else if (tab === headers[2]) {
+		// Chains
+		sortingList.sort((a, b) => b.chainIds.length - a.chainIds.length);
+	} else if (tab === headers[3]) {
 		// Balance
 		sortingList.sort((a, b) => (b.balance > a.balance ? 1 : b.balance < a.balance ? -1 : 0));
 	}
