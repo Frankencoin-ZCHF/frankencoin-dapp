@@ -16,7 +16,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import { ADDRESS } from "@frankencoin/zchf";
 import AppLink from "@components/AppLink";
-import { useContractUrl } from "@hooks";
+import { useContractUrl, usePositionLive } from "@hooks";
 import { useRouter as useNavigation } from "next/navigation";
 import { mainnet } from "viem/chains";
 import AppCard from "@components/AppCard";
@@ -56,8 +56,10 @@ export default function PositionBorrow({}) {
 	const chainId = mainnet.id;
 	const addressQuery: Address = router.query.address as Address;
 
+	// price and availability feed the clone transaction, so they are read live rather than taken from the indexer
 	const positions = useSelector((state: RootState) => state.positions.list.list);
-	const position = positions.find((p) => p.position == addressQuery);
+	const indexedPosition = positions.find((p) => p.position == addressQuery);
+	const { position, isLive, error: liveError } = usePositionLive(indexedPosition);
 	const { bestPriceByCollateral, bestInterestByCollateral, bestExpirationByCollateral, bestAvailabilityByCollateral } =
 		useBorrowPositions();
 	const originalPosition = position?.isClone ? positions.find((p) => p.position === position.original) : position;
@@ -68,6 +70,8 @@ export default function PositionBorrow({}) {
 	useEffect(() => {
 		if (isInit) return;
 		if (!position || position.expiration == 0) return;
+		// wait for the live read so the inputs are not seeded from a stale price; fall back to the indexer if the read fails
+		if (!isLive && !liveError) return;
 		setExpirationDate(toDate(originalExpiration ?? position.expiration));
 
 		if (!amount) {
@@ -82,7 +86,7 @@ export default function PositionBorrow({}) {
 		}
 
 		setInit(true);
-	}, [position, amount, expirationDate, isInit, originalExpiration]);
+	}, [position, amount, expirationDate, isInit, originalExpiration, isLive, liveError]);
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;

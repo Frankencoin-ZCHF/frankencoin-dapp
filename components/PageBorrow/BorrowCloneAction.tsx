@@ -11,7 +11,7 @@ import { formatBigInt, shortenAddress, toTimestamp } from "@utils";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import AppButton from "@components/AppButton";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
-import { track } from "@hooks";
+import { readPositionLive, track } from "@hooks";
 import { mainnet } from "viem/chains";
 import { useRouter } from "next/navigation";
 
@@ -90,6 +90,14 @@ export default function BorrowCloneAction({
 	const handleClone = async () => {
 		try {
 			setCloning(true);
+
+			// the mint amount was derived from the price and availability of the parent, verify them against the chain before signing
+			const live = await readPositionLive(position);
+			if (live.closed || live.price !== BigInt(position.price) || live.availableForClones < amount) {
+				toast.error("The position changed on-chain since the values were loaded. Please review the updated values and try again.");
+				return;
+			}
+
 			const expirationTime = toTimestamp(expirationDate);
 			let cloneWriteHash: Hash = zeroHash;
 
@@ -171,19 +179,11 @@ export default function BorrowCloneAction({
 	return (
 		<GuardSupportedChain chain={mainnet}>
 			{requiredColl > userAllowance ? (
-<AppButton
-					disabled={disabled || requiredColl > userBalance}
-					isLoading={isApproving}
-					onClick={() => handleApprove()}
-				>
+				<AppButton disabled={disabled || requiredColl > userBalance} isLoading={isApproving} onClick={() => handleApprove()}>
 					Approve
 				</AppButton>
 			) : (
-<AppButton
-					disabled={disabled || requiredColl > userBalance}
-					isLoading={isCloning}
-					onClick={() => handleClone()}
-				>
+				<AppButton disabled={disabled || requiredColl > userBalance} isLoading={isCloning} onClick={() => handleClone()}>
 					Borrow
 				</AppButton>
 			)}
