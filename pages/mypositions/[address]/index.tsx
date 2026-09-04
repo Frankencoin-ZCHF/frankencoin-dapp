@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatUnits, maxUint256, erc20Abi, Address, parseEther, parseUnits } from "viem";
 import Head from "next/head";
 import TokenInput from "@components/Input/TokenInput";
@@ -16,13 +16,13 @@ import {
 } from "@utils";
 import AppButton from "@components/AppButton";
 import { useConnection, useBlockNumber, useChainId } from "wagmi";
-import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { readContract, simulateContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast, renderErrorTxToastDecode } from "@components/TxToast";
 import { WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
-import { PositionQuery } from "@frankencoin/api";
+import { isSameSnapshot, PositionLiveSnapshot, snapshotOf, usePositionLive } from "@hooks";
 import { ADDRESS, PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
 import AppTitle from "@components/AppTitle";
 import PositionRollerTable from "@components/PageMypositions/PositionRollerTable";
@@ -39,8 +39,6 @@ export default function PositionAdjust() {
 	const [isApproving, setApproving] = useState(false);
 	const [isAdjusting, setAdjusting] = useState(false);
 
-	const [challengeSize, setChallengeSize] = useState(0n);
-
 	const [userCollAllowance, setUserCollAllowance] = useState(0n);
 	const [userCollBalance, setUserCollBalance] = useState(0n);
 	const [userFrancBalance, setUserFrancBalance] = useState(0n);
@@ -52,74 +50,89 @@ export default function PositionAdjust() {
 
 	const addressQuery: Address = router.query.address as Address;
 
+	// the indexed record is only used for discovery and static fields; everything that feeds the transaction is read live
 	const positions = useSelector((state: RootState) => state.positions.list.list);
-	const position = positions.find((p) => p.position == addressQuery) as PositionQuery;
+	const indexedPosition = positions.find((p) => p.position == addressQuery);
+	const { position: livePosition, live, isLive, error: liveError, refetch: refetchLive } = usePositionLive(indexedPosition);
+	const challengeSize = live?.challengedAmount ?? 0n;
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
-	const [amount, setAmount] = useState<bigint>(BigInt(position?.minted ?? 0n));
-	const [collateralAmount, setCollateralAmount] = useState<bigint>(BigInt(position?.collateralBalance ?? 0n));
-	const [liqPrice, setLiqPrice] = useState<bigint>(BigInt(position?.price ?? 0n));
+	const [amount, setAmount] = useState<bigint>(0n);
+	const [collateralAmount, setCollateralAmount] = useState<bigint>(0n);
+	const [liqPrice, setLiqPrice] = useState<bigint>(0n);
+
+	// the on-chain state the inputs were derived from, and whether the user has edited them since
+	const [seed, setSeed] = useState<PositionLiveSnapshot>();
+	const [isDirty, setDirty] = useState(false);
 
 	// ---------------------------------------------------------------------------
 
+	const seedForm = useCallback((snapshot: PositionLiveSnapshot) => {
+		setAmount(snapshot.minted);
+		setCollateralAmount(snapshot.collateralBalance);
+		setLiqPrice(snapshot.price);
+		setSeed(snapshot);
+		setDirty(false);
+	}, []);
+
+	const currentSnapshot = useMemo(() => (livePosition ? snapshotOf(livePosition) : undefined), [livePosition]);
+	const hasDrift = seed !== undefined && currentSnapshot !== undefined && !isSameSnapshot(seed, currentSnapshot);
+
+	// start over when navigating to another position
 	useEffect(() => {
-		if (position != undefined && amount == 0n && collateralAmount == 0n && liqPrice == 0n) {
-			setAmount(BigInt(position.minted));
-			setCollateralAmount(BigInt(position.collateralBalance));
-			setLiqPrice(BigInt(position.price));
-		}
-	}, [position, amount, collateralAmount, liqPrice]);
+		setSeed(undefined);
+		setDirty(false);
+	}, [addressQuery]);
+
+	// seed the inputs from the position and follow the chain as long as the user has not edited them
+	useEffect(() => {
+		if (!currentSnapshot) return;
+		if (seed === undefined || (hasDrift && !isDirty)) seedForm(currentSnapshot);
+	}, [currentSnapshot, seed, hasDrift, isDirty, seedForm]);
+
+	const collateralAddress = livePosition?.collateral;
+	const positionAddress = livePosition?.position;
 
 	useEffect(() => {
 		const acc: Address | undefined = account.address;
-		const fc: Address = ADDRESS[mainnet.id].frankencoin;
-		if (!position || !position.collateral) return;
+		if (acc === undefined || !collateralAddress || !positionAddress) return;
 
 		const fetchAsync = async function () {
-			if (acc !== undefined) {
-				const _balanceFranc = await readContract(WAGMI_CONFIG, {
-					address: ADDRESS[mainnet.id].frankencoin,
-					chainId,
-					abi: erc20Abi,
-					functionName: "balanceOf",
-					args: [acc],
-				});
-				setUserFrancBalance(_balanceFranc);
-
-				const _balanceColl = await readContract(WAGMI_CONFIG, {
-					address: position.collateral,
-					chainId,
-					abi: erc20Abi,
-					functionName: "balanceOf",
-					args: [acc],
-				});
-				setUserCollBalance(_balanceColl);
-
-				const _allowanceColl = await readContract(WAGMI_CONFIG, {
-					address: position.collateral,
-					chainId,
-					abi: erc20Abi,
-					functionName: "allowance",
-					args: [acc, position.position],
-				});
-				setUserCollAllowance(_allowanceColl);
-			}
-
-			const _balanceChallenge = await readContract(WAGMI_CONFIG, {
-				address: position.position,
+			const _balanceFranc = await readContract(WAGMI_CONFIG, {
+				address: ADDRESS[mainnet.id].frankencoin,
 				chainId,
-				abi: position.version === 1 ? PositionV1ABI : PositionV2ABI,
-				functionName: "challengedAmount",
+				abi: erc20Abi,
+				functionName: "balanceOf",
+				args: [acc],
 			});
-			setChallengeSize(_balanceChallenge);
+			setUserFrancBalance(_balanceFranc);
+
+			const _balanceColl = await readContract(WAGMI_CONFIG, {
+				address: collateralAddress,
+				chainId,
+				abi: erc20Abi,
+				functionName: "balanceOf",
+				args: [acc],
+			});
+			setUserCollBalance(_balanceColl);
+
+			const _allowanceColl = await readContract(WAGMI_CONFIG, {
+				address: collateralAddress,
+				chainId,
+				abi: erc20Abi,
+				functionName: "allowance",
+				args: [acc, positionAddress],
+			});
+			setUserCollAllowance(_allowanceColl);
 		};
 
 		fetchAsync();
-	}, [data, account.address, position, chainId]);
+	}, [data, account.address, collateralAddress, positionAddress, chainId]);
 
 	// ---------------------------------------------------------------------------
-	if (!position) return <MyPositionsNotFound query={addressQuery} />;
+	if (!livePosition) return <MyPositionsNotFound query={addressQuery} />;
+	const position = livePosition;
 
 	const priceQuery = prices[normalizeAddress(position.collateral)];
 	if (!priceQuery) return <AppCard>Market Price of position not found</AppCard>;
@@ -169,10 +182,12 @@ export default function PositionAdjust() {
 			: "";
 
 	const onChangeAmount = (value: string) => {
+		setDirty(true);
 		setAmount(BigInt(value));
 	};
 
 	const onChangeCollAmount = (value: string) => {
+		setDirty(true);
 		setCollateralAmount(BigInt(value));
 	};
 
@@ -203,9 +218,8 @@ export default function PositionAdjust() {
 	}
 
 	const onChangeLiqAmount = (value: string) => {
-		const valueBigInt = BigInt(value);
-		const isHigher = valueBigInt > BigInt(position.price);
-		setLiqPrice(valueBigInt);
+		setDirty(true);
+		setLiqPrice(BigInt(value));
 	};
 
 	const handleApprove = async () => {
@@ -254,10 +268,34 @@ export default function PositionAdjust() {
 		try {
 			setAdjusting(true);
 
+			// adjust() takes absolute targets, so never sign against state that is not what the chain holds right now
+			const fresh = await refetchLive();
+			if (!fresh) {
+				toast.error("Could not read the current on-chain state of the position. Please try again.");
+				return;
+			}
+			if (!isSameSnapshot(seed, snapshotOf(fresh))) {
+				seedForm(snapshotOf(fresh));
+				toast.error(
+					"The position changed on-chain since you loaded this form. The values have been refreshed, please review them and try again."
+				);
+				return;
+			}
+
+			const abi = position.version == 2 ? PositionV2ABI : PositionV1ABI;
+			await simulateContract(WAGMI_CONFIG, {
+				address: position.position,
+				chainId,
+				abi,
+				functionName: "adjust",
+				args: [amount, collateralAmount, liqPrice],
+				account: account.address,
+			});
+
 			const adjustWriteHash = await writeContract(WAGMI_CONFIG, {
 				address: position.position,
 				chainId,
-				abi: position.version == 2 ? PositionV2ABI : PositionV1ABI,
+				abi,
 				functionName: "adjust",
 				args: [amount, collateralAmount, liqPrice],
 			});
@@ -460,6 +498,21 @@ export default function PositionAdjust() {
 							placeholder="Liquidation Price"
 						/>
 
+						{liveError && !isLive && (
+							<div className="rounded-lg bg-amber-500/20 text-amber-400 text-sm px-3 py-2 mb-2">
+								Could not read the live on-chain state of this position. The values shown come from the indexer and may be
+								outdated.
+							</div>
+						)}
+						{hasDrift && isDirty && (
+							<div className="rounded-lg bg-amber-500/20 text-amber-400 text-sm px-3 py-2 mb-2 flex items-center gap-3">
+								<span className="flex-1">The position changed on-chain since you started editing.</span>
+								<button className="underline" onClick={() => currentSnapshot && seedForm(currentSnapshot)}>
+									Reload values
+								</button>
+							</div>
+						)}
+
 						<GuardSupportedChain chain={mainnet}>
 							{collateralAmount - BigInt(position.collateralBalance) > userCollAllowance ? (
 								<AppButton isLoading={isApproving} onClick={() => handleApprove()}>
@@ -468,6 +521,7 @@ export default function PositionAdjust() {
 							) : (
 								<AppButton
 									disabled={
+										hasDrift ||
 										(amount == BigInt(position.minted) &&
 											collateralAmount == BigInt(position.collateralBalance) &&
 											liqPrice == BigInt(position.price)) ||

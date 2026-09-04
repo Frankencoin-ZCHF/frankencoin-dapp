@@ -22,3 +22,5 @@ export * from "./useBorrowPositions";
 export * from "./useAnalytics";
 export * from "./useAmplifier";
 export * from "./useAmplifiedPositions";
+
+export * from "./usePositionLive";

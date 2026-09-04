@@ -16,6 +16,7 @@ import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
 import ForceSellPriceChart from "@components/PageMonitoring/ForceSellPriceChart";
 import ForceSellAction from "@components/PageMonitoring/ForceSellAction";
+import { usePositionLive } from "@hooks";
 
 export default function MonitoringForceSell() {
 	const [auctionPrice, setAuctionPrice] = useState<bigint>(0n);
@@ -28,7 +29,8 @@ export default function MonitoringForceSell() {
 	const chainId = mainnet.id;
 	const queryAddress: Address = (String(router.query.address) as Address) || zeroAddress;
 	const positions = useSelector((state: RootState) => state.positions.list.list);
-	const position = positions.find((p) => normalizeAddress(p.position) === normalizeAddress(queryAddress));
+	const indexedPosition = positions.find((p) => normalizeAddress(p.position) === normalizeAddress(queryAddress));
+	const { position } = usePositionLive(indexedPosition);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challengesPositions = useSelector((state: RootState) => state.challenges.positions);
 

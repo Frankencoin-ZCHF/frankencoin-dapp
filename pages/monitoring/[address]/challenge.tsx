@@ -12,6 +12,7 @@ import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
 import ChallengeAuctionPriceChart from "@components/PageMonitoring/ChallengeAuctionPriceChart";
 import ChallengeAction from "@components/PageMonitoring/ChallengeAction";
+import { usePositionLive } from "@hooks";
 
 export default function PositionChallenge() {
 	const [isNavigating, setNavigating] = useState(false);
@@ -21,7 +22,8 @@ export default function PositionChallenge() {
 
 	const addressQuery: Address = router.query.address as Address;
 	const positions = useSelector((state: RootState) => state.positions.list.list);
-	const position = positions.find((p) => p.position == addressQuery);
+	const indexedPosition = positions.find((p) => p.position == addressQuery);
+	const { position } = usePositionLive(indexedPosition);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
 	useEffect(() => {
