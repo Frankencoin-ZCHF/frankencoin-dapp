@@ -4,6 +4,7 @@ import AppLink from "@components/AppLink";
 import { useConnection } from "wagmi";
 import { ContractUrl, shortenAddress } from "@utils";
 import { SupportedChain } from "@frankencoin/zchf";
+import { CCIPLaneCapacity, formatLaneState } from "../../hooks/useCCIPLaneCapacity";
 
 interface Props {
 	senderAddress: Address | undefined;
@@ -11,9 +12,10 @@ interface Props {
 	chain: SupportedChain | undefined;
 	recipientChain: SupportedChain | undefined;
 	ccipFee: bigint;
+	lane?: CCIPLaneCapacity;
 }
 
-export default function TransferDetailsCard({ senderAddress, recipientAddress, chain, recipientChain, ccipFee }: Props) {
+export default function TransferDetailsCard({ senderAddress, recipientAddress, chain, recipientChain, ccipFee, lane }: Props) {
 	const { address } = useConnection();
 	const isSameChain = recipientChain?.id == chain?.id;
 
@@ -63,6 +65,20 @@ export default function TransferDetailsCard({ senderAddress, recipientAddress, c
 					<div className="flex-1 text-text-secondary">Bridging ZCHF</div>
 					<div className="">{isSameChain ? "False" : "True"}</div>
 				</div>
+
+				{!isSameChain && lane && (
+					<>
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Outgoing Lane</div>
+							<div className="">{formatLaneState(lane.outbound)}</div>
+						</div>
+
+						<div className="flex">
+							<div className="flex-1 text-text-secondary">Incoming Lane</div>
+							<div className="">{formatLaneState(lane.inbound)}</div>
+						</div>
+					</>
+				)}
 
 				<div className="flex">
 					<div className="flex-1 text-text-secondary">CCIP Fee</div>
