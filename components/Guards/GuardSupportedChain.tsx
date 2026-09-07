@@ -13,9 +13,11 @@ interface Props {
 	disabled?: boolean;
 	chain?: AppKitNetwork | SupportedChain | Chain;
 	chainId?: ChainId;
+	size?: "small" | "medium" | "large";
+	width?: string;
 }
 
-export default function GuardSupportedChain({ children, label, disabled, chain, chainId }: Props) {
+export default function GuardSupportedChain({ children, label, disabled, chain, chainId, size, width }: Props) {
 	const [requestedChange, setRequestedChange] = useState(false);
 
 	const Account = useConnection();
@@ -46,6 +48,8 @@ export default function GuardSupportedChain({ children, label, disabled, chain, 
 	if (Account.isDisconnected)
 		return (
 			<AppButton
+				size={size}
+				width={width}
 				disabled={disabled}
 				onClick={() => {
 					AppKit.open();
@@ -60,6 +64,8 @@ export default function GuardSupportedChain({ children, label, disabled, chain, 
 	if (!isCorrectChain)
 		return (
 			<AppButton
+				size={size}
+				width={width}
 				disabled={disabled}
 				onClick={() => {
 					AppKitNetwork.switchNetwork(chain as AppKitNetwork);

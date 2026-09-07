@@ -2,8 +2,8 @@ import SavingsGlobalCard from "@components/PageSavings/SavingsGlobalCard";
 import SavingsInteractionCard from "@components/PageSavings/SavingsInteractionCard";
 import Head from "next/head";
 import { useEffect, useState } from "react";
-import { RootState, store } from "../redux/redux.store";
-import { fetchLeadrate, fetchSavings } from "../redux/slices/savings.slice";
+import { RootState, store } from "../../redux/redux.store";
+import { fetchLeadrate, fetchSavings } from "../../redux/slices/savings.slice";
 import { useConnection, useChainId } from "wagmi";
 import AppTitle from "@components/AppTitle";
 import SavingsRankedBalancesTable from "@components/PageSavings/SavingsRankedBalancesTable";
@@ -72,7 +72,8 @@ export default function SavingsPage() {
 			<AppTitle title={`Earn`}>
 				<div className={`text-text-secondary`}>
 					Earn interest on your Frankencoins - supported on all eight chains. Already more than{" "}
-					{Math.floor(totalBalance / 1000000)} million ZCHF saved.
+					{Math.floor(totalBalance / 1000000)} million ZCHF saved. Want a single tradable token instead? Check out the{" "}
+					<AppLink className="" label="Savings Vault" href={`/savings/vault`} />.
 				</div>
 			</AppTitle>
 
