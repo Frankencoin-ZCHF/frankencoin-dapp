@@ -119,7 +119,7 @@ export default function MigrationTokenSwapCard({ viewAddress }: Props) {
 
 					<div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr] items-center p-3 rounded-lg bg-card-body-primary">
 						<div className="flex items-center gap-2">
-							<TokenLogo currency="ZCHF" chain={gnosis.name} />
+							<TokenLogo currency="svZCHF" chain={gnosis.name} />
 							<span className="font-medium">svZCHF</span>
 						</div>
 						<span className="text-right">{formatCurrency(formatUnits(svZchfBalance ?? 0n, 18))}</span>
