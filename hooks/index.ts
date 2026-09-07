@@ -28,3 +28,5 @@ export * from "./useVaultBalances";
 export * from "./useSavingsReferrerMappings";
 
 export * from "./usePositionLive";
+
+export * from "./useCCIPLaneCapacity";

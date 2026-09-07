@@ -17,6 +17,7 @@ import TransferDetailsCard from "./TransferDetailsCard";
 import { AppKitNetwork } from "@reown/appkit/networks";
 import { useAppKitNetwork } from "@reown/appkit/react";
 import { getChain } from "@utils";
+import { formatLaneAmount, laneRefillLabel, useCCIPLaneCapacity } from "../../hooks/useCCIPLaneCapacity";
 
 export default function TransferInteractionCard() {
 	const router = useRouter();
@@ -38,6 +39,9 @@ export default function TransferInteractionCard() {
 	const [amount, setAmount] = useState<bigint>(BigInt((router.query.amount as string) ?? "0"));
 	const [ccipFee, setCcipFee] = useState<bigint>(0n);
 	const [isLoaded, setLoaded] = useState<boolean>(false);
+
+	const isCrossChain = recipientChain.id != chainId;
+	const lane = useCCIPLaneCapacity(chainId, isCrossChain ? (recipientChain.id as ChainId) : undefined);
 
 	useEffect(() => {
 		if (isLoaded) {
@@ -110,9 +114,34 @@ export default function TransferInteractionCard() {
 		else return "";
 	};
 
+	// All lane checks block the transfer: exceeding the outgoing bucket reverts on the source chain, and exceeding the
+	// incoming bucket leaves the message stuck on the destination until the lane has refilled, which can take a long time.
 	const errorAmount = () => {
 		if (amount > balance) return `Not enough ZCHF in your wallet.`;
-		else return "";
+		if (!isCrossChain || !lane.loaded) return "";
+
+		const { outbound, inbound } = lane;
+		if (outbound?.isEnabled && amount > outbound.capacity) {
+			return `Exceeds the lane capacity of ${formatLaneAmount(outbound.capacity)} ZCHF from ${chain?.name} to ${
+				recipientChain.name
+			}.`;
+		}
+		if (inbound?.isEnabled && amount > inbound.capacity) {
+			return `Exceeds the incoming lane capacity of ${formatLaneAmount(inbound.capacity)} ZCHF on ${recipientChain.name}.`;
+		}
+		if (outbound?.isEnabled && amount > outbound.tokens) {
+			const refill = laneRefillLabel(outbound, amount);
+			return `Only ${formatLaneAmount(outbound.tokens)} ZCHF can currently be sent to ${recipientChain.name}${
+				refill ? `, enough capacity in ${refill}` : ""
+			}.`;
+		}
+		if (inbound?.isEnabled && amount > inbound.tokens) {
+			const refill = laneRefillLabel(inbound, amount);
+			return `Only ${formatLaneAmount(inbound.tokens)} ZCHF can currently be received on ${recipientChain.name}${
+				refill ? `, enough capacity in ${refill}` : ""
+			}.`;
+		}
+		return "";
 	};
 
 	const onChangeAmount = (value: string) => {
@@ -200,6 +229,7 @@ export default function TransferInteractionCard() {
 				chain={chain}
 				recipientChain={recipientChain}
 				ccipFee={ccipFee}
+				lane={lane}
 			/>
 		</section>
 	);
