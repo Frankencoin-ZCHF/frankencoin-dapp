@@ -9,7 +9,7 @@ import ForceSellAuctionCard from "@components/PageMonitoring/ForceSellAuctionCar
 import StatRow from "@components/PageMonitoring/StatRow";
 import { formatCurrency, formatDateTime, normalizeAddress, shortenAddress, DISCUSSIONS, isForceSellable } from "@utils";
 import { Address, formatUnits, zeroAddress } from "viem";
-import { useContractUrl } from "@hooks";
+import { useContractUrl, usePositionLive } from "@hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
 import { FRANKENCOIN_API_CLIENT, WAGMI_CONFIG } from "../../../app.config";
@@ -31,7 +31,8 @@ export default function PositionDetail() {
 	const challengesPositions = useSelector((state: RootState) => state.challenges.positions);
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 
-	const position = positions.find((p) => normalizeAddress(p.position) === normalizeAddress(address));
+	const indexedPosition = positions.find((p) => normalizeAddress(p.position) === normalizeAddress(address));
+	const { position } = usePositionLive(indexedPosition);
 	const challengesActive = (challengesPositions.map[normalizeAddress(address)] || []).filter((c) => c.status === "Active");
 	const isForceSellAuction = position ? isForceSellable(position) : false;
 	const auctionsCount = challengesActive.length + (isForceSellAuction ? 1 : 0);
@@ -39,27 +40,43 @@ export default function PositionDetail() {
 	const positionExplorerUrl = useContractUrl(String(address));
 	const myPosLink = `/mypositions?address=${position?.owner || zeroAddress}`;
 
+	const zchf = position?.zchf;
+	const minted = position?.minted;
+	const reserveContribution = position?.reserveContribution;
+	const version = position?.version;
+	const positionAddress = position?.position;
+
+	// follows the live minted amount
 	useEffect(() => {
-		if (!position) return;
+		if (!zchf || minted === undefined || reserveContribution === undefined) return;
 
 		const fetchAsync = async () => {
 			const reserveData = await readContract(WAGMI_CONFIG, {
-				address: position.zchf,
+				address: zchf,
 				chainId,
 				abi: FrankencoinABI,
 				functionName: "calculateAssignedReserve",
-				args: [BigInt(position.minted), position.reserveContribution],
+				args: [BigInt(minted), reserveContribution],
 			});
 			setReserve(reserveData);
+		};
 
+		fetchAsync();
+	}, [zchf, minted, reserveContribution, chainId]);
+
+	// history only needs to be loaded once per position
+	useEffect(() => {
+		if (!version || !positionAddress) return;
+
+		const fetchAsync = async () => {
 			const updates = await FRANKENCOIN_API_CLIENT.get<ApiMintingUpdateListing>(
-				`/positions/mintingupdates/position/${position.version}/${normalizeAddress(position.position)}`
+				`/positions/mintingupdates/position/${version}/${normalizeAddress(positionAddress)}`
 			);
 			setMintingUpdates(updates.data.list ?? []);
 		};
 
 		fetchAsync();
-	}, [position, chainId]);
+	}, [version, positionAddress]);
 
 	if (!position) return null;
 
@@ -218,7 +235,9 @@ export default function PositionDetail() {
 									{
 										label: String(auctionsCount),
 										className:
-											auctionsCount > 0 ? "bg-red-500/20 text-red-400" : "bg-card-content-primary text-text-secondary",
+											auctionsCount > 0
+												? "bg-red-500/20 text-red-400"
+												: "bg-card-content-primary text-text-secondary",
 									},
 								]}
 							/>

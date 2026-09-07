@@ -12,6 +12,7 @@ import { AmplifierStats } from "../../hooks/useAmplifier";
 import { AmplifiedPositionInfo, useAmplifiedPositionFees } from "../../hooks/useAmplifiedPositions";
 import { AmplifiedPositionABI } from "../../abis/UniswapAmplifier";
 import { formatBigInt, shortenAddress } from "@utils";
+import { getAmplifierChain } from "../../utils/amplifierConstants";
 
 interface Props {
 	stats: AmplifierStats;
@@ -77,7 +78,7 @@ export default function AmplifierPositionCollectDialog({ stats, position, onClos
 				</DisplayLabel>
 			</div>
 
-			<GuardSupportedChain>
+			<GuardSupportedChain chain={getAmplifierChain(stats.chainId)}>
 				<AppButton
 					disabled={nothingToCollect}
 					isLoading={isCollecting}
