@@ -78,7 +78,20 @@ export default function EquityFPSDetailsCard({ equityTrades }: Props) {
 	const equityStart = BigInt(matchingLogs.at(0)?.totalEquity || "0");
 	const equityEnd = BigInt(matchingLogs.at(-1)?.totalEquity || "0");
 	const equityAvg = (equityStart + equityEnd) / 2n;
-	const returnOnEquity = equityAvg > 0n ? (((netIncome * parseEther("1")) / equityAvg) * oneYearMs) / timestampDiff : 0n;
+
+	// @dev: for "All", the window can span years, so linearly scaling the cumulative
+	// return to a 1-year basis overstates it. Use CAGR instead: (1 + return)^(1/years) - 1.
+	let returnOnEquity: bigint;
+	if (equityAvg <= 0n) {
+		returnOnEquity = 0n;
+	} else if (timeframe == Timeframes[0]) {
+		const cumulativeReturn = Number(netIncome) / Number(equityAvg);
+		const periodYears = Number(timestampDiff) / Number(oneYearMs);
+		const cagr = periodYears > 0 ? Math.pow(1 + cumulativeReturn, 1 / periodYears) - 1 : 0;
+		returnOnEquity = BigInt(Math.round(cagr * 1e18));
+	} else {
+		returnOnEquity = (((netIncome * parseEther("1")) / equityAvg) * oneYearMs) / timestampDiff;
+	}
 
 	return (
 		<div className="bg-card-body-primary rounded-lg p-4 grid grid-cols-1 gap-2">
