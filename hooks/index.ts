@@ -1,8 +1,7 @@
 // FPS
 export * from "./useEquityTrades";
 export * from "./useFPSAverageStats";
-export * from "./useFPSBalanceHistory";
-export * from "./useFPSEarningsHistory";
+export * from "./useFPSYearlyReport";
 export * from "./useFPSHolders";
 export * from "./useFPSStats";
 export * from "./useFCSStats";

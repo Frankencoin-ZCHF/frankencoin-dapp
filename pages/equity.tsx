@@ -2,7 +2,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { Address, isAddress, zeroAddress } from "viem";
 import { useConnection } from "wagmi";
-import { useEquityTrades, useFPSBalanceHistory, useFPSEarningsHistory } from "@hooks";
+import { useEquityTrades, useFPSYearlyReport } from "@hooks";
 import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
 import AppHeroSteps from "@components/AppHeroSteps";
@@ -22,8 +22,7 @@ export default function Equity() {
 	const hasAddress = !!address || isAddress(queryAddress);
 	const resolvedAddress: Address = isAddress(queryAddress) ? queryAddress : address || zeroAddress;
 
-	const fpsHistory = useFPSBalanceHistory(resolvedAddress);
-	const fpsEarnings = useFPSEarningsHistory(resolvedAddress);
+	const fpsYearlyReport = useFPSYearlyReport(resolvedAddress);
 	const equityTrades = useEquityTrades(resolvedAddress);
 
 	return (
@@ -80,7 +79,7 @@ export default function Equity() {
 							.
 						</div>
 					</AppTitle>
-					<ReportsFPSYearlyTable address={resolvedAddress} fpsHistory={fpsHistory} fpsEarnings={fpsEarnings} />
+					<ReportsFPSYearlyTable address={resolvedAddress} rows={fpsYearlyReport} />
 
 					<AppTitle title={isQueryOverride ? "Trades" : "My Trades"}>
 						<div className="text-text-secondary">Investment and redemption history.</div>
