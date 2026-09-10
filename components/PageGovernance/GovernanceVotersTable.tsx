@@ -3,27 +3,18 @@ import TableBody from "../Table/TableBody";
 import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useState } from "react";
-import { useVotingPowers, VoteDataQuote, VotingSystem } from "@hooks";
+import { useVotingPowers, VoteDataQuote, VotingSystem, QUORUM_RATIO } from "@hooks";
 import GovernanceVotersRow from "./GovernanceVotersRow";
 import { useConnection, useReadContract } from "wagmi";
 import { normalizeAddress } from "../../utils/format";
 import { ADDRESS, FCSABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 
-// Always shown on the FPS tab regardless of DISPLAY_THRESHOLD — it's FCS's aggregate pooled voting
+// Always shown on the FPS tab regardless of QUORUM_RATIO — it's FCS's aggregate pooled voting
 // power (see GovernanceVotersRow's isFcsWrapper), not an individual holder, so it stays relevant
 // context even while FCS adoption is still small.
 const ALWAYS_SHOWN: Partial<Record<VotingSystem, string>> = {
 	fps: normalizeAddress(ADDRESS[mainnet.id].interestGovernance),
-};
-
-// Display-only cutoff for the ranking list — matches each system's real on-chain quorum
-// (Governance.sol: QUORUM = 200 for the already-deployed FPS Equity contract = 2%, vs. 100 for
-// FCS's freshly-deployed MainnetVotes/BridgedVotes = 1%). Not a qualification gate itself — see
-// GuardQualifiedVoter for where that's enforced.
-const DISPLAY_THRESHOLD: Record<VotingSystem, number> = {
-	fps: 0.02,
-	fcs: 0.01,
 };
 
 interface Props {
@@ -57,7 +48,7 @@ export default function GovernanceVotersTable({ system = "fps" }: Props) {
 	const alwaysShown = ALWAYS_SHOWN[system];
 	const sorted = sortVotes({ votes: otherVotes, headers, tab, reverse }).filter(
 		(i) =>
-			i.votingPowerRatio + i.supportedVotingPowerRatio > DISPLAY_THRESHOLD[system] ||
+			i.votingPowerRatio + i.supportedVotingPowerRatio > QUORUM_RATIO[system] ||
 			(alwaysShown && normalizeAddress(i.holder) === alwaysShown)
 	);
 

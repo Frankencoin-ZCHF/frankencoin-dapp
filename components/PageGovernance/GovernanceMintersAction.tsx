@@ -15,12 +15,12 @@ import {
 	ChainIdSide,
 	EquityABI,
 	FrankencoinABI,
-	SupportedChains,
+	MinterGovernanceABI,
 	SupportedChainsMap,
 } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import GuardQualifiedVoter from "@components/Guards/GuardQualifiedVoter";
-import { useDelegationHelpers } from "@hooks";
+import { useQualifiedVotingSystem } from "@hooks";
 
 interface Props {
 	minter: MinterQuery;
@@ -32,7 +32,7 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 	const account = useConnection();
 	const chainId = minter.chainId as ChainId;
 	const [isHidden, setHidden] = useState<boolean>(false);
-	const { helpers } = useDelegationHelpers(account.address);
+	const { system, helpers } = useQualifiedVotingSystem(account.address);
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
@@ -44,14 +44,28 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 		try {
 			setVetoing(true);
 
-			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address:
-					chainId == 1 ? ADDRESS[chainId as ChainIdMain].frankencoin : ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
-				chainId: chainId,
-				abi: FrankencoinABI,
-				functionName: "denyMinter",
-				args: [m, helpers, msg],
-			});
+			// FCS-qualified callers go through MinterGovernance (per-chain, same as MinterGovernance
+			// itself) instead of Frankencoin directly — Frankencoin.denyMinter checks the caller's own
+			// Equity-side qualification, which an FCS-only holder doesn't have.
+			const writeHash =
+				system === "fcs"
+					? await writeContract(WAGMI_CONFIG, {
+							address: (ADDRESS as any)[chainId]?.minterGovernance,
+							chainId: chainId,
+							abi: MinterGovernanceABI,
+							functionName: "denyMinter",
+							args: [m, helpers, msg],
+					  })
+					: await writeContract(WAGMI_CONFIG, {
+							address:
+								chainId == 1
+									? ADDRESS[chainId as ChainIdMain].frankencoin
+									: ADDRESS[chainId as ChainIdSide].ccipBridgedFrankencoin,
+							chainId: chainId,
+							abi: FrankencoinABI,
+							functionName: "denyMinter",
+							args: [m, helpers, msg],
+					  });
 
 			const toastContent = [
 				{
@@ -79,7 +93,7 @@ export default function GovernanceMintersAction({ minter, disabled }: Props) {
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(renderErrorTxToastDecode(error, EquityABI));
+			toast.error(renderErrorTxToastDecode(error, system === "fcs" ? MinterGovernanceABI : EquityABI));
 		} finally {
 			setVetoing(false);
 		}

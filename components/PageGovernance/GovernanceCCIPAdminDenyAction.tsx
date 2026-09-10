@@ -6,10 +6,10 @@ import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { useConnection } from "wagmi";
 import AppButton from "@components/AppButton";
 import { Chain, Hash } from "viem";
-import { ADDRESS, CCIPAdminABI, ChainId, SupportedChainsMap } from "@frankencoin/zchf";
+import { ADDRESS, CCIPAdminABI, CCIPGovernanceABI, ChainId, SupportedChainsMap } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import GuardQualifiedVoter from "@components/Guards/GuardQualifiedVoter";
-import { useDelegationHelpers } from "@hooks";
+import { useQualifiedVotingSystem } from "@hooks";
 import { shortenString } from "@utils";
 import { ApiCCIPProposal } from "../../redux/slices/bridge.types";
 
@@ -22,7 +22,7 @@ export default function GovernanceCCIPAdminDenyAction({ proposal, disabled }: Pr
 	const [isDenying, setDenying] = useState(false);
 	const [isHidden, setHidden] = useState(false);
 	const account = useConnection();
-	const { helpers } = useDelegationHelpers(account.address);
+	const { system, helpers } = useQualifiedVotingSystem(account.address);
 	const chain = SupportedChainsMap[proposal.chainId as ChainId] as Chain;
 
 	const handleOnClick = async (e: any) => {
@@ -30,18 +30,31 @@ export default function GovernanceCCIPAdminDenyAction({ proposal, disabled }: Pr
 		if (!account.address) return;
 
 		const ccipAdmin = ADDRESS[proposal.chainId as ChainId]?.ccipAdmin;
-		if (!ccipAdmin) return;
+		const ccipGovernance = (ADDRESS as any)[proposal.chainId]?.ccipGovernance;
+		if (!ccipAdmin || (system === "fcs" && !ccipGovernance)) return;
 
 		try {
 			setDenying(true);
 
-			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ccipAdmin,
-				chainId: proposal.chainId,
-				abi: CCIPAdminABI,
-				functionName: "deny",
-				args: [proposal.hash as Hash, helpers],
-			});
+			// FCS-qualified callers go through CCIPGovernance (per-chain, like CCIPAdmin itself) instead
+			// of CCIPAdmin directly — CCIPAdmin.deny checks the caller's Equity-side qualification, which
+			// an FCS-only holder doesn't have.
+			const writeHash =
+				system === "fcs"
+					? await writeContract(WAGMI_CONFIG, {
+							address: ccipGovernance,
+							chainId: proposal.chainId,
+							abi: CCIPGovernanceABI,
+							functionName: "deny",
+							args: [proposal.hash as Hash, helpers],
+					  })
+					: await writeContract(WAGMI_CONFIG, {
+							address: ccipAdmin,
+							chainId: proposal.chainId,
+							abi: CCIPAdminABI,
+							functionName: "deny",
+							args: [proposal.hash as Hash, helpers],
+					  });
 
 			const toastContent = [
 				{ title: "Proposal: ", value: shortenString(proposal.hash) },
@@ -56,7 +69,7 @@ export default function GovernanceCCIPAdminDenyAction({ proposal, disabled }: Pr
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(renderErrorTxToastDecode(error, CCIPAdminABI));
+			toast.error(renderErrorTxToastDecode(error, system === "fcs" ? CCIPGovernanceABI : CCIPAdminABI));
 		} finally {
 			setDenying(false);
 		}

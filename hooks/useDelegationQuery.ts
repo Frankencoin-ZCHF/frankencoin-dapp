@@ -4,6 +4,14 @@ import { normalizeAddress } from "../utils/format";
 
 export type VotingSystem = "fps" | "fcs";
 
+// Real on-chain quorum per system (Governance.sol: QUORUM = 200 on the already-deployed, immutable FPS
+// Equity contract = 2%, vs 100 on FCS's freshly-deployed MainnetVotes/BridgedVotes = 1%). Single source
+// of truth — both the display cutoff on the voters table and the actual qualification gate key off this.
+export const QUORUM_RATIO: Record<VotingSystem, number> = {
+	fps: 0.02,
+	fcs: 0.01,
+};
+
 export type PonderDelegationQuery = {
 	owner: Address;
 	delegatedTo: Address;

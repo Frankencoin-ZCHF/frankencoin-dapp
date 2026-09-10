@@ -18,6 +18,7 @@ export * from "./useTokenData";
 export * from "./useUserBalance";
 export * from "./useWalletConnectStats";
 export * from "./useDelegationHelpers";
+export * from "./useQualifiedVotingSystem";
 export * from "./useVotesSynced";
 export * from "./useBorrowPositions";
 export * from "./useAnalytics";
