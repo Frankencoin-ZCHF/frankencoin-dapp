@@ -14,11 +14,14 @@ export const EquityTokenSelectorMapping: { [key: string]: string[] } = {
 };
 
 export default function EquityInteractionCard() {
-	const [tokenFromTo, setTokenFromTo] = useState<{ from: string; to: string }>({ from: "ZCHF", to: "FPS" });
+	const [tokenFromTo, setTokenFromTo] = useState<{ from: string; to: string }>({ from: "ZCHF", to: "FCS" });
+	const involvesFcs = tokenFromTo.from === "FCS" || tokenFromTo.to === "FCS";
 
 	return (
 		<AppCard>
-			<div className="mt-4 text-lg font-bold text-center">Frankencoin Pool Shares (FPS)</div>
+			<div className="mt-4 text-lg font-bold text-center">
+				{involvesFcs ? "Frankencoin Shares (FCS)" : "Frankencoin Pool Shares (FPS)"}
+			</div>
 
 			{/* Load modules dynamically */}
 			{(tokenFromTo.from === "ZCHF" && tokenFromTo.to === "FPS") || (tokenFromTo.from === "FPS" && tokenFromTo.to === "ZCHF") ? (
