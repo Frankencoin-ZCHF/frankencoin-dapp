@@ -2,7 +2,7 @@ import { gql, useQuery } from "@apollo/client";
 import { Address, zeroAddress } from "viem";
 import { normalizeAddress } from "../utils/format";
 
-export type VotingSystem = "fps1" | "fcs";
+export type VotingSystem = "fps" | "fcs";
 
 export type PonderDelegationQuery = {
 	owner: Address;
@@ -20,7 +20,7 @@ export type DelegationQuery = {
 	allDelegatees: Address[];
 };
 
-// FPS1 delegation lives on the Equity token itself. FCS delegation instead lives on MainnetVotes/
+// FPS delegation lives on the Equity token itself. FCS delegation instead lives on MainnetVotes/
 // BridgedVotes (a separate governance-helper contract, not the FCS token) — ponder indexes it into
 // fCSDelegations, keyed by chainId since it's synced across chains; mainnet is the qualification-gating
 // source of truth, so that's what this filters to.
@@ -46,7 +46,7 @@ const FCS_DELEGATIONS_QUERY = gql`
 	}
 `;
 
-export const useDelegationQuery = (system: VotingSystem = "fps1"): DelegationQuery => {
+export const useDelegationQuery = (system: VotingSystem = "fps"): DelegationQuery => {
 	const returnData: DelegationQuery = {
 		owners: {},
 		delegatees: {},

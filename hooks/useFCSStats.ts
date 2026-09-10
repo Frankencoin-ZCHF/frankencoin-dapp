@@ -68,7 +68,7 @@ export const useFCSStats = () => {
 				functionName: "maxRedeem",
 				args: [account],
 			},
-			// FPS1 (equity) calls, from FCS's perspective
+			// FPS (equity) calls, from FCS's perspective
 			{
 				...equityContract,
 				functionName: "balanceOf",

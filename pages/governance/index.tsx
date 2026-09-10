@@ -1,9 +1,8 @@
 import Head from "next/head";
 import GovernancePositionsTable from "@components/PageGovernance/GovernancePositionsTable";
 import GovernanceMintersTable from "@components/PageGovernance/GovernanceMintersTable";
-import GovernanceVotersTable from "@components/PageGovernance/GovernanceVotersTable";
 import GovernanceTelegramBot from "@components/PageGovernance/GovernanceTelegramBot";
-import { formatCurrency, formatDuration, normalizeAddress, SOCIAL } from "@utils";
+import { normalizeAddress, SOCIAL } from "@utils";
 import GovernanceLeadrateTable from "@components/PageGovernance/GovernanceLeadrateTable";
 import GovernanceLeadrateCurrent from "@components/PageGovernance/GovernanceLeadrateCurrent";
 import AppTitle from "@components/AppTitle";
@@ -12,14 +11,12 @@ import { useEffect } from "react";
 import { store } from "../../redux/redux.store";
 import { fetchLeadrate } from "../../redux/slices/savings.slice";
 import GovernanceMintersPropose from "@components/PageGovernance/GovernanceMintersPropose";
-import GovernanceDelegation from "@components/PageGovernance/GovernanceDelegation";
-import GovernanceFcsMilestoneSteps from "@components/PageGovernance/GovernanceFcsMilestoneSteps";
 import GovernanceCCIPBridgesTable from "@components/PageGovernance/GovernanceCCIPBridgesTable";
 import GovernanceCCIPAdminTable from "@components/PageGovernance/GovernanceCCIPAdminTable";
-import { useFPSAverageStats } from "@hooks";
-import { formatUnits } from "viem";
+import GovernanceFloatingSharesChart from "@components/PageGovernance/GovernanceFloatingSharesChart";
+import GovernanceFcsMilestoneSteps from "@components/PageGovernance/GovernanceFcsMilestoneSteps";
 import { fetchBridge } from "../../redux/slices/bridge.slice";
-import { useConnection, useChainId } from "wagmi";
+import { useChainId } from "wagmi";
 import { ADDRESS, ChainIdSide, ChainSide } from "@frankencoin/zchf";
 
 const TOKENMANAGER_SLUGS: Record<number, string> = {
@@ -34,9 +31,6 @@ const TOKENMANAGER_SLUGS: Record<number, string> = {
 };
 
 export default function Governance() {
-	const fps1Stats = useFPSAverageStats("fps1");
-	const fcsStats = useFPSAverageStats("fcs");
-	const { address } = useConnection();
 	const chainId = useChainId();
 
 	const tmSlug = TOKENMANAGER_SLUGS[chainId] ?? TOKENMANAGER_SLUGS[1];
@@ -53,6 +47,29 @@ export default function Governance() {
 			<Head>
 				<title>Frankencoin - Governance</title>
 			</Head>
+
+			<AppTitle title="Governance">
+				<div className="text-text-secondary">
+					Frankencoin governance is veto-based rather than majority-vote: proposals (new collateral types, minting modules,
+					interest rate changes, CCIP bridge changes) pass automatically after a grace period unless a qualified holder vetoes
+					them. Voting power comes from two tokens —{" "}
+					<AppLink className="inline" label="FPS (Frankencoin Pool Share)" href="/governance/fps" external={false} /> and{" "}
+					<AppLink className="inline" label="FCS (Frankencoin Share)" href="/governance/fcs" external={false} />, which wraps FPS
+					1:1 and pools its holders' votes into a single bloc with its own, lower qualification threshold. Follow either link to
+					view rankings, delegate, or sync your votes across chains.
+				</div>
+			</AppTitle>
+
+			<GovernanceFloatingSharesChart />
+
+			<AppTitle title="Frankencoin Shares Milestones">
+				<div className="text-text-secondary">
+					As FPS holders wrap into FCS, it crosses thresholds that change what it can do on FPS's behalf — from veto power to full
+					binding control. Here's where that migration currently stands.
+				</div>
+			</AppTitle>
+
+			<GovernanceFcsMilestoneSteps />
 
 			<AppTitle title="New Positions">
 				<div className="text-text-secondary">
@@ -120,51 +137,6 @@ export default function Governance() {
 			</AppTitle>
 
 			<GovernanceCCIPBridgesTable />
-
-			<AppTitle title="Frankencoin Pool Shares">
-				<div className="text-text-secondary">
-					FPS (Frankencoin Pool Share) is the governance token of the Frankencoin Ecosystem. Voting power is proportional to both
-					the number of FPS held and the holding duration. The average holding duration is{" "}
-					<span className="font-medium text-text-primary">{formatDuration(fps1Stats.avgHoldingDuration)}</span>. Under these
-					conditions, an individual FPS holder with at least{" "}
-					<span className="font-medium text-text-primary">{formatCurrency(formatUnits(fps1Stats.fpsForVeto, 18))} FPS</span> held
-					for the average duration would reach the veto threshold of 2%. If you need voting power on one of the supported
-					multichains, sync your votes first. You can track cross-chain transfers on the{" "}
-					<AppLink
-						className=""
-						label="CCIP Explorer"
-						external={true}
-						href={`https://ccip.chain.link${address ? `/address/${address}` : ""}`}
-					/>
-					.
-				</div>
-			</AppTitle>
-
-			<GovernanceDelegation system="fps1" />
-
-			<GovernanceVotersTable system="fps1" />
-
-			<AppTitle title="Frankencoin Shares">
-				<div className="text-text-secondary">
-					FCS (Frankencoin Share) wraps FPS 1:1 and carries its own governance power on{" "}
-					<span className="font-medium text-text-primary">MinterGovernance</span>,{" "}
-					<span className="font-medium text-text-primary">InterestGovernance</span>, and{" "}
-					<span className="font-medium text-text-primary">CCIPGovernance</span> — separate contracts from FPS1's governance, each
-					exposing a fixed set of qualified-holder actions (deny an unannounced minter or position, propose a rate change, manage
-					the CCIP bridge) rather than a general proposal system. Voting power is proportional to both the FCS held and its
-					holding duration; the average holding duration is{" "}
-					<span className="font-medium text-text-primary">{formatDuration(fcsStats.avgHoldingDuration)}</span>. Under these
-					conditions, an individual FCS holder with at least{" "}
-					<span className="font-medium text-text-primary">{formatCurrency(formatUnits(fcsStats.fpsForVeto, 18))} FCS</span> held
-					for the average duration would reach the veto threshold of 1%.
-				</div>
-			</AppTitle>
-
-			<GovernanceFcsMilestoneSteps />
-
-			<GovernanceDelegation system="fcs" />
-
-			<GovernanceVotersTable system="fcs" />
 
 			<div id="api-bot" className="scroll-mt-20">
 				<AppTitle title="Notification Bot" />

@@ -21,7 +21,7 @@ interface Props {
 // Mainnet-only by design: local sidechain delegation is fragile — BridgedGovernance/BridgedVotes'
 // _ccipReceive unconditionally overwrites the delegate the next time anyone syncs that address from
 // mainnet, so this button never offers it (enforced below via GuardSupportedChain).
-export default function GovernanceDelegationAction({ delegate, disabled, system = "fps1" }: Props) {
+export default function GovernanceDelegationAction({ delegate, disabled, system = "fps" }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const { address } = useConnection();
 

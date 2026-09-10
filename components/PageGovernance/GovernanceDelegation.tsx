@@ -18,7 +18,7 @@ interface Props {
 	system?: VotingSystem;
 }
 
-export default function GovernanceDelegation({ system = "fps1" }: Props) {
+export default function GovernanceDelegation({ system = "fps" }: Props) {
 	const account = useConnection();
 	useChainId();
 	const myAddress: Address = account.address ?? zeroAddress;

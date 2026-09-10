@@ -10,19 +10,19 @@ import { normalizeAddress } from "../../utils/format";
 import { ADDRESS, FCSABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 
-// Always shown on the FPS1 tab regardless of DISPLAY_THRESHOLD — it's FCS's aggregate pooled voting
+// Always shown on the FPS tab regardless of DISPLAY_THRESHOLD — it's FCS's aggregate pooled voting
 // power (see GovernanceVotersRow's isFcsWrapper), not an individual holder, so it stays relevant
 // context even while FCS adoption is still small.
 const ALWAYS_SHOWN: Partial<Record<VotingSystem, string>> = {
-	fps1: normalizeAddress(ADDRESS[mainnet.id].interestGovernance),
+	fps: normalizeAddress(ADDRESS[mainnet.id].interestGovernance),
 };
 
 // Display-only cutoff for the ranking list — matches each system's real on-chain quorum
-// (Governance.sol: QUORUM = 200 for the already-deployed FPS1 Equity contract = 2%, vs. 100 for
+// (Governance.sol: QUORUM = 200 for the already-deployed FPS Equity contract = 2%, vs. 100 for
 // FCS's freshly-deployed MainnetVotes/BridgedVotes = 1%). Not a qualification gate itself — see
 // GuardQualifiedVoter for where that's enforced.
 const DISPLAY_THRESHOLD: Record<VotingSystem, number> = {
-	fps1: 0.02,
+	fps: 0.02,
 	fcs: 0.01,
 };
 
@@ -30,7 +30,7 @@ interface Props {
 	system?: VotingSystem;
 }
 
-export default function GovernanceVotersTable({ system = "fps1" }: Props) {
+export default function GovernanceVotersTable({ system = "fps" }: Props) {
 	const headers: string[] = ["Address", "Voting Power"];
 	const [tab, setTab] = useState<string>(headers[1]);
 	const [reverse, setReverse] = useState<boolean>(false);
@@ -38,14 +38,14 @@ export default function GovernanceVotersTable({ system = "fps1" }: Props) {
 	const { address } = useConnection();
 	const { votesData, accountVoteData, totalVotes } = useVotingPowers(system);
 
-	// FCS.shoot() only becomes available once FCS is binding — determines whether the FPS1 tab's row
+	// FCS.shoot() only becomes available once FCS is binding — determines whether the FPS tab's row
 	// action is "Shoot" (FCS contract, target-only) or "Kamikaze" (Equity, self-sacrifice budget).
 	const { data: fcsIsBindingData } = useReadContract({
 		address: ADDRESS[mainnet.id].fcs,
 		chainId: mainnet.id,
 		abi: FCSABI,
 		functionName: "isBinding",
-		query: { enabled: system === "fps1" },
+		query: { enabled: system === "fps" },
 	});
 	const fcsIsBinding = fcsIsBindingData ?? false;
 

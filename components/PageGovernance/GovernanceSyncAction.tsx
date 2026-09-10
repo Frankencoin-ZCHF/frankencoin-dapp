@@ -19,7 +19,7 @@ interface Props {
 	system?: VotingSystem;
 }
 
-export default function GovernanceSyncAction({ targetChainId, voters, disabled, system = "fps1" }: Props) {
+export default function GovernanceSyncAction({ targetChainId, voters, disabled, system = "fps" }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const { address } = useConnection();
 	const isFcs = system === "fcs";
@@ -37,7 +37,7 @@ export default function GovernanceSyncAction({ targetChainId, voters, disabled, 
 		try {
 			setAction(true);
 
-			// FCS syncs directly off mainnetVotes (it's a CCIPSender itself) — FPS1 goes through the
+			// FCS syncs directly off mainnetVotes (it's a CCIPSender itself) — FPS goes through the
 			// separate ccipGovernanceSender contract.
 			const senderAddress = isFcs ? ADDRESS[mainnet.id].mainnetVotes : ADDRESS[mainnet.id].ccipGovernanceSender;
 			const senderAbi = isFcs ? MainnetVotesABI : GovernanceSenderABI;

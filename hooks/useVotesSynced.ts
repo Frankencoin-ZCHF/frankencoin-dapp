@@ -9,9 +9,9 @@ export type VotesSynced = {
 	totalVotes: bigint;
 };
 
-// FPS1 sync lands on ccipBridgedGovernance (BridgedGovernanceABI); FCS sync lands on bridgedVotes
+// FPS sync lands on ccipBridgedGovernance (BridgedGovernanceABI); FCS sync lands on bridgedVotes
 // (BridgedVotesABI) — same votesDelegated/totalVotes shape either way, different contract per system.
-export const useVotesSynced = (address: Address, helpers: Address[], targetChainId: number, system: VotingSystem = "fps1"): VotesSynced => {
+export const useVotesSynced = (address: Address, helpers: Address[], targetChainId: number, system: VotingSystem = "fps"): VotesSynced => {
 	const isEnabled = address !== zeroAddress && targetChainId !== mainnet.id;
 
 	const bridgedContract =

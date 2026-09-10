@@ -30,7 +30,7 @@ export default function GovernanceVotersRow({
 	tab,
 	voter,
 	votesTotal,
-	system = "fps1",
+	system = "fps",
 	myVotes = 0n,
 	fcsIsBinding = false,
 	connectedWallet,
@@ -40,21 +40,21 @@ export default function GovernanceVotersRow({
 	const votingPower = voter.votingPowerRatio + voter.supportedVotingPowerRatio;
 	const supporterCount = voter.supporters.length;
 	const isWrapped = normalizeAddress(voter.holder) === normalizeAddress(ADDRESS[mainnet.id].wFPS);
-	// FCS.sol's constructor delegates all of FCS's pooled FPS1 votes to a single "helper" address
+	// FCS.sol's constructor delegates all of FCS's pooled FPS votes to a single "helper" address
 	// returned by GovernanceFactory.deploy() — verified on-chain (via the indexed Delegation event,
 	// owner=FCS) that this is `interestGovernance`, not `mainnetVotes` as might be assumed from the
-	// naming. So on the FPS1 tab this row represents "all wrapped FCS holders combined", not an individual.
+	// naming. So on the FPS tab this row represents "all wrapped FCS holders combined", not an individual.
 	const isFcsWrapper = normalizeAddress(voter.holder) === normalizeAddress(ADDRESS[mainnet.id].interestGovernance);
 
-	// FCS.shoot(target) is only available once FCS is binding, and only ever destroys a target's FPS1
+	// FCS.shoot(target) is only available once FCS is binding, and only ever destroys a target's FPS
 	// votes — it costs the caller nothing since FCS spends its own pooled votes as the budget internally.
-	// Otherwise, on FPS1 it's Equity.kamikaze(targets, votesToDestroy), which does cost the caller their
+	// Otherwise, on FPS it's Equity.kamikaze(targets, votesToDestroy), which does cost the caller their
 	// own votes. On the FCS tab it's always FCS.attack, same shape as kamikaze.
-	const isShoot = system === "fps1" && fcsIsBinding;
+	const isShoot = system === "fps" && fcsIsBinding;
 	const actionLabel = isShoot ? "Shoot" : "Kamikaze";
 
 	// shoot()/kamikaze()/attack() all key off the target's own votes() — a pure delegation recipient
-	// (like the isFcsWrapper row, whose own FPS1 balance is 0) has nothing to destroy and the tx reverts.
+	// (like the isFcsWrapper row, whose own FPS balance is 0) has nothing to destroy and the tx reverts.
 	const targetHasVotes = voter.votingPower > 0n;
 	const isFcsSelfTarget = isShoot && normalizeAddress(voter.holder) === normalizeAddress(ADDRESS[mainnet.id].fcs);
 	const isActionDisabled = !targetHasVotes || isFcsSelfTarget || (!isShoot && myVotes === 0n);

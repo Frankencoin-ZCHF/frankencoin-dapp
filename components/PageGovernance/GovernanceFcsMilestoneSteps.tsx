@@ -1,38 +1,12 @@
 import { ReactNode } from "react";
-import { useReadContracts } from "wagmi";
-import { mainnet } from "viem/chains";
-import { ADDRESS, EquityABI, FCSABI } from "@frankencoin/zchf";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShieldHalved, faPeopleGroup, faPlug } from "@fortawesome/free-solid-svg-icons";
-import { formatUnits } from "viem";
 import AppHeroSteps, { HeroStepState } from "@components/AppHeroSteps";
-import { formatCurrency, decodeBigIntCall } from "@utils";
+import { formatCurrency } from "@utils";
+import { useFcsBindingProgress } from "@hooks";
 
-// Equity.relativeVotes(FCS) is the same value FCS.isBinding() is itself computed from
-// (relativeVotes(FCS) * 3 > 2e18), so this is the authoritative live share of all FPS1 votes FCS
-// currently controls — not a re-derivation.
 export default function GovernanceFcsMilestoneSteps() {
-	const { data } = useReadContracts({
-		contracts: [
-			{
-				address: ADDRESS[mainnet.id].equity,
-				chainId: mainnet.id,
-				abi: EquityABI,
-				functionName: "relativeVotes",
-				args: [ADDRESS[mainnet.id].fcs],
-			},
-			{
-				address: ADDRESS[mainnet.id].fcs,
-				chainId: mainnet.id,
-				abi: FCSABI,
-				functionName: "isBinding",
-			},
-		],
-	});
-
-	const relativeVotes = data ? decodeBigIntCall(data[0]) : 0n;
-	const isBinding = data?.[1]?.result === true;
-	const pct = parseFloat(formatUnits(relativeVotes, 18)) * 100;
+	const { pct, isBinding } = useFcsBindingProgress();
 	const pctLabel = `${formatCurrency(pct, 0, 2)}%`;
 
 	type MilestoneStep = {
@@ -56,7 +30,7 @@ export default function GovernanceFcsMilestoneSteps() {
 			title: "Majority Migrated",
 			icon: <FontAwesomeIcon icon={faPeopleGroup} className="w-3.5 h-3.5" />,
 			achieved: pct >= 50,
-			consequence: "means a majority of FPS1 governance power has migrated into FCS",
+			consequence: "means a majority of FPS governance power has migrated into FCS",
 		},
 		{
 			threshold: 66.67,
@@ -65,7 +39,7 @@ export default function GovernanceFcsMilestoneSteps() {
 			// isBinding() is the exact on-chain source of truth (>2/3, not a client-side re-derivation of
 			// the rounded 66.67% threshold), so it decides "achieved" here rather than the pct comparison.
 			achieved: isBinding,
-			consequence: "makes FCS binding — it can shoot the votes of FPS1 holders who haven't wrapped",
+			consequence: "makes FCS binding — it can shoot the votes of FPS holders who haven't wrapped",
 		},
 	];
 

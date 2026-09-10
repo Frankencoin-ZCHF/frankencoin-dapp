@@ -4,19 +4,19 @@ import { ADDRESS, EquityABI, FCSABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 import { VotingSystem } from "./useDelegationQuery";
 
-// Governance.sol: QUORUM = 200 (2%) on the already-deployed FPS1 Equity contract (immutable, predates
+// Governance.sol: QUORUM = 200 (2%) on the already-deployed FPS Equity contract (immutable, predates
 // the rename), vs. 100 (1%) on FCS's freshly-deployed MainnetVotes/BridgedVotes.
 const QUORUM_BPS: Record<VotingSystem, bigint> = {
-	fps1: 200n,
+	fps: 200n,
 	fcs: 100n,
 };
 
 const VOTING_SYSTEM_CONTRACT = {
-	fps1: { address: ADDRESS[mainnet.id].equity, abi: EquityABI },
+	fps: { address: ADDRESS[mainnet.id].equity, abi: EquityABI },
 	fcs: { address: ADDRESS[mainnet.id].fcs, abi: FCSABI },
 } as const;
 
-export const useFPSAverageStats = (system: VotingSystem = "fps1") => {
+export const useFPSAverageStats = (system: VotingSystem = "fps") => {
 	const { address, abi } = VOTING_SYSTEM_CONTRACT[system];
 	const votingContract = { address, chainId: mainnet.id, abi } as const;
 

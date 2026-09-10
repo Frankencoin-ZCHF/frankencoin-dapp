@@ -22,11 +22,11 @@ export type VoteDataQuote = {
 // votes/holdingDuration/balanceOf/totalVotes shape as Equity) — only the *delegation graph* lives
 // elsewhere, on MainnetVotes (see useDelegationQuery).
 const VOTING_SYSTEM_CONTRACT = {
-	fps1: { address: ADDRESS[mainnet.id].equity, abi: EquityABI },
+	fps: { address: ADDRESS[mainnet.id].equity, abi: EquityABI },
 	fcs: { address: ADDRESS[mainnet.id].fcs, abi: FCSABI },
 } as const;
 
-export const useVotingPowers = (system: VotingSystem = "fps1") => {
+export const useVotingPowers = (system: VotingSystem = "fps") => {
 	const { address } = useConnection();
 	const { address: tokenAddress, abi } = VOTING_SYSTEM_CONTRACT[system];
 	const votingContract = { address: tokenAddress, chainId: mainnet.id, abi } as const;

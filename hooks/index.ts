@@ -1,6 +1,7 @@
 // FPS
 export * from "./useEquityTrades";
 export * from "./useFPSAverageStats";
+export * from "./useFcsBindingProgress";
 export * from "./useFPSYearlyReport";
 export * from "./useFPSHolders";
 export * from "./useFPSStats";

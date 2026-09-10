@@ -259,7 +259,7 @@ export default function EquityInteractionWithZCHFFCS({ tokenFromTo, setTokenFrom
 
 				{!direction && !canRedeem ? (
 					<div className="mt-2 px-1 text-red-500">
-						Redemptions are currently disabled — FCS must be binding (holding more than 2/3 of all FPS votes) and FPS1
+						Redemptions are currently disabled — FCS must be binding (holding more than 2/3 of all FPS votes) and FPS
 						redemptions must be open before FCS can be redeemed for ZCHF.
 					</div>
 				) : null}
