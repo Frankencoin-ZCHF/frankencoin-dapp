@@ -24,6 +24,8 @@ export default function Equity() {
 
 	const fpsYearlyReport = useFPSYearlyReport(resolvedAddress);
 	const equityTrades = useEquityTrades(resolvedAddress);
+	// FPS Price chart annotations only make sense against pure FPS1 invest/redeem trades.
+	const fpsTrades = equityTrades.filter((t) => t.kind === "Invested" || t.kind === "Redeemed");
 
 	return (
 		<>
@@ -72,7 +74,7 @@ export default function Equity() {
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-auto">
 					<EquityInteractionCard />
-					<EquityFPSDetailsCard equityTrades={equityTrades} />
+					<EquityFPSDetailsCard equityTrades={fpsTrades} />
 				</section>
 			</div>
 

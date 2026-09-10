@@ -14,9 +14,10 @@ interface Props {
 export default function EquityTradesRow({ headers, tab, item }: Props) {
 	const dateArr = new Date(item.created * 1000).toDateString().split(" ");
 	const dateStr = `${dateArr[2]} ${dateArr[1]} ${dateArr[3]}`;
-	const isInvest = item.kind === "Invested";
-	// invest: fee = amount * 0.3% | redeem: received is post-fee, so fee = amount * (1/0.997 - 1) = amount * 3/997
-	const fee = isInvest ? (item.amount * 3n) / 1000n : (item.amount * 3n) / 997n;
+	const isInvest = item.kind === "Invested" || item.kind === "FCS Deposit";
+	// Wrap/Unwrap are a strict 1:1 FPS<->FCS swap with no ZCHF leg — no amount or price to show.
+	const isWrap = item.kind === "FCS Wrap" || item.kind === "FCS Unwrap";
+	const sharesLabel = item.kind === "FCS Deposit" || item.kind === "FCS Withdraw" || item.kind === "FCS Wrap" ? "FCS" : "FPS";
 
 	return (
 		<TableRow headers={headers} tab={tab} rawHeader={true}>
@@ -25,13 +26,23 @@ export default function EquityTradesRow({ headers, tab, item }: Props) {
 			</div>
 
 			<div className={`flex flex-col`}>
-				{isInvest ? "-" : ""}
-				{formatCurrency(formatUnits(item.amount, 18))} ZCHF
+				{isWrap ? (
+					"—"
+				) : (
+					<>
+						{isInvest ? "-" : ""}
+						{formatCurrency(formatUnits(item.amount, 18))} ZCHF
+					</>
+				)}
 			</div>
 
-			<div className={`flex flex-col`}>{formatCurrency(formatUnits(item.shares, 18))} FPS</div>
+			<div className={`flex flex-col`}>
+				{formatCurrency(formatUnits(item.shares, 18))} {sharesLabel}
+			</div>
 
-			<div className="flex flex-col">{formatCurrency(formatUnits((item.amount * 10n ** 18n) / item.shares, 18))} ZCHF</div>
+			<div className="flex flex-col">
+				{isWrap || item.shares === 0n ? "1:1" : `${formatCurrency(formatUnits((item.amount * 10n ** 18n) / item.shares, 18))} ZCHF`}
+			</div>
 		</TableRow>
 	);
 }
