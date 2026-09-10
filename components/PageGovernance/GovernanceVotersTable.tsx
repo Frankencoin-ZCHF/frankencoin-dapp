@@ -5,9 +5,9 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { useState } from "react";
 import { useVotingPowers, VoteDataQuote, VotingSystem } from "@hooks";
 import GovernanceVotersRow from "./GovernanceVotersRow";
-import { useConnection } from "wagmi";
+import { useConnection, useReadContract } from "wagmi";
 import { normalizeAddress } from "../../utils/format";
-import { ADDRESS } from "@frankencoin/zchf";
+import { ADDRESS, FCSABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 
 // Always shown on the FPS1 tab regardless of DISPLAY_THRESHOLD — it's FCS's aggregate pooled voting
@@ -38,6 +38,20 @@ export default function GovernanceVotersTable({ system = "fps1" }: Props) {
 	const { address } = useConnection();
 	const { votesData, accountVoteData, totalVotes } = useVotingPowers(system);
 
+	// FCS.shoot() only becomes available once FCS is binding — determines whether the FPS1 tab's row
+	// action is "Shoot" (FCS contract, target-only) or "Kamikaze" (Equity, self-sacrifice budget).
+	const { data: fcsIsBindingData } = useReadContract({
+		address: ADDRESS[mainnet.id].fcs,
+		chainId: mainnet.id,
+		abi: FCSABI,
+		functionName: "isBinding",
+		query: { enabled: system === "fps1" },
+	});
+	const fcsIsBinding = fcsIsBindingData ?? false;
+
+	// Caller's own raw votes on this system's token — spent as the sacrifice budget for kamikaze/attack.
+	const myVotes = accountVoteData?.votingPower ?? 0n;
+
 	const otherVotes = votesData.filter((v) => !address || normalizeAddress(v.holder) !== normalizeAddress(address));
 
 	const alwaysShown = ALWAYS_SHOWN[system];
@@ -58,17 +72,35 @@ export default function GovernanceVotersTable({ system = "fps1" }: Props) {
 
 	return (
 		<Table>
-			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} />
+			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 			<TableBody>
 				<>
 					{accountVoteData && (
-						<GovernanceVotersRow headers={headers} tab={tab} voter={accountVoteData} votesTotal={totalVotes} connectedWallet />
+						<GovernanceVotersRow
+							headers={headers}
+							tab={tab}
+							voter={accountVoteData}
+							votesTotal={totalVotes}
+							system={system}
+							myVotes={myVotes}
+							fcsIsBinding={fcsIsBinding}
+							connectedWallet
+						/>
 					)}
 					{sorted.length === 0 ? (
 						<TableRowEmpty>{"There are no voters yet"}</TableRowEmpty>
 					) : (
 						sorted.map((vote) => (
-							<GovernanceVotersRow key={vote.holder} headers={headers} tab={tab} voter={vote} votesTotal={totalVotes} />
+							<GovernanceVotersRow
+								key={vote.holder}
+								headers={headers}
+								tab={tab}
+								voter={vote}
+								votesTotal={totalVotes}
+								system={system}
+								myVotes={myVotes}
+								fcsIsBinding={fcsIsBinding}
+							/>
 						))
 					)}
 				</>

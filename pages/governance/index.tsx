@@ -8,6 +8,9 @@ import GovernanceLeadrateTable from "@components/PageGovernance/GovernanceLeadra
 import GovernanceLeadrateCurrent from "@components/PageGovernance/GovernanceLeadrateCurrent";
 import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
+import AppHeroSteps from "@components/AppHeroSteps";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faShieldHalved, faPeopleGroup, faPlug } from "@fortawesome/free-solid-svg-icons";
 import { useEffect } from "react";
 import { store } from "../../redux/redux.store";
 import { fetchLeadrate } from "../../redux/slices/savings.slice";
@@ -180,6 +183,29 @@ export default function Governance() {
 										held for the average duration would reach the veto threshold of 1%.
 									</div>
 								</AppTitle>
+
+								<AppHeroSteps
+									steps={[
+										{
+											icon: <FontAwesomeIcon icon={faShieldHalved} className="w-3.5 h-3.5" />,
+											title: "2% Veto Power",
+											description:
+												"Once FCS holds at least 2% of all FPS votes, it gains veto power over protocol proposals.",
+										},
+										{
+											icon: <FontAwesomeIcon icon={faPeopleGroup} className="w-3.5 h-3.5" />,
+											title: "Majority Migrated",
+											description:
+												"Once FCS holds more than 50% of all FPS votes, a majority of FPS1 governance power has migrated into FCS.",
+										},
+										{
+											icon: <FontAwesomeIcon icon={faPlug} className="w-3.5 h-3.5" />,
+											title: "Binding",
+											description:
+												"Once FCS holds more than 2/3 (66%) of all FPS votes, it becomes binding — FCS can shoot the votes of FPS1 holders who haven't wrapped.",
+										},
+									]}
+								/>
 
 								<GovernanceDelegation system="fcs" />
 
