@@ -16,7 +16,6 @@ import GovernanceDelegation from "@components/PageGovernance/GovernanceDelegatio
 import GovernanceFcsMilestoneSteps from "@components/PageGovernance/GovernanceFcsMilestoneSteps";
 import GovernanceCCIPBridgesTable from "@components/PageGovernance/GovernanceCCIPBridgesTable";
 import GovernanceCCIPAdminTable from "@components/PageGovernance/GovernanceCCIPAdminTable";
-import PageTabInput from "@components/Input/PageTabInput";
 import { useFPSAverageStats } from "@hooks";
 import { formatUnits } from "viem";
 import { fetchBridge } from "../../redux/slices/bridge.slice";
@@ -122,76 +121,50 @@ export default function Governance() {
 
 			<GovernanceCCIPBridgesTable />
 
-			<PageTabInput
-				className="pt-8"
-				tabs={[
-					{
-						label: "Frankencoin Pool Shares",
-						content: (
-							<>
-								<AppTitle title="Frankencoin Pool Shares">
-									<div className="text-text-secondary">
-										FPS (Frankencoin Pool Share) is the governance token of the Frankencoin Ecosystem. Voting power is
-										proportional to both the number of FPS held and the holding duration. The average holding duration
-										is{" "}
-										<span className="font-medium text-text-primary">
-											{formatDuration(fps1Stats.avgHoldingDuration)}
-										</span>
-										. Under these conditions, an individual FPS holder with at least{" "}
-										<span className="font-medium text-text-primary">
-											{formatCurrency(formatUnits(fps1Stats.fpsForVeto, 18))} FPS
-										</span>{" "}
-										held for the average duration would reach the veto threshold of 2%. If you need voting power on one
-										of the supported multichains, sync your votes first. You can track cross-chain transfers on the{" "}
-										<AppLink
-											className=""
-											label="CCIP Explorer"
-											external={true}
-											href={`https://ccip.chain.link${address ? `/address/${address}` : ""}`}
-										/>
-										.
-									</div>
-								</AppTitle>
+			<AppTitle title="Frankencoin Pool Shares">
+				<div className="text-text-secondary">
+					FPS (Frankencoin Pool Share) is the governance token of the Frankencoin Ecosystem. Voting power is proportional to both
+					the number of FPS held and the holding duration. The average holding duration is{" "}
+					<span className="font-medium text-text-primary">{formatDuration(fps1Stats.avgHoldingDuration)}</span>. Under these
+					conditions, an individual FPS holder with at least{" "}
+					<span className="font-medium text-text-primary">{formatCurrency(formatUnits(fps1Stats.fpsForVeto, 18))} FPS</span> held
+					for the average duration would reach the veto threshold of 2%. If you need voting power on one of the supported
+					multichains, sync your votes first. You can track cross-chain transfers on the{" "}
+					<AppLink
+						className=""
+						label="CCIP Explorer"
+						external={true}
+						href={`https://ccip.chain.link${address ? `/address/${address}` : ""}`}
+					/>
+					.
+				</div>
+			</AppTitle>
 
-								<GovernanceDelegation system="fps1" />
+			<GovernanceDelegation system="fps1" />
 
-								<GovernanceVotersTable system="fps1" />
-							</>
-						),
-					},
-					{
-						label: "Frankencoin Shares",
-						content: (
-							<>
-								<AppTitle title="Frankencoin Shares">
-									<div className="text-text-secondary">
-										FCS (Frankencoin Share) wraps FPS 1:1 and carries its own governance power on{" "}
-										<span className="font-medium text-text-primary">MinterGovernance</span>,{" "}
-										<span className="font-medium text-text-primary">InterestGovernance</span>, and{" "}
-										<span className="font-medium text-text-primary">CCIPGovernance</span> — separate contracts from
-										FPS1's governance, each exposing a fixed set of qualified-holder actions (deny an unannounced minter
-										or position, propose a rate change, manage the CCIP bridge) rather than a general proposal system.
-										Voting power is proportional to both the FCS held and its holding duration; the average holding
-										duration is{" "}
-										<span className="font-medium text-text-primary">{formatDuration(fcsStats.avgHoldingDuration)}</span>
-										. Under these conditions, an individual FCS holder with at least{" "}
-										<span className="font-medium text-text-primary">
-											{formatCurrency(formatUnits(fcsStats.fpsForVeto, 18))} FCS
-										</span>{" "}
-										held for the average duration would reach the veto threshold of 1%.
-									</div>
-								</AppTitle>
+			<GovernanceVotersTable system="fps1" />
 
-								<GovernanceFcsMilestoneSteps />
+			<AppTitle title="Frankencoin Shares">
+				<div className="text-text-secondary">
+					FCS (Frankencoin Share) wraps FPS 1:1 and carries its own governance power on{" "}
+					<span className="font-medium text-text-primary">MinterGovernance</span>,{" "}
+					<span className="font-medium text-text-primary">InterestGovernance</span>, and{" "}
+					<span className="font-medium text-text-primary">CCIPGovernance</span> — separate contracts from FPS1's governance, each
+					exposing a fixed set of qualified-holder actions (deny an unannounced minter or position, propose a rate change, manage
+					the CCIP bridge) rather than a general proposal system. Voting power is proportional to both the FCS held and its
+					holding duration; the average holding duration is{" "}
+					<span className="font-medium text-text-primary">{formatDuration(fcsStats.avgHoldingDuration)}</span>. Under these
+					conditions, an individual FCS holder with at least{" "}
+					<span className="font-medium text-text-primary">{formatCurrency(formatUnits(fcsStats.fpsForVeto, 18))} FCS</span> held
+					for the average duration would reach the veto threshold of 1%.
+				</div>
+			</AppTitle>
 
-								<GovernanceDelegation system="fcs" />
+			<GovernanceFcsMilestoneSteps />
 
-								<GovernanceVotersTable system="fcs" />
-							</>
-						),
-					},
-				]}
-			/>
+			<GovernanceDelegation system="fcs" />
+
+			<GovernanceVotersTable system="fcs" />
 
 			<div id="api-bot" className="scroll-mt-20">
 				<AppTitle title="Notification Bot" />
