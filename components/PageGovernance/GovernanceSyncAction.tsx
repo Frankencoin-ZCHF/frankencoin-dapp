@@ -7,24 +7,26 @@ import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useConnection } from "wagmi";
 import AppButton from "@components/AppButton";
 import { Address, formatUnits } from "viem";
-import { ADDRESS, GovernanceSenderABI } from "@frankencoin/zchf";
+import { ADDRESS, GovernanceSenderABI, MainnetVotesABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
-import { track } from "@hooks";
+import { track, VotingSystem } from "@hooks";
 import { mainnet } from "viem/chains";
 
 interface Props {
 	targetChainId: number;
 	voters: Address[];
 	disabled?: boolean;
+	system?: VotingSystem;
 }
 
-export default function GovernanceSyncAction({ targetChainId, voters, disabled }: Props) {
+export default function GovernanceSyncAction({ targetChainId, voters, disabled, system = "fps1" }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const { address } = useConnection();
+	const isFcs = system === "fcs";
 
 	const targetChain = WAGMI_CHAINS.find((c) => c.id === targetChainId);
 	const targetChainSelector = BigInt((ADDRESS as any)[targetChainId]?.chainSelector ?? 0);
-	const receiverAddress = (ADDRESS as any)[targetChainId]?.ccipBridgedGovernance as Address | undefined;
+	const receiverAddress = (ADDRESS as any)[targetChainId]?.[isFcs ? "bridgedVotes" : "ccipBridgedGovernance"] as Address | undefined;
 
 	const isReady = !!receiverAddress && targetChainSelector > 0n && voters.length > 0;
 
@@ -35,22 +37,29 @@ export default function GovernanceSyncAction({ targetChainId, voters, disabled }
 		try {
 			setAction(true);
 
-			const fee = await readContract(WAGMI_CONFIG, {
-				address: ADDRESS[mainnet.id].ccipGovernanceSender,
+			// FCS syncs directly off mainnetVotes (it's a CCIPSender itself) — FPS1 goes through the
+			// separate ccipGovernanceSender contract.
+			const senderAddress = isFcs ? ADDRESS[mainnet.id].mainnetVotes : ADDRESS[mainnet.id].ccipGovernanceSender;
+			const senderAbi = isFcs ? MainnetVotesABI : GovernanceSenderABI;
+			const feeFunctionName = isFcs ? "getFCSSyncFee" : "getCCIPFee";
+			const pushFunctionName = isFcs ? "pushFCSVotes" : "pushVotes";
+
+			const fee = (await readContract(WAGMI_CONFIG, {
+				address: senderAddress,
 				chainId: mainnet.id,
-				abi: GovernanceSenderABI,
-				functionName: "getCCIPFee",
+				abi: senderAbi,
+				functionName: feeFunctionName,
 				args: [targetChainSelector, receiverAddress!, voters, true],
-			});
+			} as any)) as bigint;
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: ADDRESS[mainnet.id].ccipGovernanceSender,
+				address: senderAddress,
 				chainId: mainnet.id,
-				abi: GovernanceSenderABI,
-				functionName: "pushVotes",
+				abi: senderAbi,
+				functionName: pushFunctionName,
 				args: [targetChainSelector, receiverAddress!, voters],
 				value: (fee * 12n) / 10n,
-			});
+			} as any);
 
 			const toastContent = [
 				{
@@ -80,7 +89,7 @@ export default function GovernanceSyncAction({ targetChainId, voters, disabled }
 				},
 			});
 
-			track("votes_synced", { chain: targetChain?.name, voters: voters.length });
+			track("votes_synced", { chain: targetChain?.name, voters: voters.length, system });
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {

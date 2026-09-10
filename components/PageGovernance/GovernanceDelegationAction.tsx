@@ -1,26 +1,29 @@
 import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { WAGMI_CONFIG, WAGMI_CHAINS } from "../../app.config";
+import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { shortenAddress } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
-import { useConnection, useChainId } from "wagmi";
+import { useConnection } from "wagmi";
 import AppButton from "@components/AppButton";
 import { Address, isAddress } from "viem";
-import { ADDRESS, BridgedGovernanceABI, EquityABI } from "@frankencoin/zchf";
+import { ADDRESS, EquityABI, MainnetVotesABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
-import { track } from "@hooks";
+import { track, VotingSystem } from "@hooks";
 import { mainnet } from "viem/chains";
 
 interface Props {
 	delegate: string;
 	disabled?: boolean;
+	system?: VotingSystem;
 }
 
-export default function GovernanceDelegationAction({ delegate, disabled }: Props) {
+// Mainnet-only by design: local sidechain delegation is fragile — BridgedGovernance/BridgedVotes'
+// _ccipReceive unconditionally overwrites the delegate the next time anyone syncs that address from
+// mainnet, so this button never offers it (enforced below via GuardSupportedChain).
+export default function GovernanceDelegationAction({ delegate, disabled, system = "fps1" }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const { address } = useConnection();
-	const chainId = useChainId();
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
@@ -29,13 +32,13 @@ export default function GovernanceDelegationAction({ delegate, disabled }: Props
 		try {
 			setAction(true);
 
-			const isMainnet = chainId === mainnet.id;
-			const contractAddress = isMainnet ? ADDRESS[mainnet.id].equity : (ADDRESS as any)[chainId]?.ccipBridgedGovernance;
-			const abi = isMainnet ? EquityABI : BridgedGovernanceABI;
+			const isFcs = system === "fcs";
+			const contractAddress = isFcs ? ADDRESS[mainnet.id].mainnetVotes : ADDRESS[mainnet.id].equity;
+			const abi = isFcs ? MainnetVotesABI : EquityABI;
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
 				address: contractAddress,
-				chainId,
+				chainId: mainnet.id,
 				abi,
 				functionName: "delegateVoteTo",
 				args: [delegate as Address],
@@ -65,7 +68,7 @@ export default function GovernanceDelegationAction({ delegate, disabled }: Props
 				},
 			});
 
-			track("votes_delegated");
+			track("votes_delegated", { system });
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {

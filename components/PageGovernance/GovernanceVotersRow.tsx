@@ -18,6 +18,11 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 	const votingPower = voter.votingPowerRatio + voter.supportedVotingPowerRatio;
 	const supporterCount = voter.supporters.length;
 	const isWrapped = normalizeAddress(voter.holder) === normalizeAddress(ADDRESS[mainnet.id].wFPS);
+	// FCS.sol's constructor delegates all of FCS's pooled FPS1 votes to a single "helper" address
+	// returned by GovernanceFactory.deploy() — verified on-chain (via the indexed Delegation event,
+	// owner=FCS) that this is `interestGovernance`, not `mainnetVotes` as might be assumed from the
+	// naming. So on the FPS1 tab this row represents "all wrapped FCS holders combined", not an individual.
+	const isFcsWrapper = normalizeAddress(voter.holder) === normalizeAddress(ADDRESS[mainnet.id].interestGovernance);
 
 	return (
 		<>
@@ -33,6 +38,11 @@ export default function GovernanceVotersRow({ headers, tab, voter, votesTotal, c
 						{isWrapped && (
 							<span className="text-xs font-medium px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
 								Wrapped
+							</span>
+						)}
+						{isFcsWrapper && (
+							<span className="text-xs font-medium px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+								FCS
 							</span>
 						)}
 					</div>

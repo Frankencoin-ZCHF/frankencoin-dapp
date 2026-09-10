@@ -1,23 +1,33 @@
 import { useReadContracts } from "wagmi";
 import { decodeBigIntCall } from "@utils";
-import { ADDRESS, EquityABI } from "@frankencoin/zchf";
+import { ADDRESS, EquityABI, FCSABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
+import { VotingSystem } from "./useDelegationQuery";
 
-export const useFPSAverageStats = () => {
-	const equityContract = {
-		address: ADDRESS[mainnet.id].equity,
-		chainId: mainnet.id,
-		abi: EquityABI,
-	};
+// Governance.sol: QUORUM = 200 (2%) on the already-deployed FPS1 Equity contract (immutable, predates
+// the rename), vs. 100 (1%) on FCS's freshly-deployed MainnetVotes/BridgedVotes.
+const QUORUM_BPS: Record<VotingSystem, bigint> = {
+	fps1: 200n,
+	fcs: 100n,
+};
+
+const VOTING_SYSTEM_CONTRACT = {
+	fps1: { address: ADDRESS[mainnet.id].equity, abi: EquityABI },
+	fcs: { address: ADDRESS[mainnet.id].fcs, abi: FCSABI },
+} as const;
+
+export const useFPSAverageStats = (system: VotingSystem = "fps1") => {
+	const { address, abi } = VOTING_SYSTEM_CONTRACT[system];
+	const votingContract = { address, chainId: mainnet.id, abi } as const;
 
 	const { data } = useReadContracts({
 		contracts: [
 			{
-				...equityContract,
+				...votingContract,
 				functionName: "totalSupply",
 			},
 			{
-				...equityContract,
+				...votingContract,
 				functionName: "totalVotes",
 			},
 		],
@@ -27,7 +37,7 @@ export const useFPSAverageStats = () => {
 	const totalVotes: bigint = data ? decodeBigIntCall(data[1]) : 0n;
 
 	const avgHoldingDuration: bigint = totalSupply > 0n ? (totalVotes / totalSupply) >> 20n : 0n;
-	const fpsForVeto: bigint = (totalSupply * 200n) / 10000n;
+	const fpsForVeto: bigint = (totalSupply * QUORUM_BPS[system]) / 10000n;
 
 	return {
 		avgHoldingDuration,

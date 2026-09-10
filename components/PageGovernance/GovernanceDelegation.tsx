@@ -3,8 +3,8 @@ import { useState } from "react";
 import { useConnection, useChainId, useReadContracts } from "wagmi";
 import { Address, isAddress, zeroAddress } from "viem";
 import { mainnet } from "viem/chains";
-import { ADDRESS, EquityABI } from "@frankencoin/zchf";
-import { useDelegationQuery, useDelegationHelpers, useVotesSynced } from "@hooks";
+import { ADDRESS, EquityABI, MainnetVotesABI } from "@frankencoin/zchf";
+import { useDelegationQuery, useDelegationHelpers, useVotesSynced, VotingSystem } from "@hooks";
 import { formatCurrency, normalizeAddress, shortenAddress } from "@utils";
 import AddressInput from "@components/Input/AddressInput";
 import ChainSyncedVotes from "@components/Input/ChainSyncedVotes";
@@ -14,40 +14,48 @@ import { WAGMI_CHAINS } from "../../app.config";
 import GovernanceDelegationAction from "./GovernanceDelegationAction";
 import GovernanceSyncAction from "./GovernanceSyncAction";
 
-export default function GovernanceDelegation() {
+interface Props {
+	system?: VotingSystem;
+}
+
+export default function GovernanceDelegation({ system = "fps1" }: Props) {
 	const account = useConnection();
 	useChainId();
 	const myAddress: Address = account.address ?? zeroAddress;
 	const isConnected = !!account.address;
 
+	// FCS delegation lives on MainnetVotes, not on the FCS token itself — same votes/votesDelegated/
+	// totalVotes shape as Equity, just a different contract.
+	const votingContract =
+		system === "fcs"
+			? { address: ADDRESS[mainnet.id].mainnetVotes, abi: MainnetVotesABI }
+			: { address: ADDRESS[mainnet.id].equity, abi: EquityABI };
+
 	// delegation graph
-	const delegationData = useDelegationQuery();
+	const delegationData = useDelegationQuery(system);
 	const myDelegatedTo: Address = (delegationData.owners[normalizeAddress(myAddress)] ?? zeroAddress) as Address;
 
 	// helpers (supporters) for sync and display
-	const { helpers, supporterCount } = useDelegationHelpers(account.address);
+	const { helpers, supporterCount } = useDelegationHelpers(account.address, system);
 	const voters: Address[] = isConnected ? [myAddress, ...helpers] : [];
 
-	// read voting powers from mainnet equity
+	// read voting powers
 	const contractReads = [
 		...voters.map((addr) => ({
-			address: ADDRESS[mainnet.id].equity,
+			...votingContract,
 			chainId: mainnet.id,
-			abi: EquityABI,
 			functionName: "votes" as const,
 			args: [addr] as [Address],
 		})),
 		{
-			address: ADDRESS[mainnet.id].equity,
+			...votingContract,
 			chainId: mainnet.id,
-			abi: EquityABI,
 			functionName: "votesDelegated" as const,
 			args: [myAddress, helpers] as [Address, Address[]],
 		},
 		{
-			address: ADDRESS[mainnet.id].equity,
+			...votingContract,
 			chainId: mainnet.id,
-			abi: EquityABI,
 			functionName: "totalVotes" as const,
 			args: [] as [],
 		},
@@ -86,7 +94,7 @@ export default function GovernanceDelegation() {
 	const syncChainId = WAGMI_CHAINS.find((c) => c.name === syncChain)?.id ?? sideChains[0]?.id ?? 0;
 
 	// synced votes on the selected target chain
-	const { syncedVotes, totalVotes: syncTotalVotes } = useVotesSynced(myAddress, helpers, syncChainId);
+	const { syncedVotes, totalVotes: syncTotalVotes } = useVotesSynced(myAddress, helpers, syncChainId, system);
 	const syncedPct = syncTotalVotes > 0n ? `${formatCurrency((Number(syncedVotes) / Number(syncTotalVotes)) * 100)}%` : "—";
 
 	return (
@@ -175,7 +183,11 @@ export default function GovernanceDelegation() {
 						error={delegateError}
 					/>
 
-					<GovernanceDelegationAction delegate={delegateAddr} disabled={!isConnected || !isAddress(delegateAddr)} />
+					<GovernanceDelegationAction
+						delegate={delegateAddr}
+						disabled={!isConnected || !isAddress(delegateAddr)}
+						system={system}
+					/>
 
 					{/* Divider */}
 					<div className="border-t border-card-input-border" />
@@ -191,7 +203,12 @@ export default function GovernanceDelegation() {
 						pct={syncedPct}
 					/>
 
-					<GovernanceSyncAction targetChainId={syncChainId} voters={voters} disabled={!isConnected || voters.length === 0} />
+					<GovernanceSyncAction
+						targetChainId={syncChainId}
+						voters={voters}
+						disabled={!isConnected || voters.length === 0}
+						system={system}
+					/>
 				</div>
 			</AppCard>
 		</div>
