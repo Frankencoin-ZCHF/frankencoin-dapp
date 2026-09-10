@@ -5,7 +5,7 @@ import TableRow from "../Table/TableRow";
 import { formatCurrency, normalizeAddress, shortenAddress } from "../../utils/format";
 import { track, VotingSystem, VoteDataQuote } from "@hooks";
 import AppLink from "@components/AppLink";
-import AppButton from "@components/AppButton";
+import AppButtonSecondary from "@components/AppButtonSecondary";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { ContractUrl } from "@utils";
@@ -51,7 +51,7 @@ export default function GovernanceVotersRow({
 	// Otherwise, on FPS1 it's Equity.kamikaze(targets, votesToDestroy), which does cost the caller their
 	// own votes. On the FCS tab it's always FCS.attack, same shape as kamikaze.
 	const isShoot = system === "fps1" && fcsIsBinding;
-	const actionLabel = isShoot ? "Shoot" : system === "fcs" ? "Attack" : "Kamikaze";
+	const actionLabel = isShoot ? "Shoot" : "Kamikaze";
 
 	// shoot()/kamikaze()/attack() all key off the target's own votes() — a pure delegation recipient
 	// (like the isFcsWrapper row, whose own FPS1 balance is 0) has nothing to destroy and the tx reverts.
@@ -111,13 +111,13 @@ export default function GovernanceVotersRow({
 				rawHeader={true}
 				tab={tab}
 				actionCol={
-					connectedWallet ? (
+					connectedWallet || isFcsSelfTarget ? (
 						<div className="h-10" />
 					) : (
 						<GuardSupportedChain chain={mainnet}>
-							<AppButton className="h-10" disabled={isActionDisabled} isLoading={isAction} onClick={handleAction}>
+							<AppButtonSecondary className="h-10" disabled={isActionDisabled} isLoading={isAction} onClick={handleAction}>
 								{actionLabel}
-							</AppButton>
+							</AppButtonSecondary>
 						</GuardSupportedChain>
 					)
 				}
