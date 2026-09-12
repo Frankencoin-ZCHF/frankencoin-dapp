@@ -110,11 +110,7 @@ export default function Positions() {
 							<>
 								<AppTitle title={`System Health`}>
 									<div className="text-text-secondary">
-										Those charts show how well the Frankencoins are backed by collateral assets. All Frankencoins that
-										are not in the reserve pool are considered in free circulation. As long as the value is above 100%,
-										all Frankencoins in free circulation are backed by collateral. The total supply view shows how well
-										collateral assets back the whole ecosystem. The recording of historic watermarks started in
-										September 2025.
+										Free float collateralization shows the value of the collateral in the Frankencoin system divided by its free float supply (defined as total supply minus equity and minter reserves). If it falls below 100%, the Frankencoin will depeg. In contrast, total supply collateralization is based on the total supply. It falling below 100% imply are loss of reserves, but not a depeg.
 									</div>
 								</AppTitle>
 
