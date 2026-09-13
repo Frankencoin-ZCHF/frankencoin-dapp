@@ -14,6 +14,7 @@ import { fetchBidsList } from "../redux/slices/bids.slice";
 import { fetchEcosystem } from "../redux/slices/ecosystem.slice";
 import { fetchLeadrate, fetchSavings } from "../redux/slices/savings.slice";
 import { fetchDashboard } from "../redux/slices/dashboard.slice";
+import { fetchAmplifierList } from "../redux/slices/amplifiers.slice";
 import { mainnet } from "viem/chains";
 
 let initializing: boolean = false;
@@ -64,6 +65,8 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 		store.dispatch(fetchSavings(latestAddress));
 		store.dispatch(fetchLeadrate());
 		store.dispatch(fetchDashboard());
+		// not part of the init-done gate: amplifiers must never hold up application start
+		store.dispatch(fetchAmplifierList());
 	}, [initialized, latestAddress]);
 
 	// --------------------------------------------------------------------------------
@@ -113,6 +116,7 @@ export default function BockUpdater({ children }: { children?: React.ReactElemen
 			store.dispatch(fetchBidsList());
 			store.dispatch(fetchPricesList());
 			store.dispatch(fetchEcosystem());
+			store.dispatch(fetchAmplifierList());
 			setLatestHeight10(fetchedLatestHeight);
 		}
 

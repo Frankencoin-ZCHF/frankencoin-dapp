@@ -7,6 +7,7 @@ import { formatCurrency, FormatType } from "../../utils/format";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import TokenLogo from "@components/TokenLogo";
+import { amplifierPageLink } from "../../utils/amplifierConstants";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const INITIAL_VISIBLE = 6;
@@ -15,15 +16,27 @@ export default function MintOutstanding() {
 	const [showAll, setShowAll] = useState(false);
 	const router = useRouter();
 	const { openPositions } = useSelector((state: RootState) => state.positions);
+	const amplifiers = useSelector((state: RootState) => state.amplifiers.list);
 
-	const mint = openPositions
-		.map((p) => ({
-			pos: p.position,
-			coll: p.collateralSymbol,
-			mint: BigInt(p.minted),
-			exp: p.expiration,
-		}))
-		.sort((a, b) => a.exp - b.exp);
+	const positionMints = openPositions.map((p) => ({
+		link: `/monitoring/${p.position}`,
+		coll: p.collateralSymbol,
+		label: p.collateralSymbol,
+		mint: BigInt(p.minted),
+		exp: p.expiration,
+	}));
+
+	// Amplifiers must be unwound by their expiration as well, so their debt belongs on the
+	// trajectory. Swap bridges do not: expiring only stops them, it forces no repayment.
+	const amplifierMints = amplifiers.map((a) => ({
+		link: amplifierPageLink({ address: a.address, chainId: a.chainId }),
+		coll: a.usdSymbol,
+		label: `${a.usdSymbol} Amplifier`,
+		mint: BigInt(a.totalBorrowed),
+		exp: a.expiration,
+	}));
+
+	const mint = [...positionMints, ...amplifierMints].sort((a, b) => a.exp - b.exp);
 
 	const mintFiltered = mint.filter((i) => i.mint > 0);
 	const totalMint = mint.reduce((a, b) => a + b.mint, 0n);
@@ -148,14 +161,14 @@ export default function MintOutstanding() {
 				<div>
 					{visibleMints.map((d, idx) => (
 						<div
-							key={`${d.pos}_${idx}`}
+							key={`${d.link}_${idx}`}
 							className="grid grid-cols-[1fr_auto_1fr] items-center py-3 border-b border-table-header-secondary last:border-0 cursor-pointer hover:bg-table-row-hover duration-200 px-2 -mx-2 rounded"
-							onClick={() => router.push(`/monitoring/${d.pos}`)}
+							onClick={() => router.push(d.link)}
 						>
 							<div className="text-text-secondary text-sm">{dateFormatter(d.exp * 1000)}</div>
 							<div className="flex items-center gap-2">
 								<TokenLogo currency={d.coll.toLowerCase()} size={5} />
-								<span className="font-semibold text-sm">{d.coll}</span>
+								<span className="font-semibold text-sm">{d.label}</span>
 							</div>
 							<div className="text-right font-semibold text-sm">
 								{formatCurrency(formatUnits(d.mint, 18), 2, 2, FormatType.symbol)} ZCHF
