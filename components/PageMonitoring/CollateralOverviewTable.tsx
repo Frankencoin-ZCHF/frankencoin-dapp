@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { useConnection, useReadContracts } from "wagmi";
 import { Address, erc20Abi, formatUnits, zeroAddress } from "viem";
 import { RootState } from "../../redux/redux.store";
-import { calcOverviewStats } from "@components/PageEcoSystem/CollateralAndPositionsOverview";
+import { calcOverviewStats } from "../../utils/collateralStats";
 import Table from "../Table";
 import TableBody from "../Table/TableBody";
 import TableRow from "../Table/TableRow";
