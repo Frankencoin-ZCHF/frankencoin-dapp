@@ -1,6 +1,9 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
+import { useEffect, useState } from "react";
 import { Address, zeroAddress } from "viem";
 import { normalizeAddress } from "../utils/format";
+import { fetchAllPonderPages } from "../utils/ponderPagination";
+import { PONDER_CLIENT } from "../app.config";
 
 export type VotingSystem = "fps" | "fcs";
 
@@ -33,57 +36,80 @@ export type DelegationQuery = {
 // fCSDelegations, keyed by chainId since it's synced across chains; mainnet is the qualification-gating
 // source of truth, so that's what this filters to.
 const EQUITY_DELEGATIONS_QUERY = gql`
-	{
-		equityDelegations {
+	query ($after: String) {
+		equityDelegations(after: $after) {
 			items {
 				owner
 				delegatedTo
+			}
+			pageInfo {
+				endCursor
+				hasNextPage
 			}
 		}
 	}
 `;
 
 const FCS_DELEGATIONS_QUERY = gql`
-	{
-		fCSDelegations(where: { chainId: 1 }) {
+	query ($after: String) {
+		fCSDelegations(where: { chainId: 1 }, after: $after) {
 			items {
 				owner
 				delegatedTo
+			}
+			pageInfo {
+				endCursor
+				hasNextPage
 			}
 		}
 	}
 `;
 
+const EMPTY: DelegationQuery = {
+	owners: {},
+	delegatees: {},
+	allOwners: [],
+	allDelegatees: [],
+};
+
 export const useDelegationQuery = (system: VotingSystem = "fps"): DelegationQuery => {
-	const returnData: DelegationQuery = {
-		owners: {},
-		delegatees: {},
-		allOwners: [],
-		allDelegatees: [],
-	};
+	const [returnData, setReturnData] = useState<DelegationQuery>(EMPTY);
 
-	const { data, loading } = useQuery(system === "fcs" ? FCS_DELEGATIONS_QUERY : EQUITY_DELEGATIONS_QUERY, {
-		fetchPolicy: "cache-first",
-	});
+	useEffect(() => {
+		let cancelled = false;
 
-	const items: PonderDelegationQuery[] | undefined = system === "fcs" ? data?.fCSDelegations?.items : data?.equityDelegations?.items;
+		const query = system === "fcs" ? FCS_DELEGATIONS_QUERY : EQUITY_DELEGATIONS_QUERY;
+		const rootField = system === "fcs" ? "fCSDelegations" : "equityDelegations";
 
-	if (loading || !items) {
-		return returnData;
-	}
+		fetchAllPonderPages<PonderDelegationQuery>(PONDER_CLIENT, query, rootField)
+			.then((items) => {
+				if (cancelled) return;
 
-	for (const i of items) {
-		const owner = normalizeAddress(i.owner);
-		const to = normalizeAddress(i.delegatedTo);
+				const next: DelegationQuery = { owners: {}, delegatees: {}, allOwners: [], allDelegatees: [] };
 
-		returnData.owners[owner] = to;
-		returnData.allOwners.push(owner);
+				for (const i of items) {
+					const owner = normalizeAddress(i.owner);
+					const to = normalizeAddress(i.delegatedTo);
 
-		if (!returnData.delegatees[to]) returnData.delegatees[to] = [];
-		returnData.delegatees[to].push(owner);
+					next.owners[owner] = to;
+					next.allOwners.push(owner);
 
-		if (!returnData.allDelegatees.includes(to)) returnData.allDelegatees.push(to);
-	}
+					if (!next.delegatees[to]) next.delegatees[to] = [];
+					next.delegatees[to].push(owner);
+
+					if (!next.allDelegatees.includes(to)) next.allDelegatees.push(to);
+				}
+
+				setReturnData(next);
+			})
+			.catch((error) => {
+				console.error("Failed to fetch delegations", error);
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [system]);
 
 	return returnData;
 };
