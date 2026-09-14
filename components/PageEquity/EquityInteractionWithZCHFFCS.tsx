@@ -180,7 +180,11 @@ export default function EquityInteractionWithZCHFFCS({ tokenFromTo, setTokenFrom
 		args: [amount],
 	});
 
-	const { data: frankenResult, isLoading: proceedLoading } = useReadContract({
+	const {
+		data: frankenResult,
+		isLoading: proceedLoading,
+		isError: previewRedeemFailed,
+	} = useReadContract({
 		address: ADDRESS[chainId].fcs,
 		chainId: chainId,
 		abi: FCSABI,
@@ -190,7 +194,12 @@ export default function EquityInteractionWithZCHFFCS({ tokenFromTo, setTokenFrom
 
 	const fromBalance = direction ? fcsStats.frankenBalance : fcsStats.fcsBalance;
 	const toBalance = !direction ? fcsStats.frankenBalance : fcsStats.fcsBalance;
-	const result = (direction ? fcsResult : frankenResult) || 0n;
+	// previewRedeem() reverts once the requested shares exceed ~2x the current FCS supply (its discount
+	// curve underflows past that point) — common while FCS's supply is still small. Fall back to the
+	// marginal bid price so the receive field shows a plausible estimate instead of a bare 0.
+	const estimatedRedeemProceeds = (amount * fcsStats.fcsBid) / 10n ** 18n;
+	const redeemResult = frankenResult ?? (previewRedeemFailed ? estimatedRedeemProceeds : 0n);
+	const result = (direction ? fcsResult : redeemResult) || 0n;
 	const fromSymbol = direction ? "ZCHF" : "FCS";
 	const toSymbol = !direction ? "ZCHF" : "FCS";
 	const canRedeem = fcsStats.fcsMaxRedeem > 0n;
