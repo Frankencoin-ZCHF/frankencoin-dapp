@@ -1,10 +1,12 @@
 import { useConnection } from "wagmi";
 import { formatUnits } from "viem";
+import { mainnet } from "viem/chains";
+import { ADDRESS } from "@frankencoin/zchf";
 import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
 import GovernanceDelegation from "@components/PageGovernance/GovernanceDelegation";
 import GovernanceVotersTable from "@components/PageGovernance/GovernanceVotersTable";
-import { formatCurrency, formatDuration } from "@utils";
+import { ContractUrl, formatCurrency, formatDuration } from "@utils";
 import { useFPSAverageStats } from "@hooks";
 
 export default function VotesFpsSection() {
@@ -15,7 +17,13 @@ export default function VotesFpsSection() {
 		<>
 			<AppTitle title="Frankencoin Pool Shares">
 				<div className="text-text-secondary">
-					FPS (Frankencoin Pool Share) is the governance token of the Frankencoin Ecosystem. Voting power is proportional to both
+					<AppLink
+						className="inline"
+						label="FPS (Frankencoin Pool Share)"
+						href={ContractUrl(ADDRESS[mainnet.id].equity)}
+						external={true}
+					/>{" "}
+					is the governance token of the Frankencoin Ecosystem. Voting power is proportional to both
 					the number of FPS held and the holding duration. The average holding duration is{" "}
 					<span className="font-medium text-text-primary">{formatDuration(fpsStats.avgHoldingDuration)}</span>. Under these
 					conditions, an individual FPS holder with at least{" "}

@@ -1,9 +1,12 @@
 import { formatUnits } from "viem";
+import { mainnet } from "viem/chains";
+import { ADDRESS } from "@frankencoin/zchf";
 import AppTitle from "@components/AppTitle";
+import AppLink from "@components/AppLink";
 import GovernanceDelegation from "@components/PageGovernance/GovernanceDelegation";
 import GovernanceFcsMilestoneSteps from "@components/PageGovernance/GovernanceFcsMilestoneSteps";
 import GovernanceVotersTable from "@components/PageGovernance/GovernanceVotersTable";
-import { formatCurrency, formatDuration } from "@utils";
+import { ContractUrl, formatCurrency, formatDuration } from "@utils";
 import { useFPSAverageStats } from "@hooks";
 
 export default function VotesFcsSection() {
@@ -13,7 +16,8 @@ export default function VotesFcsSection() {
 		<>
 			<AppTitle title="Frankencoin Shares">
 				<div className="text-text-secondary">
-					FCS (Frankencoin Share) wraps FPS 1:1 and carries its own governance power on{" "}
+					<AppLink className="inline" label="FCS (Frankencoin Share)" href={ContractUrl(ADDRESS[mainnet.id].fcs)} external={true} />{" "}
+					wraps FPS 1:1 and carries its own governance power on{" "}
 					<span className="font-medium text-text-primary">MinterGovernance</span>,{" "}
 					<span className="font-medium text-text-primary">InterestGovernance</span>, and{" "}
 					<span className="font-medium text-text-primary">CCIPGovernance</span> — separate contracts from FPS's governance, each
