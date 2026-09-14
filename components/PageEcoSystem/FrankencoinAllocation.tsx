@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, FrankencoinABI } from "@frankencoin/zchf";
-import { base, gnosis, mainnet } from "viem/chains";
+import { base, gnosis, mainnet, optimism } from "viem/chains";
 import { useSwapCHFAUStats } from "@hooks";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -186,6 +186,18 @@ export default function FrankencoinAllocation() {
 					abi: FrankencoinABI,
 					functionName: "balanceOf",
 					args: ["0x1bb53efa5523c80b598b561e266dfdc938f80e4f"],
+				})
+			);
+
+			// Optimism Uniswap V3 ZCHF - USDC (UniswapAmplifier pool)
+			// https://optimistic.etherscan.io/address/0xC8A2E29D58B91C37a9d8DC6ab2535EB0b42C8F4b#code
+			dexes.push(
+				readContract(WAGMI_CONFIG, {
+					chainId: optimism.id,
+					address: ADDRESS[optimism.id].ccipBridgedFrankencoin,
+					abi: FrankencoinABI,
+					functionName: "balanceOf",
+					args: ["0xC8A2E29D58B91C37a9d8DC6ab2535EB0b42C8F4b"],
 				})
 			);
 
