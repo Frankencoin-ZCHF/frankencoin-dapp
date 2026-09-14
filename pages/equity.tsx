@@ -10,9 +10,6 @@ import EquityFPSDetailsCard from "@components/PageEquity/EquityFPSDetailsCard";
 import EquityInteractionCard from "@components/PageEquity/EquityInteractionCard";
 import EquityTradesTable from "@components/PageEquity/EquityTradesTable";
 import ReportsFPSYearlyTable from "@components/PageReports/ReportsFPSYearlyTable";
-import { ContractUrl } from "@utils";
-import { ADDRESS } from "@frankencoin/zchf";
-import { mainnet } from "viem/chains";
 
 export default function Equity() {
 	const { address } = useConnection();
@@ -36,14 +33,9 @@ export default function Equity() {
 			<AppTitle title="Invest">
 				<div className="text-text-secondary">
 					Invest in or redeem your{" "}
-					<AppLink
-						className=""
-						label="Frankencoin Pool Shares (FPS)"
-						href={ContractUrl(ADDRESS[mainnet.id].equity)}
-						external={true}
-					/>{" "}
+					<AppLink className="" label="Frankencoin Pool Shares (FPS)" href="/governance/fps" external={false} />{" "}
 					— the governance token of the Frankencoin Ecosystem — or wrap into{" "}
-					<AppLink className="" label="Frankencoin Shares (FCS)" href={ContractUrl(ADDRESS[mainnet.id].fcs)} external={true} />{" "}
+					<AppLink className="" label="Frankencoin Shares (FCS)" href="/governance/fcs" external={false} />{" "}
 					for pooled governance power and a lower veto threshold.
 				</div>
 			</AppTitle>
