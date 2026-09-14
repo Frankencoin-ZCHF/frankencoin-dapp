@@ -4,6 +4,7 @@ import AppCard from "@components/AppCard";
 import AppLink from "@components/AppLink";
 import AppTitle from "@components/AppTitle";
 import MintingUpdatesTable from "@components/PageMonitoring/MintingUpdatesTable";
+import PositionFamilyTable from "@components/PageMonitoring/PositionFamilyTable";
 import AuctionCard from "@components/PageMonitoring/AuctionCard";
 import ForceSellAuctionCard from "@components/PageMonitoring/ForceSellAuctionCard";
 import StatRow from "@components/PageMonitoring/StatRow";
@@ -263,6 +264,16 @@ export default function PositionDetail() {
 						className="pb-4"
 					/>
 					<MintingUpdatesTable updates={mintingUpdates} position={position} />
+				</div>
+
+				{/* Position Family – full width */}
+				<div>
+					<AppTitle
+						title="Position Family"
+						subtitle="All positions that share the same original, including the original and this position itself. Clones inherit the terms of their original, but can differ in liquidation price and maturity."
+						className="pb-4"
+					/>
+					<PositionFamilyTable position={position} />
 				</div>
 			</div>
 		</>
