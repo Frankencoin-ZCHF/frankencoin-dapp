@@ -1221,10 +1221,10 @@
   dependencies:
     prop-types "^15.8.1"
 
-"@frankencoin/api@^0.3.20":
-  version "0.3.20"
-  resolved "https://registry.yarnpkg.com/@frankencoin/api/-/api-0.3.20.tgz#72e69f9329e2f7bc4beb615a9c654654532505c9"
-  integrity sha512-OmJOtxAFKjJJxxC790BbHtKb7OwDrXupvfzvvvE06m4f+T1p9FaniG4S1JQTcrc8/EXrpvAcVzY3NUyTWzqu0Q==
+"@frankencoin/api@^0.4.2":
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/@frankencoin/api/-/api-0.4.2.tgz#2529b1abafbdc2187019875ee379d4472c119069"
+  integrity sha512-deNn3VN5dQ7KecV+PHXfuw3ySGt31EMDnRbpgHAfzas4rdm/DI2ADcTuhH4D3ZWDneWxQU+w3/JdkaI8zkG2CQ==
   dependencies:
     "@apollo/client" "^3.10.5"
     "@aws-sdk/client-s3" "^3.620.0"
@@ -1235,7 +1235,7 @@
     "@nestjs/core" "^10.0.0"
     "@nestjs/jwt" "^11.0.2"
     "@nestjs/platform-express" "^10.0.0"
-    "@nestjs/schedule" "^4.0.0"
+    "@nestjs/schedule" "^4.1.2"
     "@nestjs/swagger" "^7.3.1"
     "@prisma/client" "5.22.0"
     "@tanstack/react-query" "^5.45.1"
@@ -1249,14 +1249,6 @@
     reflect-metadata "^0.2.0"
     rxjs "^7.8.1"
     viem "2.31.7"
-
-"@frankencoin/zchf@^0.3.29":
-  version "0.3.29"
-  resolved "https://registry.yarnpkg.com/@frankencoin/zchf/-/zchf-0.3.29.tgz#36027f909ab6f1967a395a2323845140124ad45b"
-  integrity sha512-VBGLoMrw4JfclipvGYxO1nWpDArmn/zWBazGsL/59htNBvLwMmmy+9cttNtVDfJSXsgvOxWI1lgFe2dxo8bWSA==
-  dependencies:
-    ts-node "^10.9.1"
-    typescript "^5.2.2"
 
 "@frankencoin/zchf@^0.3.30":
   version "0.3.30"
@@ -1512,7 +1504,7 @@
     multer "2.0.2"
     tslib "2.8.1"
 
-"@nestjs/schedule@^4.0.0":
+"@nestjs/schedule@^4.1.2":
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/@nestjs/schedule/-/schedule-4.1.2.tgz#1b289d8270463bdf26c0152e4b426105c5730f49"
   integrity sha512-hCTQ1lNjIA5EHxeu8VvQu2Ed2DBLS1GSC6uKPYlBiQe6LL9a7zfE9iVSK+zuK8E2odsApteEBmfAQchc8Hx0Gg==
