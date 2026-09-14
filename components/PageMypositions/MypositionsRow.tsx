@@ -129,7 +129,9 @@ export default function MypositionsRow({ headers, tab, subHeaders, position }: P
 		if (stateIdx != 1) return;
 
 		try {
-			navigate.push(`challenges/${stateChallengeInfo.challenge.number}/bid`, { scroll: true });
+			navigate.push(`/monitoring/${normalizeAddress(position.position)}/auction/${stateChallengeInfo.challenge.number}`, {
+				scroll: true,
+			});
 		} catch (error) {
 			console.log(error);
 		}
