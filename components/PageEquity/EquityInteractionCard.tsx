@@ -5,6 +5,7 @@ import EquityInteractionWithWFPSRedeem from "./EquityInteractionWithWFPSRedeem";
 import EquityInteractionWithZCHFFCS from "./EquityInteractionWithZCHFFCS";
 import EquityInteractionWithFPSFCS from "./EquityInteractionWithFPSFCS";
 import AppCard from "@components/AppCard";
+import AppLink from "@components/AppLink";
 
 export const EquityTokenSelectorMapping: { [key: string]: string[] } = {
 	ZCHF: ["FPS", "FCS"],
@@ -63,6 +64,16 @@ export default function EquityInteractionCard() {
 					selectorMapping={EquityTokenSelectorMapping}
 				/>
 			) : null}
+
+			<div className="flex justify-center pt-2">
+				<AppLink
+					label="View FCS/ZCHF pool on Uniswap"
+					href="https://app.uniswap.org/explore/pools/ethereum/0xcD795ae77A7318A396D6645bAf0562d8a0312323"
+					external
+					icon
+					className="flex items-center text-sm"
+				/>
+			</div>
 		</AppCard>
 	);
 }
