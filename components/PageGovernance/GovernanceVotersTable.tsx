@@ -46,11 +46,16 @@ export default function GovernanceVotersTable({ system = "fps" }: Props) {
 	const otherVotes = votesData.filter((v) => !address || normalizeAddress(v.holder) !== normalizeAddress(address));
 
 	const alwaysShown = ALWAYS_SHOWN[system];
-	const sorted = sortVotes({ votes: otherVotes, headers, tab, reverse }).filter(
-		(i) =>
-			i.votingPowerRatio + i.supportedVotingPowerRatio > QUORUM_RATIO[system] ||
-			(alwaysShown && normalizeAddress(i.holder) === alwaysShown)
-	);
+	const passesQuorum = (i: VoteDataQuote) =>
+		i.votingPowerRatio + i.supportedVotingPowerRatio > QUORUM_RATIO[system] ||
+		(alwaysShown && normalizeAddress(i.holder) === alwaysShown);
+
+	// Small systems can have few (or zero) voters above quorum — show at least MIN_SHOWN rows when
+	// available so the table isn't sparse. Rows already sorted (default: by voting power desc) fill
+	// the minimum, so quorum-passing voters take priority for free; past MIN_SHOWN only quorum still applies.
+	const MIN_SHOWN = 10;
+	const sortedAll = sortVotes({ votes: otherVotes, headers, tab, reverse });
+	const sorted = sortedAll.length <= MIN_SHOWN ? sortedAll : sortedAll.filter((i, idx) => idx < MIN_SHOWN || passesQuorum(i));
 
 	const handleTabOnChange = (e: string) => {
 		if (tab === e) {
