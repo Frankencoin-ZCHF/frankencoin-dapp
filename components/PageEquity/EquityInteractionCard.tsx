@@ -7,11 +7,15 @@ import EquityInteractionWithFPSFCS from "./EquityInteractionWithFPSFCS";
 import AppCard from "@components/AppCard";
 import AppLink from "@components/AppLink";
 
+// All possible paths (for reference):
+// ZCHF: ["FPS", "FCS"],
+// FPS: ["ZCHF", "WFPS", "FCS"],
+// FCS: ["FPS", "ZCHF"],
+// WFPS: ["FPS", "ZCHF"],
 export const EquityTokenSelectorMapping: { [key: string]: string[] } = {
-	ZCHF: ["FPS", "FCS"],
-	FPS: ["ZCHF", "WFPS", "FCS"],
-	FCS: ["FPS", "ZCHF"],
-	WFPS: ["FPS", "ZCHF"],
+	ZCHF: ["FCS"],
+	FPS: ["FCS"],
+	FCS: ["ZCHF"],
 };
 
 export default function EquityInteractionCard() {
