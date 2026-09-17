@@ -32,11 +32,10 @@ export default function Equity() {
 
 			<AppTitle title="Invest">
 				<div className="text-text-secondary">
-					Invest in or redeem your{" "}
-					<AppLink className="" label="Frankencoin Pool Shares (FPS)" href="/governance/fps" external={false} />{" "}
-					— the governance token of the Frankencoin Ecosystem — or wrap into{" "}
+					Invest in or redeem{" "}
 					<AppLink className="" label="Frankencoin Shares (FCS)" href="/governance/fcs" external={false} />{" "}
-					for pooled governance power and a lower veto threshold.
+					— the equity and governance token of the Frankencoin Ecosystem — to earn a share of protocol income and vote
+					with a lower veto threshold.
 				</div>
 			</AppTitle>
 
@@ -44,21 +43,20 @@ export default function Equity() {
 				steps={[
 					{
 						icon: 1,
-						title: "Get Pool Shares",
-						description:
-							"Add ZCHF to the Frankencoin reserve pool for newly minted FPS, or deposit straight into FCS — or wrap existing FPS into FCS at any time.",
+						title: "Get FCS",
+						description: "Deposit ZCHF to receive newly minted FCS and become an equity holder in the Frankencoin Ecosystem.",
 					},
 					{
 						icon: 2,
 						title: "Participate",
 						description:
-							"FCS wraps FPS 1:1, so both share the same fundamental value, climbing (or falling) with Frankencoin's success (or decline).",
+							"FCS is backed 1:1 by the pooled reserve, so its value climbs (or falls) with Frankencoin's success (or decline).",
 					},
 					{
 						icon: 3,
 						title: "Govern",
 						description:
-							"Team up with others to veto protocol extensions or collaterals you don't like — FCS holders get a lower 1% threshold instead of FPS's 2%.",
+							"Team up with other FCS holders to veto protocol extensions or collaterals you don't like, with a lower 1% threshold.",
 					},
 				]}
 			/>
