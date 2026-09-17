@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { useConnection, useReadContracts } from "wagmi";
 import { Address, erc20Abi, formatUnits, zeroAddress } from "viem";
 import { RootState } from "../../redux/redux.store";
-import { calcOverviewStats } from "@components/PageEcoSystem/CollateralAndPositionsOverview";
+import { calcOverviewStats } from "../../utils/collateralStats";
 import Table from "../Table";
 import TableBody from "../Table/TableBody";
 import TableRow from "../Table/TableRow";
@@ -13,11 +13,32 @@ import TokenLogo from "@components/TokenLogo";
 import { formatCurrency, normalizeAddress, ALL_CATEGORIES, CollateralCategory, collateralMatchesCategories, FormatType } from "@utils";
 import AppBox from "@components/AppBox";
 import { FilterOption } from "@components/Table/TableHeadSearchable";
-import { useSwapCHFAUStats, CollateralOverviewStat } from "@hooks";
+import { useSwapCHFAUStats, useAmplifierOverviewStats, CollateralOverviewStat } from "@hooks";
 import { useRouter } from "next/navigation";
+import { amplifierPageLink } from "../../utils/amplifierConstants";
 
-const headers = ["Collateral", "Open Debt", "Avail. Debt", "Max Debt", "Avg. Coll."];
+const headers = ["Collateral", "Open Debt", "Avail. Debt", "Max Debt", "Locked Collateral"];
 const FILTER_OPTIONS: FilterOption[] = ALL_CATEGORIES.map((c) => ({ label: c, value: c }));
+
+/**
+ * The figures each row shows, derived once so that sorting and rendering cannot drift apart.
+ * `minted` and `reserve` are in wei, while the limits are already in whole ZCHF.
+ */
+function deriveRow(stat: CollateralOverviewStat) {
+	const openDebt = Number(formatUnits(stat.minted - stat.reserve, 18));
+	const availDebt = Number(stat.availableForClones) * (1 - stat.avgReserveRatio);
+	const maxDebt = Number(stat.limitForClones) * (1 - stat.avgReserveRatio);
+
+	// share of the minting capacity that is used up, respectively still free
+	const openDebtPct = maxDebt > 0 ? (openDebt / maxDebt) * 100 : 0;
+	const availDebtPct = maxDebt > 0 ? (availDebt / maxDebt) * 100 : 0;
+
+	// value of the collateral backing the debt, and that value relative to the open debt
+	const collValue = stat.lockedValue;
+	const collValuePct = openDebt > 0 ? (collValue / openDebt) * 100 : 0;
+
+	return { openDebt, availDebt, maxDebt, openDebtPct, availDebtPct, collValue, collValuePct };
+}
 
 export default function CollateralOverviewTable() {
 	const [searchQuery, setSearchQuery] = useState("");
@@ -31,6 +52,8 @@ export default function CollateralOverviewTable() {
 	const { list, openPositionsByCollateral } = useSelector((state: RootState) => state.positions);
 	const { coingecko } = useSelector((state: RootState) => state.prices);
 	const chfauBridge = useSwapCHFAUStats();
+	const amplifiers = useSelector((state: RootState) => state.amplifiers.list);
+	const amplifierStats = useAmplifierOverviewStats();
 
 	const positionStats = useMemo(
 		() => calcOverviewStats(openPositionsByCollateral, list.list, coingecko),
@@ -39,19 +62,37 @@ export default function CollateralOverviewTable() {
 	);
 
 	const stats = useMemo(
-		() => [...positionStats, chfauBridge.asCollateralOverview] as CollateralOverviewStat[],
-		[positionStats, chfauBridge.asCollateralOverview]
+		() => [...positionStats, chfauBridge.asCollateralOverview, ...amplifierStats] as CollateralOverviewStat[],
+		[positionStats, chfauBridge.asCollateralOverview, amplifierStats]
 	);
 
+	// rows that are not MintingHub positions link to the page that operates them
 	const bridgeSwapUrls: Record<string, string> = {
 		[normalizeAddress(chfauBridge.bridgeAddress)]: chfauBridge.swapUrl,
+		...Object.fromEntries(
+			amplifiers.map((a) => [normalizeAddress(a.address), amplifierPageLink({ address: a.address, chainId: a.chainId })])
+		),
 	};
 
-	const uniqueCollaterals = useMemo(() => stats.map((s) => normalizeAddress(s.collateral.address)), [stats]);
+	// rows can live on different chains, so a collateral is identified by chain and address
+	const balanceKey = (chainId: number, address: string) => `${chainId}:${normalizeAddress(address)}`;
+
+	const uniqueCollaterals = useMemo(() => {
+		const seen = new Map<string, { chainId: number; address: Address }>();
+		stats.forEach((s) =>
+			seen.set(balanceKey(s.collateral.chainId, s.collateral.address), {
+				chainId: s.collateral.chainId,
+				address: normalizeAddress(s.collateral.address),
+			})
+		);
+		return [...seen.values()];
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [stats]);
 
 	const { data: balanceResults } = useReadContracts({
-		contracts: uniqueCollaterals.map((addr) => ({
-			address: addr,
+		contracts: uniqueCollaterals.map(({ chainId, address }) => ({
+			chainId,
+			address,
 			abi: erc20Abi,
 			functionName: "balanceOf" as const,
 			args: [walletAddress ?? zeroAddress],
@@ -61,21 +102,22 @@ export default function CollateralOverviewTable() {
 
 	const walletBalanceMap = useMemo(() => {
 		const map: Record<string, bigint> = {};
-		uniqueCollaterals.forEach((addr, i) => {
-			map[addr] = (balanceResults?.[i]?.result as bigint | undefined) ?? 0n;
+		uniqueCollaterals.forEach(({ chainId, address }, i) => {
+			map[balanceKey(chainId, address)] = (balanceResults?.[i]?.result as bigint | undefined) ?? 0n;
 		});
 		return map;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [uniqueCollaterals, balanceResults]);
 
 	const sorted = useMemo(() => {
 		const s = [...stats].sort((a, b) => {
 			if (tab === headers[0]) return a.collateral.name.localeCompare(b.collateral.name);
-			if (tab === headers[1]) return Number(b.minted - b.reserve) - Number(a.minted - a.reserve);
-			if (tab === headers[2])
-				return Number(b.availableForClones) * (1 - b.avgReserveRatio) - Number(a.availableForClones) * (1 - a.avgReserveRatio);
-			if (tab === headers[3])
-				return Number(b.limitForClones) * (1 - b.avgReserveRatio) - Number(a.limitForClones) * (1 - a.avgReserveRatio);
-			if (tab === headers[4]) return b.avgCollateral - a.avgCollateral;
+			const [da, db] = [deriveRow(a), deriveRow(b)];
+			// every column sorts by the amount on its first line, not by the percentage below it
+			if (tab === headers[1]) return db.openDebt - da.openDebt;
+			if (tab === headers[2]) return db.availDebt - da.availDebt;
+			if (tab === headers[3]) return db.maxDebt - da.maxDebt;
+			if (tab === headers[4]) return db.collValue - da.collValue;
 			return 0;
 		});
 		return reverse ? s.reverse() : s;
@@ -92,7 +134,8 @@ export default function CollateralOverviewTable() {
 				!collateralMatchesCategories(normalizeAddress(s.collateral.address), activeCategories as CollateralCategory[])
 			)
 				return false;
-			if (inMyWallet && walletAddress && (walletBalanceMap[normalizeAddress(s.collateral.address)] ?? 0n) === 0n) return false;
+			if (inMyWallet && walletAddress && (walletBalanceMap[balanceKey(s.collateral.chainId, s.collateral.address)] ?? 0n) === 0n)
+				return false;
 			return true;
 		});
 	}, [sorted, searchQuery, activeCategories, inMyWallet, walletAddress, walletBalanceMap]);
@@ -132,18 +175,16 @@ export default function CollateralOverviewTable() {
 						const swapUrl = bridgeSwapUrls[normalizeAddress(stat.original.position)];
 						const isBridge = !!swapUrl;
 
-						const totalDebt = stat.minted - stat.reserve;
-						const availDebt = Number(stat.availableForClones) * (1 - stat.avgReserveRatio);
-						const maxDebt = Number(stat.limitForClones) * (1 - stat.avgReserveRatio);
-						const avgHealthPct = stat.avgCollateral * 100;
-						const riskHealthPct =
-							stat.minted > 0n && totalDebt > 0n ? avgHealthPct * (Number(stat.minted) / Number(totalDebt)) : 0;
-						const riskColor =
-							riskHealthPct > 0 && riskHealthPct < 110
-								? "text-red-500"
-								: riskHealthPct <= 120
-								? "text-orange-400"
-								: "text-green-500";
+						const { openDebt, availDebt, maxDebt, openDebtPct, availDebtPct, collValue, collValuePct } = deriveRow(stat);
+
+						// a token pair is listed side by side, CHF collateral stands alone, the rest is valued in ZCHF
+						const holding = `${collateralAmount} ${stat.collateral.symbol}`;
+						const composition =
+							stat.pairedZchfAmount !== undefined
+								? `${holding} + ${formatCurrency(stat.pairedZchfAmount, 2, 2, FormatType.symbol)} ZCHF`
+								: stat.omitZchfValue
+								? holding
+								: `${holding} • ${formatCurrency(stat.totalValue, 2, 2, FormatType.symbol)} ZCHF`;
 
 						return (
 							<div key={stat.original.position} onClick={isBridge ? () => router.push(swapUrl) : undefined}>
@@ -158,10 +199,7 @@ export default function CollateralOverviewTable() {
 												<span className="font-bold text-md max-lg:w-[8rem] lg:w-[10rem] max-sm:w-[12rem] md:text-nowrap truncate">
 													{stat.collateral.name}
 												</span>
-												<span className="text-text-subheader text-sm text-nowrap">
-													{collateralAmount} {stat.collateral.symbol} •{" "}
-													{formatCurrency(stat.totalValue, 2, 2, FormatType.symbol)} ZCHF
-												</span>
+												<span className="text-text-subheader text-sm text-nowrap">{composition}</span>
 											</div>
 										</div>
 
@@ -171,28 +209,36 @@ export default function CollateralOverviewTable() {
 											</span>
 											<div className="flex flex-col text-left">
 												<span className="font-bold text-md">{stat.collateral.name}</span>
-												<span className="text-text-subheader text-sm">
-													{collateralAmount} {stat.collateral.symbol} •{" "}
-													{formatCurrency(stat.totalValue, 2, 2, FormatType.symbol)} ZCHF
-												</span>
+												<span className="text-text-subheader text-sm">{composition}</span>
 											</div>
 										</AppBox>
 									</div>
 
 									{/* Open Debt */}
-									<div className="text-right">
-										{formatCurrency(formatUnits(totalDebt, 18), 2, 2, FormatType.symbol)} ZCHF
+									<div className="flex flex-col text-right">
+										<span>{formatCurrency(openDebt, 2, 2, FormatType.symbol)} ZCHF</span>
+										<span className="text-text-subheader text-sm">
+											{maxDebt > 0 ? `${formatCurrency(openDebtPct, 2, 2)}% used` : "-"}
+										</span>
 									</div>
 
 									{/* Avail. Debt */}
-									<div className="text-right">{formatCurrency(availDebt, 2, 2, FormatType.symbol)} ZCHF</div>
+									<div className="flex flex-col text-right">
+										<span>{formatCurrency(availDebt, 2, 2, FormatType.symbol)} ZCHF</span>
+										<span className="text-text-subheader text-sm">
+											{maxDebt > 0 ? `${formatCurrency(availDebtPct, 2, 2)}% free` : "-"}
+										</span>
+									</div>
 
 									{/* Max Debt */}
 									<div className="text-right">{formatCurrency(maxDebt, 2, 2, FormatType.symbol)} ZCHF</div>
 
-									{/* Avg. Coll. */}
-									<div className={`text-right text-md font-bold ${!isBridge && riskHealthPct > 0 ? riskColor : ""}`}>
-										{riskHealthPct > 0 ? `${formatCurrency(riskHealthPct, 2, 2)}%` : "-"}
+									{/* Locked Value */}
+									<div className="flex flex-col text-right">
+										<span>{formatCurrency(collValue, 2, 2, FormatType.symbol)} ZCHF</span>
+										<span className="text-text-subheader text-sm">
+											{collValuePct > 0 ? `${formatCurrency(collValuePct, 2, 2)}% of debt` : "-"}
+										</span>
 									</div>
 								</TableRow>
 							</div>

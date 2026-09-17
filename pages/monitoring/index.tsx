@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { RootState, store } from "../../redux/redux.store";
 import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import { fetchMarketChart } from "../../redux/slices/prices.slice";
+import { fetchAmplifierList } from "../../redux/slices/amplifiers.slice";
 import ChallengesTable from "@components/PageChallenges/ChallengesTable";
 import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
@@ -29,11 +30,14 @@ export default function Positions() {
 			state.challenges.list.list.filter((c) => c.status === "Active").length +
 			state.positions.openPositions.filter((p) => isForceSellable(p)).length
 	);
-	const collateralCount = useSelector((state: RootState) => state.positions.openPositionsByCollateral.length) + 2; // +2 for VCHF and CHFAU stablecoin bridges
+	const amplifierCount = useSelector((state: RootState) => state.amplifiers.list.length);
+	// one row per collateral, plus the CHFAU bridge and one row per amplifier
+	const collateralCount = useSelector((state: RootState) => state.positions.openPositionsByCollateral.length) + 1 + amplifierCount;
 
 	useEffect(() => {
 		store.dispatch(fetchPositionsList());
 		store.dispatch(fetchMarketChart());
+		store.dispatch(fetchAmplifierList());
 	}, []);
 
 	return (
@@ -110,11 +114,10 @@ export default function Positions() {
 							<>
 								<AppTitle title={`System Health`}>
 									<div className="text-text-secondary">
-										Those charts show how well the Frankencoins are backed by collateral assets. All Frankencoins that
-										are not in the reserve pool are considered in free circulation. As long as the value is above 100%,
-										all Frankencoins in free circulation are backed by collateral. The total supply view shows how well
-										collateral assets back the whole ecosystem. The recording of historic watermarks started in
-										September 2025.
+										Free float collateralization shows the value of the collateral in the Frankencoin system divided by
+										its free float supply (defined as total supply minus equity and minter reserves). If it falls below
+										100%, the Frankencoin will depeg. In contrast, total supply collateralization is based on the total
+										supply. A fall below 100% implies a loss for governance token holders and/or minters.
 									</div>
 								</AppTitle>
 
@@ -191,7 +194,8 @@ export default function Positions() {
 							<>
 								<AppTitle title={`Accepted Collateral Assets`} badge={String(collateralCount)}>
 									<div className="text-text-secondary">
-										An overview of all collateral types currently accepted by the Frankencoin protocol.
+										An overview of all collateral types currently accepted by the Frankencoin protocol, including
+										amplified dex positions and swap contracts with other Swiss franc stablecoins.
 									</div>
 								</AppTitle>
 								<div className="mt-8">
@@ -201,16 +205,8 @@ export default function Positions() {
 								<AppTitle title="Collateral Risk Parameters">
 									<div className="text-text-secondary flex flex-col gap-2">
 										<p>
-											Risk parameters per original position: borrowing limit, governance-set risk premium, reserve
-											contribution, and minimum locked value (minimum collateral × market price). The limit is the
-											total amount the original and its clones may mint together. The min. locked value is the
-											collateral value anyone needs to deposit to clone this position and mint new Frankencoin. It
-											also reflects the minimum value a challenger needs to provide when starting a challenge. Clones
-											inherit the parameters of their original.
-										</p>
-										<p>
-											Note: A new position proposal requires that the minimum collateral covers a minting capacity of
-											at least 5,000 ZCHF.
+											List of successful collateral proposals and their parameters, as long as they still have at
+											least one open position.
 										</p>
 									</div>
 								</AppTitle>

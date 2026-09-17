@@ -146,6 +146,8 @@ export const useSwapCHFAUStats = (): SwapVCHFStatsReturn => {
 		discussionLink: "",
 		lockedValue: bridgeBalFloat * chfauPrice,
 		avgReserveRatio: 0,
+		// CHFAU is a franc stablecoin at par, so restating its ZCHF value adds nothing
+		omitZchfValue: true,
 	};
 
 	return {

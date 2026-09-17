@@ -32,6 +32,17 @@ export type CollateralOverviewStat = {
 	discussionLink: string;
 	lockedValue: number;
 	avgReserveRatio: number;
+	/**
+	 * Rows whose backing is a token pair rather than a single collateral set this to the ZCHF
+	 * side of it. The overview then reads "X TOKEN + Y ZCHF" instead of stating the ZCHF value
+	 * of the collateral, which makes the different notation evident.
+	 */
+	pairedZchfAmount?: number;
+	/**
+	 * Set by rows whose collateral is already CHF denominated at par, where restating its ZCHF
+	 * value would just repeat the same number. The overview then reads "X TOKEN".
+	 */
+	omitZchfValue?: boolean;
 };
 
 export type SwapVCHFStatsReturn = {
