@@ -18,6 +18,16 @@ export default function GovernanceLeadrateCurrent() {
 	const rate = useSelector((state: RootState) => state.savings.leadrateRate.rate[chainId]);
 	const rates = useSelector((state: RootState) => state.savings.leadrateRate.list[chainId]);
 
+	// @dev: the rate data is missing until /savings/leadrate/rates has loaded, or when that request failed.
+	// The page must degrade to a notice instead of throwing, otherwise the whole governance page unmounts.
+	if (!rate?.[MintModule] || !rate?.[SaveModule] || !rates?.[MintModule] || !rates?.[SaveModule]) {
+		return (
+			<AppCard>
+				<div className="flex justify-center text-text-warning">Rate data is currently unavailable.</div>
+			</AppCard>
+		);
+	}
+
 	const latestDefaultEntryMint: LeadrateRateQuery = {
 		chainId: mainnet.id,
 		created: Math.floor(Date.now() / 1000),

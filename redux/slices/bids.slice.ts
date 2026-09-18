@@ -110,13 +110,14 @@ export const fetchBidsList =
 
 			const response4 = await FRANKENCOIN_API_CLIENT.get("/challenges/bids/positions");
 			dispatch(slice.actions.setPositions(response4.data as ApiBidsPositions));
-
-			// ---------------------------------------------------------------
-			// Finalizing, loaded set to true
-			dispatch(slice.actions.setLoaded(true));
 		} catch (error) {
 			// ---------------------------------------------------------------
 			// Error, show toast message
 			showErrorToast({ message: "Fetching BidsList", error });
+		} finally {
+			// ---------------------------------------------------------------
+			// @dev: the boot gate in BlockUpdater waits on this flag. It has to be set even when a
+			// request failed, otherwise a single dead endpoint stalls the whole app until the breaker.
+			dispatch(slice.actions.setLoaded(true));
 		}
 	};
