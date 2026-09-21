@@ -2,7 +2,7 @@ import Head from "next/head";
 import AppTitle from "@components/AppTitle";
 import TransferInteractionCard from "@components/PageTransfer/TransferInteractionCard";
 import AppLink from "@components/AppLink";
-import TransferListTable from "@components/PageTransfer/TransferListTable";
+// import TransferListTable from "@components/PageTransfer/TransferListTable";
 
 export default function TransferPage() {
 	return (
@@ -22,11 +22,11 @@ export default function TransferPage() {
 				<TransferInteractionCard />
 			</div>
 
-			<AppTitle title="Transfer Log">
+			{/* <AppTitle title="Transfer Log">
 				<div className="text-text-secondary">Find past transfers, limited to 50 results.</div>
 			</AppTitle>
 
-			<TransferListTable />
+			<TransferListTable /> */}
 		</>
 	);
 }
