@@ -65,6 +65,8 @@ export default function GovernanceVotersRow({
 
 		const contractAddress = isShoot || system === "fcs" ? ADDRESS[mainnet.id].fcs : ADDRESS[mainnet.id].equity;
 		const abi = isShoot || system === "fcs" ? FCSABI : EquityABI;
+		// Spend only as much of our own budget as the target actually has, capped at what we hold.
+		const votesToDestroy = voter.votingPower < myVotes ? voter.votingPower : myVotes;
 
 		try {
 			setAction(true);
@@ -82,7 +84,7 @@ export default function GovernanceVotersRow({
 						chainId: mainnet.id,
 						abi,
 						functionName: system === "fcs" ? "attack" : "kamikaze",
-						args: [[voter.holder as Address], myVotes],
+						args: [[voter.holder as Address], votesToDestroy],
 				  });
 
 			const toastContent = [
