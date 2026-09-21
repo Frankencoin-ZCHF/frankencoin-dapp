@@ -5,9 +5,11 @@ import TableRowEmpty from "../Table/TableRowEmpty";
 import { useState } from "react";
 import { useVotingPowers, VoteDataQuote, VotingSystem, QUORUM_RATIO } from "@hooks";
 import GovernanceVotersRow from "./GovernanceVotersRow";
+import GovernanceVotersExecuteBar from "./GovernanceVotersExecuteBar";
 import { useConnection, useReadContract } from "wagmi";
 import { normalizeAddress } from "../../utils/format";
 import { ADDRESS, FCSABI } from "@frankencoin/zchf";
+import { Address } from "viem";
 import { mainnet } from "viem/chains";
 
 // Always shown on the FPS tab regardless of QUORUM_RATIO — it's FCS's aggregate pooled voting
@@ -25,6 +27,7 @@ export default function GovernanceVotersTable({ system = "fps" }: Props) {
 	const headers: string[] = ["Address", "Voting Power"];
 	const [tab, setTab] = useState<string>(headers[1]);
 	const [reverse, setReverse] = useState<boolean>(false);
+	const [selected, setSelected] = useState<Set<Address>>(new Set());
 
 	const { address } = useConnection();
 	const { votesData, accountVoteData, totalVotes } = useVotingPowers(system);
@@ -39,9 +42,37 @@ export default function GovernanceVotersTable({ system = "fps" }: Props) {
 		query: { enabled: system === "fps" },
 	});
 	const fcsIsBinding = fcsIsBindingData ?? false;
+	// kamikaze()/attack() targets are picked per-row and executed together below the table — shoot()
+	// fires immediately per-row instead (single target, no caller budget), so it has no selection.
+	const isShoot = system === "fps" && fcsIsBinding;
 
 	// Caller's own raw votes on this system's token — spent as the sacrifice budget for kamikaze/attack.
 	const myVotes = accountVoteData?.votingPower ?? 0n;
+
+	const toggleSelect = (holder: Address) => {
+		setSelected((prev) => {
+			const next = new Set(prev);
+			const normalized = normalizeAddress(holder);
+			if (next.has(normalized)) {
+				next.delete(normalized);
+			} else {
+				next.add(normalized);
+			}
+			return next;
+		});
+	};
+
+	// Equity.kamikaze()/FCS.attack() spend the budget against targets in array order and stop once
+	// it runs out — when the budget can't cover every selected target, whoever is earlier in the
+	// array wins. Sort by voting power descending so the budget always goes to the biggest targets
+	// first, regardless of the order they were clicked in.
+	const selectedVoters = votesData
+		.filter((v) => selected.has(normalizeAddress(v.holder)))
+		.sort((a, b) => (b.votingPower > a.votingPower ? 1 : -1));
+	const accumulatedVotes = selectedVoters.reduce((sum, v) => sum + v.votingPower, 0n);
+	// Same idea as a single-target cap, applied across the whole bundled selection instead: never
+	// offer to spend more of our own budget than we actually hold.
+	const votesToDestroy = accumulatedVotes < myVotes ? accumulatedVotes : myVotes;
 
 	const otherVotes = votesData.filter((v) => !address || normalizeAddress(v.holder) !== normalizeAddress(address));
 
@@ -53,7 +84,7 @@ export default function GovernanceVotersTable({ system = "fps" }: Props) {
 	// Small systems can have few (or zero) voters above quorum — show at least MIN_SHOWN rows when
 	// available so the table isn't sparse. Rows already sorted (default: by voting power desc) fill
 	// the minimum, so quorum-passing voters take priority for free; past MIN_SHOWN only quorum still applies.
-	const MIN_SHOWN = 10;
+	const MIN_SHOWN = 30;
 	const sortedAll = sortVotes({ votes: otherVotes, headers, tab, reverse });
 	const sorted = sortedAll.length <= MIN_SHOWN ? sortedAll : sortedAll.filter((i, idx) => idx < MIN_SHOWN || passesQuorum(i));
 
@@ -67,41 +98,58 @@ export default function GovernanceVotersTable({ system = "fps" }: Props) {
 	};
 
 	return (
-		<Table>
-			<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
-			<TableBody>
-				<>
-					{accountVoteData && (
-						<GovernanceVotersRow
-							headers={headers}
-							tab={tab}
-							voter={accountVoteData}
-							votesTotal={totalVotes}
-							system={system}
-							myVotes={myVotes}
-							fcsIsBinding={fcsIsBinding}
-							connectedWallet
-						/>
-					)}
-					{sorted.length === 0 ? (
-						<TableRowEmpty>{"There are no voters yet"}</TableRowEmpty>
-					) : (
-						sorted.map((vote) => (
+		<>
+			<Table>
+				<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
+				<TableBody>
+					<>
+						{accountVoteData && (
 							<GovernanceVotersRow
-								key={vote.holder}
 								headers={headers}
 								tab={tab}
-								voter={vote}
+								voter={accountVoteData}
 								votesTotal={totalVotes}
 								system={system}
 								myVotes={myVotes}
 								fcsIsBinding={fcsIsBinding}
+								connectedWallet
 							/>
-						))
-					)}
-				</>
-			</TableBody>
-		</Table>
+						)}
+						{sorted.length === 0 ? (
+							<TableRowEmpty>{"There are no voters yet"}</TableRowEmpty>
+						) : (
+							sorted.map((vote) => (
+								<GovernanceVotersRow
+									key={vote.holder}
+									headers={headers}
+									tab={tab}
+									voter={vote}
+									votesTotal={totalVotes}
+									system={system}
+									myVotes={myVotes}
+									fcsIsBinding={fcsIsBinding}
+									selected={selected.has(normalizeAddress(vote.holder))}
+									onToggleSelect={toggleSelect}
+								/>
+							))
+						)}
+					</>
+				</TableBody>
+			</Table>
+
+			{!isShoot && selected.size > 0 && (
+				<GovernanceVotersExecuteBar
+					system={system}
+					targets={selectedVoters.map((v) => v.holder)}
+					myVotes={myVotes}
+					accumulatedVotes={accumulatedVotes}
+					votesToDestroy={votesToDestroy}
+					selectedCount={selected.size}
+					onCleared={() => setSelected(new Set())}
+					onExecuted={() => setSelected(new Set())}
+				/>
+			)}
+		</>
 	);
 }
 

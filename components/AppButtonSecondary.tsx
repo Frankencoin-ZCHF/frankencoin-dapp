@@ -8,6 +8,7 @@ interface Props {
 	className?: string;
 	size?: "small" | "medium" | "large";
 	disabled?: boolean;
+	active?: boolean;
 	width?: string;
 	onClick?: (e?: any) => void;
 	children?: React.ReactNode;
@@ -23,6 +24,7 @@ export default function AppButtonSecondary({
 	className,
 	size = "medium",
 	disabled,
+	active,
 	width,
 	onClick = () => {},
 	children,
@@ -36,6 +38,8 @@ export default function AppButtonSecondary({
 	const btnClass = `btn ${className ?? ""} ${sizeClass} ${
 		disabled || isLoading
 			? "cursor-not-allowed bg-button-disabled text-button-textdisabled"
+			: active
+			? "border-2 border-button-hover bg-button-hover text-white"
 			: "bg-transparent border-2 border-button-disabled text-text-primary hover:border-button-hover hover:bg-button-hover hover:text-white"
 	} ${width ?? "w-full"}`.trim();
 
