@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
 import AppCard from "@components/AppCard";
+import AppLink from "@components/AppLink";
 import { formatCurrency } from "@utils";
 import { colors } from "../../utils/constant";
 import { useFcsBindingProgress } from "@hooks";
@@ -59,9 +60,10 @@ export default function GovernanceFloatingSharesChart() {
 				<div className="my-auto space-y-1">
 					<div className="text-text-primary font-bold mb-2">FPS Voting Distribution</div>
 					<div className="text-text-secondary text-sm pb-3">
-						Every FPS holder who wraps into WFPS or FCS moves their voting power out of the free-floating pool. WFPS still
-						accumulates votes on its balance like any holder, but implements no governance mechanism. FCS instead pools its
-						holders' votes into a single bloc
+						Every FPS holder who wraps into WFPS or FCS moves their voting power out of the free-floating pool.{" "}
+						<AppLink className="inline" label="WFPS" href="/governance/wfps" external={false} /> still accumulates votes on its
+						balance like any holder, but implements no governance mechanism. FCS instead pools its holders' votes into a single
+						bloc
 						{isBinding ? (
 							<span className="text-amber-500 font-medium">
 								{" "}
