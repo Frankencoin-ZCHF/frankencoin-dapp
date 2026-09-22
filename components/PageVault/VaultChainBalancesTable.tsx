@@ -38,7 +38,7 @@ export default function VaultChainBalancesTable({ viewAddress }: Props) {
 								className="grid grid-cols-[1fr_1fr_1fr_1fr] items-center p-3 rounded-lg bg-card-body-primary"
 							>
 								<div className="flex items-center gap-2">
-									<TokenLogo currency="ZCHF" chain={chain.name} />
+									<TokenLogo currency="svZCHF" chain={chain.name} />
 									<span className="font-medium">{chain.name}</span>
 								</div>
 								<span className="text-right">{formatCurrency(formatUnits(stats.balance, 18))}</span>
