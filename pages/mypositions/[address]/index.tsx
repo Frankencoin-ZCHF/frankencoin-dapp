@@ -10,6 +10,7 @@ import {
 	ContractUrl,
 	formatBigInt,
 	formatCurrency,
+	formatDateTime,
 	formatDuration,
 	normalizeAddress,
 	shortenAddress,
@@ -142,6 +143,13 @@ export default function PositionAdjust() {
 
 	const isCooldown: boolean = position.cooldown * 1000 - Date.now() > 0;
 
+	// During a cooldown, the contract only rejects minting more and withdrawing collateral.
+	// Repaying, adding collateral and changing the price remain possible.
+	const isMinting: boolean = amount > BigInt(position.minted);
+	const isWithdrawing: boolean = collateralAmount < BigInt(position.collateralBalance);
+	// V1 marks a closed position with an eternal cooldown but still lets the owner withdraw what is left.
+	const isWithdrawBlockedByCooldown: boolean = isCooldown && !(position.version == 1 && position.closed);
+
 	let maxMintableInclClones: bigint = 0n;
 
 	if (position.version == 1) {
@@ -192,7 +200,9 @@ export default function PositionAdjust() {
 	};
 
 	function getCollateralError() {
-		if (liqPrice > BigInt(position.price) && BigInt(position.price) * collateralAmount < amount * parseEther("1")) {
+		if (isWithdrawing && isWithdrawBlockedByCooldown) {
+			return `Collateral cannot be withdrawn during the cooldown, which ends ${formatDateTime(position.cooldown)}.`;
+		} else if (liqPrice > BigInt(position.price) && BigInt(position.price) * collateralAmount < amount * parseEther("1")) {
 			return "This position is limited to the old price, add some collateral.";
 		} else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
 			return "Not enough collateral for the given price and mint amount.";
@@ -202,8 +212,10 @@ export default function PositionAdjust() {
 	}
 
 	function getAmountError() {
-		if (isCooldown) {
-			return `This position is ${position.cooldown > 1e30 ? "closed" : "in cooldown, please wait"}`;
+		if (isMinting && position.closed) {
+			return "This position is closed and cannot mint anymore.";
+		} else if (isMinting && isCooldown) {
+			return `Minting is paused during the cooldown, which ends ${formatDateTime(position.cooldown)}.`;
 		} else if (amount > maxTotalLimit) {
 			return `This position is limited to ${formatCurrency(formatUnits(maxTotalLimit, 18), 2, 2)} ZCHF`;
 		} else if (liqPrice * collateralAmount < amount * 10n ** 18n) {
@@ -525,8 +537,7 @@ export default function PositionAdjust() {
 										(amount == BigInt(position.minted) &&
 											collateralAmount == BigInt(position.collateralBalance) &&
 											liqPrice == BigInt(position.price)) ||
-										(!position.denied &&
-											((isCooldown && amount > 0n) || !!getAmountError() || !!getCollateralError())) ||
+										(!position.denied && (!!getAmountError() || !!getCollateralError())) ||
 										(challengeSize > 0n && collateralAmount < BigInt(position.collateralBalance))
 									}
 									isLoading={isAdjusting}
