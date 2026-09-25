@@ -91,6 +91,12 @@ export default function PositionDetail() {
 	const marketPriceChf = prices[normalizeAddress(position.collateral)]?.price?.chf || 0;
 	const nominalLTV = marketPriceChf > 0 ? (liqPriceFloat / marketPriceChf) * 100 : 0;
 
+	// the contract getter ignores closed/denied, so zero it here; `denied` covers the indexer lagging before the live read
+	const availableForMinting =
+		position.closed || position.denied
+			? 0n
+			: BigInt(position.version === 2 ? position.availableForMinting : position.availableForPosition);
+
 	const originalInfo =
 		!position.isOriginal && position.original
 			? { label: shortenAddress(position.original), href: `/monitoring/${position.original}` }
@@ -138,8 +144,8 @@ export default function PositionDetail() {
 							<div className="text-base font-bold mb-1">Usage</div>
 							<StatRow label="Minted">{formatCurrency(formatUnits(BigInt(position.minted), 18))} ZCHF</StatRow>
 							<StatRow label="Retained Reserve">{formatCurrency(formatUnits(reserve, 18))} ZCHF</StatRow>
-							<StatRow label="Available for Clones">
-								{formatCurrency(formatUnits(BigInt(position.availableForClones), 18))} ZCHF
+							<StatRow label="Available for Minting">
+								{formatCurrency(formatUnits(availableForMinting, 18))} ZCHF
 							</StatRow>
 							<StatRow label="Limit">{formatCurrency(formatUnits(BigInt(position.limitForClones), 18))} ZCHF</StatRow>
 						</div>
