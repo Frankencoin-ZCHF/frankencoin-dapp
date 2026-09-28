@@ -27,6 +27,16 @@ interface Props {
 	onToggleSelect?: (holder: Address) => void;
 }
 
+// Known governance/system contracts that can show up as rows on the FPS voters table (they hold
+// delegated or self-held FPS votes rather than being individual holders) — labeled by contract
+// name so it's clear what each row represents.
+const GOVERNANCE_LABELS: Record<string, string> = {
+	[normalizeAddress(ADDRESS[mainnet.id].fcs)]: "Frankencoin Shares",
+	[normalizeAddress(ADDRESS[mainnet.id].ccipGovernance)]: "CCIPGovernance",
+	[normalizeAddress(ADDRESS[mainnet.id].interestGovernance)]: "InterestGovernance",
+	[normalizeAddress(ADDRESS[mainnet.id].minterGovernance)]: "MinterGovernance",
+};
+
 export default function GovernanceVotersRow({
 	headers,
 	tab,
@@ -44,11 +54,7 @@ export default function GovernanceVotersRow({
 	const votingPower = voter.votingPowerRatio + voter.supportedVotingPowerRatio;
 	const supporterCount = voter.supporters.length;
 	const isWrapped = normalizeAddress(voter.holder) === normalizeAddress(ADDRESS[mainnet.id].wFPS);
-	// FCS.sol's constructor delegates all of FCS's pooled FPS votes to a single "helper" address
-	// returned by GovernanceFactory.deploy() — verified on-chain (via the indexed Delegation event,
-	// owner=FCS) that this is `interestGovernance`, not `mainnetVotes` as might be assumed from the
-	// naming. So on the FPS tab this row represents "all wrapped FCS holders combined", not an individual.
-	const isFcsWrapper = normalizeAddress(voter.holder) === normalizeAddress(ADDRESS[mainnet.id].interestGovernance);
+	const governanceLabel = GOVERNANCE_LABELS[normalizeAddress(voter.holder)];
 
 	// FCS.shoot(target) is only available once FCS is binding, and only ever destroys a target's FPS
 	// votes — it costs the caller nothing since FCS spends its own pooled votes as the budget internally.
@@ -144,9 +150,9 @@ export default function GovernanceVotersRow({
 								Wrapped
 							</span>
 						)}
-						{isFcsWrapper && (
+						{governanceLabel && (
 							<span className="text-xs font-medium px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
-								FCS
+								{governanceLabel}
 							</span>
 						)}
 					</div>

@@ -13,8 +13,8 @@ import { Address } from "viem";
 import { mainnet } from "viem/chains";
 
 // Always shown on the FPS tab regardless of QUORUM_RATIO — it's FCS's aggregate pooled voting
-// power (see GovernanceVotersRow's isFcsWrapper), not an individual holder, so it stays relevant
-// context even while FCS adoption is still small.
+// power (see GovernanceVotersRow's GOVERNANCE_LABELS, labeled "InterestGovernance"), not an
+// individual holder, so it stays relevant context even while FCS adoption is still small.
 const ALWAYS_SHOWN: Partial<Record<VotingSystem, string>> = {
 	fps: normalizeAddress(ADDRESS[mainnet.id].interestGovernance),
 };
