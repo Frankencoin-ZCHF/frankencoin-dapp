@@ -33,7 +33,7 @@ export default function GovernanceVotersTable({ system = "fps" }: Props) {
 	const { votesData, accountVoteData, totalVotes } = useVotingPowers(system);
 
 	// FCS.shoot() only becomes available once FCS is binding — determines whether the FPS tab's row
-	// action is "Shoot" (FCS contract, target-only) or "Kamikaze" (Equity, self-sacrifice budget).
+	// action is "Shoot" (FCS contract, target-only) or "Attack" (Equity, self-sacrifice budget).
 	const { data: fcsIsBindingData } = useReadContract({
 		address: ADDRESS[mainnet.id].fcs,
 		chainId: mainnet.id,

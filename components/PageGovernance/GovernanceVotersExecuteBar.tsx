@@ -62,8 +62,8 @@ export default function GovernanceVotersExecuteBar({
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
-				pending: { render: <TxToast title="Kamikaze in progress..." rows={toastContent} /> },
-				success: { render: <TxToast title="Kamikaze successful" rows={toastContent} /> },
+				pending: { render: <TxToast title="Attack in progress..." rows={toastContent} /> },
+				success: { render: <TxToast title="Attack successful" rows={toastContent} /> },
 			});
 
 			onExecuted();
@@ -93,7 +93,7 @@ export default function GovernanceVotersExecuteBar({
 				</AppButtonSecondary>
 				<GuardSupportedChain chain={mainnet}>
 					<AppButtonSecondary width="w-auto" disabled={isExecuteDisabled} isLoading={isAction} onClick={handleExecute}>
-						Execute Kamikaze
+						Execute Attack
 					</AppButtonSecondary>
 				</GuardSupportedChain>
 			</div>
