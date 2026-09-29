@@ -1,92 +1,68 @@
-import dynamic from "next/dynamic";
+import { formatUnits } from "viem";
 import AppCard from "@components/AppCard";
-import AppLink from "@components/AppLink";
+import AppRingChart from "@components/AppRingChart";
 import { formatCurrency } from "@utils";
-import { colors } from "../../utils/constant";
 import { useFcsBindingProgress } from "@hooks";
 
-const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
+// Only the FCS share is filled; the rest of each ring stays empty, so both rings read as progress indicators.
+// Same blue as the app's links and button hover, visible on light and dark backgrounds.
+const FCS_COLOR = "#0F80F0";
 
 export default function GovernanceFloatingSharesChart() {
-	const { pct, wfpsPct, isBinding } = useFcsBindingProgress();
+	const { pct, fpsSupply, fcsFpsBalance } = useFcsBindingProgress();
 	const fcsPct = Math.min(100, Math.max(0, pct));
-	const wrappedPct = Math.min(100, Math.max(0, wfpsPct));
-	const floatPct = Math.max(0, 100 - fcsPct - wrappedPct);
+	const directPct = 100 - fcsPct;
 
-	const labels = ["Free Float FPS", "Wrapped FPS", "Shares FCS"];
-	const series = [floatPct, wrappedPct, fcsPct];
+	const fcsSupply = parseFloat(formatUnits(fcsFpsBalance, 18));
+	const totalSupply = parseFloat(formatUnits(fpsSupply, 18));
+	const directSupply = Math.max(0, totalSupply - fcsSupply);
+
+	// FCS first, so its growing share runs clockwise from 12 o'clock
+	const categories = ["Frankencoin Shares (FCS)", "Directly held FPS"];
+	const categoryColors = [FCS_COLOR, undefined];
+	const votes = [fcsPct, directPct];
+	const supply = [fcsSupply, directSupply];
 
 	return (
 		<AppCard>
 			<div className="grid md:grid-cols-2 gap-4">
-				<div className="pr-2 my-auto">
-					<ApexChart
-						height={"350px"}
-						type="donut"
-						options={{
-							chart: { type: "donut", background: "0" },
-							colors,
-							theme: { palette: "palette2" },
-							labels,
-							dataLabels: {
-								enabled: true,
-								formatter: (val: number) => `${formatCurrency(val, 0, 1)}%`,
-							},
-							tooltip: {
-								y: { formatter: (val: number) => `${formatCurrency(val, 0, 2)}% of all FPS votes` },
-							},
-							legend: {
-								show: false,
-							},
-							plotOptions: {
-								pie: {
-									donut: {
-										labels: {
-											show: true,
-											total: {
-												show: true,
-												label: "Voting Power",
-												formatter: () => "100%",
-											},
-										},
-									},
-								},
-							},
-						}}
-						series={series}
+				<div className="my-auto py-2">
+					<AppRingChart
+						categories={categories}
+						colors={categoryColors}
+						rings={[
+							{ label: "Supply", values: supply },
+							{ label: "Votes", values: votes },
+						]}
 					/>
 				</div>
 
 				<div className="my-auto space-y-1">
-					<div className="text-text-primary font-bold mb-2">FPS Voting Distribution</div>
+					<div className="text-text-primary font-bold mb-2">Migration Progress</div>
 					<div className="text-text-secondary text-sm pb-3">
-						Every FPS holder who wraps into WFPS or FCS moves their voting power out of the free-floating pool.{" "}
-						<AppLink className="inline" label="WFPS" href="/governance/wfps" external={false} /> still accumulates votes on its
-						balance like any holder, but implements no governance mechanism. FCS instead pools its holders' votes into a single
-						bloc
-						{isBinding ? (
-							<span className="text-amber-500 font-medium">
-								{" "}
-								that is currently binding — it can shoot unwrapped FPS votes
-							</span>
-						) : (
-							" with its own, lower qualification threshold"
-						)}
-						.
+						Tracks the percentage of FPS already wrapped into FCS and their voting power. Votes are lagging behind holdings.
 					</div>
-					{labels.map((label, idx) => (
-						<div key={label} className="flex justify-between">
-							<div className="text-text-secondary font-semibold" style={{ color: colors[idx % colors.length] }}>
-								{label}
+
+					<div className="grid grid-cols-[1fr_auto_auto] gap-x-6 gap-y-1 items-baseline">
+						<div />
+						<div className="text-text-secondary text-sm text-right">Supply</div>
+						<div className="text-text-secondary text-sm text-right">Votes</div>
+
+						{categories.map((label, idx) => (
+							<div key={label} className="contents">
+								<div className="text-text-secondary font-semibold">{label}</div>
+								<div className="text-text-secondary font-semibold text-right whitespace-nowrap">
+									{formatCurrency(supply[idx], 0, 0)} FPS
+								</div>
+								<div className="text-text-secondary font-semibold text-right whitespace-nowrap">
+									{formatCurrency(votes[idx], 0, 2)}%
+								</div>
 							</div>
-							<div className="text-text-secondary font-semibold">{formatCurrency(series[idx], 0, 2)}%</div>
-						</div>
-					))}
-					<div className="flex justify-between">
-						<div className="text-text-primary font-semibold mt-2">
-							Total <span className="text-sm">(100%)</span>
-						</div>
-						<div className="text-text-primary font-semibold mt-2">of all FPS votes</div>
+						))}
+
+						<div className="text-text-primary font-semibold mt-2">Total</div>
+						<div className="text-text-primary font-semibold text-right mt-2">{formatCurrency(totalSupply, 0, 0)} FPS</div>
+						<div className="text-text-primary font-semibold text-right mt-2">100%</div>
 					</div>
 				</div>
 			</div>

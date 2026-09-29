@@ -50,13 +50,11 @@ export default function Governance() {
 
 			<AppTitle title="Governance">
 				<div className="text-text-secondary">
-					Frankencoin governance is veto-based rather than majority-vote: proposals (new collateral types, minting modules,
-					interest rate changes, CCIP bridge changes) pass automatically after a grace period unless a qualified holder vetoes
-					them. Voting power comes from two tokens —{" "}
-					<AppLink className="inline" label="FPS (Frankencoin Pool Share)" href="/governance/fps" external={false} /> and{" "}
-					<AppLink className="inline" label="FCS (Frankencoin Share)" href="/governance/fcs" external={false} />, which wraps FPS
-					1:1 and pools its holders' votes into a single bloc with its own, lower qualification threshold. Follow either link to
-					view rankings, delegate, or sync your votes across chains.
+					Frankencoin governance is veto-based rather than majority-vote: proposals like new collateral types pass automatically
+					after a grace period unless a qualified holder vetoes them. Veto power is gained by holding 2% of the lower-level {" "}
+					<AppLink className="inline" label="Frankencoin Pool Shares (FPS)" href="/governance/fps" external={false} /> or{" "}
+					1% of the newer <AppLink className="inline" label="Frankencoin Shares (FCS)" href="/governance/fcs" external={false} />
+					{" "}on a time-weighted basis. FCS are backed 1:1 by FPS and FPS can be converted into FCS at any time.
 				</div>
 			</AppTitle>
 
