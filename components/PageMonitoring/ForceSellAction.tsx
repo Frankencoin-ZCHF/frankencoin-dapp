@@ -8,12 +8,12 @@ import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import { formatBigInt, formatCurrency, normalizeAddress } from "@utils";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
-import { useConnection, useBlockNumber } from "wagmi";
+import { useConnection } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, FrankencoinABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import { toast } from "react-toastify";
-import { track } from "@hooks";
+import { track, useLiveBlockNumber } from "@hooks";
 import { mainnet } from "viem/chains";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -41,7 +41,7 @@ export default function ForceSellAction({ position, auctionPrice, onBidSuccess }
 	const [isBidding, setBidding] = useState(false);
 	const [userBalance, setUserBalance] = useState(0n);
 
-	const { data } = useBlockNumber({ watch: true });
+	const { data } = useLiveBlockNumber({ watch: true });
 	const account = useConnection();
 	const chainId = mainnet.id;
 	const priceDigits = 36 - position.collateralDecimals;

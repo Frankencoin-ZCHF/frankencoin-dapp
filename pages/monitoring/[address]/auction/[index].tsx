@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
+import { useLiveBlockNumber } from "@hooks";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { Address, parseUnits, zeroAddress } from "viem";
 import { normalizeAddress } from "@utils";
-import { useBlockNumber } from "wagmi";
+
 import { readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../../../app.config";
 import { RootState } from "../../../../redux/redux.store";
@@ -21,7 +22,7 @@ export default function ChallengePlaceBid() {
 	const [auctionPrice, setAuctionPrice] = useState<bigint>(0n);
 	const [isNavigating, setNavigating] = useState(false);
 
-	const { data } = useBlockNumber({ watch: true });
+	const { data } = useLiveBlockNumber({ watch: true });
 	const router = useRouter();
 	const navigate = useNavigation();
 

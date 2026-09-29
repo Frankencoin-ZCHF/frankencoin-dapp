@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
-import { usePoolStats } from "@hooks";
+import { usePoolStats, useLiveBlockNumber } from "@hooks";
 import { formatBigInt, formatDuration, shortenAddress } from "@utils";
-import { useConnection, useBlockNumber, useChainId } from "wagmi";
+import { useConnection, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import AppButton from "@components/AppButton";
@@ -38,7 +38,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 	const [wfpsHolding, setWfpsHolding] = useState<bigint>(0n);
 	const [calculateProceeds, setCalculateProceeds] = useState<bigint>(0n);
 
-	const { data } = useBlockNumber({ watch: true });
+	const { data } = useLiveBlockNumber({ watch: true });
 	const { address } = useConnection();
 	const poolStats = usePoolStats();
 	const chainId = mainnet.id;

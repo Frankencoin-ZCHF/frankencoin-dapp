@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useLiveBlockNumber } from "./useLiveBlockNumber";
 import { useConnection, useReadContracts } from "wagmi";
 import { decodeBigIntCall } from "@utils";
 import { zeroAddress } from "viem";
@@ -26,7 +28,9 @@ export const useFCSStats = () => {
 		abi: FrankencoinABI,
 	};
 
-	const { data } = useReadContracts({
+	// Refetch on every mainnet block so allowances/balances update after approve, wrap and unwrap.
+	const { data: blockNumber } = useLiveBlockNumber({ chainId: mainnet.id, watch: true });
+	const { data, refetch } = useReadContracts({
 		contracts: [
 			// FCS calls
 			{
@@ -92,6 +96,10 @@ export const useFCSStats = () => {
 			},
 		],
 	});
+
+	useEffect(() => {
+		refetch();
+	}, [blockNumber, refetch]);
 
 	const fcsSupply: bigint = data ? decodeBigIntCall(data[0]) : 0n;
 	const fcsTotalAssets: bigint = data ? decodeBigIntCall(data[1]) : 0n;

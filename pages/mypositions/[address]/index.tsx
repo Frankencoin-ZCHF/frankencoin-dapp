@@ -15,14 +15,14 @@ import {
 	shortenAddress,
 } from "@utils";
 import AppButton from "@components/AppButton";
-import { useConnection, useBlockNumber, useChainId } from "wagmi";
+import { useConnection, useChainId } from "wagmi";
 import { readContract, simulateContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast, renderErrorTxToastDecode } from "@components/TxToast";
 import { WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux.store";
-import { isSameSnapshot, PositionLiveSnapshot, snapshotOf, usePositionLive } from "@hooks";
+import { isSameSnapshot, PositionLiveSnapshot, snapshotOf, usePositionLive, useLiveBlockNumber } from "@hooks";
 import { ADDRESS, PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
 import AppTitle from "@components/AppTitle";
 import PositionRollerTable from "@components/PageMypositions/PositionRollerTable";
@@ -43,7 +43,7 @@ export default function PositionAdjust() {
 	const [userCollBalance, setUserCollBalance] = useState(0n);
 	const [userFrancBalance, setUserFrancBalance] = useState(0n);
 
-	const { data } = useBlockNumber({ watch: true });
+	const { data } = useLiveBlockNumber({ watch: true });
 	const account = useConnection();
 	const router = useRouter();
 	const chainId = mainnet.id;

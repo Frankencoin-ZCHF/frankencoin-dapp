@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useBlockNumber } from "wagmi";
+import { useLiveBlockNumber } from "./useLiveBlockNumber";
+
 import { readContracts } from "wagmi/actions";
 import { Address, erc20Abi } from "viem";
 import { mainnet } from "viem/chains";
@@ -206,7 +207,7 @@ export function usePositionLive(indexed: PositionQuery | undefined, options: Opt
 	const [updatedAt, setUpdatedAt] = useState<number>();
 	const liveFor = useRef<Address>();
 
-	const { data: blockNumber } = useBlockNumber({ watch, chainId });
+	const { data: blockNumber } = useLiveBlockNumber({ watch, chainId });
 
 	const refetch = useCallback(async (): Promise<PositionLiveState | undefined> => {
 		if (!address || !collateral || !version) return undefined;

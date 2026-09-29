@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { useBlockNumber, useConnection, useReadContracts } from "wagmi";
+import { useLiveBlockNumber } from "./useLiveBlockNumber";
+import { useConnection, useReadContracts } from "wagmi";
 import { Address, erc20Abi, zeroAddress } from "viem";
 import { mainnet } from "viem/chains";
 import { FrankencoinABI, UniswapV3PoolABI } from "@frankencoin/zchf";
@@ -128,7 +129,7 @@ export const useAmplifier = (amplifier: Address | undefined, chainId: number = m
 	const minter = (configData?.[9]?.result as Address) || zeroAddress;
 	const loaded = !!configData && !invalid && pool !== zeroAddress;
 
-	const { data: blockNumber } = useBlockNumber({ watch: true });
+	const { data: blockNumber } = useLiveBlockNumber({ watch: true });
 	const {
 		data: liveData,
 		refetch,

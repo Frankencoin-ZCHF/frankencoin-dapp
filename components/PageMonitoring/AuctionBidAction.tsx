@@ -7,14 +7,14 @@ import AppLink from "@components/AppLink";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import { ContractUrl, formatBigInt, formatCurrency, normalizeAddress, shortenAddress } from "@utils";
-import { useConnection, useBlockNumber } from "wagmi";
+import { useConnection } from "wagmi";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CHAIN, WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, FrankencoinABI, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import { toast } from "react-toastify";
-import { track } from "@hooks";
+import { track, useLiveBlockNumber } from "@hooks";
 import { mainnet } from "viem/chains";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -43,7 +43,7 @@ export default function AuctionBidAction({ position, challenge, auctionPrice, on
 	const [isBidding, setBidding] = useState(false);
 	const [userBalance, setUserBalance] = useState<bigint>(0n);
 
-	const { data } = useBlockNumber({ watch: true });
+	const { data } = useLiveBlockNumber({ watch: true });
 	const account = useConnection();
 	const chainId = mainnet.id;
 	const prices = useSelector((state: RootState) => state.prices.coingecko);

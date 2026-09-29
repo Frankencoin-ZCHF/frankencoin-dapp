@@ -3,14 +3,14 @@ import AppBox from "@components/AppBox";
 import DisplayLabel from "@components/DisplayLabel";
 import DisplayAmount from "@components/DisplayAmount";
 import { formatBigInt, formatDuration, shortenAddress } from "@utils";
-import { useConnection, useBlockNumber, useChainId } from "wagmi";
+import { useConnection, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import AppButton from "@components/AppButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
-import { track } from "@hooks";
+import { track, useLiveBlockNumber } from "@hooks";
 import { toast } from "react-toastify";
 import GuardToAllowedChainBtn from "@components/Guards/GuardToAllowedChainBtn";
 import { WAGMI_CONFIG } from "../../app.config";
@@ -38,7 +38,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 	const [fpsHolding, setFpsHolding] = useState<bigint>(0n);
 	const [wfpsHolding, setWfpsHolding] = useState<bigint>(0n);
 
-	const { data } = useBlockNumber({ watch: true });
+	const { data } = useLiveBlockNumber({ watch: true });
 	const { address } = useConnection();
 	const chainId = mainnet.id;
 	const account = address || zeroAddress;

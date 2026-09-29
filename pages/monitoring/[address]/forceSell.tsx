@@ -3,7 +3,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { Address, parseUnits, zeroAddress } from "viem";
 import { normalizeAddress } from "@utils";
-import { useBlockNumber } from "wagmi";
+
 import { readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../../app.config";
 import { RootState } from "../../../redux/redux.store";
@@ -16,13 +16,13 @@ import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
 import ForceSellPriceChart from "@components/PageMonitoring/ForceSellPriceChart";
 import ForceSellAction from "@components/PageMonitoring/ForceSellAction";
-import { usePositionLive } from "@hooks";
+import { usePositionLive, useLiveBlockNumber } from "@hooks";
 
 export default function MonitoringForceSell() {
 	const [auctionPrice, setAuctionPrice] = useState<bigint>(0n);
 	const [isNavigating, setNavigating] = useState(false);
 
-	const { data } = useBlockNumber({ watch: true });
+	const { data } = useLiveBlockNumber({ watch: true });
 	const router = useRouter();
 	const navigate = useNavigation();
 

@@ -32,3 +32,4 @@ export * from "./useSavingsReferrerMappings";
 export * from "./usePositionLive";
 
 export * from "./useCCIPLaneCapacity";
+export * from "./useLiveBlockNumber";

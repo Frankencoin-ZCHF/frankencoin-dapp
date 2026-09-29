@@ -6,12 +6,12 @@ import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, ERC20ABI, PositionV2ABI } from "@frankencoin/zchf";
-import { useConnection, useBlockNumber } from "wagmi";
+import { useConnection } from "wagmi";
 import PositionRollerApproveAction from "./PositionRollerApproveAction";
 import PositionRollerFullRollAction from "./PositionRollerFullRollAction";
 import AppLink from "@components/AppLink";
 import { mainnet } from "viem/chains";
-import { useUserBalance } from "@hooks";
+import { useUserBalance, useLiveBlockNumber } from "@hooks";
 
 interface Props {
 	headers: string[];
@@ -23,7 +23,7 @@ interface Props {
 export default function PositionRollerRow({ headers, tab, source, target }: Props) {
 	const [userCollAllowance, setUserCollAllowance] = useState<bigint>(0n);
 	const [missingFunds, setMissingFunds] = useState<bigint>(0n);
-	const { data } = useBlockNumber({ watch: true });
+	const { data } = useLiveBlockNumber({ watch: true });
 	const { address } = useConnection();
 	const account = address || zeroAddress;
 	const userBalance = useUserBalance(account);
