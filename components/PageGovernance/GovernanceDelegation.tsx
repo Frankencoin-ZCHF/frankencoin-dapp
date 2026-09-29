@@ -36,7 +36,7 @@ export default function GovernanceDelegation({ system = "fps" }: Props) {
 	const myDelegatedTo: Address = (delegationData.owners[normalizeAddress(myAddress)] ?? zeroAddress) as Address;
 
 	// helpers (supporters) for sync and display
-	const { helpers, supporterCount } = useDelegationHelpers(account.address, system);
+	const { helpers } = useDelegationHelpers(account.address, system);
 	const voters: Address[] = isConnected ? [myAddress, ...helpers] : [];
 
 	// read voting powers
@@ -101,11 +101,11 @@ export default function GovernanceDelegation({ system = "fps" }: Props) {
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 			{/* Left Card — Support List */}
 			<AppCard>
-				<div className="mt-2 text-lg font-bold text-center">Voting Support</div>
+				<div className="mt-2 text-lg font-bold text-center">Your Votes</div>
 
 				{/* Header */}
 				<div className="grid grid-cols-2 text-sm font-semibold text-text-secondary border-b border-card-input-border pb-1">
-					<div>From</div>
+					<div>Source</div>
 					<div className="text-right">Voting</div>
 				</div>
 
@@ -114,19 +114,8 @@ export default function GovernanceDelegation({ system = "fps" }: Props) {
 				) : (
 					<>
 						{/* Own row */}
-						<div className="grid grid-cols-2 items-start py-1 border-b border-card-input-border">
-							<div className="flex flex-col text-sm">
-								<span className="font-semibold text-text-primary">You</span>
-								{myDelegatedTo !== zeroAddress ? (
-									<span className="text-text-secondary text-xs truncate">→ {shortenAddress(myDelegatedTo)}</span>
-								) : supporterCount > 0 ? (
-									<span className="text-text-secondary text-xs">
-										{supporterCount} supporter{supporterCount !== 1 ? "s" : ""}
-									</span>
-								) : (
-									<span className="text-text-secondary text-xs">no supporters yet</span>
-								)}
-							</div>
+						<div className="grid grid-cols-2 items-center py-1 border-b border-card-input-border">
+							<div className="text-sm font-semibold text-text-primary">Connected wallet</div>
 							<div className="text-right text-sm font-semibold text-text-primary">{formatPct(myVotes)}</div>
 						</div>
 
@@ -156,15 +145,8 @@ export default function GovernanceDelegation({ system = "fps" }: Props) {
 
 				{/* Note */}
 				<div className="text-text-secondary text-sm mt-auto">
-					You can group up with other FPS holders by forming a supporter chain or circle to increase the combined voting power of
-					the group. All addresses that have supported to you — directly or recursively — are your{" "}
-					<span className="text-text-primary font-medium">supporters</span>. When syncing votes to another chain, the voting power
-					of you and all your supporters is included in the sync.{" "}
-					{voters.length > 1 && isConnected && (
-						<span className="text-text-primary font-medium">
-							{voters.length} address{voters.length !== 1 ? "es" : ""} will be synced.
-						</span>
-					)}
+					Your voting power is that of your own address plus all your supporters and their supporters recursively.
+					Supporting others does not reduce your own votes.{" "}
 				</div>
 			</AppCard>
 
