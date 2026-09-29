@@ -17,8 +17,9 @@ interface Props {
 }
 
 export default function GovernancePositionsRow({ headers, subHeaders, tab, position, prices }: Props) {
-	const price = prices[normalizeAddress(position.collateral)];
-	if (!position || !price) return null;
+	// @dev: a new or unknown collateral usually has no price entry yet. That is exactly the kind of position
+	// governance needs to see, so the row must render without a price instead of silently disappearing.
+	const price: number | undefined = prices[normalizeAddress(position.collateral)]?.price?.usd;
 
 	const limit = formatUnits(BigInt(position.limitForClones), 18);
 	const maturity = (position.expiration - position.start) / 60 / 60 / 24 / 30;
@@ -45,7 +46,7 @@ export default function GovernancePositionsRow({ headers, subHeaders, tab, posit
 						symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
-						price={price.price.usd ?? 0}
+						price={price}
 						balance={balance}
 					/>
 				</div>
@@ -57,7 +58,7 @@ export default function GovernancePositionsRow({ headers, subHeaders, tab, posit
 						symbolTiny={`v${position.version}`}
 						name={position.collateralName}
 						address={position.collateral}
-						price={price.price.usd ?? 0}
+						price={price}
 						balance={balance}
 					/>
 				</AppBox>

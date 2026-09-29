@@ -107,14 +107,15 @@ export const fetchPricesList =
 
 			const response4 = await FRANKENCOIN_API_CLIENT.get("/prices/erc20/fps");
 			dispatch(slice.actions.setFpsERC20Info(response4.data as ApiPriceERC20));
-
-			// ---------------------------------------------------------------
-			// Finalizing, loaded set to true
-			dispatch(slice.actions.setLoaded(true));
 		} catch (error) {
 			// ---------------------------------------------------------------
 			// Error, show toast message
 			showErrorToast({ message: "Fetching PricesList", error });
+		} finally {
+			// ---------------------------------------------------------------
+			// @dev: the boot gate in BlockUpdater waits on this flag. It has to be set even when a
+			// request failed, otherwise a single dead endpoint stalls the whole app until the breaker.
+			dispatch(slice.actions.setLoaded(true));
 		}
 	};
 

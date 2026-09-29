@@ -158,13 +158,14 @@ export const fetchPositionsList =
 			dispatch(slice.actions.setOriginalPositions(originalPositions));
 			dispatch(slice.actions.setOpenPositionsByOriginal(openPositionsByOriginal));
 			dispatch(slice.actions.setOpenPositionsByCollateral(openPositionsByCollateral));
-
-			// ---------------------------------------------------------------
-			// Finalizing, loaded set to true
-			dispatch(slice.actions.setLoaded(true));
 		} catch (error) {
 			// ---------------------------------------------------------------
 			// Error, show toast message
 			showErrorToast({ message: "Fetching PositionsList", error });
+		} finally {
+			// ---------------------------------------------------------------
+			// @dev: the boot gate in BlockUpdater waits on this flag. It has to be set even when a
+			// request failed, otherwise a single dead endpoint stalls the whole app until the breaker.
+			dispatch(slice.actions.setLoaded(true));
 		}
 	};

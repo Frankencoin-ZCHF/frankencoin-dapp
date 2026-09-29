@@ -139,13 +139,14 @@ export const fetchEcosystem =
 
 			const response6 = await FRANKENCOIN_API_CLIENT.get("/ecosystem/frankencoin/totalsupply");
 			dispatch(slice.actions.setFrankencoinSupply(response6.data as ApiEcosystemFrankencoinSupply));
-
-			// ---------------------------------------------------------------
-			// Finalizing, loaded set to true
-			dispatch(slice.actions.setLoaded(true));
 		} catch (error) {
 			// ---------------------------------------------------------------
 			// Error, show toast message
 			showErrorToast({ message: "Fetching Ecosystem", error });
+		} finally {
+			// ---------------------------------------------------------------
+			// @dev: the boot gate in BlockUpdater waits on this flag. It has to be set even when a
+			// request failed, otherwise a single dead endpoint stalls the whole app until the breaker.
+			dispatch(slice.actions.setLoaded(true));
 		}
 	};

@@ -1,5 +1,4 @@
 import AppCard from "../AppCard";
-import AppBox from "../AppBox";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { FRANKENCOIN_API_CLIENT } from "../../app.config";
@@ -7,11 +6,27 @@ import { PriceHistoryRatio } from "@frankencoin/api";
 import { formatCurrency } from "@utils";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
-type Mode = "freeFloat" | "supply";
+// Series colors, validated for colorblind separation against the white card surface.
+// The headline percentages carry the same colors, which is what ties each number to its curve.
+const FREE_FLOAT_COLOR = "#065DC1";
+const SUPPLY_COLOR = "#0E9F6E";
+
+const FREE_FLOAT_LABEL = "Free float collateralization";
+const SUPPLY_LABEL = "Total supply collateralization";
+
+type RatioPoint = { timestamp: number; value: number };
+
+// turns the {timestamp: ratio} map of one series into chronological points of the last year
+function toPoints(source: { [key: number]: number } | undefined, cutoff: number): RatioPoint[] {
+	if (!source) return [];
+	return Object.keys(source)
+		.map((k) => ({ timestamp: parseInt(k), value: source[parseInt(k)] }))
+		.filter((i) => i.timestamp >= cutoff)
+		.sort((a, b) => a.timestamp - b.timestamp);
+}
 
 export default function HealthRatio() {
 	const [ratioData, setRatioData] = useState<PriceHistoryRatio | null>(null);
-	const [mode, setMode] = useState<Mode>("freeFloat");
 
 	useEffect(() => {
 		const fetcher = async () => {
@@ -22,120 +37,53 @@ export default function HealthRatio() {
 	}, []);
 
 	const cutoff = Date.now() - 365 * 24 * 60 * 60 * 1000;
-	const source = ratioData ? (mode === "freeFloat" ? ratioData.collateralRatioByFreeFloat : ratioData.collateralRatioBySupply) : {};
-	const chartData = Object.keys(source)
-		.map((k) => ({ timestamp: parseInt(k), value: source[parseInt(k)] }))
-		.filter((i) => i.timestamp >= cutoff);
+	const freeFloatPoints = toPoints(ratioData?.collateralRatioByFreeFloat, cutoff);
+	const supplyPoints = toPoints(ratioData?.collateralRatioBySupply, cutoff);
 
-	const chartListTimestamp = [...chartData].sort((a, b) => a.timestamp - b.timestamp);
-	const currentEntry = chartListTimestamp.at(-1);
+	const currentEntry = freeFloatPoints.at(-1);
 	const currentPct = (currentEntry?.value || 0) * 100;
-
-	const sortedList = [...chartData].sort((a, b) => a.value - b.value);
-	const sortedLowest = sortedList.at(0);
-	const sortedHighest = sortedList.at(-1);
+	const supplyPct = (supplyPoints.at(-1)?.value || 0) * 100;
 
 	const dateFormatter = (value: number) => {
 		const date = new Date(value);
-		const d = date.getDate();
-		const m = date.getMonth() + 1;
-		const y = date.getFullYear();
-		return `${d}.${m}.${y}`;
+		return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
 	};
 
-	const barPct = Math.min(currentPct / 3, 100);
-	const healthColor = currentPct >= 150 ? "text-green-500" : currentPct >= 100 ? "text-amber-500" : "text-red-500";
-	const barColor = currentPct >= 150 ? "bg-green-500" : currentPct >= 100 ? "bg-amber-500" : "bg-red-500";
+	const toSeriesData = (points: RatioPoint[]) => points.map((entry) => [entry.timestamp, Math.round(entry.value * 1000) / 10]);
 
 	return (
 		<AppCard>
 			<div className="flex flex-col gap-6">
-				{/* Current value + toggle */}
-				<div className="flex items-start justify-between">
+				{/* Current values */}
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<div>
-						<div className={`text-4xl font-bold ${healthColor}`}>{formatCurrency(currentPct, 2)}%</div>
-						<div className="text-text-secondary text-sm mt-1">
-							Current as of {currentEntry ? dateFormatter(currentEntry.timestamp) : "-"}
+						<div className="text-4xl font-bold" style={{ color: FREE_FLOAT_COLOR }}>
+							{formatCurrency(currentPct, 2)}%
 						</div>
+						<div className="text-text-secondary text-sm mt-1">{FREE_FLOAT_LABEL}</div>
 					</div>
-					<div className="flex rounded-lg overflow-hidden border border-card-content-primary text-xs max-md:ml-3">
-						<button
-							onClick={() => setMode("freeFloat")}
-							className={`px-3 py-1.5 transition-colors ${
-								mode === "freeFloat"
-									? "bg-card-content-primary text-text-primary"
-									: "text-text-secondary hover:text-text-primary"
-							}`}
-						>
-							Free Circulation
-						</button>
-						<button
-							onClick={() => setMode("supply")}
-							className={`px-3 py-1.5 transition-colors ${
-								mode === "supply"
-									? "bg-card-content-primary text-text-primary"
-									: "text-text-secondary hover:text-text-primary"
-							}`}
-						>
-							Total Supply
-						</button>
+					<div className="sm:text-right">
+						<div className="text-4xl font-bold" style={{ color: SUPPLY_COLOR }}>
+							{formatCurrency(supplyPct, 2)}%
+						</div>
+						<div className="text-text-secondary text-sm mt-1">{SUPPLY_LABEL}</div>
 					</div>
-				</div>
-
-				{/* Progress bar */}
-				<div>
-					<div className="relative w-full h-3 bg-card-content-primary rounded-full overflow-hidden">
-						<div className={`absolute inset-y-0 left-0 ${barColor} rounded-full`} style={{ width: `${barPct}%` }} />
-					</div>
-					<div className="flex justify-between text-xs text-text-secondary mt-1.5">
-						<span>0%</span>
-						<span>100%</span>
-						<span>200%</span>
-						<span>300%+</span>
-					</div>
-				</div>
-
-				{/* Stats row */}
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-					<AppBox tight>
-						<div className="text-text-secondary text-xs">Lowest historical</div>
-						<div className="text-text-primary font-bold text-lg">{formatCurrency((sortedLowest?.value || 0) * 100, 2)}%</div>
-						<div className="text-text-secondary text-xs">{sortedLowest ? dateFormatter(sortedLowest.timestamp) : "-"}</div>
-					</AppBox>
-					<AppBox tight>
-						<div className="text-text-secondary text-xs">Highest historical</div>
-						<div className="text-text-primary font-bold text-lg">{formatCurrency((sortedHighest?.value || 0) * 100, 2)}%</div>
-						<div className="text-text-secondary text-xs">{sortedHighest ? dateFormatter(sortedHighest.timestamp) : "-"}</div>
-					</AppBox>
-					<AppBox tight>
-						<div className="text-text-secondary text-xs">Recording since</div>
-						<div className="text-text-primary font-bold text-lg">September 2025</div>
-					</AppBox>
 				</div>
 
 				{/* Chart */}
 				<div className="-mx-4">
 					<ApexChart
-						type="area"
-						height={200}
+						type="line"
+						height={240}
 						options={{
-							colors: [currentPct >= 150 ? "#0E9F6E" : currentPct >= 100 ? "#f59e0b" : "#ef4444"],
+							colors: [FREE_FLOAT_COLOR, SUPPLY_COLOR],
 							stroke: {
 								curve: "smooth",
 								width: 2,
 							},
-							fill: {
-								type: "gradient",
-								gradient: {
-									shadeIntensity: 1,
-									opacityFrom: 0.5,
-									opacityTo: 0.02,
-									stops: [0, 100],
-								},
-							},
 							chart: {
-								type: "area",
-								height: 200,
+								type: "line",
+								height: 240,
 								sparkline: { enabled: false },
 								dropShadow: { enabled: false },
 								toolbar: { show: false },
@@ -143,6 +91,8 @@ export default function HealthRatio() {
 								background: "0",
 							},
 							dataLabels: { enabled: false },
+							// no legend: the color of each headline percentage identifies its curve
+							legend: { show: false },
 							grid: {
 								show: true,
 								borderColor: "rgba(128,128,128,0.1)",
@@ -153,10 +103,7 @@ export default function HealthRatio() {
 								type: "datetime",
 								labels: {
 									show: true,
-									formatter: (value) => {
-										const date = new Date(value);
-										return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
-									},
+									formatter: (value) => dateFormatter(Number(value)),
 								},
 								axisBorder: { show: false },
 								axisTicks: { show: false },
@@ -171,6 +118,11 @@ export default function HealthRatio() {
 								min: 0,
 								max: (max) => (Math.floor(max / 100) + 1) * 100,
 							},
+							tooltip: {
+								shared: true,
+								x: { format: "dd.MM.yyyy" },
+								y: { formatter: (value) => `${formatCurrency(value, 2, 2)}%` },
+							},
 							annotations: {
 								yaxis: [
 									{
@@ -183,13 +135,17 @@ export default function HealthRatio() {
 						}}
 						series={[
 							{
-								name: "Collateralization",
-								data: chartListTimestamp.map((entry) => [entry.timestamp, Math.round(entry.value * 1000) / 10]),
+								name: FREE_FLOAT_LABEL,
+								data: toSeriesData(freeFloatPoints),
+							},
+							{
+								name: SUPPLY_LABEL,
+								data: toSeriesData(supplyPoints),
 							},
 						]}
 					/>
 
-					{chartListTimestamp.length === 0 && (
+					{freeFloatPoints.length === 0 && supplyPoints.length === 0 && (
 						<div className="flex justify-center text-text-warning">No data available for selected timeframe.</div>
 					)}
 				</div>

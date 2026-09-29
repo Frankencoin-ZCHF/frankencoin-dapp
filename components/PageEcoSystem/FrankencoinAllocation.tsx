@@ -17,6 +17,7 @@ export default function FrankencoinAllocation() {
 	const { openPositions } = useSelector((state: RootState) => state.positions);
 	const { fpsInfo } = useSelector((state: RootState) => state.ecosystem);
 	const { savingsInfo } = useSelector((state: RootState) => state.savings);
+	const amplifiers = useSelector((state: RootState) => state.amplifiers.list);
 
 	const chfauBridge = useSwapCHFAUStats();
 
@@ -32,6 +33,12 @@ export default function FrankencoinAllocation() {
 
 	// Aggregate swap bridges
 	byCollateral.set("CHFAU", chfauBridge.bridgeMinted);
+
+	// Aggregate amplifiers, whose borrowed ZCHF is part of the total supply as well
+	amplifiers.forEach((a) => {
+		const key = `${a.usdSymbol} Amplifier`;
+		byCollateral.set(key, (byCollateral.get(key) ?? 0n) + BigInt(a.totalBorrowed));
+	});
 
 	const mappingMinted = [...byCollateral.keys()]
 		.map((label, idx) => {

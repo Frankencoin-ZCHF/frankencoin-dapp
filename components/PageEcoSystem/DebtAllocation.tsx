@@ -10,6 +10,7 @@ const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function DebtAllocation() {
 	const { openPositions } = useSelector((state: RootState) => state.positions);
+	const amplifiers = useSelector((state: RootState) => state.amplifiers.list);
 	const chfauBridge = useSwapCHFAUStats();
 
 	// Aggregate collateral
@@ -23,6 +24,12 @@ export default function DebtAllocation() {
 	// @dev: could be excluded since swap bridges repayments are not enforced to repay.
 	// Aggregate swap bridges
 	byCollateral.set("CHFAU", chfauBridge.bridgeMinted);
+
+	// Aggregate amplifiers. Their debt carries no minter reserve, so the borrowed amount is the debt.
+	amplifiers.forEach((a) => {
+		const key = `${a.usdSymbol} Amplifier`;
+		byCollateral.set(key, (byCollateral.get(key) ?? 0n) + BigInt(a.totalBorrowed));
+	});
 
 	const MAX_ITEMS = 10;
 

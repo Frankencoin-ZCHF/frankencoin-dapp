@@ -118,14 +118,15 @@ export const fetchLeadrate =
 
 			const response3 = await FRANKENCOIN_API_CLIENT.get<ApiLeadrateRate>("/savings/leadrate/rates");
 			dispatch(slice.actions.setLeadrateRate(response3.data));
-
-			// ---------------------------------------------------------------
-			// Finalizing, loaded set to true
-			dispatch(slice.actions.setLeadrateLoaded(true));
 		} catch (error) {
 			// ---------------------------------------------------------------
 			// Error, show toast message
 			showErrorToast({ message: "Fetching Leadrate", error });
+		} finally {
+			// ---------------------------------------------------------------
+			// @dev: the boot gate in BlockUpdater waits on this flag. It has to be set even when a
+			// request failed, otherwise a single dead endpoint stalls the whole app until the breaker.
+			dispatch(slice.actions.setLeadrateLoaded(true));
 		}
 	};
 
@@ -146,21 +147,29 @@ export const fetchSavings =
 			const response4 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsInfo>("/savings/core/info");
 			dispatch(slice.actions.setSavingsInfo(response4.data));
 
-			const response5 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsBalance>(`/savings/core/balance/${account}`);
-			dispatch(slice.actions.setSavingsBalance(response5.data));
+			// ---------------------------------------------------------------
+			// @dev: account scoped data is optional. A failure here must not skip the shared data below,
+			// and it must not raise a toast on every page load while the account endpoints are unavailable.
+			try {
+				const response5 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsBalance>(`/savings/core/balance/${account}`);
+				dispatch(slice.actions.setSavingsBalance(response5.data));
 
-			const response6 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsActivity>(`/savings/core/activity/${account}`);
-			dispatch(slice.actions.setSavingsActivity(response6.data));
+				const response6 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsActivity>(`/savings/core/activity/${account}`);
+				dispatch(slice.actions.setSavingsActivity(response6.data));
+			} catch (error) {
+				console.error(`Fetching Savings account data for ${account}`, error);
+			}
 
 			const response7 = await FRANKENCOIN_API_CLIENT.get<ApiSavingsRanked>("/savings/core/ranked");
 			dispatch(slice.actions.setSavingsRanked(response7.data));
-
-			// ---------------------------------------------------------------
-			// Finalizing, loaded set to true
-			dispatch(slice.actions.setSavingsLoaded(true));
 		} catch (error) {
 			// ---------------------------------------------------------------
 			// Error, show toast message
 			showErrorToast({ message: "Fetching Savings", error });
+		} finally {
+			// ---------------------------------------------------------------
+			// @dev: the boot gate in BlockUpdater waits on this flag. It has to be set even when a
+			// request failed, otherwise a single dead endpoint stalls the whole app until the breaker.
+			dispatch(slice.actions.setSavingsLoaded(true));
 		}
 	};
