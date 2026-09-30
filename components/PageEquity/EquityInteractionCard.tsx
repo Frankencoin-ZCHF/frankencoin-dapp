@@ -71,8 +71,8 @@ export default function EquityInteractionCard() {
 
 			<div className="flex justify-center pt-2">
 				<AppLink
-					label="View FCS/ZCHF pool on Uniswap"
-					href="https://app.uniswap.org/explore/pools/ethereum/0xcD795ae77A7318A396D6645bAf0562d8a0312323"
+					label="Trade FCS on Enso"
+					href="https://happypath.enso.build/?tokenIn=0xdac17f958d2ee523a2206206994597c13d831ec7&outChainId=1&chainId=1&tokenOut=0xdb861830d9ae2d1fcf99fa0cfd3973de382b0b5b"
 					external
 					icon
 					className="flex items-center text-sm"
