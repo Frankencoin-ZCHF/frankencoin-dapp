@@ -1,5 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import { Address } from "viem";
+import { ADDRESS } from "@frankencoin/zchf";
+import { mainnet } from "viem/chains";
 
 export interface FPSHolder {
 	account: Address;
@@ -7,7 +9,21 @@ export interface FPSHolder {
 	updated: number;
 }
 
-export const useFPSHolders = (): {
+const HOLDERS_QUERY = gql`
+	query FPSHolders($token: String!) {
+		eRC20BalanceMappings(orderBy: "balance", limit: 20, orderDirection: "desc", where: { token: $token }) {
+			items {
+				account
+				balance
+				updated
+			}
+		}
+	}
+`;
+
+export const useFPSHolders = (
+	token: Address = ADDRESS[mainnet.id].equity
+): {
 	loading: boolean;
 	holders: FPSHolder[];
 } => {
@@ -15,25 +31,7 @@ export const useFPSHolders = (): {
 		eRC20BalanceMappings: {
 			items: FPSHolder[];
 		};
-	}>(
-		gql`
-			query {
-				eRC20BalanceMappings(
-					orderBy: "balance"
-					limit: 20
-					orderDirection: "desc"
-					where: { token: "0x1ba26788dfde592fec8bcb0eaff472a42be341b2" }
-				) {
-					items {
-						account
-						balance
-						updated
-					}
-				}
-			}
-		`,
-		{ fetchPolicy: "no-cache" }
-	);
+	}>(HOLDERS_QUERY, { fetchPolicy: "no-cache", variables: { token: token.toLowerCase() } });
 
 	if (!data || !data.eRC20BalanceMappings) {
 		return {

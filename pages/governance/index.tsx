@@ -1,9 +1,8 @@
 import Head from "next/head";
 import GovernancePositionsTable from "@components/PageGovernance/GovernancePositionsTable";
 import GovernanceMintersTable from "@components/PageGovernance/GovernanceMintersTable";
-import GovernanceVotersTable from "@components/PageGovernance/GovernanceVotersTable";
 import GovernanceTelegramBot from "@components/PageGovernance/GovernanceTelegramBot";
-import { formatCurrency, formatDuration, normalizeAddress, SOCIAL } from "@utils";
+import { normalizeAddress, SOCIAL } from "@utils";
 import GovernanceLeadrateTable from "@components/PageGovernance/GovernanceLeadrateTable";
 import GovernanceLeadrateCurrent from "@components/PageGovernance/GovernanceLeadrateCurrent";
 import AppTitle from "@components/AppTitle";
@@ -12,13 +11,12 @@ import { useEffect } from "react";
 import { store } from "../../redux/redux.store";
 import { fetchLeadrate } from "../../redux/slices/savings.slice";
 import GovernanceMintersPropose from "@components/PageGovernance/GovernanceMintersPropose";
-import GovernanceDelegation from "@components/PageGovernance/GovernanceDelegation";
 import GovernanceCCIPBridgesTable from "@components/PageGovernance/GovernanceCCIPBridgesTable";
 import GovernanceCCIPAdminTable from "@components/PageGovernance/GovernanceCCIPAdminTable";
-import { useFPSAverageStats } from "@hooks";
-import { formatUnits } from "viem";
+import GovernanceFloatingSharesChart from "@components/PageGovernance/GovernanceFloatingSharesChart";
+import GovernanceFcsMilestoneSteps from "@components/PageGovernance/GovernanceFcsMilestoneSteps";
 import { fetchBridge } from "../../redux/slices/bridge.slice";
-import { useConnection, useChainId } from "wagmi";
+import { useChainId } from "wagmi";
 import { ADDRESS, ChainIdSide, ChainSide } from "@frankencoin/zchf";
 
 const TOKENMANAGER_SLUGS: Record<number, string> = {
@@ -33,8 +31,6 @@ const TOKENMANAGER_SLUGS: Record<number, string> = {
 };
 
 export default function Governance() {
-	const stats = useFPSAverageStats();
-	const { address } = useConnection();
 	const chainId = useChainId();
 
 	const tmSlug = TOKENMANAGER_SLUGS[chainId] ?? TOKENMANAGER_SLUGS[1];
@@ -51,6 +47,27 @@ export default function Governance() {
 			<Head>
 				<title>Frankencoin - Governance</title>
 			</Head>
+
+			<AppTitle title="Governance">
+				<div className="text-text-secondary">
+					Frankencoin governance is veto-based rather than majority-vote: proposals like new collateral types pass automatically
+					after a grace period unless a qualified holder vetoes them. Veto power is gained by holding 2% of the lower-level {" "}
+					<AppLink className="inline" label="Frankencoin Pool Shares (FPS)" href="/governance/fps" external={false} /> or{" "}
+					1% of the newer <AppLink className="inline" label="Frankencoin Shares (FCS)" href="/governance/fcs" external={false} />
+					{" "}on a time-weighted basis. FCS are backed 1:1 by FPS and FPS can be converted into FCS at any time.
+				</div>
+			</AppTitle>
+
+			<GovernanceFloatingSharesChart />
+
+			<AppTitle title="Frankencoin Shares Milestones">
+				<div className="text-text-secondary">
+					As FPS holders wrap into FCS, it crosses thresholds that change what it can do on FPS's behalf — from veto power to full
+					binding control. Here's where that migration currently stands.
+				</div>
+			</AppTitle>
+
+			<GovernanceFcsMilestoneSteps />
 
 			<AppTitle title="New Positions">
 				<div className="text-text-secondary">
@@ -118,28 +135,6 @@ export default function Governance() {
 			</AppTitle>
 
 			<GovernanceCCIPBridgesTable />
-
-			<AppTitle title="Frankencoin Pool Share Holders">
-				<div className="text-text-secondary">
-					Voting power is proportional to both the number of FPS held as the holding duration. The average holding duration is{" "}
-					<span className="font-medium text-text-primary">{formatDuration(stats.avgHoldingDuration)}</span>. Under these
-					conditions, an individual FPS holder with at least{" "}
-					<span className="font-medium text-text-primary">{formatCurrency(formatUnits(stats.fpsForVeto, 18))} FPS</span> held for
-					the average duration would reach the veto threshold of 2%. If you need voting power on one of the supported multichains,
-					sync your votes first. You can track cross-chain transfers on the{" "}
-					<AppLink
-						className=""
-						label="CCIP Explorer"
-						external={true}
-						href={`https://ccip.chain.link${address ? `/address/${address}` : ""}`}
-					/>
-					.
-				</div>
-			</AppTitle>
-
-			<GovernanceDelegation />
-
-			<GovernanceVotersTable />
 
 			<div id="api-bot" className="scroll-mt-20">
 				<AppTitle title="Notification Bot" />

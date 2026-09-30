@@ -3,83 +3,31 @@ import TableBody from "../Table/TableBody";
 import Table from "../Table";
 import TableRowEmpty from "../Table/TableRowEmpty";
 import { useEffect, useState } from "react";
-import { FPSBalanceHistory, FPSEarningsHistory } from "@hooks";
 import { Address } from "viem";
-import { normalizeAddress } from "../../utils/format";
+import { ApiFpsYearlyRow } from "@frankencoin/api";
 import ReportsFPSYearlyRow from "./ReportsFPSYearlyRow";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/redux.store";
 
 export type AccountYearly = { year: number; earnings: bigint; balance: bigint; value: bigint };
 
 interface Props {
 	address: Address;
-	fpsHistory: FPSBalanceHistory[];
-	fpsEarnings: FPSEarningsHistory[];
+	rows: ApiFpsYearlyRow[];
 }
 
-export default function ReportsFPSYearlyTable({ address, fpsHistory, fpsEarnings }: Props) {
+export default function ReportsFPSYearlyTable({ address, rows }: Props) {
 	const headers: string[] = ["Year", "Income", "Balance", "Value"];
 	const [tab, setTab] = useState<string>(headers[0]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<AccountYearly[]>([]);
-	const { logs } = useSelector((state: RootState) => state.dashboard.dailyLog);
 
-	const entriesRaw = fpsHistory.map((item, idx) => {
-		const balance = normalizeAddress(item.to) === normalizeAddress(address) ? item.balanceTo : item.balanceFrom;
-		const firstDate = item.created * 1000;
-		const lastDate = idx == fpsHistory.length - 1 ? Date.now() : fpsHistory[idx + 1].created * 1000;
-		const earnings = fpsEarnings.filter((i) => i.created * 1000 >= firstDate && i.created * 1000 < lastDate);
+	const accountYearly: AccountYearly[] = rows.map((r) => ({
+		year: r.year,
+		earnings: BigInt(r.earnings),
+		balance: BigInt(r.balance),
+		value: BigInt(r.value),
+	}));
 
-		const accounting: AccountYearly[] = earnings.map((e) => ({
-			year: new Date(e.created * 1000).getFullYear(),
-			earnings: e.perFPS,
-			balance: balance,
-			value: 0n,
-		}));
-
-		return accounting;
-	});
-
-	const entries = entriesRaw.flat();
-
-	const accountYears: string[] = entries
-		.map((e) => String(e.year))
-		.reduce<string[]>((a, b) => {
-			return a.includes(b) ? a : [...a, b];
-		}, []);
-
-	const accountYearly: AccountYearly[] = [];
-	let latestBalance: bigint = 0n;
-
-	for (const y of accountYears) {
-		const items = entries.filter((e) => e.year == Number(y));
-		const earningsMul = items.reduce<bigint>((a, b) => a + b.balance * b.earnings, 0n);
-		const earnings = earningsMul / BigInt(10 ** 18);
-
-		const fpsYearly = fpsHistory.filter((i) => new Date(i.created * 1000).getFullYear() == Number(y));
-
-		if (fpsYearly.at(-1) != undefined) {
-			const latestItem = fpsYearly.at(-1)!;
-			latestBalance = normalizeAddress(latestItem.to) === normalizeAddress(address) ? latestItem.balanceTo : latestItem.balanceFrom;
-		}
-
-		// get fps price
-		const yearNew = new Date(`${Number(y) + 1}-01-01`).getTime();
-		const filteredLogs = logs.filter((l) => Number(l.timestamp) * 1000 < yearNew);
-		const price = BigInt(filteredLogs.at(-1)?.fpsPrice || "0");
-		const value = (latestBalance * price) / BigInt(10 ** 18);
-
-		accountYearly.push({
-			year: parseInt(y),
-			earnings,
-			balance: latestBalance,
-			value,
-		});
-	}
-
-	const nonEmpty = accountYearly.filter((r) => r.earnings !== 0n || r.balance !== 0n || r.value !== 0n);
-	const sorted: AccountYearly[] = sortFunction({ list: nonEmpty, headers, tab, reverse });
+	const sorted: AccountYearly[] = sortFunction({ list: accountYearly, headers, tab, reverse });
 
 	useEffect(() => {
 		const idList = list.map((l) => `${l.year}_${l.balance}`).join("_");

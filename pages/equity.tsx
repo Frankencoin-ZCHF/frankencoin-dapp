@@ -2,7 +2,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { Address, isAddress, zeroAddress } from "viem";
 import { useConnection } from "wagmi";
-import { useEquityTrades, useFPSBalanceHistory, useFPSEarningsHistory } from "@hooks";
+import { useEquityTrades, useFPSYearlyReport } from "@hooks";
 import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
 import AppHeroSteps from "@components/AppHeroSteps";
@@ -10,9 +10,6 @@ import EquityFPSDetailsCard from "@components/PageEquity/EquityFPSDetailsCard";
 import EquityInteractionCard from "@components/PageEquity/EquityInteractionCard";
 import EquityTradesTable from "@components/PageEquity/EquityTradesTable";
 import ReportsFPSYearlyTable from "@components/PageReports/ReportsFPSYearlyTable";
-import { ContractUrl } from "@utils";
-import { ADDRESS } from "@frankencoin/zchf";
-import { mainnet } from "viem/chains";
 
 export default function Equity() {
 	const { address } = useConnection();
@@ -22,9 +19,10 @@ export default function Equity() {
 	const hasAddress = !!address || isAddress(queryAddress);
 	const resolvedAddress: Address = isAddress(queryAddress) ? queryAddress : address || zeroAddress;
 
-	const fpsHistory = useFPSBalanceHistory(resolvedAddress);
-	const fpsEarnings = useFPSEarningsHistory(resolvedAddress);
+	const fpsYearlyReport = useFPSYearlyReport(resolvedAddress);
 	const equityTrades = useEquityTrades(resolvedAddress);
+	// FPS Price chart annotations only make sense against pure FPS1 invest/redeem trades.
+	const fpsTrades = equityTrades.filter((t) => t.kind === "Invested" || t.kind === "Redeemed");
 
 	return (
 		<>
@@ -34,9 +32,10 @@ export default function Equity() {
 
 			<AppTitle title="Invest">
 				<div className="text-text-secondary">
-					Invest in or redeem your{" "}
-					<AppLink className="" label="Frankencoin Pool Shares" href={ContractUrl(ADDRESS[mainnet.id].equity)} external={true} />{" "}
-					(FPS) — the governance token of the Frankencoin Ecosystem.
+					Invest in or redeem{" "}
+					<AppLink className="" label="Frankencoin Shares (FCS)" href="/governance/fcs" external={false} />{" "}
+					— the equity and governance token of the Frankencoin Ecosystem — to earn a share of protocol income and vote
+					with a lower veto threshold.
 				</div>
 			</AppTitle>
 
@@ -44,18 +43,20 @@ export default function Equity() {
 				steps={[
 					{
 						icon: 1,
-						title: "Get Pool Shares",
-						description: "Add ZCHF to the Frankencoin reserve pool and get newly minted pool shares in return.",
+						title: "Get FCS",
+						description: "Deposit ZCHF to receive newly minted FCS and become an equity holder in the Frankencoin Ecosystem.",
 					},
 					{
 						icon: 2,
 						title: "Participate",
-						description: "FPS's fundamental value climbs (or falls) with Frankencoin's success (or decline).",
+						description:
+							"FCS is backed 1:1 by the pooled reserve, so its value climbs (or falls) with Frankencoin's success (or decline).",
 					},
 					{
 						icon: 3,
 						title: "Govern",
-						description: "Team up with others to veto protocol extensions or collaterals you don't like.",
+						description:
+							"Team up with other FCS holders to veto protocol extensions or collaterals you don't like, with a lower 1% threshold.",
 					},
 				]}
 			/>
@@ -63,7 +64,7 @@ export default function Equity() {
 			<div className="md:mt-8">
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-auto">
 					<EquityInteractionCard />
-					<EquityFPSDetailsCard equityTrades={equityTrades} />
+					<EquityFPSDetailsCard equityTrades={fpsTrades} />
 				</section>
 			</div>
 
@@ -80,7 +81,7 @@ export default function Equity() {
 							.
 						</div>
 					</AppTitle>
-					<ReportsFPSYearlyTable address={resolvedAddress} fpsHistory={fpsHistory} fpsEarnings={fpsEarnings} />
+					<ReportsFPSYearlyTable address={resolvedAddress} rows={fpsYearlyReport} />
 
 					<AppTitle title={isQueryOverride ? "Trades" : "My Trades"}>
 						<div className="text-text-secondary">Investment and redemption history.</div>

@@ -34,7 +34,7 @@ export default function AuctionCard({ position, challenge }: Props) {
 			</div>
 			<div className="text-xs text-text-secondary">{formatCurrency(fillPct, 1, 1)}% filled</div>
 
-<AppButton
+			<AppButton
 				className="h-9 mt-1"
 				onClick={() => navigate.push(`/monitoring/${normalizeAddress(challenge.position)}/auction/${challenge.number}`)}
 			>

@@ -6,14 +6,14 @@ import AppButton from "@components/AppButton";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import { formatBigInt, formatCurrency, normalizeAddress, shortenAddress } from "@utils";
-import { useConnection, useBlockNumber } from "wagmi";
+import { useConnection } from "wagmi";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { ADDRESS, MintingHubV1ABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import { toast } from "react-toastify";
-import { track } from "@hooks";
+import { track, useLiveBlockNumber } from "@hooks";
 import { mainnet } from "viem/chains";
 
 interface Props {
@@ -30,11 +30,19 @@ export default function ChallengeAction({ position, onChallengeSuccess }: Props)
 	const [userAllowance, setUserAllowance] = useState(0n);
 	const [userBalance, setUserBalance] = useState(0n);
 
-	const { data } = useBlockNumber({ watch: true });
+	const { data } = useLiveBlockNumber({ watch: true });
 	const account = useConnection();
 	const chainId = mainnet.id;
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const marketPriceChf = prices[normalizeAddress(position.collateral)]?.price?.chf;
+	const challengesPositions = useSelector((state: RootState) => state.challenges.positions);
+
+	// same ratio as the "Challenges" column in MonitoringRow, so this matches the list view
+	const toCollateralUnits = (value: bigint | string): number => Number(formatUnits(BigInt(value), position.collateralDecimals));
+	const challengesActive = (challengesPositions.map[normalizeAddress(position.position)] || []).filter((c) => c.status === "Active");
+	const challengedCollateral = challengesActive.reduce((acc, c) => acc + toCollateralUnits(c.size) - toCollateralUnits(c.filledSize), 0);
+	const collateralBalanceNumber = toCollateralUnits(position.collateralBalance);
+	const challengedPct = collateralBalanceNumber > 0 ? (challengedCollateral / collateralBalanceNumber) * 100 : 0;
 
 	// ---------------------------------------------------------------------------
 	useEffect(() => {
@@ -232,6 +240,15 @@ export default function ChallengeAction({ position, onChallengeSuccess }: Props)
 					<span className="text-text-secondary">Phase duration</span>
 					<span className="text-text-primary font-medium">{Math.round(position.challengePeriod / 3600)} h</span>
 				</div>
+				{challengedPct > 0 && (
+					<div className="flex justify-between items-center">
+						<span className="text-text-secondary">Already challenged</span>
+						<span className="text-red-400 font-medium">
+							{formatCurrency(challengedPct, 1, 1)}% ({formatCurrency(challengedCollateral, 2, 2)} {position.collateralSymbol}
+							)
+						</span>
+					</div>
+				)}
 			</div>
 
 			<GuardSupportedChain chain={mainnet}>

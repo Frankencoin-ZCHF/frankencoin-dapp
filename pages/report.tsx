@@ -7,7 +7,7 @@ import AppCard from "@components/AppCard";
 import { Address, isAddress, zeroAddress } from "viem";
 import { FRANKENCOIN_API_CLIENT } from "../app.config";
 import ReportsSavingsYearlyTable from "@components/PageReports/ReportsSavingsYearlyTable";
-import { useFPSBalanceHistory, useFPSEarningsHistory } from "@hooks";
+import { useFPSYearlyReport } from "@hooks";
 import ReportsFPSYearlyTable from "@components/PageReports/ReportsFPSYearlyTable";
 import ReportsPositionsYearlyTable from "@components/PageReports/ReportsPositionsYearlyTable";
 import { useRef } from "react";
@@ -48,8 +48,7 @@ export default function ReportPage() {
 	const overwrite: Address = router.query.address as Address;
 
 	const resolvedAddress = isAddress(reportingAddress) ? normalizeAddress(reportingAddress) : zeroAddress;
-	const fpsHistory = useFPSBalanceHistory(resolvedAddress);
-	const fpsEarnings = useFPSEarningsHistory(resolvedAddress);
+	const fpsYearlyReport = useFPSYearlyReport(resolvedAddress);
 
 	useEffect(() => {
 		if (overwrite == undefined || overwrite.length == 0) return;
@@ -188,12 +187,13 @@ export default function ReportPage() {
 
 			<AppTitle title="Equity Participation">
 				<div className="text-text-secondary">
-					Attributable income for each year, as well as the balance and its value at the end of the year. Attributable income is
-					the sum of all income and loss events, weighted by the held FPS tokens relative to the total supply at each relevant
+					Attributable income for each year, as well as the balance and its value at the end of the year, combining direct FPS
+					(Frankencoin Pool Share) holdings with FCS (Frankencoin Share) holdings, since FCS tracks FPS 1:1. Attributable income
+					is the sum of all income and loss events, weighted by the held tokens relative to the total supply at each relevant
 					point in time.
 				</div>
 			</AppTitle>
-			<ReportsFPSYearlyTable address={reportingAddress as Address} fpsHistory={fpsHistory} fpsEarnings={fpsEarnings} />
+			<ReportsFPSYearlyTable address={reportingAddress as Address} rows={fpsYearlyReport} />
 		</div>
 	);
 }

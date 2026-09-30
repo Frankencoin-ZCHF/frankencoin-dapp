@@ -69,14 +69,21 @@ export default function PositionDetail() {
 	useEffect(() => {
 		if (!version || !positionAddress) return;
 
+		let cancelled = false;
+
 		const fetchAsync = async () => {
 			const updates = await FRANKENCOIN_API_CLIENT.get<ApiMintingUpdateListing>(
 				`/positions/mintingupdates/position/${version}/${normalizeAddress(positionAddress)}`
 			);
+			if (cancelled) return;
 			setMintingUpdates(updates.data.list ?? []);
 		};
 
 		fetchAsync();
+
+		return () => {
+			cancelled = true;
+		};
 	}, [version, positionAddress]);
 
 	if (!position) return null;

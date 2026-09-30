@@ -8,11 +8,11 @@ import { useConnection, useChainId } from "wagmi";
 import AppButton from "@components/AppButton";
 import { Address } from "viem";
 import { PositionQuery } from "@frankencoin/api";
-import { EquityABI, PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
+import { ADDRESS, EquityABI, MinterGovernanceABI, PositionV1ABI, PositionV2ABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import GuardQualifiedVoter from "@components/Guards/GuardQualifiedVoter";
 import { mainnet } from "viem/chains";
-import { useDelegationHelpers } from "@hooks";
+import { useQualifiedVotingSystem } from "@hooks";
 
 interface Props {
 	position: PositionQuery;
@@ -24,7 +24,7 @@ export default function GovernancePositionsAction({ position, disabled }: Props)
 	const [isHidden, setHidden] = useState<boolean>(false);
 	const account = useConnection();
 	const chaindId = useChainId();
-	const { helpers } = useDelegationHelpers(account.address);
+	const { system, helpers } = useQualifiedVotingSystem(account.address);
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
@@ -35,13 +35,25 @@ export default function GovernancePositionsAction({ position, disabled }: Props)
 		try {
 			setDenying(true);
 
-			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: position.position,
-				chainId: chaindId,
-				abi: position.version == 1 ? PositionV1ABI : PositionV2ABI,
-				functionName: "deny",
-				args: [helpers, msg],
-			});
+			// FCS-qualified callers go through MinterGovernance.denyPosition (mainnet-only, matching the
+			// guard below) instead of calling the position contract directly — the position's own `deny`
+			// checks the caller's Equity-side qualification, which an FCS-only holder doesn't have.
+			const writeHash =
+				system === "fcs"
+					? await writeContract(WAGMI_CONFIG, {
+							address: ADDRESS[mainnet.id].minterGovernance,
+							chainId: mainnet.id,
+							abi: MinterGovernanceABI,
+							functionName: "denyPosition",
+							args: [position.position, helpers, msg],
+					  })
+					: await writeContract(WAGMI_CONFIG, {
+							address: position.position,
+							chainId: chaindId,
+							abi: position.version == 1 ? PositionV1ABI : PositionV2ABI,
+							functionName: "deny",
+							args: [helpers, msg],
+					  });
 
 			const toastContent = [
 				{
@@ -69,7 +81,7 @@ export default function GovernancePositionsAction({ position, disabled }: Props)
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(renderErrorTxToastDecode(error, EquityABI));
+			toast.error(renderErrorTxToastDecode(error, system === "fcs" ? MinterGovernanceABI : EquityABI));
 		} finally {
 			setDenying(false);
 		}

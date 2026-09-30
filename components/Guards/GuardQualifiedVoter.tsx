@@ -2,19 +2,22 @@ import React from "react";
 import { useConnection } from "wagmi";
 import { useAppKit } from "@reown/appkit/react";
 import AppButton from "@components/AppButton";
-import { useVotingPowers } from "../../hooks/useVotingPowers";
-
-const VETO_THRESHOLD = 0.02; // 2%
+import { useQualifiedVotingSystem } from "@hooks";
 
 interface Props {
 	children?: React.ReactNode;
 	disabled?: boolean;
 }
 
+// FPS is the default/primary qualification check; FCS is only consulted as a fallback when FPS alone
+// doesn't qualify. Each system is checked against its own real on-chain quorum (2% FPS, 1% FCS) — see
+// useQualifiedVotingSystem, the single source of truth also used by the actions this guard wraps to pick
+// which contract path (and whose helpers) to actually write to.
 export default function GuardQualifiedVoter({ children, disabled }: Props) {
-	const { isDisconnected } = useConnection();
+	const { address, isDisconnected } = useConnection();
 	const AppKit = useAppKit();
-	const { accountVoteData, isLoading } = useVotingPowers();
+
+	const { isQualified, isLoading } = useQualifiedVotingSystem(address);
 
 	if (isDisconnected)
 		return (
@@ -29,9 +32,6 @@ export default function GuardQualifiedVoter({ children, disabled }: Props) {
 				Loading...
 			</AppButton>
 		);
-
-	const combinedRatio = (accountVoteData?.votingPowerRatio ?? 0) + (accountVoteData?.supportedVotingPowerRatio ?? 0);
-	const isQualified = combinedRatio >= VETO_THRESHOLD;
 
 	if (!isQualified) return <AppButton disabled>Insufficient Votes</AppButton>;
 

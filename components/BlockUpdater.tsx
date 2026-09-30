@@ -1,4 +1,5 @@
-import { useConnection, useBlockNumber } from "wagmi";
+import { useConnection } from "wagmi";
+import { useLiveBlockNumber } from "../hooks/useLiveBlockNumber";
 import { Address } from "viem";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -23,7 +24,7 @@ let initBreakerMS: number = 15000;
 let loading: boolean = false;
 
 export default function BockUpdater({ children }: { children?: React.ReactElement | React.ReactElement[] }) {
-	const { error, data } = useBlockNumber({ chainId: mainnet.id, watch: true });
+	const { error, data } = useLiveBlockNumber({ chainId: mainnet.id, watch: true });
 	const { address } = useConnection();
 	const isConnectedToCorrectChain = useIsConnectedToCorrectChain();
 

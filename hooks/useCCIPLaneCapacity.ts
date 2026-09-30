@@ -4,6 +4,7 @@ import { formatUnits } from "viem";
 import { ADDRESS, ChainId } from "@frankencoin/zchf";
 import { WAGMI_CONFIG } from "../app.config";
 import { formatCurrency, FormatType } from "@utils";
+import { usePageVisible } from "./useLiveBlockNumber";
 
 /**
  * Token bucket state of one direction of a CCIP lane, as returned by the token pool.
@@ -63,11 +64,16 @@ const REFRESH_INTERVAL_MS = 30_000;
 export function useCCIPLaneCapacity(sourceChainId: ChainId, destinationChainId: ChainId | undefined): CCIPLaneCapacity {
 	const [state, setState] = useState<CCIPLaneCapacity>({ outbound: null, inbound: null, loaded: false });
 
+	const visible = usePageVisible();
+
 	useEffect(() => {
 		if (destinationChainId === undefined || destinationChainId === sourceChainId) {
 			setState({ outbound: null, inbound: null, loaded: false });
 			return;
 		}
+
+		// keep the last reading but stop polling while the tab is hidden; refetches as soon as it is visible again
+		if (!visible) return;
 
 		const source = ADDRESS[sourceChainId];
 		const destination = ADDRESS[destinationChainId];
@@ -115,7 +121,7 @@ export function useCCIPLaneCapacity(sourceChainId: ChainId, destinationChainId: 
 			cancelled = true;
 			clearInterval(interval);
 		};
-	}, [sourceChainId, destinationChainId]);
+	}, [sourceChainId, destinationChainId, visible]);
 
 	return state;
 }

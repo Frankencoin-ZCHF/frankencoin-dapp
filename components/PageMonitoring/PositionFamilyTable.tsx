@@ -8,6 +8,7 @@ import TableHead from "@components/Table/TableHead";
 import TableBody from "@components/Table/TableBody";
 import TableRow from "@components/Table/TableRow";
 import TableRowEmpty from "@components/Table/TableRowEmpty";
+import AppLink from "@components/AppLink";
 import { RootState } from "../../redux/redux.store";
 import { formatCurrency, formatDate, normalizeAddress, shortenAddress } from "@utils";
 
@@ -22,7 +23,7 @@ export default function PositionFamilyTable({ position }: Props) {
 	const [reverse, setReverse] = useState(false);
 
 	const router = useRouter();
-	const all = useSelector((state: RootState) => state.positions.list.list);
+	const all = useSelector((state: RootState) => state.positions.openPositions);
 
 	// every position sharing this original, the original and the current position included
 	const family = useMemo(() => {
@@ -79,11 +80,24 @@ export default function PositionFamilyTable({ position }: Props) {
 								<TableRow headers={HEADERS} tab={tab} rawHeader={true} className={isCurrent ? "" : "cursor-pointer"}>
 									{/* Position */}
 									<div className="text-left font-bold text-md">
-										{isCurrent ? "Current position" : shortenAddress(p.position)}
+										{isCurrent ? (
+											"Current position"
+										) : (
+											<div onClick={(e) => e.stopPropagation()}>
+												<AppLink
+													className="justify-start"
+													label={shortenAddress(p.position)}
+													href={`/monitoring/${p.position}`}
+													external={false}
+												/>
+											</div>
+										)}
 									</div>
 
 									{/* Owner */}
-									<div className="text-right">{shortenAddress(p.owner)}</div>
+									<div className="text-right" onClick={(e) => e.stopPropagation()}>
+										<AppLink label={shortenAddress(p.owner)} href={`/mypositions?address=${p.owner}`} external={false} />
+									</div>
 
 									{/* Minted */}
 									<div className="text-right">{formatCurrency(formatUnits(BigInt(p.minted), 18))} ZCHF</div>

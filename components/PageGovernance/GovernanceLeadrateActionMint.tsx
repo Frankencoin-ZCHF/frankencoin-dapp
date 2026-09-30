@@ -4,14 +4,14 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { WAGMI_CONFIG } from "../../app.config";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ADDRESS, EquityABI, SavingsABI } from "@frankencoin/zchf";
+import { ADDRESS, EquityABI, InterestGovernanceABI, SavingsABI } from "@frankencoin/zchf";
 import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import AppButton from "@components/AppButton";
 import NormalInput from "@components/Input/NormalInput";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import GuardQualifiedVoter from "@components/Guards/GuardQualifiedVoter";
-import { useDelegationHelpers } from "@hooks";
+import { useQualifiedVotingSystem } from "@hooks";
 import { formatCurrency, normalizeAddress } from "../../utils/format";
 import { mainnet } from "viem/chains";
 import { Address } from "viem";
@@ -29,12 +29,14 @@ function calcOverflowWarning(rate: number, created: number): string | null {
 	const daysLeft = Math.floor((overflowTs - now) / 86400);
 	if (daysLeft >= 90) return null;
 	const d = new Date(overflowTs * 1000);
-	return `Apply new rate before ${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()} (~${daysLeft}d) due to uint40 overflow in contract.`;
+	return `Apply new rate before ${d.getDate()}.${
+		d.getMonth() + 1
+	}.${d.getFullYear()} (~${daysLeft}d) due to uint40 overflow in contract.`;
 }
 
 export default function GovernanceLeadrateActionMint() {
 	const account = useConnection();
-	const { helpers } = useDelegationHelpers(account.address);
+	const { system, helpers } = useQualifiedVotingSystem(account.address);
 	const rate = useSelector((state: RootState) => state.savings.leadrateRate.rate[mainnet.id]);
 
 	const current = rate[Module];
@@ -54,13 +56,25 @@ export default function GovernanceLeadrateActionMint() {
 		if (!account.address) return;
 		try {
 			setHandling(true);
-			const writeHash = await writeContract(WAGMI_CONFIG, {
-				address: Module as Address,
-				chainId: mainnet.id,
-				abi: SavingsABI,
-				functionName: "proposeChange",
-				args: [parseInt(String(newRate)), helpers],
-			});
+			// FCS-qualified callers propose through InterestGovernance instead of the Savings module
+			// directly — Savings.proposeChange checks the caller's Equity-side qualification, which an
+			// FCS-only holder doesn't have.
+			const writeHash =
+				system === "fcs"
+					? await writeContract(WAGMI_CONFIG, {
+							address: ADDRESS[mainnet.id].interestGovernance,
+							chainId: mainnet.id,
+							abi: InterestGovernanceABI,
+							functionName: "proposeBorrowingRate",
+							args: [parseInt(String(newRate)), helpers],
+					  })
+					: await writeContract(WAGMI_CONFIG, {
+							address: Module as Address,
+							chainId: mainnet.id,
+							abi: SavingsABI,
+							functionName: "proposeChange",
+							args: [parseInt(String(newRate)), helpers],
+					  });
 			const toastContent = [
 				{ title: "From: ", value: `${formatCurrency(current.approvedRate / 10000)}%` },
 				{ title: "Proposing to: ", value: `${formatCurrency(parseInt(String(newRate)) / 10000)}%` },
@@ -72,7 +86,7 @@ export default function GovernanceLeadrateActionMint() {
 			});
 			setHidden(true);
 		} catch (error) {
-			toast.error(renderErrorTxToastDecode(error, EquityABI));
+			toast.error(renderErrorTxToastDecode(error, system === "fcs" ? InterestGovernanceABI : EquityABI));
 		} finally {
 			setHandling(false);
 		}
