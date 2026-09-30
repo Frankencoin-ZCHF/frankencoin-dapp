@@ -18,6 +18,11 @@ interface Props {
 const VIEWBOX = 200;
 const THICKNESS = 22;
 const GAP = 6;
+const HOVER_GROWTH = 4; // how much a segment's strokeWidth grows on hover
+
+// Reserve enough margin for the hover-thickened stroke so the outermost ring's edge
+// never reaches the viewBox boundary (SVGs clip anything beyond it).
+const OUTER_MARGIN = (THICKNESS + HOVER_GROWTH) / 2;
 
 /**
  * Concentric donut chart: one ring per series, all sharing the same categories and colors.
@@ -35,10 +40,10 @@ export default function AppRingChart({ categories, colors, rings, centerLabel, c
 	const hoveredRing = hovered ? rings[hovered.ring] : undefined;
 
 	return (
-		<div className="relative mx-auto" style={{ width: size, height: size }}>
-			<svg viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`} width={size} height={size} className="-rotate-90">
+		<div className="relative mx-auto w-full" style={{ maxWidth: size, aspectRatio: "1 / 1" }}>
+			<svg viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`} width="100%" height="100%" className="-rotate-90">
 				{rings.map((ring, r) => {
-					const radius = VIEWBOX / 2 - THICKNESS / 2 - r * (THICKNESS + GAP);
+					const radius = VIEWBOX / 2 - OUTER_MARGIN - r * (THICKNESS + GAP);
 					const circumference = 2 * Math.PI * radius;
 					let offset = 0;
 
@@ -70,7 +75,7 @@ export default function AppRingChart({ categories, colors, rings, centerLabel, c
 										r={radius}
 										fill="none"
 										stroke={color}
-										strokeWidth={isHovered ? THICKNESS + 4 : THICKNESS}
+										strokeWidth={isHovered ? THICKNESS + HOVER_GROWTH : THICKNESS}
 										strokeDasharray={`${length} ${circumference - length}`}
 										strokeDashoffset={dashOffset}
 										className="cursor-pointer transition-[stroke-width]"
