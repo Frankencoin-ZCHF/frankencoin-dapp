@@ -16,7 +16,7 @@ import AmplifierPositionCollectDialog from "@components/PageAmplifier/AmplifierP
 import AmplifierPositionCreateDialog from "@components/PageAmplifier/AmplifierPositionCreateDialog";
 import AmplifierOverviewTable from "@components/PageAmplifier/AmplifierOverviewTable";
 import AppSelect from "@components/AppSelect";
-import { AmplifiedPositionInfo, useAmplifier, useAmplifiedPositions, useContractUrl } from "@hooks";
+import { AmplifiedPositionInfo, useAmplifier, useAmplifiedPositions, useChfUsdRate, useContractUrl } from "@hooks";
 import { getPriceView } from "../../hooks/useAmplifier";
 import { isDateExpired, shortenAddress } from "@utils";
 import { getAmplifierChain, isTestAmplifier, resolveAmplifierChainId, uniswapChainSlug } from "../../utils/amplifierConstants";
@@ -31,6 +31,7 @@ export default function AmplifierPage() {
 	const chain = getAmplifierChain(chainId);
 
 	const stats = useAmplifier(amplifier, chainId);
+	const forex = useChfUsdRate();
 
 	// base currency of the displayed numbers: CHF (prices as ZCHF per USD, the default)
 	// or USD (prices as USD per ZCHF), remembered across visits
@@ -38,7 +39,7 @@ export default function AmplifierPage() {
 	useEffect(() => {
 		if (localStorage.getItem("amplifier-price-base") === "USD") setPriceBase("USD");
 	}, []);
-	const priceView = getPriceView(stats, priceBase === "USD");
+	const priceView = getPriceView(stats, priceBase === "USD", forex.usdPerChf);
 	const changePriceBase = (base: string) => {
 		setPriceBase(base);
 		localStorage.setItem("amplifier-price-base", base);
@@ -149,7 +150,7 @@ export default function AmplifierPage() {
 				</div>
 			)}
 
-			<AmplifierSummary stats={stats} priceView={priceView} />
+			<AmplifierSummary stats={stats} priceView={priceView} forex={forex} />
 
 			<div className="mt-4">
 				<AmplifierPoolChart stats={stats} priceView={priceView} positions={positions} overwrite={overwrite} />

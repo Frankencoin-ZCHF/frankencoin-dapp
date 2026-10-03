@@ -13,6 +13,7 @@ const OWN_COLOR = "#0F80F0"; // highlight: positions of the acting account
 const OTHER_COLOR = "#6B7280"; // de-emphasized context: everyone else's positions
 const PRICE_COLOR = "#F59E0B";
 const ANCHOR_COLOR = "#9CA3AF";
+const FOREX_COLOR = "#10B981";
 
 interface Props {
 	stats: AmplifierStats;
@@ -69,7 +70,10 @@ export default function AmplifierPoolChart({ stats, priceView, positions, overwr
 		.filter((block) => block.value > 0 && block.density > 0)
 		.sort((a, b) => b.value - a.value); // stacked in series order, so the largest ends up at the bottom
 
-	if (blocks.length === 0) return null;
+	// without any liquidity the chart still shows the price axis with its markers
+	const empty = blocks.length === 0;
+	// the markers alone cannot size the chart, so bail out only if even those are missing
+	if (empty && stats.minimumTick === stats.maximumTick && priceView.current <= 0) return null;
 
 	// breakpoints at every block edge; the step series hold their value until the next breakpoint.
 	// A dense, even grid is mixed in because Apex renders numeric x axes unreliably with only a
@@ -78,9 +82,9 @@ export default function AmplifierPoolChart({ stats, priceView, positions, overwr
 	// the x axis always covers the amplifier's full allowed price range, even when the
 	// actual positions only occupy a narrow part of it
 	const bounds = [priceView.atTick(stats.minimumTick), priceView.atTick(stats.maximumTick)];
-	const markers = [priceView.current, priceView.anchor, ...bounds].filter((price) => price > 0);
+	const markers = [priceView.current, priceView.anchor, priceView.forex, ...bounds].filter((price) => price > 0);
 	const span = Math.max(...edges, ...markers) - Math.min(...edges, ...markers);
-	const pad = span > 0 ? span * 0.05 : Math.max(...edges) * 0.01;
+	const pad = span > 0 ? span * 0.05 : Math.max(...edges, ...markers) * 0.01;
 	const xMin = Math.min(...edges, ...markers) - pad;
 	const xMax = Math.max(...edges, ...markers) + pad;
 	const grid = Array.from({ length: 61 }, (_, i) => xMin + ((xMax - xMin) * i) / 60);
@@ -98,8 +102,9 @@ export default function AmplifierPoolChart({ stats, priceView, positions, overwr
 		name: shortenAddress(blocks[i].address),
 		data: xs.map((x) => [x * xScale, blocks.slice(0, i + 1).reduce((sum, block) => sum + densityAt(block, x), 0)] as [number, number]),
 	}));
-	const series = cumulative.slice().reverse();
-	const seriesColors = blocks.map((block) => (block.isOwn ? OWN_COLOR : OTHER_COLOR)).reverse();
+	// an all-zero placeholder series keeps Apex rendering the axes when there is nothing to stack
+	const series = empty ? [{ name: "", data: xs.map((x) => [x * xScale, 0] as [number, number]) }] : cumulative.slice().reverse();
+	const seriesColors = empty ? ["transparent"] : blocks.map((block) => (block.isOwn ? OWN_COLOR : OTHER_COLOR)).reverse();
 
 	const hasOwn = blocks.some((block) => block.isOwn);
 	const hasOther = blocks.some((block) => !block.isOwn);
@@ -117,8 +122,17 @@ export default function AmplifierPoolChart({ stats, priceView, positions, overwr
 			<div>
 				<div className="text-lg font-bold text-center">Liquidity Distribution</div>
 				<div className="mt-2 text-text-secondary">
-					Each block is a position: its width is the position&apos;s price range and its area the position&apos;s current value in{" "}
-					{valueUnit}. The largest positions are at the bottom.
+					{empty ? (
+						<>
+							No liquidity is currently provided through this amplifier. The markers show where the current, anchor and forex
+							prices sit within the allowed range.
+						</>
+					) : (
+						<>
+							Each block is a position: its width is the position&apos;s price range and its area the position&apos;s current
+							value in {valueUnit}. The largest positions are at the bottom.
+						</>
+					)}
 				</div>
 			</div>
 
@@ -174,6 +188,7 @@ export default function AmplifierPoolChart({ stats, priceView, positions, overwr
 						},
 						yaxis: {
 							min: 0,
+							...(empty ? { max: 1, tickAmount: 1 } : {}),
 							labels: {
 								formatter: formatYLabel,
 								style: { colors: "#6B7280", fontSize: "11px" },
@@ -208,6 +223,22 @@ export default function AmplifierPoolChart({ stats, priceView, positions, overwr
 													orientation: "horizontal",
 													offsetY: 20,
 													style: { color: "#FFFFFF", background: ANCHOR_COLOR, fontSize: "11px" },
+												},
+											},
+									  ]
+									: []),
+								...(priceView.forex > 0
+									? [
+											{
+												x: priceView.forex * xScale,
+												borderColor: FOREX_COLOR,
+												strokeDashArray: 4,
+												label: {
+													text: `Forex ${formatPrice(priceView.forex)}`,
+													borderColor: FOREX_COLOR,
+													orientation: "horizontal",
+													offsetY: 40,
+													style: { color: "#FFFFFF", background: FOREX_COLOR, fontSize: "11px" },
 												},
 											},
 									  ]
