@@ -77,16 +77,13 @@ export default function AmplifierPage() {
 				<Head>
 					<title>Frankencoin - Amplifier</title>
 				</Head>
-				<AppTitle
-					title="Uniswap Amplifiers"
-					subtitle={
-						<>
-							Amplifiers let you provide liquidity to a ZCHF Uniswap pool while only supplying the paired dollar token — the
-							ZCHF side is borrowed from the Frankencoin protocol, cutting the capital costs of liquidity provisioning in
-							half. Open an amplifier to see its positions and to create your own.
-						</>
-					}
-				/>
+				<AppTitle title="Uniswap Amplifiers">
+					<div className="text-text-secondary">
+						Amplifiers let you provide liquidity to a ZCHF Uniswap pool while only supplying the paired dollar token — the ZCHF
+						side is borrowed from the Frankencoin protocol, cutting the capital costs of liquidity provisioning in half. Open an
+						amplifier to see its positions and to create your own.
+					</div>
+				</AppTitle>
 				<div className="mt-4">
 					<AmplifierOverviewTable />
 				</div>
@@ -115,21 +112,6 @@ export default function AmplifierPage() {
 			{/* Section Amplifier Overview */}
 			<AppTitle
 				title="Uniswap Amplifier"
-				subtitle={
-					<>
-						The <AppLink className="" label="amplifier" href={amplifierUrl} external={true} /> lets you provide liquidity to the{" "}
-						<AppLink
-							className=""
-							label={`${stats.zchfSymbol} / ${stats.usdSymbol || "..."} Uniswap pool`}
-							href={poolUrl}
-							external={true}
-						/>{" "}
-						while only supplying{" "}
-						<AppLink className="" label={stats.usdSymbol || "the paired token"} href={usdUrl} external={true} /> — the{" "}
-						{stats.zchfSymbol} side is borrowed from the Frankencoin protocol, cutting the capital costs of liquidity
-						provisioning in half.
-					</>
-				}
 				actions={
 					<AppSelect
 						className="w-40"
@@ -141,7 +123,21 @@ export default function AmplifierPage() {
 						onChange={changePriceBase}
 					/>
 				}
-			/>
+			>
+				<div className="text-text-secondary">
+					The <AppLink className="" label="amplifier" href={amplifierUrl} external={true} /> lets you provide liquidity to the{" "}
+					<AppLink
+						className=""
+						label={`${stats.zchfSymbol} / ${stats.usdSymbol || "..."} Uniswap pool`}
+						href={poolUrl}
+						external={true}
+					/>{" "}
+					while only supplying{" "}
+					<AppLink className="" label={stats.usdSymbol || "the paired token"} href={usdUrl} external={true} /> — the{" "}
+					{stats.zchfSymbol} side is borrowed from the Frankencoin protocol, cutting the capital costs of liquidity provisioning
+					in half.
+				</div>
+			</AppTitle>
 
 			{isTestAmplifier(amplifier) && (
 				<div className="mt-4 rounded-lg bg-card-content-primary p-4 text-text-secondary">
@@ -150,7 +146,7 @@ export default function AmplifierPage() {
 				</div>
 			)}
 
-			<AmplifierSummary stats={stats} priceView={priceView} forex={forex} />
+			<AmplifierSummary stats={stats} priceView={priceView} />
 
 			<div className="mt-4">
 				<AmplifierPoolChart stats={stats} priceView={priceView} positions={positions} overwrite={overwrite} />
@@ -159,13 +155,14 @@ export default function AmplifierPage() {
 			{/* Section Positions */}
 			<AppTitle
 				title="Amplified Positions"
-				subtitle="All positions created through this amplifier. Yours (if any) are listed first."
 				actions={
 					<AppButton className="h-10 px-4" width="w-auto" disabled={expired} onClick={() => setShowCreate(true)}>
 						Create Position
 					</AppButton>
 				}
-			/>
+			>
+				<div className="text-text-secondary">All positions created through this amplifier. Yours (if any) are listed first.</div>
+			</AppTitle>
 
 			{expired && (
 				<div className="mt-4 text-text-warning">

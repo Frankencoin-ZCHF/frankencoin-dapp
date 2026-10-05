@@ -1,11 +1,11 @@
-import { Address, formatUnits } from "viem";
+import { formatUnits } from "viem";
 import { mainnet } from "viem/chains";
 import { useReadContracts } from "wagmi";
-import { ChainlinkAggregatorABI } from "../abis/ChainlinkAggregator";
+import { ADDRESS, OCR2AggregatorABI } from "@frankencoin/zchf";
 
 // Chainlink CHF / USD price feed on Ethereum mainnet (8 decimals). Forex feeds move
 // slowly (deviation threshold / daily heartbeat), so polling once a minute is plenty.
-export const CHAINLINK_CHF_USD_FEED: Address = "0x449d117117838fFA61263B61dA6301AA2a88B13A";
+const CHAINLINK_CHF_USD_FEED = ADDRESS[mainnet.id].chainlinkOCR2Aggregator;
 const REFETCH_INTERVAL = 60_000;
 
 export type ForexRate = {
@@ -22,8 +22,8 @@ export type ForexRate = {
 export const useChfUsdRate = (): ForexRate => {
 	const { data, isLoading } = useReadContracts({
 		contracts: [
-			{ chainId: mainnet.id, address: CHAINLINK_CHF_USD_FEED, abi: ChainlinkAggregatorABI, functionName: "decimals" },
-			{ chainId: mainnet.id, address: CHAINLINK_CHF_USD_FEED, abi: ChainlinkAggregatorABI, functionName: "latestRoundData" },
+			{ chainId: mainnet.id, address: CHAINLINK_CHF_USD_FEED, abi: OCR2AggregatorABI, functionName: "decimals" },
+			{ chainId: mainnet.id, address: CHAINLINK_CHF_USD_FEED, abi: OCR2AggregatorABI, functionName: "latestRoundData" },
 		],
 		query: { refetchInterval: REFETCH_INTERVAL },
 	});

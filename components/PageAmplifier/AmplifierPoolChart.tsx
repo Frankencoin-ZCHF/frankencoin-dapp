@@ -2,7 +2,7 @@ import dynamic from "next/dynamic";
 import { Address, formatUnits } from "viem";
 import { useConnection } from "wagmi";
 import AppCard from "@components/AppCard";
-import { AmplifierPriceView, AmplifierStats } from "../../hooks/useAmplifier";
+import { AmplifierPriceView, AmplifierStats, formatForexDeviation } from "../../hooks/useAmplifier";
 import { AmplifiedPositionInfo } from "../../hooks/useAmplifiedPositions";
 import { FormatType, formatCurrency, shortenAddress } from "@utils";
 import { getAmountsForLiquidity, getSqrtRatioAtTick } from "../../utils/uniswapV3Math";
@@ -14,6 +14,7 @@ const OTHER_COLOR = "#6B7280"; // de-emphasized context: everyone else's positio
 const PRICE_COLOR = "#F59E0B";
 const ANCHOR_COLOR = "#9CA3AF";
 const FOREX_COLOR = "#10B981";
+const LIMIT_COLOR = "#6B7280";
 
 interface Props {
 	stats: AmplifierStats;
@@ -79,16 +80,19 @@ export default function AmplifierPoolChart({ stats, priceView, positions, overwr
 	// A dense, even grid is mixed in because Apex renders numeric x axes unreliably with only a
 	// handful of unevenly spaced data points.
 	const edges = blocks.flatMap((block) => [block.low, block.high]);
-	// the x axis always covers the amplifier's full allowed price range, even when the
-	// actual positions only occupy a narrow part of it
+	// the x axis spans exactly the amplifier's allowed price range, from its lower to its upper
+	// limit, even when the actual positions only occupy a narrow part of it
 	const bounds = [priceView.atTick(stats.minimumTick), priceView.atTick(stats.maximumTick)];
+	const rangeLow = Math.min(...bounds);
+	const rangeHigh = Math.max(...bounds);
+	const hasRange = rangeLow > 0 && rangeHigh > rangeLow;
 	const markers = [priceView.current, priceView.anchor, priceView.forex, ...bounds].filter((price) => price > 0);
 	const span = Math.max(...edges, ...markers) - Math.min(...edges, ...markers);
 	const pad = span > 0 ? span * 0.05 : Math.max(...edges, ...markers) * 0.01;
-	const xMin = Math.min(...edges, ...markers) - pad;
-	const xMax = Math.max(...edges, ...markers) + pad;
+	const xMin = hasRange ? rangeLow : Math.min(...edges, ...markers) - pad;
+	const xMax = hasRange ? rangeHigh : Math.max(...edges, ...markers) + pad;
 	const grid = Array.from({ length: 61 }, (_, i) => xMin + ((xMax - xMin) * i) / 60);
-	const xs = Array.from(new Set([...grid, ...edges])).sort((a, b) => a - b);
+	const xs = Array.from(new Set([...grid, ...edges.filter((edge) => edge >= xMin && edge <= xMax)])).sort((a, b) => a - b);
 
 	// Apex garbles numeric x-axis labels when the values span less than ~1 (all ticks collapse
 	// to the minimum), so the data is plotted at a scaled-up x and scaled back in the labels
@@ -125,7 +129,7 @@ export default function AmplifierPoolChart({ stats, priceView, positions, overwr
 					{empty ? (
 						<>
 							No liquidity is currently provided through this amplifier. The markers show where the current, anchor and forex
-							prices sit within the allowed range.
+							prices sit within the allowed range, which the axis spans from its lower to its upper limit.
 						</>
 					) : (
 						<>
@@ -177,6 +181,8 @@ export default function AmplifierPoolChart({ stats, priceView, positions, overwr
 						},
 						xaxis: {
 							type: "numeric",
+							min: xMin * xScale,
+							max: xMax * xScale,
 							tickAmount: 6,
 							labels: {
 								formatter: (value: string) => formatPrice(Number(value) / xScale) ?? "",
@@ -200,12 +206,44 @@ export default function AmplifierPoolChart({ stats, priceView, positions, overwr
 						},
 						annotations: {
 							xaxis: [
+								...(hasRange
+									? [
+											{
+												x: xMin * xScale,
+												borderColor: LIMIT_COLOR,
+												strokeDashArray: 0,
+												label: {
+													text: `Lower limit ${formatPrice(xMin)}`,
+													borderColor: LIMIT_COLOR,
+													orientation: "horizontal",
+													textAnchor: "start",
+													position: "top",
+													offsetY: -4,
+													style: { color: "#FFFFFF", background: LIMIT_COLOR, fontSize: "11px" },
+												},
+											},
+											{
+												x: xMax * xScale,
+												borderColor: LIMIT_COLOR,
+												strokeDashArray: 0,
+												label: {
+													text: `Upper limit ${formatPrice(xMax)}`,
+													borderColor: LIMIT_COLOR,
+													orientation: "horizontal",
+													textAnchor: "end",
+													position: "top",
+													offsetY: -4,
+													style: { color: "#FFFFFF", background: LIMIT_COLOR, fontSize: "11px" },
+												},
+											},
+									  ]
+									: []),
 								{
 									x: priceView.current * xScale,
 									borderColor: PRICE_COLOR,
 									strokeDashArray: 0,
 									label: {
-										text: `Current ${formatPrice(priceView.current)}`,
+										text: `Current ${formatPrice(priceView.current)}${formatForexDeviation(priceView)}`,
 										borderColor: PRICE_COLOR,
 										orientation: "horizontal",
 										style: { color: "#FFFFFF", background: PRICE_COLOR, fontSize: "11px" },

@@ -71,6 +71,15 @@ export type AmplifierPriceView = {
 	tickAt: (price: number) => number;
 };
 
+// How far the pool values ZCHF from its CHF forex value, as a suffix like " (-0.28%)" (+ above,
+// - below), independent of the displayed orientation. Empty while the forex rate is unknown.
+export const formatForexDeviation = (priceView: AmplifierPriceView): string => {
+	if (priceView.forex <= 0 || priceView.current <= 0) return "";
+	const ratio = priceView.inverted ? priceView.current / priceView.forex : priceView.forex / priceView.current;
+	const percent = (ratio - 1) * 100;
+	return ` (${percent >= 0 ? "+" : "-"}${Math.abs(percent).toFixed(2)}%)`;
+};
+
 // `usdPerChf` is the forex reference rate (USD per CHF), 0 while unknown
 export const getPriceView = (stats: AmplifierStats, inverted: boolean, usdPerChf: number = 0): AmplifierPriceView => {
 	const zchf = stats.zchfSymbol || "ZCHF";
