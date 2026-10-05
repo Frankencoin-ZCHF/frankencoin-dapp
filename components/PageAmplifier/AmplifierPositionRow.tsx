@@ -61,8 +61,8 @@ export default function AmplifierPositionRow({ headers, stats, priceView, positi
 				</div>
 			}
 		>
-			<div className="flex flex-col max-md:text-left">
-				<AppLink className="justify-start" label={shortenAddress(position.address)} href={url} external={true} />
+			<div className="flex flex-col text-left">
+				<AppLink className="" label={shortenAddress(position.address)} href={url} external={true} />
 			</div>
 			<div className="flex flex-col">
 				{formatCurrency(rangeLow, 2, 4, FormatType.us)} - {formatCurrency(rangeHigh, 2, 4, FormatType.us)}
