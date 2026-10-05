@@ -24,11 +24,13 @@ export default function AmplifierPositionsTable({ stats, priceView, positions, i
 	const headers = ["Position", "Price Range", `${stats.usdSymbol || "USD"} Part`, `${stats.zchfSymbol} Part`, "Borrowed"];
 
 	// empty positions outside the current price are dead weight: they hold nothing, earn
-	// nothing and cannot be amplified where they are, so they are not listed
+	// nothing and cannot be amplified where they are, so they are not listed. The account's own
+	// positions always are, otherwise a freshly created one could not be found to add liquidity.
 	const visible = positions.filter((position) => {
+		const own = !!account && position.owner.toLowerCase() === account.toLowerCase();
 		const empty = position.liquidity === 0n && position.borrowed === 0n;
 		const inRange = stats.currentTick >= position.tickLow && stats.currentTick < position.tickHigh;
-		return !empty || inRange;
+		return own || !empty || inRange;
 	});
 
 	return (
