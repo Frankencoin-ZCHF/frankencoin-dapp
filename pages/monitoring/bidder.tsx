@@ -29,9 +29,11 @@ export default function PageBidder() {
 				</div>
 			</AppTitle>
 
-			<div className="md:mt-8 flex flex-col gap-4">
+			<div className="md:mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
 				{active.length === 0 ? (
-					<div className="bg-card-body-primary rounded-lg p-8 text-center text-text-secondary">No running challenges.</div>
+					<div className="md:col-span-2 bg-card-body-primary rounded-lg p-8 text-center text-text-secondary">
+						No running challenges.
+					</div>
 				) : (
 					active.map((c) => <BidderChallengeRow key={c.id} challenge={c} />)
 				)}
