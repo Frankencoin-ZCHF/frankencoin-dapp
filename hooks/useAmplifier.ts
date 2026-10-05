@@ -66,11 +66,22 @@ export type AmplifierPriceView = {
 	unit: string;
 	current: number;
 	anchor: number;
+	forex: number; // the CHF/USD forex rate in this orientation, 0 while unknown
 	atTick: (tick: number) => number;
 	tickAt: (price: number) => number;
 };
 
-export const getPriceView = (stats: AmplifierStats, inverted: boolean): AmplifierPriceView => {
+// How far the pool values ZCHF from its CHF forex value, as a suffix like " (-0.28%)" (+ above,
+// - below), independent of the displayed orientation. Empty while the forex rate is unknown.
+export const formatForexDeviation = (priceView: AmplifierPriceView): string => {
+	if (priceView.forex <= 0 || priceView.current <= 0) return "";
+	const ratio = priceView.inverted ? priceView.current / priceView.forex : priceView.forex / priceView.current;
+	const percent = (ratio - 1) * 100;
+	return ` (${percent >= 0 ? "+" : "-"}${Math.abs(percent).toFixed(2)}%)`;
+};
+
+// `usdPerChf` is the forex reference rate (USD per CHF), 0 while unknown
+export const getPriceView = (stats: AmplifierStats, inverted: boolean, usdPerChf: number = 0): AmplifierPriceView => {
 	const zchf = stats.zchfSymbol || "ZCHF";
 	const usd = stats.usdSymbol || "USD";
 	return inverted
@@ -79,6 +90,7 @@ export const getPriceView = (stats: AmplifierStats, inverted: boolean): Amplifie
 				unit: `${usd}/${zchf}`,
 				current: stats.usdPerZchf,
 				anchor: stats.anchorPrice,
+				forex: usdPerChf,
 				atTick: stats.usdPerZchfAtTick,
 				tickAt: stats.tickAtUsdPerZchf,
 		  }
@@ -87,6 +99,7 @@ export const getPriceView = (stats: AmplifierStats, inverted: boolean): Amplifie
 				unit: `${zchf}/${usd}`,
 				current: stats.pricePerUsd,
 				anchor: stats.anchorPricePerUsd,
+				forex: usdPerChf > 0 ? 1 / usdPerChf : 0,
 				atTick: stats.zchfPerUsdAtTick,
 				tickAt: stats.tickAtZchfPerUsd,
 		  };
@@ -259,40 +272,46 @@ export type AmplifierOverview = {
 };
 
 /**
- * Loads the key figures of a deployed UniswapAmplifier for the overview table,
- * without any user-specific state and without per-block refreshing.
+ * Loads the key figures of the given deployed UniswapAmplifiers for the overview table in
+ * one batch, without any user-specific state and without per-block refreshing. The result
+ * has one entry per amplifier, in the same order.
  */
-export const useAmplifierOverview = (amplifier: Address, chainId: number): AmplifierOverview => {
+export const useAmplifierOverviews = (amplifiers: { address: Address; chainId: number }[]): AmplifierOverview[] => {
 	const { data: configData, isLoading: configLoading } = useReadContracts({
-		contracts: [
-			{ chainId, address: amplifier, abi: UniswapAmplifierABI, functionName: "ZCHF" },
-			{ chainId, address: amplifier, abi: UniswapAmplifierABI, functionName: "USD" },
-			{ chainId, address: amplifier, abi: UniswapAmplifierABI, functionName: "EXPIRATION" },
-			{ chainId, address: amplifier, abi: UniswapAmplifierABI, functionName: "LIMIT" },
-			{ chainId, address: amplifier, abi: UniswapAmplifierABI, functionName: "totalBorrowed" },
-		],
+		contracts: amplifiers.flatMap(({ address, chainId }) => [
+			{ chainId, address, abi: UniswapAmplifierABI, functionName: "ZCHF" } as const,
+			{ chainId, address, abi: UniswapAmplifierABI, functionName: "USD" } as const,
+			{ chainId, address, abi: UniswapAmplifierABI, functionName: "EXPIRATION" } as const,
+			{ chainId, address, abi: UniswapAmplifierABI, functionName: "LIMIT" } as const,
+			{ chainId, address, abi: UniswapAmplifierABI, functionName: "totalBorrowed" } as const,
+		]),
+		query: { enabled: amplifiers.length > 0 },
 	});
 
-	const invalid = !!configData && configData.some((d) => d.status === "failure");
-	const zchf = (configData?.[0]?.result as Address) || zeroAddress;
-	const usd = (configData?.[1]?.result as Address) || zeroAddress;
-	const loaded = !!configData && !invalid && usd !== zeroAddress;
+	const configs = amplifiers.map((_, i) => {
+		const data = configData?.slice(i * 5, i * 5 + 5);
+		const invalid = !!data && data.some((d) => d.status === "failure");
+		const zchf = (data?.[0]?.result as Address) || zeroAddress;
+		const usd = (data?.[1]?.result as Address) || zeroAddress;
+		return { data, invalid, zchf, usd, loaded: !!data && !invalid && usd !== zeroAddress };
+	});
 
+	// symbols of the valid amplifiers only; the others keep a zero address, which is skipped
 	const { data: symbolData, isLoading: symbolLoading } = useReadContracts({
-		contracts: [
-			{ chainId, address: usd, abi: erc20Abi, functionName: "symbol" },
-			{ chainId, address: zchf, abi: erc20Abi, functionName: "symbol" },
-		],
-		query: { enabled: loaded },
+		contracts: configs.flatMap((config, i) => [
+			{ chainId: amplifiers[i].chainId, address: config.usd, abi: erc20Abi, functionName: "symbol" } as const,
+			{ chainId: amplifiers[i].chainId, address: config.zchf, abi: erc20Abi, functionName: "symbol" } as const,
+		]),
+		query: { enabled: configs.some((config) => config.loaded) },
 	});
 
-	return {
-		isLoading: configLoading || (loaded && symbolLoading),
-		invalid,
-		usdSymbol: symbolData?.[0]?.result ? String(symbolData[0].result) : "",
-		zchfSymbol: symbolData?.[1]?.result ? String(symbolData[1].result) : "ZCHF",
-		expiration: configData ? decodeBigIntCall(configData[2]) : 0n,
-		limit: configData ? decodeBigIntCall(configData[3]) : 0n,
-		totalBorrowed: configData ? decodeBigIntCall(configData[4]) : 0n,
-	};
+	return configs.map((config, i) => ({
+		isLoading: configLoading || (config.loaded && symbolLoading),
+		invalid: config.invalid,
+		usdSymbol: symbolData?.[i * 2]?.result ? String(symbolData[i * 2].result) : "",
+		zchfSymbol: symbolData?.[i * 2 + 1]?.result ? String(symbolData[i * 2 + 1].result) : "ZCHF",
+		expiration: config.data ? decodeBigIntCall(config.data[2]) : 0n,
+		limit: config.data ? decodeBigIntCall(config.data[3]) : 0n,
+		totalBorrowed: config.data ? decodeBigIntCall(config.data[4]) : 0n,
+	}));
 };

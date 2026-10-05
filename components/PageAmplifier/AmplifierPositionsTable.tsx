@@ -23,16 +23,32 @@ export default function AmplifierPositionsTable({ stats, priceView, positions, i
 	const account = overwrite ?? connected;
 	const headers = ["Position", "Price Range", `${stats.usdSymbol || "USD"} Part`, `${stats.zchfSymbol} Part`, "Borrowed"];
 
+	// empty positions outside the current price are dead weight: they hold nothing, earn
+	// nothing and cannot be amplified where they are, so they are not listed. The account's own
+	// positions always are, otherwise a freshly created one could not be found to add liquidity.
+	const visible = positions.filter((position) => {
+		const own = !!account && position.owner.toLowerCase() === account.toLowerCase();
+		const empty = position.liquidity === 0n && position.borrowed === 0n;
+		const inRange = stats.currentTick >= position.tickLow && stats.currentTick < position.tickHigh;
+		return own || !empty || inRange;
+	});
+
 	return (
 		<Table>
 			<TableHeader headers={headers} actionCol />
 			<TableBody>
-				{positions.length == 0 ? (
+				{visible.length == 0 ? (
 					<TableRowEmpty>
-						{apiError ? apiError : isLoading ? "Loading amplified positions..." : "This amplifier has no positions yet."}
+						{apiError
+							? apiError
+							: isLoading
+							? "Loading amplified positions..."
+							: positions.length > 0
+							? "This amplifier has no active positions."
+							: "This amplifier has no positions yet."}
 					</TableRowEmpty>
 				) : (
-					positions.map((position) => (
+					visible.map((position) => (
 						<AmplifierPositionRow
 							key={position.address}
 							headers={headers}
