@@ -127,15 +127,16 @@ export default function LeverageAction({
 
 	return (
 		<GuardSupportedChain chain={mainnet}>
-			{equity > userAllowance ? (
+			{/* TODO: undo */}
+			{/* {equity > userAllowance ? (
 				<AppButton disabled={disabled || equity > userBalance} isLoading={isApproving} onClick={handleApprove}>
 					Approve {equityToken.symbol}
 				</AppButton>
-			) : (
-				<AppButton disabled={disabled || equity > userBalance} isLoading={isExecuting} onClick={handleExecute}>
-					Open Leveraged Position
-				</AppButton>
-			)}
+			) : ( */}
+			<AppButton isLoading={isExecuting} onClick={handleExecute}>
+				Open Leveraged Position
+			</AppButton>
+			{/* )} */}
 		</GuardSupportedChain>
 	);
 }

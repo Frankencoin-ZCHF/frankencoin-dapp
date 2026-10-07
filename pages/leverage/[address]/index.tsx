@@ -254,7 +254,7 @@ export default function PositionLeverage() {
 
 			<AppTitle
 				title={`${position.collateralName} (${position.collateralSymbol})`}
-				subtitle={`Open a leveraged position with ${equityToken.symbol}, funded by a ${position.collateralSymbol} flashloan`}
+				subtitle={`Open a leveraged position with ${equityToken.symbol}, funded by a ${position.collateralSymbol} flashloan. Left over funds are refunded to the owner.`}
 				badges={[
 					{
 						label: maxLeverage > 0 ? `up to ${formatCurrency(maxLeverage)}×` : "No leverage",
@@ -358,7 +358,7 @@ export default function PositionLeverage() {
 
 					<div className="flex flex-col gap-4">
 						<AppCard>
-							<div className="text-lg font-bold text-center">Details</div>
+							<div className="text-lg font-bold text-center">Leverage Workflow</div>
 
 							{/* ── Flashloan ── */}
 							<AppBox tight={true}>
@@ -419,9 +419,7 @@ export default function PositionLeverage() {
 									<span>{formatCurrency(swapInFloat)} ZCHF</span>
 								</div>
 								<div className="flex justify-between text-sm">
-									<span className="text-text-secondary">
-										Expected out (market: {formatCurrency(marketPriceFloat)} ZCHF)
-									</span>
+									<span className="text-text-secondary">Expected out</span>
 									<span>
 										{formatCurrency(swapOutFloat, 0, dec)} {position.collateralSymbol}
 									</span>
