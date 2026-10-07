@@ -22,7 +22,11 @@ import AppLink from "@components/AppLink";
 import { AppKitNetwork } from "@reown/appkit/networks";
 import { useAppKitNetwork } from "@reown/appkit/react";
 
-export default function SavingsInteractionCard() {
+interface Props {
+	account: Address;
+}
+
+export default function SavingsInteractionCard({ account }: Props) {
 	const { status } = useSelector((state: RootState) => state.savings.savingsInfo);
 	const chainId = useChainId() as ChainId;
 	const chain = getChain(chainId);
@@ -59,8 +63,7 @@ export default function SavingsInteractionCard() {
 	const { address } = useConnection();
 	const router = useRouter();
 
-	const queryAddress: Address = normalizeAddress(String(router.query.address));
-	const account = isAddress(queryAddress) ? queryAddress : address ?? zeroAddress;
+	const canAdjust = address != undefined && normalizeAddress(address) == normalizeAddress(account);
 
 	const queryReferrer: Address = router.query.referrer as Address;
 	const queryReferralFeePPM: string = router.query.referralFeePPM as string;
@@ -178,6 +181,42 @@ export default function SavingsInteractionCard() {
 		const valueBigInt = BigInt(value);
 		setAmount(valueBigInt);
 	};
+	const detailsCard = (
+		<SavingsDetailsCard
+			account={account}
+			readOnly={!canAdjust}
+			chain={chain}
+			balance={userSavingsBalance}
+			change={isLoaded && !onbehalfToggle ? change : 0n}
+			direction={direction}
+			interest={isLoaded && !onbehalfToggle ? userSavingsInterest : 0n}
+			locktime={userSavingsLocktime}
+			referrer={userSavingsReferrer}
+			referralFeePPM={userSavingsReferralFeePPM}
+			referralFees={userSavingsReferralFees}
+		/>
+	);
+
+	if (!canAdjust) {
+		return (
+			<section className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-auto">
+				<AppCard>
+					<div className="text-lg font-bold text-center">Savings account view</div>
+					<div className="text-text-secondary text-center">
+						{address == undefined
+							? "Connect your wallet to adjust savings."
+							: `These savings belong to ${shortenAddress(account)}. Connect that account to adjust them.`}
+					</div>
+					{address != undefined ? (
+						<div className="text-center">
+							<AppLink label="View your savings" href="/savings" />
+						</div>
+					) : null}
+				</AppCard>
+				{detailsCard}
+			</section>
+		);
+	}
 
 	return (
 		<section className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-auto">
@@ -220,14 +259,15 @@ export default function SavingsInteractionCard() {
 				<div className="mx-auto my-4 w-full flex-col flex gap-4">
 					{onbehalfToggle ? (
 						<SavingsActionSaveOnBehalf
-							disabled={onbehalfError != "" || onbehalfAddress == ""}
+							disabled={!isLoaded || onbehalfError != "" || onbehalfAddress == ""}
 							savingsModule={savingsAdresse}
 							amount={amount}
 							onBehalf={onbehalfAddress as Address}
 						/>
 					) : userSavingsInterest > 0 && amount == userSavingsBalance ? (
 						<SavingsActionInterest
-							disabled={!!error}
+							disabled={!isLoaded || !!error}
+							owner={account}
 							savingsModule={savingsAdresse}
 							balance={userSavingsBalance}
 							interest={userSavingsInterest}
@@ -236,7 +276,8 @@ export default function SavingsInteractionCard() {
 						/>
 					) : amount > userSavingsBalance ? (
 						<SavingsActionSave
-							disabled={!!error}
+							disabled={!isLoaded || !!error}
+							owner={account}
 							savingsModule={savingsAdresse}
 							amount={amount}
 							interest={userSavingsInterest}
@@ -245,7 +286,8 @@ export default function SavingsInteractionCard() {
 						/>
 					) : (
 						<SavingsActionWithdraw
-							disabled={userSavingsBalance == 0n || !!error}
+							disabled={!isLoaded || userSavingsBalance == 0n || !!error}
+							owner={account}
 							savingsModule={savingsAdresse}
 							balance={amount}
 							change={change}
@@ -272,19 +314,7 @@ export default function SavingsInteractionCard() {
 					</div>
 				) : null}
 			</AppCard>
-
-			<SavingsDetailsCard
-				account={account}
-				chain={chain}
-				balance={userSavingsBalance}
-				change={isLoaded && !onbehalfToggle ? change : 0n}
-				direction={direction}
-				interest={isLoaded && !onbehalfToggle ? userSavingsInterest : 0n}
-				locktime={userSavingsLocktime}
-				referrer={userSavingsReferrer}
-				referralFeePPM={userSavingsReferralFeePPM}
-				referralFees={userSavingsReferralFees}
-			/>
+			{detailsCard}
 		</section>
 	);
 }
