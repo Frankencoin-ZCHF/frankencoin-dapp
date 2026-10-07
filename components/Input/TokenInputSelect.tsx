@@ -34,6 +34,7 @@ interface Props {
 	onReset?: () => void;
 	autoFocus?: boolean;
 	disabled?: boolean;
+	showButtons?: boolean;
 	error?: string;
 }
 
@@ -57,6 +58,7 @@ export default function TokenInputSelect({
 	value = "0",
 	autoFocus,
 	disabled,
+	showButtons,
 	onChange = () => {},
 	onMin = () => {},
 	onMax = () => {},
@@ -64,6 +66,7 @@ export default function TokenInputSelect({
 	error,
 }: Props) {
 	const inputRef = useRef<HTMLInputElement>(null);
+	const canShowButtons = showButtons ?? !disabled;
 
 	const handleClick = () => {
 		if (inputRef.current && !disabled) {
@@ -193,7 +196,7 @@ export default function TokenInputSelect({
 							)}
 						</div>
 
-						{!disabled && min != undefined && (
+						{canShowButtons && min != undefined && min != BigInt(value) && min != max && (
 							<div
 								className="text-card-input-min cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
@@ -206,7 +209,7 @@ export default function TokenInputSelect({
 								Min
 							</div>
 						)}
-						{!disabled && reset != undefined && reset != BigInt(value) && (
+						{canShowButtons && reset != undefined && reset != BigInt(value) && reset != min && reset != max && (
 							<div
 								className="text-card-input-reset cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
@@ -219,7 +222,7 @@ export default function TokenInputSelect({
 								Reset
 							</div>
 						)}
-						{!disabled && max != undefined && (
+						{canShowButtons && max != undefined && max != BigInt(value) && (
 							<div
 								className="text-card-input-max cursor-pointer hover:text-card-input-focus font-extrabold"
 								onClick={() => {
