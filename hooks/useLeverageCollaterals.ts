@@ -8,7 +8,7 @@ import { useBorrowPositions } from "./useBorrowPositions";
 import {
 	LEVERAGE_CHAIN_ID,
 	LEVERAGE_FLASHLOAN_PROVIDER,
-	LEVERAGE_MIN_FLASHLOAN_USD,
+	LEVERAGE_MIN_FLASHLOAN_CHF,
 	leverageCredit,
 	leverageFactor,
 	normalizeAddress,
@@ -22,7 +22,7 @@ export type LeverageCollateral = {
 	priceUsd: number;
 	// idle collateral in the flashloan provider (Morpho Blue), token units
 	flashloanLiquidity: number;
-	flashloanLiquidityUsd: number;
+	flashloanLiquidityChf: number;
 	// maximum leverage at the position maturity
 	maxLeverage: number;
 };
@@ -63,20 +63,20 @@ export const useLeverageCollaterals = () => {
 			const balance = (data?.[i]?.result as bigint | undefined) ?? 0n;
 			const priceChf = prices[c.address]?.price?.chf ?? 0;
 			const priceUsd = prices[c.address]?.price?.usd ?? 0;
-			if (!position || priceChf <= 0 || priceUsd <= 0) return;
+			if (!position || priceChf <= 0) return;
 
 			const flashloanLiquidity = Number(balance) / 10 ** c.decimals;
-			const flashloanLiquidityUsd = flashloanLiquidity * priceUsd;
-			if (flashloanLiquidityUsd < LEVERAGE_MIN_FLASHLOAN_USD) return;
+			const flashloanLiquidityChf = flashloanLiquidity * priceChf;
+			if (flashloanLiquidityChf < LEVERAGE_MIN_FLASHLOAN_CHF) return;
 
 			const duration = Math.max(0, position.expiration - Date.now() / 1000);
 			const maxLeverage = leverageFactor(leverageCredit(position, priceChf, duration));
 			if (maxLeverage <= 0) return;
 
-			rows.push({ collateral: c, position, priceChf, priceUsd, flashloanLiquidity, flashloanLiquidityUsd, maxLeverage });
+			rows.push({ collateral: c, position, priceChf, priceUsd, flashloanLiquidity, flashloanLiquidityChf, maxLeverage });
 		});
 
-		return rows.sort((a, b) => b.flashloanLiquidityUsd - a.flashloanLiquidityUsd);
+		return rows.sort((a, b) => b.flashloanLiquidityChf - a.flashloanLiquidityChf);
 	}, [candidates, bestPriceByCollateral, data, prices]);
 
 	return { list, isLoading };
