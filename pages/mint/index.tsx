@@ -7,6 +7,7 @@ import { fetchPositionsList } from "../../redux/slices/positions.slice";
 import AppTitle from "@components/AppTitle";
 import AppHeroSteps from "@components/AppHeroSteps";
 import AppButtonSecondary from "@components/AppButtonSecondary";
+import AppLink from "@components/AppLink";
 
 export default function Borrow() {
 	useEffect(() => {
@@ -22,6 +23,8 @@ export default function Borrow() {
 			<AppTitle title="Borrow Frankencoins">
 				<div className="text-text-secondary">
 					Deposit a collateral and mint new Frankencoins against it. The collateral stays locked until you return the minted coins.
+					You can also leverage your position.{" "}
+					<AppLink label="Go to Leverage" href="/leverage" className="inline" icon={true} />
 				</div>
 			</AppTitle>
 
