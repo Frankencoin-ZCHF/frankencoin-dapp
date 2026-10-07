@@ -14,7 +14,7 @@ import {
 	LEVERAGE_FLASHLOAN_PROVIDER,
 } from "@utils";
 import DateInput from "@components/Input/DateInput";
-import TokenInput from "@components/Input/TokenInput";
+import TokenInputSelect from "@components/Input/TokenInputSelect";
 import { TabInput } from "@components/Input/TabInput";
 import { WAGMI_CONFIG } from "../../../app.config";
 import { useSelector } from "react-redux";
@@ -27,7 +27,7 @@ import AppTitle from "@components/AppTitle";
 import AppBox from "@components/AppBox";
 import LeverageAction, { LeverageMode } from "@components/PageLeverage/LeverageAction";
 
-const SLIPPAGE_TABS: Record<string, number> = { "0.5%": 50, "1%": 100, "2%": 200 };
+const SLIPPAGE_TABS: Record<string, number> = { "0%": 0, "0.25%": 25, "0.5%": 50, "1%": 100, "2%": 200 };
 
 function toDate(time: bigint | number | string) {
 	return new Date(Number(BigInt(time)) * 1000);
@@ -41,8 +41,8 @@ function to18(value: bigint, digit: number): bigint {
 export default function PositionLeverage() {
 	const [mode, setMode] = useState<LeverageMode>("zchf");
 	const [equityInput, setEquityInput] = useState(0n);
-	const [marketPriceInput, setMarketPriceInput] = useState(0n);
-	const [slippageTab, setSlippageTab] = useState<string>("1%");
+	const [equityTouched, setEquityTouched] = useState(false); // until the user types, the minimum equity is used
+	const [slippageTab, setSlippageTab] = useState<string>("0.25%");
 	const [expirationDate, setExpirationDate] = useState<Date>(new Date(0));
 	const [expirationTab, setExpirationTab] = useState<string>("1Y");
 	const [errorDate, setErrorDate] = useState("");
@@ -73,9 +73,6 @@ export default function PositionLeverage() {
 		if (!position || position.expiration == 0) return;
 		const collPriceZCHF = prices[normalizeAddress(position.collateral)]?.price?.chf ?? 0;
 		if (collPriceZCHF <= 0) return; // wait for oracle price before initialising
-
-		const pd = 36 - position.collateralDecimals;
-		setMarketPriceInput(parseUnits(collPriceZCHF.toFixed(pd), pd));
 
 		const _now = new Date();
 		const oneYearOut = new Date(_now.getFullYear() + 1, _now.getMonth(), _now.getDate());
@@ -122,10 +119,12 @@ export default function PositionLeverage() {
 	const liqPriceBigInt = BigInt(position.price);
 	const liqPriceFloat = parseFloat(formatUnits(liqPriceBigInt, priceDigit));
 	const collKey = normalizeAddress(position.collateral);
-	const oraclePrice = prices[collKey]?.price?.chf ?? 0; // reference (display only)
+	const oraclePrice = prices[collKey]?.price?.chf ?? 0;
 	const oraclePriceBigInt = parseUnits(Math.max(0, oraclePrice).toFixed(priceDigit), priceDigit);
 	const expirationMax = toDate(originalExpiration ?? position.expiration);
-	const marketPriceFloat = parseFloat(formatUnits(marketPriceInput, priceDigit));
+	// the oracle price is the market reference, the swap slippage covers deviations
+	const marketPriceInput = oraclePriceBigInt;
+	const marketPriceFloat = oraclePrice;
 
 	const isZchf = mode == "zchf";
 	const equityToken = isZchf
@@ -133,7 +132,6 @@ export default function PositionLeverage() {
 		: { address: position.collateral as Address, symbol: position.collateralSymbol, decimals: dec };
 	const userBalance = isZchf ? zchfBalance : collBalance;
 	const userAllowance = isZchf ? zchfAllowance : collAllowance;
-	const equity = equityInput;
 
 	// ── Fees ─────────────────────────────────────────────────────────────
 	const durationSecs = Math.max(0, expirationDate.getTime() - Date.now()) / 1000;
@@ -160,11 +158,17 @@ export default function PositionLeverage() {
 	const spread18 = marketEff18 - credit18;
 
 	const sizingOk = spread18 > 0n && marketEff18 > 0n;
-	const collateralAmount = !sizingOk
+
+	// Minimum equity so that C >= minimumCollateral (rounded up), used as the prefilled amount
+	const minColl = BigInt(position.minimumCollateral);
+	const minEquity = !sizingOk
 		? 0n
 		: isZchf
-		? (equity * unit) / spread18
-		: (equity * marketEff18) / spread18;
+		? (minColl * spread18 + unit - 1n) / unit
+		: (minColl * spread18 + marketEff18 - 1n) / marketEff18;
+	const equity = equityTouched ? equityInput : minEquity;
+
+	const collateralAmount = !sizingOk ? 0n : isZchf ? (equity * unit) / spread18 : (equity * marketEff18) / spread18;
 	const canLeverage = sizingOk && credit18 > 0n && collateralAmount > equity * (isZchf ? 0n : 1n);
 
 	const flashloanAmount = isZchf ? collateralAmount : collateralAmount > equity ? collateralAmount - equity : 0n; // collateral units
@@ -192,12 +196,6 @@ export default function PositionLeverage() {
 	const leverage = equityValue > 0 ? (collFloat * marketPriceFloat) / equityValue : 0;
 
 	// ── Minimum equity so that C ≥ minimumCollateral ─────────────────────
-	const minColl = BigInt(position.minimumCollateral);
-	const minEquity = !sizingOk
-		? 0n
-		: isZchf
-		? (minColl * spread18) / unit
-		: (minColl * spread18) / marketEff18;
 	const minEquityFloat = f(minEquity, equityToken.decimals);
 
 	// ── Expiration ───────────────────────────────────────────────────────
@@ -224,9 +222,9 @@ export default function PositionLeverage() {
 		onChangeExpiration(expirationTabDates[t] ?? expirationMax);
 	};
 
-	const onTabMode = (t: string) => {
-		setMode(t == "Deposit ZCHF" ? "zchf" : "collateral");
-		setEquityInput(0n);
+	const onChangeMode = (symbol: string) => {
+		setMode(symbol == "ZCHF" ? "zchf" : "collateral");
+		setEquityTouched(false);
 	};
 
 	// ── Validation ───────────────────────────────────────────────────────
@@ -249,7 +247,7 @@ export default function PositionLeverage() {
 	const maxLeverage = sizingOk && credit18 > 0n ? 1 / (1 - f(credit18, 18) / f(marketEff18, 18)) : 0;
 
 	return (
-		<div className="flex flex-col md:max-w-2xl mx-auto">
+		<>
 			<Head>
 				<title>Frankencoin - Leverage</title>
 			</Head>
@@ -258,12 +256,10 @@ export default function PositionLeverage() {
 				title={`${position.collateralName} (${position.collateralSymbol})`}
 				subtitle={`Open a leveraged position with ${equityToken.symbol}, funded by a ${position.collateralSymbol} flashloan`}
 				badges={[
-					{ label: positionStatus.label, className: positionStatus.cls },
 					{
 						label: maxLeverage > 0 ? `up to ${formatCurrency(maxLeverage)}×` : "No leverage",
-						className: "bg-purple-500/20 text-purple-400",
+						className: "bg-blue-500/20 text-blue-400",
 					},
-					{ label: `${formatCurrency(mLTV * 100)}% LTV`, className: "bg-gray-500/20 text-gray-400" },
 				]}
 				actions={
 					<div className="flex flex-wrap gap-4 text-sm">
@@ -273,255 +269,200 @@ export default function PositionLeverage() {
 				}
 			/>
 
-			<div className="mt-8 space-y-4">
-				<AppCard>
-					<div className="text-lg font-bold text-center">Open Leveraged Position</div>
+			<div className="md:mt-8">
+				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<AppCard>
+						<div className="text-lg font-bold text-center">Open Leveraged Position</div>
 
-					<TabInput
-						tabs={["Deposit ZCHF", `Deposit ${position.collateralSymbol}`]}
-						tab={isZchf ? "Deposit ZCHF" : `Deposit ${position.collateralSymbol}`}
-						setTab={((t: string) => onTabMode(t)) as any}
-					/>
-
-					{!canLeverage && equity > 0n && (
-						<div className="my-2 px-3 py-2 rounded bg-red-500/10 text-red-400 text-sm text-center">
-							Leverage unavailable: market price with slippage must exceed the credit per token
-						</div>
-					)}
-
-					<div className="space-y-4">
-						<TokenInput
-							label="Equity"
-							symbol={equityToken.symbol}
-							value={String(equityInput)}
-							onChange={(v) => setEquityInput(BigInt(v))}
-							min={minEquity}
-							max={userBalance}
-							reset={minEquity}
-							digit={equityToken.decimals}
-							error={errorInput}
-							limit={userBalance}
-							limitDigit={equityToken.decimals}
-							limitLabel="Balance"
-						/>
-
-						<TokenInput
-							label={`${position.collateralSymbol} Price`}
-							symbol="ZCHF"
-							value={String(marketPriceInput)}
-							onChange={(v) => setMarketPriceInput(BigInt(v))}
-							reset={oraclePriceBigInt}
-							digit={priceDigit}
-							limit={oraclePriceBigInt}
-							limitDigit={priceDigit}
-							limitLabel="Oracle"
-						/>
-
-						<DateInput
-							label="Position expires"
-							value={expirationDate}
-							onChange={onChangeExpiration}
-							error={errorDate}
-							max={expirationMax}
-							tabs={["1M", "3M", "6M", "1Y", "Max"]}
-							tabDates={expirationTabDates}
-							tab={expirationTab}
-							onTab={onTabExpiration}
-						/>
-
-						<div>
-							<div className="text-sm text-text-secondary mb-1">Swap slippage</div>
-							<TabInput tabs={Object.keys(SLIPPAGE_TABS)} tab={slippageTab} setTab={setSlippageTab} />
-						</div>
-					</div>
-
-					{/* ── Position Parameters ── */}
-					<AppBox tight={true}>
-						<div className="text-sm font-semibold text-text-secondary mb-2">Position Parameters</div>
-
-						<div className="flex justify-between text-sm">
-							<span className="text-text-secondary">Liquidation price</span>
-							<span>{formatCurrency(liqPriceFloat)} ZCHF</span>
-						</div>
-						<div className="flex justify-between text-sm">
-							<span className="text-text-secondary">Market price</span>
-							<span>{formatCurrency(marketPriceFloat)} ZCHF</span>
-						</div>
-						<div className="flex justify-between text-sm">
-							<span className="text-text-secondary">Market LTV (liq / market)</span>
-							<span>{formatCurrency(mLTV * 100)}%</span>
-						</div>
-						<div className="mt-2 flex justify-between text-sm">
-							<span className="text-text-secondary">Reserve contribution</span>
-							<span>−{formatCurrency(reserveRatio * 100)}%</span>
-						</div>
-						<div className="flex justify-between text-sm">
-							<span className="text-text-secondary">
-								Interest ({formatCurrency(annualRate * 100)}% / yr × {formatCurrency(durationYears, 0, 2)} yr)
-							</span>
-							<span>−{formatCurrency(feeRatio * 100)}%</span>
-						</div>
-					</AppBox>
-
-					{/* ── Flashloan ── */}
-					<AppBox tight={true}>
-						<div className="text-sm font-semibold text-text-secondary mb-2">1. Flashloan (Morpho)</div>
-
-						<div className="flex justify-between text-sm font-extrabold">
-							<span className="text-text-secondary">Borrowed collateral</span>
-							<span>
-								{formatCurrency(flashloanFloat, 0, dec)} {position.collateralSymbol}
-							</span>
-						</div>
-						{!isZchf && (
-							<div className="flex justify-between text-sm">
-								<span className="text-text-secondary">Your equity</span>
-								<span>
-									{formatCurrency(equityFloat, 0, dec)} {position.collateralSymbol}
-								</span>
+						{!canLeverage && equity > 0n && (
+							<div className="my-2 px-3 py-2 rounded bg-red-500/10 text-red-400 text-sm text-center">
+								Leverage unavailable: market price with slippage must exceed the credit per token
 							</div>
 						)}
-						<div className="flex justify-between text-sm">
-							<span className="text-text-secondary">Deposited into the position</span>
-							<span>
-								{formatCurrency(collFloat, 0, dec)} {position.collateralSymbol}
-							</span>
-						</div>
-					</AppBox>
 
-					{/* ── Mint ── */}
-					<AppBox tight={true}>
-						<div className="text-sm font-semibold text-text-secondary mb-2">2. Mint</div>
+						<div className="space-y-4">
+							<TokenInputSelect
+								label="Equity"
+								symbol={equityToken.symbol}
+								symbolOptions={["ZCHF", position.collateralSymbol]}
+								symbolOnChange={(o) => onChangeMode(o.value)}
+								value={String(equity)}
+								onChange={(v) => {
+									setEquityTouched(true);
+									setEquityInput(BigInt(v));
+								}}
+								min={minEquity}
+								max={userBalance > 0n ? userBalance : undefined}
+								reset={minEquity}
+								digit={equityToken.decimals}
+								error={errorInput}
+								limit={userBalance}
+								limitDigit={equityToken.decimals}
+								limitLabel="Balance"
+							/>
 
-						<div className="flex justify-between text-sm">
-							<span className="text-text-secondary">Minted gross</span>
-							<span>{formatCurrency(mintGrossFloat)} ZCHF</span>
-						</div>
-						<div className="flex justify-between text-sm">
-							<span className="text-text-secondary">Reserve ({formatCurrency(reserveRatio * 100)}%)</span>
-							<span>−{formatCurrency(reserveFloat)} ZCHF</span>
-						</div>
-						<div className="flex justify-between text-sm">
-							<span className="text-text-secondary">Interest</span>
-							<span>−{formatCurrency(interestFloat)} ZCHF</span>
-						</div>
-						<div className="mt-2 border-t border-border pt-2 flex justify-between text-sm font-semibold">
-							<span className="text-text-secondary">Received</span>
-							<span>{formatCurrency(mintNetFloat)} ZCHF</span>
-						</div>
-					</AppBox>
+							<DateInput
+								label="Position expires"
+								value={expirationDate}
+								onChange={onChangeExpiration}
+								error={errorDate}
+								max={expirationMax}
+								tabs={["1M", "3M", "6M", "1Y", "Max"]}
+								tabDates={expirationTabDates}
+								tab={expirationTab}
+								onTab={onTabExpiration}
+							/>
 
-					{/* ── Swap ── */}
-					<AppBox tight={true}>
-						<div className="text-sm font-semibold text-text-secondary mb-2">3. Swap (Enso)</div>
+							<div>
+								<div className="text-sm text-text-secondary mb-1">Swap slippage</div>
+								<TabInput tabs={Object.keys(SLIPPAGE_TABS)} tab={slippageTab} setTab={setSlippageTab} />
+							</div>
 
-						<div className="flex justify-between text-sm">
-							<span className="text-text-secondary">ZCHF in {isZchf ? "(equity + minted)" : "(minted)"}</span>
-							<span>{formatCurrency(swapInFloat)} ZCHF</span>
+							{/* ── Position Parameters ── */}
+							<AppBox tight={true}>
+								<div className="flex justify-between text-sm">
+									<span className="text-text-secondary">Market price</span>
+									<span>{formatCurrency(marketPriceFloat)} ZCHF</span>
+								</div>
+								<div className="flex justify-between text-sm">
+									<span className="text-text-secondary">Position LTV</span>
+									<span>{formatCurrency(mLTV * 100)}%</span>
+								</div>
+							</AppBox>
 						</div>
-						<div className="flex justify-between text-sm">
-							<span className="text-text-secondary">Expected out</span>
-							<span>
-								{formatCurrency(swapOutFloat, 0, dec)} {position.collateralSymbol}
-							</span>
-						</div>
-						<div className="mt-2 border-t border-border pt-2 flex justify-between text-sm font-semibold">
-							<span className="text-text-secondary">Repays flashloan, rest is sent to you</span>
-							<span>
-								{formatCurrency(flashloanFloat, 0, dec)} {position.collateralSymbol}
-							</span>
-						</div>
-					</AppBox>
 
-					{/* ── Result ── */}
-					<AppBox tight={true}>
-						<div className="text-sm font-semibold text-text-secondary mb-2">Result</div>
+						<div className="mx-auto w-full flex-col">
+							<LeverageAction
+								position={position}
+								mode={mode}
+								equityToken={equityToken}
+								equity={equity}
+								collateralAmount={collateralAmount}
+								swapIn={(swapIn * 999n) / 1000n}
+								slippageBps={slippageBps}
+								expirationDate={expirationDate}
+								userAllowance={userAllowance}
+								userBalance={userBalance}
+								disabled={!canLeverage || !!errorInput || !!errorDate || isBlocked || equity == 0n}
+							/>
+						</div>
 
-						<div className="flex justify-between text-sm font-bold">
-							<span className="text-text-secondary">Leverage</span>
-							<span className={canLeverage ? "text-purple-400" : "text-red-400"}>
-								{leverage > 0 ? `${formatCurrency(leverage)}×` : "—"}
-							</span>
-						</div>
-						<div className="flex justify-between text-sm">
-							<span className="text-text-secondary">Position collateral</span>
-							<span>
-								{formatCurrency(collFloat, 0, dec)} {position.collateralSymbol}
-							</span>
-						</div>
-						<div className="flex justify-between text-sm">
-							<span className="text-text-secondary">Position debt</span>
-							<span>{formatCurrency(mintGrossFloat)} ZCHF</span>
-						</div>
-						<div className="flex justify-between text-sm">
-							<span className="text-text-secondary">Liquidation price</span>
-							<span>{formatCurrency(liqPriceFloat)} ZCHF</span>
-						</div>
-					</AppBox>
+						{isBlocked && (
+							<div className="flex my-2 px-2 text-amber-500 text-sm">
+								{position.start * 1000 > now
+									? "Position is pending governance approval."
+									: "Position is in a cooldown period."}
+							</div>
+						)}
+					</AppCard>
 
-					<div className="mx-auto w-full flex-col">
-						<LeverageAction
-							position={position}
-							mode={mode}
-							equityToken={equityToken}
-							equity={equity}
-							collateralAmount={collateralAmount}
-							swapIn={(swapIn * 999n) / 1000n}
-							slippageBps={slippageBps}
-							expirationDate={expirationDate}
-							userAllowance={userAllowance}
-							userBalance={userBalance}
-							disabled={!canLeverage || !!errorInput || !!errorDate || isBlocked || equity == 0n}
-						/>
+					<div className="flex flex-col gap-4">
+						<AppCard>
+							<div className="text-lg font-bold text-center">Details</div>
+
+							{/* ── Flashloan ── */}
+							<AppBox tight={true}>
+								<div className="text-sm font-semibold text-text-secondary mb-2">1. Flashloan (Morpho)</div>
+
+								<div className="flex justify-between text-sm font-extrabold">
+									<span className="text-text-secondary">Borrowed collateral</span>
+									<span>
+										{formatCurrency(flashloanFloat, 0, dec)} {position.collateralSymbol}
+									</span>
+								</div>
+								{!isZchf && (
+									<div className="flex justify-between text-sm">
+										<span className="text-text-secondary">Your equity</span>
+										<span>
+											{formatCurrency(equityFloat, 0, dec)} {position.collateralSymbol}
+										</span>
+									</div>
+								)}
+								<div className="flex justify-between text-sm">
+									<span className="text-text-secondary">Deposited into the position</span>
+									<span>
+										{formatCurrency(collFloat, 0, dec)} {position.collateralSymbol}
+									</span>
+								</div>
+							</AppBox>
+
+							{/* ── Mint ── */}
+							<AppBox tight={true}>
+								<div className="text-sm font-semibold text-text-secondary mb-2">2. Mint</div>
+
+								<div className="flex justify-between text-sm">
+									<span className="text-text-secondary">Minted gross</span>
+									<span>{formatCurrency(mintGrossFloat)} ZCHF</span>
+								</div>
+								<div className="flex justify-between text-sm">
+									<span className="text-text-secondary">Reserve ({formatCurrency(reserveRatio * 100)}%)</span>
+									<span>−{formatCurrency(reserveFloat)} ZCHF</span>
+								</div>
+								<div className="flex justify-between text-sm">
+									<span className="text-text-secondary">
+										Interest ({formatCurrency(annualRate * 100)}% / yr × {formatCurrency(durationYears, 0, 2)} yr)
+									</span>
+									<span>−{formatCurrency(interestFloat)} ZCHF</span>
+								</div>
+								<div className="mt-2 border-t border-border pt-2 flex justify-between text-sm font-semibold">
+									<span className="text-text-secondary">Received</span>
+									<span>{formatCurrency(mintNetFloat)} ZCHF</span>
+								</div>
+							</AppBox>
+
+							{/* ── Swap ── */}
+							<AppBox tight={true}>
+								<div className="text-sm font-semibold text-text-secondary mb-2">3. Swap (Enso)</div>
+
+								<div className="flex justify-between text-sm">
+									<span className="text-text-secondary">ZCHF in {isZchf ? "(equity + minted)" : "(minted)"}</span>
+									<span>{formatCurrency(swapInFloat)} ZCHF</span>
+								</div>
+								<div className="flex justify-between text-sm">
+									<span className="text-text-secondary">
+										Expected out (market: {formatCurrency(marketPriceFloat)} ZCHF)
+									</span>
+									<span>
+										{formatCurrency(swapOutFloat, 0, dec)} {position.collateralSymbol}
+									</span>
+								</div>
+								<div className="mt-2 border-t border-border pt-2 flex justify-between text-sm font-semibold">
+									<span className="text-text-secondary">Repays flashloan, rest is sent to you</span>
+									<span>
+										{formatCurrency(flashloanFloat, 0, dec)} {position.collateralSymbol}
+									</span>
+								</div>
+							</AppBox>
+
+							{/* ── Result ── */}
+							<AppBox tight={true}>
+								<div className="text-sm font-semibold text-text-secondary mb-2">Result</div>
+
+								<div className="flex justify-between text-sm font-bold">
+									<span className="text-text-secondary">Leverage</span>
+									<span className={canLeverage ? "text-purple-400" : "text-red-400"}>
+										{leverage > 0 ? `${formatCurrency(leverage)}×` : "—"}
+									</span>
+								</div>
+								<div className="flex justify-between text-sm">
+									<span className="text-text-secondary">Position collateral</span>
+									<span>
+										{formatCurrency(collFloat, 0, dec)} {position.collateralSymbol}
+									</span>
+								</div>
+								<div className="flex justify-between text-sm">
+									<span className="text-text-secondary">Position debt</span>
+									<span>{formatCurrency(mintGrossFloat)} ZCHF</span>
+								</div>
+								<div className="flex justify-between text-sm">
+									<span className="text-text-secondary">Liquidation price</span>
+									<span>{formatCurrency(liqPriceFloat)} ZCHF</span>
+								</div>
+							</AppBox>
+						</AppCard>
 					</div>
-
-					{isBlocked && (
-						<div className="flex my-2 px-2 text-amber-500 text-sm">
-							{position.start * 1000 > now ? "Position is pending governance approval." : "Position is in a cooldown period."}
-						</div>
-					)}
-				</AppCard>
-
-				{/* ── Mechanism Info ── */}
-				<AppCard>
-					<div className="text-lg font-bold text-center mt-1">How It Works</div>
-					<div className="mt-3 space-y-2 text-sm text-text-secondary">
-						<p>
-							1. A flashloan of{" "}
-							<span className="text-text-primary">
-								{formatCurrency(flashloanFloat, 0, dec)} {position.collateralSymbol}
-							</span>{" "}
-							is taken from Morpho
-							{isZchf ? "." : `, on top of your ${formatCurrency(equityFloat, 0, dec)} ${position.collateralSymbol}.`}
-						</p>
-						<p>
-							2. The full{" "}
-							<span className="text-text-primary">
-								{formatCurrency(collFloat, 0, dec)} {position.collateralSymbol}
-							</span>{" "}
-							is deposited into a cloned position, which mints{" "}
-							<span className="text-text-primary">{formatCurrency(mintGrossFloat)} ZCHF</span> gross,{" "}
-							{formatCurrency(mintNetFloat)} ZCHF net after reserve and interest.
-						</p>
-						<p>
-							3. {isZchf ? "Your ZCHF plus the minted ZCHF are" : "The minted ZCHF is"} swapped through Enso into{" "}
-							<span className="text-text-primary">
-								~{formatCurrency(swapOutFloat, 0, dec)} {position.collateralSymbol}
-							</span>
-							, which repays the flashloan. Any excess is sent to you.
-						</p>
-						<p>
-							4. You own the position at{" "}
-							<span className="text-purple-400 font-semibold">{leverage > 0 ? `${formatCurrency(leverage)}×` : "—"}</span>{" "}
-							leverage.
-						</p>
-						<p className="text-xs pt-1">
-							Liquidation threshold: {position.collateralSymbol} price drops to {formatCurrency(liqPriceFloat)} ZCHF. Flashloan source:{" "}
-							{LEVERAGE_FLASHLOAN_PROVIDER.slice(0, 8)}… (Morpho Blue, no fee).
-						</p>
-					</div>
-				</AppCard>
+				</section>
 			</div>
-		</div>
+		</>
 	);
 }
