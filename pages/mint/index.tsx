@@ -23,7 +23,7 @@ export default function Borrow() {
 			<AppTitle title="Borrow Frankencoins">
 				<div className="text-text-secondary">
 					Deposit a collateral and mint new Frankencoins against it. The collateral stays locked until you return the minted
-					coins. <AppLink label="You can also leverage your position." href="/leverage" className="" />
+					coins. <AppLink label="You can also create a leveraged position." href="/leverage" className="" />
 				</div>
 			</AppTitle>
 
