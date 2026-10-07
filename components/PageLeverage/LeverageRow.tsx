@@ -4,7 +4,7 @@ import AppBox from "@components/AppBox";
 import AppButton from "@components/AppButton";
 import DisplayCollateralBorrowTable from "../PageBorrow/DisplayCollateralBorrowTable";
 import { LeverageCollateral } from "@hooks";
-import { formatCurrency } from "@utils";
+import { formatCurrency, FormatType } from "@utils";
 
 interface Props {
 	headers: string[];
@@ -56,11 +56,11 @@ export default function LeverageRow({ headers, tab, item }: Props) {
 			</div>
 
 			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-md">{`$${formatCurrency(item.flashloanLiquidityUsd, 0, 0)}`}</div>
+				<div className="col-span-2 text-md">{`${formatCurrency(effectiveInterest, 2, 2)}%`}</div>
 			</div>
 
 			<div className="flex flex-col gap-2">
-				<div className="col-span-2 text-md">{`${formatCurrency(effectiveInterest, 2, 2)}%`}</div>
+				<div className="col-span-2 text-md">{`${formatCurrency(item.flashloanLiquidityChf, 0, 2, FormatType.symbol)} CHF`}</div>
 			</div>
 		</TableRowSearchable>
 	);

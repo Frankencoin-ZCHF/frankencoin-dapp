@@ -37,8 +37,8 @@ export const LEVERAGE_EXECUTOR_ABI = [
 	},
 ] as const;
 
-// Collaterals with less flashloan liquidity than this (USD) are not offered for leverage.
-export const LEVERAGE_MIN_FLASHLOAN_USD = 10_000;
+// Collaterals with less flashloan liquidity than this (CHF) are not offered for leverage.
+export const LEVERAGE_MIN_FLASHLOAN_CHF = 10_000;
 
 // Mirrors PositionV2.calculateFee: feePPM = duration * annualPPM / 365 days
 export const SECS_PER_YEAR = 365 * 24 * 3600;
