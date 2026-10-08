@@ -15,12 +15,18 @@ const toDailyValues = (data: [number, number][]) => {
 	return [...dailyMap.values()];
 };
 
-export default function MarketChart() {
+type MarketChartProps = {
+	coin?: "frankencoin" | "frankencoin-shares";
+	symbol?: string;
+};
+
+export default function MarketChart({ coin = "frankencoin", symbol = "ZCHF" }: MarketChartProps) {
+	const isPegged = coin === "frankencoin";
 	const timestamp = Date.now() - 20 * 24 * 3600 * 1000;
 	const { marketChart } = useSelector((state: RootState) => state.prices);
 
-	const priceList = toDailyValues(marketChart.prices).filter((i) => i["0"] > timestamp);
-	const volumeList = toDailyValues(marketChart.total_volumes).filter((i) => i["0"] > timestamp);
+	const priceList = toDailyValues(marketChart[coin].prices).filter((i) => i["0"] > timestamp);
+	const volumeList = toDailyValues(marketChart[coin].total_volumes).filter((i) => i["0"] > timestamp);
 
 	return (
 		<div className="grid md:grid-cols-2 gap-4">
@@ -79,7 +85,7 @@ export default function MarketChart() {
 								labels: {
 									show: true,
 									formatter: (value) => {
-										return `${Math.round(value * 1000) / 1000} CHF`;
+										return `${Math.round(value * (isPegged ? 1000 : 100)) / (isPegged ? 1000 : 100)} CHF`;
 									},
 								},
 								axisBorder: {
@@ -88,27 +94,31 @@ export default function MarketChart() {
 								axisTicks: {
 									show: true,
 								},
-								max: (max) => {
-									return Math.max(max, 1.02);
-								},
-								min: (min) => {
-									return Math.min(min, 0.98);
-								},
+								...(isPegged
+									? {
+											max: (max: number) => Math.max(max, 1.02),
+											min: (min: number) => Math.min(min, 0.98),
+									  }
+									: {}),
 							},
 						}}
 						series={[
 							{
-								name: "ZCHF Price",
+								name: `${symbol} Price`,
 								data: priceList.map((entry) => {
 									return [entry[0], Math.round(entry[1] * 1000) / 1000];
 								}),
 							},
-							{
-								name: "Parity",
-								data: priceList.map((entry) => {
-									return [entry[0], 1];
-								}),
-							},
+							...(isPegged
+								? [
+										{
+											name: "Parity",
+											data: priceList.map((entry) => {
+												return [entry[0], 1];
+											}),
+										},
+								  ]
+								: []),
 						]}
 					/>
 
@@ -172,7 +182,9 @@ export default function MarketChart() {
 								labels: {
 									show: true,
 									formatter: (value) => {
-										return `${Math.round(value / 100000) / 10}M CHF`;
+										return isPegged
+											? `${Math.round(value / 100000) / 10}M CHF`
+											: `${Math.round(value / 100) / 10}k CHF`;
 									},
 								},
 								axisBorder: {
@@ -181,9 +193,7 @@ export default function MarketChart() {
 								axisTicks: {
 									show: true,
 								},
-								max: (max) => {
-									return Math.ceil(max / 1_000_000) * 1_000_000;
-								},
+								...(isPegged ? { max: (max: number) => Math.ceil(max / 1_000_000) * 1_000_000 } : {}),
 								min: 0,
 							},
 						}}
