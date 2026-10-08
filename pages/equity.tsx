@@ -77,7 +77,8 @@ export default function Equity() {
 
 			<AppTitle title="Market">
 				<div className="text-text-secondary">
-					FCS price and trading volume over the last 20 days, from CoinGecko. Volumes include Uniswap and the native hooked AMM.
+					This section shows the recent exchange rate and 24h trading volume of FCS on the open market. Data sourced from
+					CoinGecko.
 				</div>
 			</AppTitle>
 			<MarketChart coin="frankencoin-shares" symbol="FCS" />
