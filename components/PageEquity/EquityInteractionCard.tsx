@@ -16,6 +16,7 @@ export const EquityTokenSelectorMapping: { [key: string]: string[] } = {
 	ZCHF: ["FCS"],
 	FPS: ["FCS"],
 	FCS: ["ZCHF"],
+	WFPS: ["FPS"],
 };
 
 export default function EquityInteractionCard() {
