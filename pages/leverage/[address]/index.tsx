@@ -338,7 +338,7 @@ export default function PositionLeverage() {
 								equityToken={equityToken}
 								equity={equity}
 								collateralAmount={collateralAmount}
-								swapIn={(swapIn * 999n) / 1000n}
+								swapIn={(swapIn * (1_000_000n - 1n)) / 1_000_000n} // 1 ppm margin, covers rounding and clock skew
 								slippageBps={slippageBps}
 								expirationDate={expirationDate}
 								userAllowance={userAllowance}
