@@ -3,33 +3,28 @@ import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/ac
 import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
-import { useConnection, useChainId } from "wagmi";
+import { useConnection } from "wagmi";
 import AppButton from "@components/AppButton";
 import { ADDRESS, SavingsABI, SavingsV2ABI } from "@frankencoin/zchf";
 import { track } from "@hooks";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
-import { useRouter } from "next/router";
-import { Address, isAddress, zeroAddress } from "viem";
-import { normalizeAddress } from "../../utils/format";
+import { Address, isAddress } from "viem";
 
 interface Props {
+	owner: Address;
 	disabled?: boolean;
 	setLoaded?: (val: boolean) => Dispatch<SetStateAction<boolean>>;
 }
 
-export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
+export default function SavingsActionRedeem({ owner, disabled, setLoaded }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const [isHidden, setHidden] = useState<boolean>(true);
 	const { address } = useConnection();
 	const chainId = mainnet.id;
 
-	const router = useRouter();
-	const queryAddress: Address = normalizeAddress(String(router.query.address));
-	const account = isAddress(queryAddress) ? queryAddress : address ?? zeroAddress;
-
 	useEffect(() => {
-		if (!isAddress(account)) return;
+		if (!isAddress(owner)) return;
 
 		const fetcher = async () => {
 			const [saved, ticks] = await readContract(WAGMI_CONFIG, {
@@ -37,23 +32,24 @@ export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 				chainId: chainId,
 				abi: SavingsV2ABI,
 				functionName: "savings",
-				args: [account],
+				args: [owner],
 			});
 
 			setHidden(saved == 0n);
 		};
 
 		fetcher();
-	}, [account, chainId]);
+	}, [owner, chainId]);
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
-		if (!account) return;
+		if (!address || address.toLowerCase() != owner.toLowerCase()) return;
 
 		try {
 			setAction(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
+				account: owner,
 				address: ADDRESS[chainId].savingsV2,
 				chainId: chainId,
 				abi: SavingsABI,
@@ -91,7 +87,7 @@ export default function SavingsActionRedeem({ disabled, setLoaded }: Props) {
 		}
 	};
 
-	return isHidden || !account ? null : (
+	return isHidden || !address || address.toLowerCase() != owner.toLowerCase() ? null : (
 		<div className="flex flex-col mx-auto max-w-full gap-4 items-center justify-center">
 			<div className="flex-1 text-text-secondary">
 				You have unclaimed savings in an older Savings Module. Click here to claim your savings.

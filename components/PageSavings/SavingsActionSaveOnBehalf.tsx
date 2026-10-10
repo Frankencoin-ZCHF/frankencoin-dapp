@@ -34,6 +34,7 @@ export default function SavingsActionSaveOnBehalf({ savingsModule, amount, onBeh
 			setAction(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
+				account: account.address,
 				address: savingsModule,
 				chainId: chainId,
 				abi: SavingsABI,
