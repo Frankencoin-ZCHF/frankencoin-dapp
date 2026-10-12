@@ -23,7 +23,7 @@ export type LeverageCollateral = {
 	// idle collateral in the flashloan provider (Morpho Blue), token units
 	flashloanLiquidity: number;
 	flashloanLiquidityChf: number;
-	// maximum leverage at the position maturity
+	// theoretical maximum leverage at zero duration (reserve only, no interest fee)
 	maxLeverage: number;
 };
 
@@ -69,8 +69,8 @@ export const useLeverageCollaterals = () => {
 			const flashloanLiquidityChf = flashloanLiquidity * priceChf;
 			if (flashloanLiquidityChf < LEVERAGE_MIN_FLASHLOAN_CHF) return;
 
-			const duration = Math.max(0, position.expiration - Date.now() / 1000);
-			const maxLeverage = leverageFactor(leverageCredit(position, priceChf, duration));
+			// @dev: theoretical maximum for a zero-day duration (no interest fee), independent of the position maturity
+			const maxLeverage = leverageFactor(leverageCredit(position, priceChf, 0));
 			if (maxLeverage <= 0) return;
 
 			rows.push({ collateral: c, position, priceChf, priceUsd, flashloanLiquidity, flashloanLiquidityChf, maxLeverage });
