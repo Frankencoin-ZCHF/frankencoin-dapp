@@ -16,10 +16,17 @@ const toDailyValues = (data: [number, number][]) => {
 	return [...dailyMap.values()];
 };
 
-// rounds a value to a round number one order of magnitude below its own (e.g. 4.37 -> 4.4, 0.0231 -> 0.024)
-const snapToStep = (value: number, round: (n: number) => number) => {
+// @dev: carries the last known value forward to now, so the line does not end early on days without trades
+const extendToNow = (data: [number, number][], now: number): [number, number][] => {
+	const last = data[data.length - 1];
+	if (!last || Date.now() - last[0] < 1000) return data;
+	return [...data, [now, last[1]]];
+};
+
+// rounds a value to a round number one order of magnitude below its own (e.g. 4.37 -> 4.4, 0.0231 -> 0.024), or two orders below with `fine`
+const snapToStep = (value: number, round: (n: number) => number, fine = false) => {
 	if (!(value > 0)) return 0;
-	const step = Math.pow(10, Math.floor(Math.log10(value)) - 1);
+	const step = Math.pow(10, Math.floor(Math.log10(value)) - (fine ? 2 : 1));
 	return Math.round(round(value / step) * step * 1e12) / 1e12;
 };
 
@@ -34,15 +41,25 @@ export default function MarketChart({ coin = "frankencoin", symbol = "ZCHF" }: M
 	const { marketChart } = useSelector((state: RootState) => state.prices);
 	const dailyLogs = useSelector((state: RootState) => state.dashboard.dailyLog.logs);
 
-	const priceList = toDailyValues(marketChart[coin].prices).filter((i) => i["0"] > timestamp);
+	const now = Date.now();
+	const priceList = extendToNow(
+		toDailyValues(marketChart[coin].prices).filter((i) => i["0"] > timestamp),
+		now
+	);
 	const volumeList = toDailyValues(marketChart[coin].total_volumes).filter((i) => i["0"] > timestamp);
 
 	// @dev: for FCS, compare the market price against the protocol (mint/redeem) price from the daily log
 	const protocolPriceList = isPegged
 		? []
-		: dailyLogs
-				.map((entry) => [parseFloat(entry.timestamp) * 1000, Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100])
-				.filter((i) => i[0] > timestamp);
+		: extendToNow(
+				dailyLogs
+					.map((entry): [number, number] => [
+						parseFloat(entry.timestamp) * 1000,
+						Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100,
+					])
+					.filter((i) => i[0] > timestamp),
+				now
+		  );
 
 	return (
 		<div className="grid md:grid-cols-2 gap-4">
@@ -116,8 +133,8 @@ export default function MarketChart({ coin = "frankencoin", symbol = "ZCHF" }: M
 											min: (min: number) => Math.min(min, 0.98),
 									  }
 									: {
-											max: (max: number) => snapToStep(max * 1.02, Math.ceil),
-											min: (min: number) => Math.max(0, snapToStep(min * 0.98, Math.floor)),
+											max: (max: number) => snapToStep(max * 1.01, Math.ceil, true),
+											min: (min: number) => Math.max(0, snapToStep(min * 0.99, Math.floor, true)),
 									  }),
 							},
 						}}
