@@ -21,6 +21,7 @@ import HealthRatio from "@components/PageEcoSystem/HealthRatio";
 import DebtAllocation from "@components/PageEcoSystem/DebtAllocation";
 import MintOutstanding from "@components/PageEcoSystem/MintOutstanding";
 import ReserveAllocation from "@components/PageEcoSystem/ReserveAllocation";
+import { RevenueAllocation } from "@components/PageEcoSystem/EarningsAllocation";
 import { isForceSellable } from "@utils";
 
 export default function Positions() {
@@ -123,6 +124,17 @@ export default function Positions() {
 
 								<div className="md:mt-8">
 									<HealthRatio />
+								</div>
+
+								<AppTitle title={`System Revenue`}>
+									<div className="text-text-secondary">
+										Where the income of the Frankencoin Share holders comes from. Every source is shown net of its
+										related costs, with the largest contributors first.
+									</div>
+								</AppTitle>
+
+								<div className="my-[2rem]">
+									<RevenueAllocation />
 								</div>
 
 								<AppTitle title={`Market Data`}>
