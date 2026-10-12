@@ -34,7 +34,10 @@ export const initialState: PricesState = {
 		decimals: 18,
 	},
 	collateral: {},
-	marketChart: { prices: [], market_caps: [], total_volumes: [] },
+	marketChart: {
+		frankencoin: { prices: [], market_caps: [], total_volumes: [] },
+		"frankencoin-shares": { prices: [], market_caps: [], total_volumes: [] },
+	},
 };
 
 // --------------------------------------------------------------------------------
