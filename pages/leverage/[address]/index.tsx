@@ -8,10 +8,11 @@ import {
 	formatCurrency,
 	normalizeAddress,
 	toTimestamp,
-	DISCUSSIONS,
 	LEVERAGE_EXECUTOR_ADDRESS,
 	SECS_PER_YEAR,
 	LEVERAGE_FLASHLOAN_PROVIDER,
+	leverageCredit,
+	leverageFactor,
 } from "@utils";
 import DateInput from "@components/Input/DateInput";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
@@ -24,8 +25,12 @@ import AppLink from "@components/AppLink";
 import { mainnet } from "viem/chains";
 import AppCard from "@components/AppCard";
 import AppTitle from "@components/AppTitle";
+import AppHeroSteps from "@components/AppHeroSteps";
 import AppBox from "@components/AppBox";
 import LeverageAction, { LeverageMode } from "@components/PageLeverage/LeverageAction";
+import LeveragePositionTabs from "@components/PageLeverage/LeveragePositionTabs";
+import { useBorrowPositions } from "@hooks";
+import { PositionQueryV2 } from "@frankencoin/api";
 
 const SLIPPAGE_TABS: Record<string, number> = { "0%": 0, "0.25%": 25, "0.5%": 50, "1%": 100, "2%": 200 };
 
@@ -36,6 +41,31 @@ function toDate(time: bigint | number | string) {
 // normalise a price with `digit` decimals to 18 decimals
 function to18(value: bigint, digit: number): bigint {
 	return digit >= 18 ? value / 10n ** BigInt(digit - 18) : value * 10n ** BigInt(18 - digit);
+}
+
+// Positions within this price tolerance are considered the same terms
+const PRICE_TOLERANCE = 0.01;
+
+/**
+ * Collapses positions with (almost) the same price into one, the one with the higher price (then the later maturity).
+ * The currently opened position always represents its own group, so that it stays visible.
+ */
+function dedupeByPrice(list: PositionQueryV2[], current?: string): PositionQueryV2[] {
+	const sorted = [...list].sort((a, b) =>
+		BigInt(b.price) === BigInt(a.price) ? b.expiration - a.expiration : BigInt(b.price) > BigInt(a.price) ? 1 : -1
+	);
+	const groups: PositionQueryV2[][] = [];
+
+	sorted.forEach((p) => {
+		const group = groups[groups.length - 1];
+		const top = group?.[0];
+		// price >= top × (1 − tolerance), in ppm to stay in bigint
+		const limit = (BigInt(top?.price ?? 0) * BigInt(Math.round((1 - PRICE_TOLERANCE) * 1_000_000))) / 1_000_000n;
+		if (group && BigInt(p.price) >= limit) group.push(p);
+		else groups.push([p]);
+	});
+
+	return groups.map((g) => g.find((p) => p.position === current) ?? g[0]);
 }
 
 export default function PositionLeverage() {
@@ -67,6 +97,22 @@ export default function PositionLeverage() {
 	const originalExpiration = originalPosition?.expiration ?? position?.expiration;
 
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
+	const { sortedByCollateral, getEffectiveExpiration } = useBorrowPositions();
+
+	// all positions of the same collateral, always including the current one
+	const siblings = position
+		? [
+				...(sortedByCollateral[normalizeAddress(position.collateral)] ?? []).filter((p) => p.position !== position.position),
+				position as PositionQueryV2,
+		  ].sort((a, b) => (BigInt(b.price) > BigInt(a.price) ? 1 : -1))
+		: [];
+
+	// a different position bounds the expiration and the minimum, so start over
+	useEffect(() => {
+		setInit(false);
+		setEquityTouched(false);
+		setExpirationTab("1Y");
+	}, [addressQuery]);
 
 	useEffect(() => {
 		if (isInit) return;
@@ -135,6 +181,14 @@ export default function PositionLeverage() {
 
 	// ── Fees ─────────────────────────────────────────────────────────────
 	const durationSecs = Math.max(0, expirationDate.getTime() - Date.now()) / 1000;
+
+	// positions of the same collateral from the lowest to the highest leverage, each capped at its own maturity
+	const positionOptions = dedupeByPrice(siblings, position?.position)
+		.map((p) => {
+			const remaining = Math.max(0, getEffectiveExpiration(p) - Date.now() / 1000);
+			return { position: p, leverage: leverageFactor(leverageCredit(p, marketPriceFloat, Math.min(durationSecs, remaining))) };
+		})
+		.sort((a, b) => a.leverage - b.leverage);
 	const durationYears = durationSecs / SECS_PER_YEAR;
 	const reserveRatio = position.reserveContribution / 1_000_000;
 	const annualRate = position.annualInterestPPM / 1_000_000;
@@ -240,11 +294,11 @@ export default function PositionLeverage() {
 	const isBlocked = position.start * 1000 > now || isCooldown;
 	const positionStatus = position.closed
 		? { label: "Closed", cls: "bg-red-500/20 text-red-400" }
+		: expirationMax.getTime() < now
+		? { label: "Expired", cls: "bg-red-500/20 text-red-400" }
 		: isCooldown
 		? { label: "Cooldown", cls: "bg-amber-500/20 text-amber-400" }
 		: { label: "Active", cls: "bg-green-500/20 text-green-400" };
-
-	const maxLeverage = sizingOk && credit18 > 0n ? 1 / (1 - f(credit18, 18) / f(marketEff18, 18)) : 0;
 
 	return (
 		<>
@@ -254,22 +308,49 @@ export default function PositionLeverage() {
 
 			<AppTitle
 				title={`${position.collateralName} (${position.collateralSymbol})`}
-				subtitle={`Open a leveraged position with ${equityToken.symbol}, funded by a ${position.collateralSymbol} flashloan. Left over funds are refunded to the owner.`}
 				badges={[
-					{
-						label: maxLeverage > 0 ? `up to ${formatCurrency(maxLeverage)}×` : "No leverage",
-						className: "bg-blue-500/20 text-blue-400",
-					},
+					{ label: positionStatus.label, className: positionStatus.cls },
+					{ label: `V${position.version}`, className: "bg-blue-500/20 text-blue-400" },
 				]}
+				subtitle={`Open a leveraged position with ${equityToken.symbol}, funded by a ${position.collateralSymbol} flashloan. Left over funds are refunded to the owner.`}
 				actions={
 					<div className="flex flex-wrap gap-4 text-sm">
 						<AppLink label="Reference" href={`/monitoring/${position.position}`} external={false} />
-						{DISCUSSIONS[collKey] && <AppLink label="Discussion" href={DISCUSSIONS[collKey]} external={true} />}
 					</div>
 				}
 			/>
 
-			<div className="md:mt-8">
+			<AppHeroSteps
+				steps={[
+					{
+						icon: 1,
+						title: "Choose the terms",
+						description: "Pick a position: a higher price allows more leverage, at the cost of a larger minimum collateral.",
+					},
+					{
+						icon: 2,
+						title: "Fund the position",
+						description: "Deposit ZCHF or the collateral itself and set maturity and slippage.",
+					},
+					{
+						icon: 3,
+						title: "Open the position",
+						description: "Flashloan, mint and swap run atomically in a single transaction.",
+					},
+				]}
+			/>
+
+			<div className="mt-8">
+				{positionOptions.length > 0 && (
+					<div className="mb-4">
+						<LeveragePositionTabs
+							options={positionOptions}
+							selected={position.position}
+							onSelect={(address) => router.push(`/leverage/${address}`)}
+						/>
+					</div>
+				)}
+
 				<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<AppCard>
 						<div className="text-lg font-bold text-center">Open Leveraged Position</div>
