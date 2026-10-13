@@ -17,10 +17,10 @@ export default function Leverage() {
 				<title>Frankencoin - Leverage</title>
 			</Head>
 
-			<AppTitle title="Leverage">
+			<AppTitle title="Borrow with Leverage">
 				<div className="text-text-secondary">
-					Open a leveraged position in one transaction. The collateral is flash-borrowed, deposited to mint Frankencoins, which are
-					swapped back into collateral to repay the flashloan.
+					Borrow Frankencoins against a leveraged collateral position in one transaction. The collateral is flash-borrowed and
+					deposited to mint Frankencoins, which are swapped back into collateral to repay the flashloan.
 				</div>
 			</AppTitle>
 
