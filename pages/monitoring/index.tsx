@@ -128,8 +128,8 @@ export default function Positions() {
 
 								<AppTitle title={`System Revenue`}>
 									<div className="text-text-secondary">
-										Where the income of the Frankencoin Share holders comes from. Every source is shown net of its
-										related costs, with the largest contributors first.
+										Where the income of the Frankencoin Shares comes from. Every source is shown net of its related
+										costs, with the largest contributors first.
 									</div>
 								</AppTitle>
 

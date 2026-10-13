@@ -136,9 +136,11 @@ export default function PositionDetail() {
 						<div className="flex flex-wrap items-center gap-4 text-sm">
 							<AppLink label={`Owner`} href={myPosLink} external={false} />
 							{originalInfo && <AppLink label={`Original`} href={originalInfo.href} external={false} />}
-							{DISCUSSIONS[normalizeAddress(position.collateral)] && (
-								<AppLink label={`Discussion`} href={DISCUSSIONS[normalizeAddress(position.collateral)]} external={true} />
-							)}
+							<AppLink
+								label={`Discussion`}
+								href={DISCUSSIONS[normalizeAddress(position.collateral)] ?? DISCUSSIONS["default"]}
+								external={true}
+							/>
 							<AppLink label="Contract" href={positionExplorerUrl} external={true} />
 						</div>
 					}
