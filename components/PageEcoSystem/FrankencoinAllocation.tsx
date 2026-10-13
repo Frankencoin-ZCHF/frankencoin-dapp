@@ -220,6 +220,18 @@ export default function FrankencoinAllocation() {
 				})
 			);
 
+			// Kraken (hot wallet 2), add further Kraken wallets here if they start spreading ZCHF
+			// https://etherscan.io/address/0x4db95eB677581a19bD99056eCE0e0E05EB3899De
+			cexes.push(
+				readContract(WAGMI_CONFIG, {
+					chainId: mainnet.id,
+					address: ADDRESS[mainnet.id].frankencoin,
+					abi: FrankencoinABI,
+					functionName: "balanceOf",
+					args: ["0x4db95eB677581a19bD99056eCE0e0E05EB3899De"],
+				})
+			);
+
 			// helper results
 			const getResults = async (items: Promise<any>[]) => {
 				return (await Promise.allSettled(items)).map((i) => {
