@@ -25,6 +25,7 @@ export * from "./useAnalytics";
 export * from "./useAmplifier";
 export * from "./useAmplifiedPositions";
 export * from "./useAmplifierOverviewStats";
+export * from "./useForexRate";
 export * from "./useMigrationTokenBalances";
 export * from "./useMigrationQuotes";
 export * from "./useVaultBalances";

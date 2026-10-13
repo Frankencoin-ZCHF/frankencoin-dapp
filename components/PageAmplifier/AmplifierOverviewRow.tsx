@@ -4,21 +4,25 @@ import ChainLogo from "@components/ChainLogo";
 import DisplayAmount from "@components/DisplayAmount";
 import TableRow from "@components/Table/TableRow";
 import { useContractUrl } from "@hooks";
-import { useAmplifierOverview } from "../../hooks/useAmplifier";
+import { AmplifierOverview } from "../../hooks/useAmplifier";
 import { formatDateTime, isDateExpired, shortenAddress } from "@utils";
 import { KnownAmplifier, amplifierPageLink, getAmplifierChain } from "../../utils/amplifierConstants";
 
 interface Props {
 	headers: string[];
 	amplifier: KnownAmplifier;
+	overview: AmplifierOverview;
 }
 
-export default function AmplifierOverviewRow({ headers, amplifier }: Props) {
+export default function AmplifierOverviewRow({ headers, amplifier, overview }: Props) {
 	const chain = getAmplifierChain(amplifier.chainId);
-	const overview = useAmplifierOverview(amplifier.address, amplifier.chainId);
 	const url = useContractUrl(amplifier.address, chain);
 	const expired = overview.expiration > 0n && isDateExpired(overview.expiration);
-	const pair = overview.invalid ? "Unavailable" : overview.isLoading ? "Loading..." : `${overview.zchfSymbol} / ${overview.usdSymbol || "?"}`;
+	const pair = overview.invalid
+		? "Unavailable"
+		: overview.isLoading
+		? "Loading..."
+		: `${overview.zchfSymbol} / ${overview.usdSymbol || "?"}`;
 
 	return (
 		<TableRow
