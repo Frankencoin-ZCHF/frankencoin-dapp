@@ -17,6 +17,7 @@ const MAIN_ITEMS = [
 const MORE_ITEMS = [
 	{ to: "/transfer", name: "Transfer" },
 	{ to: "/monitoring", name: "Monitoring" },
+	{ to: "/godeye", name: "GodEye" },
 	{ to: "/governance", name: "Governance" },
 	{ to: "/report", name: "Accounting Report" },
 ];
