@@ -361,11 +361,11 @@ export class GodEyeEngine {
 			a.vz *= 0.82;
 			const sp = Math.hypot(a.vx, a.vy, a.vz);
 			const s = sp > 40 ? 40 / sp : 1;
-			a.x += a.vx * s * this.heat;
-			a.y += a.vy * s * this.heat;
-			a.z += a.vz * s * this.heat;
+			a.x += a.vx * s * this.heat * 0.6;
+			a.y += a.vy * s * this.heat * 0.6;
+			a.z += a.vz * s * this.heat * 0.6;
 		}
-		this.heat *= 0.985;
+		this.heat *= 0.99;
 	}
 
 	// ---------------------------------------------------------------- camera
@@ -394,15 +394,15 @@ export class GodEyeEngine {
 	private stepCamera(dt: number) {
 		const c = this.cam;
 		if (this.camTween) {
-			const k = 1 - Math.pow(0.001, dt);
+			const k = 1 - Math.pow(0.01, dt);
 			c.zoom = lerp(c.zoom, this.camTween.z, k);
 			c.x = lerp(c.x, this.camTween.x, k);
 			c.y = lerp(c.y, this.camTween.y, k);
 			if (Math.abs(c.zoom - this.camTween.z) < this.camTween.z * 0.003 && Math.abs(c.x - this.camTween.x) < 1 && Math.abs(c.y - this.camTween.y) < 1) this.camTween = null;
 		}
-		const k2 = 1 - Math.pow(0.0005, dt);
+		const k2 = 1 - Math.pow(0.005, dt);
 		if (this.three) {
-			if (this.autoRotate && !this.pointer.down) c.tyaw += dt * 0.07;
+			if (this.autoRotate && !this.pointer.down) c.tyaw += dt * 0.035;
 		} else {
 			c.tyaw = 0;
 			c.tpitch = 0;
@@ -422,8 +422,8 @@ export class GodEyeEngine {
 		this.time += dt;
 		this.stepCamera(dt);
 		for (const n of this.nodes.values()) {
-			n.r = lerp(n.r, n.tr, 1 - Math.pow(0.0008, dt));
-			n.alpha = lerp(n.alpha, n.dead ? 0 : 1, 1 - Math.pow(0.004, dt));
+			n.r = lerp(n.r, n.tr, 1 - Math.pow(0.02, dt));
+			n.alpha = lerp(n.alpha, n.dead ? 0 : 1, 1 - Math.pow(0.03, dt));
 		}
 		for (const [id, n] of this.nodes) if (n.dead && n.alpha < 0.015 && id !== this.selected) this.nodes.delete(id);
 		this.simulate();
@@ -455,7 +455,7 @@ export class GodEyeEngine {
 		for (const s of this.stars) {
 			const px = ((((s.x * W * 1.2 - cam.x * 0.02 * s.z * cam.zoom - cam.yaw * 120 * s.z) % (W * 1.2)) + W * 1.2) % (W * 1.2)) - W * 0.1;
 			const py = ((((s.y * H * 1.2 - cam.y * 0.02 * s.z * cam.zoom - cam.pitch * 120 * s.z) % (H * 1.2)) + H * 1.2) % (H * 1.2)) - H * 0.1;
-			ctx.globalAlpha = (0.25 + 0.5 * s.z) * (0.6 + 0.4 * Math.sin(this.time * 1.2 + s.p));
+			ctx.globalAlpha = (0.25 + 0.5 * s.z) * (0.6 + 0.4 * Math.sin(this.time * 0.8 + s.p));
 			ctx.fillStyle = "#cfe0ff";
 			ctx.fillRect(px, py, 0.6 + s.z * 1.2, 0.6 + s.z * 1.2);
 		}
@@ -503,7 +503,7 @@ export class GodEyeEngine {
 				const pr = (0.8 + 1.6 * e.norm) * clamp(cam.zoom * 1.5, 0.7, 1.8) * (hl ? 1.3 : 1);
 				ctx.fillStyle = rgba(e.via ? "#ffd9a0" : "#ffffff", Math.min(a.alpha, b.alpha) * (hl ? 0.95 : 0.7));
 				for (let k = 0; k < cnt; k++) {
-					const t = (e.phase + k / cnt + this.time * 0.09 * e.speed * (240 / Math.max(c.len, 120))) % 1;
+					const t = (e.phase + k / cnt + this.time * 0.045 * e.speed * (240 / Math.max(c.len, 120))) % 1;
 					const u = 1 - t;
 					const px = u * u * a.sx + 2 * u * t * c.cx + t * t * b.sx;
 					const py = u * u * a.sy + 2 * u * t * c.cy + t * t * b.sy;
@@ -522,7 +522,7 @@ export class GodEyeEngine {
 			const dim = dimOthers && !related.has(n.id);
 			const depthFade = this.three ? clamp(1 - n.sz / 2200, 0.35, 1) : 1;
 			const al = n.alpha * (dim ? 0.18 : 1) * depthFade;
-			const pulse = n.kind === "mint" ? 1 + 0.08 * Math.sin(this.time * 2.2) : 1;
+			const pulse = n.kind === "mint" ? 1 + 0.08 * Math.sin(this.time * 1.4) : 1;
 			const R = n.sr * pulse;
 			if (n.sx < -R * 3 || n.sx > W + R * 3 || n.sy < -R * 3 || n.sy > H + R * 3) continue;
 			ctx.globalAlpha = al * 0.9;
@@ -552,7 +552,7 @@ export class GodEyeEngine {
 				ctx.strokeStyle = rgba("#ff4d6d", 0.9);
 				ctx.lineWidth = 1.5;
 				ctx.beginPath();
-				ctx.arc(n.sx, n.sy, R + 5 + 2 * Math.sin(this.time * 2.2), 0, Math.PI * 2);
+				ctx.arc(n.sx, n.sy, R + 5 + 2 * Math.sin(this.time * 1.4), 0, Math.PI * 2);
 				ctx.stroke();
 			}
 			if (n.id === this.selected || n.id === this.hover || n.id === this.focus) {
