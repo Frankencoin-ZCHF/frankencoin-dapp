@@ -73,4 +73,5 @@ export const DISCUSSIONS: {
 	"0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/17", // cbBTC
 	"0xd533a949740bb3306d119cc777fa900ba034cd52": "https://coinmarketcap.com/currencies/curve-dao-token/", // crv
 	"0xfedc5f4a6c38211c1338aa411018dfaf26612c08": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/84", // SPYon
+	"0x2bd214946806dbee88dd3b44b26a21759723d8a2": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/129", // SGG
 };

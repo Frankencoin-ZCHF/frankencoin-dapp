@@ -136,7 +136,7 @@ export default function Governance() {
 
 			<GovernanceCCIPBridgesTable />
 
-			<div id="api-bot" className="scroll-mt-20">
+			<div id="api-bot" className="scroll-mt-20 space-y-8">
 				<AppTitle title="Notification Bot" />
 
 				<GovernanceTelegramBot />
