@@ -6,6 +6,7 @@ import AppLink from "@components/AppLink";
 import GovernanceDelegation from "@components/PageGovernance/GovernanceDelegation";
 import GovernanceFcsMilestoneSteps from "@components/PageGovernance/GovernanceFcsMilestoneSteps";
 import GovernanceVotersTable from "@components/PageGovernance/GovernanceVotersTable";
+import GovernanceFcsFpsVotesTable from "@components/PageGovernance/GovernanceFcsFpsVotesTable";
 import { ContractUrl, formatCurrency, formatDuration } from "@utils";
 import { useFPSAverageStats } from "@hooks";
 
@@ -32,6 +33,15 @@ export default function VotesFcsSection() {
 			</AppTitle>
 
 			<GovernanceFcsMilestoneSteps />
+
+			<AppTitle title="FCS Veto Power per Chain">
+				<div className="text-text-secondary">
+					FCS can only veto on a chain once the FPS votes held by the FCS contract, as last synced from mainnet, exceed 2% of that
+					chain&apos;s FPS votes. Votes grow with holding time, so synced values go stale. Anyone can sync them.
+				</div>
+			</AppTitle>
+
+			<GovernanceFcsFpsVotesTable />
 
 			<GovernanceDelegation system="fcs" />
 
