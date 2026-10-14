@@ -22,6 +22,7 @@ interface Props {
 	voter: VoteDataQuote;
 	votesTotal: bigint;
 	system?: VotingSystem;
+	pureOnly?: boolean;
 	myVotes?: bigint;
 	fcsIsBinding?: boolean;
 	connectedWallet?: boolean;
@@ -45,6 +46,7 @@ export default function GovernanceVotersRow({
 	voter,
 	votesTotal,
 	system = "fps",
+	pureOnly = false,
 	myVotes = 0n,
 	fcsIsBinding = false,
 	connectedWallet,
@@ -53,10 +55,10 @@ export default function GovernanceVotersRow({
 }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 
-	const votingPower = voter.votingPowerRatio + voter.supportedVotingPowerRatio;
+	const votingPower = voter.votingPowerRatio + (pureOnly ? 0 : voter.supportedVotingPowerRatio);
 	// veto power: 2% of FPS votes or 1% of FCS votes, own votes plus supporters
 	const hasVetoPower = votingPower >= QUORUM_RATIO[system];
-	const supporterCount = voter.supporters.length;
+	const supporterCount = pureOnly ? 0 : voter.supporters.length;
 	const isWrapped = normalizeAddress(voter.holder) === normalizeAddress(ADDRESS[mainnet.id].wFPS);
 	const governanceLabel = GOVERNANCE_LABELS[normalizeAddress(voter.holder)];
 
