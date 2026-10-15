@@ -35,7 +35,7 @@ export default function GodEyeView() {
 	const [token, setToken] = useState<string | null>(null);
 	const [at, setAt] = useState<number | null>(null);
 	const [windowS, setWindowS] = useState(0);
-	const [top, setTop] = useState(80);
+	const [top, setTop] = useState(30);
 	const [rank, setRank] = useState<GodEyeRank>("balance");
 	const [mode, setMode] = useState<GodEyeMode>("entities");
 	const [focus, setFocus] = useState<string | null>(null);

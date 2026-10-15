@@ -40,6 +40,8 @@ export default function GodEyeJourneyView() {
 	const [rate, setRate] = useState(2592000);
 	const [fitKey, setFitKey] = useState(0);
 	const [hashRead, setHashRead] = useState(false);
+	const [top, setTop] = useState(50);
+	const [topLocal, setTopLocal] = useState(50);
 	const [hidden, setHidden] = useState<Set<GodEyeKind>>(new Set());
 	const toggleKind = (k: GodEyeKind) =>
 		setHidden((h) => {
@@ -183,6 +185,7 @@ export default function GodEyeJourneyView() {
 					cur={cur}
 					selected={selected}
 					hidden={hidden}
+					limit={top}
 					now={now}
 					insets={insets}
 					fitKey={fitKey}
@@ -251,6 +254,20 @@ export default function GodEyeJourneyView() {
 							Explorer ↗
 						</a>
 					)}
+					<span className="hidden text-[10px] uppercase tracking-wider text-slate-500 sm:inline">Nodes</span>
+					<input
+						type="range"
+						min={10}
+						max={300}
+						step={5}
+						value={topLocal}
+						onChange={(e) => setTopLocal(Number(e.target.value))}
+						onMouseUp={() => setTop(topLocal)}
+						onTouchEnd={() => setTop(topLocal)}
+						onKeyUp={() => setTop(topLocal)}
+						className="w-24 accent-sky-400"
+					/>
+					<span className="w-8 rounded-lg border border-white/10 bg-white/5 py-0.5 text-center text-xs tabular-nums">{topLocal}</span>
 					<IconButton
 						onClick={() => {
 							canvas.current?.fit();

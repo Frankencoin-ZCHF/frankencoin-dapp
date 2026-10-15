@@ -13,6 +13,8 @@ type Props = {
 	selected: number | null;
 	/** categories switched off in the side panel */
 	hidden: Set<GodEyeKind>;
+	/** how many of the biggest counterparties are drawn */
+	limit: number;
 	/** cumulative numbers per peer at the cursor */
 	now: Map<number, PeerStat>;
 	insets: { left: number; right: number; top: number; bottom: number };
@@ -24,7 +26,6 @@ type LNode = { i: number; kind: GodEyeKind; x: number; y: number; r: number; col
 type Particle = { n: LNode; dir: 1 | -1; p: number; w: number };
 type Ring = { x: number; y: number; color: string; t: number; hub?: boolean };
 
-const MAX_NODES = 220;
 /** quadratic curve hub (origin) -> node, same bow as the main map */
 const ctrl = (n: LNode) => ({ x: n.x / 2 - n.y * 0.16 * n.sgn, y: n.y / 2 + n.x * 0.16 * n.sgn });
 const IN = "#4ade80";
@@ -35,11 +36,11 @@ const hash = (n: number) => {
 };
 
 /** deterministic radial layout: sectors per category, big counterparties close to the hub, then a short relaxation */
-function layout(model: JourneyModel): { nodes: LNode[]; reach: number } {
+function layout(model: JourneyModel, limit: number): { nodes: LNode[]; reach: number } {
 	const list = model.totals
 		.filter((p) => p.count > 0)
 		.sort((a, b) => b.in + b.out - (a.in + a.out))
-		.slice(0, MAX_NODES);
+		.slice(0, limit);
 	const mx = Math.max(...list.map((p) => p.in + p.out), 1e-9);
 	const tr: number[] = [];
 	const nodes: LNode[] = list.map((p, rank) => {
@@ -93,7 +94,7 @@ const GodEyeJourneyCanvas = forwardRef<JourneyCanvasHandle, Props>(function GodE
 	const canvas = useRef<HTMLCanvasElement>(null);
 	const live = useRef(props);
 	live.current = props;
-	const lay = useMemo(() => layout(props.model), [props.model]);
+	const lay = useMemo(() => layout(props.model, props.limit), [props.model, props.limit]);
 	const byPeer = useMemo(() => new Map(lay.nodes.map((n) => [n.i, n])), [lay]);
 	const peak = useMemo(() => Math.max(...props.model.series.map((p) => p.supply), 1e-9), [props.model]);
 	const [tip, setTip] = useState<{ i: number; x: number; y: number } | null>(null);
