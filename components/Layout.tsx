@@ -9,7 +9,7 @@ type LayoutProps = {
 };
 
 // pages that take over the whole viewport (no navbar, no footer, no content width)
-const FULLSCREEN_ROUTES = ["/godeye"];
+const FULLSCREEN_ROUTES = ["/godeye", "/godeye/[address]"];
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
 	const { pathname } = useRouter();

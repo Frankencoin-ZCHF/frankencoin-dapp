@@ -12,13 +12,17 @@ type Props = {
 	playing: boolean;
 	rate: number;
 	info: string;
+	/** override the metric names and hover text (the address timeline reuses supply / holders / volume for balance / counterparties / volume) */
+	labels?: Record<Metric, string>;
+	title?: string;
+	hoverText?: (p: GodEyeTimelinePoint, t: number) => string;
 	onScrub: (t: number) => void;
 	onPlay: () => void;
 	onRate: (r: number) => void;
 	onLive: () => void;
 };
 
-export default function GodEyeTimeline({ timeline, at, playing, rate, info, onScrub, onPlay, onRate, onLive }: Props) {
+export default function GodEyeTimeline({ timeline, at, playing, rate, info, labels, title = "Time travel", hoverText, onScrub, onPlay, onRate, onLive }: Props) {
 	const ref = useRef<HTMLCanvasElement>(null);
 	const [metric, setMetric] = useState<Metric>("supply");
 	const [hover, setHover] = useState<{ x: number; t: number } | null>(null);
@@ -141,7 +145,7 @@ export default function GodEyeTimeline({ timeline, at, playing, rate, info, onSc
 						{playing ? "❚❚" : "▶"}
 					</button>
 					<div>
-						<div className="text-[10px] uppercase tracking-widest text-slate-500">Time travel</div>
+						<div className="text-[10px] uppercase tracking-widest text-slate-500">{title}</div>
 						<div className="text-lg font-semibold tabular-nums">{timeline.length ? dateStr(cur) : "–"}</div>
 					</div>
 				</div>
@@ -172,9 +176,9 @@ export default function GodEyeTimeline({ timeline, at, playing, rate, info, onSc
 						value={metric}
 						onChange={setMetric}
 						options={[
-							{ value: "supply", label: "Supply" },
-							{ value: "holders", label: "Holders" },
-							{ value: "volume", label: "Volume" },
+							{ value: "supply", label: labels?.supply ?? "Supply" },
+							{ value: "holders", label: labels?.holders ?? "Holders" },
+							{ value: "volume", label: labels?.volume ?? "Volume" },
 						]}
 					/>
 					<span className="hidden text-[10px] uppercase tracking-wider text-slate-500 sm:block">{info}</span>
@@ -202,7 +206,7 @@ export default function GodEyeTimeline({ timeline, at, playing, rate, info, onSc
 							className="pointer-events-none absolute top-5 -translate-x-1/2 whitespace-nowrap rounded-md border border-white/20 bg-[#05070d]/90 px-2 py-0.5 text-[11px]"
 							style={{ left: hover.x }}
 						>
-							{dateStr(hover.t)} · supply {fmt(point.supply)} · {point.holders} holders
+							{hoverText ? hoverText(point, hover.t) : `${dateStr(hover.t)} · supply ${fmt(point.supply)} · ${point.holders} holders`}
 						</div>
 					)}
 				</div>

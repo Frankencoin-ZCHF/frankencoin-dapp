@@ -4,6 +4,7 @@ import {
 	GodEyeAddress,
 	GodEyeGraph,
 	GodEyeHolders,
+	GodEyeJourney,
 	GodEyeMode,
 	GodEyeRank,
 	GodEyeSearchHit,
@@ -167,4 +168,26 @@ export function useGodEyeAddress(token: string | null, address: string | null) {
 	}, [token, address]);
 
 	return { data, loading, failed };
+}
+
+export function useGodEyeJourney(token: string | null, address: string | null) {
+	const [data, setData] = useState<GodEyeJourney | null>(null);
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (!token || !address) return;
+		let stop = false;
+		setLoading(true);
+		setError(null);
+		get<GodEyeJourney>(`address/${address}/journey`, { token })
+			.then((j) => !stop && setData(j))
+			.catch((e) => !stop && (setData(null), setError(e?.response?.data?.message ?? e?.message ?? "request failed")))
+			.finally(() => !stop && setLoading(false));
+		return () => {
+			stop = true;
+		};
+	}, [token, address]);
+
+	return { data, loading, error };
 }

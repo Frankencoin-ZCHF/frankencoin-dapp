@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { useGodEyeAddress } from "../../hooks/useGodEye";
 import { EXPLORER, KIND_META } from "./godeye.constants";
@@ -115,6 +116,12 @@ export default function GodEyeDetail({ token, address, fallbackLabel, onClose, o
 					<>
 						<div className="flex flex-wrap gap-1.5">
 							<IconButton onClick={() => onFocus(a.address)}>◎ Focus map</IconButton>
+							<Link
+								href={`/godeye/${a.address}?token=${encodeURIComponent(token)}`}
+								className="rounded-lg border border-sky-400/50 bg-sky-400/15 px-2.5 py-1 text-xs text-white hover:bg-sky-400/25"
+							>
+								◈ Deep timeline
+							</Link>
 							<a
 								className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-slate-300 hover:bg-white/10"
 								href={`${scan}/address/${a.address}`}

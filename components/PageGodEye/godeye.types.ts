@@ -102,3 +102,21 @@ export type GodEyeAddress = {
 };
 
 export type GodEyeSearchHit = { address: string; label: string | null; kind: GodEyeKind };
+
+export type GodEyeJourneyPeer = { address: string; label: string | null; kind: GodEyeKind };
+export type GodEyeJourneyDay = {
+	t: number;
+	in: number;
+	out: number;
+	txs: number;
+	balance: number;
+	peers: { i: number; in: number; out: number; count: number }[];
+};
+export type GodEyeJourney = {
+	address: string;
+	label: string | null;
+	kind: GodEyeKind;
+	token: GodEyeTokenInfo;
+	peers: GodEyeJourneyPeer[];
+	days: GodEyeJourneyDay[];
+};
