@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { KIND_META, KIND_ORDER } from "./godeye.constants";
+import { GodEyeKind } from "./godeye.types";
 import { clamp, fmt, rgba, shortAddr } from "./godeye.format";
 import { dayAt, JourneyModel, PeerStat } from "./godeye.journey";
 import { GLASS } from "./GodEyeUi";
@@ -10,6 +11,8 @@ type Props = {
 	model: JourneyModel;
 	cur: number;
 	selected: number | null;
+	/** categories switched off in the side panel */
+	hidden: Set<GodEyeKind>;
 	/** cumulative numbers per peer at the cursor */
 	now: Map<number, PeerStat>;
 	insets: { left: number; right: number; top: number; bottom: number };
@@ -17,11 +20,13 @@ type Props = {
 	onSelect: (i: number | null) => void;
 };
 
-type LNode = { i: number; x: number; y: number; r: number; color: string; first: number; a: number; shown: boolean };
+type LNode = { i: number; kind: GodEyeKind; x: number; y: number; r: number; color: string; first: number; a: number; shown: boolean; phase: number; speed: number; sgn: 1 | -1 };
 type Particle = { n: LNode; dir: 1 | -1; p: number; w: number };
 type Ring = { x: number; y: number; color: string; t: number; hub?: boolean };
 
 const MAX_NODES = 220;
+/** quadratic curve hub (origin) -> node, same bow as the main map */
+const ctrl = (n: LNode) => ({ x: n.x / 2 - n.y * 0.16 * n.sgn, y: n.y / 2 + n.x * 0.16 * n.sgn });
 const IN = "#4ade80";
 const OUT = "#fb7185";
 const hash = (n: number) => {
@@ -45,6 +50,10 @@ function layout(model: JourneyModel): { nodes: LNode[]; reach: number } {
 		tr.push(rad);
 		return {
 			i: p.i,
+			kind: p.kind,
+			phase: hash(p.i + 3),
+			speed: 0.7 + hash(p.i + 5) * 0.6,
+			sgn: p.i % 2 ? 1 : -1,
 			x: Math.cos(ang) * rad,
 			y: Math.sin(ang) * rad,
 			r: 4 + 15 * Math.sqrt((p.in + p.out) / mx),
@@ -116,7 +125,7 @@ const GodEyeJourneyCanvas = forwardRef<JourneyCanvasHandle, Props>(function GodE
 		const g = c.getContext("2d")!;
 		const particles: Particle[] = [];
 		const rings: Ring[] = [];
-		const s = { last: performance.now(), lastCur: live.current.cur, bal: 0, hubPulse: 0, hover: null as number | null, w: 0, h: 0 };
+		const s = { time: 0, last: performance.now(), lastCur: live.current.cur, bal: 0, hubPulse: 0, hover: null as number | null, w: 0, h: 0 };
 		let raf = 0;
 		let first = true;
 
@@ -143,7 +152,7 @@ const GodEyeJourneyCanvas = forwardRef<JourneyCanvasHandle, Props>(function GodE
 			for (let k = a + 1; k <= b; k++) {
 				for (const p of model.journey.days[k].peers) {
 					const n = byPeer.get(p.i);
-					if (!n || particles.length > 90) continue;
+					if (!n || live.current.hidden.has(n.kind) || particles.length > 90) continue;
 					if (p.in > 0) particles.push({ n, dir: -1, p: -Math.random() * 0.5, w: p.in });
 					if (p.out > 0) particles.push({ n, dir: 1, p: -Math.random() * 0.5, w: p.out });
 				}
@@ -154,7 +163,8 @@ const GodEyeJourneyCanvas = forwardRef<JourneyCanvasHandle, Props>(function GodE
 			raf = requestAnimationFrame(frame);
 			const dt = Math.min((now - s.last) / 1000, 0.1);
 			s.last = now;
-			const { model, cur, selected } = live.current;
+			s.time += dt;
+			const { model, cur, selected, hidden } = live.current;
 			const v = view.current;
 			const e = first ? 1 : 1 - Math.exp(-dt * 8);
 			v.x += (v.tx - v.x) * e;
@@ -190,7 +200,7 @@ const GodEyeJourneyCanvas = forwardRef<JourneyCanvasHandle, Props>(function GodE
 
 			// nodes follow the cursor in time
 			for (const n of lay.nodes) {
-				const want = n.first <= cur ? 1 : 0;
+				const want = n.first <= cur && !hidden.has(n.kind) ? 1 : 0;
 				n.a += (want - n.a) * (1 - Math.exp(-dt * 7));
 				if (want && !n.shown) {
 					n.shown = true;
@@ -200,21 +210,53 @@ const GodEyeJourneyCanvas = forwardRef<JourneyCanvasHandle, Props>(function GodE
 			}
 
 			const stats = live.current.now;
+			const focusI = selected ?? s.hover;
+			let maxTot = 1;
+			for (const st of stats.values()) maxTot = Math.max(maxTot, st.in + st.out);
+			g.globalCompositeOperation = "lighter";
+			g.lineCap = "round";
 			for (const n of lay.nodes) {
 				if (n.a < 0.02) continue;
 				const st = stats.get(n.i);
-				const sel = selected === n.i || s.hover === n.i;
-				const net = st ? st.in - st.out : 0;
 				const tot = st ? st.in + st.out : 0;
-				// the edge leans green for net funders and red for net receivers
-				const col = tot > 0 ? (net / tot > 0.25 ? IN : net / tot < -0.25 ? OUT : n.color) : n.color;
-				g.strokeStyle = rgba(col, (sel ? 0.7 : 0.16) * n.a);
-				g.lineWidth = sel ? 1.6 : 0.6 + Math.min(Math.log10(1 + tot) * 0.25, 1.4);
+				const net = st ? st.in - st.out : 0;
+				const hl = focusI === n.i;
+				const dim = focusI !== null && !hl;
+				const norm = Math.log1p(tot) / Math.log1p(maxTot);
+				const c = ctrl(n);
+				const cx = hx + c.x * k,
+					cy = hy + c.y * k,
+					nx = hx + n.x * k,
+					ny = hy + n.y * k;
+				const base = 0.1 + 0.5 * norm;
+				const alpha = n.a * (dim ? 0.05 : hl ? Math.min(base * 2.4, 0.95) : base);
+				const grd = g.createLinearGradient(hx, hy, nx, ny);
+				grd.addColorStop(0, rgba(kc, alpha * 0.35));
+				grd.addColorStop(1, rgba(n.color, alpha));
+				g.strokeStyle = grd;
+				g.lineWidth = (0.5 + 3.2 * norm * norm) * clamp(k * 1.4, 0.6, 2.2) * (hl ? 1.6 : 1);
 				g.beginPath();
 				g.moveTo(hx, hy);
-				g.lineTo(hx + n.x * k, hy + n.y * k);
+				g.quadraticCurveTo(cx, cy, nx, ny);
 				g.stroke();
+
+				// ambient flow, toward the hub for net funders and away from it for net receivers
+				const len = Math.hypot(nx - hx, ny - hy);
+				if (dim || tot <= 0 || len < 24) continue;
+				const cnt = hl ? 4 : 1 + Math.floor(norm * 3);
+				const toHub = net >= 0;
+				g.fillStyle = rgba(toHub ? "#c8ffd9" : "#ffd0d6", n.a * (hl ? 0.95 : 0.7));
+				const pr = (0.8 + 1.6 * norm) * clamp(k * 1.5, 0.7, 1.8) * (hl ? 1.3 : 1);
+				for (let q = 0; q < cnt; q++) {
+					let t = (n.phase + q / cnt + s.time * 0.045 * n.speed * (240 / Math.max(len, 120))) % 1;
+					if (toHub) t = 1 - t;
+					const u = 1 - t;
+					g.beginPath();
+					g.arc(u * u * hx + 2 * u * t * cx + t * t * nx, u * u * hy + 2 * u * t * cy + t * t * ny, pr, 0, Math.PI * 2);
+					g.fill();
+				}
 			}
+			g.globalCompositeOperation = "source-over";
 
 			for (const n of lay.nodes) {
 				if (n.a < 0.02) continue;
@@ -276,14 +318,27 @@ const GodEyeJourneyCanvas = forwardRef<JourneyCanvasHandle, Props>(function GodE
 					continue;
 				}
 				if (p.p < 0) continue;
-				const t = p.dir === -1 ? p.p : 1 - p.p; // 0 = hub, 1 = node
 				const e2 = p.p * p.p * (3 - 2 * p.p);
-				const u = p.dir === -1 ? 1 - e2 : e2;
-				const X = hx + p.n.x * k * u,
-					Y = hy + p.n.y * k * u;
-				void t;
+				const t = p.dir === -1 ? 1 - e2 : e2; // 0 = hub, 1 = node
+				const c = ctrl(p.n);
+				const at = (tt: number) => {
+					const u = 1 - tt;
+					return [hx + (2 * u * tt * c.x + tt * tt * p.n.x) * k, hy + (2 * u * tt * c.y + tt * tt * p.n.y) * k];
+				};
 				const col = p.dir === -1 ? IN : OUT;
 				const sz = (1.6 + Math.min(Math.log10(1 + p.w) * 0.7, 3)) * Math.sqrt(k);
+				// short comet tail behind the head
+				g.globalCompositeOperation = "lighter";
+				for (let q = 3; q >= 1; q--) {
+					const tt = clamp(t - (p.dir === -1 ? -1 : 1) * q * 0.03, 0, 1);
+					const [tx, ty] = at(tt);
+					g.fillStyle = rgba(col, 0.22 / q);
+					g.beginPath();
+					g.arc(tx, ty, sz * (1 - q * 0.18), 0, Math.PI * 2);
+					g.fill();
+				}
+				g.globalCompositeOperation = "source-over";
+				const [X, Y] = at(t);
 				g.shadowColor = col;
 				g.shadowBlur = 10;
 				g.fillStyle = col;

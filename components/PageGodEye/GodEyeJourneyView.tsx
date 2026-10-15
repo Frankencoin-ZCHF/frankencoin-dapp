@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useGodEyeBoot, useGodEyeJourney } from "../../hooks/useGodEye";
 import { EXPLORER, KIND_META } from "./godeye.constants";
+import { GodEyeKind } from "./godeye.types";
 import { dateStr, fmt, pct, shortAddr } from "./godeye.format";
 import { buildModel, insights, stateAt } from "./godeye.journey";
 import GodEyeJourneyCanvas, { JourneyCanvasHandle } from "./GodEyeJourneyCanvas";
@@ -39,6 +40,13 @@ export default function GodEyeJourneyView() {
 	const [rate, setRate] = useState(2592000);
 	const [fitKey, setFitKey] = useState(0);
 	const [hashRead, setHashRead] = useState(false);
+	const [hidden, setHidden] = useState<Set<GodEyeKind>>(new Set());
+	const toggleKind = (k: GodEyeKind) =>
+		setHidden((h) => {
+			const n = new Set(h);
+			n.has(k) ? n.delete(k) : n.add(k);
+			return n;
+		});
 
 	// token comes from the link, otherwise default to ZCHF once the ledger is ready
 	useEffect(() => {
@@ -112,6 +120,11 @@ export default function GodEyeJourneyView() {
 
 	const state = useMemo(() => (model ? stateAt(model, cur) : null), [model, cur]);
 	const now = useMemo(() => new Map((state?.peers ?? []).map((p) => [p.i, p])), [state]);
+	const kinds = useMemo(() => {
+		const v = new Map<GodEyeKind, number>();
+		for (const p of model?.totals ?? []) v.set(p.kind, (v.get(p.kind) ?? 0) + p.in + p.out);
+		return [...v.entries()].sort((a, b) => b[1] - a[1]).map(([k]) => k);
+	}, [model]);
 	const facts = useMemo(() => (model ? insights(model, fmt, dateStr) : []), [model]);
 
 	useEffect(() => {
@@ -158,7 +171,8 @@ export default function GodEyeJourneyView() {
 
 	const back = journey ? `/godeye#token=${encodeURIComponent(journey.token.key)}&focus=${journey.address}&sel=${journey.address}` : "/godeye";
 	const ready = boot.ready && !!model && !!state;
-	const kindTotal = state ? [...state.byKind.values()].reduce((a, b) => a + b, 0) : 0;
+	const kindTotal = state ? [...state.byKind.entries()].reduce((a, [k, v]) => (hidden.has(k) ? a : a + v), 0) : 0;
+	const visiblePeers = state ? state.peers.filter((p) => !hidden.has(p.kind)) : [];
 
 	return (
 		<div className="absolute inset-0 overflow-hidden bg-[#05070d]">
@@ -168,6 +182,7 @@ export default function GodEyeJourneyView() {
 					model={model}
 					cur={cur}
 					selected={selected}
+					hidden={hidden}
 					now={now}
 					insets={insets}
 					fitKey={fitKey}
@@ -266,30 +281,40 @@ export default function GodEyeJourneyView() {
 								</div>
 
 								<div>
-									<SectionTitle right={`${state.peers.length} met`}>Counterparties by category</SectionTitle>
+									<SectionTitle right={hidden.size ? `${hidden.size} hidden` : `${state.peers.length} met`}>Counterparties by category</SectionTitle>
 									<div className="mb-2 flex h-2 overflow-hidden rounded-full bg-white/5">
 										{[...state.byKind.entries()]
+											.filter(([k]) => !hidden.has(k))
 											.sort((a, b) => b[1] - a[1])
 											.map(([k, v]) => (
 												<div key={k} title={KIND_META[k].name} style={{ width: `${(v / (kindTotal || 1)) * 100}%`, background: KIND_META[k].color }} className="transition-all duration-300" />
 											))}
 									</div>
-									{[...state.byKind.entries()]
-										.sort((a, b) => b[1] - a[1])
-										.slice(0, 5)
-										.map(([k, v]) => (
-											<div key={k} className="grid grid-cols-[10px_1fr_auto] items-center gap-2 py-0.5 text-[12px]">
+									{kinds.map((k) => {
+										const off = hidden.has(k);
+										const v = state.byKind.get(k) ?? 0;
+										return (
+											<div
+												key={k}
+												onClick={() => {
+													toggleKind(k);
+													if (selected !== null && model.journey.peers[selected].kind === k) setSelected(null);
+												}}
+												title={off ? "Click to show" : "Click to hide"}
+												className={`grid cursor-pointer grid-cols-[12px_1fr_auto] items-center gap-2 rounded-lg px-1.5 py-1 text-[13px] hover:bg-white/5 ${off ? "opacity-35" : ""}`}
+											>
 												<Dot color={KIND_META[k].color} size={8} />
 												<span>{KIND_META[k].name}</span>
-												<span className="tabular-nums text-slate-400">{pct(v / (kindTotal || 1), 0)}</span>
+												<span className="text-[11px] tabular-nums text-slate-400">{v > 0 && !off ? pct(v / (kindTotal || 1), 0) : off ? "hidden" : "–"}</span>
 											</div>
-										))}
+										);
+									})}
 								</div>
 
 								<div>
 									<SectionTitle right={dateStr(cur)}>Biggest counterparties so far</SectionTitle>
-									{state.peers.length === 0 && <div className="text-xs text-slate-400">Nothing happened yet.</div>}
-									{state.peers.slice(0, 12).map((p) => (
+									{visiblePeers.length === 0 && <div className="text-xs text-slate-400">Nothing happened yet.</div>}
+									{visiblePeers.slice(0, 12).map((p) => (
 										<div
 											key={p.i}
 											onClick={() => setSelected(p.i === selected ? null : p.i)}
