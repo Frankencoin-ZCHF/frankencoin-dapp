@@ -30,6 +30,7 @@ export * from "./useMigrationTokenBalances";
 export * from "./useMigrationQuotes";
 export * from "./useVaultBalances";
 export * from "./useSavingsReferrerMappings";
+export * from "./useSavingsAccounts";
 
 export * from "./usePositionLive";
 
