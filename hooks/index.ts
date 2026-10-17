@@ -35,3 +35,4 @@ export * from "./usePositionLive";
 
 export * from "./useCCIPLaneCapacity";
 export * from "./useLiveBlockNumber";
+export * from "./useLeverageCollaterals";

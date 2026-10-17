@@ -6,11 +6,13 @@ interface Props {
 	to: string;
 	name: string;
 	external?: boolean;
+	// further paths that keep this button active, e.g. sub flows of the page
+	alsoActive?: string[];
 }
 
-export default function NavButton({ to, name, external }: Props) {
+export default function NavButton({ to, name, external, alsoActive = [] }: Props) {
 	const router = useRouter();
-	const active = router.pathname.includes(to);
+	const active = [to, ...alsoActive].some((path) => router.pathname.includes(path));
 	const umamiEvent = "nav_" + name.toLowerCase().replace(/\s+/g, "_");
 	return (
 		<Link
