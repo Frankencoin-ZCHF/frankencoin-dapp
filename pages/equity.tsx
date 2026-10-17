@@ -77,8 +77,8 @@ export default function Equity() {
 
 			<AppTitle title="Market">
 				<div className="text-text-secondary">
-					This section shows the recent exchange rate and 24h trading volume of FCS on the open market. Data sourced from
-					CoinGecko.
+					This section shows the recent exchange rate and 24h trading volume of FCS on the open market. Data sourced from{" "}
+					<AppLink className="" label="CoinGecko" href="https://www.coingecko.com/en/coins/frankencoin-shares" external={true} />.
 				</div>
 			</AppTitle>
 			<MarketChart coin="frankencoin-shares" symbol="FCS" />

@@ -3,7 +3,9 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import TableRow from "../Table/TableRow";
 import { formatCurrency, normalizeAddress, shortenAddress } from "../../utils/format";
-import { track, VotingSystem, VoteDataQuote } from "@hooks";
+import { track, VotingSystem, VoteDataQuote, QUORUM_RATIO } from "@hooks";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBolt } from "@fortawesome/free-solid-svg-icons";
 import AppLink from "@components/AppLink";
 import AppButtonSecondary from "@components/AppButtonSecondary";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
@@ -20,6 +22,7 @@ interface Props {
 	voter: VoteDataQuote;
 	votesTotal: bigint;
 	system?: VotingSystem;
+	pureOnly?: boolean;
 	myVotes?: bigint;
 	fcsIsBinding?: boolean;
 	connectedWallet?: boolean;
@@ -43,6 +46,7 @@ export default function GovernanceVotersRow({
 	voter,
 	votesTotal,
 	system = "fps",
+	pureOnly = false,
 	myVotes = 0n,
 	fcsIsBinding = false,
 	connectedWallet,
@@ -51,8 +55,10 @@ export default function GovernanceVotersRow({
 }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 
-	const votingPower = voter.votingPowerRatio + voter.supportedVotingPowerRatio;
-	const supporterCount = voter.supporters.length;
+	const votingPower = voter.votingPowerRatio + (pureOnly ? 0 : voter.supportedVotingPowerRatio);
+	// veto power: 2% of FPS votes or 1% of FCS votes, own votes plus supporters
+	const hasVetoPower = votingPower >= QUORUM_RATIO[system];
+	const supporterCount = pureOnly ? 0 : voter.supporters.length;
 	const isWrapped = normalizeAddress(voter.holder) === normalizeAddress(ADDRESS[mainnet.id].wFPS);
 	const governanceLabel = GOVERNANCE_LABELS[normalizeAddress(voter.holder)];
 
@@ -165,7 +171,14 @@ export default function GovernanceVotersRow({
 
 				{/* Voting power + supported VP ratio as sub-text */}
 				<div className={`flex flex-col ${connectedWallet ? "font-semibold" : ""}`}>
-					<span>{formatCurrency(votingPower * 100)}%</span>
+					<span className="inline-flex items-center justify-end gap-1.5">
+						{hasVetoPower && (
+							<span title={`Veto power (at least ${QUORUM_RATIO[system] * 100}% of ${system.toUpperCase()} votes)`}>
+								<FontAwesomeIcon icon={faBolt} className="text-text-active" />
+							</span>
+						)}
+						{formatCurrency(votingPower * 100)}%
+					</span>
 					{supporterCount > 0 && (
 						<span className="text-sm text-text-subheader font-normal">
 							{formatCurrency(voter.supportedVotingPowerRatio * 100)}%
