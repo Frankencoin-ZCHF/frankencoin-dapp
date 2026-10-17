@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
@@ -12,56 +12,44 @@ import { ChainId, SavingsABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 interface Props {
-	owner: Address;
 	savingsModule: Address;
 	amount: bigint;
-	interest: bigint;
 	disabled?: boolean;
-	setLoaded?: (val: boolean) => Dispatch<SetStateAction<boolean>>;
-	newReferrer?: Address | undefined;
+	newReferrer?: Address;
 	newReferralFeePPM: bigint;
+	onSuccess?: () => void;
 }
 
-export default function SavingsActionSave({
-	owner,
-	savingsModule,
-	amount,
-	interest,
-	disabled,
-	setLoaded,
-	newReferrer,
-	newReferralFeePPM,
-}: Props) {
+/**
+ * Deposits `amount` via save(amount), or save(amount, referrer, feePPM) when a referrer is to be set.
+ * The module collects the accrued interest into the balance before adding the deposit.
+ */
+export default function SavingsActionSave({ savingsModule, amount, disabled, newReferrer, newReferralFeePPM, onSuccess }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
-	const [isHidden, setHidden] = useState<boolean>(false);
-	const account = useConnection();
+	const { address } = useConnection();
 	const chainId = useChainId() as ChainId;
 	const chain = getChain(chainId);
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
-		if (!account.address || account.address.toLowerCase() != owner.toLowerCase()) return;
+		if (!address) return;
 
 		try {
 			setAction(true);
 
 			const writeHash = await writeContract(WAGMI_CONFIG, {
-				account: owner,
+				account: address,
 				address: savingsModule,
 				chainId: chainId,
 				abi: SavingsABI,
-				functionName: "adjust",
+				functionName: "save",
 				args: newReferrer != undefined ? [amount, newReferrer, Number(newReferralFeePPM)] : [amount],
 			});
 
 			const toastContent = [
 				{
-					title: `Saving: `,
+					title: `Deposit: `,
 					value: `${formatCurrency(formatUnits(amount, 18))} ZCHF`,
-				},
-				{
-					title: `Accured Interest: `,
-					value: `${formatCurrency(formatUnits(interest, 18))} ZCHF`,
 				},
 				{
 					title: "Transaction: ",
@@ -69,29 +57,28 @@ export default function SavingsActionSave({
 				},
 			];
 
-			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, chainId, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Increasing savings...`} rows={toastContent} />,
+					render: <TxToast title={`Depositing into savings...`} rows={toastContent} />,
 				},
 				success: {
-					render: <TxToast title="Savings increased" rows={toastContent} />,
+					render: <TxToast title="Successfully deposited" rows={toastContent} />,
 				},
 			});
 
 			track("savings_deposited", { amount: formatUnits(amount, 18) });
-			setHidden(true);
+			onSuccess?.();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
-			if (setLoaded != undefined) setLoaded(false);
 			setAction(false);
 		}
 	};
 
 	return (
 		<GuardSupportedChain chain={chain}>
-			<AppButton className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
-				Adjust
+			<AppButton className="h-10" disabled={disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
+				Deposit
 			</AppButton>
 		</GuardSupportedChain>
 	);
