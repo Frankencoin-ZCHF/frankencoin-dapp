@@ -20,7 +20,8 @@ import { ContractUrl, getChain, normalizeAddress, shortenAddress } from "@utils"
 import { useRouter } from "next/router";
 import AppLink from "@components/AppLink";
 import { AppKitNetwork } from "@reown/appkit/networks";
-import { useAppKitNetwork } from "@reown/appkit/react";
+import { useAppKitNetwork, useAppKit } from "@reown/appkit/react";
+import SavingsPreconnectCard from "./SavingsPreconnectCard";
 
 interface Props {
 	account: Address;
@@ -200,19 +201,21 @@ export default function SavingsInteractionCard({ account }: Props) {
 	if (!canAdjust) {
 		return (
 			<section className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-auto">
-				<AppCard>
-					<div className="text-lg font-bold text-center">Savings account view</div>
-					<div className="text-text-secondary text-center">
-						{address == undefined
-							? "Connect your wallet to adjust savings."
-							: `These savings belong to ${shortenAddress(account)}. Connect that account to adjust them.`}
-					</div>
-					{address != undefined ? (
-						<div className="text-center">
-							<AppLink label="View your savings" href="/savings" />
+				{address == undefined ? (
+					<SavingsPreconnectCard rate={(state?.rate ?? 0) / 10000} />
+				) : (
+					<AppCard>
+						<div className="text-lg font-bold text-center">Savings account view</div>
+						<div className="text-text-secondary text-center">
+							{`These savings belong to ${shortenAddress(account)}. Connect that account to adjust them.`}
 						</div>
-					) : null}
-				</AppCard>
+						{address != undefined ? (
+							<div className="text-center">
+								<AppLink label="View your savings" href="/savings" />
+							</div>
+						) : null}
+					</AppCard>
+				)}
 				{detailsCard}
 			</section>
 		);

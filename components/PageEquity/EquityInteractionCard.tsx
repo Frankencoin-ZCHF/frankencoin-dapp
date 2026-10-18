@@ -6,6 +6,7 @@ import EquityInteractionWithZCHFFCS from "./EquityInteractionWithZCHFFCS";
 import EquityInteractionWithFPSFCS from "./EquityInteractionWithFPSFCS";
 import AppCard from "@components/AppCard";
 import AppLink from "@components/AppLink";
+import { useCalcData } from "@hooks";
 
 // All possible paths (for reference):
 // ZCHF: ["FPS", "FCS"],
@@ -22,12 +23,25 @@ export const EquityTokenSelectorMapping: { [key: string]: string[] } = {
 export default function EquityInteractionCard() {
 	const [tokenFromTo, setTokenFromTo] = useState<{ from: string; to: string }>({ from: "ZCHF", to: "FCS" });
 	const involvesFcs = tokenFromTo.from === "FCS" || tokenFromTo.to === "FCS";
+	const { data: calc } = useCalcData();
+	const roe = calc?.current.roe12m ?? null;
 
 	return (
 		<AppCard>
 			<div className="mt-4 text-lg font-bold text-center">
 				{involvesFcs ? "Frankencoin Shares (FCS)" : "Frankencoin Pool Shares (FPS)"}
 			</div>
+			{involvesFcs && roe !== null && (
+				<div className="flex justify-center -mt-2">
+					<span className="inline-flex items-center gap-2 rounded-full bg-card-content-primary px-3 py-1 text-xs font-semibold text-text-secondary">
+						<span className={`font-black ${roe >= 0 ? "text-text-success" : "text-text-warning"}`}>
+							{(roe * 100).toFixed(1)}%
+						</span>
+						return on equity, last 12 months
+						<AppLink className="" label="what if?" href="/start" external={false} />
+					</span>
+				</div>
+			)}
 
 			{/* Load modules dynamically */}
 			{(tokenFromTo.from === "ZCHF" && tokenFromTo.to === "FPS") || (tokenFromTo.from === "FPS" && tokenFromTo.to === "ZCHF") ? (

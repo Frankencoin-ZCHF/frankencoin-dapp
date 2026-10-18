@@ -433,7 +433,9 @@ export default function PositionCreate({}) {
 								value={proposalFee.toString()}
 								onChange={onChangeProposalFee}
 								digit={0}
-								error={userBalance[mainnet.id].frankencoin < BigInt(1000 * 1e18) ? "Not enough ZCHF" : ""}
+								error={
+									account.address && userBalance[mainnet.id].frankencoin < BigInt(1000 * 1e18) ? "Not enough ZCHF" : ""
+								}
 								disabled={true}
 								placeholder="Amount"
 							/>
@@ -473,7 +475,7 @@ export default function PositionCreate({}) {
 							autoFocus={true}
 						/>
 						{collTokenData.symbol != "NaN" && initialCollAmount > userAllowance ? (
-<AppButton
+							<AppButton
 								className="-mt-4"
 								isLoading={isConfirming == "approve"}
 								disabled={
@@ -588,7 +590,7 @@ export default function PositionCreate({}) {
 
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 					<GuardSupportedChain chain={mainnet}>
-<AppButton
+						<AppButton
 							disabled={minCollAmount == 0n || userAllowance < initialCollAmount || initialCollAmount == 0n || hasFormError()}
 							isLoading={isConfirming == "open"}
 							onClick={() => handleOpenPosition()}
