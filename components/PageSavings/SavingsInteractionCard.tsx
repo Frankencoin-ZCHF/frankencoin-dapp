@@ -83,12 +83,13 @@ export default function SavingsInteractionCard({ savings, hasAccount, readOnly, 
 				return `You can withdraw at most ${formatCurrency(formatUnits(withdrawable, 18))} ZCHF on ${chain.name}.`;
 		} else {
 			if (amount > walletBalance) return "Not enough ZCHF in your wallet.";
-			if (ratePPM == 0n) return `The savings module on ${chain.name} is currently disabled.`;
+			if (ratePPM == 0n && amount > 0n) return `The savings module on ${chain.name} is currently disabled.`;
 		}
 		return "";
 	};
 	const error = amountError();
 	const disabled = readOnly || isLoading || amount == 0n || error != "";
+	const reinvest = !isWithdraw && !onbehalfToggle && amount == 0n && netInterest > 0n;
 
 	return (
 		<AppCard>
@@ -158,15 +159,19 @@ export default function SavingsInteractionCard({ savings, hasAccount, readOnly, 
 					<SavingsActionSave
 						savingsModule={module}
 						amount={amount}
+						interest={netInterest}
 						newReferrer={newReferrer}
 						newReferralFeePPM={newReferralFeePPM}
-						disabled={disabled}
+						disabled={reinvest ? readOnly || isLoading : disabled}
 						onSuccess={onActionSuccess}
 					/>
 				)}
+				{!isWithdraw && !onbehalfToggle && amount > 0n && netInterest > 0n ? (
+					<div className="-mt-2 text-sm text-text-secondary text-center">Also reinvests accrued interest</div>
+				) : null}
 			</div>
 
-			{!isWithdraw && !onbehalfToggle && newReferrer ? (
+			{!isWithdraw && !onbehalfToggle && !reinvest && newReferrer ? (
 				<div className="text-text-secondary text-sm mt-4">
 					<span className="font-semibold">Notice: </span>
 					You are about to set the referrer{" "}
