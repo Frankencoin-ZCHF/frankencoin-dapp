@@ -7,24 +7,38 @@ export interface TabInputInterface {
 	setTab?: Dispatch<SetStateAction<string>>;
 }
 
+/** Segmented control: the selected option sits on a raised pill inside a muted track. */
 export function TabInput({ tabs = [], tab = "", setTab = () => {} }: TabInputInterface) {
 	if (tabs.length == 0) return null;
 
 	return (
-		<div className="bg-card-content-primary mb-5 rounded-lg">
-			<div className="flex flex-row justify-between px-6 text-text-secondary">
-				{tabs.map((ts) => (
-					<div
+		<div
+			role="tablist"
+			className="bg-card-content-primary mb-5 rounded-xl p-1 flex gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+		>
+			{tabs.map((ts) => {
+				const selected = ts == tab;
+				return (
+					<button
 						key={"key_" + ts}
-						className={`px-6 max-md:px-2 py-2 text-sm text-center ${
-							ts == tab ? "text-text-primary font-semibold" : "cursor-pointer"
+						type="button"
+						role="tab"
+						aria-selected={selected}
+						className={`flex-1 flex-shrink-0 whitespace-nowrap px-4 max-md:px-2 py-2 rounded-lg text-sm text-center transition-all duration-200 ${
+							selected
+								? "bg-card-content-secondary text-text-primary font-semibold shadow-sm"
+								: "text-text-secondary hover:text-text-primary cursor-pointer"
 						}`}
-						onClick={() => { track("tab_" + ts.toLowerCase().replace(/\s+/g, "_")); setTab(ts); }}
+						onClick={() => {
+							if (selected) return;
+							track("tab_" + ts.toLowerCase().replace(/\s+/g, "_"));
+							setTab(ts);
+						}}
 					>
 						{ts}
-					</div>
-				))}
-			</div>
+					</button>
+				);
+			})}
 		</div>
 	);
 }

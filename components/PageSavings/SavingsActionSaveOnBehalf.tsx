@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
@@ -16,12 +16,11 @@ interface Props {
 	amount: bigint;
 	onBehalf: Address;
 	disabled?: boolean;
-	setLoaded?: (val: boolean) => Dispatch<SetStateAction<boolean>>;
+	onSuccess?: () => void;
 }
 
-export default function SavingsActionSaveOnBehalf({ savingsModule, amount, onBehalf, disabled, setLoaded }: Props) {
+export default function SavingsActionSaveOnBehalf({ savingsModule, amount, onBehalf, disabled, onSuccess }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
-	const [isHidden, setHidden] = useState<boolean>(false);
 	const account = useConnection();
 	const chainId = useChainId() as ChainId;
 	const chain = getChain(chainId);
@@ -57,7 +56,7 @@ export default function SavingsActionSaveOnBehalf({ savingsModule, amount, onBeh
 				},
 			];
 
-			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, chainId, confirmations: 1 }), {
 				pending: {
 					render: <TxToast title={`Save to target...`} rows={toastContent} />,
 				},
@@ -67,18 +66,17 @@ export default function SavingsActionSaveOnBehalf({ savingsModule, amount, onBeh
 			});
 
 			track("savings_deposited_on_behalf", { amount: formatUnits(amount, 18) });
-			// setHidden(true);
+			onSuccess?.();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
-			if (setLoaded != undefined) setLoaded(false);
 			setAction(false);
 		}
 	};
 
 	return (
 		<GuardSupportedChain chain={chain}>
-			<AppButton className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
+			<AppButton className="h-10" disabled={disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
 				Save to Target
 			</AppButton>
 		</GuardSupportedChain>
