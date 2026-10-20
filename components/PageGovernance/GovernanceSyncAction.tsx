@@ -6,6 +6,7 @@ import { formatCurrency } from "@utils";
 import { renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useConnection } from "wagmi";
 import AppButton from "@components/AppButton";
+import AppButtonSecondary from "@components/AppButtonSecondary";
 import { Address, formatUnits } from "viem";
 import { ADDRESS, GovernanceSenderABI, MainnetVotesABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
@@ -17,9 +18,12 @@ interface Props {
 	voters: Address[];
 	disabled?: boolean;
 	system?: VotingSystem;
+	label?: string;
+	compact?: boolean;
+	secondary?: boolean;
 }
 
-export default function GovernanceSyncAction({ targetChainId, voters, disabled, system = "fps" }: Props) {
+export default function GovernanceSyncAction({ targetChainId, voters, disabled, system = "fps", label, compact, secondary }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
 	const { address } = useConnection();
 	const isFcs = system === "fcs";
@@ -97,11 +101,19 @@ export default function GovernanceSyncAction({ targetChainId, voters, disabled, 
 		}
 	};
 
+	const Button = secondary ? AppButtonSecondary : AppButton;
+
 	return (
 		<GuardSupportedChain chainId={mainnet.id}>
-			<AppButton className="h-10" disabled={disabled || !isReady} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
-				Sync to {targetChain?.name ?? String(targetChainId)}
-			</AppButton>
+			<Button
+				className={compact ? "h-7" : "h-10"}
+				size={compact ? "small" : "medium"}
+				disabled={disabled || !isReady}
+				isLoading={isAction}
+				onClick={(e) => handleOnClick(e)}
+			>
+				{label ?? `Sync to ${targetChain?.name ?? String(targetChainId)}`}
+			</Button>
 		</GuardSupportedChain>
 	);
 }

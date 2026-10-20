@@ -11,6 +11,7 @@ import { normalizeAddress } from "../../utils/format";
 import { ADDRESS, FCSABI } from "@frankencoin/zchf";
 import { Address } from "viem";
 import { mainnet } from "viem/chains";
+import AppToggle from "@components/AppToggle";
 
 // Always shown on the FPS tab regardless of QUORUM_RATIO — it's FCS's aggregate pooled voting
 // power (see GovernanceVotersRow's GOVERNANCE_LABELS, labeled "InterestGovernance"), not an
@@ -28,6 +29,8 @@ export default function GovernanceVotersTable({ system = "fps" }: Props) {
 	const [tab, setTab] = useState<string>(headers[1]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [selected, setSelected] = useState<Set<Address>>(new Set());
+	// pure votes: only addresses holding votes themselves, ranked and measured without delegated support
+	const [pureOnly, setPureOnly] = useState<boolean>(false);
 
 	const { address } = useConnection();
 	const { votesData, accountVoteData, totalVotes } = useVotingPowers(system);
@@ -74,18 +77,20 @@ export default function GovernanceVotersTable({ system = "fps" }: Props) {
 	// offer to spend more of our own budget than we actually hold.
 	const votesToDestroy = accumulatedVotes < myVotes ? accumulatedVotes : myVotes;
 
-	const otherVotes = votesData.filter((v) => !address || normalizeAddress(v.holder) !== normalizeAddress(address));
+	const otherVotes = votesData.filter(
+		(v) => (!address || normalizeAddress(v.holder) !== normalizeAddress(address)) && (!pureOnly || v.votingPower > 0n)
+	);
 
 	const alwaysShown = ALWAYS_SHOWN[system];
 	const passesQuorum = (i: VoteDataQuote) =>
-		i.votingPowerRatio + i.supportedVotingPowerRatio > QUORUM_RATIO[system] ||
+		i.votingPowerRatio + (pureOnly ? 0 : i.supportedVotingPowerRatio) > QUORUM_RATIO[system] ||
 		(alwaysShown && normalizeAddress(i.holder) === alwaysShown);
 
 	// Small systems can have few (or zero) voters above quorum — show at least MIN_SHOWN rows when
 	// available so the table isn't sparse. Rows already sorted (default: by voting power desc) fill
 	// the minimum, so quorum-passing voters take priority for free; past MIN_SHOWN only quorum still applies.
 	const MIN_SHOWN = 30;
-	const sortedAll = sortVotes({ votes: otherVotes, headers, tab, reverse });
+	const sortedAll = sortVotes({ votes: otherVotes, headers, tab, reverse, pureOnly });
 	const sorted = sortedAll.length <= MIN_SHOWN ? sortedAll : sortedAll.filter((i, idx) => idx < MIN_SHOWN || passesQuorum(i));
 
 	const handleTabOnChange = (e: string) => {
@@ -99,6 +104,10 @@ export default function GovernanceVotersTable({ system = "fps" }: Props) {
 
 	return (
 		<>
+			<div className="flex justify-end">
+				<AppToggle label="Pure votes only (exclude delegated support)" enabled={pureOnly} onChange={setPureOnly} />
+			</div>
+
 			<Table>
 				<TableHeader headers={headers} tab={tab} reverse={reverse} tabOnChange={handleTabOnChange} actionCol />
 				<TableBody>
@@ -110,6 +119,7 @@ export default function GovernanceVotersTable({ system = "fps" }: Props) {
 								voter={accountVoteData}
 								votesTotal={totalVotes}
 								system={system}
+								pureOnly={pureOnly}
 								myVotes={myVotes}
 								fcsIsBinding={fcsIsBinding}
 								connectedWallet
@@ -126,6 +136,7 @@ export default function GovernanceVotersTable({ system = "fps" }: Props) {
 									voter={vote}
 									votesTotal={totalVotes}
 									system={system}
+									pureOnly={pureOnly}
 									myVotes={myVotes}
 									fcsIsBinding={fcsIsBinding}
 									selected={selected.has(normalizeAddress(vote.holder))}
@@ -158,15 +169,17 @@ type SortVotes = {
 	headers: string[];
 	tab: string;
 	reverse: boolean;
+	pureOnly: boolean;
 };
 
-function sortVotes({ votes, headers, tab, reverse }: SortVotes): VoteDataQuote[] {
+function sortVotes({ votes, headers, tab, reverse, pureOnly }: SortVotes): VoteDataQuote[] {
 	const sorted = [...votes];
 
 	if (tab === headers[0]) {
 		sorted.sort((a, b) => a.holder.localeCompare(b.holder));
 	} else if (tab === headers[1]) {
-		sorted.sort((a, b) => (b.votingPower + b.supportedVotingPower > a.votingPower + a.supportedVotingPower ? 1 : -1));
+		const power = (v: VoteDataQuote) => v.votingPower + (pureOnly ? 0n : v.supportedVotingPower);
+		sorted.sort((a, b) => (power(b) > power(a) ? 1 : -1));
 	}
 
 	return reverse ? sorted.reverse() : sorted;
