@@ -3,7 +3,7 @@ import { erc20Abi, maxUint256 } from "viem";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import AppDialog from "@components/AppDialog";
-import AppButton from "@components/AppButton";
+import AppApproveAction from "@components/AppApproveAction";
 import TokenInput from "@components/Input/TokenInput";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
@@ -212,24 +212,27 @@ export default function AmplifierPositionAddDialog({ stats, priceView, position,
 			/>
 
 			<GuardSupportedChain chain={getAmplifierChain(stats.chainId)}>
-				{usdNeeded > stats.usdUserAllowance ? (
-					<AppButton disabled={!!error || liquidity == 0n} isLoading={isApproving} onClick={() => handleApprove()}>
-						Approve {usdSymbol}
-					</AppButton>
-				) : zchfBorrowed > stats.zchfAmplifierAllowance ? (
-					<AppButton
-						disabled={!!error || liquidity == 0n}
-						isLoading={isApprovingZchf}
-						onClick={() => handleApproveZchf()}
-						note={`The amplifier moves the borrowed ${stats.zchfSymbol} from your address into the pool and needs an allowance for that.`}
-					>
-						Approve {stats.zchfSymbol}
-					</AppButton>
-				) : (
-					<AppButton disabled={!!error || liquidity == 0n} isLoading={isMinting} onClick={() => handleMint()}>
-						Add Liquidity
-					</AppButton>
-				)}
+				<AppApproveAction
+					actionLabel="Add Liquidity"
+					approvals={[
+						{
+							tokenSymbol: usdSymbol,
+							needsApproval: liquidity == 0n || usdNeeded > stats.usdUserAllowance,
+							isApproving,
+							onApprove: handleApprove,
+						},
+						{
+							tokenSymbol: stats.zchfSymbol,
+							needsApproval: liquidity == 0n || zchfBorrowed > stats.zchfAmplifierAllowance,
+							isApproving: isApprovingZchf,
+							onApprove: handleApproveZchf,
+							hint: `The amplifier moves the borrowed ${stats.zchfSymbol} from your address into the pool and needs an allowance for that.`,
+						},
+					]}
+					isActing={isMinting}
+					disabled={!!error || liquidity == 0n}
+					onAction={handleMint}
+				/>
 			</GuardSupportedChain>
 		</AppDialog>
 	);

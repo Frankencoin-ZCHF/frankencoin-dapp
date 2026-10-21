@@ -1,5 +1,6 @@
 import { shortenAddress } from "../../utils/format";
 import AppButton from "@components/AppButton";
+import AppApproveAction from "@components/AppApproveAction";
 import NormalInput from "@components/Input/NormalInput";
 import AppCard from "@components/AppCard";
 import { useEffect, useState } from "react";
@@ -245,15 +246,18 @@ export default function GovernanceMintersPropose({}: Props) {
 					<AddressInput label="Comment" placeholder={`Enter the comment here`} value={comment} onChange={setComment} />
 
 					<GuardSupportedChain disabled={isDisabled || isHidden} chain={chain}>
-						{needsApproval ? (
-							<AppButton
+						{useMinterGovernance ? (
+							<AppApproveAction
 								className="max-md:h-10 md:h-12"
+								tokenSymbol="ZCHF"
+								actionLabel={`Propose Module on ${chain.name}`}
+								needsApproval={needsApproval}
+								isApproving={isApproving}
+								isActing={isHandling}
 								disabled={isDisabled || isHidden}
-								isLoading={isApproving}
-								onClick={handleApprove}
-							>
-								Approve ZCHF
-							</AppButton>
+								onApprove={() => handleApprove({ preventDefault: () => {} })}
+								onAction={() => handleOnClick({ preventDefault: () => {} })}
+							/>
 						) : (
 							<AppButton
 								className="max-md:h-10 md:h-12"
