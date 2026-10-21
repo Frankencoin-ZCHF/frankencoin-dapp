@@ -7,14 +7,16 @@ import { useRouter } from "next/router";
 import { useConnection } from "wagmi";
 import { track } from "../hooks/useAnalytics";
 
-const MAIN_ITEMS = [
-	{ to: "/mint", name: "Borrow" },
+type NavItem = { to: string; name: string; alsoActive?: string[] };
+
+const MAIN_ITEMS: NavItem[] = [
+	{ to: "/mint", name: "Borrow", alsoActive: ["/leverage"] },
 	{ to: "/mypositions", name: "My Positions" },
 	{ to: "/savings", name: "Earn" },
 	{ to: "/equity", name: "Invest" },
 ];
 
-const MORE_ITEMS = [
+const MORE_ITEMS: NavItem[] = [
 	{ to: "/transfer", name: "Transfer" },
 	{ to: "/monitoring", name: "Monitoring" },
 	{ to: "/governance", name: "Governance" },
@@ -61,7 +63,7 @@ function MoreDropdown() {
 				<div className="absolute top-full right-0 t-0 mt-1 px-2 grid gap-1 rounded-lg bg-menu-back border border-menu-separator shadow-md py-1 z-50">
 					{MORE_ITEMS.map((item) => (
 						<div key={item.to} onClick={() => setOpen(false)}>
-							<NavButton to={item.to} name={item.name} />
+							<NavButton to={item.to} name={item.name} alsoActive={item.alsoActive} />
 						</div>
 					))}
 				</div>
@@ -75,7 +77,7 @@ export function NavItems({ items }: { items: typeof MAIN_ITEMS }) {
 		<>
 			{items.map((item) => (
 				<li key={item.to}>
-					<NavButton to={item.to} name={item.name} />
+					<NavButton to={item.to} name={item.name} alsoActive={item.alsoActive} />
 				</li>
 			))}
 		</>
@@ -111,7 +113,7 @@ export default function Navbar() {
 						<ul className="hidden md:flex gap-2 lg:gap-3">
 							{mainItems.map((item) => (
 								<li key={item.to}>
-									<NavButton to={item.to} name={item.name} />
+									<NavButton to={item.to} name={item.name} alsoActive={item.alsoActive} />
 								</li>
 							))}
 							<li>
