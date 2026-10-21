@@ -8,6 +8,7 @@ import { useConnection, useChainId, useReadContract } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import AppButton from "@components/AppButton";
+import AppApproveAction from "@components/AppApproveAction";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
@@ -210,7 +211,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 
 	const conversionNote = () => {
 		if (amount != 0n && result != 0n) {
-			const ratio = 100n * amount / result;
+			const ratio = (100n * amount) / result;
 			return `1 ${toSymbol} = ${formatUnits(ratio, 2)} ${fromSymbol}`;
 		} else {
 			return ``;
@@ -236,7 +237,11 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 				/>
 
 				<div className="py-4 text-center z-0">
-					<AppButton className={`h-10 rounded-full`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
+					<AppButton
+						className={`h-10 rounded-full`}
+						width="w-10"
+						onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}
+					>
 						<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
 					</AppButton>
 				</div>
@@ -259,17 +264,18 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 				<div className="mx-auto mt-8 w-full flex-col">
 					<GuardSupportedChain chain={mainnet}>
 						{direction ? (
-							amount > poolStats.frankenAllowance ? (
-								<AppButton isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>
-									Approve
-								</AppButton>
-							) : (
-								<AppButton disabled={amount == 0n || !!error} isLoading={isInversting} onClick={() => handleInvest()}>
-									Mint
-								</AppButton>
-							)
+							<AppApproveAction
+								tokenSymbol="ZCHF"
+								actionLabel="Mint"
+								needsApproval={amount == 0n || amount > poolStats.frankenAllowance}
+								isApproving={isApproving}
+								isActing={isInversting}
+								disabled={amount == 0n || !!error}
+								onApprove={() => handleApprove()}
+								onAction={() => handleInvest()}
+							/>
 						) : (
-<AppButton
+							<AppButton
 								isLoading={isRedeeming}
 								disabled={amount == 0n || !!error || !poolStats.equityCanRedeem}
 								onClick={() => handleRedeem()}

@@ -7,6 +7,7 @@ import { useConnection, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import AppButton from "@components/AppButton";
+import AppApproveAction from "@components/AppApproveAction";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorToast, renderErrorTxToast } from "@components/TxToast";
@@ -265,7 +266,11 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 				/>
 
 				<div className="py-4 text-center z-0">
-					<AppButton className={`h-10 rounded-full`} width="w-10" onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}>
+					<AppButton
+						className={`h-10 rounded-full`}
+						width="w-10"
+						onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}
+					>
 						<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
 					</AppButton>
 				</div>
@@ -289,15 +294,16 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 				<div className="mx-auto mt-8 w-full flex-col">
 					<GuardSupportedChain chain={mainnet}>
 						{direction ? (
-							amount > fpsAllowance ? (
-								<AppButton isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>
-									Approve
-								</AppButton>
-							) : (
-								<AppButton disabled={amount == 0n || !!error} isLoading={isWrapping} onClick={() => handleWrapping()}>
-									Wrap
-								</AppButton>
-							)
+							<AppApproveAction
+								tokenSymbol="FPS"
+								actionLabel="Wrap"
+								needsApproval={amount == 0n || amount > fpsAllowance}
+								isApproving={isApproving}
+								isActing={isWrapping}
+								disabled={amount == 0n || !!error}
+								onApprove={() => handleApprove()}
+								onAction={() => handleWrapping()}
+							/>
 						) : (
 							<AppButton isLoading={isUnwrapping} disabled={amount == 0n || !!error} onClick={() => handleUnwrapping()}>
 								Unwrap

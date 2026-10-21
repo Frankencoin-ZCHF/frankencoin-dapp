@@ -8,6 +8,7 @@ import { useConnection, useReadContract } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import AppButton from "@components/AppButton";
+import AppApproveAction from "@components/AppApproveAction";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
@@ -276,15 +277,16 @@ export default function EquityInteractionWithZCHFFCS({ tokenFromTo, setTokenFrom
 				<div className="mx-auto mt-8 w-full flex-col">
 					<GuardSupportedChain chain={mainnet}>
 						{direction ? (
-							amount > fcsStats.frankenAllowanceForFcs ? (
-								<AppButton isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>
-									Approve
-								</AppButton>
-							) : (
-								<AppButton disabled={amount == 0n || !!error} isLoading={isDepositing} onClick={() => handleDeposit()}>
-									Deposit
-								</AppButton>
-							)
+							<AppApproveAction
+								tokenSymbol="ZCHF"
+								actionLabel="Deposit"
+								needsApproval={amount == 0n || amount > fcsStats.frankenAllowanceForFcs}
+								isApproving={isApproving}
+								isActing={isDepositing}
+								disabled={amount == 0n || !!error}
+								onApprove={() => handleApprove()}
+								onAction={() => handleDeposit()}
+							/>
 						) : (
 							<AppButton
 								isLoading={isRedeeming}
