@@ -159,6 +159,14 @@ export default function StartCalculator({ goal, onGoalChange, fixedGoal = false,
 								{new Date(data.rates[0][0] * 1000).toLocaleDateString("en-CH", { month: "long", year: "numeric" })}; earlier
 								months are shown without interest.
 							</>
+						)}
+						{r?.partial && goal === "invest" && data?.fps[0] && (
+							<>
+								{" "}
+								FCS has a price history since{" "}
+								{new Date(data.fps[0][0] * 1000).toLocaleDateString("en-CH", { month: "long", year: "numeric" })}, after its
+								launch phase; the result counts from then.
+							</>
 						)}{" "}
 						<AppLink className="" label="Same calculator on frankencoin.com" href="https://frankencoin.com/start" external />
 					</p>

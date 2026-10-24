@@ -28,6 +28,8 @@ interface RateEntry {
 }
 
 const WEEK_S = 7 * 86400;
+/** FCS price history starts after the launch phase (Oct 2023 – Apr 2024), when the price was set by the first capital coming in. */
+const FPS_HISTORY_FROM_S = Date.UTC(2024, 4, 1) / 1000;
 const YEAR_S = 365 * 86400;
 const num = (v: string) => Number(BigInt(v)) / 1e18;
 
@@ -41,6 +43,7 @@ export async function loadCalcData(): Promise<CalcData> {
 	let lastKept = -Infinity;
 	for (const l of logs) {
 		const ts = Number(l.timestamp);
+		if (ts < FPS_HISTORY_FROM_S) continue;
 		if (ts - lastKept >= WEEK_S) {
 			fps.push([ts, num(l.fpsPrice)]);
 			lastKept = ts;
@@ -134,12 +137,15 @@ export function simulate(data: CalcData, goal: "save" | "invest", amountChf: num
 		const cur = data.current.rate ?? 0;
 		return finish(amountChf, v, curve, amountChf * Math.pow(1 + cur, years), rateAt(data, from) === 0);
 	}
-	const p0 = priceAt(data, from);
+	// FCS history starts after the launch phase; an earlier start is counted from the first real price.
+	const partial = (data.fps[0]?.[0] ?? 0) > from;
+	const f0 = Math.max(from, data.fps[0]?.[0] ?? from);
+	const p0 = priceAt(data, f0);
 	const shares = p0 > 0 ? amountChf / p0 : 0;
-	for (let i = 0; i <= points; i++) curve.push(shares * priceAt(data, from + ((now - from) * i) / points));
+	for (let i = 0; i <= points; i++) curve.push(shares * priceAt(data, f0 + ((now - f0) * i) / points));
 	const v = shares * (data.current.fpsPrice ?? priceAt(data, now));
 	const roe = data.current.roe12m ?? 0;
-	return finish(amountChf, v, curve, amountChf * Math.pow(1 + roe, years), (data.fps[0]?.[0] ?? 0) > from);
+	return finish(amountChf, v, curve, amountChf * Math.pow(1 + roe, years), partial);
 }
 
 function finish(start: number, now: number, curve: number[], projected: number, partial: boolean): CalcResult {
