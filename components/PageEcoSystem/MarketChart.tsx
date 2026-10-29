@@ -6,12 +6,10 @@ import dynamic from "next/dynamic";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const toDailyValues = (data: [number, number][]) => {
+	// @dev: keeps the latest entry per day, so the current day reflects the most recent value instead of its first (midnight) one
 	const dailyMap = new Map<string, [number, number]>();
 	data.forEach((entry) => {
-		const dateKey = new Date(entry[0]).toDateString();
-		if (!dailyMap.has(dateKey)) {
-			dailyMap.set(dateKey, entry);
-		}
+		dailyMap.set(new Date(entry[0]).toDateString(), entry);
 	});
 	return [...dailyMap.values()];
 };
