@@ -140,7 +140,8 @@ export default function Positions() {
 								<AppTitle title={`Market Data`}>
 									<div className="text-text-secondary">
 										This section shows the recent exchange rate and 24h trading volume of ZCHF on the open market. Data
-										sourced from CoinGecko.
+										sourced from{" "}
+										<AppLink className="" label="CoinGecko" href="https://www.coingecko.com/en/coins/frankencoin" external={true} />.
 									</div>
 								</AppTitle>
 
