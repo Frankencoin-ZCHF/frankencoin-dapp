@@ -1,10 +1,11 @@
-import { Chain, Hash } from "viem";
+import { Address, Chain, formatUnits, Hash } from "viem";
 import TableRow from "../Table/TableRow";
 import { ChainId, SupportedChain, SupportedChainsMap } from "@frankencoin/zchf";
 import { MinterQuery } from "@frankencoin/api";
 import GovernanceMintersAction from "./GovernanceMintersAction";
 import AppLink from "@components/AppLink";
-import { ContractUrl, shortenAddress, TxUrl } from "@utils";
+import { ContractUrl, formatCurrency, shortenAddress, TxUrl } from "@utils";
+import { useUnannouncedMinter } from "@hooks";
 
 interface Props {
 	headers: string[];
@@ -13,6 +14,10 @@ interface Props {
 }
 
 export default function GovernanceMintersRow({ headers, tab, minter }: Props) {
+	// @dev: only pending applications can be vetoed, so the announcement state is only read for those
+	const isPending = !!minter && !minter.vetor && Date.now() < (minter.applyDate + minter.applicationPeriod) * 1000;
+	const { isUnannounced, reward } = useUnannouncedMinter(minter?.minter as Address, minter?.chainId as ChainId, isPending);
+
 	if (!minter) return null;
 
 	const vetoUntil = (minter.applyDate + minter.applicationPeriod) * 1000;
@@ -22,6 +27,7 @@ export default function GovernanceMintersRow({ headers, tab, minter }: Props) {
 	const passed: boolean = hoursUntil < 0;
 	const vetoed: boolean = minter.vetor ? true : false;
 	const isDisabled: boolean = vetoed || passed;
+	const showUnannounced: boolean = isUnannounced && !isDisabled;
 
 	const dateArr: string[] = new Date(minter.applyDate * 1000).toDateString().split(" ");
 	const dateStr: string = `${dateArr[2]} ${dateArr[1]} ${dateArr[3]}`;
@@ -31,10 +37,24 @@ export default function GovernanceMintersRow({ headers, tab, minter }: Props) {
 			headers={headers}
 			rawHeader={true}
 			tab={tab}
+			footer={
+				showUnannounced ? (
+					<div className="text-sm text-center">
+						Unannounced minter, can be vetoed by anyone.
+						{reward > 0n ? ` ${formatCurrency(formatUnits(reward, 18))} ZCHF reward.` : ""}
+					</div>
+				) : undefined
+			}
 			actionCol={
 				<div className="">
 					{isDisabled ? null : (
-						<GovernanceMintersAction key={`${minter.chainId}:${minter.minter}`} minter={minter} disabled={isDisabled} />
+						<GovernanceMintersAction
+							key={`${minter.chainId}:${minter.minter}`}
+							minter={minter}
+							disabled={isDisabled}
+							unannounced={showUnannounced}
+							reward={reward}
+						/>
 					)}
 				</div>
 			}
