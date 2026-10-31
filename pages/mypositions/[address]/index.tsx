@@ -15,7 +15,7 @@ import {
 	normalizeAddress,
 	shortenAddress,
 } from "@utils";
-import AppButton from "@components/AppButton";
+import AppApproveAction from "@components/AppApproveAction";
 import { useConnection, useChainId } from "wagmi";
 import { readContract, simulateContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
@@ -526,26 +526,23 @@ export default function PositionAdjust() {
 						)}
 
 						<GuardSupportedChain chain={mainnet}>
-							{collateralAmount - BigInt(position.collateralBalance) > userCollAllowance ? (
-								<AppButton isLoading={isApproving} onClick={() => handleApprove()}>
-									Approve Collateral
-								</AppButton>
-							) : (
-								<AppButton
-									disabled={
-										hasDrift ||
-										(amount == BigInt(position.minted) &&
-											collateralAmount == BigInt(position.collateralBalance) &&
-											liqPrice == BigInt(position.price)) ||
-										(!position.denied && (!!getAmountError() || !!getCollateralError())) ||
-										(challengeSize > 0n && collateralAmount < BigInt(position.collateralBalance))
-									}
-									isLoading={isAdjusting}
-									onClick={() => handleAdjust()}
-								>
-									Adjust Position
-								</AppButton>
-							)}
+							<AppApproveAction
+								tokenSymbol={position.collateralSymbol}
+								actionLabel="Adjust Position"
+								needsApproval={collateralAmount - BigInt(position.collateralBalance) > userCollAllowance}
+								isApproving={isApproving}
+								isActing={isAdjusting}
+								actionDisabled={
+									hasDrift ||
+									(amount == BigInt(position.minted) &&
+										collateralAmount == BigInt(position.collateralBalance) &&
+										liqPrice == BigInt(position.price)) ||
+									(!position.denied && (!!getAmountError() || !!getCollateralError())) ||
+									(challengeSize > 0n && collateralAmount < BigInt(position.collateralBalance))
+								}
+								onApprove={() => handleApprove()}
+								onAction={() => handleAdjust()}
+							/>
 						</GuardSupportedChain>
 					</AppCard>
 
