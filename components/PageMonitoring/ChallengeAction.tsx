@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { PositionQuery } from "@frankencoin/api";
 import { erc20Abi, Address, formatUnits } from "viem";
 import TokenInput from "@components/Input/TokenInput";
-import AppButton from "@components/AppButton";
+import AppApproveAction from "@components/AppApproveAction";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import { formatBigInt, formatCurrency, normalizeAddress, shortenAddress } from "@utils";
@@ -252,15 +252,16 @@ export default function ChallengeAction({ position, onChallengeSuccess }: Props)
 			</div>
 
 			<GuardSupportedChain chain={mainnet}>
-				{amount > userAllowance ? (
-					<AppButton isLoading={isApproving} disabled={!!error} onClick={() => handleApprove()}>
-						Approve
-					</AppButton>
-				) : (
-					<AppButton isLoading={isChallenging} disabled={!!error || amount == 0n} onClick={() => handleChallenge()}>
-						Challenge
-					</AppButton>
-				)}
+				<AppApproveAction
+					tokenSymbol={position.collateralSymbol}
+					actionLabel="Challenge"
+					needsApproval={amount == 0n || amount > userAllowance}
+					isApproving={isApproving}
+					isActing={isChallenging}
+					disabled={!!error || amount == 0n}
+					onApprove={() => handleApprove()}
+					onAction={() => handleChallenge()}
+				/>
 			</GuardSupportedChain>
 		</div>
 	);

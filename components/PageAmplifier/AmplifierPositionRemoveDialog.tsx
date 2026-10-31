@@ -3,7 +3,7 @@ import { erc20Abi, maxUint256 } from "viem";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import AppDialog from "@components/AppDialog";
-import AppButton from "@components/AppButton";
+import AppApproveAction from "@components/AppApproveAction";
 import NormalInput from "@components/Input/NormalInput";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
@@ -158,20 +158,21 @@ export default function AmplifierPositionRemoveDialog({ stats, position, onClose
 			/>
 
 			<GuardSupportedChain chain={getAmplifierChain(stats.chainId)}>
-				{needsMinterApproval ? (
-					<AppButton
-						disabled={!!error || burnedLiquidity == 0n}
-						isLoading={isApproving}
-						onClick={() => handleApproveMinter()}
-						note={`The minter of this amplifier repays the debt via transferFrom and therefore needs an allowance for your ${stats.zchfSymbol}.`}
-					>
-						Approve {stats.zchfSymbol}
-					</AppButton>
-				) : (
-					<AppButton disabled={!!error || burnedLiquidity == 0n} isLoading={isBurning} onClick={() => handleBurn()}>
-						Remove Liquidity
-					</AppButton>
-				)}
+				<AppApproveAction
+					tokenSymbol={stats.zchfSymbol}
+					actionLabel="Remove Liquidity"
+					needsApproval={burnedLiquidity == 0n || needsMinterApproval}
+					isApproving={isApproving}
+					isActing={isBurning}
+					disabled={!!error || burnedLiquidity == 0n}
+					onApprove={() => handleApproveMinter()}
+					onAction={() => handleBurn()}
+					hint={
+						needsMinterApproval && !isApproving
+							? `The minter of this amplifier repays the debt via transferFrom and therefore needs an allowance for your ${stats.zchfSymbol}.`
+							: undefined
+					}
+				/>
 			</GuardSupportedChain>
 		</AppDialog>
 	);

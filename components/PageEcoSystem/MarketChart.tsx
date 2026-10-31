@@ -14,6 +14,17 @@ const toDailyValues = (data: [number, number][]) => {
 	return [...dailyMap.values()];
 };
 
+// @dev: one bar per calendar day (empty days are 0), so bars are evenly spaced and equally wide regardless of how sparse the source data is
+const toDailyBars = (data: [number, number][], from: number, to: number): [number, number][] => {
+	const dayStart = (ts: number) => new Date(new Date(ts).toDateString()).getTime();
+	const dailyMap = new Map<number, number>(toDailyValues(data).map(([ts, value]) => [dayStart(ts), value]));
+	const bars: [number, number][] = [];
+	for (const d = new Date(dayStart(from)); d.getTime() <= to; d.setDate(d.getDate() + 1)) {
+		bars.push([d.getTime(), dailyMap.get(d.getTime()) ?? 0]);
+	}
+	return bars;
+};
+
 // @dev: carries the last known value forward to now, so the line does not end early on days without trades
 const extendToNow = (data: [number, number][], now: number): [number, number][] => {
 	const last = data[data.length - 1];
@@ -44,7 +55,11 @@ export default function MarketChart({ coin = "frankencoin", symbol = "ZCHF" }: M
 		toDailyValues(marketChart[coin].prices).filter((i) => i["0"] > timestamp),
 		now
 	);
-	const volumeList = toDailyValues(marketChart[coin].total_volumes).filter((i) => i["0"] > timestamp);
+	const volumeList = toDailyBars(
+		marketChart[coin].total_volumes.filter((i) => i[0] > timestamp),
+		timestamp,
+		now
+	);
 
 	// @dev: for FCS, compare the market price against the protocol (mint/redeem) price from the daily log
 	const protocolPriceList = isPegged
@@ -246,7 +261,7 @@ export default function MarketChart({ coin = "frankencoin", symbol = "ZCHF" }: M
 						]}
 					/>
 
-					{volumeList.length == 0 ? (
+					{volumeList.every((entry) => entry[1] == 0) ? (
 						<div className="flex justify-center text-text-warning">No data available for selected timeframe.</div>
 					) : null}
 				</div>

@@ -8,6 +8,7 @@ import { useConnection } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import AppButton from "@components/AppButton";
+import AppApproveAction from "@components/AppApproveAction";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
@@ -242,15 +243,16 @@ export default function EquityInteractionWithFPSFCS({ tokenFromTo, setTokenFromT
 				<div className="mx-auto mt-8 w-full flex-col">
 					<GuardSupportedChain chain={mainnet}>
 						{direction ? (
-							amount > fcsStats.fpsAllowanceForFcs ? (
-								<AppButton isLoading={isApproving} disabled={amount == 0n || !!error} onClick={() => handleApprove()}>
-									Approve
-								</AppButton>
-							) : (
-								<AppButton disabled={amount == 0n || !!error} isLoading={isWrapping} onClick={() => handleWrapping()}>
-									Wrap
-								</AppButton>
-							)
+							<AppApproveAction
+								tokenSymbol="FPS"
+								actionLabel="Wrap"
+								needsApproval={amount == 0n || amount > fcsStats.fpsAllowanceForFcs}
+								isApproving={isApproving}
+								isActing={isWrapping}
+								disabled={amount == 0n || !!error}
+								onApprove={() => handleApprove()}
+								onAction={() => handleWrapping()}
+							/>
 						) : (
 							<AppButton
 								isLoading={isUnwrapping}

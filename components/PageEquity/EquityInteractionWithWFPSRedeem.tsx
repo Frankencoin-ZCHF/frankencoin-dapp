@@ -8,6 +8,7 @@ import { useConnection, useChainId } from "wagmi";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import AppButton from "@components/AppButton";
+import AppApproveAction from "@components/AppApproveAction";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
@@ -239,7 +240,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 				/>
 
 				<div className="py-4 text-center z-0">
-<AppButton
+					<AppButton
 						className={`h-10 rounded-full`}
 						width="w-10"
 						onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}
@@ -265,15 +266,16 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 
 				<div className="mx-auto mt-8 w-full flex-col">
 					<GuardSupportedChain chain={mainnet}>
-						{amount > wfpsAllowance ? (
-							<AppButton isLoading={isApproving} disabled={amount == 0n || !!error || !unlocked} onClick={() => handleApprove()}>
-								Approve
-							</AppButton>
-						) : (
-							<AppButton isLoading={isRedeeming} disabled={amount == 0n || !!error || !unlocked} onClick={() => handleRedeem()}>
-								Unwrap and Redeem
-							</AppButton>
-						)}
+						<AppApproveAction
+							tokenSymbol="WFPS"
+							actionLabel="Redeem"
+							needsApproval={amount == 0n || amount > wfpsAllowance}
+							isApproving={isApproving}
+							isActing={isRedeeming}
+							disabled={amount == 0n || !!error || !unlocked}
+							onApprove={() => handleApprove()}
+							onAction={() => handleRedeem()}
+						/>
 					</GuardSupportedChain>
 				</div>
 			</div>
