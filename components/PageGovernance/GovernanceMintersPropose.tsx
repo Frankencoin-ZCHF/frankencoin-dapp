@@ -7,7 +7,15 @@ import { useEffect, useState } from "react";
 import { useConnection, useReadContract } from "wagmi";
 import { WAGMI_CHAIN, WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { ADDRESS, ChainId, ChainIdMain, ChainIdSide, EquityABI, FrankencoinABI, MinterGovernanceABI } from "@frankencoin/zchf";
+import {
+	ADDRESS,
+	BridgedFrankencoinABI,
+	ChainId,
+	ChainIdMain,
+	ChainIdSide,
+	FrankencoinABI,
+	MinterGovernanceABI,
+} from "@frankencoin/zchf";
 import { renderErrorTxToastDecode, TxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import TokenInput from "@components/Input/TokenInput";
@@ -168,7 +176,9 @@ export default function GovernanceMintersPropose({}: Props) {
 
 			setHidden(true);
 		} catch (error) {
-			toast.error(renderErrorTxToastDecode(error, useMinterGovernance ? MinterGovernanceABI : EquityABI));
+			// decode against the contract that was actually called: MinterGovernance, or the (bridged) Frankencoin
+			const errorAbi = useMinterGovernance ? MinterGovernanceABI : chainId == mainnet.id ? FrankencoinABI : BridgedFrankencoinABI;
+			toast.error(renderErrorTxToastDecode(error, errorAbi));
 		} finally {
 			setHandling(false);
 		}

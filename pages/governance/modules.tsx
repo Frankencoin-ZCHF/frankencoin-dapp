@@ -11,7 +11,7 @@ export default function GovernanceModules() {
 
 			<AppTitle title="List of all Minting Modules"></AppTitle>
 
-			<GovernanceMintersTable />
+			<GovernanceMintersTable searchable />
 		</>
 	);
 }
