@@ -177,7 +177,7 @@ export default function TransferActionMainnet({
 				className="h-10"
 				tokenSymbol="ZCHF"
 				actionLabel="Transfer"
-				needsApproval={amount == 0n || allowance < amount}
+				needsApproval={allowance == 0n || allowance < amount}
 				isApproving={isApproving}
 				isActing={isAction}
 				disabled={isHidden || disabled}

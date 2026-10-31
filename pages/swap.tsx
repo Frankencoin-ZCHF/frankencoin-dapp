@@ -302,10 +302,10 @@ export default function Swap() {
 									<AppApproveAction
 										tokenSymbol={fromSymbol}
 										actionLabel="Swap"
-										needsApproval={amount == 0n || amount > swapStats.otherUserAllowance}
+										needsApproval={swapStats.otherUserAllowance == 0n || amount > swapStats.otherUserAllowance}
 										isApproving={isApproving}
 										isActing={isMinting}
-										disabled={!activeMinter || !!error}
+										disabled={amount == 0n || !activeMinter || !!error}
 										onApprove={() => handleApprove()}
 										onAction={() => handleMint()}
 									/>

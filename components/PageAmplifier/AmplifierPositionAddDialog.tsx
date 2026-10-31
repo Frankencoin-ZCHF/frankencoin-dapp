@@ -217,13 +217,14 @@ export default function AmplifierPositionAddDialog({ stats, priceView, position,
 					approvals={[
 						{
 							tokenSymbol: usdSymbol,
-							needsApproval: liquidity == 0n || usdNeeded > stats.usdUserAllowance,
+							needsApproval: usdNeeded > stats.usdUserAllowance || (liquidity == 0n && stats.usdUserAllowance == 0n),
 							isApproving,
 							onApprove: handleApprove,
 						},
 						{
 							tokenSymbol: stats.zchfSymbol,
-							needsApproval: liquidity == 0n || zchfBorrowed > stats.zchfAmplifierAllowance,
+							needsApproval:
+								zchfBorrowed > stats.zchfAmplifierAllowance || (liquidity == 0n && stats.zchfAmplifierAllowance == 0n),
 							isApproving: isApprovingZchf,
 							onApprove: handleApproveZchf,
 							hint: `The amplifier moves the borrowed ${stats.zchfSymbol} from your address into the pool and needs an allowance for that.`,

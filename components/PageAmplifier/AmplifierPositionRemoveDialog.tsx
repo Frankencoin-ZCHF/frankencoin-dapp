@@ -161,7 +161,9 @@ export default function AmplifierPositionRemoveDialog({ stats, position, onClose
 				<AppApproveAction
 					tokenSymbol={stats.zchfSymbol}
 					actionLabel="Remove Liquidity"
-					needsApproval={burnedLiquidity == 0n || needsMinterApproval}
+					needsApproval={
+						needsMinterApproval || (burnedLiquidity == 0n && !stats.minterIsRegistered && stats.zchfMinterAllowance == 0n)
+					}
 					isApproving={isApproving}
 					isActing={isBurning}
 					disabled={!!error || burnedLiquidity == 0n}

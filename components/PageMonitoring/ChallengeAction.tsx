@@ -255,7 +255,7 @@ export default function ChallengeAction({ position, onChallengeSuccess }: Props)
 				<AppApproveAction
 					tokenSymbol={position.collateralSymbol}
 					actionLabel="Challenge"
-					needsApproval={amount == 0n || amount > userAllowance}
+					needsApproval={userAllowance == 0n || amount > userAllowance}
 					isApproving={isApproving}
 					isActing={isChallenging}
 					disabled={!!error || amount == 0n}

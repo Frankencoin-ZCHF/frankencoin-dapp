@@ -280,7 +280,7 @@ export default function EquityInteractionWithZCHFFCS({ tokenFromTo, setTokenFrom
 							<AppApproveAction
 								tokenSymbol="ZCHF"
 								actionLabel="Deposit"
-								needsApproval={amount == 0n || amount > fcsStats.frankenAllowanceForFcs}
+								needsApproval={fcsStats.frankenAllowanceForFcs == 0n || amount > fcsStats.frankenAllowanceForFcs}
 								isApproving={isApproving}
 								isActing={isDepositing}
 								disabled={amount == 0n || !!error}

@@ -87,7 +87,7 @@ export default function VaultInteractionCard({ viewAddress, isViewingOtherAddres
 		return "";
 	};
 
-	const needsApproval = !isUnwrap && amount > 0n && allowance < amount;
+	const needsApproval = !isUnwrap && (allowance == 0n || allowance < amount);
 	const disabled = !address || isViewingOtherAddress || amount === 0n || errorAmount() !== "";
 
 	const onChangeChain = (value: string) => {
@@ -207,7 +207,7 @@ export default function VaultInteractionCard({ viewAddress, isViewingOtherAddres
 								className="h-10"
 								tokenSymbol="ZCHF"
 								actionLabel="Wrap"
-								needsApproval={amount === 0n || allowance < amount}
+								needsApproval={needsApproval}
 								isApproving={isApproving}
 								isActing={isSubmitting}
 								disabled={disabled}

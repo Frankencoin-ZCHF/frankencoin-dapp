@@ -297,7 +297,7 @@ export default function EquityInteractionWithFPSWFPS({ tokenFromTo, setTokenFrom
 							<AppApproveAction
 								tokenSymbol="FPS"
 								actionLabel="Wrap"
-								needsApproval={amount == 0n || amount > fpsAllowance}
+								needsApproval={fpsAllowance == 0n || amount > fpsAllowance}
 								isApproving={isApproving}
 								isActing={isWrapping}
 								disabled={amount == 0n || !!error}

@@ -267,7 +267,7 @@ export default function EquityInteractionWithZCHFFPS({ tokenFromTo, setTokenFrom
 							<AppApproveAction
 								tokenSymbol="ZCHF"
 								actionLabel="Mint"
-								needsApproval={amount == 0n || amount > poolStats.frankenAllowance}
+								needsApproval={poolStats.frankenAllowance == 0n || amount > poolStats.frankenAllowance}
 								isApproving={isApproving}
 								isActing={isInversting}
 								disabled={amount == 0n || !!error}

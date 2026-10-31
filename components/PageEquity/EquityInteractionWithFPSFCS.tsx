@@ -246,7 +246,7 @@ export default function EquityInteractionWithFPSFCS({ tokenFromTo, setTokenFromT
 							<AppApproveAction
 								tokenSymbol="FPS"
 								actionLabel="Wrap"
-								needsApproval={amount == 0n || amount > fcsStats.fpsAllowanceForFcs}
+								needsApproval={fcsStats.fpsAllowanceForFcs == 0n || amount > fcsStats.fpsAllowanceForFcs}
 								isApproving={isApproving}
 								isActing={isWrapping}
 								disabled={amount == 0n || !!error}

@@ -269,7 +269,7 @@ export default function EquityInteractionWithWFPSRedeem({ tokenFromTo, setTokenF
 						<AppApproveAction
 							tokenSymbol="WFPS"
 							actionLabel="Redeem"
-							needsApproval={amount == 0n || amount > wfpsAllowance}
+							needsApproval={wfpsAllowance == 0n || amount > wfpsAllowance}
 							isApproving={isApproving}
 							isActing={isRedeeming}
 							disabled={amount == 0n || !!error || !unlocked}
