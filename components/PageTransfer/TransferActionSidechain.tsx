@@ -3,7 +3,7 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { formatCurrency, shortenAddress } from "@utils";
-import { renderErrorTxToast, TxToast } from "@components/TxToast";
+import { ccipToastRow, renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useConnection, useChainId } from "wagmi";
 import AppButton from "@components/AppButton";
 import { Address, Chain, formatUnits, Hash, parseEther } from "viem";
@@ -136,6 +136,7 @@ export default function TransferActionSidechain({
 					title: "Transaction: ",
 					hash: writeHash,
 				},
+				...(isSameChain ? [] : [ccipToastRow(writeHash)]),
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {

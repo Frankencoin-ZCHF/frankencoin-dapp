@@ -54,6 +54,16 @@ export const renderErrorTxStackToast = (error: any, limit: number) => {
 	);
 };
 
+// Toast row linking a cross-chain transaction to the Chainlink CCIP explorer, which tracks delivery on the destination chain
+export const ccipToastRow = (hash: Hash) => ({
+	title: "CCIP Status: ",
+	value: (
+		<Link href={`https://ccip.chain.link/tx/${hash}`} target="_blank" className="text-link">
+			Track
+		</Link>
+	),
+});
+
 export const TxToast = (props: {
 	title: string;
 	rows: { title: string; value?: string | JSX.Element; hash?: Hash }[];

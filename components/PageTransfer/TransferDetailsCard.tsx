@@ -1,9 +1,9 @@
 import AppCard from "@components/AppCard";
 import { Address, formatUnits, isAddress, zeroAddress } from "viem";
 import AppLink from "@components/AppLink";
-import { useConnection } from "wagmi";
+import { mainnet } from "viem/chains";
 import { ContractUrl, shortenAddress } from "@utils";
-import { SupportedChain } from "@frankencoin/zchf";
+import { ADDRESS, ChainIdSide, SupportedChain } from "@frankencoin/zchf";
 import { CCIPLaneCapacity, formatLaneState } from "../../hooks/useCCIPLaneCapacity";
 
 interface Props {
@@ -16,8 +16,17 @@ interface Props {
 }
 
 export default function TransferDetailsCard({ senderAddress, recipientAddress, chain, recipientChain, ccipFee, lane }: Props) {
-	const { address } = useConnection();
 	const isSameChain = recipientChain?.id == chain?.id;
+
+	// The CCIP message is sent by the contract the user calls (TransferReference on mainnet, BridgedFrankencoin
+	// on sidechains), not by the user's wallet, so the explorer has to be filtered by that contract.
+	const ccipSender: Address | undefined =
+		chain == undefined
+			? undefined
+			: chain.id == mainnet.id
+			? ADDRESS[mainnet.id].transferReference
+			: ADDRESS[chain.id as ChainIdSide]?.ccipBridgedFrankencoin;
+	const ccipExplorerUrl = `https://ccip.chain.link${ccipSender ? `/address/${ccipSender}` : ""}`;
 
 	senderAddress = senderAddress || zeroAddress;
 	recipientAddress = recipientAddress || zeroAddress;
@@ -89,12 +98,7 @@ export default function TransferDetailsCard({ senderAddress, recipientAddress, c
 
 				<div className="flex">
 					<div className="flex-1 text-text-secondary">CCIP Explorer</div>
-					<AppLink
-						className=""
-						label="Check Status"
-						external={true}
-						href={`https://ccip.chain.link${address ? `/address/${address}` : ""}`}
-					/>
+					<AppLink className="" label="All Transfers" external={true} href={ccipExplorerUrl} />
 				</div>
 			</div>
 		</AppCard>
