@@ -25,6 +25,7 @@ interface Props {
 	limitLabel?: string;
 	limitUnit?: string;
 	limitCurrency?: string;
+	limitValue?: string; // optional secondary info shown after the limit, e.g. the balance's value in another currency
 	output?: string | number;
 	note?: string;
 	value?: string;
@@ -52,6 +53,7 @@ export default function TokenInputSelect({
 	limitLabel,
 	limitUnit,
 	limitCurrency,
+	limitValue,
 	output,
 	note,
 	value = "0",
@@ -188,6 +190,7 @@ export default function TokenInputSelect({
 										{formatCurrency(formatUnits(limit, Number(limitDigit)))}
 										{limitUnit}
 										{limitCurrency && ` ${limitCurrency}`}
+										{limitValue && <span className="text-text-secondary"> ({limitValue})</span>}
 									</div>
 								</div>
 							)}
