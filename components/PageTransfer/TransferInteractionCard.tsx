@@ -12,12 +12,13 @@ import { mainnet } from "viem/chains";
 import TransferActionMainnet from "./TransferActionMainnet";
 import TransferActionSidechain from "./TransferActionSidechain";
 import { useUserBalance } from "../../hooks/useUserBalance";
-import { readContract } from "wagmi/actions";
+import { readContract, switchChain } from "wagmi/actions";
 import TransferDetailsCard from "./TransferDetailsCard";
 import { AppKitNetwork } from "@reown/appkit/networks";
 import { useAppKitNetwork } from "@reown/appkit/react";
 import { getChain } from "@utils";
 import { formatLaneAmount, laneRefillLabel, useCCIPLaneCapacity } from "../../hooks/useCCIPLaneCapacity";
+import { useCCIPSupportedDestinations } from "../../hooks/useCCIPSupportedLanes";
 
 export default function TransferInteractionCard() {
 	const router = useRouter();
@@ -41,7 +42,13 @@ export default function TransferInteractionCard() {
 	const [isLoaded, setLoaded] = useState<boolean>(false);
 
 	const isCrossChain = recipientChain.id != chainId;
-	const lane = useCCIPLaneCapacity(chainId, isCrossChain ? (recipientChain.id as ChainId) : undefined);
+	const supportedDestinations = useCCIPSupportedDestinations(chainId);
+	const destinationChains = WAGMI_CHAINS.filter(
+		(c) => c.id == chainId || supportedDestinations == undefined || supportedDestinations.includes(c.id as ChainId)
+	).map((c) => c.name);
+	const isLaneSupported =
+		!isCrossChain || supportedDestinations == undefined || supportedDestinations.includes(recipientChain.id as ChainId);
+	const lane = useCCIPLaneCapacity(chainId, isCrossChain && isLaneSupported ? (recipientChain.id as ChainId) : undefined);
 
 	useEffect(() => {
 		if (isLoaded) {
@@ -51,6 +58,11 @@ export default function TransferInteractionCard() {
 			setLoaded(false);
 		}
 	}, [isLoaded]);
+
+	// a pair without a direct CCIP lane is not offered, fall back to staying on the sender chain
+	useEffect(() => {
+		if (!isLaneSupported && chain) setRecipientChainName(chain.name);
+	}, [isLaneSupported, chain]);
 
 	useEffect(() => {
 		if (reference.length > 0 && !refToggle) setRefToggle(true);
@@ -117,9 +129,16 @@ export default function TransferInteractionCard() {
 	// All lane checks block the transfer: exceeding the outgoing bucket reverts on the source chain, and exceeding the
 	// incoming bucket leaves the message stuck on the destination until the lane has refilled, which can take a long time.
 	const errorAmount = () => {
+		if (!isLaneSupported) return `No direct CCIP lane from ${chain?.name} to ${recipientChain.name}.`;
+		if (isCrossChain && lane.loaded) {
+			const laneError = laneErrorAmount();
+			if (laneError) return laneError;
+		}
 		if (amount > balance) return `Not enough ZCHF in your wallet.`;
-		if (!isCrossChain || !lane.loaded) return "";
+		return "";
+	};
 
+	const laneErrorAmount = () => {
 		const { outbound, inbound } = lane;
 		if (outbound?.isEnabled && amount > outbound.capacity) {
 			return `Exceeds the lane capacity of ${formatLaneAmount(outbound.capacity)} ZCHF from ${chain?.name} to ${
@@ -151,7 +170,10 @@ export default function TransferInteractionCard() {
 
 	const onChangeChain = (value: string) => {
 		const chain = WAGMI_CHAINS.find((c) => c.name == value) as AppKitNetwork;
-		if (chain != undefined) AppKitNetwork.switchNetwork(chain);
+		if (chain == undefined) return;
+		// without a connected wallet AppKit has no chain to switch, so set the chain of the wagmi config directly
+		if (address) AppKitNetwork.switchNetwork(chain);
+		else switchChain(WAGMI_CONFIG, { chainId: chain.id as ChainId });
 	};
 
 	const isDisabled = !isAddress(recipient) || (refToggle && reference.length == 0) || amount == 0n || errorAmount() != "";
@@ -187,6 +209,7 @@ export default function TransferInteractionCard() {
 					error={errorRecipient()}
 					chain={recipientChain?.name}
 					onChangeChain={setRecipientChainName}
+					chains={destinationChains}
 				/>
 
 				<AddressInput
