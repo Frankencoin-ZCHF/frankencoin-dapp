@@ -12,7 +12,7 @@ import { mainnet } from "viem/chains";
 import TransferActionMainnet from "./TransferActionMainnet";
 import TransferActionSidechain from "./TransferActionSidechain";
 import { useUserBalance } from "../../hooks/useUserBalance";
-import { readContract } from "wagmi/actions";
+import { readContract, switchChain } from "wagmi/actions";
 import TransferDetailsCard from "./TransferDetailsCard";
 import { AppKitNetwork } from "@reown/appkit/networks";
 import { useAppKitNetwork } from "@reown/appkit/react";
@@ -129,10 +129,16 @@ export default function TransferInteractionCard() {
 	// All lane checks block the transfer: exceeding the outgoing bucket reverts on the source chain, and exceeding the
 	// incoming bucket leaves the message stuck on the destination until the lane has refilled, which can take a long time.
 	const errorAmount = () => {
-		if (amount > balance) return `Not enough ZCHF in your wallet.`;
 		if (!isLaneSupported) return `No direct CCIP lane from ${chain?.name} to ${recipientChain.name}.`;
-		if (!isCrossChain || !lane.loaded) return "";
+		if (isCrossChain && lane.loaded) {
+			const laneError = laneErrorAmount();
+			if (laneError) return laneError;
+		}
+		if (amount > balance) return `Not enough ZCHF in your wallet.`;
+		return "";
+	};
 
+	const laneErrorAmount = () => {
 		const { outbound, inbound } = lane;
 		if (outbound?.isEnabled && amount > outbound.capacity) {
 			return `Exceeds the lane capacity of ${formatLaneAmount(outbound.capacity)} ZCHF from ${chain?.name} to ${
@@ -164,7 +170,10 @@ export default function TransferInteractionCard() {
 
 	const onChangeChain = (value: string) => {
 		const chain = WAGMI_CHAINS.find((c) => c.name == value) as AppKitNetwork;
-		if (chain != undefined) AppKitNetwork.switchNetwork(chain);
+		if (chain == undefined) return;
+		// without a connected wallet AppKit has no chain to switch, so set the chain of the wagmi config directly
+		if (address) AppKitNetwork.switchNetwork(chain);
+		else switchChain(WAGMI_CONFIG, { chainId: chain.id as ChainId });
 	};
 
 	const isDisabled = !isAddress(recipient) || (refToggle && reference.length == 0) || amount == 0n || errorAmount() != "";
