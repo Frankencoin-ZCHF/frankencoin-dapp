@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { shortenHash, transactionLink } from "@utils";
+import { getChain, shortenHash, transactionLink } from "@utils";
 import { Abi, decodeErrorResult, Hash } from "viem";
-import { WAGMI_CHAIN } from "../app.config";
+import { useChainId } from "wagmi";
+import { ChainId } from "@frankencoin/zchf";
 
 export const renderErrorToast = (error: string | string[]) => {
 	error = typeof error == "string" ? [error] : error;
@@ -68,9 +69,13 @@ export const TxToast = (props: {
 	title: string;
 	rows: { title: string; value?: string | JSX.Element; hash?: Hash }[];
 	success?: boolean;
+	/** Chain the transaction was sent on; defaults to the currently connected chain. Pass it when the wallet can switch chains while the toast is open. */
+	chainId?: ChainId;
 }) => {
 	const { title, rows, success = true } = props;
-	const chain = WAGMI_CHAIN;
+	const connectedChainId = useChainId() as ChainId;
+	// uses the viem default block explorer of the chain, so links match the chain the transaction was sent on
+	const chain = getChain(props.chainId ?? connectedChainId);
 	let reasonLine: number;
 
 	return (

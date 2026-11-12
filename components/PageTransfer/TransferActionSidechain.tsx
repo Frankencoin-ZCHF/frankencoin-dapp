@@ -7,7 +7,7 @@ import { ccipToastRow, renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useConnection, useChainId } from "wagmi";
 import AppButton from "@components/AppButton";
 import { Address, Chain, formatUnits, Hash, parseEther } from "viem";
-import { ADDRESS, BridgedFrankencoinABI, ChainIdSide, SupportedChain } from "@frankencoin/zchf";
+import { ADDRESS, BridgedFrankencoinABI, ChainId, ChainIdSide, SupportedChain } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { track } from "@hooks";
 import { AppKitNetwork } from "@reown/appkit/networks";
@@ -141,10 +141,10 @@ export default function TransferActionSidechain({
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
 				pending: {
-					render: <TxToast title={`Transfer pending...`} rows={toastContent} />,
+					render: <TxToast title={`Transfer pending...`} rows={toastContent} chainId={chainId as ChainId} />,
 				},
 				success: {
-					render: <TxToast title="Transfer successful" rows={toastContent} />,
+					render: <TxToast title="Transfer successful" rows={toastContent} chainId={chainId as ChainId} />,
 				},
 			});
 
