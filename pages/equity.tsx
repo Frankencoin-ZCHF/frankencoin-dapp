@@ -21,7 +21,7 @@ export default function Equity() {
 
 	const fpsYearlyReport = useFPSYearlyReport(resolvedAddress);
 	const equityTrades = useEquityTrades(resolvedAddress);
-	// FPS Price chart annotations only make sense against pure FPS1 invest/redeem trades.
+	// FCS Price chart annotations only make sense against pure FPS1 invest/redeem trades.
 	const fpsTrades = equityTrades.filter((t) => t.kind === "Invested" || t.kind === "Redeemed");
 
 	return (
@@ -66,7 +66,7 @@ export default function Equity() {
 
 			<AppTitle title="Financials">
 				<div className="text-text-secondary">
-					Price and supply history of the underlying Frankencoin Pool Shares (FPS), along with the equity capital and income of the
+					Price and supply history of Frankencoin Shares (FCS), along with the equity capital and income of the
 					Frankencoin Ecosystem.
 				</div>
 			</AppTitle>
