@@ -7,7 +7,7 @@ import { erc20Abi, formatUnits, zeroAddress } from "viem";
 import AppButton from "@components/AppButton";
 import AppApproveAction from "@components/AppApproveAction";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import { WAGMI_CONFIG } from "../../app.config";
@@ -249,7 +249,7 @@ export default function EquityInteractionWithZCHFFCS({ tokenFromTo, setTokenFrom
 						width="w-10"
 						onClick={() => setTokenFromTo({ from: toSymbol, to: fromSymbol })}
 					>
-						<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
+						<FontAwesomeIcon icon={faArrowRightArrowLeft} rotation={90} className="w-5 h-5" />
 					</AppButton>
 				</div>
 

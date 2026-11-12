@@ -9,7 +9,7 @@ import AppApproveAction from "@components/AppApproveAction";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { formatBigInt, shortenAddress } from "@utils";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import { WAGMI_CONFIG } from "../app.config";
@@ -279,7 +279,7 @@ export default function Swap() {
 
 						<div className="py-4 text-center z-0">
 							<AppButton className={`h-10 rounded-full`} width="w-10" onClick={onChangeDirection}>
-								<FontAwesomeIcon icon={faArrowDown} className="w-6 h-6" />
+								<FontAwesomeIcon icon={faArrowRightArrowLeft} rotation={90} className="w-5 h-5" />
 							</AppButton>
 						</div>
 
