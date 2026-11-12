@@ -15,7 +15,7 @@ import { TabInput } from "@components/Input/TabInput";
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const Timeframes = ["All", "1Y", "1Q", "1M", "1W"];
-const TypeCharts = ["FPS Price", "FPS Supply", "ZCHF Supply"];
+const TypeCharts = ["FCS Price", "FCS Supply", "ZCHF Supply"];
 
 interface Props {
 	equityTrades: EquityTrade[];
@@ -230,12 +230,12 @@ export default function EquityFPSDetailsCard({ equityTrades }: Props) {
 
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-2 content-start">
 				<AppBox>
-					<DisplayLabel label="FPS Price" />
+					<DisplayLabel label="FCS Price" />
 					<DisplayAmount amount={poolStats.equityPrice} currency="ZCHF" address={ADDRESS[chainId].frankencoin} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Total Supply" />
-					<DisplayAmount amount={poolStats.equitySupply} currency="FPS" address={ADDRESS[chainId].equity} />
+					<DisplayAmount amount={poolStats.equitySupply} currency="FCS" address={ADDRESS[chainId].equity} />
 				</AppBox>
 				<AppBox>
 					<DisplayLabel label="Market Cap." />
