@@ -8,6 +8,7 @@ export type FcsBindingProgress = {
 	pct: number; // FCS's share of all FPS votes, 0-100
 	fpsSupply: bigint; // total FPS supply
 	fcsFpsBalance: bigint; // FPS held by the FCS contract, i.e. the FPS backing all FCS
+	holdingDuration: number; // Equity.holdingDuration(FCS) in seconds
 	isBinding: boolean; // exact on-chain source of truth (>2/3), not a client-side re-derivation
 };
 
@@ -43,6 +44,13 @@ export const useFcsBindingProgress = (): FcsBindingProgress => {
 				abi: FCSABI,
 				functionName: "isBinding",
 			},
+			{
+				address: ADDRESS[mainnet.id].equity,
+				chainId: mainnet.id,
+				abi: EquityABI,
+				functionName: "holdingDuration",
+				args: [ADDRESS[mainnet.id].fcs],
+			},
 		],
 	});
 
@@ -50,7 +58,8 @@ export const useFcsBindingProgress = (): FcsBindingProgress => {
 	const fpsSupply = data ? decodeBigIntCall(data[1]) : 0n;
 	const fcsFpsBalance = data ? decodeBigIntCall(data[2]) : 0n;
 	const isBinding = data?.[3]?.result === true;
+	const holdingDuration = data ? Number(decodeBigIntCall(data[4])) : 0;
 	const pct = parseFloat(formatUnits(fcsRelativeVotes, 18)) * 100;
 
-	return { pct, fpsSupply, fcsFpsBalance, isBinding };
+	return { pct, fpsSupply, fcsFpsBalance, isBinding, holdingDuration };
 };
