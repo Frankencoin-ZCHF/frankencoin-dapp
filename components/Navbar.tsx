@@ -13,7 +13,7 @@ import { mainnet } from "viem/chains";
 import { normalizeAddress } from "@utils";
 
 const MAIN_ITEMS = [
-	{ to: "/start", name: "Start" },
+	{ to: "/start", name: "Overview" },
 	{ to: "/mint", name: "Borrow" },
 	{ to: "/mypositions", name: "My Positions" },
 	{ to: "/savings", name: "Earn" },

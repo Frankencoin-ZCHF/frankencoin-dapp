@@ -11,7 +11,15 @@ export interface CalcData {
 	fps: [number, number][];
 	/** [unix seconds, yearly rate as a fraction] in chronological order; a rate applies from its timestamp on. */
 	rates: [number, number][];
-	current: { rate: number | null; fpsPrice: number | null; roe12m: number | null; totalSavings: number | null; updated: number | null };
+	current: {
+		rate: number | null;
+		fpsPrice: number | null;
+		roe12m: number | null;
+		/** compound annual return on equity since the first daily log, same method as "All" on frankencoin.com */
+		roeAll: number | null;
+		totalSavings: number | null;
+		updated: number | null;
+	};
 }
 
 interface DailyLog {
@@ -64,6 +72,17 @@ export async function loadCalcData(): Promise<CalcData> {
 		}
 	}
 
+	// Since launch: cumulative net income over the average of first and last equity, as a compound annual rate
+	// (mirrors readRoe("all") in the site's src/utils/fcsStats.ts).
+	let roeAll: number | null = null;
+	const first = logs[0];
+	if (first && last && logs.length > 1) {
+		const net = (l: DailyLog) => num(l.totalInflow) - num(l.totalOutflow);
+		const avgEquity = (num(first.totalEquity) + num(last.totalEquity)) / 2;
+		const years = (Date.now() / 1000 - Number(first.timestamp)) / YEAR_S;
+		if (avgEquity > 0 && years > 0) roeAll = Math.pow(1 + (net(last) - net(first)) / avgEquity, 1 / years) - 1;
+	}
+
 	// Mainnet savings modules; a newer module supersedes older ones from its first rate on.
 	const modules = Object.values(rateRes.data.list?.["1"] ?? {})
 		.map((e) => [...e].sort((a, b) => a.created - b.created))
@@ -83,6 +102,7 @@ export async function loadCalcData(): Promise<CalcData> {
 			rate: rates.length ? rates[rates.length - 1][1] : null,
 			fpsPrice: last ? num(last.fpsPrice) : null,
 			roe12m,
+			roeAll,
 			totalSavings: last ? num(last.totalSavings) : null,
 			updated: lastTs,
 		},
