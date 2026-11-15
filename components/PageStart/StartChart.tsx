@@ -16,8 +16,8 @@ export interface ChartSeries {
 	data: [number, number][];
 	/** drawn on its own right-hand axis, as a line without fill */
 	secondary?: boolean;
-	/** secondary only: draw as steps (a rate that changes on given days) */
-	stepped?: boolean;
+	/** secondary only: mark each data point with a dot (for a series with only a few values) */
+	dots?: boolean;
 	format: (v: number) => string;
 }
 
@@ -54,8 +54,9 @@ export function TimeChart({ series }: { series: ChartSeries[] }) {
 					options={{
 						colors: series.map((s) => s.color),
 						chart: { toolbar: { show: false }, zoom: { enabled: false }, background: "0", animations: { enabled: false } },
-						stroke: { curve: series.map((s) => (s.stepped ? "stepline" : "straight")) as any, width: 2 },
+						stroke: { curve: series.map((s) => (s.secondary ? "smooth" : "straight")) as any, width: 2 },
 						fill: { type: "solid", opacity: series.map((s) => (s.secondary ? 1 : 0.12)) },
+						markers: { size: series.map((s) => (s.dots ? 4 : 0)), strokeWidth: 0, hover: { sizeOffset: 2 } },
 						dataLabels: { enabled: false },
 						legend: { show: false },
 						grid: { borderColor: "rgba(128,128,128,0.12)", strokeDashArray: 4, padding: { top: -10, right: 4 } },

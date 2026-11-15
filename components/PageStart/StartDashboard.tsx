@@ -156,13 +156,9 @@ export default function StartDashboard() {
 	if (rateHistory.length && savingsHistory.length)
 		rateHistory.push([savingsHistory[savingsHistory.length - 1][0], rateHistory[rateHistory.length - 1][1]]);
 	const priceHistory = (calc?.fps ?? []).map(([t, v]) => [t * 1000, v] as [number, number]);
-	// one flat step per calendar year, clipped to the span the price line covers
+	// one point per calendar year, in the middle of the days it covers
 	const roeYears = calc?.roeYears ?? [];
-	const priceFrom = priceHistory[0]?.[0] ?? 0;
-	const roeHistory = roeYears.flatMap((y) => {
-		const v = Math.round(y.roe * 1000) / 10;
-		return [[Math.max(y.from * 1000, priceFrom), v] as [number, number], [y.to * 1000, v] as [number, number]];
-	});
+	const roeHistory = roeYears.map((y) => [((y.from + y.to) / 2) * 1000, Math.round(y.roe * 1000) / 10] as [number, number]);
 	const collateralMap = useSelector((state: RootState) => state.ecosystem.collateralStats?.map ?? {});
 	const collaterals = Object.values(collateralMap)
 		.map((c) => ({ label: c.symbol, values: [c.totalValueLocked?.chf ?? 0, c.totalMinted ?? 0] }))
@@ -244,7 +240,7 @@ export default function StartDashboard() {
 								color: CHART_GREEN,
 								data: rateHistory,
 								secondary: true,
-								stepped: true,
+
 								format: (v) => `${v.toFixed(1)}%`,
 							},
 						]}
@@ -314,7 +310,7 @@ export default function StartDashboard() {
 								color: CHART_GREEN,
 								data: roeHistory,
 								secondary: true,
-								stepped: true,
+								dots: true,
 								format: (v) => `${v.toFixed(0)}%`,
 							},
 						]}
