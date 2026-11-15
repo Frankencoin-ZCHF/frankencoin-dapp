@@ -38,7 +38,6 @@ export default function EquityInteractionCard() {
 							{(roe * 100).toFixed(1)}%
 						</span>
 						return on equity, last 12 months
-						<AppLink className="" label="what if?" href="/start" external={false} />
 					</span>
 				</div>
 			)}

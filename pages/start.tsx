@@ -1,10 +1,8 @@
 import Head from "next/head";
-import { useState } from "react";
 import { useConnection } from "wagmi";
 import { useAppKit } from "@reown/appkit/react";
 import AppTitle from "@components/AppTitle";
 import StartDashboard from "@components/PageStart/StartDashboard";
-import StartCalculator, { CalcGoal } from "@components/PageStart/StartCalculator";
 import { track } from "../hooks/useAnalytics";
 import Link from "next/link";
 
@@ -14,7 +12,6 @@ import Link from "next/link";
  * redirect from "/" keep working.
  */
 export default function StartPage() {
-	const [goal, setGoal] = useState<CalcGoal>("save");
 	const { isConnected } = useConnection();
 	const AppKit = useAppKit();
 
@@ -44,13 +41,6 @@ export default function StartPage() {
 			</AppTitle>
 
 			<StartDashboard />
-
-			<AppTitle title="What would 5'000 be worth today?">
-				<div className="text-text-secondary">
-					Pick a goal and an amount. We use the protocol&apos;s recorded history, straight from the chain.
-				</div>
-			</AppTitle>
-			<StartCalculator goal={goal} onGoalChange={setGoal} />
 
 			<div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
 				{[
