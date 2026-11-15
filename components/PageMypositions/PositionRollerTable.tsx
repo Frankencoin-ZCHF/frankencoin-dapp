@@ -86,7 +86,7 @@ export default function PositionRollerTable({ position }: PositionRollerTablePar
 								<div className="">No open positions available for rolling.</div>
 								<div className="mt-4">
 									<AppButton className="h-10" onClick={() => handleClick(position)}>
-										Propose with new Parameter
+										Create Proposal to Renew this Collateral
 									</AppButton>
 								</div>
 							</div>

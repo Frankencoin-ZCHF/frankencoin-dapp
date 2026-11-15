@@ -1,4 +1,3 @@
-import SavingsGlobalCard from "@components/PageSavings/SavingsGlobalCard";
 import SavingsInteractionCard from "@components/PageSavings/SavingsInteractionCard";
 import Head from "next/head";
 import { useEffect, useState } from "react";
@@ -6,7 +5,7 @@ import { RootState, store } from "../../redux/redux.store";
 import { fetchLeadrate, fetchSavings } from "../../redux/slices/savings.slice";
 import { useConnection, useChainId } from "wagmi";
 import AppTitle from "@components/AppTitle";
-import SavingsRankedBalancesTable from "@components/PageSavings/SavingsRankedBalancesTable";
+import SavingsOverviewCard from "@components/PageSavings/SavingsOverviewCard";
 import AppLink from "@components/AppLink";
 import AppHeroSteps from "@components/AppHeroSteps";
 import SavingsRecentActivitiesTable from "@components/PageSavings/SavingsRecentActivitiesTable";
@@ -14,11 +13,13 @@ import { useRouter } from "next/router";
 import { Address, isAddress, zeroAddress } from "viem";
 import ReportsYearlyTable from "@components/PageReports/ReportsSavingsYearlyTable";
 import { useSelector } from "react-redux";
-import { formatCurrency, getChainByName, normalizeAddress } from "@utils";
+import { formatCurrency, getChain, getChainByName, normalizeAddress } from "@utils";
+import { useSavingsAccounts } from "@hooks";
 import { useAppKitNetwork } from "@reown/appkit/react";
 import { ADDRESS, ChainId } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 import { AppKitNetwork } from "@reown/appkit/networks";
+import { WAGMI_CHAINS } from "../../app.config";
 
 export default function SavingsPage() {
 	const { status } = useSelector((state: RootState) => state.savings.savingsInfo);
@@ -30,6 +31,11 @@ export default function SavingsPage() {
 
 	const queryAddress: Address = normalizeAddress(String(router.query.address));
 	const account = isAddress(queryAddress) ? queryAddress : address ?? zeroAddress;
+	const canAdjust = address != undefined && normalizeAddress(address) == normalizeAddress(account);
+	const isViewingOther = isAddress(queryAddress) && !canAdjust;
+
+	const { accounts, isLoading, updatedAt, refetch } = useSavingsAccounts(account);
+	const selectedSavings = accounts.find((a) => a.chain.id == chainId) ?? accounts[0];
 
 	const queryChain: string = String(router.query.chain).toLowerCase();
 	const [targetChainName, setTargetChainName] = useState("");
@@ -62,6 +68,16 @@ export default function SavingsPage() {
 
 		setTargetChainName(targetChain.name);
 	}, [chainId, queryChain, AppKitNetwork, targetChainName]);
+
+	const onChangeChain = (name: string) => {
+		const chain = WAGMI_CHAINS.find((c) => c.name == name) as AppKitNetwork;
+		if (chain != undefined && chain.id != chainId) AppKitNetwork.switchNetwork(chain);
+	};
+
+	const onSuccess = () => {
+		refetch();
+		store.dispatch(fetchSavings(account == zeroAddress ? undefined : account));
+	};
 
 	return (
 		<>
@@ -97,7 +113,25 @@ export default function SavingsPage() {
 				]}
 			/>
 
-			<SavingsInteractionCard key={`${chainId}:${account}:${address ?? ""}`} account={account} />
+			<section className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-auto">
+				<SavingsOverviewCard
+					account={account}
+					accounts={accounts}
+					isLoading={isLoading}
+					updatedAt={updatedAt}
+					readOnly={isViewingOther}
+					selectedChainId={chainId}
+					onSelectChain={(id) => onChangeChain(getChain(id).name)}
+				/>
+				<SavingsInteractionCard
+					savings={selectedSavings}
+					hasAccount={account != zeroAddress}
+					readOnly={isViewingOther}
+					isLoading={isLoading}
+					onChangeChain={onChangeChain}
+					onSuccess={onSuccess}
+				/>
+			</section>
 
 			<AppTitle title="Yearly Accounts">
 				<div className={`text-text-secondary`}>
@@ -112,7 +146,4 @@ export default function SavingsPage() {
 			<SavingsRecentActivitiesTable />
 		</>
 	);
-}
-function setError(arg0: string) {
-	throw new Error("Function not implemented.");
 }

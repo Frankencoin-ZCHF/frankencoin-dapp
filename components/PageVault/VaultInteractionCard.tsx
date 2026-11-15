@@ -9,6 +9,7 @@ import { AppKitNetwork } from "@reown/appkit/networks";
 import { ADDRESS, ChainId } from "@frankencoin/zchf";
 import AppCard from "@components/AppCard";
 import AppButton from "@components/AppButton";
+import AppApproveAction from "@components/AppApproveAction";
 import AppToggle from "@components/AppToggle";
 import TokenInputChain from "@components/Input/TokenInputChain";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
@@ -86,7 +87,7 @@ export default function VaultInteractionCard({ viewAddress, isViewingOtherAddres
 		return "";
 	};
 
-	const needsApproval = !isUnwrap && amount > 0n && allowance < amount;
+	const needsApproval = !isUnwrap && (allowance == 0n || allowance < amount);
 	const disabled = !address || isViewingOtherAddress || amount === 0n || errorAmount() !== "";
 
 	const onChangeChain = (value: string) => {
@@ -197,14 +198,22 @@ export default function VaultInteractionCard({ viewAddress, isViewingOtherAddres
 
 				<div className="mx-auto my-4 w-full flex-col flex gap-4">
 					<GuardSupportedChain chainId={selectedChainId as ChainId} disabled={isViewingOtherAddress}>
-						{needsApproval ? (
-							<AppButton className="h-10" disabled={isViewingOtherAddress} isLoading={isApproving} onClick={handleApprove}>
-								Approve ZCHF
+						{isUnwrap ? (
+							<AppButton className="h-10" disabled={disabled} isLoading={isSubmitting} onClick={handleSubmit}>
+								Unwrap
 							</AppButton>
 						) : (
-							<AppButton className="h-10" disabled={disabled} isLoading={isSubmitting} onClick={handleSubmit}>
-								{isUnwrap ? "Unwrap" : "Wrap"}
-							</AppButton>
+							<AppApproveAction
+								className="h-10"
+								tokenSymbol="ZCHF"
+								actionLabel="Wrap"
+								needsApproval={needsApproval}
+								isApproving={isApproving}
+								isActing={isSubmitting}
+								disabled={disabled}
+								onApprove={handleApprove}
+								onAction={handleSubmit}
+							/>
 						)}
 					</GuardSupportedChain>
 				</div>

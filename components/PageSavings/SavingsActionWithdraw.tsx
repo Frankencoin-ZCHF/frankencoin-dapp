@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
@@ -12,56 +12,54 @@ import { ChainId, SavingsABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 
 interface Props {
-	owner: Address;
 	savingsModule: Address;
-	balance: bigint;
-	change: bigint;
+	amount: bigint;
+	withdrawAll: boolean;
 	disabled?: boolean;
-	setLoaded?: (val: boolean) => Dispatch<SetStateAction<boolean>>;
-	newReferrer?: Address | undefined;
-	newReferralFeePPM: bigint;
+	onSuccess?: () => void;
 }
 
-export default function SavingsActionWithdraw({
-	owner,
-	savingsModule,
-	balance,
-	change,
-	disabled,
-	setLoaded,
-	newReferrer,
-	newReferralFeePPM,
-}: Props) {
+/**
+ * Partial withdrawals use withdraw(owner, amount). Full withdrawals use adjust(0) instead, which also
+ * sweeps the interest accrued between reading the balance and mining the transaction, leaving exactly zero.
+ */
+export default function SavingsActionWithdraw({ savingsModule, amount, withdrawAll, disabled, onSuccess }: Props) {
 	const [isAction, setAction] = useState<boolean>(false);
-	const [isHidden, setHidden] = useState<boolean>(false);
-	const account = useConnection();
+	const { address } = useConnection();
 	const chainId = useChainId() as ChainId;
 	const chain = getChain(chainId);
 
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
-		if (!account.address || account.address.toLowerCase() != owner.toLowerCase()) return;
+		if (!address) return;
 
 		try {
 			setAction(true);
 
-			const writeHash = await writeContract(WAGMI_CONFIG, {
-				account: owner,
-				address: savingsModule,
-				chainId: chainId,
-				abi: SavingsABI,
-				functionName: "adjust",
-				args: newReferrer != undefined ? [balance, newReferrer, Number(newReferralFeePPM)] : [balance],
-			});
+			const writeHash = withdrawAll
+				? await writeContract(WAGMI_CONFIG, {
+						account: address,
+						address: savingsModule,
+						chainId: chainId,
+						abi: SavingsABI,
+						functionName: "adjust",
+						args: [0n],
+				  })
+				: await writeContract(WAGMI_CONFIG, {
+						account: address,
+						address: savingsModule,
+						chainId: chainId,
+						abi: SavingsABI,
+						functionName: "withdraw",
+						args: [address, amount],
+				  });
 
 			const toastContent = [
 				{
-					title: `Saved amount: `,
-					value: `${formatCurrency(formatUnits(balance, 18))} ZCHF`,
-				},
-				{
 					title: `Withdraw: `,
-					value: `${formatCurrency(formatUnits(change, 18))} ZCHF`,
+					value: withdrawAll
+						? `All (~${formatCurrency(formatUnits(amount, 18))} ZCHF)`
+						: `${formatCurrency(formatUnits(amount, 18))} ZCHF`,
 				},
 				{
 					title: "Transaction: ",
@@ -69,7 +67,7 @@ export default function SavingsActionWithdraw({
 				},
 			];
 
-			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
+			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, chainId, confirmations: 1 }), {
 				pending: {
 					render: <TxToast title={`Withdrawing from savings...`} rows={toastContent} />,
 				},
@@ -78,20 +76,19 @@ export default function SavingsActionWithdraw({
 				},
 			});
 
-			track("savings_withdrawn", { amount: formatUnits(change, 18) });
-			setHidden(true);
+			track("savings_withdrawn", { amount: formatUnits(amount, 18), all: withdrawAll });
+			onSuccess?.();
 		} catch (error) {
 			toast.error(renderErrorTxToast(error));
 		} finally {
-			if (setLoaded != undefined) setLoaded(false);
 			setAction(false);
 		}
 	};
 
 	return (
 		<GuardSupportedChain chain={chain}>
-			<AppButton className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
-				Adjust
+			<AppButton className="h-10" disabled={disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
+				{withdrawAll ? "Withdraw all" : "Withdraw"}
 			</AppButton>
 		</GuardSupportedChain>
 	);

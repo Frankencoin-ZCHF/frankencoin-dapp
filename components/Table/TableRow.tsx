@@ -12,6 +12,8 @@ interface Props {
 	tab: string;
 	rawHeader?: boolean;
 	paddingY?: string;
+	// full-width content below the row, e.g. a hint
+	footer?: React.ReactNode;
 }
 
 export default function TableRow({
@@ -26,6 +28,7 @@ export default function TableRow({
 	classNameMobile = "",
 	rawHeader = false,
 	paddingY,
+	footer,
 }: Props) {
 	return (
 		<div
@@ -47,6 +50,8 @@ export default function TableRow({
 				{/* @dev: this is desktop/mobile action view */}
 				{actionCol && <div className="flex-shrink-0 md:w-[8rem] md:ml-[2rem] max-md:w-full my-2">{actionCol}</div>}
 			</div>
+
+			{footer && <div className="sm:pl-8 mt-2">{footer}</div>}
 		</div>
 	);
 }

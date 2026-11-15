@@ -9,7 +9,7 @@ import { ADDRESS, CloneHelperABI, MintingHubV2ABI } from "@frankencoin/zchf";
 import { WAGMI_CONFIG } from "../../app.config";
 import { formatBigInt, shortenAddress, toTimestamp } from "@utils";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
-import AppButton from "@components/AppButton";
+import AppApproveAction from "@components/AppApproveAction";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { mainnet } from "viem/chains";
 import { track } from "@hooks";
@@ -159,15 +159,16 @@ export default function BorrowClonePriceAction({
 
 	return (
 		<GuardSupportedChain chain={mainnet}>
-			{requiredColl > userAllowance ? (
-				<AppButton disabled={disabled || requiredColl > userBalance} isLoading={isApproving} onClick={() => handleApprove()}>
-					Approve
-				</AppButton>
-			) : (
-				<AppButton disabled={disabled || requiredColl > userBalance} isLoading={isCloning} onClick={() => handleCloneWithPrice()}>
-					Borrow
-				</AppButton>
-			)}
+			<AppApproveAction
+				tokenSymbol={position.collateralSymbol}
+				actionLabel="Borrow ZCHF"
+				needsApproval={requiredColl > userAllowance}
+				isApproving={isApproving}
+				isActing={isCloning}
+				disabled={disabled || requiredColl > userBalance}
+				onApprove={() => handleApprove()}
+				onAction={() => handleCloneWithPrice()}
+			/>
 		</GuardSupportedChain>
 	);
 }

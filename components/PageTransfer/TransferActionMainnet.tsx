@@ -3,9 +3,9 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CHAINS, WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { formatCurrency, shortenAddress } from "@utils";
-import { renderErrorTxToast, TxToast } from "@components/TxToast";
+import { ccipToastRow, renderErrorTxToast, TxToast } from "@components/TxToast";
 import { useConnection } from "wagmi";
-import AppButton from "@components/AppButton";
+import AppApproveAction from "@components/AppApproveAction";
 import { Address, Chain, formatUnits, Hash, maxUint256 } from "viem";
 import { ADDRESS, ChainIdSide, FrankencoinABI, SupportedChain, TransferReferenceABI } from "@frankencoin/zchf";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
@@ -151,6 +151,7 @@ export default function TransferActionMainnet({
 					title: "Transaction: ",
 					hash: writeHash,
 				},
+				...(isSameChain ? [] : [ccipToastRow(writeHash)]),
 			];
 
 			await toast.promise(waitForTransactionReceipt(WAGMI_CONFIG, { hash: writeHash, confirmations: 1 }), {
@@ -173,15 +174,17 @@ export default function TransferActionMainnet({
 
 	return (
 		<GuardSupportedChain chain={mainnet}>
-			{allowance < amount ? (
-				<AppButton className="h-10" disabled={isHidden || disabled} isLoading={isApproving} onClick={(e) => handleApprove(e)}>
-					Approve
-				</AppButton>
-			) : (
-				<AppButton className="h-10" disabled={isHidden || disabled} isLoading={isAction} onClick={(e) => handleOnClick(e)}>
-					Transfer
-				</AppButton>
-			)}
+			<AppApproveAction
+				className="h-10"
+				tokenSymbol="ZCHF"
+				actionLabel="Transfer"
+				needsApproval={allowance == 0n || allowance < amount}
+				isApproving={isApproving}
+				isActing={isAction}
+				disabled={isHidden || disabled}
+				onApprove={() => handleApprove({ preventDefault: () => {} })}
+				onAction={() => handleOnClick({ preventDefault: () => {} })}
+			/>
 		</GuardSupportedChain>
 	);
 }
