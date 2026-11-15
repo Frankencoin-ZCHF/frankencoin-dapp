@@ -101,7 +101,6 @@ export default function StartDashboard() {
 	const fpsInfo = useSelector((state: RootState) => state.ecosystem.fpsInfo);
 	const { data: calc } = useCalcData();
 	const roeAll = calc?.current.roeAll ?? null;
-	const roe12m = calc?.current.roe12m ?? null;
 	const fcsPrice = fpsInfo?.token?.price || calc?.current.fpsPrice || 0;
 
 	// ZCHF in the wallet, all chains
@@ -157,7 +156,13 @@ export default function StartDashboard() {
 	if (rateHistory.length && savingsHistory.length)
 		rateHistory.push([savingsHistory[savingsHistory.length - 1][0], rateHistory[rateHistory.length - 1][1]]);
 	const priceHistory = (calc?.fps ?? []).map(([t, v]) => [t * 1000, v] as [number, number]);
-	const roeHistory = (calc?.roe ?? []).map(([t, v]) => [t * 1000, Math.round(v * 1000) / 10] as [number, number]);
+	// one flat step per calendar year, clipped to the span the price line covers
+	const roeYears = calc?.roeYears ?? [];
+	const priceFrom = priceHistory[0]?.[0] ?? 0;
+	const roeHistory = roeYears.flatMap((y) => {
+		const v = Math.round(y.roe * 1000) / 10;
+		return [[Math.max(y.from * 1000, priceFrom), v] as [number, number], [y.to * 1000, v] as [number, number]];
+	});
 	const collateralMap = useSelector((state: RootState) => state.ecosystem.collateralStats?.map ?? {});
 	const collaterals = Object.values(collateralMap)
 		.map((c) => ({ label: c.symbol, values: [c.totalValueLocked?.chf ?? 0, c.totalMinted ?? 0] }))
@@ -305,10 +310,11 @@ export default function StartDashboard() {
 						series={[
 							{ name: "FCS price in ZCHF", color: CHART_BLUE, data: priceHistory, format: (v) => whole(v) },
 							{
-								name: "Return on equity, trailing 12 months",
+								name: "Return on equity per year, annualized",
 								color: CHART_GREEN,
 								data: roeHistory,
 								secondary: true,
+								stepped: true,
 								format: (v) => `${v.toFixed(0)}%`,
 							},
 						]}
@@ -318,8 +324,11 @@ export default function StartDashboard() {
 					fcs.fcsBalance > 0n
 						? { value: `${amount(fcsValue)} ZCHF`, label: "value of your FCS at the current price", own: true }
 						: { value: fcsPrice ? `${whole(fcsPrice)} ZCHF` : null, label: "price of one FCS" },
-					{ value: roeAll === null ? null : pct(roeAll, 1), label: "a year, return on equity since launch" },
-					{ value: roe12m === null ? null : pct(roe12m, 1), label: "return on equity, last 12 months" },
+					...roeYears.map((y) => ({
+						value: pct(y.roe, 1),
+						label: y.complete ? `return on equity in ${y.year}` : `in ${y.year} so far, annualized`,
+					})),
+					{ value: roeAll === null ? null : pct(roeAll, 1), label: "a year since launch" },
 				]}
 			>
 				<Action href="/equity" label={fcs.fcsBalance > 0n ? "Invest more" : "Get FCS"} event="overview_invest" />

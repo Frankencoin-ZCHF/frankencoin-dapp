@@ -11,8 +11,8 @@ export interface CalcData {
 	fps: [number, number][];
 	/** [unix seconds, ZCHF held in all savings modules] weekly samples + the latest day */
 	savings: [number, number][];
-	/** [unix seconds, return on equity over the 12 months before that day, as a fraction] weekly samples + the latest day */
-	roe: [number, number][];
+	/** annualized return on equity per calendar year, oldest first; the current year runs to today */
+	roeYears: RoeYear[];
 	/** [unix seconds, yearly rate as a fraction] in chronological order; a rate applies from its timestamp on. */
 	rates: [number, number][];
 	current: {
@@ -25,6 +25,19 @@ export interface CalcData {
 		updated: number | null;
 	};
 }
+
+export interface RoeYear {
+	year: number;
+	/** unix seconds of the first and last day counted */
+	from: number;
+	to: number;
+	roe: number;
+	/** false for the running year */
+	complete: boolean;
+}
+
+/** first calendar year with a full year of protocol history */
+const ROE_FIRST_YEAR = 2024;
 
 interface DailyLog {
 	timestamp: string;
@@ -83,23 +96,27 @@ export async function loadCalcData(): Promise<CalcData> {
 		}
 	}
 
-	// The same trailing-12-month figure for every week that has a full year of logs behind it.
-	const roe: [number, number][] = [];
+	// Per calendar year, annualized: net income of the year over the average of its first and last equity,
+	// scaled to a full year (mirrors the year buttons on frankencoin.com, src/utils/fcsStats.ts).
+	const roeYears: RoeYear[] = [];
 	if (logs.length) {
 		const net = (l: DailyLog) => num(l.totalInflow) - num(l.totalOutflow);
-		const firstTs = Number(logs[0].timestamp);
-		let from = 0;
-		let kept = -Infinity;
-		logs.forEach((l, i) => {
-			const ts = Number(l.timestamp);
-			if (ts - firstTs < YEAR_S) return;
-			if (ts - kept < WEEK_S && i != logs.length - 1) return;
-			while (Number(logs[from].timestamp) < ts - YEAR_S) from++;
-			const start = logs[from];
-			const avgEquity = (num(start.totalEquity) + num(l.totalEquity)) / 2;
-			if (avgEquity > 0) roe.push([ts, (net(l) - net(start)) / avgEquity]);
-			kept = ts;
-		});
+		const nowS = Date.now() / 1000;
+		for (let year = ROE_FIRST_YEAR; year <= new Date().getUTCFullYear(); year++) {
+			const from = Date.UTC(year, 0, 1) / 1000;
+			const to = Date.UTC(year + 1, 0, 1) / 1000;
+			const slice = logs.filter((l) => Number(l.timestamp) >= from && Number(l.timestamp) < to);
+			if (slice.length < 2) continue;
+			const first = slice[0];
+			const final = slice[slice.length - 1];
+			const firstTs = Number(first.timestamp);
+			const complete = to <= nowS;
+			const end = complete ? Number(final.timestamp) : Math.min(nowS, to);
+			const avgEquity = (num(first.totalEquity) + num(final.totalEquity)) / 2;
+			const years = (end - firstTs) / YEAR_S;
+			if (avgEquity <= 0 || years <= 0) continue;
+			roeYears.push({ year, from: firstTs, to: end, roe: (net(final) - net(first)) / avgEquity / years, complete });
+		}
 	}
 
 	// Since launch: cumulative net income over the average of first and last equity, as a compound annual rate
@@ -128,7 +145,7 @@ export async function loadCalcData(): Promise<CalcData> {
 	return {
 		fps,
 		savings,
-		roe,
+		roeYears,
 		rates,
 		current: {
 			rate: rates.length ? rates[rates.length - 1][1] : null,
