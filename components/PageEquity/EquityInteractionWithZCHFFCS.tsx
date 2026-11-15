@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useFCSStats, track } from "@hooks";
+import { useFCSStats, useZchfWalletBalance, track } from "@hooks";
 import { formatBigInt, formatCurrency, shortenAddress } from "@utils";
 import { useConnection, useReadContract } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
@@ -12,6 +12,7 @@ import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import { toast } from "react-toastify";
 import { WAGMI_CONFIG } from "../../app.config";
 import TokenInputSelect from "@components/Input/TokenInputSelect";
+import BuyZchf from "@components/BuyZchf";
 import { ADDRESS, FCSABI } from "@frankencoin/zchf";
 import { mainnet } from "viem/chains";
 import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
@@ -33,6 +34,9 @@ export default function EquityInteractionWithZCHFFCS({ tokenFromTo, setTokenFrom
 	const chainId = mainnet.id;
 	const account = address || zeroAddress;
 	const direction: boolean = tokenFromTo.from === "ZCHF";
+	const zchf = useZchfWalletBalance();
+	// paying with ZCHF while the wallet holds none (or no wallet is connected): point to where it can be bought
+	const offerBuy = direction && (!zchf.isConnected || (zchf.isKnown && zchf.total == 0n));
 	const fcsStats = useFCSStats();
 
 	useEffect(() => {
@@ -242,6 +246,7 @@ export default function EquityInteractionWithZCHFFCS({ tokenFromTo, setTokenFrom
 					limitLabel="Balance"
 					limitValue={direction ? undefined : fcsValueLabel}
 				/>
+				{offerBuy ? <BuyZchf variant="inline" source="equity" className="mt-2 px-1" /> : null}
 
 				<div className="py-4 text-center z-0">
 					<AppButton

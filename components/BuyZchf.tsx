@@ -8,6 +8,8 @@ export interface BuyZchfOption {
 	type: string;
 	// button label in the compact variant
 	label: string;
+	// link text in the inline variant
+	short: string;
 	description: string;
 	href: string;
 }
@@ -19,6 +21,7 @@ export const BUY_ZCHF_OPTIONS: BuyZchfOption[] = [
 		name: "Kraken",
 		type: "Exchange",
 		label: "Kraken",
+		short: "Kraken",
 		description: "Buy ZCHF on the exchange and withdraw it to your own wallet.",
 		href: "https://www.kraken.com/buy/zchf",
 	},
@@ -27,6 +30,7 @@ export const BUY_ZCHF_OPTIONS: BuyZchfOption[] = [
 		name: "Mt Pelerin",
 		type: "Bank transfer",
 		label: "Bank transfer · Mt Pelerin",
+		short: "Mt Pelerin",
 		description: "Swiss-regulated on-ramp. Pay from a Swiss or SEPA account, 0% fees.",
 		href: "https://www.mtpelerin.com/buy-zchf-frankencoin",
 	},
@@ -35,6 +39,7 @@ export const BUY_ZCHF_OPTIONS: BuyZchfOption[] = [
 		name: "DFX",
 		type: "Bank transfer",
 		label: "Bank transfer · DFX",
+		short: "DFX",
 		description: "Swiss on-ramp. Bank transfer in, ZCHF straight to your wallet.",
 		href: "https://dfx.swiss/app?type=buy&asset-out=ZCHF",
 	},
@@ -43,6 +48,7 @@ export const BUY_ZCHF_OPTIONS: BuyZchfOption[] = [
 		name: "ether.fi",
 		type: "Bank transfer",
 		label: "Bank transfer · ether.fi",
+		short: "ether.fi",
 		description: "Send CHF to your personal Swiss IBAN in ether.fi and receive ZCHF.",
 		href: "https://www.ether.fi/app/cash/bank/chf",
 	},
@@ -51,14 +57,16 @@ export const BUY_ZCHF_OPTIONS: BuyZchfOption[] = [
 		name: "CoW Swap",
 		type: "Swap",
 		label: "Swap crypto",
+		short: "Swap",
 		description: "Already hold USDC, USDT or ETH? Swap it for ZCHF on Ethereum.",
 		href: "https://swap.cow.fi/#/1/swap/USDC/ZCHF",
 	},
 ];
 
 interface Props {
-	// "cards" lists every option with a description, "buttons" is a compact row for use inside other cards
-	variant?: "cards" | "buttons";
+	// "cards" lists every option with a description, "buttons" is a compact row of buttons,
+	// "inline" is one small line of links that sits next to a zero balance inside another card
+	variant?: "cards" | "buttons" | "inline";
 	title?: string;
 	text?: string;
 	// where the offer is shown, used for analytics only
@@ -91,6 +99,27 @@ export default function BuyZchf({ variant = "buttons", title, text, source, clas
 							/>
 						</span>
 						<span className="text-sm text-text-secondary">{o.description}</span>
+					</a>
+				))}
+			</div>
+		);
+	}
+
+	if (variant == "inline") {
+		return (
+			<div className={`flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm ${className ?? ""}`}>
+				<span className="text-text-secondary">{title ?? "Buy ZCHF:"}</span>
+				{BUY_ZCHF_OPTIONS.map((o) => (
+					<a
+						key={o.key}
+						href={o.href}
+						target="_blank"
+						rel="noreferrer"
+						title={o.description}
+						onClick={() => onClick(o.key)}
+						className="font-semibold text-card-input-max hover:text-card-input-hover"
+					>
+						{o.short}
 					</a>
 				))}
 			</div>

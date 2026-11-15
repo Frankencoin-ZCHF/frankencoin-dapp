@@ -67,7 +67,7 @@ export default function SavingsPreconnectCard({ rate }: Props) {
 			>
 				Connect wallet to deposit
 			</button>
-			<BuyZchf title="No ZCHF yet?" text="Buy it first, then come back to deposit." source="savings_preconnect" />
+			<BuyZchf variant="inline" source="savings_preconnect" className="justify-center" />
 		</AppCard>
 	);
 }

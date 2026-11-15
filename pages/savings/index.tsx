@@ -7,8 +7,6 @@ import { useConnection, useChainId } from "wagmi";
 import AppTitle from "@components/AppTitle";
 import SavingsOverviewCard from "@components/PageSavings/SavingsOverviewCard";
 import SavingsPreconnectCard from "@components/PageSavings/SavingsPreconnectCard";
-import AppCard from "@components/AppCard";
-import BuyZchf from "@components/BuyZchf";
 import AppLink from "@components/AppLink";
 import AppHeroSteps from "@components/AppHeroSteps";
 import SavingsRecentActivitiesTable from "@components/PageSavings/SavingsRecentActivitiesTable";
@@ -120,16 +118,6 @@ export default function SavingsPage() {
 				]}
 			/>
 
-			{hasNoZchf ? (
-				<AppCard>
-					<BuyZchf
-						title="Your wallet holds no ZCHF yet"
-						text="Buy ZCHF first, then deposit it here to earn interest."
-						source="savings_zero_balance"
-					/>
-				</AppCard>
-			) : null}
-
 			<section className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-auto">
 				{account == zeroAddress ? (
 					<SavingsPreconnectCard rate={saveRate} />
@@ -140,6 +128,7 @@ export default function SavingsPage() {
 						isLoading={isLoading}
 						updatedAt={updatedAt}
 						readOnly={isViewingOther}
+						offerBuy={hasNoZchf}
 						selectedChainId={chainId}
 						onSelectChain={(id) => onChangeChain(getChain(id).name)}
 					/>
