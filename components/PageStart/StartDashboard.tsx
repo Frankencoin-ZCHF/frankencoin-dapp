@@ -150,9 +150,10 @@ export default function StartDashboard() {
 	// charts
 	const backing = useBackingHistory();
 	const lastBacking = backing[backing.length - 1];
-	const savingsHistory = (calc?.savings ?? []).map(([t, v]) => [t * 1000, v] as [number, number]);
-	const savingsFrom = savingsHistory[0]?.[0] ?? 0;
-	const rateHistory = (calc?.rates ?? []).map(([t, r]) => [Math.max(t * 1000, savingsFrom), r * 100] as [number, number]);
+	// the savings chart starts with the first recorded savings rate; before that there is no rate to show
+	const savingsFrom = (calc?.rates[0]?.[0] ?? 0) * 1000;
+	const savingsHistory = (calc?.savings ?? []).map(([t, v]) => [t * 1000, v] as [number, number]).filter(([t]) => t >= savingsFrom);
+	const rateHistory = (calc?.rates ?? []).map(([t, r]) => [t * 1000, r * 100] as [number, number]);
 	if (rateHistory.length && savingsHistory.length)
 		rateHistory.push([savingsHistory[savingsHistory.length - 1][0], rateHistory[rateHistory.length - 1][1]]);
 	const priceHistory = (calc?.fps ?? []).map(([t, v]) => [t * 1000, v] as [number, number]);
