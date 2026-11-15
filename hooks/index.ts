@@ -39,3 +39,4 @@ export * from "./useUnannouncedMinter";
 export * from "./useCCIPLaneCapacity";
 export * from "./useLiveBlockNumber";
 export * from "./useCalcData";
+export * from "./useZchfWalletBalance";

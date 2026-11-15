@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useConnection } from "wagmi";
 import { useAppKit } from "@reown/appkit/react";
 import AppTitle from "@components/AppTitle";
-import AppLink from "@components/AppLink";
+import BuyZchf from "@components/BuyZchf";
 import StartPaths from "@components/PageStart/StartPaths";
 import StartCalculator, { CalcGoal } from "@components/PageStart/StartCalculator";
 import { track } from "../hooks/useAnalytics";
@@ -21,25 +21,15 @@ export default function StartPage() {
 	const steps = [
 		{
 			title: "Get ZCHF",
-			body: "Bank transfer from any Swiss or SEPA account (Mt Pelerin, 0% fees), or swap from USDC, USDT or ETH.",
+			body: "Buy on Kraken, by bank transfer from a Swiss or SEPA account, or swap from USDC, USDT or ETH.",
 			action: (
-				<div className="flex flex-col gap-1">
-					<a
-						href="https://www.mtpelerin.com/buy-zchf-frankencoin"
-						target="_blank"
-						rel="noreferrer"
-						onClick={() => track("start_step_buy")}
-						className="btn bg-button-default text-white hover:bg-button-hover py-2 text-sm"
-					>
-						Buy with bank transfer
-					</a>
-					<AppLink
-						className="text-sm text-center"
-						label="Swap crypto instead"
-						href="https://swap.cow.fi/#/1/swap/USDC/ZCHF"
-						external
-					/>
-				</div>
+				<a
+					href="#buy-zchf"
+					onClick={() => track("start_step_buy")}
+					className="btn bg-button-default text-white hover:bg-button-hover py-2 text-sm"
+				>
+					See the options
+				</a>
 			),
 		},
 		{
@@ -86,11 +76,23 @@ export default function StartPage() {
 
 			<AppTitle title="Start here">
 				<div className="text-text-secondary">
-					Three ways to take part in the digital Swiss franc. See the real numbers first, then do it in three steps. No account
-					with Frankencoin: you keep your own keys.
+					Take part in the digital Swiss franc: buy ZCHF, then save, invest or borrow. No account with Frankencoin: you keep your
+					own keys.
 				</div>
 			</AppTitle>
 
+			<div id="buy-zchf" className="scroll-mt-24">
+				<AppTitle title="First: buy ZCHF">
+					<div className="text-text-secondary">
+						Everything here starts with Frankencoin (ZCHF) in your own wallet. Choose how you want to get it.
+					</div>
+				</AppTitle>
+			</div>
+			<BuyZchf variant="cards" source="start" />
+
+			<AppTitle title="Then: put it to work">
+				<div className="text-text-secondary">Three ways to use your ZCHF. Earn and Invest also drive the calculator below.</div>
+			</AppTitle>
 			<StartPaths goal={goal} onGoalChange={setGoal} />
 
 			<AppTitle title="What would 5'000 be worth today?">

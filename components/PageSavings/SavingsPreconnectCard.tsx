@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAppKit } from "@reown/appkit/react";
 import AppCard from "@components/AppCard";
-import AppLink from "@components/AppLink";
+import BuyZchf from "@components/BuyZchf";
 import { formatCurrency } from "@utils";
 import { track } from "../../hooks/useAnalytics";
 
@@ -67,14 +67,7 @@ export default function SavingsPreconnectCard({ rate }: Props) {
 			>
 				Connect wallet to deposit
 			</button>
-			<div className="text-center text-sm">
-				<AppLink
-					className=""
-					label="No ZCHF yet? Buy by bank transfer (0% fees)"
-					href="https://www.mtpelerin.com/buy-zchf-frankencoin"
-					external
-				/>
-			</div>
+			<BuyZchf title="No ZCHF yet?" text="Buy it first, then come back to deposit." source="savings_preconnect" />
 		</AppCard>
 	);
 }

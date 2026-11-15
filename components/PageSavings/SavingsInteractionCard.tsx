@@ -4,7 +4,7 @@ import AppToggle from "@components/AppToggle";
 import TokenInputChain from "@components/Input/TokenInputChain";
 import AddressInput from "@components/Input/AddressInput";
 import { TabInput } from "@components/Input/TabInput";
-import { SavingsChainAccount } from "@hooks";
+import { SavingsChainAccount, useLocalStorage } from "@hooks";
 import { ContractUrl, formatCurrency, shortenAddress } from "@utils";
 import { Address, formatUnits, isAddress } from "viem";
 import { useEffect, useState } from "react";
@@ -13,6 +13,8 @@ import SavingsActionSave from "./SavingsActionSave";
 import SavingsActionWithdraw from "./SavingsActionWithdraw";
 import SavingsActionInterest from "./SavingsActionInterest";
 import SavingsActionSaveOnBehalf from "./SavingsActionSaveOnBehalf";
+import SavingsActionInterestToFCS from "./SavingsActionInterestToFCS";
+import { mainnet } from "viem/chains";
 
 const TAB_DEPOSIT = "Deposit";
 const TAB_WITHDRAW = "Withdraw";
@@ -37,6 +39,11 @@ export default function SavingsInteractionCard({ savings, hasAccount, readOnly, 
 	const [onbehalfAddress, setOnbehalfAddress] = useState("");
 	const [newReferrer, setNewReferrer] = useState<Address | undefined>(undefined);
 	const [newReferralFeePPM, setNewReferralFeePPM] = useState(0n);
+
+	// remembered per device: accrued interest goes into FCS instead of back into savings or the wallet
+	const [interestToFcsStored, setInterestToFcs] = useLocalStorage("savings_interest_to_fcs");
+	const isMainnet = chain.id == mainnet.id;
+	const interestToFcs = interestToFcsStored === true && isMainnet;
 
 	const isWithdraw = tab == TAB_WITHDRAW;
 	const withdrawAll = isWithdraw && amount > 0n && (isMax || amount == withdrawable);
@@ -137,7 +144,15 @@ export default function SavingsInteractionCard({ savings, hasAccount, readOnly, 
 							disabled={disabled}
 							onSuccess={onActionSuccess}
 						/>
-						{netInterest > 0n ? (
+						{netInterest > 0n && interestToFcs ? (
+							<SavingsActionInterestToFCS
+								savingsModule={module}
+								saved={saved}
+								interest={netInterest}
+								disabled={readOnly || isLoading}
+								onSuccess={onActionSuccess}
+							/>
+						) : netInterest > 0n ? (
 							<SavingsActionInterest
 								savingsModule={module}
 								saved={saved}
@@ -155,6 +170,14 @@ export default function SavingsInteractionCard({ savings, hasAccount, readOnly, 
 						disabled={disabled || onbehalfError != "" || onbehalfAddress == ""}
 						onSuccess={onActionSuccess}
 					/>
+				) : reinvest && interestToFcs ? (
+					<SavingsActionInterestToFCS
+						savingsModule={module}
+						saved={saved}
+						interest={netInterest}
+						disabled={readOnly || isLoading}
+						onSuccess={onActionSuccess}
+					/>
 				) : (
 					<SavingsActionSave
 						savingsModule={module}
@@ -170,6 +193,23 @@ export default function SavingsInteractionCard({ savings, hasAccount, readOnly, 
 					<div className="-mt-2 text-sm text-text-secondary text-center">Also reinvests accrued interest</div>
 				) : null}
 			</div>
+
+			{hasAccount && !readOnly ? (
+				<div className="flex flex-col gap-1 border-t border-card-input-border pt-4">
+					<AppToggle
+						label={isMainnet ? "Put interest into FCS" : "Put interest into FCS (Ethereum only)"}
+						enabled={interestToFcs}
+						disabled={!isMainnet}
+						onChange={setInterestToFcs}
+					/>
+					<div className="text-sm text-text-secondary">
+						{interestToFcs
+							? "Your accrued interest buys Frankencoin Shares instead of being reinvested or paid out. You confirm each conversion in your wallet (up to three transactions). "
+							: "Use your accrued interest to buy Frankencoin Shares, the equity of the protocol. Your savings stay untouched. "}
+						FCS can fall in value. <AppLink className="" label="About FCS" href="/equity" />
+					</div>
+				</div>
+			) : null}
 
 			{!isWithdraw && !onbehalfToggle && !reinvest && newReferrer ? (
 				<div className="text-text-secondary text-sm mt-4">

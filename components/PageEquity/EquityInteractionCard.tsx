@@ -6,7 +6,8 @@ import EquityInteractionWithZCHFFCS from "./EquityInteractionWithZCHFFCS";
 import EquityInteractionWithFPSFCS from "./EquityInteractionWithFPSFCS";
 import AppCard from "@components/AppCard";
 import AppLink from "@components/AppLink";
-import { useCalcData } from "@hooks";
+import BuyZchf from "@components/BuyZchf";
+import { useCalcData, useZchfWalletBalance } from "@hooks";
 
 // All possible paths (for reference):
 // ZCHF: ["FPS", "FCS"],
@@ -25,6 +26,9 @@ export default function EquityInteractionCard() {
 	const involvesFcs = tokenFromTo.from === "FCS" || tokenFromTo.to === "FCS";
 	const { data: calc } = useCalcData();
 	const roe = calc?.current.roe12m ?? null;
+	const zchf = useZchfWalletBalance();
+	// offer to buy ZCHF when paying with ZCHF and the wallet holds none, or no wallet is connected yet
+	const offerBuy = tokenFromTo.from === "ZCHF" && (!zchf.isConnected || (zchf.isKnown && zchf.total == 0n));
 
 	return (
 		<AppCard>
@@ -82,6 +86,16 @@ export default function EquityInteractionCard() {
 					setTokenFromTo={setTokenFromTo}
 					selectorMapping={EquityTokenSelectorMapping}
 				/>
+			) : null}
+
+			{offerBuy ? (
+				<div className="rounded-lg border border-card-input-border p-4">
+					<BuyZchf
+						title={zchf.isConnected ? "Your wallet holds no ZCHF yet" : "No ZCHF yet?"}
+						text="FCS is bought with ZCHF. Buy ZCHF first, then invest here."
+						source="equity"
+					/>
+				</div>
 			) : null}
 
 			<div className="flex flex-wrap justify-center gap-x-6 gap-y-1 pt-2">
