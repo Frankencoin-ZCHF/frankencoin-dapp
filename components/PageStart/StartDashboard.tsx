@@ -157,6 +157,7 @@ export default function StartDashboard() {
 	if (rateHistory.length && savingsHistory.length)
 		rateHistory.push([savingsHistory[savingsHistory.length - 1][0], rateHistory[rateHistory.length - 1][1]]);
 	const priceHistory = (calc?.fps ?? []).map(([t, v]) => [t * 1000, v] as [number, number]);
+	const roeHistory = (calc?.roe ?? []).map(([t, v]) => [t * 1000, Math.round(v * 1000) / 10] as [number, number]);
 	const collateralMap = useSelector((state: RootState) => state.ecosystem.collateralStats?.map ?? {});
 	const collaterals = Object.values(collateralMap)
 		.map((c) => ({ label: c.symbol, values: [c.totalValueLocked?.chf ?? 0, c.totalMinted ?? 0] }))
@@ -238,6 +239,7 @@ export default function StartDashboard() {
 								color: CHART_GREEN,
 								data: rateHistory,
 								secondary: true,
+								stepped: true,
 								format: (v) => `${v.toFixed(1)}%`,
 							},
 						]}
@@ -299,7 +301,18 @@ export default function StartDashboard() {
 						: "No Frankencoin Shares yet"
 				}
 				chart={
-					<TimeChart series={[{ name: "FCS price in ZCHF", color: CHART_BLUE, data: priceHistory, format: (v) => whole(v) }]} />
+					<TimeChart
+						series={[
+							{ name: "FCS price in ZCHF", color: CHART_BLUE, data: priceHistory, format: (v) => whole(v) },
+							{
+								name: "Return on equity, trailing 12 months",
+								color: CHART_GREEN,
+								data: roeHistory,
+								secondary: true,
+								format: (v) => `${v.toFixed(0)}%`,
+							},
+						]}
+					/>
 				}
 				stats={[
 					fcs.fcsBalance > 0n

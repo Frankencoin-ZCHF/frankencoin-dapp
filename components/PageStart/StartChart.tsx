@@ -14,8 +14,10 @@ export interface ChartSeries {
 	color: string;
 	/** [unix milliseconds, value] */
 	data: [number, number][];
-	/** drawn on its own right-hand axis, as a stepped line */
+	/** drawn on its own right-hand axis, as a line without fill */
 	secondary?: boolean;
+	/** secondary only: draw as steps (a rate that changes on given days) */
+	stepped?: boolean;
 	format: (v: number) => string;
 }
 
@@ -52,7 +54,7 @@ export function TimeChart({ series }: { series: ChartSeries[] }) {
 					options={{
 						colors: series.map((s) => s.color),
 						chart: { toolbar: { show: false }, zoom: { enabled: false }, background: "0", animations: { enabled: false } },
-						stroke: { curve: series.map((s) => (s.secondary ? "stepline" : "straight")) as any, width: 2 },
+						stroke: { curve: series.map((s) => (s.stepped ? "stepline" : "straight")) as any, width: 2 },
 						fill: { type: "solid", opacity: series.map((s) => (s.secondary ? 1 : 0.12)) },
 						dataLabels: { enabled: false },
 						legend: { show: false },
@@ -69,7 +71,7 @@ export function TimeChart({ series }: { series: ChartSeries[] }) {
 							seriesName: s.secondary ? s.name : series[0].name,
 							opposite: !!s.secondary,
 							show: i == 0 || !!s.secondary,
-							min: 0,
+							min: Math.min(0, ...s.data.map((d) => d[1])),
 							tickAmount: 3,
 							forceNiceScale: true,
 							labels: { formatter: s.format, style: { fontSize: "11px" } },

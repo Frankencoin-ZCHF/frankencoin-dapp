@@ -11,6 +11,8 @@ export interface CalcData {
 	fps: [number, number][];
 	/** [unix seconds, ZCHF held in all savings modules] weekly samples + the latest day */
 	savings: [number, number][];
+	/** [unix seconds, return on equity over the 12 months before that day, as a fraction] weekly samples + the latest day */
+	roe: [number, number][];
 	/** [unix seconds, yearly rate as a fraction] in chronological order; a rate applies from its timestamp on. */
 	rates: [number, number][];
 	current: {
@@ -81,6 +83,25 @@ export async function loadCalcData(): Promise<CalcData> {
 		}
 	}
 
+	// The same trailing-12-month figure for every week that has a full year of logs behind it.
+	const roe: [number, number][] = [];
+	if (logs.length) {
+		const net = (l: DailyLog) => num(l.totalInflow) - num(l.totalOutflow);
+		const firstTs = Number(logs[0].timestamp);
+		let from = 0;
+		let kept = -Infinity;
+		logs.forEach((l, i) => {
+			const ts = Number(l.timestamp);
+			if (ts - firstTs < YEAR_S) return;
+			if (ts - kept < WEEK_S && i != logs.length - 1) return;
+			while (Number(logs[from].timestamp) < ts - YEAR_S) from++;
+			const start = logs[from];
+			const avgEquity = (num(start.totalEquity) + num(l.totalEquity)) / 2;
+			if (avgEquity > 0) roe.push([ts, (net(l) - net(start)) / avgEquity]);
+			kept = ts;
+		});
+	}
+
 	// Since launch: cumulative net income over the average of first and last equity, as a compound annual rate
 	// (mirrors readRoe("all") in the site's src/utils/fcsStats.ts).
 	let roeAll: number | null = null;
@@ -107,6 +128,7 @@ export async function loadCalcData(): Promise<CalcData> {
 	return {
 		fps,
 		savings,
+		roe,
 		rates,
 		current: {
 			rate: rates.length ? rates[rates.length - 1][1] : null,
