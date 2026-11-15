@@ -9,14 +9,13 @@ import AppCard from "@components/AppCard";
 import BuyZchf from "@components/BuyZchf";
 import { RootState } from "../../redux/redux.store";
 import { formatCurrency, normalizeAddress } from "@utils";
-import { track, useCalcData, useFCSStats, useSavingsAccounts, useZchfWalletBalance } from "@hooks";
+import { track, useBackingHistory, useCalcData, useFCSStats, useSavingsAccounts, useZchfWalletBalance } from "@hooks";
+import { BarChart, CHART_BLUE, CHART_GREEN, TimeChart, shortAmount as short } from "./StartChart";
 
 const num = (wei: bigint) => Number(formatUnits(wei, 18));
 const amount = (wei: bigint, digits = 2) => formatCurrency(formatUnits(wei, 18), digits, digits) ?? "0";
 const whole = (v: number) => formatCurrency(Math.round(v), 0, 0) ?? "0";
 const pct = (f: number, digits = 2) => `${(f * 100).toFixed(digits).replace(/\.?0+$/, "")}%`;
-// protocol-wide totals read better short: 31.1M, 323k
-const short = (v: number) => (v >= 1e6 ? `${(v / 1e6).toFixed(1)}M` : v >= 1e4 ? `${Math.round(v / 1e3)}k` : whole(v));
 const MONTH_S = 30 * 86400;
 
 interface Stat {
@@ -32,36 +31,38 @@ interface RowProps {
 	value: string;
 	unit: string;
 	detail: ReactNode;
+	chart: ReactNode;
 	stats: Stat[];
 	children: ReactNode;
 }
 
-function Row({ label, value, unit, detail, stats, children }: RowProps) {
+function Row({ label, value, unit, detail, chart, stats, children }: RowProps) {
 	return (
-		<AppCard className="p-5 md:p-6 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_13rem] gap-5 lg:items-center">
-			<div className="min-w-0">
-				<div className="text-xs tracking-wider font-bold text-text-secondary">{label.toUpperCase()}</div>
-				<div className="mt-1 flex items-baseline gap-2 flex-wrap">
-					<span className="text-3xl md:text-4xl font-extrabold text-text-primary tabular-nums">{value}</span>
-					<span className="text-lg font-bold text-text-secondary">{unit}</span>
-				</div>
-				<div className="text-sm text-text-secondary">{detail}</div>
-			</div>
-			<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-				{stats.map((s) => (
-					<div key={s.label} className="rounded-lg bg-card-content-primary px-4 py-3">
-						<div
-							className={`text-xl font-black tabular-nums whitespace-nowrap ${
-								s.own ? "text-text-success" : "text-text-primary"
-							}`}
-						>
-							{s.value ?? "…"}
-						</div>
-						<div className="text-xs text-text-secondary leading-snug mt-0.5">{s.label}</div>
+		<AppCard className="p-5 md:p-6 grid grid-cols-1 lg:grid-cols-[15rem_minmax(0,1fr)] gap-x-8 gap-y-5">
+			<div className="min-w-0 flex flex-col gap-4">
+				<div>
+					<div className="text-xs tracking-wider font-bold text-text-secondary">{label.toUpperCase()}</div>
+					<div className="mt-1 flex items-baseline gap-2 flex-wrap">
+						<span className="text-3xl md:text-4xl font-extrabold text-text-primary tabular-nums">{value}</span>
+						<span className="text-lg font-bold text-text-secondary">{unit}</span>
 					</div>
-				))}
+					<div className="text-sm text-text-secondary">{detail}</div>
+				</div>
+				<div className="flex flex-col gap-2">{children}</div>
 			</div>
-			<div className="flex flex-col gap-2 min-w-0">{children}</div>
+			<div className="min-w-0 flex flex-col gap-3">
+				{chart}
+				<div className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
+					{stats.map((s) => (
+						<span key={s.label} className="text-text-secondary">
+							<span className={`font-bold tabular-nums ${s.own ? "text-text-success" : "text-text-primary"}`}>
+								{s.value ?? "…"}
+							</span>{" "}
+							{s.label}
+						</span>
+					))}
+				</div>
+			</div>
 		</AppCard>
 	);
 }
@@ -146,6 +147,22 @@ export default function StartDashboard() {
 	const fcs = useFCSStats();
 	const fcsValue = (fcs.fcsAsk * fcs.fcsBalance) / 10n ** 18n;
 
+	// charts
+	const backing = useBackingHistory();
+	const lastBacking = backing[backing.length - 1];
+	const savingsHistory = (calc?.savings ?? []).map(([t, v]) => [t * 1000, v] as [number, number]);
+	const savingsFrom = savingsHistory[0]?.[0] ?? 0;
+	const rateHistory = (calc?.rates ?? []).map(([t, r]) => [Math.max(t * 1000, savingsFrom), r * 100] as [number, number]);
+	if (rateHistory.length && savingsHistory.length)
+		rateHistory.push([savingsHistory[savingsHistory.length - 1][0], rateHistory[rateHistory.length - 1][1]]);
+	const priceHistory = (calc?.fps ?? []).map(([t, v]) => [t * 1000, v] as [number, number]);
+	const collateralMap = useSelector((state: RootState) => state.ecosystem.collateralStats?.map ?? {});
+	const collaterals = Object.values(collateralMap)
+		.map((c) => ({ label: c.symbol, values: [c.totalValueLocked?.chf ?? 0, c.totalMinted ?? 0] }))
+		.filter((c) => c.values[0] > 0 && c.values[1] > 0)
+		.sort((a, b) => b.values[0] - a.values[0])
+		.slice(0, 6);
+
 	const rateStat: Stat = { value: saveRate ? `${pct(saveRate)}` : null, label: "a year on savings, withdraw any time" };
 
 	return (
@@ -155,16 +172,40 @@ export default function StartDashboard() {
 				value={dash ?? amount(zchf.total)}
 				unit="ZCHF"
 				detail={isConnected ? "in your wallet, on all chains" : "Connect your wallet to see your balance"}
+				chart={
+					<TimeChart
+						series={[
+							{
+								name: "Collateral value",
+								color: CHART_GREEN,
+								data: backing.map((p) => [p.t, Math.round(p.collateral)]),
+								format: (v) => short(v),
+							},
+							{
+								name: "ZCHF in circulation",
+								color: CHART_BLUE,
+								data: backing.map((p) => [p.t, Math.round(p.supply)]),
+								format: (v) => short(v),
+							},
+						]}
+					/>
+				}
 				stats={[
-					zchf.total > 0n && saveRate
-						? {
-								value: `+${whole(num(zchf.total) * saveRate)} ZCHF`,
-								label: `a year if you save this balance at today's ${pct(saveRate)}`,
-								own: true,
-						  }
-						: rateStat,
+					{
+						value: lastBacking ? pct(lastBacking.collateral / lastBacking.supply, 0) : null,
+						label: "collateral value against all ZCHF in circulation",
+					},
 					{ value: supply ? `${short(supply)} ZCHF` : null, label: "in circulation on eight chains" },
-					{ value: collateralChf ? `${short(collateralChf)} ZCHF` : null, label: "collateral securing the open positions" },
+					{ value: collateralChf ? `${short(collateralChf)} ZCHF` : null, label: "collateral in open positions" },
+					...(zchf.total > 0n && saveRate
+						? [
+								{
+									value: `+${whole(num(zchf.total) * saveRate)} ZCHF`,
+									label: `a year if you save your balance at today's ${pct(saveRate)}`,
+									own: true,
+								},
+						  ]
+						: []),
 				]}
 			>
 				<BuyZchf variant="inline" title={zchf.total > 0n ? "Buy more:" : "Buy ZCHF:"} source="overview" />
@@ -186,6 +227,20 @@ export default function StartDashboard() {
 					) : (
 						"Nothing in savings yet"
 					)
+				}
+				chart={
+					<TimeChart
+						series={[
+							{ name: "ZCHF in savings", color: CHART_BLUE, data: savingsHistory, format: (v) => short(v) },
+							{
+								name: "Savings rate",
+								color: CHART_GREEN,
+								data: rateHistory,
+								secondary: true,
+								format: (v) => `${v.toFixed(1)}%`,
+							},
+						]}
+					/>
 				}
 				stats={[
 					yearly > 0n
@@ -216,6 +271,7 @@ export default function StartDashboard() {
 						"No open positions"
 					)
 				}
+				chart={<BarChart names={["Collateral locked", "ZCHF borrowed"]} colors={[CHART_GREEN, CHART_BLUE]} groups={collaterals} />}
 				stats={[
 					my.rate !== null
 						? { value: pct(my.rate), label: "a year, your average interest", own: true }
@@ -240,6 +296,9 @@ export default function StartDashboard() {
 						: fcs.fcsBalance > 0n
 						? "Frankencoin Shares in your wallet"
 						: "No Frankencoin Shares yet"
+				}
+				chart={
+					<TimeChart series={[{ name: "FCS price in ZCHF", color: CHART_BLUE, data: priceHistory, format: (v) => whole(v) }]} />
 				}
 				stats={[
 					fcs.fcsBalance > 0n

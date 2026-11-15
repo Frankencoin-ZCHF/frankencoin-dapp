@@ -9,6 +9,8 @@ import { FRANKENCOIN_API_CLIENT } from "../app.config";
 export interface CalcData {
 	/** [unix seconds, FPS price in ZCHF] weekly samples + the latest day. FCS is priced at the FPS valuation. */
 	fps: [number, number][];
+	/** [unix seconds, ZCHF held in all savings modules] weekly samples + the latest day */
+	savings: [number, number][];
 	/** [unix seconds, yearly rate as a fraction] in chronological order; a rate applies from its timestamp on. */
 	rates: [number, number][];
 	current: {
@@ -48,9 +50,15 @@ export async function loadCalcData(): Promise<CalcData> {
 	]);
 	const logs = logRes.data.logs ?? [];
 	const fps: [number, number][] = [];
+	const savings: [number, number][] = [];
 	let lastKept = -Infinity;
+	let lastSavings = -Infinity;
 	for (const l of logs) {
 		const ts = Number(l.timestamp);
+		if (ts - lastSavings >= WEEK_S) {
+			savings.push([ts, num(l.totalSavings)]);
+			lastSavings = ts;
+		}
 		if (ts < FPS_HISTORY_FROM_S) continue;
 		if (ts - lastKept >= WEEK_S) {
 			fps.push([ts, num(l.fpsPrice)]);
@@ -60,6 +68,7 @@ export async function loadCalcData(): Promise<CalcData> {
 	const last = logs[logs.length - 1];
 	const lastTs = last ? Number(last.timestamp) : null;
 	if (last && fps[fps.length - 1]?.[0] !== lastTs) fps.push([lastTs as number, num(last.fpsPrice)]);
+	if (last && savings[savings.length - 1]?.[0] !== lastTs) savings.push([lastTs as number, num(last.totalSavings)]);
 
 	// Trailing-12-month realised earnings over average equity, as in EquityFPSDetailsCard.
 	let roe12m: number | null = null;
@@ -97,6 +106,7 @@ export async function loadCalcData(): Promise<CalcData> {
 
 	return {
 		fps,
+		savings,
 		rates,
 		current: {
 			rate: rates.length ? rates[rates.length - 1][1] : null,
