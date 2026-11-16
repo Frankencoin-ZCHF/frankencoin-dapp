@@ -70,10 +70,17 @@ export default function EquityInteractionCard() {
 				/>
 			) : null}
 
-			<div className="flex justify-center pt-2">
+			<div className="flex flex-wrap justify-center gap-x-6 gap-y-1 pt-2">
 				<AppLink
 					label="Trade FCS on Enso"
-					href="https://happypath.enso.build/?tokenIn=0xdac17f958d2ee523a2206206994597c13d831ec7&outChainId=1&chainId=1&tokenOut=0xdb861830d9ae2d1fcf99fa0cfd3973de382b0b5b"
+					href="https://app.enso.build/swap?fromChain=1&fromToken=0xdac17f958d2ee523a2206206994597c13d831ec7&toChain=1&toToken=0xdb861830d9ae2d1fcf99fa0cfd3973de382b0b5b"
+					external
+					icon
+					className="flex items-center text-sm"
+				/>
+				<AppLink
+					label="FCS Market Data on CoinGecko"
+					href="https://www.coingecko.com/en/coins/frankencoin-shares"
 					external
 					icon
 					className="flex items-center text-sm"

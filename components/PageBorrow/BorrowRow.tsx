@@ -46,6 +46,9 @@ export default function BorrowRow({ headers, tab, position, bridgeStats, hideMyW
 		formatUnits(walletBalance?.[normalizeAddress(position.collateral)] ?? 0n, position.collateralDecimals)
 	);
 
+	// only show the wallet line for collaterals the user actually holds, a zero balance carries no information
+	const hideBalance = hideMyWallet || collateralBalance === 0;
+
 	const mintable = isBridge
 		? formatUnits(bridgeStats!.bridgeLimit - bridgeStats!.otherBridgeBal, position.collateralDecimals)
 		: formatUnits(BigInt(position.availableForClones), 18);
@@ -71,7 +74,7 @@ export default function BorrowRow({ headers, tab, position, bridgeStats, hideMyW
 						name={position.collateralName}
 						address={position.collateral}
 						price={collTokenPrice}
-						hideMyWallet={hideMyWallet}
+						hideMyWallet={hideBalance}
 						balance={collateralBalance}
 					/>
 				</AppBox>
@@ -81,7 +84,7 @@ export default function BorrowRow({ headers, tab, position, bridgeStats, hideMyW
 						name={position.collateralName}
 						address={position.collateral}
 						price={collTokenPrice}
-						hideMyWallet={hideMyWallet}
+						hideMyWallet={hideBalance}
 						balance={collateralBalance}
 					/>
 				</div>
