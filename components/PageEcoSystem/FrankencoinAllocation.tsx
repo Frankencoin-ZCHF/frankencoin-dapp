@@ -208,6 +208,18 @@ export default function FrankencoinAllocation() {
 				})
 			);
 
+			// Optimism Uniswap V3 ZCHF - USDC (second pool)
+			// https://optimistic.etherscan.io/address/0x56C7e6B073EA8437936B503F583D91d8651EE064
+			dexes.push(
+				readContract(WAGMI_CONFIG, {
+					chainId: optimism.id,
+					address: ADDRESS[optimism.id].ccipBridgedFrankencoin,
+					abi: FrankencoinABI,
+					functionName: "balanceOf",
+					args: ["0x56C7e6B073EA8437936B503F583D91d8651EE064"],
+				})
+			);
+
 			// MEXC
 			// https://etherscan.io/address/0x9642b23ed1e01df1092b92641051881a322f5d4e
 			cexes.push(
