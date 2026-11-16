@@ -12,6 +12,7 @@ interface Props {
 	onOwn?: () => void;
 	onReset?: () => void;
 	onChangeChain?: (value: string) => void;
+	chains?: string[];
 	limitLabel?: string;
 	own?: string;
 	reset?: string;
@@ -32,6 +33,7 @@ export default function AddressInputChain({
 	onOwn = () => {},
 	onReset = () => {},
 	onChangeChain = () => {},
+	chains = WAGMI_CHAINS.map((c) => c.name),
 	limitLabel,
 	own,
 	reset,
@@ -76,12 +78,7 @@ export default function AddressInputChain({
 					/>
 
 					<div className="md:col-span-2">
-						<ChainBySelect
-							chains={WAGMI_CHAINS.map((c) => c.name)}
-							chain={chain}
-							chainOnChange={onChangeChain}
-							invertColors={disabled}
-						/>
+						<ChainBySelect chains={chains} chain={chain} chainOnChange={onChangeChain} invertColors={disabled} />
 					</div>
 				</div>
 
