@@ -2,16 +2,12 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { Address, isAddress, zeroAddress } from "viem";
 import { useConnection } from "wagmi";
-import { store } from "../redux/redux.store";
-import { fetchMarketChart } from "../redux/slices/prices.slice";
-import { useEffect } from "react";
 import { useEquityTrades, useFPSYearlyReport } from "@hooks";
 import AppTitle from "@components/AppTitle";
 import AppLink from "@components/AppLink";
 import AppHeroSteps from "@components/AppHeroSteps";
 import EquityFPSDetailsCard from "@components/PageEquity/EquityFPSDetailsCard";
 import EquityInteractionCard from "@components/PageEquity/EquityInteractionCard";
-import MarketChart from "@components/PageEcoSystem/MarketChart";
 import EquityTradesTable from "@components/PageEquity/EquityTradesTable";
 import ReportsFPSYearlyTable from "@components/PageReports/ReportsFPSYearlyTable";
 
@@ -27,10 +23,6 @@ export default function Equity() {
 	const equityTrades = useEquityTrades(resolvedAddress);
 	// FPS Price chart annotations only make sense against pure FPS1 invest/redeem trades.
 	const fpsTrades = equityTrades.filter((t) => t.kind === "Invested" || t.kind === "Redeemed");
-
-	useEffect(() => {
-		store.dispatch(fetchMarketChart());
-	}, []);
 
 	return (
 		<>
@@ -63,25 +55,22 @@ export default function Equity() {
 						icon: 3,
 						title: "Govern",
 						description:
-							"Team up with other FCS holders to veto protocol extensions or collaterals you don't like, with a lower 1% threshold.",
+							"Team up with other FCS holders to veto protocol extensions or collaterals you don't like.",
 					},
 				]}
 			/>
 
-			<div className="md:mt-8">
-				<section className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-auto">
-					<EquityInteractionCard />
-					<EquityFPSDetailsCard equityTrades={fpsTrades} />
-				</section>
+			<div className="md:mt-8 max-w-2xl mx-auto">
+				<EquityInteractionCard />
 			</div>
 
-			<AppTitle title="Market">
+			<AppTitle title="Financials">
 				<div className="text-text-secondary">
-					This section shows the recent exchange rate and 24h trading volume of FCS on the open market. Data sourced from{" "}
-					<AppLink className="" label="CoinGecko" href="https://www.coingecko.com/en/coins/frankencoin-shares" external={true} />.
+					Price and supply history of the underlying Frankencoin Pool Shares (FPS), along with the equity capital and income of the
+					Frankencoin Ecosystem.
 				</div>
 			</AppTitle>
-			<MarketChart coin="frankencoin-shares" symbol="FCS" />
+			<EquityFPSDetailsCard equityTrades={fpsTrades} />
 
 			{hasAddress && (
 				<>

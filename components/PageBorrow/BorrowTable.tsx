@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQueryV2, PriceQueryObjectArray } from "@frankencoin/api";
 import { Address, erc20Abi, formatUnits, zeroAddress } from "viem";
+import { mainnet } from "viem/chains";
 import { useMemo, useState } from "react";
 import { useConnection, useReadContracts } from "wagmi";
 import { ALL_CATEGORIES, CollateralCategory, collateralMatchesCategories, normalizeAddress } from "@utils";
@@ -54,7 +55,7 @@ export default function BorrowTable() {
 		totalDebtByCollateral
 	);
 
-	// Wallet balance detection for "In my wallet" toggle
+	// Wallet balances, shown per row and used by the "In my wallet" toggle
 	const uniqueCollaterals = useMemo(
 		() => [...new Set(sorted.map((p) => normalizeAddress(p.collateral)))],
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -64,11 +65,12 @@ export default function BorrowTable() {
 	const { data: balanceResults } = useReadContracts({
 		contracts: uniqueCollaterals.map((addr) => ({
 			address: addr,
+			chainId: mainnet.id,
 			abi: erc20Abi,
 			functionName: "balanceOf" as const,
 			args: [walletAddress ?? zeroAddress],
 		})),
-		query: { enabled: !!walletAddress && inMyWallet },
+		query: { enabled: !!walletAddress },
 	});
 
 	const walletBalanceMap = useMemo(() => {

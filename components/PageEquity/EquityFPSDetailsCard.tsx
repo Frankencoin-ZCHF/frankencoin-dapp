@@ -94,126 +94,131 @@ export default function EquityFPSDetailsCard({ equityTrades }: Props) {
 	}
 
 	return (
-		<div className="bg-card-body-primary rounded-lg p-4 grid grid-cols-1 gap-2">
-			<div id="chart-timeline">
+		<div className="bg-card-body-primary rounded-lg p-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
+			{/* @dev: lg:-mb-5 cancels the bottom margin built into TabInput, so the timeframe tabs end flush with the stat boxes. */}
+			<div id="chart-timeline" className="lg:col-span-2 flex flex-col lg:-mb-5">
 				<TabInput tabs={TypeCharts} tab={typechart} setTab={setTypechart} />
 
-				<div className="-m-2">
-					<ApexChart
-						type="area"
-						options={{
-							theme: {
-								monochrome: {
-									color: "#092f62",
-									enabled: true,
-								},
-							},
-							chart: {
-								type: "area",
-								height: 300,
-								dropShadow: {
-									enabled: false,
-								},
-								toolbar: {
-									show: false,
-								},
-								zoom: {
-									enabled: false,
-								},
-								background: "0",
-							},
-							stroke: {
-								width: 3,
-							},
-							dataLabels: {
-								enabled: false,
-							},
-							grid: {
-								show: false,
-							},
-							xaxis: {
-								type: "datetime",
-								labels: {
-									show: false,
-									formatter: (value) => {
-										const date = new Date(value);
-										const d = date.getDate();
-										const m = date.getMonth() + 1;
-										const y = date.getFullYear();
-										return `${d}.${m}.${y}`;
+				{/* @dev: the chart is absolutely positioned so it never dictates the row height. On wide screens the
+				stat boxes on the right set the height and the chart fills whatever space remains between the tabs. */}
+				<div className="relative h-[300px] lg:h-auto lg:flex-1 lg:min-h-[200px]">
+					<div className="absolute -inset-2">
+						<ApexChart
+							type="area"
+							height="100%"
+							options={{
+								theme: {
+									monochrome: {
+										color: "#092f62",
+										enabled: true,
 									},
 								},
-								axisBorder: {
+								chart: {
+									type: "area",
+									dropShadow: {
+										enabled: false,
+									},
+									toolbar: {
+										show: false,
+									},
+									zoom: {
+										enabled: false,
+									},
+									background: "0",
+								},
+								stroke: {
+									width: 3,
+								},
+								dataLabels: {
+									enabled: false,
+								},
+								grid: {
 									show: false,
 								},
-								axisTicks: {
-									show: false,
-								},
-							},
-							yaxis: {
-								min: 0,
-								labels: {
-									show: true,
-									formatter: (value) => {
-										if (typechart == TypeCharts[2]) {
-											return `${Math.round(value / 100000) / 10} Mio`;
-										} else {
-											return value.toString();
-										}
+								xaxis: {
+									type: "datetime",
+									labels: {
+										show: false,
+										formatter: (value) => {
+											const date = new Date(value);
+											const d = date.getDate();
+											const m = date.getMonth() + 1;
+											const y = date.getFullYear();
+											return `${d}.${m}.${y}`;
+										},
+									},
+									axisBorder: {
+										show: false,
+									},
+									axisTicks: {
+										show: false,
 									},
 								},
-								axisBorder: {
-									show: true,
+								yaxis: {
+									min: 0,
+									labels: {
+										show: true,
+										formatter: (value) => {
+											if (typechart == TypeCharts[2]) {
+												return `${Math.round(value / 100000) / 10} Mio`;
+											} else {
+												return value.toString();
+											}
+										},
+									},
+									axisBorder: {
+										show: true,
+									},
+									axisTicks: {
+										show: true,
+									},
 								},
-								axisTicks: {
-									show: true,
+								fill: {
+									type: "gradient",
+									gradient: {
+										shadeIntensity: 0,
+										opacityTo: 0.2,
+										shade: "#e7e7ea",
+										gradientToColors: ["#092f62"],
+									},
 								},
-							},
-							fill: {
-								type: "gradient",
-								gradient: {
-									shadeIntensity: 0,
-									opacityTo: 0.2,
-									shade: "#e7e7ea",
-									gradientToColors: ["#092f62"],
+								annotations: {
+									points: tradeAnnotations,
 								},
-							},
-							annotations: {
-								points: tradeAnnotations,
-							},
-						}}
-						series={[
-							{
-								name: typechart,
-								data:
-									typechart == TypeCharts[2]
-										? // @dev: this is multichain timestamp indexed frankencoin supply
-										  matchingSupply.map((entry) => {
-												return [parseFloat(String(entry.created)) * 1000, entry.supply];
-										  })
-										: matchingLogs.map((entry) => {
-												if (typechart == TypeCharts[1]) {
-													return [
-														parseFloat(entry.timestamp) * 1000,
-														Math.round(parseFloat(formatUnits(entry.fpsTotalSupply, 16))) / 100,
-													];
-													// @dev: this is just mainnet frankencoin supply data
-													// } else if (typechart == TypeCharts[2]) {
-													// 	return [
-													// 		parseFloat(entry.timestamp),
-													// 		Math.round(parseFloat(formatUnits(entry.totalSupply, 16))) / 100,
-													// 	];
-												} else {
-													// typechart == TypeCharts[0]
-													return [
-														parseFloat(entry.timestamp) * 1000,
-														Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100,
-													];
-												}
-										  }),
-							},
-						]}
-					/>
+							}}
+							series={[
+								{
+									name: typechart,
+									data:
+										typechart == TypeCharts[2]
+											? // @dev: this is multichain timestamp indexed frankencoin supply
+											  matchingSupply.map((entry) => {
+													return [parseFloat(String(entry.created)) * 1000, entry.supply];
+											  })
+											: matchingLogs.map((entry) => {
+													if (typechart == TypeCharts[1]) {
+														return [
+															parseFloat(entry.timestamp) * 1000,
+															Math.round(parseFloat(formatUnits(entry.fpsTotalSupply, 16))) / 100,
+														];
+														// @dev: this is just mainnet frankencoin supply data
+														// } else if (typechart == TypeCharts[2]) {
+														// 	return [
+														// 		parseFloat(entry.timestamp),
+														// 		Math.round(parseFloat(formatUnits(entry.totalSupply, 16))) / 100,
+														// 	];
+													} else {
+														// typechart == TypeCharts[0]
+														return [
+															parseFloat(entry.timestamp) * 1000,
+															Math.round(parseFloat(formatUnits(entry.fpsPrice, 16))) / 100,
+														];
+													}
+											  }),
+								},
+							]}
+						/>
+					</div>
 				</div>
 
 				{matchingLogs.length == 0 ? (
@@ -223,7 +228,7 @@ export default function EquityFPSDetailsCard({ equityTrades }: Props) {
 				<TabInput tabs={Timeframes} tab={timeframe} setTab={setTimeframe} />
 			</div>
 
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-2 content-start">
 				<AppBox>
 					<DisplayLabel label="FPS Price" />
 					<DisplayAmount amount={poolStats.equityPrice} currency="ZCHF" address={ADDRESS[chainId].frankencoin} />
