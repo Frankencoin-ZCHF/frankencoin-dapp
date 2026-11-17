@@ -18,6 +18,8 @@ interface Props {
 	interest: bigint;
 	disabled?: boolean;
 	onSuccess?: () => void;
+	/** called with true when the conversion starts and false when it has ended, either way */
+	onBusy?: (busy: boolean) => void;
 }
 
 // accept up to 0.5% fewer shares than quoted, the FCS price moves with every deposit
@@ -29,7 +31,7 @@ const MIN_SHARES_PPM = 995_000n;
  * Any other wallet gets them one after the other: adjust(saved) pays the interest out to the wallet, then
  * (after an approval, if the allowance is too low) exactly that payout is deposited into FCS.
  */
-export default function SavingsActionInterestToFCS({ savingsModule, saved, interest, disabled, onSuccess }: Props) {
+export default function SavingsActionInterestToFCS({ savingsModule, saved, interest, disabled, onSuccess, onBusy }: Props) {
 	const [step, setStep] = useState<string>("");
 	const { address } = useConnection();
 	const chainId = mainnet.id;
@@ -95,6 +97,7 @@ export default function SavingsActionInterestToFCS({ savingsModule, saved, inter
 		if (!address) return;
 
 		let withdrawn = 0n;
+		onBusy?.(true);
 		try {
 			if (await investBatched(address)) return;
 
@@ -191,6 +194,7 @@ export default function SavingsActionInterestToFCS({ savingsModule, saved, inter
 			}
 		} finally {
 			setStep("");
+			onBusy?.(false);
 			onSuccess?.();
 		}
 	};

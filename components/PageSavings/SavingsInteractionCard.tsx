@@ -1,10 +1,11 @@
 import AppCard from "@components/AppCard";
 import AppLink from "@components/AppLink";
+import AppDialog from "@components/AppDialog";
 import AppToggle from "@components/AppToggle";
 import TokenInputChain from "@components/Input/TokenInputChain";
 import AddressInput from "@components/Input/AddressInput";
 import { TabInput } from "@components/Input/TabInput";
-import { SavingsChainAccount, useCalcData } from "@hooks";
+import { SavingsChainAccount, track, useCalcData } from "@hooks";
 import { ContractUrl, formatCurrency, shortenAddress } from "@utils";
 import { Address, formatUnits, isAddress } from "viem";
 import { useEffect, useState } from "react";
@@ -18,6 +19,9 @@ import { mainnet } from "viem/chains";
 
 const TAB_DEPOSIT = "Deposit";
 const TAB_WITHDRAW = "Withdraw";
+const OFFER_TITLE = "Put your interest into Frankencoin Shares";
+const POPUP_CLOSED_KEY = "savings_fcs_popup_closed";
+const POPUP_MIN_INTEREST = 10n ** 18n; // 1 ZCHF
 
 interface Props {
 	savings: SavingsChainAccount;
@@ -44,6 +48,37 @@ export default function SavingsInteractionCard({ savings, hasAccount, readOnly, 
 	const isMainnet = chain.id == mainnet.id;
 	const { data: calc } = useCalcData();
 	const roe = calc?.current.roe12m ?? null;
+	const offerFcs = hasAccount && !readOnly && isMainnet && netInterest > 0n;
+	const offerText = (
+		<>
+			Your {formatCurrency(formatUnits(netInterest, 18))} ZCHF of accrued interest can buy FCS, the equity of the protocol
+			{roe !== null && roe > 0 ? ` (${(roe * 100).toFixed(1)}% return on equity in the last 12 months)` : ""}. Your savings stay
+			untouched. You confirm once in a wallet that can batch transactions, otherwise up to three times. FCS can fall in value.{" "}
+			<AppLink className="" label="About FCS" href="/equity" />
+		</>
+	);
+
+	// The same offer as a popup: once per browser session, and only when the interest is worth a transaction.
+	const [popupClosed, setPopupClosed] = useState(true);
+	const [popupBusy, setPopupBusy] = useState(false);
+	useEffect(() => {
+		try {
+			setPopupClosed(sessionStorage.getItem(POPUP_CLOSED_KEY) == "1");
+		} catch {
+			setPopupClosed(false);
+		}
+	}, []);
+	const popupOpen = popupBusy || (offerFcs && !isLoading && !popupClosed && netInterest >= POPUP_MIN_INTEREST);
+	const closePopup = () => {
+		setPopupClosed(true);
+		try {
+			sessionStorage.setItem(POPUP_CLOSED_KEY, "1");
+		} catch {}
+	};
+	useEffect(() => {
+		if (popupOpen) track("savings_fcs_popup_shown");
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [popupOpen]);
 
 	const isWithdraw = tab == TAB_WITHDRAW;
 	const withdrawAll = isWithdraw && amount > 0n && (isMax || amount == withdrawable);
@@ -178,17 +213,11 @@ export default function SavingsInteractionCard({ savings, hasAccount, readOnly, 
 				) : null}
 			</div>
 
-			{hasAccount && !readOnly && isMainnet && netInterest > 0n ? (
+			{offerFcs ? (
 				<div className="flex flex-col gap-3 rounded-xl bg-card-content-primary p-4">
 					<div>
-						<div className="font-bold text-text-primary">Put your interest into Frankencoin Shares</div>
-						<div className="text-sm text-text-secondary">
-							Your {formatCurrency(formatUnits(netInterest, 18))} ZCHF of accrued interest can buy FCS, the equity of the
-							protocol
-							{roe !== null && roe > 0 ? ` (${(roe * 100).toFixed(1)}% return on equity in the last 12 months)` : ""}. Your
-							savings stay untouched. You confirm once in a wallet that can batch transactions, otherwise up to three times.
-							FCS can fall in value. <AppLink className="" label="About FCS" href="/equity" />
-						</div>
+						<div className="font-bold text-text-primary">{OFFER_TITLE}</div>
+						<div className="text-sm text-text-secondary">{offerText}</div>
 					</div>
 					<SavingsActionInterestToFCS
 						savingsModule={module}
@@ -199,6 +228,29 @@ export default function SavingsInteractionCard({ savings, hasAccount, readOnly, 
 					/>
 				</div>
 			) : null}
+
+			<AppDialog title={OFFER_TITLE} isOpen={popupOpen} onClose={closePopup} preventClose={popupBusy}>
+				<div className="text-text-secondary">{offerText}</div>
+				<SavingsActionInterestToFCS
+					savingsModule={module}
+					saved={saved}
+					interest={netInterest}
+					disabled={isLoading}
+					onBusy={setPopupBusy}
+					onSuccess={() => {
+						closePopup();
+						onActionSuccess();
+					}}
+				/>
+				<button
+					type="button"
+					disabled={popupBusy}
+					onClick={closePopup}
+					className="text-sm font-semibold text-text-secondary hover:text-text-primary disabled:opacity-50"
+				>
+					Not now
+				</button>
+			</AppDialog>
 
 			{!isWithdraw && !onbehalfToggle && !reinvest && newReferrer ? (
 				<div className="text-text-secondary text-sm mt-4">
