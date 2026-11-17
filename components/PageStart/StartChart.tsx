@@ -196,19 +196,19 @@ export interface YearBar {
 
 /** A few yearly figures as columns with the value on top. */
 export function YearBars({ bars, color, format }: { bars: YearBar[]; color: string; format: (v: number) => string }) {
-	if (bars.length == 0) return <Loading height={150} />;
+	if (bars.length == 0) return <Loading height={194} />;
 	const max = Math.max(...bars.map((b) => b.value), 0.0001);
 	return (
-		<div className="flex items-end gap-3 h-full min-h-[150px]">
+		<div className="flex items-end justify-center gap-4 sm:gap-8 h-[194px]">
 			{bars.map((b) => (
-				<div key={b.label} className="flex-1 min-w-[2.75rem] h-full flex flex-col items-center justify-end gap-1.5">
+				<div key={b.label} className="flex-1 max-w-[7rem] h-full flex flex-col items-center justify-end gap-1.5">
 					<span className={`text-sm font-bold tabular-nums ${b.value < 0 ? "text-text-warning" : "text-text-primary"}`}>
 						{format(b.value)}
 					</span>
 					<span
 						className="w-full rounded-md"
 						style={{
-							height: `${Math.max(3, (Math.max(b.value, 0) / max) * 100)}px`,
+							height: `${Math.max(3, (Math.max(b.value, 0) / max) * 130)}px`,
 							background: b.open ? `repeating-linear-gradient(135deg, ${color} 0 4px, ${color}55 4px 8px)` : color,
 						}}
 					/>

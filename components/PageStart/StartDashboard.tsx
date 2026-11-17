@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { useSelector } from "react-redux";
 import { useConnection } from "wagmi";
 import { formatUnits, zeroAddress } from "viem";
@@ -83,13 +83,15 @@ interface PanelProps {
 	value: string | null;
 	caption: string;
 	legend?: { name: string; color: string; dashed?: boolean }[];
+	/** shown instead of a legend, e.g. a switch between two views */
+	aside?: ReactNode;
 	stats?: Stat[];
 	note?: string;
 	children: ReactNode;
 }
 
 /** One protocol chart: the current figure as the headline, its history below, a few figures underneath. */
-function Panel({ label, value, caption, legend, stats, note, children }: PanelProps) {
+function Panel({ label, value, caption, legend, aside, stats, note, children }: PanelProps) {
 	return (
 		<AppCard className="p-5 md:p-6 flex flex-col gap-5 min-w-0">
 			<div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
@@ -100,7 +102,7 @@ function Panel({ label, value, caption, legend, stats, note, children }: PanelPr
 						<span className="text-sm text-text-secondary">{caption}</span>
 					</div>
 				</div>
-				{legend ? <Legend series={legend} /> : null}
+				{aside ?? (legend ? <Legend series={legend} /> : null)}
 			</div>
 			<div className="flex-1 min-w-0">{children}</div>
 			{stats?.length ? (
@@ -195,7 +197,7 @@ export default function StartDashboard() {
 		rateHistory.push([savingsHistory[savingsHistory.length - 1][0], rateHistory[rateHistory.length - 1][1]]);
 	const priceHistory = (calc?.fps ?? []).map(([t, v]) => [t * 1000, v] as [number, number]);
 	const roeYears = calc?.roeYears ?? [];
-	const openYear = roeYears.find((y) => !y.complete);
+	const [fcsView, setFcsView] = useState<"price" | "roe">("price");
 	const backingRatio = lastBacking ? lastBacking.collateral / lastBacking.supply : null;
 	const collateralMap = useSelector((state: RootState) => state.ecosystem.collateralStats?.map ?? {});
 	const collaterals = Object.values(collateralMap)
@@ -366,28 +368,53 @@ export default function StartDashboard() {
 
 				<Panel
 					label="Frankencoin Shares"
-					value={fcsPrice ? `${whole(fcsPrice)} ZCHF` : null}
-					caption="price of one FCS"
-					legend={[
-						{ name: "FCS price", color: CHART_BLUE },
-						{ name: "Return on equity per year", color: CHART_GREEN },
-					]}
-					note={`Return on equity is annualized${
-						openYear ? `; ${openYear.year} covers the year so far` : ""
-					}. Past performance. FCS can fall in value.`}
+					value={fcsView == "price" ? (fcsPrice ? `${whole(fcsPrice)} ZCHF` : null) : roeAll === null ? null : pct(roeAll, 1)}
+					caption={fcsView == "price" ? "price of one FCS" : "return on equity a year, since launch"}
+					aside={
+						<div className="flex rounded-lg bg-card-content-primary p-0.5 text-xs font-semibold">
+							{(["price", "roe"] as const).map((v) => (
+								<button
+									key={v}
+									type="button"
+									aria-pressed={fcsView == v}
+									onClick={() => {
+										setFcsView(v);
+										track("overview_fcs_view", { view: v });
+									}}
+									className={`rounded-md px-3 py-1.5 ${
+										fcsView == v
+											? "bg-card-body-primary text-text-active shadow-sm"
+											: "text-text-secondary hover:text-text-primary"
+									}`}
+								>
+									{v == "price" ? "Price" : "Return on equity"}
+								</button>
+							))}
+						</div>
+					}
+					note={
+						fcsView == "price"
+							? "Price of one FCS in ZCHF. Past performance. FCS can fall in value."
+							: "The protocol's net income in each year, divided by its equity (the reserve FCS holders own), as a yearly rate. Past performance. FCS can fall in value."
+					}
 				>
-					<div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_11rem] gap-6">
+					{fcsView == "price" ? (
 						<TimeChart
 							series={[
 								{ name: "FCS price", color: CHART_BLUE, data: priceHistory, fromZero: false, format: (v) => whole(v) },
 							]}
 						/>
+					) : (
 						<YearBars
-							color={CHART_GREEN}
+							color={CHART_BLUE}
 							format={(v) => `${v.toFixed(1)}%`}
-							bars={roeYears.map((y) => ({ label: String(y.year), value: y.roe * 100, open: !y.complete }))}
+							bars={roeYears.map((y) => ({
+								label: y.complete ? String(y.year) : `${y.year} so far`,
+								value: y.roe * 100,
+								open: !y.complete,
+							}))}
 						/>
-					</div>
+					)}
 				</Panel>
 			</div>
 		</div>
