@@ -4,7 +4,7 @@ import AppToggle from "@components/AppToggle";
 import TokenInputChain from "@components/Input/TokenInputChain";
 import AddressInput from "@components/Input/AddressInput";
 import { TabInput } from "@components/Input/TabInput";
-import { SavingsChainAccount, useLocalStorage } from "@hooks";
+import { SavingsChainAccount, useCalcData } from "@hooks";
 import { ContractUrl, formatCurrency, shortenAddress } from "@utils";
 import { Address, formatUnits, isAddress } from "viem";
 import { useEffect, useState } from "react";
@@ -40,10 +40,10 @@ export default function SavingsInteractionCard({ savings, hasAccount, readOnly, 
 	const [newReferrer, setNewReferrer] = useState<Address | undefined>(undefined);
 	const [newReferralFeePPM, setNewReferralFeePPM] = useState(0n);
 
-	// remembered per device: accrued interest goes into FCS instead of back into savings or the wallet
-	const [interestToFcsStored, setInterestToFcs] = useLocalStorage("savings_interest_to_fcs");
+	// accrued interest can buy FCS, on mainnet only (that is where FCS lives)
 	const isMainnet = chain.id == mainnet.id;
-	const interestToFcs = interestToFcsStored === true && isMainnet;
+	const { data: calc } = useCalcData();
+	const roe = calc?.current.roe12m ?? null;
 
 	const isWithdraw = tab == TAB_WITHDRAW;
 	const withdrawAll = isWithdraw && amount > 0n && (isMax || amount == withdrawable);
@@ -144,15 +144,7 @@ export default function SavingsInteractionCard({ savings, hasAccount, readOnly, 
 							disabled={disabled}
 							onSuccess={onActionSuccess}
 						/>
-						{netInterest > 0n && interestToFcs ? (
-							<SavingsActionInterestToFCS
-								savingsModule={module}
-								saved={saved}
-								interest={netInterest}
-								disabled={readOnly || isLoading}
-								onSuccess={onActionSuccess}
-							/>
-						) : netInterest > 0n ? (
+						{netInterest > 0n ? (
 							<SavingsActionInterest
 								savingsModule={module}
 								saved={saved}
@@ -168,14 +160,6 @@ export default function SavingsInteractionCard({ savings, hasAccount, readOnly, 
 						amount={amount}
 						onBehalf={onbehalfAddress as Address}
 						disabled={disabled || onbehalfError != "" || onbehalfAddress == ""}
-						onSuccess={onActionSuccess}
-					/>
-				) : reinvest && interestToFcs ? (
-					<SavingsActionInterestToFCS
-						savingsModule={module}
-						saved={saved}
-						interest={netInterest}
-						disabled={readOnly || isLoading}
 						onSuccess={onActionSuccess}
 					/>
 				) : (
@@ -194,20 +178,25 @@ export default function SavingsInteractionCard({ savings, hasAccount, readOnly, 
 				) : null}
 			</div>
 
-			{hasAccount && !readOnly ? (
-				<div className="flex flex-col gap-1 border-t border-card-input-border pt-4">
-					<AppToggle
-						label={isMainnet ? "Put interest into FCS" : "Put interest into FCS (Ethereum only)"}
-						enabled={interestToFcs}
-						disabled={!isMainnet}
-						onChange={setInterestToFcs}
-					/>
-					<div className="text-sm text-text-secondary">
-						{interestToFcs
-							? "Your accrued interest buys Frankencoin Shares instead of being reinvested or paid out. You confirm each conversion in your wallet (up to three transactions). "
-							: "Use your accrued interest to buy Frankencoin Shares, the equity of the protocol. Your savings stay untouched. "}
-						FCS can fall in value. <AppLink className="" label="About FCS" href="/equity" />
+			{hasAccount && !readOnly && isMainnet && netInterest > 0n ? (
+				<div className="flex flex-col gap-3 rounded-xl bg-card-content-primary p-4">
+					<div>
+						<div className="font-bold text-text-primary">Put your interest into Frankencoin Shares</div>
+						<div className="text-sm text-text-secondary">
+							Your {formatCurrency(formatUnits(netInterest, 18))} ZCHF of accrued interest can buy FCS, the equity of the
+							protocol
+							{roe !== null && roe > 0 ? ` (${(roe * 100).toFixed(1)}% return on equity in the last 12 months)` : ""}. Your
+							savings stay untouched. You confirm up to three transactions in your wallet. FCS can fall in value.{" "}
+							<AppLink className="" label="About FCS" href="/equity" />
+						</div>
 					</div>
+					<SavingsActionInterestToFCS
+						savingsModule={module}
+						saved={saved}
+						interest={netInterest}
+						disabled={isLoading}
+						onSuccess={onActionSuccess}
+					/>
 				</div>
 			) : null}
 
