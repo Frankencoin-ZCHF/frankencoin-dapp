@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { getCapabilities, readContract, sendCalls, waitForCallsStatus, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
 import { toast } from "react-toastify";
 import { formatCurrency } from "@utils";
@@ -25,8 +25,9 @@ const MIN_SHARES_PPM = 995_000n;
 
 /**
  * Puts the accrued interest into Frankencoin Shares (FCS), mainnet only. There is no contract that does this
- * in one call, so the button chains the transactions: adjust(saved) pays the interest out to the wallet,
- * then (after an approval, if the allowance is too low) exactly that payout is deposited into FCS.
+ * in one call. A wallet that can batch calls atomically (EIP-5792) gets all three steps as one confirmation.
+ * Any other wallet gets them one after the other: adjust(saved) pays the interest out to the wallet, then
+ * (after an approval, if the allowance is too low) exactly that payout is deposited into FCS.
  */
 export default function SavingsActionInterestToFCS({ savingsModule, saved, interest, disabled, onSuccess }: Props) {
 	const [step, setStep] = useState<string>("");
@@ -38,12 +39,65 @@ export default function SavingsActionInterestToFCS({ savingsModule, saved, inter
 	const balanceOf = (owner: Address) =>
 		readContract(WAGMI_CONFIG, { address: zchf, chainId, abi: erc20Abi, functionName: "balanceOf", args: [owner] });
 
+	// One confirmation for wallets that execute a batch atomically. Returns false if the wallet cannot, so the
+	// caller falls back to single transactions. The quoted interest is deposited; what accrues between the
+	// quote and the block stays in the wallet.
+	const investBatched = async (account: Address): Promise<boolean> => {
+		try {
+			const caps: any = await getCapabilities(WAGMI_CONFIG, { account, chainId });
+			const status = caps?.atomic?.status;
+			if (status != "supported" && status != "ready" && caps?.atomicBatch?.supported !== true) return false;
+		} catch {
+			return false;
+		}
+
+		setStep("Confirm in your wallet...");
+		const shares = await readContract(WAGMI_CONFIG, {
+			address: fcs,
+			chainId,
+			abi: FCSABI,
+			functionName: "previewDeposit",
+			args: [interest],
+		});
+		const { id } = await sendCalls(WAGMI_CONFIG, {
+			account,
+			chainId,
+			forceAtomic: true,
+			calls: [
+				{ to: savingsModule, abi: SavingsABI, functionName: "adjust", args: [saved] },
+				{ to: zchf, abi: erc20Abi, functionName: "approve", args: [fcs, interest] },
+				{
+					to: fcs,
+					abi: FCSABI,
+					functionName: "depositExpected",
+					args: [interest, account, (shares * MIN_SHARES_PPM) / 1_000_000n],
+				},
+			],
+		});
+
+		setStep("Buying FCS...");
+		const rows = [
+			{ title: "Amount: ", value: `${formatCurrency(formatUnits(interest, 18))} ZCHF` },
+			{ title: "Shares: ", value: `~${formatCurrency(formatUnits(shares, 18), 2, 6)} FCS` },
+		];
+		const result = await toast.promise(waitForCallsStatus(WAGMI_CONFIG, { id }), {
+			pending: { render: <TxToast title="Buying FCS with your interest..." rows={rows} /> },
+		});
+		if (result.status != "success") throw new Error("The transaction did not go through. Nothing was changed.");
+		const hash = result.receipts?.[0]?.transactionHash;
+		toast.success(<TxToast title="Interest invested in FCS" rows={hash ? [...rows, { title: "Transaction: ", hash }] : rows} />);
+		track("interest_to_fcs", { amount: formatUnits(interest, 18), batched: true });
+		return true;
+	};
+
 	const handleOnClick = async function (e: any) {
 		e.preventDefault();
 		if (!address) return;
 
 		let withdrawn = 0n;
 		try {
+			if (await investBatched(address)) return;
+
 			// 1. pay the interest out to the wallet
 			setStep("Withdrawing interest...");
 			const before = await balanceOf(address);
