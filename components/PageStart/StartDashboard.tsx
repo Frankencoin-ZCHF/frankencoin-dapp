@@ -10,7 +10,8 @@ import BuyZchf from "@components/BuyZchf";
 import { RootState } from "../../redux/redux.store";
 import { formatCurrency, normalizeAddress } from "@utils";
 import { track, useBackingHistory, useCalcData, useFCSStats, useSavingsAccounts, useZchfWalletBalance } from "@hooks";
-import { BarChart, CHART_BLUE, CHART_GREEN, TimeChart, shortAmount as short } from "./StartChart";
+import AppTitle from "@components/AppTitle";
+import { CHART_BLUE, CHART_GREEN, CollateralBars, Legend, TimeChart, YearBars, shortAmount as short } from "./StartChart";
 
 const num = (wei: bigint) => Number(formatUnits(wei, 18));
 const amount = (wei: bigint, digits = 2) => formatCurrency(formatUnits(wei, 18), digits, digits) ?? "0";
@@ -22,47 +23,45 @@ interface Stat {
 	// null while the figure is loading or cannot be read
 	value: string | null;
 	label: string;
-	// a figure about this wallet, shown highlighted
-	own?: boolean;
 }
 
-interface RowProps {
+interface PositionProps {
 	label: string;
 	value: string;
 	unit: string;
+	/** the product's one headline figure, e.g. the savings rate */
+	badge: string | null;
 	detail: ReactNode;
-	chart: ReactNode;
-	stats: Stat[];
+	/** a figure about this wallet, shown highlighted */
+	own?: ReactNode;
 	children: ReactNode;
 }
 
-function Row({ label, value, unit, detail, chart, stats, children }: RowProps) {
+/** One of the four tiles: what this wallet has in a product, and the way to more of it. */
+function Position({ label, value, unit, badge, detail, own, children }: PositionProps) {
 	return (
-		<AppCard className="p-5 md:p-6 grid grid-cols-1 lg:grid-cols-[15rem_minmax(0,1fr)] gap-x-8 gap-y-5">
-			<div className="min-w-0 flex flex-col gap-4">
-				<div>
-					<div className="text-xs tracking-wider font-bold text-text-secondary">{label.toUpperCase()}</div>
-					<div className="mt-1 flex items-baseline gap-2 flex-wrap">
-						<span className="text-3xl md:text-4xl font-extrabold text-text-primary tabular-nums">{value}</span>
-						<span className="text-lg font-bold text-text-secondary">{unit}</span>
-					</div>
-					<div className="text-sm text-text-secondary">{detail}</div>
-				</div>
-				<div className="flex flex-col gap-2">{children}</div>
+		<AppCard className="p-5 md:p-6 flex flex-col gap-5">
+			<div className="flex items-center justify-between gap-3">
+				<span className="text-xs tracking-wider font-bold text-text-secondary">{label.toUpperCase()}</span>
+				<span className="rounded-full bg-card-content-primary px-2.5 py-1 text-xs font-semibold text-text-active whitespace-nowrap">
+					{badge ?? "…"}
+				</span>
 			</div>
-			<div className="min-w-0 flex flex-col gap-3">
-				{chart}
-				<div className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
-					{stats.map((s) => (
-						<span key={s.label} className="text-text-secondary">
-							<span className={`font-bold tabular-nums ${s.own ? "text-text-success" : "text-text-primary"}`}>
-								{s.value ?? "…"}
-							</span>{" "}
-							{s.label}
-						</span>
-					))}
+			<div>
+				<div className="flex items-baseline gap-2 flex-wrap">
+					<span
+						className={`text-3xl md:text-4xl font-extrabold tabular-nums ${
+							value == "—" ? "text-card-input-empty" : "text-text-primary"
+						}`}
+					>
+						{value}
+					</span>
+					<span className="text-base font-bold text-text-secondary">{unit}</span>
 				</div>
+				<div className="mt-1 text-sm text-text-secondary">{detail}</div>
+				{own ? <div className="mt-1 text-sm font-semibold text-text-success">{own}</div> : null}
 			</div>
+			<div className="mt-auto pt-4 border-t border-card-input-border flex flex-wrap items-center gap-x-4 gap-y-2">{children}</div>
 		</AppCard>
 	);
 }
@@ -72,18 +71,57 @@ function Action({ href, label, event }: { href: string; label: string; event: st
 		<Link
 			href={href}
 			onClick={() => track(event)}
-			className="btn bg-button-default text-white hover:bg-button-hover py-2 md:py-2 text-sm"
+			className="rounded-lg bg-button-default px-4 py-2 text-sm font-semibold text-white hover:bg-button-hover"
 		>
 			{label}
 		</Link>
 	);
 }
 
+interface PanelProps {
+	label: string;
+	value: string | null;
+	caption: string;
+	legend?: { name: string; color: string; dashed?: boolean }[];
+	stats?: Stat[];
+	note?: string;
+	children: ReactNode;
+}
+
+/** One protocol chart: the current figure as the headline, its history below, a few figures underneath. */
+function Panel({ label, value, caption, legend, stats, note, children }: PanelProps) {
+	return (
+		<AppCard className="p-5 md:p-6 flex flex-col gap-5 min-w-0">
+			<div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
+				<div>
+					<div className="text-xs tracking-wider font-bold text-text-secondary">{label.toUpperCase()}</div>
+					<div className="mt-1 flex items-baseline gap-2 flex-wrap">
+						<span className="text-2xl font-extrabold text-text-primary tabular-nums">{value ?? "…"}</span>
+						<span className="text-sm text-text-secondary">{caption}</span>
+					</div>
+				</div>
+				{legend ? <Legend series={legend} /> : null}
+			</div>
+			<div className="flex-1 min-w-0">{children}</div>
+			{stats?.length ? (
+				<div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 pt-4 border-t border-card-input-border">
+					{stats.map((s) => (
+						<div key={s.label}>
+							<div className="font-bold text-text-primary tabular-nums">{s.value ?? "…"}</div>
+							<div className="text-xs text-text-secondary">{s.label}</div>
+						</div>
+					))}
+				</div>
+			) : null}
+			{note ? <div className="text-xs text-text-secondary">{note}</div> : null}
+		</AppCard>
+	);
+}
+
 /**
- * One row per product (ZCHF held, savings, borrowing, FCS): the wallet's number, three figures and the
- * action that leads further. A wallet that uses the product sees its own figures first; otherwise the
- * row shows the protocol's. Every figure is read from the chain or the Frankencoin API; one that cannot
- * be loaded shows "…" instead of an estimate.
+ * The overview: four tiles with this wallet's numbers (ZCHF held, savings, borrowing, FCS) and the action
+ * that leads further, then one chart per product showing how the protocol itself is doing. Every figure is
+ * read from the chain or the Frankencoin API; one that cannot be loaded shows "…" instead of an estimate.
  */
 export default function StartDashboard() {
 	const { address, isConnected } = useConnection();
@@ -156,26 +194,115 @@ export default function StartDashboard() {
 	if (rateHistory.length && savingsHistory.length)
 		rateHistory.push([savingsHistory[savingsHistory.length - 1][0], rateHistory[rateHistory.length - 1][1]]);
 	const priceHistory = (calc?.fps ?? []).map(([t, v]) => [t * 1000, v] as [number, number]);
-	// one point per calendar year, in the middle of the days it covers
 	const roeYears = calc?.roeYears ?? [];
-	const roeHistory = roeYears.map((y) => [((y.from + y.to) / 2) * 1000, Math.round(y.roe * 1000) / 10] as [number, number]);
+	const openYear = roeYears.find((y) => !y.complete);
+	const backingRatio = lastBacking ? lastBacking.collateral / lastBacking.supply : null;
 	const collateralMap = useSelector((state: RootState) => state.ecosystem.collateralStats?.map ?? {});
 	const collaterals = Object.values(collateralMap)
-		.map((c) => ({ label: c.symbol, values: [c.totalValueLocked?.chf ?? 0, c.totalMinted ?? 0] }))
-		.filter((c) => c.values[0] > 0 && c.values[1] > 0)
-		.sort((a, b) => b.values[0] - a.values[0])
+		.map((c) => ({ symbol: c.symbol, collateral: c.totalValueLocked?.chf ?? 0, minted: c.totalMinted ?? 0 }))
+		.filter((c) => c.collateral > 0 && c.minted > 0)
+		.sort((a, b) => b.collateral - a.collateral)
 		.slice(0, 6);
-
-	const rateStat: Stat = { value: saveRate ? `${pct(saveRate)}` : null, label: "a year on savings, withdraw any time" };
 
 	return (
 		<div className="flex flex-col gap-4">
-			<Row
-				label="You hold"
-				value={dash ?? amount(zchf.total)}
-				unit="ZCHF"
-				detail={isConnected ? "in your wallet, on all chains" : "Connect your wallet to see your balance"}
-				chart={
+			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+				<Position
+					label="You hold"
+					value={dash ?? amount(zchf.total)}
+					unit="ZCHF"
+					badge={backingRatio === null ? null : `${pct(backingRatio, 0)} collateralized`}
+					detail={isConnected ? "in your wallet, on all chains" : "Connect your wallet to see your balance"}
+					own={
+						zchf.total > 0n && saveRate
+							? `+${whole(num(zchf.total) * saveRate)} ZCHF a year if you save it at today's ${pct(saveRate)}`
+							: undefined
+					}
+				>
+					<BuyZchf variant="inline" title={zchf.total > 0n ? "Buy more:" : "Buy ZCHF:"} source="overview" />
+				</Position>
+
+				<Position
+					label="You are saving"
+					value={dash ?? amount(saved + accrued)}
+					unit="ZCHF"
+					badge={saveRate ? `${pct(saveRate)} a year` : null}
+					detail={
+						!isConnected
+							? "Interest accrues every block, withdraw any time"
+							: accrued > 0n
+							? `incl. ${amount(accrued)} ZCHF accrued interest`
+							: saved > 0n
+							? "No accrued interest yet"
+							: "Nothing in savings yet"
+					}
+					own={yearly > 0n ? `+${amount(yearly)} ZCHF a year at today's rate` : undefined}
+				>
+					<Action href="/savings" label={saved > 0n ? "Deposit more" : "Start saving"} event="overview_save" />
+				</Position>
+
+				<Position
+					label="You borrowed"
+					value={dash ?? amount(my.minted)}
+					unit="ZCHF"
+					badge={
+						my.rate !== null ? `${pct(my.rate)} a year, your average` : lowest === null ? null : `from ${pct(lowest)} a year`
+					}
+					detail={
+						!isConnected ? (
+							"Against crypto, gold or tokenized shares"
+						) : mine.length > 0 ? (
+							<>
+								<Link href="/mypositions" className="text-card-input-max hover:text-card-input-hover font-semibold">
+									{mine.length} open position{mine.length == 1 ? "" : "s"}
+								</Link>
+								{myCollateral > 0 ? `, collateral worth ${whole(myCollateral)} ZCHF` : ""}
+							</>
+						) : (
+							"No open positions"
+						)
+					}
+				>
+					<Action href="/mint" label={mine.length > 0 ? "Borrow more" : "Borrow ZCHF"} event="overview_borrow" />
+				</Position>
+
+				<Position
+					label="Your FCS"
+					value={dash ?? amount(fcs.fcsBalance)}
+					unit="FCS"
+					badge={roeAll === null ? null : `${pct(roeAll, 1)} return on equity a year`}
+					detail={
+						!isConnected
+							? "Frankencoin Shares, the protocol's equity"
+							: fcs.fcsBalance > 0n
+							? "Frankencoin Shares in your wallet"
+							: "No Frankencoin Shares yet"
+					}
+					own={fcs.fcsBalance > 0n ? `worth ${amount(fcsValue)} ZCHF at the current price` : undefined}
+				>
+					<Action href="/equity" label={fcs.fcsBalance > 0n ? "Invest more" : "Get FCS"} event="overview_invest" />
+					<span className="text-xs text-text-secondary">Past performance. FCS can fall in value.</span>
+				</Position>
+			</div>
+
+			<AppTitle title="How Frankencoin performs">
+				<div className="text-text-secondary">The whole protocol, read from the chain and the Frankencoin API.</div>
+			</AppTitle>
+
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+				<Panel
+					label="Backing"
+					value={backingRatio === null ? null : pct(backingRatio, 0)}
+					caption="collateral value against all ZCHF in circulation"
+					legend={[
+						{ name: "Collateral value", color: CHART_GREEN },
+						{ name: "ZCHF in circulation", color: CHART_BLUE },
+					]}
+					stats={[
+						{ value: supply ? `${short(supply)} ZCHF` : null, label: "in circulation on eight chains" },
+						{ value: collateralChf ? `${short(collateralChf)} ZCHF` : null, label: "collateral in open positions" },
+					]}
+				>
 					<TimeChart
 						series={[
 							{
@@ -192,46 +319,21 @@ export default function StartDashboard() {
 							},
 						]}
 					/>
-				}
-				stats={[
-					{
-						value: lastBacking ? pct(lastBacking.collateral / lastBacking.supply, 0) : null,
-						label: "collateral value against all ZCHF in circulation",
-					},
-					{ value: supply ? `${short(supply)} ZCHF` : null, label: "in circulation on eight chains" },
-					{ value: collateralChf ? `${short(collateralChf)} ZCHF` : null, label: "collateral in open positions" },
-					...(zchf.total > 0n && saveRate
-						? [
-								{
-									value: `+${whole(num(zchf.total) * saveRate)} ZCHF`,
-									label: `a year if you save your balance at today's ${pct(saveRate)}`,
-									own: true,
-								},
-						  ]
-						: []),
-				]}
-			>
-				<BuyZchf variant="inline" title={zchf.total > 0n ? "Buy more:" : "Buy ZCHF:"} source="overview" />
-			</Row>
+				</Panel>
 
-			<Row
-				label="You are saving"
-				value={dash ?? amount(saved + accrued)}
-				unit="ZCHF"
-				detail={
-					!isConnected ? (
-						"Interest accrues every block"
-					) : accrued > 0n ? (
-						<>
-							incl. <span className="text-text-success font-semibold">+{amount(accrued)} ZCHF</span> accrued interest
-						</>
-					) : saved > 0n ? (
-						"No accrued interest yet"
-					) : (
-						"Nothing in savings yet"
-					)
-				}
-				chart={
+				<Panel
+					label="Savings"
+					value={totalSaved ? `${short(totalSaved)} ZCHF` : null}
+					caption="saved by all savers right now"
+					legend={[
+						{ name: "ZCHF in savings", color: CHART_BLUE },
+						{ name: "Savings rate", color: CHART_GREEN, dashed: true },
+					]}
+					stats={[
+						{ value: saveRate ? pct(saveRate) : null, label: "a year, set by governance" },
+						{ value: paidOut ? `${short(paidOut)} ZCHF` : null, label: "interest paid to savers so far" },
+					]}
+				>
 					<TimeChart
 						series={[
 							{ name: "ZCHF in savings", color: CHART_BLUE, data: savingsHistory, format: (v) => short(v) },
@@ -240,96 +342,54 @@ export default function StartDashboard() {
 								color: CHART_GREEN,
 								data: rateHistory,
 								secondary: true,
-
 								format: (v) => `${v.toFixed(1)}%`,
 							},
 						]}
 					/>
-				}
-				stats={[
-					yearly > 0n
-						? { value: `+${amount(yearly)} ZCHF`, label: `a year on your savings at today's ${pct(saveRate)}`, own: true }
-						: rateStat,
-					{ value: totalSaved ? `${short(totalSaved)} ZCHF` : null, label: "saved by all savers right now" },
-					{ value: paidOut ? `${short(paidOut)} ZCHF` : null, label: "interest paid to savers so far" },
-				]}
-			>
-				<Action href="/savings" label={saved > 0n ? "Deposit more" : "Start saving"} event="overview_save" />
-			</Row>
+				</Panel>
 
-			<Row
-				label="You borrowed"
-				value={dash ?? amount(my.minted)}
-				unit="ZCHF"
-				detail={
-					!isConnected ? (
-						"Against crypto, gold or tokenized shares"
-					) : mine.length > 0 ? (
-						<>
-							<Link href="/mypositions" className="text-card-input-max hover:text-card-input-hover font-semibold">
-								{mine.length} open position{mine.length == 1 ? "" : "s"}
-							</Link>
-							{myCollateral > 0 ? `, collateral worth ${whole(myCollateral)} ZCHF` : ""}
-						</>
-					) : (
-						"No open positions"
-					)
-				}
-				chart={<BarChart names={["Collateral locked", "ZCHF borrowed"]} colors={[CHART_GREEN, CHART_BLUE]} groups={collaterals} />}
-				stats={[
-					my.rate !== null
-						? { value: pct(my.rate), label: "a year, your average interest", own: true }
-						: { value: lowest === null ? null : `from ${pct(lowest)}`, label: "a year, lowest interest on offer now" },
-					{ value: all.rate === null ? null : pct(all.rate), label: "a year, average interest on all open loans" },
-					{
-						value: all.minted > 0n ? `${short(num(all.minted))} ZCHF` : null,
-						label: `borrowed across ${open.length} open positions`,
-					},
-				]}
-			>
-				<Action href="/mint" label={mine.length > 0 ? "Borrow more" : "Borrow ZCHF"} event="overview_borrow" />
-			</Row>
+				<Panel
+					label="Borrowing"
+					value={all.minted > 0n ? `${short(num(all.minted))} ZCHF` : null}
+					caption={open.length ? `borrowed across ${open.length} open positions` : "borrowed against collateral"}
+					legend={[
+						{ name: "ZCHF borrowed", color: CHART_BLUE },
+						{ name: "Collateral locked", color: `${CHART_GREEN}73` },
+					]}
+					stats={[
+						{ value: all.rate === null ? null : pct(all.rate), label: "a year, average on all open loans" },
+						{ value: lowest === null ? null : pct(lowest), label: "a year, lowest on offer now" },
+					]}
+				>
+					<CollateralBars rows={collaterals} />
+				</Panel>
 
-			<Row
-				label="Your FCS"
-				value={dash ?? amount(fcs.fcsBalance)}
-				unit="FCS"
-				detail={
-					!isConnected
-						? "Frankencoin Shares, the protocol's equity"
-						: fcs.fcsBalance > 0n
-						? "Frankencoin Shares in your wallet"
-						: "No Frankencoin Shares yet"
-				}
-				chart={
-					<TimeChart
-						series={[
-							{ name: "FCS price in ZCHF", color: CHART_BLUE, data: priceHistory, format: (v) => whole(v) },
-							{
-								name: "Return on equity per year, annualized",
-								color: CHART_GREEN,
-								data: roeHistory,
-								secondary: true,
-								dots: true,
-								format: (v) => `${v.toFixed(0)}%`,
-							},
-						]}
-					/>
-				}
-				stats={[
-					fcs.fcsBalance > 0n
-						? { value: `${amount(fcsValue)} ZCHF`, label: "value of your FCS at the current price", own: true }
-						: { value: fcsPrice ? `${whole(fcsPrice)} ZCHF` : null, label: "price of one FCS" },
-					...roeYears.map((y) => ({
-						value: pct(y.roe, 1),
-						label: y.complete ? `return on equity in ${y.year}` : `in ${y.year} so far, annualized`,
-					})),
-					{ value: roeAll === null ? null : pct(roeAll, 1), label: "a year since launch" },
-				]}
-			>
-				<Action href="/equity" label={fcs.fcsBalance > 0n ? "Invest more" : "Get FCS"} event="overview_invest" />
-				<div className="text-xs text-text-secondary text-center">Past performance. FCS can fall in value.</div>
-			</Row>
+				<Panel
+					label="Frankencoin Shares"
+					value={fcsPrice ? `${whole(fcsPrice)} ZCHF` : null}
+					caption="price of one FCS"
+					legend={[
+						{ name: "FCS price", color: CHART_BLUE },
+						{ name: "Return on equity per year", color: CHART_GREEN },
+					]}
+					note={`Return on equity is annualized${
+						openYear ? `; ${openYear.year} covers the year so far` : ""
+					}. Past performance. FCS can fall in value.`}
+				>
+					<div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_11rem] gap-6">
+						<TimeChart
+							series={[
+								{ name: "FCS price", color: CHART_BLUE, data: priceHistory, fromZero: false, format: (v) => whole(v) },
+							]}
+						/>
+						<YearBars
+							color={CHART_GREEN}
+							format={(v) => `${v.toFixed(1)}%`}
+							bars={roeYears.map((y) => ({ label: String(y.year), value: y.roe * 100, open: !y.complete }))}
+						/>
+					</div>
+				</Panel>
+			</div>
 		</div>
 	);
 }
