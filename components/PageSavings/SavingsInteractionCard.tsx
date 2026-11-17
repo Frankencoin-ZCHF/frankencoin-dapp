@@ -53,7 +53,7 @@ export default function SavingsInteractionCard({ savings, hasAccount, readOnly, 
 		<>
 			Your {formatCurrency(formatUnits(netInterest, 18))} ZCHF of accrued interest can buy FCS, the equity of the protocol
 			{roe !== null && roe > 0 ? ` (${(roe * 100).toFixed(1)}% return on equity in the last 12 months)` : ""}. Your savings stay
-			untouched. You confirm once in a wallet that can batch transactions, otherwise up to three times. FCS can fall in value.{" "}
+			untouched. You confirm once in a wallet that can batch transactions, otherwise up to three times.{" "}
 			<AppLink className="" label="About FCS" href="/equity" />
 		</>
 	);

@@ -283,7 +283,6 @@ export default function StartDashboard() {
 					own={fcs.fcsBalance > 0n ? `worth ${amount(fcsValue)} ZCHF at the current price` : undefined}
 				>
 					<Action href="/equity" label={fcs.fcsBalance > 0n ? "Invest more" : "Get FCS"} event="overview_invest" />
-					<span className="text-xs text-text-secondary">Past performance. FCS can fall in value.</span>
 				</Position>
 			</div>
 
@@ -394,8 +393,8 @@ export default function StartDashboard() {
 					}
 					note={
 						fcsView == "price"
-							? "Price of one FCS in ZCHF. Past performance. FCS can fall in value."
-							: "The protocol's net income in each year, divided by its equity (the reserve FCS holders own), as a yearly rate. Past performance. FCS can fall in value."
+							? "Price of one FCS in ZCHF."
+							: "The protocol's net income in each year, divided by its equity (the reserve FCS holders own), as a yearly rate."
 					}
 				>
 					{fcsView == "price" ? (
