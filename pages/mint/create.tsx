@@ -462,7 +462,9 @@ export default function PositionCreate({}) {
 								value={proposalFee.toString()}
 								onChange={onChangeProposalFee}
 								digit={0}
-								error={userBalance[mainnet.id].frankencoin < BigInt(1000 * 1e18) ? "Not enough ZCHF" : ""}
+								error={
+									account.address && userBalance[mainnet.id].frankencoin < BigInt(1000 * 1e18) ? "Not enough ZCHF" : ""
+								}
 								disabled={true}
 								placeholder="Amount"
 							/>

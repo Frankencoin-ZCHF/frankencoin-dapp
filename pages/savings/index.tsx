@@ -6,6 +6,7 @@ import { fetchLeadrate, fetchSavings } from "../../redux/slices/savings.slice";
 import { useConnection, useChainId } from "wagmi";
 import AppTitle from "@components/AppTitle";
 import SavingsOverviewCard from "@components/PageSavings/SavingsOverviewCard";
+import SavingsPreconnectCard from "@components/PageSavings/SavingsPreconnectCard";
 import AppLink from "@components/AppLink";
 import AppHeroSteps from "@components/AppHeroSteps";
 import SavingsRecentActivitiesTable from "@components/PageSavings/SavingsRecentActivitiesTable";
@@ -36,6 +37,10 @@ export default function SavingsPage() {
 
 	const { accounts, isLoading, updatedAt, refetch } = useSavingsAccounts(account);
 	const selectedSavings = accounts.find((a) => a.chain.id == chainId) ?? accounts[0];
+
+	// own account, balances loaded, and neither ZCHF in the wallet nor savings on any chain
+	const hasNoZchf =
+		canAdjust && !isLoading && updatedAt > 0 && accounts.every((a) => a.walletBalance == 0n && a.saved == 0n && a.interest == 0n);
 
 	const queryChain: string = String(router.query.chain).toLowerCase();
 	const [targetChainName, setTargetChainName] = useState("");
@@ -114,15 +119,20 @@ export default function SavingsPage() {
 			/>
 
 			<section className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-auto">
-				<SavingsOverviewCard
-					account={account}
-					accounts={accounts}
-					isLoading={isLoading}
-					updatedAt={updatedAt}
-					readOnly={isViewingOther}
-					selectedChainId={chainId}
-					onSelectChain={(id) => onChangeChain(getChain(id).name)}
-				/>
+				{account == zeroAddress ? (
+					<SavingsPreconnectCard rate={saveRate} />
+				) : (
+					<SavingsOverviewCard
+						account={account}
+						accounts={accounts}
+						isLoading={isLoading}
+						updatedAt={updatedAt}
+						readOnly={isViewingOther}
+						offerBuy={hasNoZchf}
+						selectedChainId={chainId}
+						onSelectChain={(id) => onChangeChain(getChain(id).name)}
+					/>
+				)}
 				<SavingsInteractionCard
 					savings={selectedSavings}
 					hasAccount={account != zeroAddress}
