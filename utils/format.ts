@@ -180,6 +180,25 @@ export const formatDuration = (time: number | bigint): string => {
 	return time > 0 ? duration : "-";
 };
 
+// exact duration using the two most significant units, e.g. "9h 36min" or "17s"
+export const formatDurationExact = (seconds: number | bigint): string => {
+	let rest = Math.max(0, Math.floor(Number(seconds)));
+	const units: [string, number][] = [
+		["d", 86400],
+		["h", 3600],
+		["min", 60],
+		["s", 1],
+	];
+	const parts: string[] = [];
+	for (const [label, size] of units) {
+		const count = Math.floor(rest / size);
+		rest -= count * size;
+		if (count > 0 || parts.length > 0) parts.push(`${count}${label}`);
+		if (parts.length == 2) break;
+	}
+	return parts.length > 0 ? parts.join(" ") : "0s";
+};
+
 export const isDateExpired = (timestamp: number | bigint): boolean => {
 	const date = dayjs(Number(timestamp) * 1000);
 	return date.isBefore();

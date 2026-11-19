@@ -2,6 +2,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import AppCard from "@components/AppCard";
 import AppLink from "@components/AppLink";
+import AddressLabel from "@components/AddressLabel";
 import AppTitle from "@components/AppTitle";
 import MintingUpdatesTable from "@components/PageMonitoring/MintingUpdatesTable";
 import PositionFamilyTable from "@components/PageMonitoring/PositionFamilyTable";
@@ -94,9 +95,7 @@ export default function PositionDetail() {
 	};
 
 	const priceDigit = 36 - position.collateralDecimals;
-	const liqPriceFloat = parseFloat(formatUnits(BigInt(position.price), priceDigit));
-	const marketPriceChf = prices[normalizeAddress(position.collateral)]?.price?.chf || 0;
-	const nominalLTV = marketPriceChf > 0 ? (liqPriceFloat / marketPriceChf) * 100 : 0;
+	const marketPriceChf = prices[normalizeAddress(position.collateral)]?.price?.chf;
 
 	// the contract getter ignores closed/denied, so zero it here; `denied` covers the indexer lagging before the live read
 	const availableForMinting =
@@ -153,9 +152,7 @@ export default function PositionDetail() {
 							<div className="text-base font-bold mb-1">Usage</div>
 							<StatRow label="Minted">{formatCurrency(formatUnits(BigInt(position.minted), 18))} ZCHF</StatRow>
 							<StatRow label="Retained Reserve">{formatCurrency(formatUnits(reserve, 18))} ZCHF</StatRow>
-							<StatRow label="Available for Minting">
-								{formatCurrency(formatUnits(availableForMinting, 18))} ZCHF
-							</StatRow>
+							<StatRow label="Available for Minting">{formatCurrency(formatUnits(availableForMinting, 18))} ZCHF</StatRow>
 							<StatRow label="Limit">{formatCurrency(formatUnits(BigInt(position.limitForClones), 18))} ZCHF</StatRow>
 						</div>
 					</AppCard>
@@ -163,6 +160,9 @@ export default function PositionDetail() {
 					<AppCard>
 						<div className="gap-2">
 							<div className="text-base font-bold mb-1">Collateral</div>
+							<StatRow label="Contract">
+								<AddressLabel address={position.collateral} showLink />
+							</StatRow>
 							<StatRow label="Balance">
 								{formatCurrency(formatUnits(BigInt(position.collateralBalance), position.collateralDecimals))}{" "}
 								{position.collateralSymbol}
@@ -174,11 +174,7 @@ export default function PositionDetail() {
 							<StatRow label="Liquidation Price">
 								{formatCurrency(formatUnits(BigInt(position.price), priceDigit))} ZCHF
 							</StatRow>
-							<StatRow label="Nominal LTV">
-								<span className={nominalLTV > 90 ? "text-red-400" : nominalLTV > 80 ? "text-amber-400" : "text-green-400"}>
-									{formatCurrency(nominalLTV, 2, 2)}%
-								</span>
-							</StatRow>
+							<StatRow label="Market Price">{marketPriceChf ? `${formatCurrency(marketPriceChf)} ZCHF` : "—"}</StatRow>
 						</div>
 					</AppCard>
 
@@ -193,13 +189,13 @@ export default function PositionDetail() {
 								)}
 								%
 							</StatRow>
+							<StatRow label="Reserve Requirement">{formatCurrency(position.reserveContribution / 10000, 2, 2)}%</StatRow>
 							<StatRow label="Risk Premium">
 								{formatCurrency(((position as PositionQueryV2).riskPremiumPPM ?? 0) / 10000, 2, 2)}%
 							</StatRow>
 							<StatRow label="Effective Interest">
 								{formatCurrency((position.annualInterestPPM * 100) / (1000000 - position.reserveContribution), 2, 2)}%
 							</StatRow>
-							<StatRow label="Reserve Requirement">{formatCurrency(position.reserveContribution / 10000, 2, 2)}%</StatRow>
 						</div>
 					</AppCard>
 
@@ -218,13 +214,6 @@ export default function PositionDetail() {
 								</StatRow>
 							)}
 							<StatRow label="Auction Duration">{position.challengePeriod / 3600} hours</StatRow>
-							<div className="">
-								<AppLink
-									label="Need different terms?"
-									href={`/mint/create?source=${normalizeAddress(position.position)}&chain=ethereum`}
-									external={false}
-								/>
-							</div>
 						</div>
 					</AppCard>
 
@@ -285,7 +274,19 @@ export default function PositionDetail() {
 				<div>
 					<AppTitle
 						title="Position Family"
-						subtitle="All positions that share the same original, including the original and this position itself. Clones inherit the terms of their original, but can differ in liquidation price and maturity."
+						subtitle={
+							<>
+								All positions that share the same original, including the original and this position itself. Clones inherit
+								the terms of their original, but can differ in liquidation price and maturity. You can also{" "}
+								<AppLink
+									label="propose a new position"
+									href={`/mint/create?source=${normalizeAddress(position.position)}&chain=ethereum`}
+									external={false}
+									className=""
+								/>{" "}
+								with new terms.
+							</>
+						}
 						className="pb-4"
 					/>
 					<PositionFamilyTable position={position} />

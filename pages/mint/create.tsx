@@ -1,7 +1,7 @@
 "use client";
 import Head from "next/head";
 import { useEffect } from "react";
-import { Address, decodeEventLog, isAddress, maxUint256, parseUnits } from "viem";
+import { Address, decodeEventLog, formatUnits, isAddress, maxUint256, parseUnits } from "viem";
 import TokenInput from "@components/Input/TokenInput";
 import { useTokenData, useUserBalance, useLiveBlockNumber } from "@hooks";
 import { useState } from "react";
@@ -9,7 +9,7 @@ import AppButton from "@components/AppButton";
 import { useConnection, useChainId } from "wagmi";
 import { erc20Abi } from "viem";
 import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { formatBigInt, normalizeAddress, shortenAddress } from "@utils";
+import { formatBigInt, formatCurrency, formatDurationExact, normalizeAddress, shortenAddress } from "@utils";
 import { toast } from "react-toastify";
 import { TxToast, renderErrorTxToast } from "@components/TxToast";
 import NormalInput from "@components/Input/NormalInput";
@@ -27,6 +27,11 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/redux.store";
 import { PositionQueryV2 } from "@frankencoin/api";
 import AppCard from "@components/AppCard";
+import StatRow from "@components/PageMonitoring/StatRow";
+
+// below this, bidders realistically cannot end a challenge before the system starts making a loss
+const MIN_LIQUIDATION_WINDOW_SECONDS = 30;
+const LIQUIDATION_WINDOW_ISSUE_URL = "https://github.com/Frankencoin-ZCHF/Frankencoin/issues/52";
 
 export default function PositionCreate({}) {
 	const [minCollAmount, setMinCollAmount] = useState(0n);
@@ -69,6 +74,30 @@ export default function PositionCreate({}) {
 	const router = useRouter();
 	const queryAddress: Address = normalizeAddress(String(router.query.source));
 	const { list } = useSelector((state: RootState) => state.positions.list);
+	const leadratePPM: number | undefined = useSelector(
+		(state: RootState) => state.savings.leadrateRate.rate?.[mainnet.id]?.[normalizeAddress(ADDRESS[mainnet.id].savingsV2)]?.approvedRate
+	);
+
+	// Interest is charged on the full minted amount, but the reserve is retained, so the
+	// rate relative to the amount actually paid out is (base rate + risk premium) / (1 - reserve).
+	const nominalInterestPPM = (leadratePPM ?? 0) + Number(interest);
+	const reserveRatio = Number(buffer) / 1_000_000;
+	const effectiveInterest = reserveRatio < 1 ? nominalInterestPPM / 1_000_000 / (1 - reserveRatio) : undefined;
+
+	// Worst case from issue #52: the owner raises the liquidation price to the maximum the position contract
+	// accepts (price * minimumCollateral <= limit * 10**18). The auction price then declines linearly from that
+	// maximum to zero over the auction duration, so it only spends
+	//   duration * reserve ratio * (liquidation price / maximum price)
+	// between the proposed liquidation price and (1 - reserve ratio) * liquidation price.
+	const priceDigits = 36 - Number(collTokenData.decimals);
+	const maxLiqPrice = minCollAmount > 0n ? (limitAmount * 10n ** 18n) / minCollAmount : 0n;
+	const startPrice = maxLiqPrice > liqPrice ? maxLiqPrice : liqPrice; // an auction never starts below the proposed price
+	const cappedBuffer = buffer > 1_000_000n ? 1_000_000n : buffer;
+	const liquidationWindowSeconds =
+		liqPrice > 0n && maxLiqPrice > 0n
+			? Number((auctionDuration * 3_600_000n * cappedBuffer * liqPrice) / (1_000_000n * startPrice)) / 1000
+			: undefined;
+	const isLiquidationWindowTooShort = liquidationWindowSeconds !== undefined && liquidationWindowSeconds < MIN_LIQUIDATION_WINDOW_SECONDS;
 
 	useEffect(() => {
 		if (isInit) return;
@@ -473,7 +502,7 @@ export default function PositionCreate({}) {
 							autoFocus={true}
 						/>
 						{collTokenData.symbol != "NaN" && initialCollAmount > userAllowance ? (
-<AppButton
+							<AppButton
 								className="-mt-4"
 								isLoading={isConfirming == "approve"}
 								disabled={
@@ -544,6 +573,11 @@ export default function PositionCreate({}) {
 								placeholder="Number"
 							/>
 						</div>
+						<div>
+							<StatRow label="Effective Interest">
+								{effectiveInterest === undefined ? "-" : `${formatCurrency(effectiveInterest * 100, 2, 2)}% per year`}
+							</StatRow>
+						</div>
 					</AppCard>
 
 					<AppCard>
@@ -583,12 +617,32 @@ export default function PositionCreate({}) {
 								placeholder="Number"
 							/>
 						</div>
+						<div>
+							<StatRow label="Worst Case Liquidation Window">
+								<span className={isLiquidationWindowTooShort ? "text-amber-500" : ""}>
+									{liquidationWindowSeconds === undefined ? "-" : formatDurationExact(liquidationWindowSeconds)}
+								</span>
+							</StatRow>
+							<div className="text-text-secondary text-sm">
+								{liquidationWindowSeconds !== undefined &&
+									`Calculated assuming a market price of ${formatCurrency(formatUnits(liqPrice, priceDigits))} ZCHF. `}
+								See <AppLink label={"issue #52"} href={LIQUIDATION_WINDOW_ISSUE_URL} external={true} className="pr-1" />
+								for why this should be at least a minute.
+							</div>
+							{isLiquidationWindowTooShort && (
+								<div className="mt-2 text-sm text-amber-500">
+									Warning: a liquidation window of less than {MIN_LIQUIDATION_WINDOW_SECONDS} seconds does not give
+									bidders enough time to end a challenge at a fair price. Increase the minimum collateral, the retained
+									reserve or the auction duration, or lower the minting limit.
+								</div>
+							)}
+						</div>
 					</AppCard>
 				</section>
 
 				<div className="mx-auto mt-8 w-72 max-w-full flex-col">
 					<GuardSupportedChain chain={mainnet}>
-<AppButton
+						<AppButton
 							disabled={minCollAmount == 0n || userAllowance < initialCollAmount || initialCollAmount == 0n || hasFormError()}
 							isLoading={isConfirming == "open"}
 							onClick={() => handleOpenPosition()}

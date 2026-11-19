@@ -55,6 +55,7 @@ export const colors = [
 ];
 
 // Discussions — keys are lowercase addresses (use normalizeAddress for lookup)
+// Maintained by hand: when a new collateral gets its own thread on GitHub, add it here (last reviewed 2026-11-18).
 export const DISCUSSIONS: {
 	[key: string]: string;
 } = {
@@ -74,4 +75,10 @@ export const DISCUSSIONS: {
 	"0xd533a949740bb3306d119cc777fa900ba034cd52": "https://coinmarketcap.com/currencies/curve-dao-token/", // crv
 	"0xfedc5f4a6c38211c1338aa411018dfaf26612c08": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/84", // SPYon
 	"0x2bd214946806dbee88dd3b44b26a21759723d8a2": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/129", // SGG
+	"0x68fa48b1c2fe52b3d776e1953e0e782b5044ce28": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/126", // SPCXx
+	"0x9d275685dc284c8eb1c79f6aba7a63dc75ec890a": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/84", // AAPLx
+	"0xa9b17f572341219703bc951725bdb3ca756b1a65": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/128", // XAUH
+	"0xc174b12b3195d9887e8da7aa886ec11c13101060": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/128", // wXAUH
+	"0x8747a3114ef7f0eebd3eb337f745e31dbf81a952": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/24", // DQTS
+	"0x372b2dc06478aa2c8182eee0f12ea0e9a15e2913": "https://github.com/Frankencoin-ZCHF/Frankencoin/discussions/86", // GEM
 };
