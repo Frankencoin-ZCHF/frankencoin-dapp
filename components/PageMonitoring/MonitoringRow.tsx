@@ -22,15 +22,16 @@ export default function MonitoringRow({ headers, tab, position }: Props) {
 	const prices = useSelector((state: RootState) => state.prices.coingecko);
 	const challenges = useSelector((state: RootState) => state.challenges.positions);
 	const url = useContractUrl(position.collateral || zeroAddress);
-	const collTokenPrice = prices[normalizeAddress(position.collateral)]?.price?.usd || 1;
+	const collTokenPrice = prices[normalizeAddress(position.collateral)]?.price?.usd ?? 0;
 	const zchfPrice = prices[normalizeAddress(position.zchf)]?.price?.usd || 1;
 
 	const maturity: number = (position.expiration * 1000 - Date.now()) / 1000 / 60 / 60 / 24;
 
 	const balance: number = Math.round((parseInt(position.collateralBalance) / 10 ** position.collateralDecimals) * 100) / 100;
-	const balanceZCHF: number = Math.round(((balance * collTokenPrice) / zchfPrice) * 100) / 100;
-	const liquidationZCHF: number = Math.round((parseInt(position.price) / 10 ** (36 - position.collateralDecimals)) * 100) / 100;
-	const liquidationPct: number = Math.round((balanceZCHF / (liquidationZCHF * balance)) * 10000) / 100;
+	const liquidationRaw: number = parseInt(position.price) / 10 ** (36 - position.collateralDecimals);
+	const liquidationZCHF: number = Math.round(liquidationRaw * 100) / 100;
+	// ratio of market value to liquidation value (per collateral unit), 0 if price is unknown/zero or no liquidation price
+	const liquidationPct: number = liquidationRaw > 0 ? Math.round(((collTokenPrice / zchfPrice) / liquidationRaw) * 10000) / 100 : 0;
 
 	const digits: number = position.collateralDecimals;
 	const toUnits = (value: bigint | string): number => Number(formatUnits(BigInt(value), digits));
@@ -40,7 +41,7 @@ export default function MonitoringRow({ headers, tab, position }: Props) {
 		return acc + toUnits(c.size) - toUnits(c.filledSize);
 	}, 0);
 	const collateralBalanceNumber: number = toUnits(position.collateralBalance);
-	const challengesRatioPct: number = Math.round((positionChallengesActiveCollateral / collateralBalanceNumber) * 100);
+	const challengesRatioPct: number = collateralBalanceNumber > 0 ? Math.round((positionChallengesActiveCollateral / collateralBalanceNumber) * 100) : 0;
 
 	const collColor = liquidationPct < 110 ? "text-red-500" : liquidationPct <= 120 ? "text-orange-400" : "text-green-500";
 	const rowBg =
