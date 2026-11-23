@@ -69,12 +69,10 @@ export default function MonitoringTable() {
 				return false;
 			if (inMyWallet && walletAddress && (walletBalanceMap[normalizeAddress(pos.collateral)] ?? 0n) === 0n) return false;
 			if (activeCustomCategories.length > 0) {
-				const collTokenPrice = coingecko[normalizeAddress(pos.collateral)]?.price?.usd || 1;
+				const collTokenPrice = coingecko[normalizeAddress(pos.collateral)]?.price?.usd ?? 0;
 				const zchfPrice = coingecko[normalizeAddress(pos.zchf)]?.price?.usd || 1;
-				const balance = parseInt(pos.collateralBalance) / 10 ** pos.collateralDecimals;
-				const balanceZCHF = (balance * collTokenPrice) / zchfPrice;
 				const liquidationZCHF = parseInt(pos.price) / 10 ** (36 - pos.collateralDecimals);
-				const liquidationPct = (balanceZCHF / (liquidationZCHF * balance)) * 100;
+				const liquidationPct = liquidationZCHF > 0 ? (collTokenPrice / zchfPrice / liquidationZCHF) * 100 : 0;
 				const positionChallenges = challenges.map[normalizeAddress(pos.position)] ?? [];
 				const hasActiveChallenges = positionChallenges.some((ch: ChallengesQueryItem) => ch.status === "Active");
 				const isAtRisk = liquidationPct < 110;
@@ -157,7 +155,7 @@ function sortPositions(
 		sortingList.sort((a, b) => {
 			const calc = function (p: PositionQuery) {
 				const size: number = parseFloat(formatUnits(BigInt(p.collateralBalance), p.collateralDecimals));
-				const price: number = prices[normalizeAddress(p.collateral)]?.price?.chf || 1;
+				const price: number = prices[normalizeAddress(p.collateral)]?.price?.chf ?? 0;
 				return size * price;
 			};
 			return calc(b) - calc(a);
@@ -176,8 +174,8 @@ function sortPositions(
 		sortingList.sort((a, b) => {
 			const calc = function (p: PositionQuery) {
 				const liqPrice: number = parseFloat(formatUnits(BigInt(p.price), 36 - p.collateralDecimals));
-				const price: number = prices[normalizeAddress(p.collateral)]?.price?.chf || 1;
-				return price / liqPrice;
+				const price: number = prices[normalizeAddress(p.collateral)]?.price?.chf ?? 0;
+				return liqPrice > 0 ? price / liqPrice : 0;
 			};
 			return calc(b) - calc(a);
 		});
@@ -193,7 +191,7 @@ function sortPositions(
 					const _filled: number = parseFloat(formatUnits(BigInt(c.filledSize.toString()), p.collateralDecimals));
 					return n + _size - _filled;
 				}, 0);
-				return cs / size;
+				return size > 0 ? cs / size : 0;
 			};
 			return calc(b) - calc(a);
 		});

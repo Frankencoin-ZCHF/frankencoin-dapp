@@ -2,7 +2,6 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import AppCard from "@components/AppCard";
 import AppLink from "@components/AppLink";
-import AddressLabel from "@components/AddressLabel";
 import AppTitle from "@components/AppTitle";
 import MintingUpdatesTable from "@components/PageMonitoring/MintingUpdatesTable";
 import PositionFamilyTable from "@components/PageMonitoring/PositionFamilyTable";
@@ -160,9 +159,6 @@ export default function PositionDetail() {
 					<AppCard>
 						<div className="gap-2">
 							<div className="text-base font-bold mb-1">Collateral</div>
-							<StatRow label="Contract">
-								<AddressLabel address={position.collateral} showLink />
-							</StatRow>
 							<StatRow label="Balance">
 								{formatCurrency(formatUnits(BigInt(position.collateralBalance), position.collateralDecimals))}{" "}
 								{position.collateralSymbol}
