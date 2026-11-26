@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { createPublicClient, http, isAddress } from "viem";
 import { mainnet } from "viem/chains";
 import { isCollateralBlockedForCountry } from "./utils/geoBlocking";
+import { previewGate } from "./utils/previewGate";
 
-// Only runs on pages that are keyed by a position address in the URL.
+// Runs on every page (for the preview password gate); the geo-blocking part below only applies to
+// pages keyed by a position address. Static assets and files are excluded.
 export const config = {
-	matcher: ["/mint/:path*", "/monitoring/:path*", "/mypositions/:path*"],
+	matcher: ["/((?!_next/|api/|.*\\..*).*)"],
 };
+const GEO_BLOCKED_PREFIXES = ["/mint/", "/monitoring/", "/mypositions/"];
 
 // Mirrors app.config.ts's mainnet transport. Positions in this app are mainnet-only
 // (all three matched pages hardcode chainId = mainnet.id), so no chain lookup needed.
@@ -39,6 +42,11 @@ async function resolveCollateralForPosition(positionAddress: `0x${string}`): Pro
 }
 
 export async function middleware(request: NextRequest) {
+	// Preview deployments only (PREVIEW_PASSWORD unset in production).
+	const gate = await previewGate(request, process.env.PREVIEW_PASSWORD);
+	if (gate) return gate;
+
+	if (!GEO_BLOCKED_PREFIXES.some((p) => request.nextUrl.pathname.startsWith(p))) return NextResponse.next();
 	const [, address] = request.nextUrl.pathname.split("/").filter(Boolean);
 	if (!address || !isAddress(address)) return NextResponse.next();
 

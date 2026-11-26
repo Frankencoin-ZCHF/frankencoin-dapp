@@ -6,8 +6,14 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { useConnection } from "wagmi";
 import { track } from "../hooks/useAnalytics";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/redux.store";
+import { ADDRESS } from "@frankencoin/zchf";
+import { mainnet } from "viem/chains";
+import { normalizeAddress } from "@utils";
 
 const MAIN_ITEMS = [
+	{ to: "/start", name: "Overview" },
 	{ to: "/mint", name: "Borrow" },
 	{ to: "/mypositions", name: "My Positions" },
 	{ to: "/savings", name: "Earn" },
@@ -85,8 +91,13 @@ export function NavItems({ items }: { items: typeof MAIN_ITEMS }) {
 export default function Navbar() {
 	const [isNavBarOpen, setIsNavBarOpen] = useState(false);
 	const { address } = useConnection();
+	const { status } = useSelector((state: RootState) => state.savings.savingsInfo);
+	const savingsRate = (status[mainnet.id]?.[normalizeAddress(ADDRESS[mainnet.id].savingsReferral)]?.rate ?? 0) / 10000;
 
-	let mainItems = MAIN_ITEMS;
+	// Show the live savings rate in the nav: the one number that gets people in.
+	let mainItems = MAIN_ITEMS.map((i) =>
+		i.to === "/savings" && savingsRate > 0 ? { ...i, name: `Earn ${savingsRate.toFixed(2).replace(/\.?0+$/, "")}%` } : i
+	);
 	if (!address) {
 		mainItems = mainItems.filter((i) => i.to != "/mypositions");
 	}

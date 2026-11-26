@@ -1,5 +1,6 @@
 import AppCard from "@components/AppCard";
 import AppLink from "@components/AppLink";
+import BuyZchf from "@components/BuyZchf";
 import ChainLogo from "@components/ChainLogo";
 import LoadingSpin from "@components/LoadingSpin";
 import RollingNumber from "@components/RollingNumber";
@@ -16,11 +17,22 @@ interface Props {
 	isLoading: boolean;
 	updatedAt: number;
 	readOnly: boolean;
+	// the wallet holds no ZCHF either, so point to where it can be bought
+	offerBuy?: boolean;
 	selectedChainId: ChainId;
 	onSelectChain?: (chainId: ChainId) => void;
 }
 
-export default function SavingsOverviewCard({ account, accounts, isLoading, updatedAt, readOnly, selectedChainId, onSelectChain }: Props) {
+export default function SavingsOverviewCard({
+	account,
+	accounts,
+	isLoading,
+	updatedAt,
+	readOnly,
+	offerBuy,
+	selectedChainId,
+	onSelectChain,
+}: Props) {
 	const active = accounts.filter((a) => a.saved > 0n || a.interest > 0n);
 
 	return (
@@ -40,7 +52,10 @@ export default function SavingsOverviewCard({ account, accounts, isLoading, upda
 						<LoadingSpin />
 					</div>
 				) : active.length == 0 ? (
-					<div className="text-text-secondary text-center">No savings on any chain yet.</div>
+					<>
+						<div className="text-text-secondary text-center">No savings on any chain yet.</div>
+						{offerBuy ? <BuyZchf variant="inline" source="savings_zero_balance" className="justify-center mt-1" /> : null}
+					</>
 				) : (
 					active.map((a) => (
 						<SavingsChainRow

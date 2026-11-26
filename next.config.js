@@ -2,6 +2,8 @@
 
 const nextConfig = {
 	reactStrictMode: true,
+	// New visitors start on /start instead of the Borrow table (static redirect, no server function).
+	redirects: async () => [{ source: "/", destination: "/start", permanent: false }],
 	transpilePackages: ["@frankencoin/zchf", "@frankencoin/api"],
 
 	webpack: (config) => {
