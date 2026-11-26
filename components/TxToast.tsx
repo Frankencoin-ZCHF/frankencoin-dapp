@@ -22,7 +22,12 @@ export const renderErrorTxToast = (error: any) => {
 
 export const renderErrorTxToastDecode = (error: any, abi: Abi, stackLimit: number = 2) => {
 	const errorLines: string[] = error.message.split("\n");
-	const errorSignature = errorLines[1];
+	// viem keeps the complete revert data on the error. The message only carries the selector, which does not suffice to
+	// decode errors with arguments, and not even that if the error is part of the abi of the call.
+	const revertData: string | undefined = error.walk?.((e: any) => typeof e?.raw == "string" && e.raw.length >= 10)?.raw;
+	// Error(string) of a require statement and Panic(uint256) are not custom errors, their message already reads well
+	const isBuiltIn = ["0x08c379a0", "0x4e487b71"].includes(revertData?.slice(0, 10).toLowerCase() ?? "");
+	const errorSignature = revertData && !isBuiltIn ? revertData : errorLines[1];
 
 	if (typeof errorSignature == "string" && errorSignature.slice(0, 2) == "0x") {
 		try {
@@ -32,7 +37,8 @@ export const renderErrorTxToastDecode = (error: any, abi: Abi, stackLimit: numbe
 			});
 
 			return <TxToast title="Transaction Failed!" rows={[{ title: customError.errorName, value: customError.args?.join("\n") }]} />;
-		} catch (error) {
+		} catch (decodeError) {
+			// not an error of the given abi, show what we got
 			return renderErrorTxStackToast(error, stackLimit);
 		}
 	} else {

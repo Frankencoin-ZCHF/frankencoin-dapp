@@ -11,6 +11,11 @@ export interface ApprovalStep {
 	onApprove: () => void;
 	// explains why this approval is needed, shown while it is the pending step
 	hint?: string;
+	// For a preparatory transaction that is not an approval: what the button says before, while and after it,
+	// e.g. "Prepare", "Preparing..." and "Prepared". Such a step should come with a hint.
+	label?: string;
+	busyLabel?: string;
+	doneLabel?: string;
 }
 
 interface Props {
@@ -70,22 +75,24 @@ export default function AppApproveAction({
 				{steps.map((step, i) =>
 					step.needsApproval ? (
 						<AppButton
-							key={step.tokenSymbol}
+							key={step.label ?? step.tokenSymbol}
 							className={className}
 							// later approvals wait for the earlier ones
 							disabled={disabled || i > pendingIndex}
 							isLoading={step.isApproving}
 							onClick={step.onApprove}
 						>
-							{step.isApproving ? `Approving ${step.tokenSymbol}...` : `Approve ${step.tokenSymbol}`}
+							{step.isApproving
+								? step.busyLabel ?? `Approving ${step.tokenSymbol}...`
+								: step.label ?? `Approve ${step.tokenSymbol}`}
 						</AppButton>
 					) : (
 						<div
-							key={step.tokenSymbol}
+							key={step.label ?? step.tokenSymbol}
 							className={`btn py-2 w-full cursor-default border-green-200 bg-green-50 text-green-700 ${className ?? ""}`}
 						>
 							<FontAwesomeIcon icon={faCheck} />
-							{step.tokenSymbol} approved
+							{step.doneLabel ?? `${step.tokenSymbol} approved`}
 						</div>
 					)
 				)}

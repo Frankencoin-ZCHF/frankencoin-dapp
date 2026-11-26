@@ -138,8 +138,8 @@ export default function PositionAdjust() {
 	const priceQuery = prices[normalizeAddress(position.collateral)];
 	if (!priceQuery) return <AppCard>Market Price of position not found</AppCard>;
 
-	const marketPriceDec = priceQuery.price.chf != undefined ? Math.round(priceQuery.price.chf * 80) / 100 : 1;
-	const marketPrice80Pct = parseUnits(String(marketPriceDec), 36 - position.collateralDecimals);
+	// same upper bound as the liquidation price slider on the borrow page
+	const marketPrice = parseUnits(String(priceQuery.price.chf || 1), 36 - position.collateralDecimals);
 
 	const isCooldown: boolean = position.cooldown * 1000 - Date.now() > 0;
 
@@ -200,7 +200,9 @@ export default function PositionAdjust() {
 	};
 
 	function getCollateralError() {
-		if (isWithdrawing && isWithdrawBlockedByCooldown) {
+		if (isWithdrawing && challengeSize > 0n) {
+			return "Collateral cannot be withdrawn while the position is being challenged.";
+		} else if (isWithdrawing && isWithdrawBlockedByCooldown) {
 			return `Collateral cannot be withdrawn during the cooldown, which ends ${formatDateTime(position.cooldown)}.`;
 		} else if (liqPrice > BigInt(position.price) && BigInt(position.price) * collateralAmount < amount * parseEther("1")) {
 			return "This position is limited to the old price, add some collateral.";
@@ -501,7 +503,7 @@ export default function PositionAdjust() {
 							label="Liquidation Price"
 							symbol={"ZCHF"}
 							min={collateralAmount == 0n ? 0n : (amount * 10n ** 18n + collateralAmount - 1n) / collateralAmount}
-							max={marketPrice80Pct}
+							max={marketPrice}
 							reset={BigInt(position.price)}
 							value={liqPrice.toString()}
 							digit={36 - position.collateralDecimals}

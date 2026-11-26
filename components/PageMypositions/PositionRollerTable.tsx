@@ -13,19 +13,73 @@ import GuardSupportedChain from "@components/Guards/GuardSupportedChain";
 import { mainnet } from "viem/chains";
 import AppButton from "@components/AppButton";
 import { useRouter as useNavigation } from "next/navigation";
+import { readContract, readContracts } from "wagmi/actions";
+import { WAGMI_CONFIG } from "../../app.config";
+import { ADDRESS, FrankencoinABI, PositionRollerV2ABI } from "@frankencoin/zchf";
 
 type PositionRollerTableParams = {
 	position: PositionQuery;
 	challengeSize: bigint;
 };
 
-export default function PositionRollerTable({ position }: PositionRollerTableParams) {
+export default function PositionRollerTable({ position, challengeSize }: PositionRollerTableParams) {
 	const navigate = useNavigation();
 
-	const headers: string[] = ["Position", "Liquidation Price", "Annual Interest", "Maturity", "Additional Funds"];
+	const headers: string[] = ["Position", "Liquidation Price", "Annual Interest", "Maturity"];
 	const [tab, setTab] = useState<string>(headers[3]);
 	const [reverse, setReverse] = useState<boolean>(false);
 	const [list, setList] = useState<PositionQuery[]>([]);
+	const [isRepayable, setRepayable] = useState<boolean>(true);
+	const [prepareAmount, setPrepareAmount] = useState<bigint>(0n);
+
+	// The roller repays what its own search returns. For some minted amounts, no repayment frees exactly that amount.
+	// The search then settles for one that frees slightly more, which the position rejects with RepaidTooMuch.
+	// Repaying a tiny amount beforehand moves the minted amount to the next lower value that can be repaid exactly.
+	useEffect(() => {
+		let stale = false;
+
+		const fetcher = async function () {
+			const minted = BigInt(position.minted);
+			const repayment = await readContract(WAGMI_CONFIG, {
+				address: ADDRESS[mainnet.id].rollerV2,
+				chainId: mainnet.id,
+				abi: PositionRollerV2ABI,
+				functionName: "findRepaymentAmount",
+				args: [position.position],
+			});
+			if (stale) return;
+			if (repayment == 0n) {
+				setRepayable(true);
+				setPrepareAmount(0n);
+				return;
+			}
+
+			const freedAmount = (amount: bigint) =>
+				({
+					address: ADDRESS[mainnet.id].frankencoin,
+					chainId: mainnet.id,
+					abi: FrankencoinABI,
+					functionName: "calculateFreedAmount",
+					args: [amount, position.reserveContribution],
+				} as const);
+			// what the roller would free, the highest amount below that, and what the smallest possible repayment frees
+			const [freed, freedBelow, freedByOne] = await readContracts(WAGMI_CONFIG, {
+				allowFailure: false,
+				contracts: [freedAmount(repayment), freedAmount(repayment - 1n), freedAmount(1n)],
+			});
+			if (stale) return;
+
+			const repayable = freed <= minted;
+			setRepayable(repayable);
+			// only offer the preparation if it provably leads to a repayable amount, which is the case for reserves below 50%
+			setPrepareAmount(!repayable && minted - freedByOne == freedBelow ? 1n : 0n);
+		};
+
+		fetcher();
+		return () => {
+			stale = true;
+		};
+	}, [position.position, position.minted, position.reserveContribution]);
 
 	const positions = useSelector((state: RootState) => state.positions.list.list);
 	const challengesPosMap = useSelector((state: RootState) => state.challenges.positions.map);
@@ -38,6 +92,7 @@ export default function PositionRollerTable({ position }: PositionRollerTablePar
 			p.version == 2 &&
 			normalizeAddress(p.collateral) === normalizeAddress(position.collateral) &&
 			p.expiration > position.expiration && // also excludes same position
+			p.expiration * 1000 > Date.now() && // an expired source would otherwise be offered expired targets
 			!p.closed &&
 			!p.denied &&
 			BigInt(p.availableForClones) > BigInt(position.minted) &&
@@ -93,7 +148,18 @@ export default function PositionRollerTable({ position }: PositionRollerTablePar
 						}
 					</TableRowEmpty>
 				) : (
-					list.map((pos) => <PositionRollerRow headers={headers} tab={tab} source={position} target={pos} key={pos.position} />)
+					list.map((pos) => (
+						<PositionRollerRow
+							headers={headers}
+							tab={tab}
+							source={position}
+							target={pos}
+							challengeSize={challengeSize}
+							isRepayable={isRepayable}
+							prepareAmount={prepareAmount}
+							key={pos.position}
+						/>
+					))
 				)}
 			</TableBody>
 		</Table>
@@ -134,11 +200,6 @@ function sortPositions(params: SortPositions): PositionQuery[] {
 		sortingList.sort((a, b) => {
 			return b.expiration - a.expiration;
 		});
-	} else if (tab === headers[4]) {
-		// sort for Additional Funds
-		// sortingList.sort((a, b) => {
-		// 	return b.expiration - a.expiration; // FIXME: correct logic
-		// });
 	}
 
 	return reverse ? sortingList.reverse() : sortingList;

@@ -1,32 +1,38 @@
 import { formatUnits, zeroAddress } from "viem";
 import TableRow from "../Table/TableRow";
 import { PositionQuery } from "@frankencoin/api";
-import { formatCurrency, FormatType, normalizeAddress, shortenAddress } from "../../utils/format";
+import { formatCurrency, formatDateTime, FormatType, normalizeAddress, shortenAddress } from "../../utils/format";
 import { useEffect, useState } from "react";
 import { readContract } from "wagmi/actions";
 import { WAGMI_CONFIG } from "../../app.config";
-import { ADDRESS, ERC20ABI, PositionV2ABI } from "@frankencoin/zchf";
+import { ADDRESS, ERC20ABI } from "@frankencoin/zchf";
 import { useConnection } from "wagmi";
-import PositionRollerApproveAction from "./PositionRollerApproveAction";
-import PositionRollerFullRollAction from "./PositionRollerFullRollAction";
+import PositionRollerDialog from "./PositionRollerDialog";
+import AppButton from "@components/AppButton";
 import AppLink from "@components/AppLink";
 import { mainnet } from "viem/chains";
-import { useUserBalance, useLiveBlockNumber } from "@hooks";
+import { useUserBalance, useLiveBlockNumber, useRollPreview } from "@hooks";
 
 interface Props {
 	headers: string[];
 	tab: string;
 	source: PositionQuery;
 	target: PositionQuery;
+	challengeSize: bigint;
+	// whether the roller finds a repayment that brings the minted amount of the source to exactly zero
+	isRepayable: boolean;
+	// if not, the repayment that fixes this, or zero if there is no such simple fix
+	prepareAmount: bigint;
 }
 
-export default function PositionRollerRow({ headers, tab, source, target }: Props) {
+export default function PositionRollerRow({ headers, tab, source, target, challengeSize, isRepayable, prepareAmount }: Props) {
 	const [userCollAllowance, setUserCollAllowance] = useState<bigint>(0n);
-	const [missingFunds, setMissingFunds] = useState<bigint>(0n);
+	const [isDialogOpen, setDialogOpen] = useState<boolean>(false);
 	const { data } = useLiveBlockNumber({ watch: true });
 	const { address } = useConnection();
 	const account = address || zeroAddress;
 	const userBalance = useUserBalance(account);
+	const preview = useRollPreview(source, target);
 
 	useEffect(() => {
 		if (account == zeroAddress) return;
@@ -46,35 +52,53 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 		fetcher();
 	}, [data, account, target.collateral]);
 
-	useEffect(() => {
-		const fetcher = async function () {
-			const debtAmount = (BigInt(source.minted) * BigInt(1000000 - source.reserveContribution)) / BigInt(1000000);
-			const mintAmount = await readContract(WAGMI_CONFIG, {
-				address: target.position,
-				chainId: mainnet.id,
-				abi: PositionV2ABI,
-				functionName: "getMintAmount",
-				args: [debtAmount],
-			});
-
-			const maxMintByCollateral = (BigInt(source.collateralBalance) * BigInt(target.price)) / BigInt(10 ** 18);
-
-			if (mintAmount <= maxMintByCollateral) {
-				setMissingFunds(0n);
-			} else {
-				setMissingFunds(mintAmount - maxMintByCollateral);
-			}
-		};
-
-		fetcher();
-	}, [source, target, userBalance]);
-
-	const cooldownTimestamp = target.cooldown * 1000;
-	const isCooldown = cooldownTimestamp > Date.now();
-	const timeLeft = isCooldown ? (cooldownTimestamp - Date.now()) / 1000 / 60 / 60 : 0;
-	const cooldownText = formatCurrency(timeLeft, 1, 1, FormatType.us) + "h Cooldown";
+	const isCooldown = target.cooldown * 1000 > Date.now();
+	const isSourceCooldown = source.cooldown * 1000 > Date.now();
 
 	const isTargetOwned = normalizeAddress(target.owner) === normalizeAddress(source.owner);
+	const action = isTargetOwned ? "Merging" : "Rolling";
+	// without a wallet, the dialog asks to connect one
+	const isForeignWallet = account != zeroAddress && normalizeAddress(account) !== normalizeAddress(source.owner);
+
+	// the roller cannot repay the source as it is, but can after a tiny repayment
+	const needsPrepare = !isRepayable && prepareAmount > 0n;
+
+	// A clone must start with the minimum collateral of the target, but the roller only moves what the loan needs
+	// at the price of the target. Merging adds to a position that already holds its minimum.
+	const minimumCollateral = BigInt(target.minimumCollateral);
+	const isBelowMinimum = !isTargetOwned && !!preview && preview.deposit < minimumCollateral;
+	const formatCollateral = (value: bigint) =>
+		new Intl.NumberFormat("en-US", { maximumFractionDigits: 6 }).format(Number(formatUnits(value, target.collateralDecimals)));
+
+	// Why the action is not possible at all, shown below the row. The roller withdraws the collateral from the source and
+	// mints in the target, so it is subject to the restrictions of both. Everything the user can resolve as part of the
+	// process, like missing funds or an approval, is left to the dialog.
+	function getBlocker(): string | undefined {
+		if (isForeignWallet) {
+			return `Only the owner of this position can ${isTargetOwned ? "merge" : "roll"} it.`;
+		} else if (challengeSize > 0n) {
+			return `${action} is not possible while your position is being challenged.`;
+		} else if (isSourceCooldown) {
+			return `${action} is not possible during the cooldown of your position, which ends ${formatDateTime(source.cooldown)}.`;
+		} else if (!isRepayable && !needsPrepare) {
+			// amounts with only a few decimals can always be repaid exactly
+			const rounded = (BigInt(source.minted) / 10n ** 16n) * 10n ** 16n;
+			return `${action} would fail due to rounding, as no repayment settles the outstanding amount of your position to the last digit. Reduce it slightly with the adjustment above first, for example to ${formatCurrency(
+				formatUnits(rounded, 18),
+				2,
+				2,
+				FormatType.us
+			)} ZCHF.`;
+		} else if (isCooldown) {
+			return `The target position is in a cooldown, which ends ${formatDateTime(target.cooldown)}.`;
+		} else if (isBelowMinimum && preview) {
+			return `Rolling is not possible, as the new position would only hold the ${formatCollateral(preview.deposit)} ${
+				target.collateralSymbol
+			} needed to back your loan, less than its minimum of ${formatCollateral(minimumCollateral)} ${target.collateralSymbol}.`;
+		}
+	}
+
+	const blocker = getBlocker();
 
 	const dateArr: string[] = new Date(target.expiration * 1000).toDateString().split(" ");
 	const dateStr: string = `${dateArr[2]} ${dateArr[1]} ${dateArr[3]}`;
@@ -84,17 +108,25 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 			headers={headers}
 			rawHeader={true}
 			tab={tab}
+			footer={blocker ? <div className="text-sm text-text-warning md:text-right">{blocker}</div> : undefined}
 			actionCol={
-				address && userCollAllowance < BigInt(source.collateralBalance) ? (
-					<PositionRollerApproveAction source={source} disabled={isCooldown} />
-				) : (
-					<PositionRollerFullRollAction
-						label={isCooldown ? cooldownText : isTargetOwned ? "Merge" : "Roll"}
-						disabled={isCooldown || missingFunds > userBalance[mainnet.id].frankencoin}
-						source={source}
-						target={target}
-					/>
-				)
+				<>
+					<AppButton className="h-10" disabled={!!blocker} onClick={() => setDialogOpen(true)}>
+						{isTargetOwned ? "Merge" : "Roll"}
+					</AppButton>
+					{isDialogOpen && (
+						<PositionRollerDialog
+							source={source}
+							target={target}
+							preview={preview}
+							allowance={userCollAllowance}
+							walletBalance={userBalance[mainnet.id].frankencoin}
+							prepareAmount={needsPrepare ? prepareAmount : 0n}
+							blocker={blocker}
+							onClose={() => setDialogOpen(false)}
+						/>
+					)}
+				</>
 			}
 		>
 			{/* target */}
@@ -107,7 +139,7 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 
 			{/* Liquidation */}
 			<div className="flex flex-col">
-				{formatCurrency(formatUnits(BigInt(target.price), 36 - target.collateralDecimals), 2, 2)} ZCHF
+				{formatCurrency(formatUnits(preview?.targetPrice ?? BigInt(target.price), 36 - target.collateralDecimals), 2, 2)} ZCHF
 			</div>
 
 			{/* Interest */}
@@ -115,9 +147,6 @@ export default function PositionRollerRow({ headers, tab, source, target }: Prop
 
 			{/* Maturity */}
 			<div className="flex flex-col">{dateStr}</div>
-
-			{/* Missing Funds */}
-			<div className="flex flex-col">{formatCurrency(formatUnits(missingFunds, 18), 2)} ZCHF</div>
 		</TableRow>
 	);
 }
